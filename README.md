@@ -48,6 +48,124 @@ audyt z 2026-07-29 ma 0 podatności. `make install-tf` instaluje
 jego 8 zgłoszeń nie trafia do drzewa zależności rdzenia. Nie należy stosować
 `npm audit fix --force`, ponieważ proponuje niekompatybilny downgrade.
 
+## Demonstracja działania 0.3.0
+
+Poniższa demonstracja używa wersjonowanego repozytorium `examples/`, nie wymaga
+klucza ani połączenia z OpenRouter i pozostawia jednoznaczny audyt. Uruchom:
+
+```bash
+make demo
+```
+
+Polecenie wykonuje kolejno NL → DSL, Git → DSL, AST → DSL, osobne konwertery
+TODO/CHANGELOG, linker, diagnostykę i deterministyczne podsumowanie. Wyniki
+trafiają do `examples/.intent-demo/runs/<run-id>/`. Stan ostatniego runu można
+wyświetlić bez dodatkowych narzędzi:
+
+```bash
+node --input-type=module <<'NODE'
+import { readFile } from 'node:fs/promises';
+
+const latest = JSON.parse(await readFile('examples/.intent-demo/latest.json', 'utf8'));
+const manifest = JSON.parse(await readFile(`examples/${latest.runDirectory}/manifest.json`, 'utf8'));
+const graph = JSON.parse(await readFile(`examples/${manifest.files.graph}`, 'utf8'));
+const stages = Object.fromEntries(Object.entries(manifest.stages).map(([name, stage]) => [name, {
+  status: stage.status,
+  effectiveMode: stage.effectiveMode,
+  reason: stage.reason?.code ?? null,
+  runtimeVersion: stage.runtimeVersion,
+}]));
+console.log({ status: manifest.status, runtime: manifest.runtime, stages });
+console.log({ records: graph.records.length, relations: graph.relations.length, bySource: graph.stats.bySource });
+NODE
+```
+
+Weryfikowany wynik dla `0.3.0` miał 202 rekordy i 737 relacji:
+
+```text
+status: degraded, runtime: todo2code 0.3.0
+naturalLanguageExtraction: succeeded / deterministic
+markdownExtraction:        succeeded / deterministic
+documentationExtraction:   skipped / none
+summary:                   fallback / deterministic / LLM_NOT_CONFIGURED
+records: 202, relations: 737
+bySource: ast=180, changelog=2, git=10, nl=7, todo=3
+```
+
+`degraded` nie ukrywa awarii. W tym przykładzie oznacza tylko, że świadomie
+wyłączono sieć, a etap raportu użył jawnie oznaczonego podsumowania
+deterministycznego. Każdy audyt zawiera `runtimeVersion`, requested/effective
+mode, model, czas, licznik rekordów/ostrzeżeń, powód i bezpieczne parametry;
+`apiKey` nigdy nie jest zapisywany.
+
+### A2A, SDK i UI
+
+Uruchom backend:
+
+```bash
+npm run a2a
+```
+
+Następnie otwórz `http://localhost:8787/ui`. Widok pobierze historię z
+`GET /api/runs`, domyślnie wybierze dwa ostatnie kompletne runy i pokaże ich
+diff SVG. Stan serwera można sprawdzić przez:
+
+```bash
+curl -fsS http://localhost:8787/healthz
+# {"status":"ok","service":"todo2code","protocol":"A2A","version":"1.0"}
+```
+
+Ten sam runtime jest dostępny przez SDK. Przykład TypeScript wykonuje
+deterministyczne NL → DSL i sprawdza audyt, zamiast zakładać, że LLM zadziałał:
+
+```ts
+import { Todo2CodeClient } from 'todo2code/sdk';
+
+const client = new Todo2CodeClient({ baseUrl: 'http://localhost:8787' });
+const result = await client.extractNl('TASK.md', '.', 'deterministic');
+
+console.log(result.records.length);                 // 10 dla bieżącego TASK.md
+console.log(result.audit?.status);                  // succeeded
+console.log(result.audit?.effectiveMode);           // deterministic
+console.log(result.audit?.runtimeVersion);          // 0.3.0
+console.log(result.audit?.configuration);           // bez apiKey
+```
+
+Odpowiedniki `extractNl`/`extractDocs` są dostępne również w Pythonie, Go,
+Ruście i PHP; kompletne uruchamialne przykłady znajdują się w `sdk/*/examples/`.
+
+### Widoczna awaria LLM
+
+`require-llm` nigdy nie przechodzi po cichu na parser deterministyczny. Ten
+kontrolowany test kończy się kodem procesu `1`:
+
+```bash
+OPENROUTER_API_KEY= T2C_NL_MODE=require-llm \
+node dist/src/cli.js pipeline examples \
+  --task task.md --todo TODO.md --changelog CHANGELOG.md \
+  --no-docs-llm --out .intent-failure-demo
+```
+
+Mimo błędu powstaje `examples/.intent-failure-demo/runs/<run-id>/manifest.json`:
+
+```json
+{
+  "status": "failed",
+  "failure": {
+    "stage": "naturalLanguageExtraction",
+    "code": "LLM_NOT_CONFIGURED",
+    "message": "OPENROUTER_API_KEY is not configured"
+  },
+  "graphFingerprint": null,
+  "files": {}
+}
+```
+
+Manifest zachowuje pełny audyt nieudanego etapu i wersję runtime, ale nie
+publikuje nieistniejącego grafu ani nie zmienia `latest.json`. Przy błędnym ID
+modelu kod `LLM_INVALID_MODEL` zawiera dodatkowo aktualną, posortowaną listę ID
+z endpointu OpenRouter `/models`.
+
 Pełny pipeline bez połączeń LLM (również wtedy, gdy lokalny `.env` zawiera klucz):
 
 ```bash

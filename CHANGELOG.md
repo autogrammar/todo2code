@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Documentation
+
+- Added a reproducible README walkthrough covering the offline DSL pipeline,
+  manifest inspection, A2A/UI startup, audited SDK extraction and an observable
+  `require-llm` failure without a silent deterministic fallback.
+
 ## [0.3.0] - 2026-07-29
 
 ### Added
