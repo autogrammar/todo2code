@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Made `make demo`, `npm run demo` and the local Python runtime example fully
+  deterministic through a public `--no-summary-llm` pipeline option, and added
+  the `DEMO-101` participant analysis to the standard demo.
+- Replaced stale Git-dependent relation counts and SDK fingerprints in the
+  example documentation with current, reproducible expectations.
+
 ## [0.4.0] - 2026-07-29
 
 ### Added

@@ -215,6 +215,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         outputDir: await scopedPath(input.output, config.outputDir, root, config),
         gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
         allowSummaryFallback: booleanValue(input.summaryFallback, true),
+        includeSummaryLlm: booleanValue(input.includeSummaryLlm, true),
         nlMode: nlModeValue(input.nlMode, config.nlMode),
         markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
         documentExcludes: stringList(input.docExcludes, config.documentExcludes),

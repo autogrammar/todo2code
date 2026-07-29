@@ -63,7 +63,9 @@ deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Świeży przebieg offline na `examples/` utworzył 202 rekordy i 606 relacji:
+Przebieg offline na `examples/` dla commita `02d518c` utworzył 202 rekordy i
+613 relacji. Liczba relacji jest snapshotem, ponieważ wejście Git obejmuje
+ostatnich 10 commitów:
 
 | Źródło | Rekordy |
 |---|---:|
@@ -73,10 +75,10 @@ deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
 | TODO | 3 |
 | CHANGELOG | 2 |
 
-Diagnostyka zawierała 0 blokad, 6 pozycji `review_required`, 40 ostrzeżeń i
-40 informacji. Status runu był `degraded`, ponieważ bez klucza OpenRouter etap
-raportu przeszedł na jawnie oznaczony fallback. Jest to poprawne zachowanie
-operacyjne, ale nie dowód jakości semantycznej LLM.
+Diagnostyka zawierała 0 blokad, 6 pozycji `review_required`, 41 ostrzeżeń i
+39 informacji. Bieżące `make demo` jawnie wyłącza LLM dokumentacji i
+podsumowania, dzięki czemu stan runu jest `succeeded` i nie zależy od sieci ani
+prywatnego `.env`. Nie jest to jednak dowód jakości semantycznej LLM.
 
 Testy potwierdzają wykonanie ścieżek i kontraktów, nie mierzą jeszcze jakości
 semantycznej na zbiorze wzorcowym. Projekt nie ma obecnie raportowanych metryk

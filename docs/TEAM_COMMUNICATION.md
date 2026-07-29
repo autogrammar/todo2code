@@ -80,6 +80,21 @@ node /home/tom/github/semcod/todo2code/dist/src/cli.js extract communication \
 Akcje `extract_communication` i `analyze_communication` są również dostępne
 przez MCP i A2A. Wszystkie SDK akceptują je przez ogólną metodę `call`/`send`.
 
+Wersjonowany fixture można uruchomić razem z całym demo przez `make demo` albo
+samodzielnie:
+
+```bash
+node dist/src/cli.js communication examples \
+  --project-dir project --ticket DEMO-101 \
+  --out examples/.intent-communication/analysis.json \
+  --md examples/.intent-communication/analysis.md \
+  --graph examples/.intent-communication/graph.json
+```
+
+Domyślna analiza znajduje implementację `validateEventPayload` w AST, więc
+claim Codexa ma dowód. Dodanie `--no-ast` demonstruje osobny problem
+`AGENT_CLAIM_WITHOUT_EVIDENCE`.
+
 ## Wykrywane rozbieżności
 
 - sprzeczne wypowiedzi dwóch ludzi;

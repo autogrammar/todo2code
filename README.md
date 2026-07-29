@@ -77,9 +77,11 @@ make demo
 ```
 
 Polecenie wykonuje kolejno NL → DSL, Git → DSL, AST → DSL, osobne konwertery
-TODO/CHANGELOG, linker, diagnostykę i deterministyczne podsumowanie. Wyniki
-trafiają do `examples/.intent-demo/runs/<run-id>/`. Stan ostatniego runu można
-wyświetlić bez dodatkowych narzędzi:
+TODO/CHANGELOG, linker, diagnostykę i deterministyczne podsumowanie. Następnie
+analizuje komunikację `examples/project/DEMO-101` osobno dla ludzi i agentów.
+Wyniki trafiają do `examples/.intent-demo/runs/<run-id>/` oraz
+`examples/.intent-communication/`. Stan ostatniego runu można wyświetlić bez
+dodatkowych narzędzi:
 
 ```bash
 node --input-type=module <<'NODE'
@@ -99,21 +101,22 @@ console.log({ records: graph.records.length, relations: graph.relations.length, 
 NODE
 ```
 
-Weryfikowany wynik dla `0.4.0` miał 202 rekordy i 606 relacji:
+Weryfikowany wynik dla `0.4.0` ma 202 rekordy. Liczba relacji zależy również od
+ostatnich 10 commitów Git, dlatego po każdym commicie może się prawidłowo
+zmienić i należy odczytać ją z bieżącego grafu:
 
 ```text
-status: degraded, runtime: todo2code 0.4.0
+status: succeeded, runtime: todo2code 0.4.0
 naturalLanguageExtraction: succeeded / deterministic
 markdownExtraction:        succeeded / deterministic
 documentationExtraction:   skipped / none
-summary:                   fallback / deterministic / LLM_NOT_CONFIGURED
-records: 202, relations: 737
+summary:                   skipped / deterministic / LLM_DISABLED
+records: 202, relations: <zależne od ostatnich 10 commitów>
 bySource: ast=180, changelog=2, git=10, nl=7, todo=3
 ```
 
-`degraded` nie ukrywa awarii. W tym przykładzie oznacza tylko, że świadomie
-wyłączono sieć, a etap raportu użył jawnie oznaczonego podsumowania
-deterministycznego. Każdy audyt zawiera `runtimeVersion`, requested/effective
+Demo jawnie wyłącza LLM dokumentacji i podsumowania, więc nie korzysta z
+prywatnego `.env`, sieci ani fallbacku. Każdy audyt zawiera `runtimeVersion`, requested/effective
 mode, model, czas, licznik rekordów/ostrzeżeń, powód i bezpieczne parametry;
 `apiKey` nigdy nie jest zapisywany.
 
@@ -188,12 +191,15 @@ z endpointu OpenRouter `/models`.
 Pełny pipeline bez połączeń LLM (również wtedy, gdy lokalny `.env` zawiera klucz):
 
 ```bash
-T2C_NL_MODE=deterministic T2C_MARKDOWN_MODE=deterministic OPENROUTER_API_KEY= node dist/src/cli.js pipeline examples \
+node dist/src/cli.js pipeline examples \
   --task task.md \
   --todo TODO.md \
   --changelog CHANGELOG.md \
   --docs 'docs/**/*.md' \
+  --nl-mode deterministic \
+  --markdown-mode deterministic \
   --no-docs-llm \
+  --no-summary-llm \
   --out .intent-demo
 ```
 

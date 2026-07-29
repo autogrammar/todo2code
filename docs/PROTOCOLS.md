@@ -57,7 +57,8 @@ Po `initialize` dostępne są `ping`, `tools/list`, `tools/call`, `resources/lis
 Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `extract_communication`, `analyze_communication`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`.
 
 `extract_nl` przyjmuje `nlMode`; `extract_markdown` przyjmuje `markdownMode`, a
-`pipeline` oba tryby oraz `docExcludes`.
+`pipeline` oba tryby, `docExcludes` oraz `includeSummaryLlm=false` dla w pełni
+deterministycznego raportu bez próby połączenia z providerem.
 `compare_workspace` przyjmuje `base` (domyślnie `origin/main`) i zwraca
 `t2c.workspace-comparison/v1` wraz ze ścieżkami artefaktów SVG/Markdown; może
 też przyjąć `markdownMode`, wspólny dla obu porównywanych przebiegów.

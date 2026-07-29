@@ -27,7 +27,7 @@
     "mcp": "node dist/src/interfaces/mcp.js",
     "a2a": "node dist/src/interfaces/a2a.js",
     "diff": "node dist/src/cli.js diff",
-    "demo": "node dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --out .intent-demo"
+    "demo": "node dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --nl-mode deterministic --markdown-mode deterministic --no-docs-llm --no-summary-llm --out .intent-demo && node dist/src/cli.js communication examples --project-dir project --ticket DEMO-101 --out examples/.intent-communication/analysis.json --md examples/.intent-communication/analysis.md --graph examples/.intent-communication/graph.json"
   },
   "dependencies": {
     "typescript": ">=5.8.3 <7"

@@ -168,6 +168,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       outputDir: optionString(parsed, 'out') ?? config.outputDir,
       gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
       allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', true),
+      includeSummaryLlm: !optionBoolean(parsed, 'no-summary-llm', false),
       nlMode: optionNlMode(parsed, config.nlMode),
       markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
       documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
@@ -192,6 +193,7 @@ async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConf
     outputDir: optionString(parsed, 'out') ?? config.outputDir,
     gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
     allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', true),
+    includeSummaryLlm: !optionBoolean(parsed, 'no-summary-llm', false),
     nlMode: optionNlMode(parsed, config.nlMode),
     markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
     documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
@@ -578,7 +580,7 @@ function printHelp(): void {
   process.stdout.write(`               [--task TASK.md] [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--todo TODO.md] [--no-docs-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
-  process.stdout.write(`               [--no-docs-llm] [--out .intent]\n`);
+  process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode prefer-llm] [--docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);

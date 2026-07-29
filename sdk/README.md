@@ -95,5 +95,9 @@ otrzymać **identyczny fingerprint grafu**. Rozjazd oznacza, że typy danego SDK
 gubią pole przy round-tripie:
 
 ```text
-graph fingerprint: 64b182c512f8a6a2   # TS, Python, Go, Rust, PHP
+graph fingerprint: debfd0f1923dbae0   # TS, Python, Go, Rust, PHP
 ```
+
+Fingerprint dotyczy fixture'a `examples/backend` w wersji `0.4.0`; jego zmiana
+po świadomej aktualizacji fixture'a lub semantyki linkera wymaga ponownego
+uruchomienia wszystkich pięciu przykładów i aktualizacji tej wartości.

@@ -147,6 +147,7 @@ const TOOLS: McpTool[] = [
     output: stringProp('Output directory, default .intent.'),
     gitCount: numberProp('Number of commits, default 10.', 1, 100),
     summaryFallback: { type: 'boolean' },
+    includeSummaryLlm: { type: 'boolean', description: 'Use the configured LLM for the final summary; false is fully deterministic.' },
   }),
 ];
 

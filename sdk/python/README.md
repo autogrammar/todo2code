@@ -58,6 +58,10 @@ reality = runtime.reality(
 print(reality["view"]["totals"])
 ```
 
+`TypeScriptRuntime.pipeline()` domyślnie ustawia deterministyczne NL i Markdown
+oraz `summary_llm=False`, więc nawet obecność klucza w `.env` nie uruchamia
+OpenRouter. Wywołania LLM wymagają jawnego ustawienia odpowiednich parametrów.
+
 Wymagany jest Node.js oraz dostępny skompilowany `dist/src/cli.js` albo
 wykonywalny `t2c`. Dla instalacji poza repo ustaw `T2C_TYPESCRIPT_CLI` na
 bezwzględną ścieżkę CLI. Paczka Python nie replikuje logiki DSL — proces Node.js

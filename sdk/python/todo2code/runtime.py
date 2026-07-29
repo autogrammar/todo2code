@@ -95,6 +95,8 @@ class TypeScriptRuntime:
         changelog_file: str | None = "CHANGELOG.md",
         documents: Sequence[str] = ("README.md", "docs/**/*.md"),
         documentation_llm: bool = False,
+        summary_llm: bool = False,
+        nl_mode: str = "deterministic",
         markdown_mode: str = "deterministic",
         output_dir: str = ".intent",
         git_count: int = 10,
@@ -106,12 +108,15 @@ class TypeScriptRuntime:
             "--todo", todo_file or "none",
             "--changelog", changelog_file or "none",
             "--docs", ",".join(documents),
+            "--nl-mode", nl_mode,
             "--markdown-mode", markdown_mode,
             "--out", output_dir,
             "--git-count", str(git_count),
         ]
         if not documentation_llm:
             arguments.append("--no-docs-llm")
+        if not summary_llm:
+            arguments.append("--no-summary-llm")
         return _parse_mapping(self.invoke(arguments).stdout, "pipeline result")
 
     def diagnose(self, graph_path: str | os.PathLike[str]) -> Mapping[str, Any]:

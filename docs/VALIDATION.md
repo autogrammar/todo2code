@@ -1,8 +1,7 @@
 # Walidacja paczki
 
 Stan walidacji: **2026-07-29**, `todo2code 0.4.0`. Najnowsza lokalna kontrola
-`npm run verify` została wykonana na `86cc6ad`; `main` był równy `origin/main`
-przed aktualizacją dokumentacji. Poniższe próby origin/workspace i live
+została wykonana na bieżącym drzewie `main`. Poniższe próby origin/workspace i live
 OpenRouter są zachowanymi pomiarami historycznymi i mają własne identyfikatory
 runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 
@@ -16,7 +15,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrakt środowiska | PASS — 56 zmiennych kodu/Dockera, 56 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
 | Testy Node | PASS — 104 zaliczone, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
-| Świeży pipeline `examples/` | PASS — 202 rekordy, 606 relacji; NL i Markdown deterministyczne, dokumentacja pominięta, jawny fallback summary bez klucza |
+| Pipeline `examples/` | PASS — 202 rekordy; liczba relacji zależy od ostatnich 10 commitów; NL, Markdown i summary deterministyczne, dokumentacja pominięta, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
@@ -35,7 +34,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Diff graf/pliki/Git i reality: JSON/SVG/HTML/Markdown | PASS |
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
-| `project/<ticket>`: komunikacja ludzi i agentów | PASS — fixture `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent, claim bez dowodu oraz pracę agenta poza zakresem |
+| `project/<ticket>`: komunikacja ludzi i agentów | PASS — domyślny fixture `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę agenta poza zakresem; wariant `--no-ast` dodatkowo wykrywa claim bez dowodu |
 | CLI `doctor`, `--help`, `--version` | PASS |
 | `npm audit` rdzenia | PASS — 0 podatności przy zwykłym `npm install` |
 | Izolowany adapter TensorFlow | PASS/WARN — nie należy do drzewa core; jego osobny audit nadal raportuje 7 high i 1 critical |
@@ -60,7 +59,7 @@ Stan funkcjonalny oraz jawnie niewdrożony etap DSL2TODO opisuje
 
 Wszystkie przykłady przeszły ścieżkę NL → AST → Markdown → graf → diagnostyka →
 Intent vs Reality → Git diff i uzyskały ten sam fingerprint
-`64b182c512f8a6a2…`; każdy potwierdził audyt NL i Markdown o statusie
+`debfd0f1923dbae0…`; każdy potwierdził audyt NL i Markdown o statusie
 `succeeded` i trybie `deterministic`. Opcjonalny przykład TypeScript uruchomił także
 `compare_workspace` i zwrócił `unchanged` dla niezmienionego
 `examples/backend`. Porównanie nie wywołało summary LLM; oba manifesty oznaczają
