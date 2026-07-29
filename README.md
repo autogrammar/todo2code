@@ -12,10 +12,11 @@ Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
 Wersja `0.4.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
 diagnostyka/Intent vs Reality → raport. Kontrakty `t2c.conclusion/v1` i
-`t2c.todo-proposal/v1` wraz z walidacją
-cytowań i provenance są wdrożone. Wykonawcza część `DSL2TODO` nie jest jeszcze
-wdrożona: obecna lista następnych działań w raporcie jest projekcją diagnostyki,
-a nie wynikiem audytowanej syntezy ani zatwierdzalnym `TODO.patch`.
+`t2c.todo-proposal/v1` wraz z walidacją cytowań i provenance są wdrożone, a API
+biblioteki potrafi je syntetyzować z grafu i diagnostyki przez OpenRouter.
+Integracja `DSL2TODO` nie jest jeszcze kompletna: obecna lista następnych
+działań w raporcie pozostaje projekcją diagnostyki, a deduplikacja, CLI/SDK i
+zatwierdzalny `TODO.patch` są kolejnymi punktami P0.
 
 Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
 docelowego `DSL2TODO` znajdują się w
@@ -220,6 +221,7 @@ Pełny pipeline z OpenRouter:
 # OPENROUTER_MARKDOWN_MODEL=qwen/qwen3.7-plus
 # OPENROUTER_DOC_MODEL=openrouter/auto-beta
 # OPENROUTER_SUMMARY_MODEL=openrouter/auto-beta
+# OPENROUTER_TASK_MODEL=qwen/qwen3.7-plus
 
 node dist/src/cli.js pipeline /ścieżka/do/repo \
   --task project/ticket-014/README.md \
@@ -582,11 +584,28 @@ ograniczeniom `T2C_ROOT` co pozostałe operacje runtime'u.
 ## OpenRouter
 
 Runtime używa `POST /api/v1/chat/completions`. Ekstraktory NL i dokumentacji
-proszą o `response_format: json_schema`, wymuszają `provider.require_parameters`,
-a przy braku wsparcia endpointu próbują kontrolowanego fallbacku `json_object`.
-Opcjonalny plugin `response-healing` jest sterowany przez `.env`.
+oraz synteza zadań proszą o `response_format: json_schema`, wymuszają
+`provider.require_parameters`, a przy braku wsparcia endpointu próbują
+kontrolowanego fallbacku `json_object`. Opcjonalny plugin `response-healing`
+jest sterowany przez `.env`. Osobny `OPENROUTER_TASK_MODEL` wybiera model dla
+graf + diagnostyka → zadania i domyślnie dziedziczy `OPENROUTER_MODEL`.
 
 Klucz nie jest zapisywany do artefaktów, logów ani odpowiedzi MCP/A2A. `doctor` pokazuje jedynie status `configured/not configured`.
+
+Do czasu dodania komendy `propose-todo` etap jest publicznym API TypeScript:
+
+```ts
+import { readFile } from 'node:fs/promises';
+import { getConfig, synthesizeTodoProposals } from 'todo2code';
+
+const graph = JSON.parse(await readFile('.intent/runs/<run>/intent.graph.json', 'utf8'));
+const diagnostics = JSON.parse(await readFile('.intent/runs/<run>/diagnostics.json', 'utf8'));
+const result = await synthesizeTodoProposals(graph, diagnostics, getConfig(), 'require-llm');
+console.log(JSON.stringify(result, null, 2));
+```
+
+W `prefer-llm` awaria daje puste `conclusions`/`proposals` i osobne
+`rawDiagnosticActions`; nie są one oznaczane jako wynik semantycznej syntezy.
 
 ## Opcjonalny TensorFlow
 

@@ -36,6 +36,7 @@ export function makeConfig(root: string): T2CConfig {
       markdownModel: 'test/model',
       documentModel: 'test/model',
       summaryModel: 'test/model',
+      taskModel: 'test/model',
       siteUrl: null,
       appName: 'todo2code-test',
       timeoutMs: 5000,

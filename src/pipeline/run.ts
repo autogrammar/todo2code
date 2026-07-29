@@ -253,6 +253,7 @@ function manifestConfiguration(options: PipelineOptions, config: T2CConfig): Pip
       markdownModel: config.openRouter.markdownModel,
       documentModel: config.openRouter.documentModel,
       summaryModel: config.openRouter.summaryModel,
+      taskModel: config.openRouter.taskModel,
       timeoutMs: config.openRouter.timeoutMs,
       maxTokens: config.openRouter.maxTokens,
       temperature: config.openRouter.temperature,

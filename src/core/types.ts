@@ -377,6 +377,7 @@ export interface PipelineManifest {
       markdownModel: string;
       documentModel: string;
       summaryModel: string;
+      taskModel: string;
       timeoutMs: number;
       maxTokens: number;
       temperature: number;

@@ -9,6 +9,11 @@
   enforce stable semantic IDs, existing diagnostic/intent citations, graph
   fingerprint consistency, acceptance criteria and explicit LLM/degradation
   provenance before either object can cross a public boundary.
+- Added audited structured graph + diagnostics task synthesis through
+  OpenRouter. `require-llm` fails with a typed audited error, while a degraded
+  `prefer-llm` result keeps semantic conclusions/proposals empty and exposes
+  only clearly labelled raw diagnostic actions. The runtime owns public IDs,
+  provenance and validation rather than trusting those fields to the model.
 
 ### Fixed
 

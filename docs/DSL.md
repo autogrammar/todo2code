@@ -181,6 +181,30 @@ schematy to `schemas/conclusion.schema.json` i
 `schemas/todo-proposal.schema.json`; walidacja kontekstowa i stabilne ID są w
 `src/core/schema.ts` oraz `src/core/id.ts`.
 
+### Audytowana synteza grafu do zadań
+
+`synthesizeTodoProposals(graph, diagnostics, config, mode)` jest jedyną
+semantyczną ścieżką tworzącą te dwa kontrakty. Do modelu trafia ograniczony,
+priorytetyzowany fragment grafu, diagnostyki z ich oryginalnymi ID i istniejące
+rekordy TODO. Model zwraca lokalne klucze do wiązania obiektów; runtime:
+
+- tworzy stabilne `CONC-*` i `TPROP-*`, normalizuje target i ustawia
+  `status=proposed`;
+- dołącza wersję runtime, fingerprint bezpiecznej konfiguracji oraz metadane
+  odpowiedzi OpenRouter;
+- sprawdza wszystkie cytowania względem konkretnego grafu i raportu oraz
+  wymaga, aby dowody taska mieściły się w jego cytowanych wnioskach;
+- odrzuca nieznane/zdublowane klucze, nieznane zależności i cały wynik, gdy
+  choć jeden obiekt jest niepoprawny.
+
+Tryb `require-llm` zgłasza `TaskSynthesisRequiredError` zawierający audit
+`failed`. Tryb `prefer-llm` nie zamienia diagnostyki w pozornie semantyczne
+zadania: przy braku konfiguracji, timeoutcie lub błędnej odpowiedzi zwraca puste
+`conclusions` i `proposals`, a jedynie `rawDiagnosticActions` skopiowane z
+`suggestedAction`; audit ma wtedy `status=fallback`, `degraded=true` i kod
+przyczyny. Model etapu wybiera `OPENROUTER_TASK_MODEL`, z fallbackiem
+konfiguracyjnym do `OPENROUTER_MODEL`.
+
 ## Audyt runu (`t2c.run/v1`)
 
 Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:

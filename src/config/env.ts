@@ -39,6 +39,7 @@ export interface T2CConfig {
     markdownModel: string;
     documentModel: string;
     summaryModel: string;
+    taskModel: string;
     siteUrl: string | null;
     appName: string;
     timeoutMs: number;
@@ -167,6 +168,7 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
       markdownModel: envString('OPENROUTER_MARKDOWN_MODEL', model),
       documentModel: envString('OPENROUTER_DOC_MODEL', model),
       summaryModel: envString('OPENROUTER_SUMMARY_MODEL', model),
+      taskModel: envString('OPENROUTER_TASK_MODEL', model),
       siteUrl: envOptional('OPENROUTER_SITE_URL'),
       appName: envString('OPENROUTER_APP_NAME', 'todo2code'),
       timeoutMs: envNumber('OPENROUTER_TIMEOUT_MS', 120_000, 1000, 600_000),
