@@ -35,6 +35,12 @@
 - Replaced stale Git-dependent relation counts and SDK fingerprints in the
   example documentation with current, reproducible expectations.
 
+### Documentation
+
+- Expanded the remaining P0 backlog into an ordered implementation plan for
+  audited `TODO.patch` rendering and approval, CLI/MCP/A2A/SDK exposure,
+  communication pipeline integration and the final release validation gate.
+
 ## [0.4.0] - 2026-07-29
 
 ### Added

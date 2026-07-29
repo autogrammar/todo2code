@@ -1,6 +1,6 @@
 # TODO
 
-## P0 — close the DSL analysis loop
+## P0 — close the DSL analysis loop (execute in this order)
 
 - [x] Define and document `t2c.conclusion/v1` and
   `t2c.todo-proposal/v1` schemas. Every conclusion and task must cite existing
@@ -11,14 +11,68 @@
 - [x] Add runtime validation, stable IDs, deduplication against existing TODO
   records, priority/dependency handling and acceptance-criteria validation for
   generated task proposals.
-- [ ] Render validated proposals as a reviewable `TODO.patch`. Do not modify
-  `TODO.md` automatically; require an explicit human approval/apply step.
-- [ ] Expose `propose-todo` and `render-todo` through CLI, MCP, A2A and all SDKs,
-  with end-to-end tests covering success, invalid LLM output, timeout,
-  duplicates and rejected approval.
-- [ ] Integrate `agent_log` communication and per-participant analysis into the
-  versioned pipeline manifest, run history, comparison UI and watcher. The
-  current fast path is the standalone `communication` CLI/MCP/A2A action.
+
+### P0.4 — reviewable TODO patch and human approval
+
+- [ ] Define a versioned `t2c.todo-patch/v1` artifact containing the source TODO
+  content hash, graph/diagnostic fingerprints, selected proposal IDs, duplicate
+  classifications, runtime/model audit and rendered patch hash.
+- [ ] Implement a deterministic renderer that takes only `newProposalIds`, uses
+  dependency-first order, groups P0–P3 tasks, and includes acceptance criteria,
+  targets, dependencies and evidence IDs in reviewable Markdown.
+- [ ] Write `TODO.patch` and its JSON audit beside the synthesis artifacts.
+  Rendering must never modify `TODO.md`.
+- [ ] Implement an explicit approval/apply operation. It must verify the patch
+  hash and unchanged source TODO hash, reject missing/wrong approval, apply
+  atomically and preserve a receipt identifying the approving actor and time.
+- [ ] Test stable rendering, empty/new/duplicate-only results, stale source TODO,
+  tampered patch, rejected approval, successful apply and repeated apply.
+- [ ] Document the complete review flow and recovery behavior in README and DSL
+  documentation.
+
+### P0.5 — expose DSL2TODO through every interface
+
+- [ ] Add CLI commands `propose-todo`, `render-todo` and `apply-todo` with
+  `prefer-llm|require-llm`, explicit input/output paths and machine-readable
+  JSON results.
+- [ ] Add matching service actions and expose them through MCP and A2A without
+  weakening root-path, authentication, body-size or task-ownership checks.
+- [ ] Add TypeScript, Python, Go, Rust and PHP SDK methods and runnable examples
+  for propose → review → approved apply.
+- [ ] Persist synthesis, validation, patch and approval artifacts in the run
+  directory and list them in the versioned manifest/history API.
+- [ ] Add end-to-end tests for LLM success, invalid structured output, timeout,
+  missing model/configuration, duplicates, dependency cycle, rejected approval,
+  stale/tampered patch and successful idempotent apply.
+- [ ] Extend `examples:check` so all five SDK examples agree on proposal IDs,
+  duplicate classification and patch fingerprint.
+
+### P0.6 — communication analysis in the main runtime
+
+- [ ] Add `project/<ticket>/` and `agent_log` inputs to the main pipeline without
+  requiring a separate communication command.
+- [ ] Store per-participant analysis, identity ambiguity and communication issue
+  IDs as versioned run artifacts with manifest stage audit and failure state.
+- [ ] Include participant/request/plan/claim divergence in graph diagnostics,
+  grounded task synthesis and Intent-vs-Reality without turning agent claims
+  into facts.
+- [ ] Expose communication artifacts and filters in run history, comparison API
+  and the UI, including participant, role, ticket and issue severity.
+- [ ] Make `t2c watch` react to communication changes and coalesce them under the
+  existing scan/report rate limits.
+- [ ] Add pipeline/history/UI/watcher end-to-end tests for multiple humans,
+  multiple agents, unresolved identities, contradictions, unanswered requests,
+  work outside intent and claims without Git/AST evidence.
+
+### P0.7 — release the closed loop
+
+- [ ] Re-run `npm run verify`, `npm run examples:check`, Docker smoke tests and
+  every SDK example with secrets disabled/redacted.
+- [ ] Update README, DSL, requirements, project status, TODO and CHANGELOG with
+  measured results and remaining limitations.
+- [ ] Prepare the next semantic release only after all P0 acceptance checks pass;
+  synchronize `VERSION` and manifests, commit directly to `main`, then create
+  and push the matching annotated tag according to `CONTRIBUTION.md`.
 
 ## P1 — improve semantic quality and signal
 
