@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenRouter documentation extraction response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["records"],
+  "properties": {
+    "records": {
+      "type": "array",
+      "description": "Normalized document-derived statements. The runtime converts these into t2c.intent/v1 records."
+    }
+  }
+}

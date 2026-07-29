@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/intent-graph.schema.json",
+  "title": "todo2code Intent Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "fingerprint", "records", "relations", "stats"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.graph/v1" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "records": { "type": "array", "items": { "$ref": "intent-record.schema.json" } },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "from", "to", "type", "confidence", "basis"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^REL-[a-f0-9]{20}$" },
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "type": { "enum": ["declares", "plans", "implements", "modifies", "tests", "documents", "releases", "depends_on", "blocks", "supersedes", "contradicts", "duplicates", "evidenced_by", "claimed_by", "same_as", "related_to"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "basis": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bySource", "byAction", "byStatus"],
+      "properties": {
+        "bySource": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "byAction": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "byStatus": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } }
+      }
+    }
+  }
+}

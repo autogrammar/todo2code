@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.intent/
+.intent-*/
+coverage/
+*.log
+.DS_Store
+__pycache__/
+*.pyc
+.idea
+.vscode/

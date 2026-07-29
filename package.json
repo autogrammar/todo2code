@@ -1,0 +1,34 @@
+{
+  "name": "todo2code",
+  "version": "0.1.0",
+  "description": "todo2code (t2c): deterministic intent extraction, evidence graph, OpenRouter document extraction and team summaries, exposed through CLI, MCP and A2A.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "t2c": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test dist/test/*.test.js",
+    "verify:no-llm": "node scripts/verify-no-llm-imports.mjs",
+    "verify": "npm run check && npm run verify:no-llm && npm run build && npm test",
+    "start": "node dist/src/cli.js",
+    "mcp": "node dist/src/interfaces/mcp.js",
+    "a2a": "node dist/src/interfaces/a2a.js",
+    "demo": "node dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --out .intent-demo"
+  },
+  "dependencies": {
+    "typescript": ">=5.8.3 <7"
+  },
+  "devDependencies": {
+    "@types/node": ">=20 <25"
+  },
+  "optionalDependencies": {
+    "@tensorflow/tfjs-node": ">=4.20 <5"
+  }
+}

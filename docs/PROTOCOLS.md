@@ -1,0 +1,86 @@
+# Protokoły i API
+
+## OpenRouter
+
+`todo2code` korzysta z OpenRouter wyłącznie w dwóch jawnych modułach:
+
+1. dokumentacja → Intent DSL;
+2. graf Intent DSL + diagnostyka → raport NL.
+
+Klient używa:
+
+- endpointu `${OPENROUTER_BASE_URL}/chat/completions`;
+- `Authorization: Bearer ...`;
+- nagłówków identyfikacji aplikacji `HTTP-Referer` oraz `X-OpenRouter-Title`;
+- `response_format.type = "json_schema"` i `strict = true` dla dokumentacji → DSL;
+- `provider.require_parameters = true`, aby preferować endpointy obsługujące structured outputs;
+- kontrolowanego fallbacku do `json_object`, gdy endpoint odrzuci `json_schema`;
+- opcjonalnego pluginu `response-healing` dla odpowiedzi niestrumieniowanych;
+- temperatury `0` jako wartości domyślnej.
+
+Klient ma timeout, do trzech prób dla 429/5xx i błędów transportu, nie loguje body promptu ani klucza i waliduje/normalizuje dane po stronie runtime. Model nie może podmienić provenance nadanego przez ekstraktor.
+
+## MCP — dual-era stdio
+
+Serwer implementuje JSON-RPC przez stdio: jeden komunikat JSON na linię, odpowiedzi wyłącznie na stdout, logi wyłącznie na stderr.
+
+### Nowoczesny profil `2026-07-28`
+
+Profil jest bezstanowy i obsługuje:
+
+- `server/discover` do publikowania wersji, capabilities i tożsamości serwera;
+- `_meta.io.modelcontextprotocol/protocolVersion`, `_meta.io.modelcontextprotocol/clientInfo` i `_meta.io.modelcontextprotocol/clientCapabilities` w żądaniach;
+- `resultType: "complete"` oraz `_meta.io.modelcontextprotocol/serverInfo` w odpowiedziach;
+- `tools/list`, `tools/call`, `resources/list`, `resources/read`;
+- `ttlMs` i `cacheScope` dla odpowiedzi, dla których cache ma sens;
+- błąd `UnsupportedProtocolVersion` (`-32022`) dla nieobsługiwanej wersji.
+
+`initialize` i `ping` nie należą do nowoczesnego profilu. Klient może rozpocząć od `server/discover` albo wysłać od razu żądanie z metadanymi wersji.
+
+### Profil zgodności legacy
+
+Ten sam proces obsługuje także handshake `initialize` dla hostów używających starszych wersji:
+
+- `2025-11-25`;
+- `2025-06-18`;
+- `2025-03-26`;
+- `2024-11-05`.
+
+Po `initialize` dostępne są `ping`, `tools/list`, `tools/call`, `resources/list` i `resources/read`. Żądanie legacy przed handshake jest odrzucane. Profil nowoczesny pozostaje bezstanowy; tylko ścieżka legacy utrzymuje stan negocjacji procesu stdio.
+
+Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `summarize`, `pipeline`.
+
+## A2A v1.0
+
+Serwer wystawia:
+
+- Agent Card: `/.well-known/agent-card.json`;
+- endpoint JSON-RPC: `/a2a` (alias transportowy `/`);
+- health check: `/healthz`;
+- wersję interfejsu `1.0` w `supportedInterfaces` Agent Card.
+
+Obsługiwane operacje JSON-RPC:
+
+- `SendMessage` — tworzy lub kontynuuje task i zwraca `SendMessageResponse` z dokładnie jednym polem `task`;
+- `GetTask` — zwraca task bez dodatkowego wrappera;
+- `ListTasks` — filtruje po context/status/timestamp, stosuje page token, domyślnie pomija artefakty i zwraca `tasks`, `nextPageToken`, `pageSize`, `totalSize`;
+- `CancelTask` — zwraca task bez dodatkowego wrappera albo `TaskNotCancelableError`.
+
+Interfejs jest celowo **v1-only**. Każde żądanie musi wskazywać `A2A-Version: 1.0` albo parametr `?A2A-Version=1.0`. Brak lub pusty nagłówek jest interpretowany zgodnie z zasadami protokołu jako `0.3`, a następnie odrzucany przez ten interfejs kodem `VersionNotSupportedError` (`-32009`). Aliasy metod v0.3 nie są przyjmowane, aby uniknąć cichej zmiany semantyki.
+
+Dodatkowe własności implementacji:
+
+- idempotency dla `(principal, messageId)`;
+- opcjonalne wykonanie asynchroniczne przez `configuration.returnImmediately`;
+- opcjonalne ograniczenie historii;
+- cursor pagination sortowane po czasie statusu malejąco;
+- własność tasków przypisana do principalu;
+- opcjonalny statyczny Bearer token z `T2C_A2A_TOKEN`;
+- ETag i 5-minutowy cache Agent Card;
+- limit rozmiaru body;
+- artefakt wyniku jako `data` o media type `application/json`;
+- `google.rpc.ErrorInfo` w `error.data` dla błędów specyficznych dla A2A.
+
+Przy włączonym Bearer tokenie Agent Card publikuje `securitySchemes.bearerAuth.httpAuthSecurityScheme` oraz odpowiadające `securityRequirements`.
+
+Bieżący task store jest in-memory. Restart procesu usuwa taski, a wdrożenie wieloreplikowe wymaga trwałego, współdzielonego magazynu.
