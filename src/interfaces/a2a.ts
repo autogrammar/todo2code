@@ -1,9 +1,11 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import { promises as fs, type Dirent } from 'node:fs';
 import http, { type IncomingHttpHeaders, type IncomingMessage, type ServerResponse } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { getConfig, loadEnvFile } from '../config/env.js';
+import { assertPathWithinRoot } from '../core/security.js';
 import { executeAction, type T2CAction } from '../services/actions.js';
 import { diffUiHtml } from '../web/diff-ui.js';
 
@@ -151,8 +153,17 @@ async function handleHttp(request: IncomingMessage, response: ServerResponse, co
     });
     return;
   }
+  if (request.method === 'GET' && url.pathname === '/api/runs') {
+    if (!authorized(request, config)) {
+      response.setHeader('WWW-Authenticate', 'Bearer realm="todo2code"');
+      sendJson(response, 401, { error: 'Unauthorized' });
+      return;
+    }
+    sendJson(response, 200, { runs: await listIntentRuns(config) });
+    return;
+  }
   if (request.method === 'GET' && url.pathname === '/') {
-    sendJson(response, 200, { name: 'todo2code A2A server', agentCard: '/.well-known/agent-card.json', endpoint: '/a2a', diffApi: '/api/diff', ui: '/ui' });
+    sendJson(response, 200, { name: 'todo2code A2A server', agentCard: '/.well-known/agent-card.json', endpoint: '/a2a', diffApi: '/api/diff', runsApi: '/api/runs', ui: '/ui' });
     return;
   }
   if (request.method === 'POST' && url.pathname === '/api/diff') {
@@ -218,6 +229,86 @@ async function handleHttp(request: IncomingMessage, response: ServerResponse, co
     const metadata = error instanceof A2ARequestError ? error.metadata : undefined;
     sendJson(response, code === -32602 || code === -32005 ? 400 : 200, rpcError(rpc.id ?? null, code, error instanceof Error ? error.message : String(error), metadata));
   }
+}
+
+interface IntentRunListItem {
+  runId: string;
+  createdAt: string;
+  graphFingerprint: string | null;
+  graphPath: string;
+  summaryPath: string | null;
+  warningCount: number;
+  llm: { documentationExtraction: boolean; summary: boolean } | null;
+  graphBytes: number;
+}
+
+async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
+  const runsDirectory = await assertPathWithinRoot(
+    config.root,
+    path.resolve(config.root, config.outputDir, 'runs'),
+    config.allowOutsideRoot,
+  );
+  let entries: Dirent[];
+  try {
+    entries = await fs.readdir(runsDirectory, { withFileTypes: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw error;
+  }
+
+  const items = await Promise.all(entries
+    .filter((entry) => entry.isDirectory())
+    .sort((left, right) => right.name.localeCompare(left.name))
+    .slice(0, 500)
+    .map(async (entry): Promise<IntentRunListItem | null> => {
+      try {
+        const runDirectory = path.join(runsDirectory, entry.name);
+        const graphPath = await assertPathWithinRoot(
+          config.root,
+          path.join(runDirectory, 'intent.graph.json'),
+          config.allowOutsideRoot,
+        );
+        const manifestPath = await assertPathWithinRoot(
+          config.root,
+          path.join(runDirectory, 'manifest.json'),
+          config.allowOutsideRoot,
+        );
+        const [graphStat, manifestStat] = await Promise.all([fs.stat(graphPath), fs.stat(manifestPath)]);
+        if (!graphStat.isFile() || !manifestStat.isFile() || manifestStat.size > 2 * 1024 * 1024) return null;
+        const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8')) as Record<string, unknown>;
+        const createdAtValue = typeof manifest.createdAt === 'string' && Number.isFinite(Date.parse(manifest.createdAt))
+          ? manifest.createdAt
+          : graphStat.mtime.toISOString();
+        const files = isRecord(manifest.files) ? manifest.files : {};
+        const llmValue = isRecord(manifest.llm) ? manifest.llm : null;
+        const warnings = Array.isArray(manifest.warnings) ? manifest.warnings : [];
+        return {
+          runId: typeof manifest.runId === 'string' ? manifest.runId : entry.name,
+          createdAt: createdAtValue,
+          graphFingerprint: typeof manifest.graphFingerprint === 'string' ? manifest.graphFingerprint : null,
+          graphPath: relativeApiPath(config.root, graphPath),
+          summaryPath: typeof files.summary === 'string' ? files.summary : null,
+          warningCount: warnings.length,
+          llm: llmValue ? {
+            documentationExtraction: llmValue.documentationExtraction === true,
+            summary: llmValue.summary === true,
+          } : null,
+          graphBytes: graphStat.size,
+        };
+      } catch {
+        // An incomplete, malformed or escaped run must not break the history UI.
+        return null;
+      }
+    }));
+
+  return items
+    .filter((item): item is IntentRunListItem => item !== null)
+    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)
+      || right.runId.localeCompare(left.runId));
+}
+
+function relativeApiPath(root: string, filePath: string): string {
+  return path.relative(root, filePath).replace(/\\/g, '/');
 }
 
 async function handleRpc(request: JsonRpcRequest, config: T2CConfig, principal: string): Promise<unknown> {

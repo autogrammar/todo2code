@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Authenticated `GET /api/runs` history endpoint for complete graph runs under `.intent/runs`.
+
+### Fixed
+
+- The SVG diff UI now selects the previous and latest run by default, displays both history selectors and computes their comparison automatically.
+
+### Documentation
+
+- Documented the direct-to-`main` GitHub workflow and the repository-wide prohibition on pull requests.
+
 ## [0.2.0] - 2026-07-29
 
 ### Added
@@ -22,6 +36,8 @@
 
 - Linker precomputes keyword sets per record and reuses the similarity score in relation typing; graph construction dropped from 3480 ms to 1717 ms on a 2561-record run with a byte-identical fingerprint.
 - Intent-vs-reality topics are keyed by record target instead of relation components, which stops `shared_path` links from collapsing a repository into a single row.
+- Two AST facts are no longer linked on a shared file path alone; such a pair now needs a shared symbol or keyword. On a 2561-record run this removed 96% of `related_to` noise (95 549 relations down to 26 099, `intent.graph.json` from 21.4 MiB to 7.7 MiB) while preserving every `implements`, `evidenced_by`, `same_as`, `duplicates` and `releases` relation and leaving the diagnostic report identical.
+- Candidate pairs are carried as tuples instead of `"left|right"` keys, and the keyword index is reused for bucketing. Combined with the earlier scoring changes, graph construction dropped from 3480 ms to 641 ms.
 
 ### Fixed
 

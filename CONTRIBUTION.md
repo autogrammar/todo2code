@@ -6,6 +6,13 @@
 - Nie wolno oznaczać zadania jako wykonane wyłącznie na podstawie deklaracji w commicie, changelogu lub odpowiedzi agenta. Wymagany jest dowód w kodzie i pozytywny wynik odpowiedniej walidacji.
 - Należy zachować deterministyczną granicę LLM: tylko ekstrakcja dokumentacji i podsumowanie mogą wywoływać OpenRouter.
 
+## Workflow GitHub
+
+- Wszystkie zatwierdzone zmiany należy commitować bezpośrednio do gałęzi `main` i wypychać przez `git push origin main`.
+- Nie wolno tworzyć ani używać pull requestów (PR) w tym repozytorium.
+- Przed bezpośrednim pushem należy uruchomić walidację odpowiednią do zakresu zmian.
+- Jeśli bezpośredni push do `main` zostanie odrzucony, należy zgłosić blokadę zamiast tworzyć PR, wykonywać force push albo omijać zabezpieczenia repozytorium.
+
 ## TODO, changelog i wersja
 
 Przy każdym zatwierdzonym wydaniu należy wykonać wszystkie poniższe kroki:

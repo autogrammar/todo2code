@@ -137,7 +137,8 @@ Polecenie `t2c reality` projektuje pojedynczy graf do `t2c.reality/v1`: zestawia
 
 Po uruchomieniu A2A dostępne są:
 
-- frontend: `http://localhost:8787/ui`;
+- frontend: `http://localhost:8787/ui` — pobiera historię z `.intent/runs`, domyślnie wybiera dwa najnowsze kompletne runy i automatycznie pokazuje ich diff SVG;
+- historia runów: `GET http://localhost:8787/api/runs`;
 - REST diff: `POST http://localhost:8787/api/diff`;
 - A2A/MCP action: `diff`.
 

@@ -40,11 +40,34 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-sdk-'));
   const before = graph('before');
   const after = graph('after');
+  const oldRun = path.join(root, '.intent', 'runs', 'run-old');
+  const newRun = path.join(root, '.intent', 'runs', 'run-new');
+  await Promise.all([fs.mkdir(oldRun, { recursive: true }), fs.mkdir(newRun, { recursive: true })]);
   await Promise.all([
     fs.writeFile(path.join(root, 'before.json'), JSON.stringify(before), 'utf8'),
     fs.writeFile(path.join(root, 'after.json'), JSON.stringify(after), 'utf8'),
     fs.writeFile(path.join(root, 'before.ts'), 'const value = 1;\n', 'utf8'),
     fs.writeFile(path.join(root, 'after.ts'), 'const value = 2;\n', 'utf8'),
+    fs.writeFile(path.join(oldRun, 'intent.graph.json'), JSON.stringify(before), 'utf8'),
+    fs.writeFile(path.join(newRun, 'intent.graph.json'), JSON.stringify(after), 'utf8'),
+    fs.writeFile(path.join(oldRun, 'manifest.json'), JSON.stringify({
+      schemaVersion: 't2c.run/v1',
+      runId: 'run-old',
+      createdAt: '2026-07-29T00:00:00.000Z',
+      graphFingerprint: before.fingerprint,
+      files: { graph: '.intent/runs/run-old/intent.graph.json' },
+      warnings: [],
+      llm: { documentationExtraction: false, summary: false },
+    }), 'utf8'),
+    fs.writeFile(path.join(newRun, 'manifest.json'), JSON.stringify({
+      schemaVersion: 't2c.run/v1',
+      runId: 'run-new',
+      createdAt: '2026-07-29T01:00:00.000Z',
+      graphFingerprint: after.fingerprint,
+      files: { graph: '.intent/runs/run-new/intent.graph.json' },
+      warnings: ['test warning'],
+      llm: { documentationExtraction: true, summary: true },
+    }), 'utf8'),
   ]);
   const config = makeConfig(root);
   config.a2a.port = 0;
@@ -56,7 +79,33 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
     const ui = await fetch(`${baseUrl}/ui`);
     assert.equal(ui.status, 200);
     assert.match(ui.headers.get('content-type') ?? '', /^text\/html/);
-    assert.match(await ui.text(), /Graph diff, made visible/);
+    const uiHtml = await ui.text();
+    assert.match(uiHtml, /id="before-run"/);
+    assert.match(uiHtml, /id="after-run"/);
+    assert.match(uiHtml, /fetch\('\/api\/runs'/);
+
+    const historyResponse = await fetch(`${baseUrl}/api/runs`);
+    assert.equal(historyResponse.status, 200);
+    const history = await historyResponse.json() as {
+      runs: Array<{ runId: string; graphPath: string; warningCount: number }>;
+    };
+    assert.deepEqual(history.runs.map((run) => run.runId), ['run-new', 'run-old']);
+    assert.equal(history.runs[0]?.graphPath, '.intent/runs/run-new/intent.graph.json');
+    assert.equal(history.runs[0]?.warningCount, 1);
+
+    const historyDiffResponse = await fetch(`${baseUrl}/api/diff`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        before: history.runs[1]?.graphPath,
+        after: history.runs[0]?.graphPath,
+        includeSvg: true,
+      }),
+    });
+    assert.equal(historyDiffResponse.status, 200);
+    const historyDiff = await historyDiffResponse.json() as { diff: { summary: { recordsChanged: number } }; svg: string };
+    assert.equal(historyDiff.diff.summary.recordsChanged, 1);
+    assert.match(historyDiff.svg, /^<svg /);
 
     const client = new Todo2CodeClient({ baseUrl });
     assert.equal((await client.health()).status, 'ok');

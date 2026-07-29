@@ -57,8 +57,9 @@ Serwer wystawia:
 - Agent Card: `/.well-known/agent-card.json`;
 - endpoint JSON-RPC: `/a2a` (alias transportowy `/`);
 - health check: `/healthz`;
+- historia kompletnych runów `.intent`: `GET /api/runs` (od najnowszego);
 - REST diff: `POST /api/diff`;
-- frontend SVG diff: `GET /ui`;
+- frontend SVG diff: `GET /ui` (automatycznie porównuje dwa najnowsze runy);
 - wersję interfejsu `1.0` w `supportedInterfaces` Agent Card.
 
 Obsługiwane operacje JSON-RPC:

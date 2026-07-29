@@ -164,6 +164,15 @@ test('A2A bearer authentication is declared with v1 security objects and enforce
     assert.equal(unauthorized.response.status, 401);
     assert.match(unauthorized.response.headers.get('www-authenticate') ?? '', /^Bearer/);
 
+    const unauthorizedRuns = await fetch(`${base}/api/runs`);
+    assert.equal(unauthorizedRuns.status, 401);
+    assert.match(unauthorizedRuns.headers.get('www-authenticate') ?? '', /^Bearer/);
+    const authorizedRuns = await fetch(`${base}/api/runs`, {
+      headers: { Authorization: 'Bearer test-secret' },
+    });
+    assert.equal(authorizedRuns.status, 200);
+    assert.ok(Array.isArray(((await authorizedRuns.json()) as { runs: unknown[] }).runs));
+
     const authorized = await rpc(base, 'SendMessage', {
       message: {
         messageId: 'secure-msg',
