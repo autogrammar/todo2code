@@ -1,0 +1,21 @@
+flowchart TD
+    WORK[Praca nad kodem] --> VERIFY[intent-guard verify-stage]
+    VERIFY --> STATUS{Wynik etapu}
+
+    STATUS -->|FAILED| BLOCK[Blokada]
+    STATUS -->|PARTIAL| REVIEW[Review required]
+    STATUS -->|VERIFIED| PROPOSAL[Tryb proposal-only]
+
+    BLOCK --> P1[TODO bez finalnego DONE]
+    BLOCK --> P2[CHANGELOG zablokowany]
+    BLOCK --> P3[VERSION zablokowana]
+    BLOCK --> P4[Brak przejścia dalej]
+
+    REVIEW --> HUMAN[Człowiek przegląda raport]
+    PROPOSAL --> PATCH[Patche TODO / CHANGELOG / VERSION]
+    PATCH --> HUMAN
+
+    HUMAN -->|zatwierdzenie| APPLY[intent-guard apply]
+    HUMAN -->|odrzucenie| REWORK[Powrót do pracy]
+
+    APPLY --> DONE[Oficjalna aktualizacja plików]

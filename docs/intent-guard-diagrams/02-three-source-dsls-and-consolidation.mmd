@@ -1,0 +1,15 @@
+flowchart TD
+    CODE[Kod, AST, graf zależności, testy] --> DSL1[DSL 1: Code Reality]
+    GIT[3 commity kodowe + 10 zmian kontekstu] --> DSL2[DSL 2: Change Intent]
+    INTENT[Intencja użytkownika + AI TODO + ticket + dokumenty] --> DSL3[DSL 3: Declared Intent]
+    AI[AI-*.md, logs.txt, wyniki testów] --> DSLE[Opcjonalny DSL: Execution Evidence]
+
+    DSL1 --> NORM[Normalizacja encji i relacji]
+    DSL2 --> NORM
+    DSL3 --> NORM
+    DSLE --> NORM
+
+    NORM --> DSL4[DSL 4: Consolidated Project State]
+    DSL4 --> FINDINGS[Konflikty, regresje, braki, drift]
+    DSL4 --> GATE[ALLOW / REVIEW / BLOCK]
+    DSL4 --> PATCH[Propozycje aktualizacji Markdown]

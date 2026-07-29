@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant Agent
+    participant Watcher as Git/File watcher
+    participant Index as Structural index
+    participant Rules as Reconciliation engine
+    participant LLM as LLM inference
+    participant Human
+
+    Agent->>Watcher: zmiana kodu lub dokumentu
+    Watcher->>Index: wykryj zmienione pliki
+    Index->>Index: AST diff, aktualizacja grafu i hashy
+    Index->>Rules: fakty techniczne
+
+    alt potrzebna interpretacja semantyczna
+        Rules->>LLM: ograniczony kontekst
+        LLM->>Rules: hipoteza + confidence + evidence
+    end
+
+    Rules->>Rules: porównanie z intencją i historią
+
+    alt brak istotnego konfliktu
+        Rules->>Agent: checkpoint możliwy
+    else konflikt lub brak dowodów
+        Rules->>Human: raport, alert i proponowany patch
+    end

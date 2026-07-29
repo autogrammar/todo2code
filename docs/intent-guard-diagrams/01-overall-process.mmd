@@ -1,0 +1,25 @@
+flowchart TD
+    U[Użytkownik przekazuje intencję] --> AITODO[AI generuje TODO i kryteria]
+    AITODO --> H1[Człowiek zatwierdza TODO]
+    H1 --> AG[Agent rozpoczyna pracę]
+    AG --> START[Agent uruchamia intent-guard start]
+    START --> WORK[Agent realizuje mały podpunkt]
+    WORK --> CHECK[intent-guard checkpoint]
+    CHECK --> CONS[Generowanie i konsolidacja DSL]
+    CONS --> DEC{Decyzja bramki}
+
+    DEC -->|ALLOW_CHECKPOINT| NEXT[Kolejny podpunkt]
+    NEXT --> WORK
+
+    DEC -->|REVIEW_REQUIRED| REVIEW[Człowiek przegląda raport i patch]
+    DEC -->|BLOCK_STAGE| STOP[Praca zatrzymana]
+    DEC -->|BLOCK_RELEASE| STOP
+
+    REVIEW -->|zaakceptuj| APPLY[Zastosowanie zatwierdzonych zmian]
+    REVIEW -->|popraw| REWORK[Agent poprawia kod lub TODO]
+    REWORK --> WORK
+
+    APPLY --> FINAL{Koniec etapu?}
+    FINAL -->|nie| NEXT
+    FINAL -->|tak| RELEASE[intent-guard release-check]
+    RELEASE --> H2[Człowiek zatwierdza TODO, CHANGELOG i VERSION]

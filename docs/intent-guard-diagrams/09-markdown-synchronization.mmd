@@ -1,0 +1,29 @@
+flowchart LR
+    AST[AST i graf kodu] --> FACTS[Fakty techniczne]
+    GIT[Git i semantic diff] --> FACTS
+    TESTS[Testy] --> FACTS
+    DSL4[DSL 4] --> FACTS
+
+    FACTS --> GEN[Generator dokumentacji]
+    GEN --> AUTO[Automatyczne sekcje AUTO]
+    GEN --> PATCH[Proponowane patche]
+    GEN --> REPORT[Raport zgodności]
+
+    AUTO --> MODULE[MODULE.md]
+    AUTO --> MAP[PROJECT_MAP.md]
+    AUTO --> TECH[Techniczne sekcje ticketu]
+
+    PATCH --> TODO[TODO.md]
+    PATCH --> CHANGELOG[CHANGELOG.md]
+    PATCH --> VERSION[VERSION]
+    PATCH --> ARCH[ARCHITECTURE.md]
+
+    MODULE --> HUMAN[Human approval]
+    MAP --> HUMAN
+    TECH --> HUMAN
+    TODO --> HUMAN
+    CHANGELOG --> HUMAN
+    VERSION --> HUMAN
+    ARCH --> HUMAN
+
+    HUMAN --> APPLY[Zastosowanie zatwierdzonego patcha]

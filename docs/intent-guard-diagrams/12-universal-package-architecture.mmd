@@ -1,0 +1,25 @@
+flowchart TD
+    CLI[intent-guard CLI] --> CORE[Python Core]
+    CORE --> MODEL[Pydantic Intent Evidence DSL]
+    CORE --> PLUGINS[Pluggy Plugin Manager]
+    CORE --> STORE[SQLite Evidence Store]
+    CORE --> GRAPH[NetworkX / własny graf]
+    CORE --> MD[Markdown Patch Generator]
+    CORE --> APPROVAL[Human Approval Engine]
+
+    PLUGINS --> GIT[Git adapter]
+    PLUGINS --> MARKDOWN[Markdown adapter]
+    PLUGINS --> TESTS[Test results adapter]
+    PLUGINS --> TREE[Tree-sitter adapter]
+    PLUGINS --> SCIP[SCIP adapter]
+    PLUGINS --> TS[TypeScript adapter]
+    PLUGINS --> PY[Python adapter]
+    PLUGINS --> JAVA[Java adapter]
+    PLUGINS --> DOTNET[C# adapter]
+    PLUGINS --> RUST[Rust adapter]
+    PLUGINS --> GENERIC[Generic fallback]
+
+    MODEL --> CORE
+    STORE --> CORE
+    GRAPH --> CORE
+    APPROVAL --> CORE

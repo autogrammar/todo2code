@@ -1,0 +1,35 @@
+flowchart TD
+    DSL1[Code Reality] --> ALIGN[Mapowanie encji]
+    DSL2[Change Intent] --> ALIGN
+    DSL3[Declared Intent] --> ALIGN
+    DSLE[Execution Evidence] --> ALIGN
+
+    ALIGN --> C1[Porównanie wymagania z kodem]
+    ALIGN --> C2[Porównanie commita z diffem]
+    ALIGN --> C3[Porównanie deklaracji agenta z dowodami]
+    ALIGN --> C4[Porównanie stanu z poprzednim snapshotem]
+
+    C1 --> CLASS[Klasyfikacja]
+    C2 --> CLASS
+    C3 --> CLASS
+    C4 --> CLASS
+
+    CLASS --> ALIGNED[ALIGNED]
+    CLASS --> MISSING[IMPLEMENTATION_MISSING]
+    CLASS --> FALSE[FALSE_COMPLETION]
+    CLASS --> REG[REGRESSION_DETECTED]
+    CLASS --> DRIFT[DIRECTION_DRIFT]
+    CLASS --> DOC[STALE_DOCUMENTATION]
+    CLASS --> DUP[DUPLICATED_INTENT]
+    CLASS --> CONFLICT[INTENT_CONFLICT]
+    CLASS --> UNKNOWN[INSUFFICIENT_EVIDENCE]
+
+    ALIGNED --> DSL4[DSL 4: Consolidated Project State]
+    MISSING --> DSL4
+    FALSE --> DSL4
+    REG --> DSL4
+    DRIFT --> DSL4
+    DOC --> DSL4
+    DUP --> DSL4
+    CONFLICT --> DSL4
+    UNKNOWN --> DSL4

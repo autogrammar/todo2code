@@ -1,0 +1,21 @@
+flowchart TD
+    USER[Intencja użytkownika] --> TODOAI[AI generuje TODO]
+    TODOAI --> HUMAN[Człowiek zatwierdza TODO]
+
+    USER --> PARSE[Parser intencji]
+    TODOAI --> PARSE
+    TICKET[Ticket i kryteria] --> PARSE
+    DOCS[README, MODULE, ADR, manifest] --> PARSE
+    HUMAN --> PARSE
+
+    PARSE --> GOAL[Cel]
+    PARSE --> SCOPE[Zakres i poza zakresem]
+    PARSE --> CRITERIA[Kryteria akceptacji]
+    PARSE --> EVIDENCE[Wymagane dowody]
+    PARSE --> AMBIG[Braki i niejednoznaczności]
+
+    GOAL --> DSL3[DSL 3: Declared Intent]
+    SCOPE --> DSL3
+    CRITERIA --> DSL3
+    EVIDENCE --> DSL3
+    AMBIG --> DSL3

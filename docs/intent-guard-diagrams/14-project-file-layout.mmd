@@ -1,0 +1,23 @@
+flowchart TD
+    REPO[Analizowany projekt] --> CONFIG[.intent-guard.yml]
+    REPO --> TICKETS[project/ticket-NNN]
+    REPO --> DOCS[README / TODO / MODULE / ADR]
+    REPO --> CODE[Kod i testy]
+
+    GUARD[.intent-guard] --> DB[evidence.db]
+    GUARD --> REPORTS[reports]
+    GUARD --> PROPOSALS[proposals]
+    GUARD --> APPROVALS[approvals]
+    GUARD --> SNAPSHOTS[snapshots]
+
+    TICKETS --> ACTIVE[README.md]
+    TICKETS --> AI[AI-NAME.md]
+    TICKETS --> LOGS[logs.txt]
+
+    REPORTS --> AR[architecture-latest]
+    REPORTS --> IR[intent-alignment-latest]
+
+    PROPOSALS --> P1[TODO.patch]
+    PROPOSALS --> P2[CHANGELOG.patch]
+    PROPOSALS --> P3[VERSION.patch]
+    PROPOSALS --> P4[ticket-status.patch]

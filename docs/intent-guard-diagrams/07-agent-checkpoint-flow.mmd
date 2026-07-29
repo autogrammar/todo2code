@@ -1,0 +1,21 @@
+flowchart TD
+    TASK[Agent wybiera jeden podpunkt TODO] --> PERMIT[Scoped work permit]
+    PERMIT --> EDIT[Zmiana kodu w dozwolonym zakresie]
+    EDIT --> TEST[Uruchomienie testów]
+    TEST --> CHECK[intent-guard checkpoint]
+
+    CHECK --> DSL[Generowanie DSL 1, 2, 3 i DSL 4]
+    DSL --> DEC{Zgodność z intencją?}
+
+    DEC -->|tak| ACCEPT[Checkpoint techniczny]
+    DEC -->|niepewne| REVIEW[REVIEW_REQUIRED]
+    DEC -->|nie| BLOCK[BLOCK_STAGE]
+
+    ACCEPT --> MORE{Kolejny podpunkt?}
+    MORE -->|tak| TASK
+    MORE -->|nie| FULL[Walidacja całego etapu]
+
+    REVIEW --> HUMAN[Człowiek zatwierdza lub odrzuca]
+    BLOCK --> HUMAN
+    HUMAN -->|popraw| TASK
+    HUMAN -->|zaakceptuj wyjątek| ACCEPT

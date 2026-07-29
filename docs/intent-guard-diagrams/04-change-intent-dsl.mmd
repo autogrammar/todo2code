@@ -1,0 +1,22 @@
+flowchart TD
+    LOG[Historia Git] --> FILTER[Odfiltrowanie zmian bez kodu]
+    FILTER --> LAST3[3 ostatnie commity kodowe]
+    FILTER --> LAST10[10 ostatnich istotnych zmian]
+
+    LAST3 --> DIFF[Semantic diff AST przed i po]
+    DIFF --> SYMBOLS[Zmiany symboli]
+    DIFF --> CALLS[Zmiany ścieżek wywołań]
+    DIFF --> TESTS[Dodane i usunięte testy]
+    LAST3 --> CLAIMS[Deklaracje z commit message]
+
+    LAST10 --> DIRECTION[Kontekst kierunku projektu]
+    LAST10 --> REVERTS[Wykrycie cofanych decyzji]
+
+    SYMBOLS --> INFER[Wniosek o intencji zmiany]
+    CALLS --> INFER
+    TESTS --> INFER
+    CLAIMS --> INFER
+    DIRECTION --> INFER
+    REVERTS --> INFER
+
+    INFER --> DSL2[DSL 2: Change Intent]

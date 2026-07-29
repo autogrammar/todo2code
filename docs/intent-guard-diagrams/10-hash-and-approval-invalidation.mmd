@@ -1,0 +1,20 @@
+flowchart TD
+    FILES[Pliki] --> FH[File hashes]
+    FH --> SH[Symbol hashes]
+    SH --> MH[Module hashes]
+    MH --> GH[Architecture graph hash]
+
+    INTENT[Intencja i TODO] --> IH[Intent hash]
+    TESTS[Testy i wyniki] --> EH[Evidence hash]
+    GIT[Commit i diff] --> EH
+
+    GH --> SNAP[Evidence snapshot]
+    IH --> SNAP
+    EH --> SNAP
+
+    SNAP --> APPROVAL[Human approval]
+    APPROVAL --> VALID{Hashe bez zmian?}
+
+    VALID -->|tak| ACTIVE[Approval active]
+    VALID -->|nie| INVALID[APPROVAL_INVALIDATED]
+    INVALID --> REVIEW[Ponowna weryfikacja człowieka]

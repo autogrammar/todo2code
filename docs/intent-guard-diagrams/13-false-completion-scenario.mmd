@@ -1,0 +1,18 @@
+flowchart TD
+    A[Agent dodaje validateContract] --> B[Test jednostkowy przechodzi]
+    B --> C[Agent zaznacza TODO jako wykonane]
+    C --> D[Agent proponuje CHANGELOG i VERSION]
+    D --> E[intent-guard checkpoint]
+
+    E --> F[DSL 1 wykrywa call path]
+    F --> G{Walidacja przed wykonaniem?}
+
+    G -->|nie| H[FALSE_COMPLETION]
+    H --> I[BLOCK_STAGE]
+    I --> J[BLOCK_RELEASE]
+    J --> K[Raport i proposed patch]
+    K --> L[Człowiek decyduje]
+
+    L -->|popraw kod| M[Agent zmienia kolejność wywołań]
+    L -->|zmień intencję| N[Nowe zatwierdzenie TODO]
+    L -->|zaakceptuj wyjątek| O[Zapis wyjątku i approval]

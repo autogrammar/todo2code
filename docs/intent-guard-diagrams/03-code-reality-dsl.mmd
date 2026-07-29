@@ -1,0 +1,26 @@
+flowchart LR
+    FILES[Pliki projektu] --> DETECT[Wykrycie języków]
+    DETECT --> ADAPTERS[Wybór adapterów]
+    ADAPTERS --> TS[TypeScript Compiler API]
+    ADAPTERS --> PY[Python AST]
+    ADAPTERS --> SCIP[SCIP]
+    ADAPTERS --> TREE[Tree-sitter fallback]
+    ADAPTERS --> GENERIC[Adapter generyczny]
+
+    TS --> FACTS[Fakty techniczne]
+    PY --> FACTS
+    SCIP --> FACTS
+    TREE --> FACTS
+    GENERIC --> FACTS
+
+    FACTS --> SYMBOLS[Symbole i publiczne API]
+    FACTS --> IMPORTS[Importy i zależności]
+    FACTS --> CALLS[Graf wywołań]
+    FACTS --> TESTMAP[Powiązania testów]
+    FACTS --> HASHES[Hashe symboli i modułów]
+
+    SYMBOLS --> DSL1[DSL 1: Code Reality]
+    IMPORTS --> DSL1
+    CALLS --> DSL1
+    TESTMAP --> DSL1
+    HASHES --> DSL1
