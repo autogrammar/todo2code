@@ -8,6 +8,8 @@
 | TODO + CHANGELOG → DSL, struktura + LLM | osobne `src/extractors/todo.ts`, `changelog.ts`, kompozycja `markdown.ts`, audyt `markdown-llm.ts` | `markdown.test.ts`: oba konwertery, sukces LLM, zachowanie pól strukturalnych, fallback i `require-llm`; live `qwen/qwen3.7-plus` |
 | Dokumentacja → DSL przez LLM | `src/extractors/docs-llm.ts`, `src/llm/openrouter.ts` | `openrouter.test.ts`: structured output, target hints, współbieżność, budżet chunków, runtime/config audit |
 | Konsolidacja DSL → NL przez LLM | `src/summary/summarizer.ts` | `openrouter.test.ts`: ugruntowane cytowania; pipeline testuje fallback; live wymaga klucza |
+| Strukturalne wnioski `t2c.conclusion/v1` | **PLANOWANE — brak implementacji** | P0/P1 w `TODO.md`: schema, runtime validation i renderowanie raportu |
+| DSL + diagnostyka → `t2c.todo-proposal/v1` → `TODO.patch` | **PLANOWANE — brak implementacji** | P0 w `TODO.md`: LLM synthesis, źródła dowodowe, deduplikacja, approval i testy end-to-end |
 | Graf relacji | `src/graph/linker.ts` | `graph.test.ts` |
 | Diagnostyka rozbieżności | `src/graph/diagnostics.ts` | `graph.test.ts`, `pipeline.test.ts` |
 | Origin/ref → lokalny workspace | `src/comparison/workspace.ts`, `t2c compare-workspace`, akcja `compare_workspace` | `workspace.test.ts`: prawdziwy bare origin, niecommitowany filesystem oraz brak sieciowego summary mimo skonfigurowanego klucza |

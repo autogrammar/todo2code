@@ -7,6 +7,12 @@
 - Added a reproducible README walkthrough covering the offline DSL pipeline,
   manifest inspection, A2A/UI startup, audited SDK extraction and an observable
   `require-llm` failure without a silent deterministic fallback.
+- Added a current project-status matrix with fresh validation evidence, known
+  semantic/runtime limitations and an explicit distinction between the working
+  DSL analysis pipeline and the not-yet-implemented structured DSL2TODO loop.
+- Reorganized the backlog by priority around validated conclusions,
+  `t2c.todo-proposal/v1`, reviewable `TODO.patch`, semantic quality metrics,
+  AST signal aggregation and adapter modularization.
 
 ## [0.3.0] - 2026-07-29
 

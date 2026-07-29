@@ -8,6 +8,18 @@ Compiler Tree API) i Rust (`syn`). Toolchainy poza Node są opcjonalne — brak
 narzędzia daje jawne ostrzeżenie tylko wtedy, gdy repo zawiera pasujące źródła.
 Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
+## Stan projektu
+
+Wersja `0.3.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
+diagnostyka/Intent vs Reality → raport. Pełny, strukturalny etap
+`DSL2TODO` nie jest jeszcze wdrożony: obecna lista następnych działań w raporcie
+jest projekcją diagnostyki, a nie walidowanym DSL zadań ani `TODO.patch`.
+
+Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
+docelowego `DSL2TODO` znajdują się w
+[`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md). Priorytety implementacyjne
+są utrzymywane w [`TODO.md`](TODO.md).
+
 ## Reality vs Intent
 ![reality.svg](.intent/runs/20260729T123956Z-2c6601ec/reality.svg)
 

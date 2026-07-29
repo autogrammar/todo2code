@@ -1,7 +1,10 @@
 # Walidacja paczki
 
-Stan walidacji: **2026-07-29**, `todo2code 0.3.0`, baza Git
-`origin/main` = `7eff4f15a0200fe55a34ac429c54495ceab4fe41` przed wydaniem.
+Stan walidacji: **2026-07-29**, `todo2code 0.3.0`. Najnowsza lokalna kontrola
+`npm run verify` została wykonana na `86cc6ad`; `main` był równy `origin/main`
+przed aktualizacją dokumentacji. Poniższe próby origin/workspace i live
+OpenRouter są zachowanymi pomiarami historycznymi i mają własne identyfikatory
+runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 
 ## Kontrole lokalne
 
@@ -13,7 +16,7 @@ Stan walidacji: **2026-07-29**, `todo2code 0.3.0`, baza Git
 | Kontrakt środowiska | PASS — 56 zmiennych kodu/Dockera, 56 kluczy `.env.example`; prywatny `.env` zsynchronizowany; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
 | Testy Node | PASS — 102 zaliczone, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
-| Offline pipeline smoke test | PASS — 195 rekordów, 702 relacje; jawna degradacja NL/Markdown/summary bez klucza |
+| Świeży pipeline `examples/` | PASS — 202 rekordy, 614 relacji; NL i Markdown deterministyczne, dokumentacja pominięta, jawny fallback summary bez klucza |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
@@ -39,6 +42,12 @@ Stan walidacji: **2026-07-29**, `todo2code 0.3.0`, baza Git
 Pełny przebieg wykonano poleceniem `make validate`. Próby MCP i A2A jawnie
 nadpisują lokalne ustawienia wersji/LLM, dlatego kontrola offline nie zależy od
 zawartości prywatnego `.env`.
+
+Najnowsza kontrola po aktualizacji README obejmowała `npm run verify` i osobny
+pipeline `examples/`; nie powtarzała historycznych prób Dockera ani live
+OpenRouter. Wynik: 103 testy, 102 zaliczone, 0 błędów i 1 lokalny skip JDK.
+Stan funkcjonalny oraz jawnie niewdrożony etap DSL2TODO opisuje
+[`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
 ## SDK i przykłady
 
