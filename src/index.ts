@@ -1,6 +1,7 @@
 export * from './config/env.js';
 export * from './core/types.js';
 export * from './core/schema.js';
+export { createConclusionId, createTodoProposalId } from './core/id.js';
 export * from './core/target.js';
 export * from './extractors/nl.js';
 export * from './extractors/nl-llm.js';

@@ -220,6 +220,52 @@ export interface DiagnosticReport {
   counts: Record<DiagnosticSeverity, number>;
 }
 
+export type ConclusionKind = 'finding' | 'risk' | 'decision' | 'recommendation';
+export type TodoPriority = 'P0' | 'P1' | 'P2' | 'P3';
+
+export interface GroundedGenerationMetadata {
+  runtimeVersion: string;
+  generatedAt: string;
+  requestedMode: 'deterministic' | 'prefer-llm' | 'require-llm';
+  effectiveMode: 'deterministic' | 'llm';
+  degraded: boolean;
+  model: string | null;
+  provider: string | null;
+  responseId: string | null;
+  configurationFingerprint: string;
+  reason: string | null;
+}
+
+export interface Conclusion {
+  schemaVersion: 't2c.conclusion/v1';
+  id: string;
+  kind: ConclusionKind;
+  title: string;
+  detail: string;
+  severity: DiagnosticSeverity;
+  diagnosticIds: string[];
+  recordIds: string[];
+  confidence: number;
+  generation: GroundedGenerationMetadata;
+}
+
+export interface TodoProposal {
+  schemaVersion: 't2c.todo-proposal/v1';
+  id: string;
+  title: string;
+  description: string;
+  priority: TodoPriority;
+  status: 'proposed';
+  target: IntentTarget;
+  acceptanceCriteria: string[];
+  dependencies: string[];
+  conclusionIds: string[];
+  diagnosticIds: string[];
+  recordIds: string[];
+  confidence: number;
+  generation: GroundedGenerationMetadata;
+}
+
 export interface ExtractionResult {
   records: IntentRecord[];
   warnings: string[];

@@ -1,7 +1,7 @@
 # Aktualny stan projektu
 
-Stan na **2026-07-29**, wersja runtime `0.4.0`, baza `a97e699`
-(`main` równy `origin/main` przed wdrożeniem komunikacji ticketowej).
+Stan na **2026-07-29**, wersja runtime `0.4.0`, baza `e91d15f`
+(`main` równy `origin/main` przed wdrożeniem kontraktów syntezy).
 
 ## Ocena wykonania przepływu
 
@@ -21,7 +21,9 @@ NL / Git / AST / TODO / CHANGELOG / dokumentacja
           raport NL (LLM albo jawny fallback)
 ```
 
-Nie istnieje jeszcze pełna ścieżka wyjściowa `DSL2TODO`. Sekcja „Następne
+Istnieją już rygorystyczne kontrakty wyjściowe `t2c.conclusion/v1` i
+`t2c.todo-proposal/v1`, lecz nie istnieje jeszcze pełna ścieżka wykonawcza
+`DSL2TODO`. Sekcja „Następne
 działania” w `team-summary.md` jest projekcją pola `suggestedAction` z
 diagnostyki albo narracją LLM. Nie jest walidowanym DSL zadań, nie wykonuje
 deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
@@ -48,23 +50,24 @@ deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
 | Diagnostyka i Intent vs Reality | działa | wynik jest deterministyczny, ale AST może dominować liczbę tematów i ostrzeżeń |
 | Graf → raport NL | działa | LLM ma ograniczony payload; bez modelu powstaje jawnie oznaczony raport deterministyczny |
-| DSL/diagnostyka → zadania DSL | brak | planowane `t2c.todo-proposal/v1` |
+| Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
+| DSL/diagnostyka → zadania DSL | częściowo | kontrakt `t2c.todo-proposal/v1` istnieje; audytowana synteza LLM i deduplikacja są następne w P0 |
 | Zadania DSL → `TODO.patch` | brak | planowana walidacja, deduplikacja i bramka akceptacji człowieka |
 
 ## Bieżąca walidacja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 105 testów: 104 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 44 moduły i 217 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 129 testów: 128 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 44 moduły i 219 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 17 modułów bez tranzytywnego importu LLM;
 - 56 zmiennych używanych przez kod/Docker i 56 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` dla commita `02d518c` utworzył 202 rekordy i
-613 relacji. Liczba relacji jest snapshotem, ponieważ wejście Git obejmuje
+Przebieg offline na `examples/` dla commita `e91d15f` utworzył 202 rekordy i
+615 relacji. Liczba relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
 | Źródło | Rekordy |
@@ -86,10 +89,10 @@ precision/recall dla NL → DSL, dokumentacja → DSL, linkowania ani DSL2TODO.
 
 ## Najważniejsze ograniczenia
 
-1. Brak strukturalnego `DSL2TODO` zamykającego pętlę od wniosków do propozycji
-   zadań.
-2. Raport LLM jest Markdownem. Runtime wykrywa nieznane identyfikatory źródeł,
-   ale nie waliduje całej odpowiedzi jako `t2c.conclusion/v1`.
+1. Brak wykonawczej syntezy `DSL2TODO` zamykającej pętlę od grafu i diagnostyki
+   do już zdefiniowanych, walidowanych propozycji zadań.
+2. Raport LLM jest nadal Markdownem i nie przechodzi jeszcze przez istniejący
+   kontrakt `t2c.conclusion/v1`.
 3. Fakty AST są znacznie drobniejsze niż intencje produktowe. Bez agregacji
    zawyżają liczbę `IMPLEMENTED_NOT_PLANNED` i `IMPLEMENTED_NOT_DOCUMENTED`.
 4. Wzbogacanie całego TODO/CHANGELOG jednym dużym żądaniem może przekroczyć

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Defined the grounded `t2c.conclusion/v1` and `t2c.todo-proposal/v1`
+  contracts as TypeScript types and published JSON Schemas. Runtime validators
+  enforce stable semantic IDs, existing diagnostic/intent citations, graph
+  fingerprint consistency, acceptance criteria and explicit LLM/degradation
+  provenance before either object can cross a public boundary.
+
 ### Fixed
 
 - Added a reproducible `examples:check` command covering the offline pipeline,

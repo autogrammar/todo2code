@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import type { IntentRecord, IntentRelation, JsonValue } from './types.js';
+import type { Conclusion, IntentRecord, IntentRelation, JsonValue, TodoProposal } from './types.js';
 
 export function stableStringify(value: unknown): string {
   return JSON.stringify(sortValue(value));
@@ -33,6 +33,37 @@ export function createIntentId(seed: unknown, prefix = 'INT'): string {
 
 export function createRelationId(relation: Omit<IntentRelation, 'id'>): string {
   return `REL-${shortHash(stableStringify(relation), 20)}`;
+}
+
+export function createConclusionId(value: Pick<
+Conclusion,
+'kind' | 'title' | 'detail' | 'severity' | 'diagnosticIds' | 'recordIds'
+>): string {
+  return `CONC-${shortHash(stableStringify({
+    kind: value.kind,
+    title: value.title.trim(),
+    detail: value.detail.trim(),
+    severity: value.severity,
+    diagnosticIds: [...new Set(value.diagnosticIds)].sort(),
+    recordIds: [...new Set(value.recordIds)].sort(),
+  }), 20)}`;
+}
+
+export function createTodoProposalId(value: Pick<
+TodoProposal,
+'title' | 'description' | 'target' | 'acceptanceCriteria'
+>): string {
+  return `TPROP-${shortHash(stableStringify({
+    title: value.title.trim(),
+    description: value.description.trim(),
+    target: {
+      paths: [...new Set(value.target.paths)].sort(),
+      symbols: [...new Set(value.target.symbols)].sort(),
+      tickets: [...new Set(value.target.tickets)].sort(),
+      versions: [...new Set(value.target.versions)].sort(),
+    },
+    acceptanceCriteria: [...new Set(value.acceptanceCriteria.map((item) => item.trim()))].sort(),
+  }), 20)}`;
 }
 
 export function graphFingerprint(records: IntentRecord[], relations: IntentRelation[]): string {

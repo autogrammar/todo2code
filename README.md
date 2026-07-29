@@ -11,9 +11,11 @@ Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 ## Stan projektu
 
 Wersja `0.4.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
-diagnostyka/Intent vs Reality → raport. Pełny, strukturalny etap
-`DSL2TODO` nie jest jeszcze wdrożony: obecna lista następnych działań w raporcie
-jest projekcją diagnostyki, a nie walidowanym DSL zadań ani `TODO.patch`.
+diagnostyka/Intent vs Reality → raport. Kontrakty `t2c.conclusion/v1` i
+`t2c.todo-proposal/v1` wraz z walidacją
+cytowań i provenance są wdrożone. Wykonawcza część `DSL2TODO` nie jest jeszcze
+wdrożona: obecna lista następnych działań w raporcie jest projekcją diagnostyki,
+a nie wynikiem audytowanej syntezy ani zatwierdzalnym `TODO.patch`.
 
 Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
 docelowego `DSL2TODO` znajdują się w

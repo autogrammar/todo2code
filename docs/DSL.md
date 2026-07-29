@@ -95,6 +95,92 @@ wersją runtime, statusem, requested/effective mode, modelem, przyczyną
 degradacji, metadanymi odpowiedzi oraz bezpiecznymi parametrami konfiguracji.
 Klucz API nie jest częścią audytu.
 
+## Ugruntowane wnioski (`t2c.conclusion/v1`)
+
+Wniosek jest strukturalnym wynikiem analizy grafu i diagnostyki, a nie
+swobodnym tekstem raportu. Minimalny poprawny obiekt wygląda tak:
+
+```json
+{
+  "schemaVersion": "t2c.conclusion/v1",
+  "id": "CONC-56103ade87e7fd328142",
+  "kind": "finding",
+  "title": "Brakuje dowodu implementacji",
+  "detail": "Plan nie ma powiązanego rekordu Git ani AST.",
+  "severity": "warning",
+  "diagnosticIds": ["DIAG-0123456789abcdefabcd"],
+  "recordIds": ["INT-TODO-0123456789abcdefabcd"],
+  "confidence": 0.94,
+  "generation": {
+    "runtimeVersion": "0.4.0",
+    "generatedAt": "2026-07-29T12:00:00.000Z",
+    "requestedMode": "require-llm",
+    "effectiveMode": "llm",
+    "degraded": false,
+    "model": "qwen/qwen3.7-plus",
+    "provider": "openrouter",
+    "responseId": "generation-id",
+    "configurationFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reason": null
+  }
+}
+```
+
+`id` jest skrótem stabilnego, kanonicznego zestawu `kind`, treści, severity i
+cytowań. Czas generacji, model oraz confidence nie zmieniają tożsamości
+semantycznej. Runtime odrzuca wniosek, jeżeli nie cytuje co najmniej jednej
+istniejącej diagnostyki i jednego istniejącego rekordu z grafu, raport
+diagnostyczny ma inny fingerprint lub ID nie odpowiada treści.
+
+## Propozycje zadań (`t2c.todo-proposal/v1`)
+
+Propozycja zadania ma zawsze `status: proposed`, priorytet `P0`–`P3`, target,
+co najmniej jedno kryterium akceptacji oraz cytowania wniosku, diagnostyki i
+rekordu intencji. `dependencies` zawiera stabilne ID innych propozycji:
+
+```json
+{
+  "schemaVersion": "t2c.todo-proposal/v1",
+  "id": "TPROP-237b3465ea484544f906",
+  "title": "Dodać syntezę zadań",
+  "description": "Wytworzyć propozycje z grafu i diagnostyki.",
+  "priority": "P0",
+  "status": "proposed",
+  "target": {
+    "paths": ["src/synthesis/tasks.ts"],
+    "symbols": ["synthesizeTodoProposals"],
+    "tickets": ["T2C-101"],
+    "versions": []
+  },
+  "acceptanceCriteria": ["Niepoprawne cytowanie jest odrzucane."],
+  "dependencies": [],
+  "conclusionIds": ["CONC-56103ade87e7fd328142"],
+  "diagnosticIds": ["DIAG-0123456789abcdefabcd"],
+  "recordIds": ["INT-TODO-0123456789abcdefabcd"],
+  "confidence": 0.9,
+  "generation": {
+    "runtimeVersion": "0.4.0",
+    "generatedAt": "2026-07-29T12:00:00.000Z",
+    "requestedMode": "prefer-llm",
+    "effectiveMode": "deterministic",
+    "degraded": true,
+    "model": null,
+    "provider": null,
+    "responseId": null,
+    "configurationFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reason": "openrouter_timeout"
+  }
+}
+```
+
+Fallback nie może udawać wyniku semantycznej syntezy. Dla
+`requestedMode=prefer-llm` wynik deterministyczny musi mieć `degraded=true` i
+niepusty `reason`; `require-llm` nigdy nie dopuszcza wyniku deterministycznego.
+Dla rzeczywistego wyniku LLM wymagane są `model` i `provider`. Opublikowane
+schematy to `schemas/conclusion.schema.json` i
+`schemas/todo-proposal.schema.json`; walidacja kontekstowa i stabilne ID są w
+`src/core/schema.ts` oraz `src/core/id.ts`.
+
 ## Audyt runu (`t2c.run/v1`)
 
 Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:

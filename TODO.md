@@ -2,7 +2,7 @@
 
 ## P0 — close the DSL analysis loop
 
-- [ ] Define and document `t2c.conclusion/v1` and
+- [x] Define and document `t2c.conclusion/v1` and
   `t2c.todo-proposal/v1` schemas. Every conclusion and task must cite existing
   diagnostic and intent-record IDs and carry runtime/model generation metadata.
 - [ ] Implement audited, structured graph + diagnostics → task synthesis through
