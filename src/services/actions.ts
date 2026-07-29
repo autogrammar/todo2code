@@ -83,11 +83,25 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
       const before = await readGraphInput(input.beforeGraph, input.before, 'before', root, config);
       const after = await readGraphInput(input.afterGraph, input.after, 'after', root, config);
       const diff = diffIntentGraphs(before, after);
+      const svg = booleanValue(input.includeSvg, true)
+        ? renderGraphDiffSvg(diff, { maxItems: numberValue(input.maxItems, 18, 1, 100) })
+        : undefined;
+      if (booleanValue(input.compact, false)) {
+        return {
+          compact: true,
+          diff: {
+            generatedAt: diff.generatedAt,
+            fingerprint: diff.fingerprint,
+            beforeFingerprint: diff.beforeFingerprint,
+            afterFingerprint: diff.afterFingerprint,
+            summary: diff.summary,
+          },
+          ...(svg === undefined ? {} : { svg }),
+        };
+      }
       return {
         diff,
-        ...(booleanValue(input.includeSvg, true)
-          ? { svg: renderGraphDiffSvg(diff, { maxItems: numberValue(input.maxItems, 18, 1, 100) }) }
-          : {}),
+        ...(svg === undefined ? {} : { svg }),
       };
     }
     case 'diff_files': {

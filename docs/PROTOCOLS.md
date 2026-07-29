@@ -62,6 +62,12 @@ Serwer wystawia:
 - frontend SVG diff: `GET /ui` (automatycznie porównuje dwa najnowsze runy);
 - wersję interfejsu `1.0` w `supportedInterfaces` Agent Card.
 
+REST diff zachowuje pełną odpowiedź jako wariant domyślny. Parametr wejściowy
+`compact: true` zwraca `compact: true`, `diff.generatedAt`, fingerprinty,
+`diff.summary` oraz opcjonalny `svg`, ale pomija `diff.records` i
+`diff.relations`. Frontend używa tego wariantu, ponieważ do wizualizacji nie
+potrzebuje pełnego materiału dowodowego.
+
 Obsługiwane operacje JSON-RPC:
 
 - `SendMessage` — tworzy lub kontynuuje task i zwraca `SendMessageResponse` z dokładnie jednym polem `task`;

@@ -14,6 +14,12 @@ da się odtworzyć skryptami opisanymi w sekcji [Metodyka](#metodyka).
 | relacje w grafie | 95 549 | 95 549 | **26 099** | −73% |
 | `intent.graph.json` | 21,4 MiB | 21,4 MiB | **7,7 MiB** | −64% |
 
+Widok historii korzysta ponadto z kompaktowej odpowiedzi graph diff. Dla dwóch
+runów repozytorium odpowiedź REST spadła z **38,71 MiB do 13,71 KiB** (około
+2890×), bez zmiany fingerprintu, liczników ani SVG. Czas obliczeń pozostaje
+zależny od rozmiaru grafów; optymalizacja usuwa koszt transferu, parsowania JSON
+i przechowywania pełnego diffu po stronie przeglądarki.
+
 Kroki 1–2 są czysto wydajnościowe: fingerprint grafu przed i po jest identyczny
 co do bajtu (`16549106e3f926a1…`).
 

@@ -142,6 +142,10 @@ Po uruchomieniu A2A dostępne są:
 - REST diff: `POST http://localhost:8787/api/diff`;
 - A2A/MCP action: `diff`.
 
+`POST /api/diff` domyślnie zwraca pełny `t2c.diff/v1`. Ustawienie `compact: true`
+zwraca projekcję przeznaczoną dla UI: fingerprinty, liczniki `summary` i opcjonalny
+SVG, bez pełnych tablic rekordów oraz relacji.
+
 SDK TypeScript/JavaScript:
 
 ```ts

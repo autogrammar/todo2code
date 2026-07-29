@@ -5,6 +5,11 @@
 ### Added
 
 - Authenticated `GET /api/runs` history endpoint for complete graph runs under `.intent/runs`.
+- Optional `compact: true` graph-diff response containing fingerprints, summary counts and SVG without complete record and relation arrays.
+
+### Changed
+
+- The history UI uses compact graph diffs, reducing the measured response for the two repository runs from 38.71 MiB to 13.71 KiB.
 
 ### Fixed
 

@@ -83,6 +83,7 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
     assert.match(uiHtml, /id="before-run"/);
     assert.match(uiHtml, /id="after-run"/);
     assert.match(uiHtml, /fetch\('\/api\/runs'/);
+    assert.match(uiHtml, /compact:true/);
 
     const historyResponse = await fetch(`${baseUrl}/api/runs`);
     assert.equal(historyResponse.status, 200);
@@ -100,11 +101,19 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
         before: history.runs[1]?.graphPath,
         after: history.runs[0]?.graphPath,
         includeSvg: true,
+        compact: true,
       }),
     });
     assert.equal(historyDiffResponse.status, 200);
-    const historyDiff = await historyDiffResponse.json() as { diff: { summary: { recordsChanged: number } }; svg: string };
+    const historyDiff = await historyDiffResponse.json() as {
+      compact: boolean;
+      diff: { summary: { recordsChanged: number }; records?: unknown; relations?: unknown };
+      svg: string;
+    };
+    assert.equal(historyDiff.compact, true);
     assert.equal(historyDiff.diff.summary.recordsChanged, 1);
+    assert.equal(historyDiff.diff.records, undefined);
+    assert.equal(historyDiff.diff.relations, undefined);
     assert.match(historyDiff.svg, /^<svg /);
 
     const client = new Todo2CodeClient({ baseUrl });
