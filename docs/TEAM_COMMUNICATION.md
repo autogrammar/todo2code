@@ -1,0 +1,110 @@
+# Komunikacja ludzi i agentów przez `project/<ticket>/`
+
+Ten format jest szybkim, append-only kanałem komunikacji, który można
+commitować razem z kodem. Każdy plik jest przypisany do jednego ticketu,
+uczestnika oraz rodzaju wypowiedzi. `todo2code` konwertuje go do
+`t2c.intent/v1` ze źródłem `agent_log`, łączy z Git i AST, a następnie tworzy
+osobną analizę dla każdego człowieka i agenta.
+
+## Minimalna struktura
+
+```text
+project/
+└── WM-101/
+    ├── human.tom.request.001.md
+    ├── human.mateusz.decision.001.md
+    ├── agent.codex.plan.001.md
+    ├── agent.codex.report.002.md
+    └── agent.validator.result.001.md
+```
+
+Pliki powinny być dopisywane, a nie nadpisywane. Numer na końcu nazwy ułatwia
+odtworzenie kolejności, lecz to `timestamp` jest źródłem czasu w DSL.
+
+## Kontrakt pliku
+
+```markdown
+---
+participant: Codex
+role: agent
+type: report
+timestamp: 2026-07-29T18:00:00+02:00
+recipient: Tom
+git-authors: Agent Codex, github-actions[bot]
+paths: src/runtime.ts, test/runtime.test.ts
+symbols: validateContract
+---
+Dodano walidację kontraktu dla WM-101 i uruchomiono test integracyjny.
+```
+
+Wymagane pola:
+
+- `participant` — stabilna nazwa uczestnika;
+- `role` — wyłącznie `human` albo `agent`;
+- `type` — `request`, `plan`, `decision`, `message`, `report`, `result` lub
+  `claim`.
+
+Ticket jest pobierany z katalogu. `git-authors` wiąże nazwę uczestnika z
+autorami commitów. `paths` i `symbols` zwiększają jakość powiązania z AST/Git.
+Brak roli lub uczestnika nie jest uzupełniany przez domysł: runtime zapisuje
+ostrzeżenie i problem `PARTICIPANT_IDENTITY_UNRESOLVED`.
+
+## Uruchomienie
+
+Najkrótsza analiza z raportem Markdown, JSON i grafem dowodowym:
+
+```bash
+node /home/tom/github/semcod/todo2code/dist/src/cli.js communication . \
+  --project-dir project \
+  --out .intent/communication-analysis.json \
+  --md .intent/communication-analysis.md \
+  --graph .intent/communication.graph.json
+```
+
+Jeden ticket:
+
+```bash
+node /home/tom/github/semcod/todo2code/dist/src/cli.js communication . \
+  --project-dir project --ticket WM-101 \
+  --md .intent/WM-101.communication.md
+```
+
+Sam konwerter do kanonicznego DSL:
+
+```bash
+node /home/tom/github/semcod/todo2code/dist/src/cli.js extract communication \
+  --root . --project-dir project \
+  --out .intent/communication.intent.jsonl
+```
+
+Akcje `extract_communication` i `analyze_communication` są również dostępne
+przez MCP i A2A. Wszystkie SDK akceptują je przez ogólną metodę `call`/`send`.
+
+## Wykrywane rozbieżności
+
+- sprzeczne wypowiedzi dwóch ludzi;
+- sprzeczne wypowiedzi dwóch agentów;
+- konflikt polecenia człowieka z planem lub raportem agenta;
+- polecenie człowieka bez semantycznie powiązanej odpowiedzi agenta;
+- claim wykonania bez powiązanego commita lub faktu AST;
+- plan albo praca agenta poza zakresem polecenia człowieka;
+- brak jednoznacznej tożsamości lub roli uczestnika.
+
+Analiza nie uznaje wypowiedzi agenta za fakt wykonania. `report`, `result` i
+`claim` pozostają klasą epistemiczną `claim`; dowodami są osobne rekordy Git,
+AST i testów.
+
+## Wdrożenie w `wellmanifest/new-project`
+
+Aktualny stan tego repozytorium nie zawiera jeszcze `project/<ticket>/`.
+Istniejące `Prompt.txt` są poleceniami człowieka, natomiast pliki w katalogach
+`GPT56Luna/`, `Opus48Medium/`, `SWE17/` i `perplexity/` są wynikami różnych
+agentów. Nie należy zmieniać ich roli na podstawie samego położenia — podczas
+migracji należy utworzyć nowe, jednoznacznie opisane pliki ticketu.
+
+`project.sh` wykorzystuje obecnie `./project` również jako katalog wyników
+`code2llm` i `redup`. Przed użyciem go jako kanału komunikacji należy skierować
+generowane raporty techniczne do osobnego katalogu, np. `.project-analysis/`,
+albo upewnić się, że nie nadpisują ticketów. Ekstraktor ignoruje pliki leżące
+bezpośrednio w `project/`, ale mieszanie raportów i komunikacji nadal jest
+niezalecane.

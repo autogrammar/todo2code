@@ -15,6 +15,7 @@ flowchart LR
     CE --> ME
     ME --> MLO[Audited Markdown LLM enrichment]
     DOCS[README ADR MODULE docs] --> ORE[OpenRouter document extractor]
+    COMM[project/ticket human + agent messages] --> COMME[Communication converter]
 
     NLLM --> DSL[Canonical t2c Intent DSL]
     NLE --> DSL
@@ -22,6 +23,7 @@ flowchart LR
     AE --> DSL
     MLO --> DSL
     ORE --> DSL
+    COMME --> DSL
 
     DSL --> LINK[Deterministic linker]
     LINK --> GRAPH[Intent evidence graph]
@@ -89,6 +91,15 @@ Każdy standalone wynik NL/Markdown/dokumentacji zawiera `audit.runtimeVersion`
 i bezpieczne `audit.configuration` (model, URL, timeout, token budget,
 temperatura i tryb structured output), bez klucza API. Dokumentacyjne rekordy
 LLM mają ten sam `metadata.generation` co NL i Markdown.
+
+### `src/extractors/communication.ts` i `src/communication/analyzer.ts`
+
+Pliki `project/<ticket>/*.md|txt` mają płaski front matter z uczestnikiem,
+rolą `human|agent`, typem wiadomości i opcjonalnymi aliasami autora Git.
+Konwerter emituje `agent_log` bez LLM. Analizator grupuje rekordy per uczestnik
+i zestawia ich deklaracje/plany/claimy z komunikacją innych osób oraz dowodami
+Git/AST. Brak tożsamości pozostaje jawnym problemem; raport agenta nie jest
+podnoszony do klasy `fact`.
 
 ### `src/graph/linker.ts`
 

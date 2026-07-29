@@ -59,6 +59,20 @@ const TOOLS: McpTool[] = [
     patterns: stringArrayProp('Documentation glob patterns.'),
     excludes: stringArrayProp('Exclusion glob patterns.'),
   }),
+  tool('extract_communication', 'Extract per-ticket human and agent communication under project/<ticket>/ to canonical Intent DSL.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    projectDir: stringProp('Communication root, default project.'),
+    ticket: nullableStringProp('Optional ticket filter.'),
+  }),
+  tool('analyze_communication', 'Analyze every human/agent separately and detect communication-to-work divergences.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    projectDir: stringProp('Communication root, default project.'),
+    ticket: nullableStringProp('Optional ticket filter.'),
+    graph: { type: 'object', description: 'Optional existing t2c.graph/v1 object.' },
+    gitCount: numberProp('Commit evidence count, default 10.', 1, 100),
+    includeAst: { type: 'boolean', description: 'Include AST evidence, default true.' },
+    includeGraph: { type: 'boolean', description: 'Include the constructed graph in the result.' },
+  }),
   tool('link', 'Link Intent DSL records into a deterministic evidence graph.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     records: { type: 'array', items: { type: 'object' } },

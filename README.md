@@ -10,7 +10,7 @@ Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
 ## Stan projektu
 
-Wersja `0.3.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
+Wersja `0.4.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
 diagnostyka/Intent vs Reality → raport. Pełny, strukturalny etap
 `DSL2TODO` nie jest jeszcze wdrożony: obecna lista następnych działań w raporcie
 jest projekcją diagnostyki, a nie walidowanym DSL zadań ani `TODO.patch`.
@@ -19,6 +19,12 @@ Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
 docelowego `DSL2TODO` znajdują się w
 [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md). Priorytety implementacyjne
 są utrzymywane w [`TODO.md`](TODO.md).
+
+Komunikację zespołu można zapisywać append-only w `project/<ticket>/`. Konwerter
+zachowuje uczestnika i rolę `human|agent`, a `t2c communication` porównuje
+wypowiedzi z dowodami Git/AST osobno dla każdego uczestnika. Kontrakt plików i
+gotowe polecenia opisuje
+[`docs/TEAM_COMMUNICATION.md`](docs/TEAM_COMMUNICATION.md).
 
 ## Reality vs Intent
 ![reality.svg](.intent/runs/20260729T123956Z-2c6601ec/reality.svg)
@@ -35,6 +41,7 @@ są utrzymywane w [`TODO.md`](TODO.md).
 | TypeScript/JavaScript/Python/Go/Java/Rust AST → DSL | natywne parsery języków; Java Tree API, Rust `syn` | nie |
 | TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie preferowany** |
 | Dokumentacja → DSL | OpenRouter structured outputs | **tak** |
+| `project/<ticket>/` komunikacja → DSL | deterministyczny kontrakt uczestnika, roli i typu wypowiedzi | nie |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf DSL → raport NL | OpenRouter; wejściem jest tylko graf i diagnostyka | **tak** |
 
@@ -60,7 +67,7 @@ audyt z 2026-07-29 ma 0 podatności. `make install-tf` instaluje
 jego 8 zgłoszeń nie trafia do drzewa zależności rdzenia. Nie należy stosować
 `npm audit fix --force`, ponieważ proponuje niekompatybilny downgrade.
 
-## Demonstracja działania 0.3.0
+## Demonstracja działania 0.4.0
 
 Poniższa demonstracja używa wersjonowanego repozytorium `examples/`, nie wymaga
 klucza ani połączenia z OpenRouter i pozostawia jednoznaczny audyt. Uruchom:
@@ -92,10 +99,10 @@ console.log({ records: graph.records.length, relations: graph.relations.length, 
 NODE
 ```
 
-Weryfikowany wynik dla `0.3.0` miał 202 rekordy i 737 relacji:
+Weryfikowany wynik dla `0.4.0` miał 202 rekordy i 606 relacji:
 
 ```text
-status: degraded, runtime: todo2code 0.3.0
+status: degraded, runtime: todo2code 0.4.0
 naturalLanguageExtraction: succeeded / deterministic
 markdownExtraction:        succeeded / deterministic
 documentationExtraction:   skipped / none
@@ -139,7 +146,7 @@ const result = await client.extractNl('TASK.md', '.', 'deterministic');
 console.log(result.records.length);                 // 10 dla bieżącego TASK.md
 console.log(result.audit?.status);                  // succeeded
 console.log(result.audit?.effectiveMode);           // deterministic
-console.log(result.audit?.runtimeVersion);          // 0.3.0
+console.log(result.audit?.runtimeVersion);          // 0.4.0
 console.log(result.audit?.configuration);           // bez apiKey
 ```
 
@@ -410,7 +417,7 @@ Przykładowa konfiguracja hosta MCP:
 }
 ```
 
-Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`. Serwer udostępnia też zasoby `t2c://latest/*`.
+Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `extract_communication`, `analyze_communication`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`. Serwer udostępnia też zasoby `t2c://latest/*`.
 
 ## Diff DSL, SVG i SDK
 

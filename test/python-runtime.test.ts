@@ -34,7 +34,7 @@ test('Python package executes the local TypeScript reality runtime without a ser
     'import os',
     'from todo2code import TypeScriptRuntime',
     'runtime = TypeScriptRuntime(os.environ["T2C_TEST_ROOT"], cli_path=os.environ["T2C_TEST_CLI"])',
-    'assert runtime.version() == "todo2code 0.3.0"',
+    'assert runtime.version() == "todo2code 0.4.0"',
     'result = runtime.reality(os.environ["T2C_TEST_GRAPH"], include_svg=True)',
     'assert result["view"]["schemaVersion"] == "t2c.reality/v1"',
     'assert result["svg"].startswith("<svg ")',

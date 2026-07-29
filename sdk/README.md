@@ -34,7 +34,8 @@ akceptuje obie postacie.
 ## Dostępne akcje
 
 `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`,
-`link`, `diagnose`, `summarize`, `diff`, `diff_files`, `diff_git`, `reality`,
+`extract_communication`, `analyze_communication`, `link`, `diagnose`,
+`summarize`, `diff`, `diff_files`, `diff_git`, `reality`,
 `compare_workspace`, `pipeline`.
 
 Granica LLM obowiązuje tak samo jak w CLI: `extract_nl` oraz semantyczne

@@ -1,7 +1,7 @@
 # Aktualny stan projektu
 
-Stan na **2026-07-29**, wersja runtime `0.3.0`, commit `86cc6ad`
-(`main` równy `origin/main` przed tą zmianą dokumentacji).
+Stan na **2026-07-29**, wersja runtime `0.4.0`, baza `a97e699`
+(`main` równy `origin/main` przed wdrożeniem komunikacji ticketowej).
 
 ## Ocena wykonania przepływu
 
@@ -43,6 +43,8 @@ deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
 | CHANGELOG → DSL | działa | osobny parser; zachowuje wersję, datę, kategorię i klasę `claim` |
 | TODO/CHANGELOG + LLM | działa kontraktowo, live niestabilne | struktura jest chroniona przez runtime; ostatni run `qwen/qwen3.7-plus` przekroczył 120 s i użył jawnego fallbacku |
 | Dokumentacja → DSL | działa kontraktowo | chunking, budżet i structured output są testowane; brak deterministycznego odpowiednika semantycznego |
+| `project/<ticket>/` komunikacja → DSL | działa | zachowuje uczestnika, `human|agent`, typ wypowiedzi, ticket i aliasy Git jako `agent_log` |
+| Analiza uczestników i rozbieżności komunikacji | działa jako osobne CLI/MCP/A2A | grupuje każdego człowieka/agenta i porównuje request/plan/claim z Git/AST; nie jest jeszcze częścią głównego pipeline run-history |
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
 | Diagnostyka i Intent vs Reality | działa | wynik jest deterministyczny, ale AST może dominować liczbę tematów i ostrzeżeń |
 | Graf → raport NL | działa | LLM ma ograniczony payload; bez modelu powstaje jawnie oznaczony raport deterministyczny |
@@ -53,15 +55,15 @@ deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 103 testy: 102 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 42 moduły i 200 importów wewnętrznych: brak cykli, niezależny `src/core`;
-- 7 deterministycznych entrypointów i 15 modułów bez tranzytywnego importu LLM;
+- 105 testów: 104 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 44 moduły i 217 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 9 deterministycznych entrypointów i 17 modułów bez tranzytywnego importu LLM;
 - 56 zmiennych używanych przez kod/Docker i 56 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Świeży przebieg offline na `examples/` utworzył 202 rekordy i 614 relacji:
+Świeży przebieg offline na `examples/` utworzył 202 rekordy i 606 relacji:
 
 | Źródło | Rekordy |
 |---|---:|
@@ -95,6 +97,9 @@ precision/recall dla NL → DSL, dokumentacja → DSL, linkowania ani DSL2TODO.
 6. Porównania historyczne wykonane bez dokumentacyjnego DSL raportują 0%
    pokrycia dokumentacją jako brak dowodu w grafie, a nie dowód braku
    dokumentacji w repozytorium.
+7. Analiza komunikacji ma obecnie deterministyczny parser. Semantyczna synteza
+   per uczestnik przez LLM oraz włączenie wyników do głównej historii runów
+   pozostają zaplanowane.
 
 ## Plan docelowego DSL2TODO
 

@@ -7,6 +7,7 @@
 | Aktualne AST → DSL | `src/extractors/ast.ts`, helpery `python/`, `golang/`, `java/`, `rust-ast/` | `ast.test.ts`, `ast-languages.test.ts` |
 | TODO + CHANGELOG → DSL, struktura + LLM | osobne `src/extractors/todo.ts`, `changelog.ts`, kompozycja `markdown.ts`, audyt `markdown-llm.ts` | `markdown.test.ts`: oba konwertery, sukces LLM, zachowanie pól strukturalnych, fallback i `require-llm`; live `qwen/qwen3.7-plus` |
 | Dokumentacja → DSL przez LLM | `src/extractors/docs-llm.ts`, `src/llm/openrouter.ts` | `openrouter.test.ts`: structured output, target hints, współbieżność, budżet chunków, runtime/config audit |
+| Ludzie/agenci w `project/<ticket>/` → DSL i analiza rozbieżności | `src/extractors/communication.ts`, `src/communication/analyzer.ts`, CLI/MCP/A2A | `communication.test.ts`: osobne role/uczestnicy, konflikt, praca poza requestem, claim z Git i brak tożsamości |
 | Konsolidacja DSL → NL przez LLM | `src/summary/summarizer.ts` | `openrouter.test.ts`: ugruntowane cytowania; pipeline testuje fallback; live wymaga klucza |
 | Strukturalne wnioski `t2c.conclusion/v1` | **PLANOWANE — brak implementacji** | P0/P1 w `TODO.md`: schema, runtime validation i renderowanie raportu |
 | DSL + diagnostyka → `t2c.todo-proposal/v1` → `TODO.patch` | **PLANOWANE — brak implementacji** | P0 w `TODO.md`: LLM synthesis, źródła dowodowe, deduplikacja, approval i testy end-to-end |

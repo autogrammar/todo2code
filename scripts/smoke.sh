@@ -4,7 +4,15 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-cp -R "$PROJECT_ROOT/examples/." "$TMP/"
+# Copy versioned and intentional untracked fixtures only. A raw recursive copy
+# also included ignored .intent-* runs produced by demos; the subsequent smoke
+# commit then made git show emit megabytes of generated graph data and overflow
+# the bounded extractor buffer.
+while IFS= read -r -d '' source; do
+  relative="${source#examples/}"
+  mkdir -p "$TMP/$(dirname "$relative")"
+  cp "$PROJECT_ROOT/$source" "$TMP/$relative"
+done < <(git -C "$PROJECT_ROOT" ls-files --cached --others --exclude-standard -z -- examples)
 (
   cd "$TMP"
   git init -q

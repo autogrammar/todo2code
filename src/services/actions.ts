@@ -4,6 +4,7 @@ import { compareWorkspaceIntent } from '../comparison/workspace.js';
 import { readJson, readJsonl, readText } from '../core/io.js';
 import { assertPathWithinRoot } from '../core/security.js';
 import type { DiagnosticReport, IntentGraph, IntentRecord, LlmExtractionMode, NlExtractionMode, PipelineOptions } from '../core/types.js';
+import { analyzeCommunication, renderCommunicationMarkdown } from '../communication/analyzer.js';
 import { collectGitDiff } from '../diff/git.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from '../diff/reality.js';
 import {
@@ -15,6 +16,7 @@ import {
 } from '../diff/text.js';
 import { extractAstIntent } from '../extractors/ast.js';
 import { extractDocumentationIntent } from '../extractors/docs-llm.js';
+import { extractCommunicationIntent } from '../extractors/communication.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntentAudited } from '../extractors/markdown-llm.js';
 import { extractNlIntentAudited } from '../extractors/nl-llm.js';
@@ -30,6 +32,8 @@ export type T2CAction =
   | 'extract_ast'
   | 'extract_markdown'
   | 'extract_docs'
+  | 'extract_communication'
+  | 'analyze_communication'
   | 'link'
   | 'diagnose'
   | 'summarize'
@@ -68,6 +72,38 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         patterns: stringList(input.patterns, config.documentPatterns),
         excludes: stringList(input.excludes, config.documentExcludes),
       }, config);
+    case 'extract_communication':
+      return extractCommunicationIntent({
+        root,
+        projectDir: await scopedPath(input.projectDir, 'project', root, config),
+        ticket: nullableString(input.ticket, null),
+      }, config);
+    case 'analyze_communication': {
+      let graph: IntentGraph;
+      const warnings: string[] = [];
+      if (input.graph !== undefined) {
+        graph = objectValue<IntentGraph>(input.graph, 'graph');
+      } else {
+        const [communication, git, ast] = await Promise.all([
+          extractCommunicationIntent({
+            root,
+            projectDir: await scopedPath(input.projectDir, 'project', root, config),
+            ticket: nullableString(input.ticket, null),
+          }, config),
+          extractGitIntent({ root, count: numberValue(input.gitCount, config.gitCommitCount, 1, 100) }, config),
+          booleanValue(input.includeAst, true) ? extractAstIntent({ root }, config) : Promise.resolve({ records: [], warnings: [] }),
+        ]);
+        warnings.push(...communication.warnings, ...git.warnings, ...ast.warnings);
+        graph = linkIntentRecords([...communication.records, ...git.records, ...ast.records]);
+      }
+      const analysis = analyzeCommunication(graph);
+      return {
+        analysis,
+        markdown: renderCommunicationMarkdown(analysis),
+        warnings: [...new Set(warnings)].sort(),
+        ...(booleanValue(input.includeGraph, false) ? { graph } : {}),
+      };
+    }
     case 'link': {
       const records = await readRecords(input, root, config);
       return linkIntentRecords(records);

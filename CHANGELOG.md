@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-29
+
+### Added
+
+- Added deterministic `project/<ticket>/` human/agent communication extraction
+  to canonical `agent_log` records plus per-participant divergence analysis.
+  The CLI, MCP and A2A detect conflicting statements, unanswered requests,
+  agent work outside human intent and completion claims without Git/AST
+  evidence while keeping ambiguous identities explicit.
+- Added `extract_communication` and `analyze_communication` to MCP, A2A and
+  every SDK action registry, plus a CLI that emits JSON, Markdown and the
+  underlying evidence graph.
+
+### Fixed
+
+- The offline smoke fixture now copies only tracked or intentional untracked
+  example sources, preventing ignored `.intent-*` demo artifacts from entering
+  the temporary Git history and overflowing the bounded Git extractor output.
+
 ### Documentation
 
 - Added a reproducible README walkthrough covering the offline DSL pipeline,

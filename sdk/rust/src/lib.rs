@@ -40,6 +40,8 @@ pub mod action {
     pub const EXTRACT_AST: &str = "extract_ast";
     pub const EXTRACT_MARKDOWN: &str = "extract_markdown";
     pub const EXTRACT_DOCS: &str = "extract_docs";
+    pub const EXTRACT_COMMUNICATION: &str = "extract_communication";
+    pub const ANALYZE_COMMUNICATION: &str = "analyze_communication";
     pub const LINK: &str = "link";
     pub const DIAGNOSE: &str = "diagnose";
     pub const SUMMARIZE: &str = "summarize";

@@ -17,6 +17,8 @@ ACTIONS = (
     "extract_ast",
     "extract_markdown",
     "extract_docs",
+    "extract_communication",
+    "analyze_communication",
     "link",
     "diagnose",
     "summarize",

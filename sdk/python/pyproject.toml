@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "todo2code-sdk"
-version = "0.3.0"
+version = "0.4.0"
 description = "Dependency-free Python SDK for todo2code A2A and the local TypeScript runtime"
 readme = "README.md"
 requires-python = ">=3.10"

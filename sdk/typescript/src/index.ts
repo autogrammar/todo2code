@@ -109,6 +109,7 @@ export interface ExtractionResult {
 
 export type T2CAction =
   | 'extract_nl' | 'extract_git' | 'extract_ast' | 'extract_markdown' | 'extract_docs'
+  | 'extract_communication' | 'analyze_communication'
   | 'link' | 'diagnose' | 'summarize'
   | 'diff' | 'diff_files' | 'diff_git' | 'reality'
   | 'compare_workspace' | 'pipeline';

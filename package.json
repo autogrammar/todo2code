@@ -1,7 +1,7 @@
 {
   "name": "todo2code",
-  "version": "0.3.0",
-  "description": "todo2code (t2c): audited NL/document intent extraction, evidence graphs, origin-to-workspace comparison and grounded summaries through CLI, MCP and A2A.",
+  "version": "0.4.0",
+  "description": "todo2code (t2c): audited intent and team-communication extraction, evidence graphs, origin-to-workspace comparison and grounded summaries through CLI, MCP and A2A.",
   "type": "module",
   "private": true,
   "license": "MIT",

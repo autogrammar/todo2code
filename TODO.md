@@ -16,12 +16,21 @@
 - [ ] Expose `propose-todo` and `render-todo` through CLI, MCP, A2A and all SDKs,
   with end-to-end tests covering success, invalid LLM output, timeout,
   duplicates and rejected approval.
+- [ ] Integrate `agent_log` communication and per-participant analysis into the
+  versioned pipeline manifest, run history, comparison UI and watcher. The
+  current fast path is the standalone `communication` CLI/MCP/A2A action.
 
 ## P1 — improve semantic quality and signal
 
 - [ ] Build a versioned gold dataset for NL/docs/Markdown → DSL, linking and
   DSL2TODO. Report precision, recall, citation completeness, deduplication rate
   and stability between repeated runs.
+- [ ] Add audited structured LLM enrichment for communication records and a
+  grounded per-participant synthesis. Preserve human/agent identity, ticket,
+  source lines and epistemic class as runtime-owned fields.
+- [ ] Add a participant identity registry mapping stable IDs to Git authors,
+  A2A agent IDs and optional human aliases without guessing identity from
+  display names.
 - [ ] Aggregate low-level AST calls and symbols into module/capability topics
   before coverage metrics and team-summary prioritization, while preserving
   links to the original evidence records.

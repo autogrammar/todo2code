@@ -43,7 +43,7 @@
   "metadata": {
     "checked": false,
     "llmUsed": true,
-    "generation": { "requested": "llm", "used": "llm", "degraded": false, "runtimeVersion": "0.3.0", "model": "qwen/qwen3.7-plus" }
+    "generation": { "requested": "llm", "used": "llm", "degraded": false, "runtimeVersion": "0.4.0", "model": "qwen/qwen3.7-plus" }
   }
 }
 ```
@@ -121,6 +121,20 @@ Deterministyczny algorytm Myersa porównuje linie bez LLM i zwraca hunki z numer
 ## Intent vs reality (`t2c.reality/v1`)
 
 Widok zestawia źródła deklaratywne (`nl`, `todo`, `document`) z dowodami wykonania (`git`, `ast`) i changelogiem. Każdy temat ma jawne liczniki per źródło oraz status, m.in. `aligned`, `planned_not_implemented`, `implemented_not_planned`, `implemented_not_documented` lub `conflicting`. SVG i Markdown są projekcjami tego samego deterministycznego modelu.
+
+## Analiza komunikacji (`t2c.communication-analysis/v1`)
+
+Rekordy z `project/<ticket>/` używają `source.kind=agent_log`. Runtime zachowuje
+`metadata.participant`, `participantRole`, `messageType`, `ticket`, `recipient`
+i `gitAuthors`. Polecenia człowieka są deklaracjami, plany pozostają planami, a
+raporty agentów są claimami — nigdy faktami implementacji.
+
+Projekcja komunikacji grupuje każdego uczestnika osobno i zapisuje liczbę
+deklaracji, planów, claimów, dopasowanych commitów, dowodów oraz identyfikatory
+problemów. Problemy zawsze wskazują rekordy źródłowe i obejmują konflikty
+między ludźmi/agentami, brak odpowiedzi, pracę poza requestem, brak dowodu
+wykonania oraz nierozpoznaną tożsamość. Szczegółowy format wejściowy opisuje
+[`TEAM_COMMUNICATION.md`](TEAM_COMMUNICATION.md).
 
 ## Origin vs workspace (`t2c.workspace-comparison/v1`)
 

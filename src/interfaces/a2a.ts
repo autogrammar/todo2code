@@ -100,7 +100,7 @@ interface TaskStoreSnapshot {
 
 const tasks = new Map<string, StoredTask>();
 const messageTaskIndex = new Map<string, string>();
-const ACTIONS: T2CAction[] = ['extract_nl', 'extract_git', 'extract_ast', 'extract_markdown', 'extract_docs', 'link', 'diagnose', 'summarize', 'diff', 'diff_files', 'diff_git', 'reality', 'compare_workspace', 'pipeline'];
+const ACTIONS: T2CAction[] = ['extract_nl', 'extract_git', 'extract_ast', 'extract_markdown', 'extract_docs', 'extract_communication', 'analyze_communication', 'link', 'diagnose', 'summarize', 'diff', 'diff_files', 'diff_git', 'reality', 'compare_workspace', 'pipeline'];
 const TERMINAL_STATES = new Set<A2ATaskState>([
   'TASK_STATE_COMPLETED',
   'TASK_STATE_FAILED',
@@ -927,6 +927,15 @@ function agentCard(config: T2CConfig): Record<string, unknown> {
         examples: ['{"action":"diagnose","input":{"graph":{...}}}'],
         inputModes: ['application/json'],
         outputModes: ['application/json'],
+      },
+      {
+        id: 'analyze_team_communication',
+        name: 'Analyze team communication',
+        description: 'Compare per-ticket human and agent statements with Git and AST evidence.',
+        tags: ['communication', 'agents', 'humans', 'intent-vs-reality'],
+        examples: ['{"action":"analyze_communication","input":{"root":".","projectDir":"project"}}'],
+        inputModes: ['application/json'],
+        outputModes: ['application/json', 'text/markdown'],
       },
       {
         id: 'summarize_team_state',

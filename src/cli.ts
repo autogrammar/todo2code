@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { configForDisplay, getConfig, hasOpenRouter, loadEnvFile } from './config/env.js';
 import { compareWorkspaceIntent } from './comparison/workspace.js';
+import { analyzeCommunication, renderCommunicationMarkdown } from './communication/analyzer.js';
 import { pathExists, readJson, readJsonl, readText, writeJson, writeJsonl, writeText } from './core/io.js';
 import type { DiagnosticReport, IntentGraph, LlmExtractionMode, NlExtractionMode, PipelineOptions } from './core/types.js';
 import { collectGitDiff } from './diff/git.js';
@@ -19,6 +20,7 @@ import {
 } from './diff/text.js';
 import { extractAstIntent } from './extractors/ast.js';
 import { extractDocumentationIntent } from './extractors/docs-llm.js';
+import { extractCommunicationIntent } from './extractors/communication.js';
 import { extractGitIntent } from './extractors/git.js';
 import { extractMarkdownIntentAudited } from './extractors/markdown-llm.js';
 import { extractNlIntentAudited } from './extractors/nl-llm.js';
@@ -86,6 +88,10 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
   if (command === 'extract') {
     await handleExtract(parsed, config);
+    return;
+  }
+  if (command === 'communication') {
+    await handleCommunication(parsed, config);
     return;
   }
   if (command === 'link') {
@@ -364,7 +370,41 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     process.stderr.write(`documentation -> DSL: ${result.audit.status} (${result.audit.effectiveMode}), runtime ${result.audit.runtimeVersion}\n`);
     return;
   }
-  throw new Error('Usage: t2c extract <nl|git|ast|markdown|docs> ...');
+  if (extractor === 'communication') {
+    const result = await extractCommunicationIntent({
+      root,
+      projectDir: optionString(parsed, 'project-dir') ?? 'project',
+      ticket: optionNullableString(parsed, 'ticket', null),
+    }, config);
+    await emitExtraction(result, out);
+    return;
+  }
+  throw new Error('Usage: t2c extract <nl|git|ast|markdown|docs|communication> ...');
+}
+
+async function handleCommunication(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const root = path.resolve(parsed.positionals[0] ?? config.root);
+  const [communication, git, ast] = await Promise.all([
+    extractCommunicationIntent({
+      root,
+      projectDir: optionString(parsed, 'project-dir') ?? 'project',
+      ticket: optionNullableString(parsed, 'ticket', null),
+    }, config),
+    extractGitIntent({ root, count: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100) }, config),
+    optionBoolean(parsed, 'no-ast', false)
+      ? Promise.resolve({ records: [], warnings: [] })
+      : extractAstIntent({ root }, config),
+  ]);
+  for (const warning of [...communication.warnings, ...git.warnings, ...ast.warnings]) process.stderr.write(`warning: ${warning}\n`);
+  const graph = linkIntentRecords([...communication.records, ...git.records, ...ast.records]);
+  const analysis = analyzeCommunication(graph);
+  const out = optionString(parsed, 'out');
+  const markdown = optionString(parsed, 'md');
+  const graphOut = optionString(parsed, 'graph');
+  if (out) await writeJson(path.resolve(out), analysis);
+  if (markdown) await writeText(path.resolve(markdown), renderCommunicationMarkdown(analysis));
+  if (graphOut) await writeJson(path.resolve(graphOut), graph);
+  if (!out && !markdown && !graphOut) process.stdout.write(renderCommunicationMarkdown(analysis));
 }
 
 async function emitExtraction(result: { records: Parameters<typeof writeJsonl>[1]; warnings: string[] }, out: string | null): Promise<void> {
@@ -523,6 +563,9 @@ function printHelp(): void {
   process.stdout.write(`  t2c extract ast [root] [--out ast.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--markdown-mode prefer-llm] [--out records.jsonl]\n`);
   process.stdout.write(`  t2c extract docs [--patterns 'README.md,docs/**/*.md'] [--out docs.intent.jsonl]\n`);
+  process.stdout.write(`  t2c extract communication [--root .] [--project-dir project] [--ticket TICKET] [--out communication.intent.jsonl]\n`);
+  process.stdout.write(`  t2c communication [root] [--project-dir project] [--ticket TICKET] [--no-ast]\n`);
+  process.stdout.write(`                    [--out analysis.json] [--md analysis.md] [--graph intent.graph.json]\n`);
   process.stdout.write(`  t2c link <*.intent.jsonl>... [--out intent.graph.json]\n`);
   process.stdout.write(`  t2c diagnose <intent.graph.json> [--out diagnostics.json]\n`);
   process.stdout.write(`  t2c diff <before.graph.json> <after.graph.json> [--out diff.json] [--svg diff.svg]\n`);

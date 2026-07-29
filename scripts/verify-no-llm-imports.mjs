@@ -7,6 +7,8 @@ const entrypoints = [
   'src/extractors/git.ts',
   'src/extractors/ast.ts',
   'src/extractors/markdown.ts',
+  'src/extractors/communication.ts',
+  'src/communication/analyzer.ts',
   'src/graph/linker.ts',
   'src/graph/diagnostics.ts',
   'src/tf/classifier.ts',
