@@ -7,6 +7,7 @@ export interface T2CConfig {
   outputDir: string;
   gitCommitCount: number;
   maxFileBytes: number;
+  documentConcurrency: number;
   pythonExecutable: string;
   enablePythonAst: boolean;
   allowOutsideRoot: boolean;
@@ -112,6 +113,7 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     outputDir: envString('T2C_OUTPUT_DIR', '.intent'),
     gitCommitCount: envNumber('T2C_GIT_COMMIT_COUNT', 10, 1, 100),
     maxFileBytes: envNumber('T2C_MAX_FILE_BYTES', 524_288, 1024, 100 * 1024 * 1024),
+    documentConcurrency: envNumber('T2C_DOC_CONCURRENCY', 3, 1, 16),
     pythonExecutable: envString('T2C_PYTHON', 'python3'),
     enablePythonAst: envBoolean('T2C_ENABLE_PYTHON_AST', true),
     allowOutsideRoot: envBoolean('T2C_ALLOW_OUTSIDE_ROOT', false),
@@ -136,7 +138,7 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     },
     mcp: {
       serverName: envString('T2C_MCP_SERVER_NAME', 'todo2code'),
-      serverVersion: envString('T2C_MCP_SERVER_VERSION', '0.1.0'),
+      serverVersion: envString('T2C_MCP_SERVER_VERSION', '0.2.0'),
     },
     a2a: {
       host: envString('T2C_A2A_HOST', '0.0.0.0'),

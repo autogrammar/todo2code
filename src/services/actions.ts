@@ -1,14 +1,24 @@
 import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
-import { readJsonl } from '../core/io.js';
+import { readJson, readJsonl, readText } from '../core/io.js';
 import { assertPathWithinRoot } from '../core/security.js';
 import type { DiagnosticReport, IntentGraph, IntentRecord, PipelineOptions } from '../core/types.js';
+import { collectGitDiff } from '../diff/git.js';
+import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from '../diff/reality.js';
+import {
+  diffText,
+  renderTextDiffHtml,
+  renderTextDiffSvg,
+  renderUnifiedDiff,
+  type FileDiff,
+} from '../diff/text.js';
 import { extractAstIntent } from '../extractors/ast.js';
 import { extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntent } from '../extractors/markdown.js';
 import { extractNlIntent } from '../extractors/nl.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
+import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
 import { linkIntentRecords } from '../graph/linker.js';
 import { runPipeline } from '../pipeline/run.js';
 import { summarizeGraph } from '../summary/summarizer.js';
@@ -22,6 +32,10 @@ export type T2CAction =
   | 'link'
   | 'diagnose'
   | 'summarize'
+  | 'diff'
+  | 'diff_files'
+  | 'diff_git'
+  | 'reality'
   | 'pipeline';
 
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
@@ -65,6 +79,61 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         allowDeterministicFallback: booleanValue(input.fallback, false),
       });
     }
+    case 'diff': {
+      const before = await readGraphInput(input.beforeGraph, input.before, 'before', root, config);
+      const after = await readGraphInput(input.afterGraph, input.after, 'after', root, config);
+      const diff = diffIntentGraphs(before, after);
+      return {
+        diff,
+        ...(booleanValue(input.includeSvg, true)
+          ? { svg: renderGraphDiffSvg(diff, { maxItems: numberValue(input.maxItems, 18, 1, 100) }) }
+          : {}),
+      };
+    }
+    case 'diff_files': {
+      const beforePath = await scopedPath(input.before, '', root, config);
+      const afterPath = await scopedPath(input.after, '', root, config);
+      const [before, after] = await Promise.all([
+        readText(beforePath, config.maxFileBytes),
+        readText(afterPath, config.maxFileBytes),
+      ]);
+      const diff = diffText(before, after, {
+        path: stringValue(input.path, path.relative(root, afterPath)),
+        beforePath: path.relative(root, beforePath),
+        afterPath: path.relative(root, afterPath),
+        context: numberValue(input.context, 3, 0, 100),
+      });
+      return withTextDiffViews([diff], input);
+    }
+    case 'diff_git': {
+      const result = await collectGitDiff({
+        root,
+        revision: stringValue(input.revision, 'HEAD'),
+        staged: booleanValue(input.staged, false),
+        context: numberValue(input.context, 3, 0, 100),
+        maxFiles: numberValue(input.maxFiles, 50, 1, 500),
+      });
+      return { ...withTextDiffViews(result.diffs, input), revision: result.revision, staged: result.staged, warnings: result.warnings };
+    }
+    case 'reality': {
+      const graph = objectValue<IntentGraph>(input.graph, 'graph');
+      const diagnostics = input.diagnostics
+        ? objectValue<DiagnosticReport>(input.diagnostics, 'diagnostics')
+        : diagnoseGraph(graph);
+      const view = buildRealityView(graph, diagnostics);
+      return {
+        view,
+        markdown: renderRealityMarkdown(view),
+        ...(booleanValue(input.includeSvg, true)
+          ? {
+            svg: renderRealitySvg(view, {
+              maxRows: numberValue(input.maxRows, 30, 1, 500),
+              gapsOnly: booleanValue(input.gapsOnly, false),
+            }),
+          }
+          : {}),
+      };
+    }
     case 'pipeline': {
       const options: PipelineOptions = {
         root,
@@ -80,6 +149,33 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
       return runPipeline(options, config);
     }
   }
+}
+
+function withTextDiffViews(diffs: FileDiff[], input: Record<string, unknown>): Record<string, unknown> {
+  const title = stringValue(input.title, 'todo2code File Diff');
+  return {
+    diffs,
+    unified: diffs.map(renderUnifiedDiff).join(''),
+    ...(booleanValue(input.includeSvg, true)
+      ? { svg: renderTextDiffSvg(diffs, { title, maxRows: numberValue(input.maxRows, 400, 1, 4000) }) }
+      : {}),
+    ...(booleanValue(input.includeHtml, false) ? { html: renderTextDiffHtml(diffs, { title }) } : {}),
+  };
+}
+
+async function readGraphInput(
+  graphValue: unknown,
+  pathValue: unknown,
+  name: string,
+  root: string,
+  config: T2CConfig,
+): Promise<IntentGraph> {
+  if (graphValue !== undefined) return objectValue<IntentGraph>(graphValue, `${name}Graph`);
+  if (typeof pathValue !== 'string' || !pathValue.trim()) {
+    throw new Error(`diff requires ${name}Graph object or ${name} graph path`);
+  }
+  const safePath = await assertPathWithinRoot(root, path.resolve(root, pathValue), config.allowOutsideRoot);
+  return readJson<IntentGraph>(safePath);
 }
 
 async function resolveRoot(value: unknown, config: T2CConfig): Promise<string> {

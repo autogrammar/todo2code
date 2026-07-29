@@ -48,7 +48,7 @@ Ten sam proces obsługuje także handshake `initialize` dla hostów używającyc
 
 Po `initialize` dostępne są `ping`, `tools/list`, `tools/call`, `resources/list` i `resources/read`. Żądanie legacy przed handshake jest odrzucane. Profil nowoczesny pozostaje bezstanowy; tylko ścieżka legacy utrzymuje stan negocjacji procesu stdio.
 
-Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `summarize`, `pipeline`.
+Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `summarize`, `pipeline`.
 
 ## A2A v1.0
 
@@ -57,6 +57,8 @@ Serwer wystawia:
 - Agent Card: `/.well-known/agent-card.json`;
 - endpoint JSON-RPC: `/a2a` (alias transportowy `/`);
 - health check: `/healthz`;
+- REST diff: `POST /api/diff`;
+- frontend SVG diff: `GET /ui`;
 - wersję interfejsu `1.0` w `supportedInterfaces` Agent Card.
 
 Obsługiwane operacje JSON-RPC:
@@ -84,3 +86,9 @@ Dodatkowe własności implementacji:
 Przy włączonym Bearer tokenie Agent Card publikuje `securitySchemes.bearerAuth.httpAuthSecurityScheme` oraz odpowiadające `securityRequirements`.
 
 Bieżący task store jest in-memory. Restart procesu usuwa taski, a wdrożenie wieloreplikowe wymaga trwałego, współdzielonego magazynu.
+
+## SDK
+
+`src/sdk/typescript.ts` udostępnia klienta Fetch API dla Node.js, TypeScript, JavaScript i przeglądarki. `sdk/python/todo2code_sdk.py` zapewnia odpowiednik oparty wyłącznie na bibliotece standardowej Python. Oba SDK obsługują health check, A2A `SendMessage` i REST diff; token Bearer jest opcjonalny.
+
+CLI udostępnia ponadto lokalne, deterministyczne formaty bez transportu sieciowego: `t2c diff --mode files`, `t2c diff --mode git` oraz `t2c reality`. Mogą zapisywać dane JSON i projekcje SVG/HTML/Markdown.

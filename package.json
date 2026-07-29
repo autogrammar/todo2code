@@ -1,6 +1,6 @@
 {
   "name": "todo2code",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "todo2code (t2c): deterministic intent extraction, evidence graph, OpenRouter document extraction and team summaries, exposed through CLI, MCP and A2A.",
   "type": "module",
   "private": true,
@@ -11,6 +11,10 @@
   "bin": {
     "t2c": "./dist/src/cli.js"
   },
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./sdk": "./dist/src/sdk/typescript.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
@@ -20,6 +24,7 @@
     "start": "node dist/src/cli.js",
     "mcp": "node dist/src/interfaces/mcp.js",
     "a2a": "node dist/src/interfaces/a2a.js",
+    "diff": "node dist/src/cli.js diff",
     "demo": "node dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --out .intent-demo"
   },
   "dependencies": {

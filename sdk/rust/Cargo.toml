@@ -1,0 +1,17 @@
+[package]
+name = "todo2code"
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.70"
+description = "Rust SDK for the todo2code A2A v1.0 endpoint"
+license = "MIT"
+
+# JSON is the only dependency. HTTP/1.1 is spoken directly over std::net::TcpStream
+# so the SDK does not pull in an async runtime for what are short, blocking calls.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"

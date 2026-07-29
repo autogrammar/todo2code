@@ -16,11 +16,62 @@ interface OpenRouterResponse {
   error?: { message?: string };
 }
 
+interface OpenRouterModelsResponse {
+  data?: Array<{ id?: string }>;
+  error?: { message?: string };
+}
+
+export class OpenRouterModelError extends Error {
+  constructor(
+    message: string,
+    readonly model: string,
+    readonly availableModels: string[],
+  ) {
+    super(message);
+    this.name = 'OpenRouterModelError';
+  }
+}
+
 export class OpenRouterClient {
   constructor(private readonly config: T2CConfig['openRouter']) {}
 
   isConfigured(): boolean {
     return Boolean(this.config.apiKey);
+  }
+
+  async listAvailableModels(): Promise<string[]> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
+    try {
+      const headers: Record<string, string> = {};
+      if (this.config.apiKey) headers.Authorization = `Bearer ${this.config.apiKey}`;
+      if (this.config.siteUrl) headers['HTTP-Referer'] = this.config.siteUrl;
+      const response = await fetch(`${this.config.baseUrl}/models`, {
+        headers,
+        signal: controller.signal,
+      });
+      const text = await response.text();
+      let parsed: OpenRouterModelsResponse;
+      try {
+        parsed = JSON.parse(text) as OpenRouterModelsResponse;
+      } catch {
+        throw new Error(`OpenRouter models endpoint returned non-JSON HTTP ${response.status}: ${text.slice(0, 500)}`);
+      }
+      if (!response.ok || parsed.error) {
+        throw new Error(`OpenRouter models HTTP ${response.status}: ${parsed.error?.message ?? text.slice(0, 500)}`);
+      }
+      return [...new Set((parsed.data ?? [])
+        .map((model) => model.id?.trim())
+        .filter((id): id is string => Boolean(id)))]
+        .sort((left, right) => left.localeCompare(right));
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`OpenRouter models request timed out after ${this.config.timeoutMs} ms`);
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   async chatText(messages: ChatMessage[], model = this.config.model): Promise<string> {
@@ -55,7 +106,12 @@ export class OpenRouterClient {
       const response = await this.request(structuredBody);
       return parseJsonContent<T>(extractContent(response));
     } catch (firstError) {
+      if (firstError instanceof OpenRouterModelError) throw firstError;
       if (!this.config.requireStructuredOutput) throw firstError;
+      // Retrying without JSON Schema can repair a provider capability or output
+      // formatting problem. It cannot repair a timeout/network/server failure,
+      // and repeating those failures used to double the worst-case chunk time.
+      if (!shouldRetryWithoutJsonSchema(firstError)) throw firstError;
       const fallback = await this.request({
         model,
         messages: [
@@ -107,6 +163,24 @@ export class OpenRouterClient {
               await sleep(300 * (2 ** attempt));
               continue;
             }
+            if (isInvalidModelError(response.status, message)) {
+              const model = typeof body.model === 'string' ? body.model : '(unknown)';
+              try {
+                const availableModels = await this.listAvailableModels();
+                throw new OpenRouterModelError(
+                  formatInvalidModelError(error.message, availableModels),
+                  model,
+                  availableModels,
+                );
+              } catch (listError) {
+                if (listError instanceof OpenRouterModelError) throw listError;
+                throw new OpenRouterModelError(
+                  `${error.message}\nAvailable OpenRouter models could not be fetched: ${listError instanceof Error ? listError.message : String(listError)}`,
+                  model,
+                  [],
+                );
+              }
+            }
             throw error;
           }
           return parsed;
@@ -125,6 +199,21 @@ export class OpenRouterClient {
       clearTimeout(timeout);
     }
   }
+}
+
+function shouldRetryWithoutJsonSchema(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return /OpenRouter HTTP 4\d\d:|returned non-JSON|response does not contain choices|returned invalid JSON/i.test(error.message);
+}
+
+function isInvalidModelError(status: number, message: string): boolean {
+  return status === 400 && /(?:not a valid model ID|invalid model(?: ID)?|model ID .*not found)/i.test(message);
+}
+
+function formatInvalidModelError(message: string, availableModels: string[]): string {
+  const heading = `Available OpenRouter models (${availableModels.length}):`;
+  if (!availableModels.length) return `${message}\n${heading}\n(none returned)`;
+  return `${message}\n${heading}\n${availableModels.map((model) => `- ${model}`).join('\n')}`;
 }
 
 function removeUndefined(value: unknown): unknown {

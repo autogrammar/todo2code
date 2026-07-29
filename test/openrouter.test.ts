@@ -7,7 +7,7 @@ import { buildRecord } from '../src/core/record.js';
 import { extractDocumentationIntent } from '../src/extractors/docs-llm.js';
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
-import { OpenRouterClient } from '../src/llm/openrouter.js';
+import { OpenRouterClient, OpenRouterModelError } from '../src/llm/openrouter.js';
 import { summarizeGraph } from '../src/summary/summarizer.js';
 import { makeConfig } from './helpers.js';
 
@@ -34,6 +34,70 @@ test('OpenRouter client parses structured JSON without exposing key', async () =
     assert.equal((requestBody.response_format as { type?: string }).type, 'json_schema');
     assert.equal((requestBody.provider as { require_parameters?: boolean }).require_parameters, true);
     assert.ok(!JSON.stringify(requestBody).includes('secret-test-key'));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('OpenRouter client lists available models after an invalid model ID', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  const requestedUrls: string[] = [];
+  globalThis.fetch = async (input) => {
+    const url = String(input);
+    requestedUrls.push(url);
+    if (url.endsWith('/models')) {
+      return new Response(JSON.stringify({
+        data: [
+          { id: 'qwen/qwen3.7-plus' },
+          { id: 'openai/gpt-5' },
+          { id: 'qwen/qwen3.7-plus' },
+        ],
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    return new Response(JSON.stringify({
+      error: { message: 'openrouter/qwen/qwen3.7-plus is not a valid model ID' },
+    }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const client = new OpenRouterClient(config.openRouter);
+    await assert.rejects(
+      () => client.chatJson([{ role: 'user', content: 'test' }], 'test', { type: 'object' }, 'openrouter/qwen/qwen3.7-plus'),
+      (error: unknown) => {
+        assert.ok(error instanceof OpenRouterModelError);
+        assert.equal(error.model, 'openrouter/qwen/qwen3.7-plus');
+        assert.deepEqual(error.availableModels, ['openai/gpt-5', 'qwen/qwen3.7-plus']);
+        assert.match(error.message, /Available OpenRouter models \(2\):/);
+        assert.match(error.message, /- openai\/gpt-5/);
+        assert.match(error.message, /- qwen\/qwen3\.7-plus/);
+        assert.ok(!error.message.includes('secret-test-key'));
+        return true;
+      },
+    );
+    assert.equal(requestedUrls.filter((url) => url.endsWith('/chat/completions')).length, 1);
+    assert.equal(requestedUrls.filter((url) => url.endsWith('/models')).length, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('OpenRouter JSON timeout is not repeated as a schema fallback request', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    throw new DOMException('aborted', 'AbortError');
+  };
+  try {
+    const client = new OpenRouterClient(config.openRouter);
+    await assert.rejects(
+      () => client.chatJson([{ role: 'user', content: 'test' }], 'test', { type: 'object' }),
+      /timed out/,
+    );
+    assert.equal(calls, 1);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -89,6 +153,41 @@ test('Documentation extractor converts OpenRouter structured output to bounded L
   }
 });
 
+test('Documentation extractor uses bounded concurrent OpenRouter requests', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-doc-concurrency-'));
+  await fs.mkdir(path.join(root, 'docs'));
+  await Promise.all([
+    fs.writeFile(path.join(root, 'docs', 'a.md'), '# A\n\nRequirement A.\n', 'utf8'),
+    fs.writeFile(path.join(root, 'docs', 'b.md'), '# B\n\nRequirement B.\n', 'utf8'),
+  ]);
+  const config = makeConfig(root);
+  config.documentConcurrency = 2;
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  let active = 0;
+  let maxActive = 0;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    active += 1;
+    maxActive = Math.max(maxActive, active);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    active -= 1;
+    return new Response(JSON.stringify({ choices: [{ message: { content: '{"records":[]}' } }] }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  };
+  try {
+    const result = await extractDocumentationIntent({ root, patterns: ['docs/**/*.md'], excludes: [] }, config);
+    assert.equal(result.warnings.length, 0);
+    assert.equal(calls, 2);
+    assert.equal(maxActive, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('LLM summarizer receives graph data and preserves grounded record citations', async () => {
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
@@ -124,6 +223,65 @@ test('LLM summarizer receives graph data and preserves grounded record citations
     assert.ok(result.markdown.includes(graph.fingerprint));
     assert.ok(userPayload.includes(record.id));
     assert.ok(!userPayload.includes('secret-test-key'));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('LLM summarizer prioritizes documentation over the AST payload budget', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const ast = Array.from({ length: 1201 }, (_, index) => buildRecord({
+    kind: 'implemented_fact',
+    action: 'declare',
+    object: `symbol-${index}`,
+    text: `symbol-${index}`,
+    lifecycle: 'implemented',
+    sourceKind: 'ast',
+    sourcePath: `src/generated-${index}.ts`,
+    sourceLines: { start: 1, end: 1 },
+    extractor: 'test',
+    epistemicClass: 'fact',
+    confidence: 1,
+    basis: ['test'],
+  }));
+  const document = buildRecord({
+    kind: 'documented_requirement',
+    action: 'preserve',
+    object: 'document contract',
+    text: 'The documented contract must be preserved.',
+    lifecycle: 'planned',
+    sourceKind: 'document',
+    sourcePath: 'docs/contract.md',
+    sourceLines: { start: 1, end: 1 },
+    extractor: 'test',
+    epistemicClass: 'llm_inference',
+    confidence: 0.8,
+    basis: ['test'],
+  });
+  const graph = linkIntentRecords([...ast, document], '2026-07-29T00:00:00.000Z');
+  const diagnostics = {
+    schemaVersion: 't2c.diagnostics/v1' as const,
+    generatedAt: '2026-07-29T00:00:00.000Z',
+    graphFingerprint: graph.fingerprint,
+    diagnostics: [],
+    counts: { info: 0, warning: 0, review_required: 0, blocking: 0 },
+  };
+  const originalFetch = globalThis.fetch;
+  let payload: { graph?: { records?: Array<{ id?: string }> }; truncation?: { includedBySource?: Record<string, number> } } = {};
+  globalThis.fetch = async (_input, init) => {
+    const body = JSON.parse(String(init?.body)) as { messages?: Array<{ role: string; content: string }> };
+    const user = body.messages?.find((message) => message.role === 'user')?.content ?? '{}';
+    payload = JSON.parse(user) as typeof payload;
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: `# Report\n\nDocumentation reviewed. [${document.id}]` } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const result = await summarizeGraph(graph, diagnostics, config, { allowDeterministicFallback: false });
+    assert.equal(result.llmUsed, true);
+    assert.ok(payload.graph?.records?.some((item) => item.id === document.id));
+    assert.equal(payload.truncation?.includedBySource?.document, 1);
   } finally {
     globalThis.fetch = originalFetch;
   }

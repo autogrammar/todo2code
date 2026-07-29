@@ -1,24 +1,55 @@
 import { createRelationId, graphFingerprint } from '../core/id.js';
-import { keywords, similarity } from '../core/text.js';
+import { keywords } from '../core/text.js';
 import type { IntentGraph, IntentRecord, IntentRelation, RelationType } from '../core/types.js';
 
 interface PairEvidence {
   score: number;
   basis: string[];
+  /** Best of object/text similarity, reused by `determineRelation`. */
+  textScore: number;
+}
+
+/**
+ * Tokenising `statement.object` and `statement.text` is the linker's hot path:
+ * scoring recomputed both for every candidate pair, so a repository producing
+ * ~177k pairs performed ~1.4M tokenisations. Keyword sets are computed once per
+ * record instead and compared with a plain Jaccard index.
+ */
+interface RecordKeywords {
+  object: Set<string>;
+  text: Set<string>;
+}
+
+function indexKeywords(records: IntentRecord[]): Map<string, RecordKeywords> {
+  return new Map(records.map((record) => [record.id, {
+    object: new Set(keywords(record.statement.object)),
+    text: new Set(keywords(record.statement.text)),
+  }]));
+}
+
+function jaccard(left: Set<string>, right: Set<string>): number {
+  if (left.size === 0 || right.size === 0) return 0;
+  // Iterate the smaller set: membership tests dominate this loop.
+  const [small, large] = left.size <= right.size ? [left, right] : [right, left];
+  let intersection = 0;
+  for (const item of small) {
+    if (large.has(item)) intersection += 1;
+  }
+  return intersection / (left.size + right.size - intersection);
 }
 
 export function linkIntentRecords(inputRecords: IntentRecord[], generatedAt = new Date().toISOString()): IntentGraph {
   const records = deduplicateRecords(inputRecords).sort((a, b) => a.id.localeCompare(b.id));
   const byId = new Map(records.map((record) => [record.id, record]));
-  const candidatePairs = collectCandidatePairs(records);
+  const keywordIndex = indexKeywords(records);
+  const candidatePairs = collectCandidatePairs(records, keywordIndex);
   const relations: IntentRelation[] = [];
 
-  for (const key of [...candidatePairs].sort()) {
-    const [leftId, rightId] = key.split('|');
-    const left = leftId ? byId.get(leftId) : undefined;
-    const right = rightId ? byId.get(rightId) : undefined;
+  for (const [leftId, rightId] of candidatePairs) {
+    const left = byId.get(leftId);
+    const right = byId.get(rightId);
     if (!left || !right) continue;
-    const evidence = scorePair(left, right);
+    const evidence = scorePair(left, right, keywordIndex);
     if (evidence.score < 0.42) continue;
     const directed = determineRelation(left, right, evidence);
     const relationWithoutId = {
@@ -56,39 +87,73 @@ function deduplicateRecords(records: IntentRecord[]): IntentRecord[] {
   return [...byId.values()];
 }
 
-function collectCandidatePairs(records: IntentRecord[]): Set<string> {
+/**
+ * Builds the candidate pairs the scorer has to inspect.
+ *
+ * Pairs are returned as tuples rather than `"left|right"` keys so the scoring
+ * loop does not re-split a string per pair; the map key exists only to
+ * deduplicate, and the result is sorted by it to keep output deterministic.
+ */
+function collectCandidatePairs(
+  records: IntentRecord[],
+  keywordIndex: Map<string, RecordKeywords>,
+): Array<[string, string]> {
   const buckets = new Map<string, string[]>();
+  const astIds = new Set<string>();
   const add = (key: string, id: string): void => {
-    const values = buckets.get(key) ?? [];
-    values.push(id);
-    buckets.set(key, values);
+    const values = buckets.get(key);
+    if (values) values.push(id);
+    else buckets.set(key, [id]);
   };
 
   for (const record of records) {
+    if (record.source.kind === 'ast') astIds.add(record.id);
     for (const ticket of record.statement.target.tickets) add(`ticket:${ticket.toLowerCase()}`, record.id);
     for (const symbol of record.statement.target.symbols) add(`symbol:${symbol.toLowerCase()}`, record.id);
     for (const filePath of record.statement.target.paths) add(`path:${filePath.toLowerCase()}`, record.id);
-    for (const token of keywords(record.statement.object).slice(0, 5)) add(`token:${token}`, record.id);
+    // Keyword sets are already indexed; a Set preserves the sorted insertion
+    // order of `keywords()`, so the first five entries are the same tokens.
+    const objectKeywords = keywordIndex.get(record.id)?.object;
+    if (objectKeywords) {
+      let taken = 0;
+      for (const token of objectKeywords) {
+        if (taken >= 5) break;
+        add(`token:${token}`, record.id);
+        taken += 1;
+      }
+    }
   }
 
-  const output = new Set<string>();
-  for (const ids of buckets.values()) {
-    const unique = [...new Set(ids)].sort();
-    const limited = unique.slice(0, 300);
+  const output = new Map<string, [string, string]>();
+  for (const [bucketKey, ids] of buckets) {
+    const isPathBucket = bucketKey.startsWith('path:');
+    const limited = [...new Set(ids)].sort().slice(0, 300);
     for (let left = 0; left < limited.length; left += 1) {
       for (let right = left + 1; right < limited.length; right += 1) {
         const leftId = limited[left];
         const rightId = limited[right];
-        if (leftId && rightId) output.add(`${leftId}|${rightId}`);
+        if (!leftId || !rightId) continue;
+        // A shared file is weak evidence between two AST facts: every symbol
+        // declared in a module shares that module's path, so this bucket alone
+        // produced ~80% of all candidate pairs and filled the graph with
+        // `related_to` noise between unrelated functions. Such a pair still
+        // enters the graph when the symbol or keyword bucket also connects it.
+        if (isPathBucket && astIds.has(leftId) && astIds.has(rightId)) continue;
+        output.set(`${leftId}|${rightId}`, [leftId, rightId]);
       }
     }
   }
-  return output;
+
+  return [...output.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([, pair]) => pair);
 }
 
-function scorePair(left: IntentRecord, right: IntentRecord): PairEvidence {
+function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, RecordKeywords>): PairEvidence {
   let score = 0;
   const basis: string[] = [];
+  const leftKeywords = index.get(left.id);
+  const rightKeywords = index.get(right.id);
   if (intersects(left.statement.target.tickets, right.statement.target.tickets)) {
     score += 0.62;
     basis.push('shared_ticket');
@@ -105,20 +170,23 @@ function scorePair(left: IntentRecord, right: IntentRecord): PairEvidence {
     score += 0.13;
     basis.push('same_action');
   }
-  const objectSimilarity = Math.max(
-    similarity(left.statement.object, right.statement.object),
-    similarity(left.statement.text, right.statement.text),
-  );
+  const objectSimilarity = leftKeywords && rightKeywords
+    ? Math.max(
+      jaccard(leftKeywords.object, rightKeywords.object),
+      jaccard(leftKeywords.text, rightKeywords.text),
+    )
+    : 0;
   if (objectSimilarity >= 0.2) {
     score += objectSimilarity * 0.48;
     basis.push(`text_similarity:${objectSimilarity.toFixed(3)}`);
   }
   if (left.source.kind === right.source.kind) score -= 0.08;
-  return { score: Math.max(0, score), basis: [...new Set(basis)].sort() };
+  return { score: Math.max(0, score), basis: [...new Set(basis)].sort(), textScore: objectSimilarity };
 }
 
 function determineRelation(left: IntentRecord, right: IntentRecord, evidence: PairEvidence): { from: IntentRecord; to: IntentRecord; type: RelationType } {
-  const textScore = Math.max(similarity(left.statement.object, right.statement.object), similarity(left.statement.text, right.statement.text));
+  // `scorePair` already computed this over the same two strings.
+  const textScore = evidence.textScore;
   if (left.statement.polarity !== right.statement.polarity && textScore >= 0.45) {
     return { from: left, to: right, type: 'contradicts' };
   }

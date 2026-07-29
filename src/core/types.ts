@@ -151,6 +151,41 @@ export interface IntentGraph {
   };
 }
 
+export interface IntentRecordChange {
+  identity: string;
+  before: IntentRecord;
+  after: IntentRecord;
+  changedFields: string[];
+}
+
+export interface IntentGraphDiff {
+  schemaVersion: 't2c.diff/v1';
+  generatedAt: string;
+  fingerprint: string;
+  beforeFingerprint: string;
+  afterFingerprint: string;
+  records: {
+    added: IntentRecord[];
+    removed: IntentRecord[];
+    changed: IntentRecordChange[];
+    unchanged: number;
+  };
+  relations: {
+    added: IntentRelation[];
+    removed: IntentRelation[];
+    unchanged: number;
+  };
+  summary: {
+    recordsAdded: number;
+    recordsRemoved: number;
+    recordsChanged: number;
+    recordsUnchanged: number;
+    relationsAdded: number;
+    relationsRemoved: number;
+    relationsUnchanged: number;
+  };
+}
+
 export type DiagnosticCode =
   | 'ALIGNED'
   | 'PLANNED_NOT_IMPLEMENTED'

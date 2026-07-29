@@ -18,6 +18,10 @@ test('MCP/A2A action boundary rejects traversal and symlink escapes', async () =
     executeAction('extract_nl', { file: '../secret.md' }, config),
     /outside configured T2C_ROOT/,
   );
+  await assert.rejects(
+    executeAction('diff', { before: '../secret.md', after: 'graph.json' }, config),
+    /outside configured T2C_ROOT/,
+  );
 
   const link = path.join(root, 'linked-secret.md');
   try {

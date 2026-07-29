@@ -74,10 +74,10 @@ docker-build: ## Zbuduj obraz Docker
 	docker build -t todo2code:local .
 
 docker-up: ## Uruchom A2A w Docker Compose (make setup najpierw)
-	docker compose up --build -d
+	docker compose -f docker-compose.yml up --build -d
 
 docker-down: ## Zatrzymaj Docker Compose
-	docker compose down
+	docker compose -f docker-compose.yml down
 
 package: validate ## Utwórz ZIP i plik SHA-256 bez sekretów i node_modules
 	$(PYTHON) scripts/package.py "$(PACKAGE)"

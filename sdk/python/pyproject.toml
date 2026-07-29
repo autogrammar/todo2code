@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "todo2code-sdk"
+version = "0.2.0"
+description = "Dependency-free Python SDK for the todo2code A2A and diff runtimes"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[tool.setuptools]
+# `todo2code` holds the implementation; `todo2code_sdk` is the diff-focused facade.
+packages = ["todo2code"]
+py-modules = ["todo2code_sdk"]

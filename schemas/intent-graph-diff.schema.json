@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/intent-graph-diff.schema.json",
+  "title": "todo2code Intent Graph Diff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "fingerprint", "beforeFingerprint", "afterFingerprint", "records", "relations", "summary"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.diff/v1" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "beforeFingerprint": { "$ref": "#/$defs/fingerprint" },
+    "afterFingerprint": { "$ref": "#/$defs/fingerprint" },
+    "records": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["added", "removed", "changed", "unchanged"],
+      "properties": {
+        "added": { "type": "array", "items": { "$ref": "intent-record.schema.json" } },
+        "removed": { "type": "array", "items": { "$ref": "intent-record.schema.json" } },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["identity", "before", "after", "changedFields"],
+            "properties": {
+              "identity": { "type": "string" },
+              "before": { "$ref": "intent-record.schema.json" },
+              "after": { "$ref": "intent-record.schema.json" },
+              "changedFields": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "unchanged": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "relations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["added", "removed", "unchanged"],
+      "properties": {
+        "added": { "type": "array", "items": { "$ref": "#/$defs/relation" } },
+        "removed": { "type": "array", "items": { "$ref": "#/$defs/relation" } },
+        "unchanged": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordsAdded", "recordsRemoved", "recordsChanged", "recordsUnchanged", "relationsAdded", "relationsRemoved", "relationsUnchanged"],
+      "properties": {
+        "recordsAdded": { "$ref": "#/$defs/count" },
+        "recordsRemoved": { "$ref": "#/$defs/count" },
+        "recordsChanged": { "$ref": "#/$defs/count" },
+        "recordsUnchanged": { "$ref": "#/$defs/count" },
+        "relationsAdded": { "$ref": "#/$defs/count" },
+        "relationsRemoved": { "$ref": "#/$defs/count" },
+        "relationsUnchanged": { "$ref": "#/$defs/count" }
+      }
+    }
+  },
+  "$defs": {
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "count": { "type": "integer", "minimum": 0 },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "type", "confidence", "basis"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^REL-[a-f0-9]{20}$" },
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "type": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "basis": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

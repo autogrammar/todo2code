@@ -5,14 +5,24 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { configForDisplay, getConfig, hasOpenRouter, loadEnvFile } from './config/env.js';
-import { pathExists, readJson, readJsonl, writeJson, writeJsonl, writeText } from './core/io.js';
+import { pathExists, readJson, readJsonl, readText, writeJson, writeJsonl, writeText } from './core/io.js';
 import type { DiagnosticReport, IntentGraph, PipelineOptions } from './core/types.js';
+import { collectGitDiff } from './diff/git.js';
+import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from './diff/reality.js';
+import {
+  diffText,
+  renderTextDiffHtml,
+  renderTextDiffSvg,
+  renderUnifiedDiff,
+  type FileDiff,
+} from './diff/text.js';
 import { extractAstIntent } from './extractors/ast.js';
 import { extractDocumentationIntent } from './extractors/docs-llm.js';
 import { extractGitIntent } from './extractors/git.js';
 import { extractMarkdownIntent } from './extractors/markdown.js';
 import { extractNlIntent } from './extractors/nl.js';
 import { diagnoseGraph } from './graph/diagnostics.js';
+import { diffIntentGraphs, renderGraphDiffSvg } from './graph/diff.js';
 import { linkIntentRecords } from './graph/linker.js';
 import { startA2aServer } from './interfaces/a2a.js';
 import { startMcpServer } from './interfaces/mcp.js';
@@ -40,7 +50,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
   if (argv[0] === '--version' || argv[0] === '-v') {
-    process.stdout.write('todo2code 0.1.0\n');
+    process.stdout.write('todo2code 0.2.0\n');
     return;
   }
   const parsed = parseArgs(argv);
@@ -52,7 +62,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
   if (command === 'version' || command === '--version' || command === '-v') {
-    process.stdout.write('todo2code 0.1.0\n');
+    process.stdout.write('todo2code 0.2.0\n');
     return;
   }
   if (command === 'init') {
@@ -90,6 +100,14 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     await emitJson(diagnoseGraph(graph), optionString(parsed, 'out'));
     return;
   }
+  if (command === 'diff') {
+    await handleDiff(parsed, config);
+    return;
+  }
+  if (command === 'reality') {
+    await handleReality(parsed, config);
+    return;
+  }
   if (command === 'summarize') {
     const graphFile = parsed.positionals[0];
     if (!graphFile) throw new Error('Usage: t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--fallback] [--out summary.md]');
@@ -125,6 +143,96 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
   throw new Error(`Unknown command: ${command}. Run t2c help.`);
+}
+
+async function handleDiff(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const mode = (optionString(parsed, 'mode') ?? 'graph').toLowerCase();
+  const out = optionString(parsed, 'out');
+  const svg = optionString(parsed, 'svg');
+  const html = optionString(parsed, 'html');
+
+  if (mode === 'graph') {
+    const beforeFile = parsed.positionals[0];
+    const afterFile = parsed.positionals[1];
+    if (!beforeFile || !afterFile) {
+      throw new Error('Usage: t2c diff <before.graph.json> <after.graph.json> [--out diff.json] [--svg diff.svg]');
+    }
+    const [before, after] = await Promise.all([
+      readJson<IntentGraph>(path.resolve(beforeFile)),
+      readJson<IntentGraph>(path.resolve(afterFile)),
+    ]);
+    const diff = diffIntentGraphs(before, after);
+    if (out) await writeJson(path.resolve(out), diff);
+    if (svg) await writeText(path.resolve(svg), renderGraphDiffSvg(diff, { maxItems: optionNumber(parsed, 'max-items', 18, 1, 100) }));
+    if (!out && !svg) process.stdout.write(`${JSON.stringify(diff, null, 2)}\n`);
+    return;
+  }
+
+  const context = optionNumber(parsed, 'context', 3, 0, 100);
+  const maxRows = optionNumber(parsed, 'max-rows', 400, 1, 4000);
+  let diffs: FileDiff[];
+  let title: string;
+
+  if (mode === 'files') {
+    const beforeFile = parsed.positionals[0];
+    const afterFile = parsed.positionals[1];
+    if (!beforeFile || !afterFile) {
+      throw new Error('Usage: t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html]');
+    }
+    const [beforeText, afterText] = await Promise.all([
+      readText(path.resolve(beforeFile), config.maxFileBytes),
+      readText(path.resolve(afterFile), config.maxFileBytes),
+    ]);
+    diffs = [diffText(beforeText, afterText, { beforePath: beforeFile, afterPath: afterFile, path: afterFile, context })];
+    title = `${beforeFile} → ${afterFile}`;
+  } else if (mode === 'git') {
+    const root = path.resolve(parsed.positionals[0] ?? config.root);
+    const result = await collectGitDiff({
+      root,
+      revision: optionString(parsed, 'rev') ?? 'HEAD',
+      staged: optionBoolean(parsed, 'staged', false),
+      context,
+      maxFiles: optionNumber(parsed, 'max-files', 50, 1, 500),
+    });
+    for (const warning of result.warnings) process.stderr.write(`warning: ${warning}\n`);
+    diffs = result.diffs;
+    title = `git diff ${result.staged ? '--cached ' : ''}${result.revision}`;
+  } else {
+    throw new Error(`Unknown --mode ${mode}. Expected graph, files or git.`);
+  }
+
+  if (out) await writeJson(path.resolve(out), diffs);
+  if (svg) await writeText(path.resolve(svg), renderTextDiffSvg(diffs, { title, maxRows }));
+  if (html) await writeText(path.resolve(html), renderTextDiffHtml(diffs, { title }));
+  if (!out && !svg && !html) {
+    for (const diff of diffs) process.stdout.write(renderUnifiedDiff(diff));
+  }
+}
+
+async function handleReality(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const graphFile = parsed.positionals[0];
+  if (!graphFile) {
+    throw new Error('Usage: t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg] [--md reality.md]');
+  }
+  const graph = await readJson<IntentGraph>(path.resolve(graphFile));
+  const diagnosticsPath = optionString(parsed, 'diagnostics');
+  const diagnostics = diagnosticsPath
+    ? await readJson<DiagnosticReport>(path.resolve(diagnosticsPath))
+    : diagnoseGraph(graph);
+  const view = buildRealityView(graph, diagnostics);
+
+  const out = optionString(parsed, 'out');
+  const svg = optionString(parsed, 'svg');
+  const markdown = optionString(parsed, 'md');
+  if (out) await writeJson(path.resolve(out), view);
+  if (svg) {
+    await writeText(path.resolve(svg), renderRealitySvg(view, {
+      maxRows: optionNumber(parsed, 'max-rows', 30, 1, 500),
+      gapsOnly: optionBoolean(parsed, 'gaps-only', false),
+    }));
+  }
+  if (markdown) await writeText(path.resolve(markdown), renderRealityMarkdown(view));
+  if (!out && !svg && !markdown) process.stdout.write(renderRealityMarkdown(view));
 }
 
 async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
@@ -300,7 +408,12 @@ function printHelp(): void {
   process.stdout.write(`  t2c extract docs [--patterns 'README.md,docs/**/*.md'] [--out docs.intent.jsonl]\n`);
   process.stdout.write(`  t2c link <*.intent.jsonl>... [--out intent.graph.json]\n`);
   process.stdout.write(`  t2c diagnose <intent.graph.json> [--out diagnostics.json]\n`);
+  process.stdout.write(`  t2c diff <before.graph.json> <after.graph.json> [--out diff.json] [--svg diff.svg]\n`);
   process.stdout.write(`  t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--fallback] [--out team-summary.md]\n`);
+  process.stdout.write(`  t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html] [--context 3]\n`);
+  process.stdout.write(`  t2c diff --mode git [root] [--rev HEAD] [--staged] [--svg diff.svg] [--html diff.html]\n`);
+  process.stdout.write(`  t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg]\n`);
+  process.stdout.write(`               [--md reality.md] [--gaps-only] [--max-rows 30]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--no-docs-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);

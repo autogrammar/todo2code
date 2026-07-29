@@ -1,0 +1,28 @@
+{
+  "name": "@todo2code/sdk",
+  "version": "0.2.0",
+  "description": "TypeScript SDK for the todo2code A2A v1.0 endpoint.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "example": "node dist/examples/basic.js"
+  },
+  "devDependencies": {
+    "@types/node": ">=20 <25",
+    "typescript": ">=5.8.3 <7"
+  }
+}

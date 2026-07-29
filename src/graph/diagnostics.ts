@@ -10,9 +10,12 @@ import type {
 export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISOString()): DiagnosticReport {
   const diagnostics: Diagnostic[] = [];
   const neighbors = buildNeighbors(graph);
+  const recordsById = new Map(graph.records.map((record) => [record.id, record]));
 
   for (const record of graph.records) {
-    const related = (neighbors.get(record.id) ?? []).map((id) => graph.records.find((item) => item.id === id)).filter((item): item is IntentRecord => Boolean(item));
+    const related = (neighbors.get(record.id) ?? [])
+      .map((id) => recordsById.get(id))
+      .filter((item): item is IntentRecord => Boolean(item));
     if (isPlan(record) && !related.some(isImplementationEvidence)) {
       diagnostics.push(makeDiagnostic(
         record.lifecycle.status === 'completed' ? 'blocking' : 'warning',
@@ -132,10 +135,16 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
 function buildNeighbors(graph: IntentGraph): Map<string, string[]> {
   const map = new Map<string, string[]>();
   for (const relation of graph.relations) {
-    map.set(relation.from, [...(map.get(relation.from) ?? []), relation.to]);
-    map.set(relation.to, [...(map.get(relation.to) ?? []), relation.from]);
+    appendNeighbor(map, relation.from, relation.to);
+    appendNeighbor(map, relation.to, relation.from);
   }
   return map;
+}
+
+function appendNeighbor(map: Map<string, string[]>, from: string, to: string): void {
+  const values = map.get(from);
+  if (values) values.push(to);
+  else map.set(from, [to]);
 }
 
 function isPlan(record: IntentRecord): boolean {

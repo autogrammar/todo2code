@@ -70,6 +70,10 @@ t2c extract docs [--patterns 'README.md,docs/**/*.md']
 
 t2c link <*.intent.jsonl>... --out intent.graph.json
 t2c diagnose intent.graph.json --out diagnostics.json
+t2c diff before.graph.json after.graph.json --out graph.diff.json --svg graph.diff.svg
+t2c diff --mode files before.ts after.ts --svg files.diff.svg --html files.diff.html
+t2c diff --mode git . --rev HEAD --svg worktree.diff.svg
+t2c reality intent.graph.json --diagnostics diagnostics.json --svg reality.svg --md reality.md
 t2c summarize intent.graph.json --diagnostics diagnostics.json --out team-summary.md
 t2c pipeline [root] --task TASK.md --todo TODO.md --changelog CHANGELOG.md
 t2c mcp
@@ -123,7 +127,79 @@ Przykładowa konfiguracja hosta MCP:
 }
 ```
 
-Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `summarize`, `pipeline`. Serwer udostępnia też zasoby `t2c://latest/*`.
+Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `summarize`, `pipeline`. Serwer udostępnia też zasoby `t2c://latest/*`.
+
+## Diff DSL, SVG i SDK
+
+Porównanie dwóch grafów zwraca kanoniczny `t2c.diff/v1` z rekordami `added`, `removed`, `changed` i liczbą elementów bez zmian. `--mode files` tworzy deterministyczny diff linii `t2c.filediff/v1`, a `--mode git` stosuje ten sam silnik do rewizji, indeksu lub drzewa roboczego. Dostępne są widoki SVG, HTML oraz unified diff; nie wymagają bibliotek renderujących i nie wykonują treści pochodzącej z plików.
+
+Polecenie `t2c reality` projektuje pojedynczy graf do `t2c.reality/v1`: zestawia deklaracje z taska, TODO i dokumentacji z faktami Git/AST, a rozbieżności pokazuje jako SVG albo tabelę Markdown.
+
+Po uruchomieniu A2A dostępne są:
+
+- frontend: `http://localhost:8787/ui`;
+- REST diff: `POST http://localhost:8787/api/diff`;
+- A2A/MCP action: `diff`.
+
+SDK TypeScript/JavaScript:
+
+```ts
+import { Todo2CodeClient } from 'todo2code/sdk';
+
+const client = new Todo2CodeClient({ baseUrl: 'http://localhost:8787' });
+const result = await client.diffGraphs(beforeGraph, afterGraph);
+console.log(result.diff.summary, result.svg);
+
+const files = await client.diffTextFiles('before.ts', 'after.ts', { includeHtml: true });
+const reality = await client.reality(afterGraph);
+```
+
+SDK Python nie ma zewnętrznych zależności:
+
+```python
+from sdk.python import Todo2CodeClient
+
+client = Todo2CodeClient("http://localhost:8787")
+result = client.diff_graphs(before_graph, after_graph)
+print(result["diff"]["summary"])
+
+files = client.diff_text_files("before.ts", "after.ts", include_html=True)
+reality = client.reality(after_graph)
+```
+
+Można go także zainstalować przez `python3 -m pip install ./sdk/python` i importować jako `todo2code_sdk`.
+
+Uruchamialne przykłady znajdują się w `examples/sdk/typescript.mjs` i `examples/sdk/python.py`.
+
+Pomiary oraz bezpieczne i semantycznie istotne dalsze optymalizacje opisuje `docs/OPTIMIZATION.md`.
+
+### SDK dla pięciu języków
+
+Katalog [`sdk/`](sdk/) zawiera pełne klienty A2A v1.0 udostępniające **wszystkie** akcje runtime'u (nie tylko diff), wraz z typami Intent DSL:
+
+| Język | Katalog | Zależności | Klasa |
+|---|---|---|---|
+| TypeScript / Node | [`sdk/typescript/`](sdk/typescript/) | brak | `T2CClient` |
+| Python 3.10+ | [`sdk/python/`](sdk/python/) | brak | `T2CClient` |
+| Go 1.21+ | [`sdk/go/`](sdk/go/) | brak | `todo2code.Client` |
+| Rust 1.70+ | [`sdk/rust/`](sdk/rust/) | `serde_json` | `todo2code::Client` |
+| PHP 8.1+ | [`sdk/php/`](sdk/php/) | brak | `Todo2Code\Client` |
+
+Każdy język ma uruchamialny przykład w `sdk/<język>/examples/`. Wszystkie przepuszczają ten sam zbiór rekordów przez `link` i muszą otrzymać identyczny fingerprint grafu — to test wierności round-tripu typów. Szczegóły: [`sdk/README.md`](sdk/README.md).
+
+## Przykładowe repozytoria
+
+`examples/backend` (HTTP API bez zależności) i `examples/frontend` (panel DOM bez frameworka) to gotowe wejścia dla runtime'u DSL. Każde ma `task.md`, `TODO.md`, `CHANGELOG.md`, `README.md` i `src/`, i celowo zawiera rozbieżności plan↔kod, żeby `t2c reality` miał co pokazać:
+
+```bash
+node dist/src/cli.js pipeline examples/backend \
+  --task task.md --todo TODO.md --changelog CHANGELOG.md \
+  --docs 'README.md' --no-docs-llm --out .intent
+
+node dist/src/cli.js reality examples/backend/.intent/runs/<run-id>/intent.graph.json \
+  --diagnostics examples/backend/.intent/runs/<run-id>/diagnostics.json \
+  --svg reality.svg --md reality.md
+```
 
 ## A2A v1.0
 
@@ -223,4 +299,6 @@ Wbudowane klasy obejmują m.in.:
 - [`docs/PROTOCOLS.md`](docs/PROTOCOLS.md) — MCP, A2A i OpenRouter;
 - [`docs/SECURITY.md`](docs/SECURITY.md) — granice dostępu i sekretów;
 - [`docs/VALIDATION.md`](docs/VALIDATION.md) — zakres oraz wynik walidacji paczki;
+- [`docs/OPTIMIZATION.md`](docs/OPTIMIZATION.md) — zmierzone wąskie gardła runtime'u i zastosowane usprawnienia;
+- [`sdk/README.md`](sdk/README.md) — SDK dla TypeScript, Pythona, Go, Rusta i PHP;
 - [`docs/reference/original-monitoring-design.md`](docs/reference/original-monitoring-design.md) — materiał wejściowy dostarczony do projektu.

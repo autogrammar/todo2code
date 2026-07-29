@@ -65,3 +65,17 @@
 - Commit message i changelog są `claim`, nawet gdy brzmią jak zakończona praca.
 - Rekord z dokumentacji LLM nie może przekroczyć confidence `0.85`.
 - Brak pola pozostaje brakiem; system nie tworzy ukrytego faktu.
+
+## Diff grafów (`t2c.diff/v1`)
+
+Diff zachowuje fingerprint grafu wcześniejszego i późniejszego oraz rozdziela rekordy na `added`, `removed`, `changed` i `unchanged`. Zmiana jest rozpoznawana po stabilnej tożsamości źródła (`kind`, ścieżka, linie, symbol i rodzaj statementu), dzięki czemu zmiana treści rekordu nie jest błędnie raportowana jako niezależne usunięcie i dodanie. Relacje są porównywane deterministycznie po końcach, typie, confidence i basis.
+
+SVG jest wyłącznie projekcją `t2c.diff/v1`; nie jest źródłem danych i nie wpływa na fingerprint diffu.
+
+## Diff plików (`t2c.filediff/v1`)
+
+Deterministyczny algorytm Myersa porównuje linie bez LLM i zwraca hunki z numerami linii oraz podsumowaniem `added`, `removed`, `unchanged`. Ten sam model zasila unified diff, boczny widok SVG i HTML oraz tryb porównania Git. Dla bardzo dużego środka pliku runtime przechodzi na ograniczoną pamięciowo reprezentację blokowej zamiany i oznacza wynik jako `truncated`.
+
+## Intent vs reality (`t2c.reality/v1`)
+
+Widok zestawia źródła deklaratywne (`nl`, `todo`, `document`) z dowodami wykonania (`git`, `ast`) i changelogiem. Każdy temat ma jawne liczniki per źródło oraz status, m.in. `aligned`, `planned_not_implemented`, `implemented_not_planned`, `implemented_not_documented` lub `conflicting`. SVG i Markdown są projekcjami tego samego deterministycznego modelu.

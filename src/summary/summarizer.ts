@@ -55,26 +55,53 @@ export async function summarizeGraph(
 }
 
 function compactPayload(graph: IntentGraph, diagnostics: DiagnosticReport): Record<string, unknown> {
+  const maxRecords = 400;
+  const maxRelations = 800;
+  const maxDiagnostics = 250;
   const referenced = new Set(diagnostics.diagnostics.flatMap((item) => item.recordIds));
-  const selected = graph.records.filter((record) => {
-    if (referenced.has(record.id)) return true;
-    if (record.source.kind !== 'ast') return true;
-    return record.statement.kind === 'symbol_fact' || record.statement.kind === 'python_symbol_fact';
-  }).slice(0, 1200);
+  // Documentation and other declared/claimed evidence must survive the payload
+  // budget even in AST-heavy repositories. Previously a large block of
+  // diagnostic-referenced AST facts could consume the first 1200 slots before
+  // the model saw any documentation records.
+  const nonAst = graph.records.filter((record) => record.source.kind !== 'ast');
+  const relevantAst = graph.records.filter((record) => record.source.kind === 'ast' && (
+    referenced.has(record.id)
+    || record.statement.kind === 'symbol_fact'
+    || record.statement.kind === 'python_symbol_fact'
+  ));
+  const selected = [...nonAst, ...relevantAst].slice(0, maxRecords);
   const ids = new Set(selected.map((record) => record.id));
+  const selectedRelations = graph.relations
+    .filter((relation) => ids.has(relation.from) && ids.has(relation.to))
+    .slice(0, maxRelations);
+  const severityRank: Record<string, number> = { blocking: 0, review_required: 1, warning: 2, info: 3 };
+  const selectedDiagnostics = [...diagnostics.diagnostics]
+    .sort((left, right) => (severityRank[left.severity] ?? 4) - (severityRank[right.severity] ?? 4)
+      || left.code.localeCompare(right.code)
+      || left.id.localeCompare(right.id))
+    .slice(0, maxDiagnostics);
   return {
     graph: {
       schemaVersion: graph.schemaVersion,
       fingerprint: graph.fingerprint,
       stats: graph.stats,
       records: selected.map(compactRecord),
-      relations: graph.relations.filter((relation) => ids.has(relation.from) && ids.has(relation.to)).slice(0, 3000),
+      relations: selectedRelations,
     },
-    diagnostics,
+    diagnostics: { ...diagnostics, diagnostics: selectedDiagnostics },
     truncation: {
       originalRecords: graph.records.length,
       includedRecords: selected.length,
       originalRelations: graph.relations.length,
+      includedRelations: selectedRelations.length,
+      originalDiagnostics: diagnostics.diagnostics.length,
+      includedDiagnostics: selectedDiagnostics.length,
+      includedBySource: Object.fromEntries(Object.entries(
+        selected.reduce<Record<string, number>>((counts, record) => {
+          counts[record.source.kind] = (counts[record.source.kind] ?? 0) + 1;
+          return counts;
+        }, {}),
+      ).sort(([left], [right]) => left.localeCompare(right))),
     },
   };
 }

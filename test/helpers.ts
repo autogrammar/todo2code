@@ -6,6 +6,7 @@ export function makeConfig(root: string): T2CConfig {
     outputDir: '.intent',
     gitCommitCount: 10,
     maxFileBytes: 524_288,
+    documentConcurrency: 3,
     pythonExecutable: 'python3',
     enablePythonAst: true,
     allowOutsideRoot: false,

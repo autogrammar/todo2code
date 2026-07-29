@@ -52,6 +52,7 @@ export async function extractDocumentationIntent(options: DocumentationExtractio
   const systemPrompt = await readPrompt('docs-to-intent.system.md');
   const records: IntentRecord[] = [];
   const warnings: string[] = [];
+  const documentChunks: DocumentChunk[] = [];
 
   for (const file of files) {
     let body: string;
@@ -62,30 +63,57 @@ export async function extractDocumentationIntent(options: DocumentationExtractio
       continue;
     }
     const relative = relativePosix(options.root, file);
-    const chunks = chunkMarkdown(relative, body, 16_000);
-    for (const chunk of chunks) {
-      try {
-        const response = await client.chatJson<DocumentResponse>([
-          { role: 'system', content: systemPrompt },
-          {
-            role: 'user',
-            content: JSON.stringify({
-              sourcePath: chunk.path,
-              startLine: chunk.startLine,
-              endLine: chunk.endLine,
-              content: chunk.content,
-            }),
-          },
-        ], 't2c_document_intent', documentResponseSchema(), config.openRouter.documentModel);
-        for (const raw of response.records ?? []) {
-          records.push(toIntentRecord(raw, chunk));
-        }
-      } catch (error) {
-        warnings.push(`${relative}:${chunk.startLine}-${chunk.endLine}: ${error instanceof Error ? error.message : String(error)}`);
-      }
+    documentChunks.push(...chunkMarkdown(relative, body, 16_000));
+  }
+
+  const results = await mapConcurrent(documentChunks, config.documentConcurrency, async (chunk) => {
+    const chunkRecords: IntentRecord[] = [];
+    const chunkWarnings: string[] = [];
+    try {
+      const response = await client.chatJson<DocumentResponse>([
+        { role: 'system', content: systemPrompt },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            sourcePath: chunk.path,
+            startLine: chunk.startLine,
+            endLine: chunk.endLine,
+            content: chunk.content,
+          }),
+        },
+      ], 't2c_document_intent', documentResponseSchema(), config.openRouter.documentModel);
+      for (const raw of response.records ?? []) chunkRecords.push(toIntentRecord(raw, chunk));
+    } catch (error) {
+      chunkWarnings.push(`${chunk.path}:${chunk.startLine}-${chunk.endLine}: ${error instanceof Error ? error.message : String(error)}`);
     }
+    return { records: chunkRecords, warnings: chunkWarnings };
+  });
+
+  for (const result of results) {
+    records.push(...result.records);
+    warnings.push(...result.warnings);
   }
   return { records, warnings };
+}
+
+async function mapConcurrent<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+  const worker = async (): Promise<void> => {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      const item = items[index];
+      if (item !== undefined) results[index] = await mapper(item, index);
+    }
+  };
+  const workerCount = Math.min(items.length, Math.max(1, Math.trunc(concurrency)));
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
 }
 
 function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk): IntentRecord {

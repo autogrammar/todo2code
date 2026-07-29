@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package.json tsconfig.json ./
 RUN npm install --include=dev --omit=optional
 COPY src ./src
+COPY sdk/typescript/src ./sdk/typescript/src
 COPY test ./test
 COPY python ./python
 COPY prompts ./prompts

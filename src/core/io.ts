@@ -57,8 +57,12 @@ export async function readJsonl(filePath: string): Promise<IntentRecord[]> {
     });
 }
 
-export async function readJson<T>(filePath: string): Promise<T> {
-  return JSON.parse(await readText(filePath, 32 * 1024 * 1024)) as T;
+export async function readJson<T>(filePath: string, maxBytes = 128 * 1024 * 1024): Promise<T> {
+  // A generated graph can legitimately exceed the per-source-file limit due
+  // to relation density (for example a 3.5k-record graph is roughly 50 MiB).
+  // Keep an explicit artifact ceiling, but do not make the CLI unable to read
+  // the output it just produced.
+  return JSON.parse(await readText(filePath, maxBytes)) as T;
 }
 
 export interface WalkOptions {

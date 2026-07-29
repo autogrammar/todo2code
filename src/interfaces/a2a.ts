@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { getConfig, loadEnvFile } from '../config/env.js';
 import { executeAction, type T2CAction } from '../services/actions.js';
+import { diffUiHtml } from '../web/diff-ui.js';
 
 interface JsonRpcRequest {
   jsonrpc: '2.0';
@@ -89,7 +90,7 @@ interface ListCursor {
 
 const tasks = new Map<string, StoredTask>();
 const messageTaskIndex = new Map<string, string>();
-const ACTIONS: T2CAction[] = ['extract_nl', 'extract_git', 'extract_ast', 'extract_markdown', 'extract_docs', 'link', 'diagnose', 'summarize', 'pipeline'];
+const ACTIONS: T2CAction[] = ['extract_nl', 'extract_git', 'extract_ast', 'extract_markdown', 'extract_docs', 'link', 'diagnose', 'summarize', 'diff', 'diff_files', 'diff_git', 'reality', 'pipeline'];
 const TERMINAL_STATES = new Set<A2ATaskState>([
   'TASK_STATE_COMPLETED',
   'TASK_STATE_FAILED',
@@ -144,8 +145,29 @@ async function handleHttp(request: IncomingMessage, response: ServerResponse, co
     sendAgentCard(request, response, config);
     return;
   }
+  if (request.method === 'GET' && url.pathname === '/ui') {
+    sendText(response, 200, diffUiHtml(), 'text/html; charset=utf-8', {
+      'Content-Security-Policy': "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:",
+    });
+    return;
+  }
   if (request.method === 'GET' && url.pathname === '/') {
-    sendJson(response, 200, { name: 'todo2code A2A server', agentCard: '/.well-known/agent-card.json', endpoint: '/a2a' });
+    sendJson(response, 200, { name: 'todo2code A2A server', agentCard: '/.well-known/agent-card.json', endpoint: '/a2a', diffApi: '/api/diff', ui: '/ui' });
+    return;
+  }
+  if (request.method === 'POST' && url.pathname === '/api/diff') {
+    if (!authorized(request, config)) {
+      response.setHeader('WWW-Authenticate', 'Bearer realm="todo2code"');
+      sendJson(response, 401, { error: 'Unauthorized' });
+      return;
+    }
+    try {
+      const input = JSON.parse(await readBody(request, config.a2a.maxBodyBytes)) as Record<string, unknown>;
+      sendJson(response, 200, await executeAction('diff', input, config));
+    } catch (error) {
+      const status = error instanceof BodyTooLargeError ? 413 : 400;
+      sendJson(response, status, { error: error instanceof Error ? error.message : String(error) });
+    }
     return;
   }
   if (request.method !== 'POST' || !['/a2a', '/'].includes(url.pathname)) {
@@ -616,7 +638,7 @@ function agentCard(config: T2CConfig): Record<string, unknown> {
   const card: Record<string, unknown> = {
     name: 'todo2code',
     description: 'Intent extraction, evidence graph, diagnostics and grounded team summaries for software repositories.',
-    version: '0.1.0',
+    version: '0.2.0',
     supportedInterfaces: [{ url: config.a2a.publicUrl, protocolBinding: 'JSONRPC', protocolVersion: '1.0' }],
     capabilities: { streaming: false, pushNotifications: false, extensions: [] },
     defaultInputModes: ['text/plain', 'application/json'],
@@ -657,6 +679,36 @@ function agentCard(config: T2CConfig): Record<string, unknown> {
         examples: ['{"action":"summarize","input":{"graph":{...},"diagnostics":{...}}}'],
         inputModes: ['application/json'],
         outputModes: ['text/markdown'],
+      },
+      {
+        id: 'compare_intent_graphs',
+        name: 'Compare intent graphs',
+        description: 'Compute deterministic t2c.diff/v1 data and an SVG visualization for two Intent graphs.',
+        tags: ['diff', 'intent-dsl', 'svg'],
+        examples: ['{"action":"diff","input":{"beforeGraph":{},"afterGraph":{}}}'],
+        inputModes: ['application/json'],
+        outputModes: ['application/json', 'image/svg+xml'],
+      },
+      {
+        id: 'render_file_diff',
+        name: 'Render file diff',
+        description: 'Diff two files or the Git work tree with the deterministic Myers engine and render SVG or HTML.',
+        tags: ['diff', 'git', 'svg'],
+        examples: [
+          '{"action":"diff_files","input":{"before":"a.ts","after":"b.ts"}}',
+          '{"action":"diff_git","input":{"revision":"HEAD"}}',
+        ],
+        inputModes: ['application/json'],
+        outputModes: ['application/json', 'image/svg+xml', 'text/html'],
+      },
+      {
+        id: 'compare_intent_reality',
+        name: 'Compare intent and reality',
+        description: 'Group graph records into topics and report where plan, code and documentation diverge.',
+        tags: ['diff', 'alignment', 'svg'],
+        examples: ['{"action":"reality","input":{"graph":{}}}'],
+        inputModes: ['application/json'],
+        outputModes: ['application/json', 'image/svg+xml', 'text/markdown'],
       },
     ],
   };
@@ -723,6 +775,22 @@ function sendJson(response: ServerResponse, status: number, body: unknown, heade
     ...headers,
   });
   response.end(payload);
+}
+
+function sendText(
+  response: ServerResponse,
+  status: number,
+  body: string,
+  contentType: string,
+  headers: Record<string, string> = {},
+): void {
+  response.writeHead(status, {
+    'Content-Type': contentType,
+    'Content-Length': Buffer.byteLength(body),
+    'Cache-Control': 'no-store',
+    ...headers,
+  });
+  response.end(body);
 }
 
 const A2A_ERROR_REASONS: Readonly<Record<number, string>> = {
