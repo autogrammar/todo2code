@@ -198,6 +198,18 @@ Katalog [`sdk/`](sdk/) zawiera pełne klienty A2A v1.0 udostępniające **wszyst
 
 Każdy język ma uruchamialny przykład w `sdk/<język>/examples/`. Wszystkie przepuszczają ten sam zbiór rekordów przez `link` i muszą otrzymać identyczny fingerprint grafu — to test wierności round-tripu typów. Szczegóły: [`sdk/README.md`](sdk/README.md).
 
+Python udostępnia także lokalny `TypeScriptRuntime`. Nie kopiuje implementacji
+DSL do Pythona, tylko uruchamia przez Node.js skompilowany `dist/src/cli.js`:
+
+```bash
+make python-wheel
+python3 -m pip install .intent-packages/python/todo2code_sdk-*.whl
+T2C_TYPESCRIPT_CLI="$PWD/dist/src/cli.js" python3 sdk/python/examples/local_runtime.py
+```
+
+Most obsługuje `pipeline`, `diagnose`, graph diff oraz `reality` bez serwera
+A2A. Szczegóły i przykład API: [`sdk/python/README.md`](sdk/python/README.md).
+
 ## Przykładowe repozytoria
 
 `examples/backend` (HTTP API bez zależności) i `examples/frontend` (panel DOM bez frameworka) to gotowe wejścia dla runtime'u DSL. Każde ma `task.md`, `TODO.md`, `CHANGELOG.md`, `README.md` i `src/`, i celowo zawiera rozbieżności plan↔kod, żeby `t2c reality` miał co pokazać:

@@ -10,6 +10,8 @@ export interface T2CConfig {
   documentConcurrency: number;
   pythonExecutable: string;
   enablePythonAst: boolean;
+  goExecutable: string;
+  enableGoAst: boolean;
   allowOutsideRoot: boolean;
   enableTensorFlow: boolean;
   tensorflowModelPath: string | null;
@@ -116,6 +118,8 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     documentConcurrency: envNumber('T2C_DOC_CONCURRENCY', 3, 1, 16),
     pythonExecutable: envString('T2C_PYTHON', 'python3'),
     enablePythonAst: envBoolean('T2C_ENABLE_PYTHON_AST', true),
+    goExecutable: envString('T2C_GO', 'go'),
+    enableGoAst: envBoolean('T2C_ENABLE_GO_AST', true),
     allowOutsideRoot: envBoolean('T2C_ALLOW_OUTSIDE_ROOT', false),
     enableTensorFlow: envBoolean('T2C_ENABLE_TF', false),
     tensorflowModelPath: envOptional('T2C_TF_MODEL_PATH'),

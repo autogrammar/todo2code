@@ -13,11 +13,21 @@ from typing import Any
 try:
     # Imported as part of the `sdk.python` package (repository checkout).
     from .todo2code.client import T2CClient, T2CError
+    from .todo2code.runtime import RuntimeResult, TypeScriptRuntime, TypeScriptRuntimeError
 except ImportError:  # pragma: no cover - installed distribution
     # Imported as a top-level module, with `sdk/python` on sys.path.
     from todo2code.client import T2CClient, T2CError
+    from todo2code.runtime import RuntimeResult, TypeScriptRuntime, TypeScriptRuntimeError
 
-__all__ = ["Todo2CodeClient", "Todo2CodeError", "T2CClient", "T2CError"]
+__all__ = [
+    "RuntimeResult",
+    "T2CClient",
+    "T2CError",
+    "Todo2CodeClient",
+    "Todo2CodeError",
+    "TypeScriptRuntime",
+    "TypeScriptRuntimeError",
+]
 
 # The package raises T2CError; the legacy name stays importable and, being the
 # same class, existing `except Todo2CodeError` blocks keep catching it.

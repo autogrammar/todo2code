@@ -11,8 +11,9 @@ CHANGELOG ?= CHANGELOG.md
 DOCS ?= README.md,docs/**/*.md,project/**/*.md
 OUT ?= .intent
 PACKAGE ?= todo2code.zip
+PYTHON_WHEEL_DIR ?= .intent-packages/python
 
-.PHONY: help setup install install-tf build check test verify verify-no-llm smoke doctor mcp-probe a2a-probe protocol-smoke validate demo pipeline mcp a2a docker-build docker-up docker-down package clean
+.PHONY: help setup install install-tf build check test verify verify-no-llm smoke doctor mcp-probe a2a-probe protocol-smoke validate demo pipeline mcp a2a docker-build docker-up docker-down python-wheel package clean
 
 help: ## Pokaż dostępne cele
 	@awk 'BEGIN {FS = ":.*## "; printf "todo2code targets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -78,6 +79,10 @@ docker-up: ## Uruchom A2A w Docker Compose (make setup najpierw)
 
 docker-down: ## Zatrzymaj Docker Compose
 	docker compose -f docker-compose.yml down
+
+python-wheel: build ## Zbuduj wheel SDK z lokalnym mostem do runtime TypeScript
+	mkdir -p "$(PYTHON_WHEEL_DIR)"
+	$(PYTHON) -m pip wheel ./sdk/python --no-deps --no-build-isolation --wheel-dir "$(PYTHON_WHEEL_DIR)"
 
 package: validate ## Utwórz ZIP i plik SHA-256 bez sekretów i node_modules
 	$(PYTHON) scripts/package.py "$(PACKAGE)"

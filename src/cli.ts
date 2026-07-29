@@ -314,6 +314,7 @@ async function doctor(config: ReturnType<typeof getConfig>): Promise<void> {
   for (const [name, executable, args] of [
     ['git', 'git', ['--version']],
     ['python', config.pythonExecutable, ['--version']],
+    ['go', config.goExecutable, ['version']],
   ] as const) {
     try {
       const result = await execFileAsync(executable, args, { encoding: 'utf8' });

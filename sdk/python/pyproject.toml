@@ -5,7 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "todo2code-sdk"
 version = "0.2.0"
-description = "Dependency-free Python SDK for the todo2code A2A and diff runtimes"
+description = "Dependency-free Python SDK for todo2code A2A and the local TypeScript runtime"
+readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 

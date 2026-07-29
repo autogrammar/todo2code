@@ -8,6 +8,7 @@ COPY src ./src
 COPY sdk/typescript/src ./sdk/typescript/src
 COPY test ./test
 COPY python ./python
+COPY golang ./golang
 COPY prompts ./prompts
 COPY schemas ./schemas
 COPY scripts ./scripts
@@ -28,7 +29,10 @@ ENV NODE_ENV=production \
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./
+# The runtime image ships git and python3 but no Go toolchain, so the Go AST
+# adapter degrades to a warning here. Install Go in a derived image to enable it.
 COPY python ./python
+COPY golang ./golang
 COPY prompts ./prompts
 COPY schemas ./schemas
 RUN mkdir -p /workspace && chown -R node:node /app /workspace

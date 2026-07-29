@@ -39,9 +39,9 @@ Segmentuje linie i zdania, rozpoznaje modalność, negację, akcję, obiekt, śc
 
 Czyta ostatnie N commitów, autorów, timestampy, message/body, statusy plików, numstat i diff. Każdy commit ma oddzielny rekord; commit dokumentacyjny nie znika, tylko dostaje `docOnly=true`.
 
-### `src/extractors/ast.ts` i `python/ast_extract.py`
+### `src/extractors/ast.ts`, `python/ast_extract.py` i `golang/ast_extract.go`
 
-TypeScript Compiler API dostarcza fakty o importach, eksportach, symbolach i wywołaniach. Python używa standardowego `ast`. AST jest faktem o stanie implementacji, a nie intencją człowieka.
+TypeScript Compiler API dostarcza fakty o importach, eksportach, symbolach i wywołaniach. Python używa standardowego `ast` (`python/ast_extract.py`), a Go standardowego `go/ast` (`golang/ast_extract.go`, uruchamiane przez `go run`). Każdy adapter zwraca tę samą kopertę JSON `{facts, warnings}`, więc dodanie kolejnego języka nie zmienia rdzenia. Adaptery są opcjonalne: brak toolchainu daje ostrzeżenie, nie błąd. AST jest faktem o stanie implementacji, a nie intencją człowieka.
 
 ### `src/extractors/markdown.ts`
 

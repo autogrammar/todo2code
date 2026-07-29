@@ -6,6 +6,8 @@
 
 - Authenticated `GET /api/runs` history endpoint for complete graph runs under `.intent/runs`.
 - Optional `compact: true` graph-diff response containing fingerprints, summary counts and SVG without complete record and relation arrays.
+- Go AST adapter (`golang/ast_extract.go`) built on the standard `go/ast` parser, emitting the same `{facts, warnings}` envelope as the Python helper. It records packages, imports, types, functions, package-level vars/consts and calls; methods carry their receiver so `Entry.Describe` resolves from a TODO or commit. Enabled with `T2C_ENABLE_GO_AST` (default true) and `T2C_GO`; `doctor` now reports the Go toolchain.
+- Python `TypeScriptRuntime` bridge, runnable example and wheel target for using the canonical Node/TypeScript pipeline, diagnostics, graph diff and Intent-vs-Reality implementation without an HTTP server.
 
 ### Changed
 
@@ -18,6 +20,7 @@
 ### Documentation
 
 - Documented the direct-to-`main` GitHub workflow and the repository-wide prohibition on pull requests.
+- Verified Intent vs Reality against a fresh project graph and documented both remote and local Python runtime modes.
 
 ## [0.2.0] - 2026-07-29
 

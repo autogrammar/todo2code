@@ -7,7 +7,7 @@ ten sam zestaw akcji.
 | Język | Katalog | Zależności | Klasa |
 |---|---|---|---|
 | TypeScript / Node | [`typescript/`](typescript/) | brak (globalne `fetch`) | `T2CClient` |
-| Python 3.10+ | [`python/`](python/) | brak (`urllib`, `json`) | `T2CClient` |
+| Python 3.10+ | [`python/`](python/) | brak (`urllib`, `subprocess`, `json`) | `T2CClient`, `TypeScriptRuntime` |
 | Go 1.21+ | [`go/`](go/) | brak (biblioteka standardowa) | `todo2code.Client` |
 | Rust 1.70+ | [`rust/`](rust/) | `serde`, `serde_json` | `todo2code::Client` |
 | PHP 8.1+ | [`php/`](php/) | brak (`ext-json`) | `Todo2Code\Client` |
@@ -39,6 +39,11 @@ akceptuje obie postacie.
 
 Granica LLM obowiązuje tak samo jak w CLI: tylko `extract_docs` i `summarize`
 wołają OpenRouter.
+
+Python ma dodatkowo lokalny most `TypeScriptRuntime`, który przez `subprocess`
+uruchamia kanoniczny CLI Node/TypeScript. Dzięki temu paczka może wykonywać
+pipeline, diagnostykę, graph diff i reality bez serwera, zachowując dokładnie tę
+samą semantykę co CLI.
 
 ## Uruchomienie przykładów
 

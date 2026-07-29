@@ -9,10 +9,10 @@ Stan walidacji: **2026-07-29**, `todo2code 0.2.0`.
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 7 entrypointów, 11 modułów |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 43/43 |
+| Testy Node | PASS — 54/54 |
 | Offline pipeline smoke test | PASS — 27 rekordów, 41 relacji |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
-| TypeScript/JavaScript + Python AST | PASS |
+| TypeScript/JavaScript + Python + Go AST | PASS |
 | OpenRouter structured-output client przez mock HTTP | PASS |
 | Dokumentacja → DSL przez mock OpenRouter | PASS |
 | Graf → NL przez mock OpenRouter | PASS |
@@ -28,10 +28,25 @@ Stan walidacji: **2026-07-29**, `todo2code 0.2.0`.
 | CLI `doctor`, `--help`, `--version` | PASS |
 | Diff graf/pliki/Git i reality: JSON/SVG/HTML/Markdown | PASS |
 | SDK TypeScript, Python, Go, Rust i PHP | PASS — wspólny fingerprint |
+| Python wheel + lokalny most do TypeScript runtime | PASS — instalacja wheel, `--version`, reality JSON/SVG/Markdown |
 | Obraz Docker i health check A2A | PASS — kontener healthy |
 | Live OpenRouter | PASS — dokumentacja LLM i uziemione podsumowanie |
 
 ## Kontrole zewnętrzne
+
+### Intent vs Reality bieżącego repozytorium
+
+Świeży pipeline uruchomiony na bieżącym drzewie (`--no-docs-llm`) utworzył graf
+`4ba97dd502ff8b83…` z 4801 obserwowanymi rekordami i 3 deklaracjami. Projekcja
+`t2c.reality/v1` wykryła 100 tematów rozbieżnych. Najważniejszy wynik jest
+zgodny ze stanem repozytorium: „persistent A2A task store for clustered
+deployment” ma deklarację TODO/changelog, ale nie ma dowodu implementacji.
+
+Duża liczba tematów `code, no plan` oznacza, że fakty AST są znacznie
+dokładniejsze niż bieżące deklaracje celów. Widok działa poprawnie, lecz jego
+wartość wzrośnie po dodaniu ścieżek/symboli do tasków i dokumentacji. Artefakty
+kontrolne wygenerowano jako `.intent-eval/reality.svg` i
+`.intent-eval/reality.md`.
 
 ### Live OpenRouter
 
@@ -62,6 +77,6 @@ make docker-down
 
 - A2A task store jest pamięciowy i nie nadaje się jeszcze do klastra lub trwałych zadań.
 - A2A nie implementuje streamingu ani push notifications; Agent Card deklaruje oba jako `false`.
-- Adapter AST obejmuje TypeScript, JavaScript i Python; Java/Go/Rust są w backlogu.
+- Adapter AST obejmuje TypeScript, JavaScript, Python i Go; Java/Rust są w backlogu.
 - TensorFlow jest opcjonalny. Bez przypiętego lokalnego modelu system używa deterministycznych heurystyk.
 - Linker opiera się na jawnych ticketach, symbolach, ścieżkach i podobieństwie tokenów; nie zastępuje decyzji człowieka o statusie `DONE`.

@@ -9,6 +9,8 @@ export function makeConfig(root: string): T2CConfig {
     documentConcurrency: 3,
     pythonExecutable: 'python3',
     enablePythonAst: true,
+    goExecutable: 'go',
+    enableGoAst: false,
     allowOutsideRoot: false,
     enableTensorFlow: false,
     tensorflowModelPath: null,

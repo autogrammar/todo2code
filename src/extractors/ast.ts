@@ -55,6 +55,11 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     records.push(...python.records);
     warnings.push(...python.warnings);
   }
+  if (config.enableGoAst) {
+    const go = await extractGoAst(root, config);
+    records.push(...go.records);
+    warnings.push(...go.warnings);
+  }
   return { records, warnings };
 }
 
@@ -204,6 +209,53 @@ function scriptKind(filePath: string): ts.ScriptKind {
 function languageName(filePath: string): string {
   const extension = path.extname(filePath).toLowerCase();
   return ['.js', '.jsx', '.mjs', '.cjs'].includes(extension) ? 'javascript' : 'typescript';
+}
+
+/**
+ * Runs the Go adapter through `go run`, mirroring the Python helper.
+ *
+ * The Go toolchain is optional: a repository without Go sources, or a machine
+ * without `go` installed, degrades to a warning instead of failing the run.
+ */
+async function extractGoAst(root: string, config: T2CConfig): Promise<ExtractionResult> {
+  const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../golang/ast_extract.go');
+  if (!(await pathExists(script))) return { records: [], warnings: [`Go AST helper not found: ${script}`] };
+
+  // `go run` compiles the helper on every call, so skip the cost entirely when
+  // the tree holds no Go sources.
+  const goFiles = await walkFiles(root, { extensions: ['.go'], maxFiles: 20_000 });
+  if (goFiles.length === 0) return { records: [], warnings: [] };
+
+  try {
+    const result = await execFileAsync(config.goExecutable, ['run', script, root, '--max-file-bytes', String(config.maxFileBytes)], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    const parsed = JSON.parse(result.stdout) as PythonOutput;
+    const records = (parsed.facts ?? []).map((fact) => buildRecord({
+      kind: fact.kind,
+      action: fact.action,
+      subject: fact.subject,
+      object: fact.object,
+      target: { paths: [fact.path], symbols: fact.symbol ? [fact.symbol] : [] },
+      modality: 'observed',
+      text: `${fact.action} ${fact.object}`,
+      lifecycle: 'implemented',
+      sourceKind: 'ast',
+      sourcePath: fact.path,
+      sourceLines: { start: fact.lineStart, end: fact.lineEnd },
+      symbol: fact.symbol,
+      extractor: 't2c/go-ast@1',
+      rawExcerpt: fact.excerpt,
+      epistemicClass: 'fact',
+      confidence: 1,
+      basis: ['go_stdlib_ast'],
+      metadata: { language: 'go', llmUsed: false, ...fact.metadata },
+    }));
+    return { records, warnings: parsed.warnings ?? [] };
+  } catch (error) {
+    return { records: [], warnings: [`Go AST extraction failed: ${error instanceof Error ? error.message : String(error)}`] };
+  }
 }
 
 async function extractPythonAst(root: string, config: T2CConfig): Promise<ExtractionResult> {

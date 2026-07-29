@@ -14,6 +14,7 @@ from .client import (
     T2CClient,
     T2CError,
 )
+from .runtime import RuntimeResult, TypeScriptRuntime, TypeScriptRuntimeError
 
 __all__ = [
     "A2A_VERSION",
@@ -23,5 +24,8 @@ __all__ = [
     "IntentRecord",
     "T2CClient",
     "T2CError",
+    "RuntimeResult",
+    "TypeScriptRuntime",
+    "TypeScriptRuntimeError",
 ]
 __version__ = "0.2.0"
