@@ -11,14 +11,24 @@ import type { IntentGraph, IntentGraphDiff } from '../core/types.js';
 import type { IntentRealityView } from '../diff/reality.js';
 import type { FileDiff } from '../diff/text.js';
 import type { T2CAction } from '../services/actions.js';
-import { T2CClient } from '../../sdk/typescript/src/index.js';
+import {
+  T2CClient,
+  type ExtractionResult as SdkExtractionResult,
+  type LlmExtractionMode as SdkLlmExtractionMode,
+} from '../../sdk/typescript/src/index.js';
 
 export {
   A2A_VERSION,
   T2CClient,
   T2CError,
 } from '../../sdk/typescript/src/index.js';
-export type { A2AMessage, A2APart, A2ATask, ClientOptions } from '../../sdk/typescript/src/index.js';
+export type {
+  A2AMessage,
+  A2APart,
+  A2ATask,
+  ClientOptions,
+  ExtractionAudit,
+} from '../../sdk/typescript/src/index.js';
 
 export interface Todo2CodeClientOptions {
   baseUrl?: string;
@@ -107,6 +117,17 @@ export class Todo2CodeClient {
 
   async compareWorkspace(options: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
     return this.run<Record<string, unknown>>('compare_workspace', options);
+  }
+
+  async extractNl(file: string, root = '.', nlMode?: SdkLlmExtractionMode): Promise<SdkExtractionResult> {
+    return this.client.extractNl(file, root, nlMode);
+  }
+
+  async extractDocs(
+    root = '.',
+    options: { patterns?: string[]; excludes?: string[] } = {},
+  ): Promise<SdkExtractionResult> {
+    return this.client.extractDocs(root, options);
   }
 
   async run<T = unknown>(action: T2CAction, input: Record<string, unknown> = {}): Promise<T> {

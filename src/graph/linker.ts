@@ -1,4 +1,5 @@
 import { createRelationId, graphFingerprint } from '../core/id.js';
+import { assertIntentRecords } from '../core/schema.js';
 import { keywords } from '../core/text.js';
 import { pathAliases, symbolAliases } from '../core/target.js';
 import type { IntentGraph, IntentRecord, IntentRelation, RelationType } from '../core/types.js';
@@ -40,6 +41,7 @@ function jaccard(left: Set<string>, right: Set<string>): number {
 }
 
 export function linkIntentRecords(inputRecords: IntentRecord[], generatedAt = new Date().toISOString()): IntentGraph {
+  assertIntentRecords(inputRecords);
   const records = deduplicateRecords(inputRecords).sort((a, b) => a.id.localeCompare(b.id));
   const byId = new Map(records.map((record) => [record.id, record]));
   const keywordIndex = indexKeywords(records);

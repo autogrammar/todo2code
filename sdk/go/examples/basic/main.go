@@ -40,6 +40,14 @@ func run() error {
 	fmt.Println("health:", health)
 
 	// 1. Deterministic extraction -> graph -> diagnostics.
+	nl, err := client.ExtractNL(ctx, root, "task.md", "deterministic")
+	if err != nil {
+		return fmt.Errorf("extract_nl: %w", err)
+	}
+	if nl.Audit["status"] != "succeeded" || nl.Audit["effectiveMode"] != "deterministic" {
+		return fmt.Errorf("unexpected NL audit: %v", nl.Audit)
+	}
+	fmt.Println("NL audit:", nl.Audit["status"], nl.Audit["effectiveMode"])
 	ast, err := client.ExtractAST(ctx, root)
 	if err != nil {
 		return fmt.Errorf("extract_ast: %w", err)
@@ -52,7 +60,7 @@ func run() error {
 		return fmt.Errorf("unexpected Markdown audit: %v", markdown.Audit)
 	}
 	fmt.Println("markdown audit:", markdown.Audit["status"], markdown.Audit["effectiveMode"])
-	records := append(append([]todo2code.IntentRecord{}, ast.Records...), markdown.Records...)
+	records := append(append(append([]todo2code.IntentRecord{}, nl.Records...), ast.Records...), markdown.Records...)
 	fmt.Printf("extracted %d records from %s\n", len(records), root)
 
 	graph, err := client.Link(ctx, records)

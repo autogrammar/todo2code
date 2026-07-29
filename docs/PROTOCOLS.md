@@ -113,6 +113,10 @@ zapewniać atomowe operacje `mkdir` i `rename`; snapshot ma limit 256 MiB.
 
 ## SDK
 
-`src/sdk/typescript.ts` udostępnia klienta Fetch API dla Node.js, TypeScript, JavaScript i przeglądarki. `sdk/python/todo2code_sdk.py` zapewnia odpowiednik oparty wyłącznie na bibliotece standardowej Python. Oba SDK obsługują health check, A2A `SendMessage` i REST diff; token Bearer jest opcjonalny.
+Klienci w `sdk/{typescript,python,go,rust,php}` udostępniają ten sam zestaw
+akcji A2A oraz convenience methods dla audytowanych NL, Markdown i dokumentacji.
+Każdy odczytuje pełny envelope `records/warnings/audit`; token Bearer jest
+opcjonalny. TypeScript i Python mają dodatkowo REST fast path dla graph diff,
+a Python może uruchamiać kanoniczny runtime TypeScript lokalnie przez Node.
 
 CLI udostępnia ponadto lokalne, deterministyczne formaty bez transportu sieciowego: `t2c diff --mode files`, `t2c diff --mode git` oraz `t2c reality`. Mogą zapisywać dane JSON i projekcje SVG/HTML/Markdown.

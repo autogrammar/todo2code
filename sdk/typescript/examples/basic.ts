@@ -24,11 +24,16 @@ async function main(): Promise<void> {
   console.log('agent skills:', (card.skills as Array<{ id: string }> | undefined)?.map((skill) => skill.id).join(', '));
 
   // 1. Deterministic extraction -> graph -> diagnostics.
+  const nl = await client.extractNl('task.md', root, 'deterministic');
+  if (nl.audit?.status !== 'succeeded' || nl.audit.effectiveMode !== 'deterministic') {
+    throw new Error(`unexpected NL audit: ${JSON.stringify(nl.audit)}`);
+  }
+  console.log('NL audit:', nl.audit.status, nl.audit.effectiveMode);
   const ast = await client.extractAst(root);
   const markdown = await client.extractMarkdown(root, { markdownMode: 'deterministic' });
   if (markdown.audit?.status !== 'succeeded') throw new Error(`unexpected Markdown audit: ${JSON.stringify(markdown.audit)}`);
   console.log('markdown audit:', markdown.audit.status, markdown.audit.effectiveMode);
-  const records = [...ast.records, ...(markdown.records as typeof ast.records)];
+  const records = [...nl.records, ...ast.records, ...markdown.records];
   console.log(`extracted ${records.length} records from ${root}`);
 
   const graph = await client.link(records);

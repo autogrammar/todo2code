@@ -4,8 +4,19 @@ import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists, readText, relativePosix, resolveGlobs } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
-import type { ExtractionResult, IntentAction, IntentRecord, LifecycleStatus, LlmResponseMetadata, Modality, Polarity } from '../core/types.js';
+import type {
+  ExtractionResult,
+  IntentAction,
+  IntentRecord,
+  LifecycleStatus,
+  LlmResponseMetadata,
+  Modality,
+  PipelineStageAudit,
+  Polarity,
+} from '../core/types.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
+import { openRouterAuditConfiguration } from '../llm/audit.js';
+import { T2C_VERSION } from '../version.js';
 
 interface RawDocumentRecord {
   kind: string;
@@ -55,11 +66,36 @@ export interface DocumentationExtractionOptions {
 
 export interface DocumentationExtractionResult extends ExtractionResult {
   responses: LlmResponseMetadata[];
+  audit: PipelineStageAudit;
+}
+
+export class DocumentationLlmRequiredError extends Error {
+  constructor(message: string, readonly audit: PipelineStageAudit) {
+    super(message);
+    this.name = 'DocumentationLlmRequiredError';
+  }
 }
 
 export async function extractDocumentationIntent(options: DocumentationExtractionOptions, config: T2CConfig): Promise<DocumentationExtractionResult> {
+  const startedAt = Date.now();
   const client = new OpenRouterClient({ ...config.openRouter, timeoutMs: config.documentTimeoutMs });
-  if (!client.isConfigured()) throw new Error('OPENROUTER_API_KEY is required for documentation -> Intent DSL');
+  if (!client.isConfigured()) {
+    const message = 'OPENROUTER_API_KEY is required for documentation -> Intent DSL';
+    throw new DocumentationLlmRequiredError(message, {
+      runtimeVersion: T2C_VERSION,
+      configuration: openRouterAuditConfiguration(config, config.openRouter.documentModel, config.documentTimeoutMs),
+      status: 'failed',
+      requestedMode: 'llm',
+      effectiveMode: 'none',
+      degraded: true,
+      recordCount: 0,
+      warningCount: 1,
+      model: config.openRouter.documentModel,
+      durationMs: Date.now() - startedAt,
+      reason: { code: 'LLM_NOT_CONFIGURED', message },
+      responses: [],
+    });
+  }
   const files = await resolveGlobs(options.root, options.patterns, options.excludes ?? config.documentExcludes);
   const systemPrompt = await readPrompt('docs-to-intent.system.md');
   const records: IntentRecord[] = [];
@@ -118,7 +154,24 @@ export async function extractDocumentationIntent(options: DocumentationExtractio
     warnings.push(...result.warnings);
     responses.push(...result.responses);
   }
-  return { records, warnings, responses };
+  const status = warnings.length === 0 ? 'succeeded' : records.length > 0 ? 'partial' : 'failed';
+  const audit: PipelineStageAudit = {
+    runtimeVersion: T2C_VERSION,
+    configuration: openRouterAuditConfiguration(config, config.openRouter.documentModel, config.documentTimeoutMs),
+    status,
+    requestedMode: 'llm',
+    effectiveMode: 'llm',
+    degraded: warnings.length > 0,
+    recordCount: records.length,
+    warningCount: warnings.length,
+    model: config.openRouter.documentModel,
+    durationMs: Date.now() - startedAt,
+    reason: warnings.length > 0
+      ? { code: 'DOCUMENT_EXTRACTION_PARTIAL', message: `${warnings.length} documentation extraction warning(s)` }
+      : null,
+    responses,
+  };
+  return { records, warnings, responses, audit };
 }
 
 function prioritizeChunks(chunks: DocumentChunk[], hints?: DocumentationTargetHints): DocumentChunk[] {
@@ -189,6 +242,16 @@ function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk, model: str
     metadata: {
       model,
       llmUsed: true,
+      runtimeVersion: T2C_VERSION,
+      generation: {
+        requested: 'llm',
+        used: 'llm',
+        degraded: false,
+        fallbackReason: null,
+        runtimeVersion: T2C_VERSION,
+        model,
+        response,
+      },
       chunkStartLine: chunk.startLine,
       chunkEndLine: chunk.endLine,
       response,

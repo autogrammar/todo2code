@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/document-extraction-response.schema.json",
   "title": "OpenRouter documentation extraction response",
   "type": "object",
   "additionalProperties": false,
@@ -7,7 +8,45 @@
   "properties": {
     "records": {
       "type": "array",
-      "description": "Normalized document-derived statements. The runtime converts these into t2c.intent/v1 records."
+      "description": "Document-derived statements validated before conversion to t2c.intent/v1.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "actor", "action", "subject", "object", "modality", "polarity", "lifecycle", "confidence", "basis", "target", "sourceLines", "text"],
+        "properties": {
+          "kind": { "type": "string", "minLength": 1 },
+          "actor": { "type": ["string", "null"] },
+          "action": { "enum": ["add", "fix", "remove", "refactor", "test", "document", "configure", "analyze", "validate", "call", "depend_on", "declare", "release", "change", "preserve", "block", "approve", "unknown"] },
+          "subject": { "type": ["string", "null"] },
+          "object": { "type": "string", "minLength": 1 },
+          "modality": { "enum": ["required", "recommended", "optional", "observed", "claimed", "unknown"] },
+          "polarity": { "enum": ["positive", "negative"] },
+          "lifecycle": { "enum": ["proposed", "planned", "in_progress", "implemented", "verified", "released", "completed", "blocked", "unknown"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 0.85 },
+          "basis": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["paths", "symbols", "tickets", "versions"],
+            "properties": {
+              "paths": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+              "symbols": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+              "tickets": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+              "versions": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+            }
+          },
+          "sourceLines": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start", "end"],
+            "properties": {
+              "start": { "type": "integer", "minimum": 1 },
+              "end": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "text": { "type": "string" }
+        }
+      }
     }
   }
 }

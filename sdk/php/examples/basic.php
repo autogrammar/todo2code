@@ -42,13 +42,18 @@ try {
     echo 'agent skills: ' . implode(', ', $skills) . PHP_EOL;
 
     // 1. Deterministic extraction -> graph -> diagnostics.
+    $nl = $client->extractNl('task.md', $root, 'deterministic');
+    if (($nl['audit']['status'] ?? null) !== 'succeeded' || ($nl['audit']['effectiveMode'] ?? null) !== 'deterministic') {
+        throw new RuntimeException('unexpected NL audit: ' . json_encode($nl['audit'] ?? null));
+    }
+    printf("NL audit: %s %s%s", $nl['audit']['status'], $nl['audit']['effectiveMode'], PHP_EOL);
     $ast = $client->extractAst($root);
     $markdown = $client->extractMarkdown($root, 'deterministic');
     if (($markdown['audit']['status'] ?? null) !== 'succeeded') {
         throw new RuntimeException('unexpected Markdown audit: ' . json_encode($markdown['audit'] ?? null));
     }
     printf("markdown audit: %s %s%s", $markdown['audit']['status'], $markdown['audit']['effectiveMode'], PHP_EOL);
-    $records = array_merge($ast['records'] ?? [], $markdown['records'] ?? []);
+    $records = array_merge($nl['records'] ?? [], $ast['records'] ?? [], $markdown['records'] ?? []);
     printf("extracted %d records from %s%s", count($records), $root, PHP_EOL);
 
     $graph = $client->link($records);

@@ -250,8 +250,9 @@ fingerprint konfiguracji oraz statusy `naturalLanguageExtraction`,
 w CLI, `GET /api/runs` i UI. Parametry obejmują modele, timeout, temperaturę,
 limit tokenów, budżet dokumentów, konfigurację adapterów i tryb structured
 output; klucz API nigdy nie jest zapisywany. Odpowiedzi LLM zapisują zwrócone
-przez provider `responseId`, resolved model/provider oraz usage/cost. Awaria
-`require-llm` tworzy manifest `status=failed` z kodem i etapem awarii, ale bez
+przez provider `responseId`, resolved model/provider oraz usage/cost. Każdy
+audyt ekstrakcji zawiera też wersję runtime i bezpieczne parametry. Każda awaria
+pipeline po utworzeniu runu tworzy manifest `status=failed` z kodem i etapem, ale bez
 nieistniejącego grafu ani aktualizacji `latest.json`.
 
 ## MCP

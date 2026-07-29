@@ -31,12 +31,16 @@ def main() -> int:
     print("agent skills:", ", ".join(skill["id"] for skill in card.get("skills", ())))
 
     # 1. Deterministic extraction -> graph -> diagnostics.
+    nl = client.extract_nl_result("task.md", root, nl_mode="deterministic")
+    if nl.audit is None or nl.audit.get("status") != "succeeded" or nl.audit.get("effectiveMode") != "deterministic":
+        raise RuntimeError(f"unexpected NL audit: {nl.audit}")
+    print("NL audit:", nl.audit.get("status"), nl.audit.get("effectiveMode"))
     ast_records = client.extract_ast(root)
     markdown = client.extract_markdown_result(root, markdown_mode="deterministic")
     if markdown.audit is None or markdown.audit.get("status") != "succeeded":
         raise RuntimeError(f"unexpected Markdown audit: {markdown.audit}")
     print("markdown audit:", markdown.audit.get("status"), markdown.audit.get("effectiveMode"))
-    records = [*ast_records, *markdown.records]
+    records = [*nl.records, *ast_records, *markdown.records]
     print(f"extracted {len(records)} records from {root}")
 
     graph = client.link(records)

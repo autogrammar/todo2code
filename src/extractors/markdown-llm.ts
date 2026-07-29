@@ -13,6 +13,7 @@ import type {
   PipelineStageAudit,
 } from '../core/types.js';
 import { classifyLlmFailure, type LlmFailureReason } from '../llm/failure.js';
+import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 import { T2C_VERSION } from '../version.js';
 import { extractMarkdownIntent, type MarkdownExtractionOptions } from './markdown.js';
@@ -60,14 +61,14 @@ export async function extractMarkdownIntentAudited(
       ...deterministic,
       audit: stageAudit('skipped', mode === 'deterministic' ? 'deterministic' : 'llm', 'none', false, deterministic, null, {
         code: 'NO_MARKDOWN_RECORDS', message: 'No TODO or CHANGELOG records were available for enrichment',
-      }, Date.now() - startedAt),
+      }, Date.now() - startedAt, [], config),
     };
   }
   if (mode === 'deterministic') {
     const result = { ...deterministic, records: markDeterministic(deterministic.records, false, null) };
     return {
       ...result,
-      audit: stageAudit('succeeded', 'deterministic', 'deterministic', false, result, null, null, Date.now() - startedAt),
+      audit: stageAudit('succeeded', 'deterministic', 'deterministic', false, result, null, null, Date.now() - startedAt, [], config),
     };
   }
 
@@ -91,7 +92,7 @@ export async function extractMarkdownIntentAudited(
     };
     return {
       ...result,
-      audit: stageAudit('succeeded', 'llm', 'llm', false, result, config.openRouter.markdownModel, null, Date.now() - startedAt, [completion.metadata]),
+      audit: stageAudit('succeeded', 'llm', 'llm', false, result, config.openRouter.markdownModel, null, Date.now() - startedAt, [completion.metadata], config),
     };
   } catch (error) {
     return fallbackOrThrow(deterministic, config, mode, startedAt, classifyLlmFailure(error));
@@ -105,7 +106,7 @@ async function fallbackOrThrow(
   startedAt: number,
   reason: LlmFailureReason,
 ): Promise<AuditedMarkdownExtractionResult> {
-  const failed = stageAudit('failed', 'llm', 'none', true, { records: [], warnings: [] }, config.openRouter.markdownModel, reason, Date.now() - startedAt);
+  const failed = stageAudit('failed', 'llm', 'none', true, { records: [], warnings: [] }, config.openRouter.markdownModel, reason, Date.now() - startedAt, [], config);
   if (mode === 'require-llm') {
     throw new MarkdownLlmRequiredError(`TODO/CHANGELOG -> DSL requires LLM: ${reason.message}`, failed);
   }
@@ -116,7 +117,7 @@ async function fallbackOrThrow(
   };
   return {
     ...result,
-    audit: stageAudit('fallback', 'llm', 'deterministic', true, result, config.openRouter.markdownModel, reason, Date.now() - startedAt),
+    audit: stageAudit('fallback', 'llm', 'deterministic', true, result, config.openRouter.markdownModel, reason, Date.now() - startedAt, [], config),
   };
 }
 
@@ -251,9 +252,15 @@ function stageAudit(
   model: string | null,
   reason: PipelineStageAudit['reason'],
   durationMs: number,
-  responses: LlmResponseMetadata[] = [],
+  responses: LlmResponseMetadata[],
+  config: T2CConfig,
 ): PipelineStageAudit {
-  return { status, requestedMode, effectiveMode, degraded, recordCount: result.records.length, warningCount: result.warnings.length, model, durationMs, reason, responses };
+  return {
+    runtimeVersion: T2C_VERSION,
+    configuration: openRouterAuditConfiguration(config, model),
+    status, requestedMode, effectiveMode, degraded, recordCount: result.records.length,
+    warningCount: result.warnings.length, model, durationMs, reason, responses,
+  };
 }
 
 async function readPrompt(name: string): Promise<string> {

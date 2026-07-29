@@ -1,4 +1,5 @@
 import { createIntentId } from '../core/id.js';
+import { assertIntentGraph } from '../core/schema.js';
 import type {
   Diagnostic,
   DiagnosticReport,
@@ -8,6 +9,7 @@ import type {
 } from '../core/types.js';
 
 export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISOString()): DiagnosticReport {
+  assertIntentGraph(graph);
   const diagnostics: Diagnostic[] = [];
   const neighbors = buildNeighbors(graph);
   const recordsById = new Map(graph.records.map((record) => [record.id, record]));

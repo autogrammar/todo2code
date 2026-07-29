@@ -361,6 +361,7 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
       excludes: optionList(parsed, 'excludes', config.documentExcludes),
     }, config);
     await emitExtraction(result, out);
+    process.stderr.write(`documentation -> DSL: ${result.audit.status} (${result.audit.effectiveMode}), runtime ${result.audit.runtimeVersion}\n`);
     return;
   }
   throw new Error('Usage: t2c extract <nl|git|ast|markdown|docs> ...');

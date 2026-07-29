@@ -129,8 +129,10 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
     assert.match(textDiff.unified, /\+const value = 2;/);
     const reality = await client.reality(after, { includeSvg: false });
     assert.equal(reality.view.schemaVersion, 't2c.reality/v1');
-    const extraction = await client.run<{ records: unknown[] }>('extract_nl', { text: 'Dodać SDK.', file: 'sdk.md' });
+    await fs.writeFile(path.join(root, 'sdk.md'), 'Dodać SDK.\n', 'utf8');
+    const extraction = await client.extractNl('sdk.md', '.', 'deterministic');
     assert.equal(extraction.records.length, 1);
+    assert.equal(extraction.audit?.effectiveMode, 'deterministic');
 
     const python = await execFileAsync('python3', ['-c', [
       'import os',
@@ -140,8 +142,9 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
       'assert client.diff_graph_files("before.json", "after.json", False)["diff"]["summary"]["recordsChanged"] == 1',
       'assert client.diff_text_files("before.ts", "after.ts", include_svg=False)["diffs"][0]["summary"]["added"] == 1',
       'assert client.reality(__import__("json").loads(os.environ["T2C_AFTER_GRAPH"]), include_svg=False)["view"]["schemaVersion"] == "t2c.reality/v1"',
-      'result = client.run("extract_nl", {"text": "Dodać Python SDK.", "file": "python-sdk.md"})',
+      'result = client.extract_nl("sdk.md", ".", "deterministic")',
       'assert len(result["records"]) == 1',
+      'assert result["audit"]["effectiveMode"] == "deterministic"',
       'print("python-sdk-ok")',
     ].join('\n')], {
       cwd: process.cwd(),

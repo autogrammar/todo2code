@@ -1,6 +1,6 @@
 {
   "name": "@todo2code/tensorflow-adapter-runtime",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Isolated optional TensorFlow runtime for todo2code action classification.",
   "license": "MIT",

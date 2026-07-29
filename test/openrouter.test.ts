@@ -4,11 +4,12 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { buildRecord } from '../src/core/record.js';
-import { extractDocumentationIntent } from '../src/extractors/docs-llm.js';
+import { DocumentationLlmRequiredError, extractDocumentationIntent } from '../src/extractors/docs-llm.js';
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
 import { OpenRouterClient, OpenRouterModelError } from '../src/llm/openrouter.js';
 import { summarizeGraph } from '../src/summary/summarizer.js';
+import { T2C_VERSION } from '../src/version.js';
 import { makeConfig } from './helpers.js';
 
 test('OpenRouter client parses structured JSON without exposing key', async () => {
@@ -165,6 +166,14 @@ test('Documentation extractor converts OpenRouter structured output to bounded L
     assert.equal(record?.epistemic.class, 'llm_inference');
     assert.equal(record?.epistemic.confidence, 0.85);
     assert.equal(record?.metadata.llmUsed, true);
+    assert.equal(record?.metadata.runtimeVersion, T2C_VERSION);
+    assert.equal((record?.metadata.generation as { used?: string }).used, 'llm');
+    assert.equal(result.audit.status, 'succeeded');
+    assert.equal(result.audit.effectiveMode, 'llm');
+    assert.equal(result.audit.model, config.openRouter.documentModel);
+    assert.equal(result.audit.runtimeVersion, T2C_VERSION);
+    assert.equal(result.audit.configuration.timeoutMs, config.documentTimeoutMs);
+    assert.equal('apiKey' in result.audit.configuration, false);
     assert.equal(result.responses[0]?.responseId, 'gen-doc-1');
     assert.equal(result.responses[0]?.model, 'qwen/doc-resolved');
     assert.equal((record?.metadata.response as { provider?: string }).provider, 'DocProvider');
@@ -203,6 +212,18 @@ test('Documentation extractor reports and enforces its chunk budget', async () =
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test('Documentation extractor exposes an audited configuration failure', async () => {
+  const config = makeConfig(process.cwd());
+  await assert.rejects(
+    () => extractDocumentationIntent({ root: process.cwd(), patterns: [], excludes: [] }, config),
+    (error: unknown) => error instanceof DocumentationLlmRequiredError
+      && error.audit.status === 'failed'
+      && error.audit.reason?.code === 'LLM_NOT_CONFIGURED'
+      && error.audit.runtimeVersion === T2C_VERSION
+      && !('apiKey' in error.audit.configuration),
+  );
 });
 
 test('Documentation extractor uses bounded concurrent OpenRouter requests', async () => {

@@ -15,6 +15,7 @@ import type {
   PipelineStageAudit,
 } from '../core/types.js';
 import { classifyLlmFailure } from '../llm/failure.js';
+import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 import { T2C_VERSION } from '../version.js';
 import { extractNlIntent, type NlExtractionOptions } from './nl.js';
@@ -59,7 +60,7 @@ export async function extractNlIntentAudited(
     return {
       ...result,
       records: markDeterministic(result.records, false, null),
-      audit: audit('succeeded', 'deterministic', 'deterministic', false, result, null, null, Date.now() - startedAt),
+      audit: audit('succeeded', 'deterministic', 'deterministic', false, result, null, null, Date.now() - startedAt, [], config),
     };
   }
 
@@ -90,7 +91,7 @@ export async function extractNlIntentAudited(
     };
     return {
       ...result,
-      audit: audit('succeeded', 'llm', 'llm', false, result, config.openRouter.nlModel, null, Date.now() - startedAt, [completion.metadata]),
+      audit: audit('succeeded', 'llm', 'llm', false, result, config.openRouter.nlModel, null, Date.now() - startedAt, [completion.metadata], config),
     };
   } catch (error) {
     return fallbackOrThrow(options, config, mode, startedAt, classifyLlmFailure(error));
@@ -104,7 +105,7 @@ async function fallbackOrThrow(
   startedAt: number,
   reason: { code: string; message: string },
 ): Promise<AuditedNlExtractionResult> {
-  const failedAudit = audit('failed', 'llm', 'none', true, { records: [], warnings: [] }, config.openRouter.nlModel, reason, Date.now() - startedAt);
+  const failedAudit = audit('failed', 'llm', 'none', true, { records: [], warnings: [] }, config.openRouter.nlModel, reason, Date.now() - startedAt, [], config);
   if (mode === 'require-llm') throw new NlLlmRequiredError(`NL -> DSL requires LLM: ${reason.message}`, failedAudit);
 
   const deterministic = await extractNlIntent(options, config);
@@ -112,7 +113,7 @@ async function fallbackOrThrow(
   const result = { records: markDeterministic(deterministic.records, true, reason.code), warnings: [...deterministic.warnings, warning] };
   return {
     ...result,
-    audit: audit('fallback', 'llm', 'deterministic', true, result, config.openRouter.nlModel, reason, Date.now() - startedAt),
+    audit: audit('fallback', 'llm', 'deterministic', true, result, config.openRouter.nlModel, reason, Date.now() - startedAt, [], config),
   };
 }
 
@@ -180,9 +181,15 @@ function audit(
   model: string | null,
   reason: PipelineStageAudit['reason'],
   durationMs: number,
-  responses: LlmResponseMetadata[] = [],
+  responses: LlmResponseMetadata[],
+  config: T2CConfig,
 ): PipelineStageAudit {
-  return { status, requestedMode, effectiveMode, degraded, recordCount: result.records.length, warningCount: result.warnings.length, model, durationMs, reason, responses };
+  return {
+    runtimeVersion: T2C_VERSION,
+    configuration: openRouterAuditConfiguration(config, model),
+    status, requestedMode, effectiveMode, degraded, recordCount: result.records.length,
+    warningCount: result.warnings.length, model, durationMs, reason, responses,
+  };
 }
 
 function clampLine(value: number, min: number, max: number): number {

@@ -9,8 +9,10 @@ flowchart LR
     NLO --> NLE[Deterministic fallback]
     GIT[Last N commits] --> GE[Git extractor]
     CODE[TS JS Python Go Java Rust tree] --> AE[AST extractors]
-    TODO[TODO.md] --> ME[Markdown extractor]
-    CHG[CHANGELOG.md] --> ME
+    TODO[TODO.md] --> TE[TODO converter]
+    CHG[CHANGELOG.md] --> CE[CHANGELOG converter]
+    TE --> ME[Markdown composition]
+    CE --> ME
     ME --> MLO[Audited Markdown LLM enrichment]
     DOCS[README ADR MODULE docs] --> ORE[OpenRouter document extractor]
 
@@ -59,9 +61,11 @@ od modelu AST konkretnego języka. Adapter nie uruchamia toolchainu, gdy nie ma
 pasujących plików; brak dostępnego toolchainu daje ostrzeżenie, nie błąd całego
 runu. AST jest faktem o stanie implementacji, a nie intencją człowieka.
 
-### `src/extractors/markdown.ts`
+### `src/extractors/todo.ts`, `src/extractors/changelog.ts` i `src/extractors/markdown.ts`
 
-TODO i CHANGELOG są parsowane osobno. Checkbox określa lifecycle planu, a wersja i kategoria changelogu określają claim wydania.
+Każdy format ma własny konwerter i testowalny publiczny entrypoint. Checkbox
+określa lifecycle planu, a wersja i kategoria changelogu określają claim
+wydania. `markdown.ts` wyłącznie składa wyniki, nie miesza semantyki źródeł.
 
 ### `src/extractors/markdown-llm.ts`
 
@@ -80,6 +84,11 @@ a następnie ograniczane przez maksymalną liczbę chunków. Osobny timeout,
 współbieżność i limit rekordów wyznaczają górną granicę pracy. OpenRouter zwraca
 strukturalny JSON; runtime nadpisuje źródło, ogranicza zakres linii i confidence,
 dlatego model nie może podmienić provenance.
+
+Każdy standalone wynik NL/Markdown/dokumentacji zawiera `audit.runtimeVersion`
+i bezpieczne `audit.configuration` (model, URL, timeout, token budget,
+temperatura i tryb structured output), bez klucza API. Dokumentacyjne rekordy
+LLM mają ten sam `metadata.generation` co NL i Markdown.
 
 ### `src/graph/linker.ts`
 
@@ -116,6 +125,8 @@ prymitywy. Ekstraktory nie zależą od interfejsów; pipeline składa ekstraktor
 graf; `services/actions.ts` jest wspólną granicą CLI/MCP/A2A/SDK. Skrypt
 `verify-module-boundaries.mjs` odrzuca cykle i importy z `core` do wyższych
 warstw, a `verify-no-llm-imports.mjs` chroni deterministyczną część grafu.
+`core/schema.ts` sprawdza pełny kontrakt `t2c.intent/v1`, `t2c.graph/v1` i
+`t2c.diff/v1` na granicach linkera, diagnostyki, diffu i podsumowania.
 
 ### Trwałość tasków A2A
 

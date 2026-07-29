@@ -8,14 +8,16 @@ import type {
   DiagnosticReport,
   IntentRecord,
   PipelineManifest,
+  PipelineFailureStage,
   PipelineOptions,
   PipelineStageAudit,
 } from '../core/types.js';
 import { extractAstIntent } from '../extractors/ast.js';
-import { extractDocumentationIntent } from '../extractors/docs-llm.js';
+import { DocumentationLlmRequiredError, extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntentAudited, MarkdownLlmRequiredError } from '../extractors/markdown-llm.js';
 import { extractNlIntentAudited, NlLlmRequiredError } from '../extractors/nl-llm.js';
+import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { linkIntentRecords } from '../graph/linker.js';
 import { summarizeGraph } from '../summary/summarizer.js';
@@ -36,6 +38,8 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const baseOutput = path.resolve(root, options.outputDir);
   const runDirectory = path.join(baseOutput, 'runs', runId);
   await ensureDir(runDirectory);
+  let activeStage: PipelineFailureStage = 'setup';
+  const completedStages: Partial<PipelineManifest['stages']> = {};
 
   try {
 
@@ -52,6 +56,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   let naturalLanguageAudit = skippedAudit('disabled', 'No NL task file was selected');
 
   if (options.taskFile) {
+    activeStage = 'naturalLanguageExtraction';
     const result = await extractNlIntentAudited(
       { root, sourcePath: options.taskFile },
       config,
@@ -61,15 +66,19 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     warnings.push(...result.warnings);
     naturalLanguageAudit = result.audit;
   }
+  completedStages.naturalLanguageExtraction = naturalLanguageAudit;
 
+  activeStage = 'gitExtraction';
   const git = await extractGitIntent({ root, count: options.gitCommitCount }, config);
   bySource.git = git.records;
   warnings.push(...git.warnings);
 
+  activeStage = 'astExtraction';
   const ast = await extractAstIntent({ root }, config);
   bySource.ast = ast.records;
   warnings.push(...ast.warnings);
 
+  activeStage = 'markdownExtraction';
   const markdown = await extractMarkdownIntentAudited(
     { root, todoPath: options.todoFile, changelogPath: options.changelogFile },
     config,
@@ -78,11 +87,12 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   bySource.todo = markdown.records.filter((record) => record.source.kind === 'todo');
   bySource.changelog = markdown.records.filter((record) => record.source.kind === 'changelog');
   warnings.push(...markdown.warnings);
+  completedStages.markdownExtraction = markdown.audit;
 
   let documentationAudit = skippedAudit('disabled', 'Documentation LLM extraction was disabled');
   if (options.includeDocumentationLlm) {
     if (hasOpenRouter(config)) {
-      const docsStartedAt = Date.now();
+      activeStage = 'documentationExtraction';
       const docs = await extractDocumentationIntent({
         root,
         patterns: options.documentPatterns,
@@ -91,24 +101,13 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
       }, config);
       bySource.document = docs.records;
       warnings.push(...docs.warnings);
-      const status = docs.warnings.length === 0 ? 'succeeded' : docs.records.length > 0 ? 'partial' : 'failed';
-      documentationAudit = {
-        status,
-        requestedMode: 'llm',
-        effectiveMode: 'llm',
-        degraded: docs.warnings.length > 0,
-        recordCount: docs.records.length,
-        warningCount: docs.warnings.length,
-        model: config.openRouter.documentModel,
-        durationMs: Date.now() - docsStartedAt,
-        reason: docs.warnings.length ? { code: 'LLM_CHUNK_FAILURE', message: `${docs.warnings.length} documentation chunk(s) failed` } : null,
-        responses: docs.responses,
-      };
+      documentationAudit = docs.audit;
     } else {
       const message = 'OPENROUTER_API_KEY is not configured; documentation -> Intent DSL was skipped';
       warnings.push(message);
       documentationAudit = {
         ...skippedAudit('llm', message),
+        configuration: openRouterAuditConfiguration(config, config.openRouter.documentModel, config.documentTimeoutMs),
         status: 'failed',
         degraded: true,
         model: config.openRouter.documentModel,
@@ -117,12 +116,16 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
       };
     }
   }
+  completedStages.documentationExtraction = documentationAudit;
 
+  activeStage = 'linking';
   const allRecords = Object.values(bySource).flat();
   const generatedAt = new Date().toISOString();
   const graph = linkIntentRecords(allRecords, generatedAt);
+  activeStage = 'diagnostics';
   const diagnostics = diagnoseGraph(graph, generatedAt);
   if (options.includeDocumentationLlm && !hasOpenRouter(config)) appendLlmNotConfigured(diagnostics);
+  activeStage = 'summary';
   const summaryStartedAt = Date.now();
   const includeSummaryLlm = options.includeSummaryLlm !== false;
   const summary = await summarizeGraph(graph, diagnostics, config, {
@@ -132,6 +135,8 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   warnings.push(...summary.warnings);
   const summaryAudit: PipelineStageAudit = !includeSummaryLlm
     ? {
+        runtimeVersion: T2C_VERSION,
+        configuration: openRouterAuditConfiguration(config, null),
         status: 'skipped', requestedMode: 'deterministic', effectiveMode: 'deterministic', degraded: false,
         recordCount: 0, warningCount: 0, model: null,
         durationMs: Date.now() - summaryStartedAt,
@@ -140,18 +145,24 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
       }
     : summary.llmUsed
     ? {
+        runtimeVersion: T2C_VERSION,
+        configuration: openRouterAuditConfiguration(config, config.openRouter.summaryModel),
         status: 'succeeded', requestedMode: 'llm', effectiveMode: 'llm', degraded: false,
         recordCount: 0, warningCount: summary.warnings.length, model: config.openRouter.summaryModel,
         durationMs: Date.now() - summaryStartedAt, reason: null, responses: summary.responses,
       }
     : {
+        runtimeVersion: T2C_VERSION,
+        configuration: openRouterAuditConfiguration(config, config.openRouter.summaryModel),
         status: 'fallback', requestedMode: 'llm', effectiveMode: 'deterministic', degraded: true,
         recordCount: 0, warningCount: summary.warnings.length, model: config.openRouter.summaryModel,
         durationMs: Date.now() - summaryStartedAt,
         reason: { code: hasOpenRouter(config) ? 'LLM_UNAVAILABLE' : 'LLM_NOT_CONFIGURED', message: summary.warnings[0] ?? 'Deterministic summary fallback was used' },
         responses: [],
       };
+  completedStages.summary = summaryAudit;
 
+  activeStage = 'persistence';
   const files: Record<string, string> = {};
   for (const [source, records] of Object.entries(bySource)) {
     const filePath = path.join(runDirectory, `${source}.intent.jsonl`);
@@ -204,9 +215,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   });
   return { runDirectory, manifest, graphPath, diagnosticsPath, summaryPath };
   } catch (error) {
-    if (error instanceof NlLlmRequiredError || error instanceof MarkdownLlmRequiredError) {
-      await persistFailedRun(runId, root, runDirectory, options, config, error);
-    }
+    await persistFailedRun(runId, root, runDirectory, options, config, error, activeStage, completedStages);
     throw error;
   }
 }
@@ -272,20 +281,47 @@ async function persistFailedRun(
   runDirectory: string,
   options: PipelineOptions,
   config: T2CConfig,
-  error: NlLlmRequiredError | MarkdownLlmRequiredError,
+  error: unknown,
+  failedStage: PipelineFailureStage,
+  completedStages: Partial<PipelineManifest['stages']>,
 ): Promise<void> {
-  const failedStage = error instanceof NlLlmRequiredError ? 'naturalLanguageExtraction' : 'markdownExtraction';
   const aborted = (stage: string): PipelineStageAudit => ({
     ...skippedAudit('disabled', `Pipeline aborted before ${stage}`),
     reason: { code: 'PIPELINE_ABORTED', message: `Pipeline aborted before ${stage}` },
   });
-  const stages: PipelineManifest['stages'] = {
-    naturalLanguageExtraction: failedStage === 'naturalLanguageExtraction' ? error.audit : aborted('natural-language extraction'),
-    markdownExtraction: failedStage === 'markdownExtraction' ? error.audit : aborted('Markdown extraction'),
-    documentationExtraction: aborted('documentation extraction'),
-    summary: aborted('summary generation'),
+  const message = error instanceof Error ? error.message : String(error);
+  const knownAudit = error instanceof NlLlmRequiredError
+    || error instanceof MarkdownLlmRequiredError
+    || error instanceof DocumentationLlmRequiredError
+    ? error.audit
+    : null;
+  const failedAudit = (stage: keyof PipelineManifest['stages']): PipelineStageAudit => {
+    if (knownAudit && stage === failedStage) return knownAudit;
+    return {
+      runtimeVersion: T2C_VERSION,
+      configuration: openRouterAuditConfiguration(
+        config,
+        stage === 'summary' ? config.openRouter.summaryModel : null,
+      ),
+      status: 'failed', requestedMode: stage === 'summary' ? 'llm' : 'disabled', effectiveMode: 'none', degraded: true,
+      recordCount: 0, warningCount: 1, model: stage === 'summary' ? config.openRouter.summaryModel : null,
+      durationMs: 0,
+      reason: { code: failureCode(failedStage), message },
+      responses: [],
+    };
   };
-  const reason = error.audit.reason ?? { code: 'LLM_REQUIRED_FAILED', message: error.message };
+  const stageValue = (stage: keyof PipelineManifest['stages'], label: string): PipelineStageAudit => {
+    if (completedStages[stage]) return completedStages[stage];
+    if (stage === failedStage) return failedAudit(stage);
+    return aborted(label);
+  };
+  const stages: PipelineManifest['stages'] = {
+    naturalLanguageExtraction: stageValue('naturalLanguageExtraction', 'natural-language extraction'),
+    markdownExtraction: stageValue('markdownExtraction', 'Markdown extraction'),
+    documentationExtraction: stageValue('documentationExtraction', 'documentation extraction'),
+    summary: stageValue('summary', 'summary generation'),
+  };
+  const reason = knownAudit?.reason ?? { code: failureCode(failedStage), message };
   const manifest: PipelineManifest = {
     schemaVersion: 't2c.run/v1',
     runId,
@@ -293,7 +329,7 @@ async function persistFailedRun(
     createdAt: new Date().toISOString(),
     graphFingerprint: null,
     files: {},
-    warnings: [error.message],
+    warnings: [message],
     status: 'failed',
     failure: { stage: failedStage, code: reason.code, message: reason.message },
     runtime: { name: 'todo2code', version: T2C_VERSION },
@@ -309,8 +345,14 @@ async function persistFailedRun(
   await writeJson(path.join(runDirectory, 'manifest.json'), manifest);
 }
 
+function failureCode(stage: PipelineFailureStage): string {
+  return `PIPELINE_${stage.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}_FAILED`;
+}
+
 function skippedAudit(requestedMode: PipelineStageAudit['requestedMode'], message: string): PipelineStageAudit {
   return {
+    runtimeVersion: T2C_VERSION,
+    configuration: {},
     status: 'skipped', requestedMode, effectiveMode: 'none', degraded: false,
     recordCount: 0, warningCount: 0, model: null, durationMs: 0,
     reason: { code: 'STAGE_SKIPPED', message },

@@ -161,6 +161,33 @@ final class Client
     }
 
     /** @return array<string,mixed> */
+    public function extractNl(string $file, string $root = '.', ?string $nlMode = null): array
+    {
+        $input = ['file' => $file, 'root' => $root];
+        if ($nlMode !== null) {
+            $input['nlMode'] = $nlMode;
+        }
+        return $this->call('extract_nl', $input);
+    }
+
+    /**
+     * @param array<int,string>|null $patterns
+     * @param array<int,string>|null $excludes
+     * @return array<string,mixed>
+     */
+    public function extractDocs(string $root = '.', ?array $patterns = null, ?array $excludes = null): array
+    {
+        $input = ['root' => $root];
+        if ($patterns !== null) {
+            $input['patterns'] = $patterns;
+        }
+        if ($excludes !== null) {
+            $input['excludes'] = $excludes;
+        }
+        return $this->call('extract_docs', $input);
+    }
+
+    /** @return array<string,mixed> */
     public function extractMarkdown(string $root = '.', ?string $markdownMode = null): array
     {
         $input = ['root' => $root];

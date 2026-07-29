@@ -317,6 +317,28 @@ impl Client {
         Ok(serde_json::from_value(self.call(action::EXTRACT_AST, &json!({ "root": root }))?)?)
     }
 
+    /// Converts natural language into audited Intent DSL records.
+    pub fn extract_nl(&self, root: &str, file: &str) -> Result<ExtractionResult, Error> {
+        self.extract_nl_mode(root, file, None)
+    }
+
+    /// Converts natural language with an explicit deterministic/prefer-LLM/require-LLM mode.
+    pub fn extract_nl_mode(&self, root: &str, file: &str, nl_mode: Option<&str>) -> Result<ExtractionResult, Error> {
+        let mut input = json!({ "root": root, "file": file });
+        if let Some(mode) = nl_mode {
+            input["nlMode"] = json!(mode);
+        }
+        Ok(serde_json::from_value(self.call(action::EXTRACT_NL, &input)?)?)
+    }
+
+    /// Converts documentation into audited Intent DSL records through the configured LLM.
+    pub fn extract_docs(&self, root: &str, patterns: &[&str], excludes: &[&str]) -> Result<ExtractionResult, Error> {
+        Ok(serde_json::from_value(self.call(
+            action::EXTRACT_DOCS,
+            &json!({ "root": root, "patterns": patterns, "excludes": excludes }),
+        )?)?)
+    }
+
     /// Extracts TODO and CHANGELOG records from `root`.
     pub fn extract_markdown(&self, root: &str) -> Result<ExtractionResult, Error> {
         Ok(serde_json::from_value(self.call(action::EXTRACT_MARKDOWN, &json!({ "root": root }))?)?)

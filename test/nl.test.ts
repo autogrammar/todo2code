@@ -3,6 +3,7 @@ import test from 'node:test';
 import { extractNlIntent } from '../src/extractors/nl.js';
 import { extractNlIntentAudited, NlLlmRequiredError } from '../src/extractors/nl-llm.js';
 import { makeConfig } from './helpers.js';
+import { T2C_VERSION } from '../src/version.js';
 
 test('NL extractor produces deterministic non-LLM records', async () => {
   const config = makeConfig(process.cwd());
@@ -55,6 +56,9 @@ test('NL LLM extraction emits audited provenance and bounded DSL records', async
     assert.equal(result.audit.status, 'succeeded');
     assert.equal(result.audit.effectiveMode, 'llm');
     assert.equal(result.audit.model, 'qwen/test-nl');
+    assert.equal(result.audit.runtimeVersion, T2C_VERSION);
+    assert.equal(result.audit.configuration.model, 'qwen/test-nl');
+    assert.equal('apiKey' in result.audit.configuration, false);
     assert.equal(result.audit.responses[0]?.responseId, 'gen-nl-1');
     assert.equal(result.audit.responses[0]?.model, 'qwen/nl-resolved');
     assert.equal(result.audit.responses[0]?.usage?.totalTokens, 21);
@@ -62,7 +66,7 @@ test('NL LLM extraction emits audited provenance and bounded DSL records', async
     assert.equal(result.records[0]?.epistemic.confidence, 0.9);
     assert.deepEqual(result.records[0]?.source.lines, { start: 1, end: 2 });
     assert.equal(result.records[0]?.metadata.llmUsed, true);
-    assert.equal((result.records[0]?.metadata.generation as { runtimeVersion?: string }).runtimeVersion, '0.2.0');
+    assert.equal((result.records[0]?.metadata.generation as { runtimeVersion?: string }).runtimeVersion, T2C_VERSION);
     assert.equal(((result.records[0]?.metadata.generation as { response?: { provider?: string } }).response?.provider), 'NlProvider');
     assert.equal(result.records[0]?.lifecycle.status, 'proposed');
   } finally {

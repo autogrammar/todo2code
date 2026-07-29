@@ -229,6 +229,17 @@ export type LlmExtractionMode = 'deterministic' | 'prefer-llm' | 'require-llm';
 export type NlExtractionMode = LlmExtractionMode;
 
 export type PipelineStageStatus = 'succeeded' | 'partial' | 'fallback' | 'failed' | 'skipped';
+export type PipelineFailureStage =
+  | 'setup'
+  | 'naturalLanguageExtraction'
+  | 'gitExtraction'
+  | 'astExtraction'
+  | 'markdownExtraction'
+  | 'documentationExtraction'
+  | 'linking'
+  | 'diagnostics'
+  | 'summary'
+  | 'persistence';
 
 export interface LlmResponseMetadata extends Record<string, JsonValue> {
   responseId: string | null;
@@ -243,6 +254,8 @@ export interface LlmResponseMetadata extends Record<string, JsonValue> {
 }
 
 export interface PipelineStageAudit {
+  runtimeVersion: string;
+  configuration: Record<string, JsonValue>;
   status: PipelineStageStatus;
   requestedMode: 'deterministic' | 'llm' | 'disabled';
   effectiveMode: 'deterministic' | 'llm' | 'none';
@@ -280,7 +293,7 @@ export interface PipelineManifest {
   files: Record<string, string>;
   warnings: string[];
   status: 'succeeded' | 'degraded' | 'failed';
-  failure: { stage: keyof PipelineManifest['stages']; code: string; message: string } | null;
+  failure: { stage: PipelineFailureStage; code: string; message: string } | null;
   runtime: {
     name: 'todo2code';
     version: string;

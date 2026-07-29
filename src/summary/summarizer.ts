@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists } from '../core/io.js';
+import { assertIntentGraph } from '../core/schema.js';
 import type { DiagnosticReport, IntentGraph, IntentRecord, LlmResponseMetadata } from '../core/types.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 
@@ -24,6 +25,7 @@ export async function summarizeGraph(
   config: T2CConfig,
   options: SummaryOptions,
 ): Promise<SummaryResult> {
+  assertIntentGraph(graph);
   if (options.preferLlm === false) {
     return {
       markdown: deterministicSummary(

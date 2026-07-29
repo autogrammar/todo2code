@@ -46,7 +46,7 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.llm.summary, false);
   assert.equal(result.manifest.status, 'degraded');
   assert.equal(result.manifest.failure, null);
-  assert.equal(result.manifest.runtime.version, '0.2.0');
+  assert.equal(result.manifest.runtime.version, '0.3.0');
   assert.equal(result.manifest.stages.naturalLanguageExtraction.status, 'fallback');
   assert.equal(result.manifest.stages.naturalLanguageExtraction.reason?.code, 'LLM_NOT_CONFIGURED');
   assert.equal(result.manifest.stages.markdownExtraction.status, 'fallback');
@@ -103,3 +103,34 @@ for (const scenario of [
     assert.equal(await pathExists(path.join(root, '.intent-failed', 'latest.json')), false);
   });
 }
+
+test('Pipeline persists a failed manifest for an unexpected summary failure', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-summary-failed-'));
+  const config = makeConfig(root);
+  await assert.rejects(() => runPipeline({
+    root,
+    taskFile: null,
+    todoFile: null,
+    changelogFile: null,
+    documentPatterns: [],
+    includeDocumentationLlm: false,
+    outputDir: '.intent-failed',
+    gitCommitCount: 1,
+    allowSummaryFallback: false,
+    includeSummaryLlm: true,
+    nlMode: 'deterministic',
+    markdownMode: 'deterministic',
+  }, config), /OPENROUTER_API_KEY is required/);
+
+  const runsRoot = path.join(root, '.intent-failed', 'runs');
+  const runIds = await fs.readdir(runsRoot);
+  assert.equal(runIds.length, 1);
+  const manifest = await readJson<PipelineManifest>(path.join(runsRoot, runIds[0] ?? '', 'manifest.json'));
+  assert.equal(manifest.status, 'failed');
+  assert.equal(manifest.failure?.stage, 'summary');
+  assert.equal(manifest.failure?.code, 'PIPELINE_SUMMARY_FAILED');
+  assert.equal(manifest.stages.naturalLanguageExtraction.status, 'skipped');
+  assert.equal(manifest.stages.markdownExtraction.status, 'skipped');
+  assert.equal(manifest.stages.documentationExtraction.status, 'skipped');
+  assert.equal(manifest.stages.summary.status, 'failed');
+});

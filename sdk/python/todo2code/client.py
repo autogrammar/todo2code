@@ -280,9 +280,18 @@ class T2CClient:
 
     # -- convenience wrappers ---------------------------------------------
 
-    def extract_nl(self, file: str, root: str = ".") -> Sequence[IntentRecord]:
-        result = self.call("extract_nl", {"file": file, "root": root})
-        return tuple(IntentRecord.from_dict(item) for item in result.get("records", ()))
+    def extract_nl(
+        self, file: str, root: str = ".", nl_mode: str | None = None
+    ) -> Sequence[IntentRecord]:
+        return self.extract_nl_result(file, root, nl_mode).records
+
+    def extract_nl_result(
+        self, file: str, root: str = ".", nl_mode: str | None = None
+    ) -> ExtractionResult:
+        payload: dict[str, Any] = {"file": file, "root": root}
+        if nl_mode is not None:
+            payload["nlMode"] = nl_mode
+        return ExtractionResult.from_dict(self.call("extract_nl", payload))
 
     def extract_git(self, count: int = 10, root: str = ".") -> Sequence[IntentRecord]:
         result = self.call("extract_git", {"count": count, "root": root})
@@ -313,6 +322,27 @@ class T2CClient:
             payload["markdownMode"] = markdown_mode
         result = self.call("extract_markdown", payload)
         return ExtractionResult.from_dict(result)
+
+    def extract_docs(
+        self,
+        root: str = ".",
+        patterns: Sequence[str] | None = None,
+        excludes: Sequence[str] | None = None,
+    ) -> Sequence[IntentRecord]:
+        return self.extract_docs_result(root, patterns, excludes).records
+
+    def extract_docs_result(
+        self,
+        root: str = ".",
+        patterns: Sequence[str] | None = None,
+        excludes: Sequence[str] | None = None,
+    ) -> ExtractionResult:
+        payload: dict[str, Any] = {"root": root}
+        if patterns is not None:
+            payload["patterns"] = list(patterns)
+        if excludes is not None:
+            payload["excludes"] = list(excludes)
+        return ExtractionResult.from_dict(self.call("extract_docs", payload))
 
     def link(self, records: Iterable[IntentRecord | Mapping[str, Any]]) -> IntentGraph:
         payload = [item.raw if isinstance(item, IntentGraph) else _as_dict(item) for item in records]

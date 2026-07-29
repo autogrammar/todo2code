@@ -1,23 +1,25 @@
 # Walidacja paczki
 
-Stan walidacji: **2026-07-29**, `todo2code 0.2.0`, baza Git
-`origin/main` = `e66306fbdb5881ae82dd9acf76b8a4aac3c90a5f`.
+Stan walidacji: **2026-07-29**, `todo2code 0.3.0`, baza Git
+`origin/main` = `7eff4f15a0200fe55a34ac429c54495ceab4fe41` przed wydaniem.
 
 ## Kontrole lokalne
 
 | Kontrola | Wynik |
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
-| Transitive no-LLM import boundary | PASS — 7 entrypointów, 12 modułów |
-| Granice modułów | PASS — 39 modułów, 175 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Transitive no-LLM import boundary | PASS — 7 entrypointów, 15 modułów |
+| Granice modułów | PASS — 42 moduły, 200 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 56 zmiennych kodu/Dockera, 56 kluczy `.env.example`; prywatny `.env` zsynchronizowany; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 97 zaliczonych, 0 błędów, 1 skip lokalnego JDK (sprawdzony osobno w kontenerze) |
+| Testy Node | PASS — 102 zaliczone, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
 | Offline pipeline smoke test | PASS — 195 rekordów, 702 relacje; jawna degradacja NL/Markdown/summary bez klucza |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
 | Audytowane TODO/CHANGELOG → DSL | PASS — zachowanie struktury, runtime validation, oznaczony fallback i błąd `require-llm` |
+| Pełny kontrakt runtime DSL | PASS — exact keys, enumy, ID/hash/czas/linie, relacje, końce i statystyki grafu |
+| Manifest każdej awarii pipeline | PASS — `require-llm` i nieoczekiwana awaria summary zapisują etap/kod bez publikowania `latest.json` |
 | OpenRouter invalid-model discovery | PASS — lista modeli po błędnym identyfikatorze |
 | Dokumentacja → DSL przez mock OpenRouter | PASS — structured output, target hints, limity rekordów/chunków, timeout i współbieżność |
 | Graf → NL przez mock OpenRouter | PASS — uziemione cytowania i budżet AST |
@@ -46,10 +48,10 @@ zawartości prywatnego `.env`.
 - Rust: 2 testy jednostkowe, 1 doc-test i przykład na żywym A2A — PASS.
 - PHP: lint klienta i przykładu oraz przykład na żywym A2A — PASS.
 
-Wszystkie przykłady przeszły ścieżkę AST → Markdown → graf → diagnostyka →
+Wszystkie przykłady przeszły ścieżkę NL → AST → Markdown → graf → diagnostyka →
 Intent vs Reality → Git diff i uzyskały ten sam fingerprint
-`7ef0dc655256a432…`; każdy potwierdził audyt Markdown o statusie `succeeded` i
-trybie `deterministic`. Opcjonalny przykład TypeScript uruchomił także
+`64b182c512f8a6a2…`; każdy potwierdził audyt NL i Markdown o statusie
+`succeeded` i trybie `deterministic`. Opcjonalny przykład TypeScript uruchomił także
 `compare_workspace` i zwrócił `unchanged` dla niezmienionego
 `examples/backend`. Porównanie nie wywołało summary LLM; oba manifesty oznaczają
 je jako świadomie pominięte i zapisują deterministyczny raport.
@@ -68,27 +70,26 @@ node dist/src/cli.js compare-workspace . \
 ```
 
 Artefakty znajdują się w
-`.intent/comparisons/20260729T170906Z-e2589603/`. Stan przed analizą obejmował
-53 zmienione lub nowe pliki, `HEAD` był równy `origin/main` (`ahead=0`,
+`.intent/comparisons/20260729T173712Z-acb9ce2f/`. Stan przed analizą obejmował
+56 zmienionych lub nowych plików, `HEAD` był równy `origin/main` (`ahead=0`,
 `behind=0`).
 
 | Metryka | `origin/main` | filesystem | Zmiana |
 |---|--:|--:|--:|
-| Zadeklarowane rekordy | 15 | 12 | −3 |
-| Zaobserwowane tematy kodu | 92 | 98 | +6 |
-| Deklarowana intencja z implementacją | 8,33% | 0,0% | −8,33 pp |
-| Kod posiadający plan | 1,09% | 0,0% | −1,09 pp |
+| Zadeklarowane rekordy | 12 | 13 | +1 |
+| Zaobserwowane tematy kodu | 98 | 102 | +4 |
+| Deklarowana intencja z implementacją | 0,0% | 0,0% | bez zmiany |
+| Kod posiadający plan | 0,0% | 0,0% | bez zmiany |
 | Kod posiadający dokumentację w grafie | 0,0% | 0,0% | bez zmiany |
 | Pełne wyrównanie plan + kod + dokumentacja | 0,0% | 0,0% | bez zmiany |
-| Tematy rozbieżne | 136 | 147 | +11 |
+| Tematy rozbieżne | 148 | 156 | +8 |
 | Diagnostyka blocking | 0 | 0 | bez zmiany |
 
-Trend jest **regressed** według obecnej heurystyki: lokalny zakres kodu urósł,
-ale wykonane punkty zostały przeniesione z TODO do CHANGELOG, a dwa nowe punkty
-TODO są świadomie niezrealizowanym backlogiem. Diff zawiera 1987 dodanych, 1367
-usuniętych, 370 zmienionych i 5121 niezmienionych rekordów. Brak blokujących
-diagnostyk nie oznacza pełnego pokrycia. Duża liczba zmian wynika również z
-tożsamości źródeł/wierszy AST; nie jest równoznaczna z liczbą funkcji
+Trend jest **regressed** według obecnej heurystyki wyłącznie dlatego, że osiem
+nowych tematów AST/CHANGELOG zwiększyło licznik gaps; żaden wskaźnik pokrycia
+nie spadł i nie pojawiła się diagnostyka blocking. Diff zawiera 1839 dodanych,
+1464 usunięte, 418 zmienionych i 5598 niezmienionych rekordów. Duża liczba zmian
+wynika z tożsamości źródeł/wierszy AST i nie jest równoznaczna z liczbą funkcji
 biznesowych. Porównanie celowo wyłączyło LLM dokumentacji, dlatego 0% w kolumnie
 dokumentacji oznacza brak załadowanego dowodu, a nie dowód braku dokumentacji.
 
@@ -104,6 +105,11 @@ Audytowane TODO/CHANGELOG → DSL również działa live. Model
 Wszystkie rekordy miały `llmUsed=true`, `degraded=false`, zapisany model i
 runtime `0.2.0`; zachowano 3 lifecycle `completed`, 3 `planned` i 4 `released`
 oraz niezmienione source/version/date/category.
+
+Są to historyczne próby live sprzed wydania 0.3.0. W 0.3.0 ta sama ścieżka ma
+testy regresyjne z mockowanym providerem; nowy envelope dodatkowo zapisuje
+`audit.runtimeVersion`, redacted `audit.configuration` i metadata generowania
+dokumentacji.
 
 Nowy bounded extractor przetestowano live na jawnie wskazanym historycznym
 raporcie `.intent/runs/20260729T163133Z-1f8c316b/team-summary.md`.
@@ -124,7 +130,7 @@ poprawny A2A 1.0, a `/ui` HTTP 200. Usunięto konfliktujący `compose.yml`, wię
 zarówno zwykłe `docker compose`, jak i cele Makefile używają jednego
 `docker-compose.yml`.
 
-## Pozostałe ograniczenia 0.2.0
+## Pozostałe ograniczenia 0.3.0
 
 - Pełne pokrycie dokumentacją wymaga włączenia `--docs-llm`; porównanie offline
   poprawnie raportuje 0%, czyli brak załadowanego dowodu, nie brak dokumentacji.

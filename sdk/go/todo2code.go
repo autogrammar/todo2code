@@ -388,6 +388,29 @@ func (c *Client) ExtractAST(ctx context.Context, root string) (*ExtractionResult
 	return result, c.Call(ctx, ActionExtractAST, map[string]any{"root": root}, result)
 }
 
+// ExtractNL converts natural language into audited Intent DSL records.
+func (c *Client) ExtractNL(ctx context.Context, root, file, nlMode string) (*ExtractionResult, error) {
+	result := &ExtractionResult{}
+	payload := map[string]any{"root": root, "file": file}
+	if nlMode != "" {
+		payload["nlMode"] = nlMode
+	}
+	return result, c.Call(ctx, ActionExtractNL, payload, result)
+}
+
+// ExtractDocs converts documentation into audited Intent DSL records through the configured LLM.
+func (c *Client) ExtractDocs(ctx context.Context, root string, patterns, excludes []string) (*ExtractionResult, error) {
+	result := &ExtractionResult{}
+	payload := map[string]any{"root": root}
+	if patterns != nil {
+		payload["patterns"] = patterns
+	}
+	if excludes != nil {
+		payload["excludes"] = excludes
+	}
+	return result, c.Call(ctx, ActionExtractDocs, payload, result)
+}
+
 // ExtractMarkdown extracts TODO and CHANGELOG records from root.
 func (c *Client) ExtractMarkdown(ctx context.Context, root string) (*ExtractionResult, error) {
 	return c.ExtractMarkdownWithOptions(ctx, root, nil)

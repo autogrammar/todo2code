@@ -34,15 +34,21 @@ fn run() -> Result<(), todo2code::Error> {
     println!("health: {}", client.health()?);
 
     // 1. Deterministic extraction -> graph -> diagnostics.
+    let nl = client.extract_nl_mode(&root, "task.md", Some("deterministic"))?;
+    if nl.audit["status"] != "succeeded" || nl.audit["effectiveMode"] != "deterministic" {
+        return Err(todo2code::Error::Protocol(format!("unexpected NL audit: {}", nl.audit)));
+    }
+    println!("NL audit: {} {}", nl.audit["status"], nl.audit["effectiveMode"]);
     let ast = client.extract_ast(&root)?;
     let markdown = client.extract_markdown_mode(&root, "deterministic")?;
     if markdown.audit["status"] != "succeeded" {
         return Err(todo2code::Error::Protocol(format!("unexpected Markdown audit: {}", markdown.audit)));
     }
     println!("markdown audit: {} {}", markdown.audit["status"], markdown.audit["effectiveMode"]);
-    println!("extracted {} records from {root}", ast.records.len() + markdown.records.len());
+    println!("extracted {} records from {root}", nl.records.len() + ast.records.len() + markdown.records.len());
 
-    let mut records = ast.records;
+    let mut records = nl.records;
+    records.extend(ast.records);
     records.extend(markdown.records);
     let graph = client.link(&serde_json::to_value(&records)?)?;
     let fingerprint = graph["fingerprint"].as_str().unwrap_or_default();

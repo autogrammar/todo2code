@@ -14,6 +14,7 @@ export type LifecycleStatus =
   | 'proposed' | 'planned' | 'in_progress' | 'implemented'
   | 'verified' | 'released' | 'completed' | 'blocked' | 'unknown';
 export type DiagnosticSeverity = 'info' | 'warning' | 'review_required' | 'blocking';
+export type LlmExtractionMode = 'deterministic' | 'prefer-llm' | 'require-llm';
 
 export interface IntentTarget {
   paths: string[];
@@ -82,6 +83,28 @@ export interface DiagnosticReport {
     suggestedAction: string;
   }>;
   counts: Record<DiagnosticSeverity, number>;
+}
+
+export interface ExtractionAudit {
+  runtimeVersion: string;
+  configuration: Record<string, unknown>;
+  status: 'succeeded' | 'partial' | 'fallback' | 'failed' | 'skipped';
+  requestedMode: 'deterministic' | 'llm' | 'disabled';
+  effectiveMode: 'deterministic' | 'llm' | 'none';
+  degraded: boolean;
+  recordCount: number;
+  warningCount: number;
+  model: string | null;
+  durationMs: number;
+  reason: { code: string; message: string } | null;
+  responses: Array<Record<string, unknown>>;
+}
+
+export interface ExtractionResult {
+  records: IntentRecord[];
+  warnings: string[];
+  audit?: ExtractionAudit;
+  responses?: Array<Record<string, unknown>>;
 }
 
 export type T2CAction =
@@ -204,8 +227,8 @@ export class T2CClient {
 
   // ---- Convenience wrappers -------------------------------------------------
 
-  extractNl(file: string, root = '.'): Promise<{ records: IntentRecord[]; warnings: string[] }> {
-    return this.call('extract_nl', { file, root });
+  extractNl(file: string, root = '.', nlMode?: LlmExtractionMode): Promise<ExtractionResult> {
+    return this.call('extract_nl', { file, root, ...(nlMode ? { nlMode } : {}) });
   }
 
   extractGit(count = 10, root = '.'): Promise<{ records: IntentRecord[]; warnings: string[] }> {
@@ -218,9 +241,16 @@ export class T2CClient {
 
   extractMarkdown(
     root = '.',
-    options: { todo?: string | null; changelog?: string | null; markdownMode?: 'deterministic' | 'prefer-llm' | 'require-llm' } = {},
-  ): Promise<{ records: IntentRecord[]; warnings: string[]; audit?: Record<string, unknown> }> {
+    options: { todo?: string | null; changelog?: string | null; markdownMode?: LlmExtractionMode } = {},
+  ): Promise<ExtractionResult> {
     return this.call('extract_markdown', { root, ...options });
+  }
+
+  extractDocs(
+    root = '.',
+    options: { patterns?: string[]; excludes?: string[] } = {},
+  ): Promise<ExtractionResult> {
+    return this.call('extract_docs', { root, ...options });
   }
 
   link(records: IntentRecord[]): Promise<IntentGraph> {

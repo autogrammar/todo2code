@@ -2,14 +2,28 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-29
+
 ### Added
+
+- Complete runtime validation for `t2c.intent/v1`, `t2c.graph/v1` and
+  `t2c.diff/v1` at linker, diagnostics, diff/reality and summary boundaries,
+  including exact keys, enum/range/hash checks, relation endpoints and graph
+  statistics.
+- Standalone LLM stage audits now include the runtime version and redacted
+  effective parameters; documentation-derived records use the same
+  `metadata.generation` provenance envelope as NL and Markdown.
+- NL and documentation convenience methods in the TypeScript, Python, Go,
+  Rust and PHP SDKs. Every runnable example exercises deterministic NL and
+  verifies its audit before graph construction.
 
 - Java AST adapter based on the official JDK Compiler Tree API and Rust AST
   adapter based on `syn`; both emit the common `{facts,warnings}` envelope,
   exact source ranges and explicit optional-toolchain degradation.
-- Failed-run manifests for NL and Markdown `require-llm` aborts. They preserve
-  runtime/configuration/stage evidence while intentionally omitting a graph and
-  leaving `latest.json` unchanged.
+- Failed-run manifests for every pipeline failure, including NL/Markdown
+  `require-llm` aborts and unexpected later-stage errors. They preserve
+  completed runtime/configuration/stage evidence while intentionally omitting
+  a graph and leaving `latest.json` unchanged.
 - OpenRouter response audit with response ID, resolved model/provider, token
   usage and cost whenever returned by the provider.
 - Cross-language path and symbol normalization used by record construction,
@@ -33,6 +47,14 @@
 - Environment-contract verification covering runtime, Docker/Compose and SDK example variables, including optional synchronization checks for the private `.env`.
 
 ### Changed
+
+- TODO and CHANGELOG deterministic conversion now lives in independent
+  `todo.ts` and `changelog.ts` modules; `markdown.ts` only composes them and
+  the audited LLM enrichment remains a bounded shared orchestration step.
+- The public package entry point now exports the audited NL orchestrator,
+  target normalization and the source-specific TODO/CHANGELOG converters.
+- The documentation structured-response schema now describes and bounds every
+  field accepted from the model instead of allowing arbitrary array items.
 
 - Optional TensorFlow is installed only into `adapters/tensorflow` by
   `make install-tf`; the main dependency tree and production image remain at

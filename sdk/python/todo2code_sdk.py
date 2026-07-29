@@ -56,6 +56,29 @@ class Todo2CodeClient:
     def health(self) -> dict[str, Any]:
         return dict(self.client.health())
 
+    def extract_nl(
+        self, file: str, root: str = ".", nl_mode: str | None = None
+    ) -> dict[str, Any]:
+        result = self.client.extract_nl_result(file, root, nl_mode)
+        return {
+            "records": [_record_dict(record) for record in result.records],
+            "warnings": list(result.warnings),
+            "audit": result.audit,
+        }
+
+    def extract_docs(
+        self,
+        root: str = ".",
+        patterns: list[str] | None = None,
+        excludes: list[str] | None = None,
+    ) -> dict[str, Any]:
+        result = self.client.extract_docs_result(root, patterns, excludes)
+        return {
+            "records": [_record_dict(record) for record in result.records],
+            "warnings": list(result.warnings),
+            "audit": result.audit,
+        }
+
     def diff_graphs(
         self,
         before_graph: dict[str, Any],
@@ -133,3 +156,16 @@ class Todo2CodeClient:
 
     def run(self, action: str, input_data: dict[str, Any] | None = None) -> Any:
         return self.client.call(action, input_data or {})
+
+
+def _record_dict(record: Any) -> dict[str, Any]:
+    return {
+        "schemaVersion": record.schema_version,
+        "id": record.id,
+        "statement": dict(record.statement),
+        "lifecycle": dict(record.lifecycle),
+        "source": dict(record.source),
+        "epistemic": dict(record.epistemic),
+        "observedAt": record.observed_at,
+        "metadata": dict(record.metadata),
+    }

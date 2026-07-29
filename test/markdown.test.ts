@@ -5,7 +5,10 @@ import path from 'node:path';
 import test from 'node:test';
 import { extractMarkdownIntentAudited, MarkdownLlmRequiredError } from '../src/extractors/markdown-llm.js';
 import { extractMarkdownIntent } from '../src/extractors/markdown.js';
+import { extractChangelog } from '../src/extractors/changelog.js';
+import { extractTodo } from '../src/extractors/todo.js';
 import { makeConfig } from './helpers.js';
+import { T2C_VERSION } from '../src/version.js';
 
 test('Markdown extractor separates TODO plans and changelog claims', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-'));
@@ -20,6 +23,8 @@ test('Markdown extractor separates TODO plans and changelog claims', async () =>
   assert.equal(changelog.length, 1);
   assert.equal(changelog[0]?.lifecycle.status, 'released');
   assert.equal(changelog[0]?.metadata.version, '1.2.0');
+  assert.equal((await extractTodo(root, 'TODO.md', makeConfig(root))).records.length, 2);
+  assert.equal((await extractChangelog(root, 'CHANGELOG.md', makeConfig(root))).records.length, 1);
 });
 
 test('TODO and CHANGELOG receive audited LLM enrichment without changing structural facts', async () => {
@@ -56,6 +61,9 @@ test('TODO and CHANGELOG receive audited LLM enrichment without changing structu
     const result = await extractMarkdownIntentAudited({ root, todoPath: 'TODO.md', changelogPath: 'CHANGELOG.md' }, config, 'prefer-llm');
     assert.equal(result.audit.status, 'succeeded');
     assert.equal(result.audit.model, 'qwen/test-markdown');
+    assert.equal(result.audit.runtimeVersion, T2C_VERSION);
+    assert.equal(result.audit.configuration.model, 'qwen/test-markdown');
+    assert.equal('apiKey' in result.audit.configuration, false);
     assert.equal(result.audit.responses[0]?.responseId, 'gen-markdown-1');
     assert.equal(result.audit.responses[0]?.provider, 'MarkdownProvider');
     assert.equal(result.audit.responses[0]?.usage?.totalTokens, 45);

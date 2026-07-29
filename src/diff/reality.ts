@@ -7,6 +7,7 @@
 // view reuses the linker's evidence instead of inventing a second heuristic.
 
 import { sha256, stableStringify } from '../core/id.js';
+import { assertIntentGraph } from '../core/schema.js';
 import { symbolAliases } from '../core/target.js';
 import type {
   DiagnosticCode,
@@ -118,6 +119,7 @@ export function buildRealityView(
   diagnostics: DiagnosticReport,
   generatedAt = new Date().toISOString(),
 ): IntentRealityView {
+  assertIntentGraph(graph);
   const components = groupIntoTopics(graph);
   const diagnosticsByRecord = indexDiagnostics(diagnostics);
 

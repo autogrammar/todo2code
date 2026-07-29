@@ -41,11 +41,12 @@ Granica LLM obowiązuje tak samo jak w CLI: `extract_nl` oraz semantyczne
 wzbogacanie `extract_markdown` obsługują `prefer-llm`/`require-llm`, a
 `extract_docs` i `summarize` wołają OpenRouter. Każdy SDK może wymusić
 `nlMode: deterministic` lub `markdownMode: deterministic` i odczytać audyt
-fallbacku (`audit.status`, `effectiveMode`, `reason`). Python zachowuje zgodną
-metodę `extract_markdown()` zwracającą rekordy i udostępnia pełny envelope przez
-`extract_markdown_result()`. Przykłady wymuszają deterministyczny Markdown, aby
-ich wynik i koszt nie zależały od sieci, oraz odrzucają wynik bez poprawnego
-audytu.
+fallbacku (`audit.status`, `effectiveMode`, `reason`, `runtimeVersion`,
+`configuration`). Wszystkie pięć klientów ma convenience methods dla NL i
+dokumentacji. Python zachowuje metody zwracające same rekordy oraz udostępnia
+pełne envelope przez warianty `*_result()`. Przykłady wymuszają
+deterministyczne NL i Markdown, aby wynik i koszt nie zależały od sieci, oraz
+odrzucają wynik bez poprawnego audytu.
 
 Python ma dodatkowo lokalny most `TypeScriptRuntime`, który przez `subprocess`
 uruchamia kanoniczny CLI Node/TypeScript. Dzięki temu paczka może wykonywać
@@ -61,7 +62,7 @@ npm run build
 node dist/src/interfaces/a2a.js        # domyślnie :8787
 ```
 
-Potem dowolny przykład (wszystkie robią to samo: ekstrakcja → graf →
+Potem dowolny przykład (wszystkie robią to samo: NL → AST → Markdown → graf →
 diagnostyka → widok reality → diff Git):
 
 ```bash
@@ -88,10 +89,10 @@ klienta — każdy SDK dołączy nagłówek `Authorization: Bearer`.
 
 ### Kontrola spójności
 
-Wszystkie pięć przykładów przepuszcza te same 82 rekordy przez `link` i musi
+Wszystkie pięć przykładów przepuszcza te same 92 rekordy przez `link` i musi
 otrzymać **identyczny fingerprint grafu**. Rozjazd oznacza, że typy danego SDK
 gubią pole przy round-tripie:
 
 ```text
-graph fingerprint: 7ef0dc655256a432   # TS, Python, Go, Rust, PHP
+graph fingerprint: 64b182c512f8a6a2   # TS, Python, Go, Rust, PHP
 ```

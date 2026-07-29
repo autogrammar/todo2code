@@ -43,7 +43,7 @@
   "metadata": {
     "checked": false,
     "llmUsed": true,
-    "generation": { "requested": "llm", "used": "llm", "degraded": false, "runtimeVersion": "0.2.0", "model": "qwen/qwen3.7-plus" }
+    "generation": { "requested": "llm", "used": "llm", "degraded": false, "runtimeVersion": "0.3.0", "model": "qwen/qwen3.7-plus" }
   }
 }
 ```
@@ -73,6 +73,17 @@
 - `metadata.generation` wskazuje `requested`, faktycznie `used`, `degraded`, `fallbackReason`, wersję runtime i — dla LLM — model.
 - Brak pola pozostaje brakiem; system nie tworzy ukrytego faktu.
 
+Runtime nie ufa samemu typowaniu TypeScript. Przed zbudowaniem grafu i na
+publicznych granicach sprawdza kompletne obiekty, dozwolone enumy, zakresy
+confidence i linii, format ID/hash/czasu, unikalność list, końce relacji oraz
+zgodność statystyk grafu. Nieznane pola są odrzucane. Statyczne odpowiedniki
+kontraktów znajdują się w `schemas/`.
+
+Standalone ekstrakcje NL, TODO/CHANGELOG i dokumentacji zwracają `audit` z
+wersją runtime, statusem, requested/effective mode, modelem, przyczyną
+degradacji, metadanymi odpowiedzi oraz bezpiecznymi parametrami konfiguracji.
+Klucz API nie jest częścią audytu.
+
 ## Audyt runu (`t2c.run/v1`)
 
 Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:
@@ -88,6 +99,11 @@ Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:
 - odpowiedzi LLM z dostępnymi `responseId`, resolved model/provider,
   prompt/completion/total tokens i cost;
 - wersję runtime oraz bezpieczne parametry adapterów i budżetów dokumentacji.
+
+Każdy błąd po utworzeniu katalogu runu — nie tylko `require-llm` — zapisuje
+manifest `failed` z aktywnym etapem. Ukończone audyty pozostają zachowane,
+etapy niewykonane są oznaczone jako przerwane, a `latest.json` nie wskazuje
+niepełnego przebiegu.
 
 Historyczne manifesty sprzed rozszerzenia nadal są czytane przez API; UI oznacza
 ich status jako `legacy`.
