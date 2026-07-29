@@ -39,7 +39,20 @@ export async function extractGitIntent(options: GitExtractionOptions, config: T2
     return { records: [], warnings: [`Git repository not available at ${root}`] };
   }
 
-  const commits = await readCommits(root, count);
+  // A repository with no commits yet — the state `t2c init` leaves behind, and
+  // the one `t2c watch` hits first — makes `git log` exit non-zero. That is an
+  // absent source, not a failed run, so it degrades to a warning.
+  let commits: GitCommit[];
+  try {
+    commits = await readCommits(root, count);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (/does not have any commits yet|unknown revision|bad default revision/i.test(message)) {
+      return { records: [], warnings: [`${root} has no commits yet; Git -> Intent DSL was skipped`] };
+    }
+    return { records: [], warnings: [`Git history unavailable at ${root}: ${message}`] };
+  }
+
   const records: IntentRecord[] = [];
   for (let index = 0; index < commits.length; index += 1) {
     const commit = commits[index];

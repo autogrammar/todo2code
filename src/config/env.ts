@@ -42,6 +42,7 @@ export interface T2CConfig {
     publicUrl: string;
     token: string | null;
     maxBodyBytes: number;
+    taskStorePath: string | null;
   };
 }
 
@@ -150,6 +151,7 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
       publicUrl: envString('T2C_A2A_PUBLIC_URL', 'http://localhost:8787/a2a'),
       token: envOptional('T2C_A2A_TOKEN'),
       maxBodyBytes: envNumber('T2C_A2A_MAX_BODY_BYTES', 1_048_576, 1024, 32 * 1024 * 1024),
+      taskStorePath: envOptional('T2C_A2A_TASK_STORE'),
     },
   };
 }

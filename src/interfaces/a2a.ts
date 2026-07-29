@@ -2,6 +2,7 @@ import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import { promises as fs, type Dirent } from 'node:fs';
 import http, { type IncomingHttpHeaders, type IncomingMessage, type ServerResponse } from 'node:http';
 import path from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import { pathToFileURL } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { getConfig, loadEnvFile } from '../config/env.js';
@@ -88,6 +89,12 @@ interface ListCursor {
   timestamp: string;
   id: string;
   filter: string;
+}
+
+interface TaskStoreSnapshot {
+  schemaVersion: 't2c.a2a-task-store/v1';
+  updatedAt: string;
+  tasks: StoredTask[];
 }
 
 const tasks = new Map<string, StoredTask>();
@@ -312,18 +319,21 @@ function relativeApiPath(root: string, filePath: string): string {
 }
 
 async function handleRpc(request: JsonRpcRequest, config: T2CConfig, principal: string): Promise<unknown> {
+  return withTaskStore(config, () => handleRpcInTaskStore(request, config, principal));
+}
+
+async function handleRpcInTaskStore(request: JsonRpcRequest, config: T2CConfig, principal: string): Promise<unknown> {
   const params = request.params ?? {};
   if (request.method === 'SendMessage') {
     const message = parseMessage(params.message);
     ensureSupportedMessageContent(message);
     const sendConfiguration = parseSendConfiguration(params.configuration);
     const prepared = prepareTask(message, principal);
-    const execution = () => executeMessage(prepared.task, message, params, config);
     if (prepared.shouldExecute) {
       if (sendConfiguration.returnImmediately) {
-        void Promise.resolve().then(execution);
+        scheduleTaskExecution(prepared.task.id, message, params, config);
       } else {
-        await execution();
+        await executeMessage(prepared.task, message, params, config);
       }
     }
     return {
@@ -357,6 +367,146 @@ async function handleRpc(request: JsonRpcRequest, config: T2CConfig, principal: 
     return taskView(task, { includeArtifacts: true, historyLength: undefined, defaultHistoryLength: undefined });
   }
   throw new A2ARequestError(-32601, `Method not found: ${request.method}`);
+}
+
+function scheduleTaskExecution(
+  taskId: string,
+  message: A2AMessage,
+  params: Record<string, unknown>,
+  config: T2CConfig,
+): void {
+  setImmediate(() => {
+    void withTaskStore(config, async () => {
+      const task = tasks.get(taskId);
+      if (task) await executeMessage(task, message, params, config);
+    }).catch((error) => {
+      process.stderr.write(`[t2c:a2a] background task persistence failed: ${error instanceof Error ? error.message : String(error)}\n`);
+    });
+  });
+}
+
+async function withTaskStore<T>(config: T2CConfig, operation: () => Promise<T>): Promise<T> {
+  const storePath = await configuredTaskStorePath(config);
+  if (!storePath) return operation();
+
+  await fs.mkdir(path.dirname(storePath), { recursive: true, mode: 0o700 });
+  const release = await acquireTaskStoreLock(storePath);
+  try {
+    await loadTaskStore(storePath);
+    const result = await operation();
+    await saveTaskStore(storePath);
+    return result;
+  } finally {
+    await release();
+  }
+}
+
+async function configuredTaskStorePath(config: T2CConfig): Promise<string | null> {
+  if (!config.a2a.taskStorePath) return null;
+  return assertPathWithinRoot(
+    config.root,
+    path.resolve(config.root, config.a2a.taskStorePath),
+    config.allowOutsideRoot,
+  );
+}
+
+async function acquireTaskStoreLock(storePath: string): Promise<() => Promise<void>> {
+  const lockPath = `${storePath}.lock`;
+  const deadline = Date.now() + 5 * 60_000;
+  for (;;) {
+    try {
+      await fs.mkdir(lockPath, { mode: 0o700 });
+      return async () => {
+        try {
+          await fs.rmdir(lockPath);
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+        }
+      };
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+      try {
+        const stat = await fs.stat(lockPath);
+        if (Date.now() - stat.mtimeMs > 30 * 60_000) {
+          await fs.rmdir(lockPath);
+          continue;
+        }
+      } catch (statError) {
+        if ((statError as NodeJS.ErrnoException).code !== 'ENOENT') throw statError;
+        continue;
+      }
+      if (Date.now() >= deadline) throw new Error(`Timed out waiting for A2A task store lock: ${lockPath}`);
+      await delay(25);
+    }
+  }
+}
+
+async function loadTaskStore(storePath: string): Promise<void> {
+  let content: string;
+  try {
+    const stat = await fs.stat(storePath);
+    if (!stat.isFile()) throw new Error(`A2A task store is not a file: ${storePath}`);
+    if (stat.size > 256 * 1024 * 1024) throw new Error(`A2A task store exceeds 256 MiB: ${storePath}`);
+    content = await fs.readFile(storePath, 'utf8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      tasks.clear();
+      messageTaskIndex.clear();
+      return;
+    }
+    throw error;
+  }
+
+  const snapshot = JSON.parse(content) as Partial<TaskStoreSnapshot>;
+  if (snapshot.schemaVersion !== 't2c.a2a-task-store/v1' || !Array.isArray(snapshot.tasks)) {
+    throw new Error(`Invalid A2A task store snapshot: ${storePath}`);
+  }
+  const restored = snapshot.tasks.map((task, index) => assertStoredTask(task, `${storePath} tasks[${index}]`));
+  tasks.clear();
+  messageTaskIndex.clear();
+  for (const task of restored) {
+    tasks.set(task.id, task);
+    for (const message of task.history) {
+      if (message.role === 'ROLE_USER') messageTaskIndex.set(`${task.owner}\u0000${message.messageId}`, task.id);
+    }
+  }
+}
+
+function assertStoredTask(value: unknown, label: string): StoredTask {
+  if (!isRecord(value)
+    || typeof value.id !== 'string'
+    || typeof value.contextId !== 'string'
+    || typeof value.owner !== 'string'
+    || !isRecord(value.status)
+    || typeof value.status.timestamp !== 'string'
+    || !TASK_STATES.has(value.status.state as A2ATaskState)
+    || !Array.isArray(value.artifacts)
+    || !Array.isArray(value.history)
+    || !isRecord(value.metadata)) {
+    throw new Error(`Invalid stored A2A task at ${label}`);
+  }
+  return value as unknown as StoredTask;
+}
+
+async function saveTaskStore(storePath: string): Promise<void> {
+  const snapshot: TaskStoreSnapshot = {
+    schemaVersion: 't2c.a2a-task-store/v1',
+    updatedAt: new Date().toISOString(),
+    tasks: [...tasks.values()].sort((left, right) => left.id.localeCompare(right.id)),
+  };
+  const content = `${JSON.stringify(snapshot)}\n`;
+  if (Buffer.byteLength(content) > 256 * 1024 * 1024) throw new Error('A2A task store snapshot exceeds 256 MiB');
+  const temporaryPath = `${storePath}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    await fs.writeFile(temporaryPath, content, { encoding: 'utf8', flag: 'wx', mode: 0o600 });
+    await fs.rename(temporaryPath, storePath);
+  } finally {
+    try {
+      await fs.unlink(temporaryPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    }
+  }
 }
 
 function prepareTask(message: A2AMessage, principal: string): PreparedTask {

@@ -27,3 +27,15 @@ test('Git extractor emits one record per requested commit', async () => {
   assert.ok(result.records.every((record) => record.source.revision?.length === 40));
   assert.ok(result.records.every((record) => record.metadata.llmUsed === false));
 });
+
+test('An empty repository degrades to a warning instead of failing the run', async () => {
+  // `t2c init` leaves exactly this state, and `t2c watch` reaches it first.
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-git-empty-'));
+  await exec("git", ["init", "-q", root]);
+  await fs.writeFile(path.join(root, 'a.ts'), 'export const a = 1;\n', 'utf8');
+
+  const result = await extractGitIntent({ root, count: 10 }, makeConfig(root));
+  assert.deepEqual(result.records, []);
+  assert.equal(result.warnings.length, 1);
+  assert.match(result.warnings[0] ?? '', /no commits yet/);
+});

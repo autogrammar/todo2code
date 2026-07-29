@@ -2,7 +2,7 @@
 FROM node:22-bookworm-slim AS build
 
 WORKDIR /app
-COPY package.json tsconfig.json ./
+COPY package.json tsconfig.json .intentignore ./
 RUN npm install --include=dev --omit=optional
 COPY src ./src
 COPY sdk/typescript/src ./sdk/typescript/src
@@ -28,7 +28,7 @@ ENV NODE_ENV=production \
     T2C_A2A_PUBLIC_URL=http://localhost:8787/a2a
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-COPY package.json ./
+COPY package.json .env.example .intentignore ./
 # The runtime image ships git and python3 but no Go toolchain, so the Go AST
 # adapter degrades to a warning here. Install Go in a derived image to enable it.
 COPY python ./python

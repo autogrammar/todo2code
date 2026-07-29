@@ -38,6 +38,7 @@ export function makeConfig(root: string): T2CConfig {
       publicUrl: 'http://127.0.0.1:0/a2a',
       token: null,
       maxBodyBytes: 1_048_576,
+      taskStorePath: null,
     },
   };
 }

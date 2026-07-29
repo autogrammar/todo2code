@@ -1,0 +1,63 @@
+# todo2code ignore file.
+#
+# Paths listed here are excluded from `t2c watch` change detection, on top of
+# whatever `.gitignore` and `.dockerignore` already exclude. Syntax is
+# gitignore-compatible: `#` comments, `!` re-includes, a trailing `/` restricts
+# a rule to directories, and a pattern without a slash matches at any depth.
+#
+# The point of this file is to keep the watcher from rebuilding a report because
+# a build artefact, cache or the report itself changed.
+
+# --- Hidden directories -----------------------------------------------------
+# Every dot-directory: .git, .idea, .vscode, .venv, .cache, .github, .husky, …
+.*/
+
+# The runtime writes its own output here, so watching it would loop forever.
+.intent/
+.intent-*/
+
+# Hidden files that churn without changing intent.
+.DS_Store
+*.swp
+*.swo
+
+# --- Build output and caches ------------------------------------------------
+node_modules/
+dist/
+build/
+out/
+coverage/
+target/
+vendor/
+__pycache__/
+*.pyc
+*.pyo
+.eggs/
+*.egg-info/
+
+# --- Lockfiles and generated manifests --------------------------------------
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+Cargo.lock
+go.sum
+composer.lock
+poetry.lock
+
+# --- Logs, temporary and binary artefacts -----------------------------------
+*.log
+*.tmp
+*.temp
+*.bak
+*.pid
+*.tsbuildinfo
+*.map
+
+# Rendered diff and report artefacts regenerated on every run.
+*.diff.svg
+*.diff.html
+
+# --- Local environment ------------------------------------------------------
+.env
+.env.*
+!.env.example

@@ -8,6 +8,10 @@
 - Optional `compact: true` graph-diff response containing fingerprints, summary counts and SVG without complete record and relation arrays.
 - Go AST adapter (`golang/ast_extract.go`) built on the standard `go/ast` parser, emitting the same `{facts, warnings}` envelope as the Python helper. It records packages, imports, types, functions, package-level vars/consts and calls; methods carry their receiver so `Entry.Describe` resolves from a TODO or commit. Enabled with `T2C_ENABLE_GO_AST` (default true) and `T2C_GO`; `doctor` now reports the Go toolchain.
 - Python `TypeScriptRuntime` bridge, runnable example and wheel target for using the canonical Node/TypeScript pipeline, diagnostics, graph diff and Intent-vs-Reality implementation without an HTTP server.
+- `t2c watch` change detection that regenerates the report at most once per minute. Two independent timings apply: `--scan-interval` (default 2 s) governs how quickly a change is noticed, `--interval` (default 60 s) is the floor between reports. Changes arriving faster are coalesced rather than queued, and a report never starts while the previous one is still running.
+- Gitignore-compatible ignore-file support (`src/core/ignore.ts`) reading `.gitignore`, `.dockerignore` and `.intentignore` in that precedence order, with negation, directory-only rules, `**` and character classes.
+- `.intentignore`, seeded by `t2c init`, excluding every dot-directory (`.*/`), the `.intent/` output tree, build output, lockfiles, logs and temporary artefacts.
+- Optional persistent A2A task store with atomic snapshots, inter-process locking, restart recovery and cross-replica idempotency, configured through `T2C_A2A_TASK_STORE`.
 
 ### Changed
 
@@ -15,6 +19,7 @@
 
 ### Fixed
 
+- A repository with no commits yet no longer aborts the run. `git log` fails on a freshly initialised repository — the state `t2c init` leaves behind and the first one `t2c watch` encounters — so the Git extractor now degrades to a warning like every other absent source.
 - The SVG diff UI now selects the previous and latest run by default, displays both history selectors and computes their comparison automatically.
 
 ### Documentation

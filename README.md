@@ -62,6 +62,22 @@ node dist/src/cli.js pipeline /ścieżka/do/repo \
   --docs 'README.md,docs/**/*.md,project/**/*.md'
 ```
 
+Tryb ciągły skanuje repozytorium deterministycznie i generuje raport najwyżej
+raz na wskazany interwał:
+
+```bash
+node dist/src/cli.js watch . \
+  --interval 60 \
+  --scan-interval 2 \
+  --no-docs-llm \
+  --out .intent
+```
+
+Watcher scala reguły z `.gitignore`, `.dockerignore` i `.intentignore`, pomija
+symlinki oraz po raporcie odświeża snapshot, więc własne artefakty nie tworzą
+pętli. `t2c init` instaluje bazowy `.intentignore`; `--no-initial-report`
+pozwala czekać na pierwszą rzeczywistą zmianę.
+
 ## CLI
 
 ```text
@@ -81,12 +97,61 @@ t2c diff --mode files before.ts after.ts --svg files.diff.svg --html files.diff.
 t2c diff --mode git . --rev HEAD --svg worktree.diff.svg
 t2c reality intent.graph.json --diagnostics diagnostics.json --svg reality.svg --md reality.md
 t2c summarize intent.graph.json --diagnostics diagnostics.json --out team-summary.md
+t2c watch [root] [--interval 60] [--scan-interval 2] [--no-initial-report]
 t2c pipeline [root] --task TASK.md --todo TODO.md --changelog CHANGELOG.md
 t2c mcp
 t2c a2a
 ```
 
 `extract docs` i `summarize` wymagają `OPENROUTER_API_KEY`. Pipeline może działać bez klucza: dokumentacja LLM zostaje jawnie pominięta, a raport może użyć oznaczonego fallbacku deterministycznego.
+
+## Tryb obserwowania
+
+`t2c watch` pilnuje lokalnych zmian i generuje świeży raport **najwyżej raz na minutę**:
+
+```bash
+node dist/src/cli.js watch . --task TASK.md --no-docs-llm
+```
+
+Obowiązują dwa niezależne czasy:
+
+| Opcja | Domyślnie | Znaczenie |
+|---|--:|---|
+| `--scan-interval` | 2 s | jak szybko zmiana zostaje zauważona |
+| `--interval` | 60 s | minimalny odstęp między dwoma raportami |
+
+Zmiany napływające częściej niż `--interval` są kumulowane, a nie kolejkowane: po
+upływie progu powstaje jeden raport obejmujący wszystko, co się zmieniło. Raport
+nigdy nie startuje, gdy poprzedni jeszcze trwa, więc wolny pipeline nie tworzy
+nakładających się runów. `--no-initial-report` pomija raport startowy i czeka na
+pierwszą realną zmianę.
+
+Detekcja opiera się na cyklicznym skanowaniu (rozmiar + mtime), a nie na
+`fs.watch`, który zależy od platformy i gubi zdarzenia pod obciążeniem. Skan jest
+tani, bo katalogi wykluczone są odcinane przed odczytem — `node_modules` nigdy
+nie jest czytane.
+
+### Pliki ignorowane
+
+Watch pomija ścieżki wymienione w trzech plikach, czytanych w tej kolejności:
+
+1. `.gitignore`
+2. `.dockerignore`
+3. `.intentignore`
+
+Późniejszy plik wygrywa, więc `.intentignore` może przywrócić ścieżkę przez `!wzorzec`.
+
+`.intentignore` jest zakładany przez `t2c init` i wyklucza m.in. **wszystkie katalogi
+kropkowe** (`.*/` — `.git`, `.idea`, `.venv`, `.github`, `.cache`), katalog `.intent/`
+z własnymi raportami, wyjścia buildu (`node_modules/`, `dist/`, `target/`,
+`__pycache__/`), lockfile'e oraz logi i pliki tymczasowe.
+
+Składnia jest zgodna z gitignore: komentarze `#`, negacja `!`, końcowy `/`
+ogranicza regułę do katalogów, wzorzec bez ukośnika dopasowuje się na dowolnej
+głębokości, a `**` przechodzi przez katalogi. Reguły `.dockerignore` są
+interpretowane tą samą semantyką, czyli nieco szerzej niż robi to Docker
+(kotwiczący wzorce do korzenia kontekstu) — wpisy w tym pliku nazywają wyjścia
+buildu, więc wykluczenie zagnieżdżonej kopii jest zamierzone.
 
 ## Artefakty runu
 
@@ -269,6 +334,17 @@ curl -s http://localhost:8787/a2a \
 Interfejs A2A jest v1-only: nagłówek `A2A-Version: 1.0` (albo parametr zapytania o tej nazwie) jest wymagany. Brak nagłówka oznacza protokół 0.3 i jest odrzucany kodem `-32009`; aliasy metod v0.3 nie są przyjmowane. `GetTask` i `CancelTask` zwracają task bez wrappera, a `ListTasks` obsługuje filtry, cursor pagination, `historyLength` oraz `includeArtifacts` (domyślnie `false`).
 
 Ustawienie `T2C_A2A_TOKEN` włącza Bearer authentication i izolację tasków według principalu. Domyślnie MCP i A2A nie mogą analizować ścieżek poza `T2C_ROOT`; wyjątek wymaga jawnego `T2C_ALLOW_OUTSIDE_ROOT=true`.
+
+Domyślny task store A2A pozostaje pamięciowy. Aby zachować taski po restarcie
+i współdzielić je między replikami używającymi tego samego wolumenu, ustaw:
+
+```dotenv
+T2C_A2A_TASK_STORE=.intent/a2a-tasks.json
+```
+
+Snapshot jest zapisywany atomowo z uprawnieniami `0600`. Blokada katalogowa
+chroni idempotency i aktualizacje między procesami; ścieżka podlega tym samym
+ograniczeniom `T2C_ROOT` co pozostałe operacje runtime'u.
 
 ## OpenRouter
 

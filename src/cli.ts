@@ -28,6 +28,7 @@ import { startA2aServer } from './interfaces/a2a.js';
 import { startMcpServer } from './interfaces/mcp.js';
 import { runPipeline } from './pipeline/run.js';
 import { summarizeGraph } from './summary/summarizer.js';
+import { watchRepository, type WatchEvent } from './watch/watcher.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -125,6 +126,10 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     else process.stdout.write(result.markdown);
     return;
   }
+  if (command === 'watch') {
+    await handleWatch(parsed, config);
+    return;
+  }
   if (command === 'pipeline') {
     const root = path.resolve(parsed.positionals[0] ?? config.root);
     const options: PipelineOptions = {
@@ -143,6 +148,56 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
   throw new Error(`Unknown command: ${command}. Run t2c help.`);
+}
+
+async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const root = path.resolve(parsed.positionals[0] ?? config.root);
+  const pipeline: PipelineOptions = {
+    root,
+    taskFile: optionNullableString(parsed, 'task', null),
+    todoFile: optionNullableString(parsed, 'todo', 'TODO.md'),
+    changelogFile: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
+    documentPatterns: optionList(parsed, 'docs', config.documentPatterns),
+    includeDocumentationLlm: !optionBoolean(parsed, 'no-docs-llm', false),
+    outputDir: optionString(parsed, 'out') ?? config.outputDir,
+    gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
+    allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', true),
+  };
+
+  const controller = new AbortController();
+  const stop = (): void => controller.abort();
+  process.once('SIGINT', stop);
+  process.once('SIGTERM', stop);
+
+  await watchRepository({
+    root,
+    pipeline,
+    minIntervalMs: optionNumber(parsed, 'interval', 60, 0, 86_400) * 1000,
+    scanIntervalMs: optionNumber(parsed, 'scan-interval', 2, 1, 3_600) * 1000,
+    runOnStart: !optionBoolean(parsed, 'no-initial-report', false),
+    signal: controller.signal,
+    onEvent: (event) => process.stderr.write(`${formatWatchEvent(event)}\n`),
+  }, config);
+}
+
+function formatWatchEvent(event: WatchEvent): string {
+  const stamp = new Date().toISOString();
+  switch (event.type) {
+    case 'ready':
+      return `[${stamp}] watching ${event.root}: ${event.files} file(s), ignore sources: ${event.sources.join(', ') || 'none'}`;
+    case 'change':
+      return `[${stamp}] ${event.delta.total} change(s): ${event.description}`;
+    case 'throttled':
+      return `[${stamp}] throttled: ${event.pending} pending change(s), next report in ${Math.ceil(event.waitMs / 1000)}s`;
+    case 'report:start':
+      return `[${stamp}] generating report — ${event.reason}`;
+    case 'report:done':
+      return `[${stamp}] report ${event.runId} written to ${event.summaryPath} in ${Math.round(event.durationMs)}ms`;
+    case 'report:error':
+      return `[${stamp}] report failed: ${event.message}`;
+    case 'stopped':
+      return `[${stamp}] watch stopped`;
+  }
 }
 
 async function handleDiff(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
@@ -303,6 +358,13 @@ async function initProject(root: string): Promise<void> {
   if (!(await pathExists(task))) {
     await writeText(task, '# Task\n\n- Zdefiniuj cel, zakres, kryteria akceptacji i wymagane dowody.\n');
   }
+  // Seed the watch-mode ignore list so `t2c watch` does not rebuild a report
+  // because a build artefact changed.
+  const sourceIgnore = path.join(moduleRoot, '.intentignore');
+  const targetIgnore = path.join(root, '.intentignore');
+  if (!(await pathExists(targetIgnore)) && await pathExists(sourceIgnore)) {
+    await fs.copyFile(sourceIgnore, targetIgnore);
+  }
   await fs.mkdir(path.join(root, '.intent'), { recursive: true });
   process.stdout.write(`Initialized todo2code in ${root}\n`);
 }
@@ -415,6 +477,8 @@ function printHelp(): void {
   process.stdout.write(`  t2c diff --mode git [root] [--rev HEAD] [--staged] [--svg diff.svg] [--html diff.html]\n`);
   process.stdout.write(`  t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg]\n`);
   process.stdout.write(`               [--md reality.md] [--gaps-only] [--max-rows 30]\n`);
+  process.stdout.write(`  t2c watch [root] [--interval 60] [--scan-interval 2] [--no-initial-report]\n`);
+  process.stdout.write(`               [--task TASK.md] [--todo TODO.md] [--no-docs-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--no-docs-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);

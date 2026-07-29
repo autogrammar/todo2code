@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
+import { promises as fs } from 'node:fs';
 import type { Server } from 'node:http';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 import { clearA2aTaskStoreForTests, startA2aServer } from '../src/interfaces/a2a.js';
 import { makeConfig } from './helpers.js';
@@ -185,6 +188,108 @@ test('A2A bearer authentication is declared with v1 security objects and enforce
     assert.equal(task.status.state, 'TASK_STATE_COMPLETED');
   } finally {
     await closeServer(server);
+    clearA2aTaskStoreForTests();
+  }
+});
+
+test('A2A file task store survives restart and preserves idempotency across replicas', async () => {
+  clearA2aTaskStoreForTests();
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-a2a-store-'));
+  const storeRelative = '.intent/a2a-tasks.json';
+  const config = makeConfig(root);
+  config.a2a.port = 0;
+  config.a2a.taskStorePath = storeRelative;
+
+  const firstServer = await startA2aServer(config);
+  let secondServer: Server | null = null;
+  let thirdServer: Server | null = null;
+  try {
+    const firstAddress = firstServer.address();
+    assert.ok(firstAddress && typeof firstAddress === 'object');
+    const firstBase = `http://127.0.0.1:${firstAddress.port}`;
+    const created = await rpc(firstBase, 'SendMessage', {
+      message: {
+        messageId: 'persistent-message',
+        role: 'ROLE_USER',
+        parts: [{ text: 'Dodać trwały magazyn zadań.' }],
+        contextId: 'persistent-context',
+      },
+    }, { id: 'create-persistent' });
+    const createdTask = (created.payload.result as { task: { id: string; status: { state: string } } }).task;
+    assert.equal(createdTask.status.state, 'TASK_STATE_COMPLETED');
+
+    await closeServer(firstServer);
+    clearA2aTaskStoreForTests();
+
+    secondServer = await startA2aServer(config);
+    const secondAddress = secondServer.address();
+    assert.ok(secondAddress && typeof secondAddress === 'object');
+    const secondBase = `http://127.0.0.1:${secondAddress.port}`;
+    const restored = await rpc(secondBase, 'GetTask', { id: createdTask.id }, { id: 'get-restored' });
+    assert.equal((restored.payload.result as { id: string }).id, createdTask.id);
+
+    const duplicate = await rpc(secondBase, 'SendMessage', {
+      message: {
+        messageId: 'persistent-message',
+        role: 'ROLE_USER',
+        parts: [{ text: 'Dodać trwały magazyn zadań.' }],
+        contextId: 'persistent-context',
+      },
+    }, { id: 'duplicate-after-restart' });
+    assert.equal((duplicate.payload.result as { task: { id: string } }).task.id, createdTask.id);
+
+    thirdServer = await startA2aServer(config);
+    const thirdAddress = thirdServer.address();
+    assert.ok(thirdAddress && typeof thirdAddress === 'object');
+    const thirdBase = `http://127.0.0.1:${thirdAddress.port}`;
+    const clusterParams = {
+      message: {
+        messageId: 'cluster-message',
+        role: 'ROLE_USER',
+        parts: [{ text: 'Zweryfikować idempotency między replikami.' }],
+        contextId: 'cluster-context',
+      },
+    };
+    const [left, right] = await Promise.all([
+      rpc(secondBase, 'SendMessage', clusterParams, { id: 'cluster-left' }),
+      rpc(thirdBase, 'SendMessage', clusterParams, { id: 'cluster-right' }),
+    ]);
+    const leftId = (left.payload.result as { task: { id: string } }).task.id;
+    const rightId = (right.payload.result as { task: { id: string } }).task.id;
+    assert.equal(leftId, rightId);
+
+    const listed = await rpc(thirdBase, 'ListTasks', {}, { id: 'list-persisted' });
+    assert.equal((listed.payload.result as { totalSize: number }).totalSize, 2);
+
+    const background = await rpc(secondBase, 'SendMessage', {
+      message: {
+        messageId: 'background-message',
+        role: 'ROLE_USER',
+        parts: [{ text: 'Zapisać wynik wykonania w tle.' }],
+        contextId: 'background-context',
+      },
+      configuration: { returnImmediately: true },
+    }, { id: 'background-create' });
+    const backgroundTask = (background.payload.result as { task: { id: string; status: { state: string } } }).task;
+    assert.equal(backgroundTask.status.state, 'TASK_STATE_WORKING');
+
+    let backgroundState = backgroundTask.status.state;
+    for (let attempt = 0; attempt < 50 && backgroundState === 'TASK_STATE_WORKING'; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      const current = await rpc(thirdBase, 'GetTask', { id: backgroundTask.id }, { id: `background-${attempt}` });
+      backgroundState = (current.payload.result as { status: { state: string } }).status.state;
+    }
+    assert.equal(backgroundState, 'TASK_STATE_COMPLETED');
+
+    const storePath = path.join(root, storeRelative);
+    const snapshot = JSON.parse(await fs.readFile(storePath, 'utf8')) as { schemaVersion: string; tasks: unknown[] };
+    assert.equal(snapshot.schemaVersion, 't2c.a2a-task-store/v1');
+    assert.equal(snapshot.tasks.length, 3);
+    assert.equal((await fs.stat(storePath)).mode & 0o777, 0o600);
+  } finally {
+    if (secondServer?.listening) await closeServer(secondServer);
+    if (thirdServer?.listening) await closeServer(thirdServer);
+    if (firstServer.listening) await closeServer(firstServer);
     clearA2aTaskStoreForTests();
   }
 });

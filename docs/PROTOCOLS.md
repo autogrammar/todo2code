@@ -92,7 +92,12 @@ Dodatkowe własności implementacji:
 
 Przy włączonym Bearer tokenie Agent Card publikuje `securitySchemes.bearerAuth.httpAuthSecurityScheme` oraz odpowiadające `securityRequirements`.
 
-Bieżący task store jest in-memory. Restart procesu usuwa taski, a wdrożenie wieloreplikowe wymaga trwałego, współdzielonego magazynu.
+Task store jest domyślnie in-memory. `T2C_A2A_TASK_STORE` włącza trwały snapshot
+`t2c.a2a-task-store/v1`. Każde żądanie ładuje aktualny stan pod blokadą
+międzyprocesową, a zapis używa pliku tymczasowego, atomowego `rename` i trybu
+`0600`. Dzięki temu restart zachowuje taski, a repliki na wspólnym wolumenie
+zachowują idempotency `(principal, messageId)`. Współdzielony system plików musi
+zapewniać atomowe operacje `mkdir` i `rename`; snapshot ma limit 256 MiB.
 
 ## SDK
 

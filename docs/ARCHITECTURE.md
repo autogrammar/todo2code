@@ -63,6 +63,23 @@ Porównuje plany, claimy Git/CHANGELOG i fakty AST. Wynik nie zatwierdza pracy �
 
 Do OpenRouter trafia wyłącznie skompaktowany graf i diagnostyka. Surowy kod, diff i pełne dokumenty nie są wejściem summarizera.
 
+### Trwałość tasków A2A
+
+`src/interfaces/a2a.ts` utrzymuje szybki store pamięciowy, a po ustawieniu
+`T2C_A2A_TASK_STORE` otacza operacje transakcją plikową. Snapshot zawiera taski
+wraz z właścicielem, historią i artefaktami; indeks idempotency jest odtwarzany
+z wiadomości użytkownika. Blokada katalogowa koordynuje repliki, a zapis przez
+plik tymczasowy i `rename` zapobiega częściowym snapshotom po awarii procesu.
+Ścieżka jest sprawdzana względem `T2C_ROOT` również pod kątem symlinków.
+
+### `src/watch/watcher.ts` i `src/core/ignore.ts`
+
+Watcher cyklicznie buduje posortowany snapshot `mtime:size`, nie korzysta z
+platformowo zależnego rekursywnego `fs.watch`. Katalogi wykluczone przez
+`.gitignore`, `.dockerignore` i `.intentignore` są odcinane przed wejściem do
+drzewa, a symlinki pomijane. Osobny interwał skanowania wykrywa zmiany, natomiast
+minimalny interwał raportu agreguje je i ogranicza koszt pipeline'u oraz LLM.
+
 ## Zaufanie do źródeł
 
 Rekord nie jest „prawdą” bez kontekstu epistemicznego:

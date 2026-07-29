@@ -44,7 +44,7 @@ const TOOLS: McpTool[] = [
     root: stringProp('Repository root under T2C_ROOT.'),
     count: numberProp('Number of commits, default 10.', 1, 100),
   }),
-  tool('extract_ast', 'Extract TypeScript/JavaScript and Python AST facts to Intent DSL without an LLM.', {
+  tool('extract_ast', 'Extract TypeScript/JavaScript, Python and Go AST facts to Intent DSL without an LLM.', {
     root: stringProp('Repository root under T2C_ROOT.'),
   }),
   tool('extract_markdown', 'Extract TODO.md and CHANGELOG.md to Intent DSL without an LLM.', {
