@@ -26,6 +26,10 @@ wypowiedzi z dowodami Git/AST osobno dla każdego uczestnika. Kontrakt plików i
 gotowe polecenia opisuje
 [`docs/TEAM_COMMUNICATION.md`](docs/TEAM_COMMUNICATION.md).
 
+Praktyczny przebieg CLI — od instalacji przez tryb offline/LLM po diff,
+Intent vs Reality, komunikację i automatyczną kontrolę wszystkich przykładów —
+opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
+
 ## Reality vs Intent
 ![reality.svg](.intent/runs/20260729T123956Z-2c6601ec/reality.svg)
 
@@ -385,7 +389,7 @@ buildu, więc wykluczenie zagnieżdżonej kopii jest zamierzone.
     └── manifest.json
 ```
 
-Każdy rekord zawiera identyfikator, statement, lifecycle, dokładne źródło, hash treści, klasę epistemiczną, confidence i podstawy wnioskowania. Fakty AST mają confidence `1.0`; rekordy z dokumentacji LLM są oznaczone jako `llm_inference` i mają confidence maksymalnie `0.85`.
+Każdy rekord zawiera identyfikator, statement, lifecycle, dokładne źródło, hash treści, klasę epistemiczną, confidence i podstawy wnioskowania. Fakty AST mają confidence `1.0`. Rekordy wygenerowane przez LLM są oznaczone jako `llm_inference` i mają pułap zależny od struktury źródła: `0.94` dla wzbogaconych pozycji TODO/CHANGELOG, `0.90` dla prozy NL i `0.85` dla dokumentacji. Żaden z nich nie sięga poziomu obserwacji deterministycznej — pełną tabelę zawiera [`docs/DSL.md`](docs/DSL.md).
 
 `manifest.json` zapisuje również `runtime.version`, bezpieczny snapshot i
 fingerprint konfiguracji oraz statusy `naturalLanguageExtraction`,

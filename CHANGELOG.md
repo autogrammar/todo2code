@@ -4,6 +4,13 @@
 
 ### Fixed
 
+- Added a reproducible `examples:check` command covering the offline pipeline,
+  ticket communication, strict backend/frontend compilation, HTTP integration
+  and cross-language graph-fingerprint parity for every available SDK.
+- Documentation records are repaired deterministically when the model leaves gaps. Measured on a three-document corpus, the model returned the chunk's first line for every record, an empty target for every record and `action: unknown` for every record. The runtime now re-anchors each record to the line whose wording actually matches the statement, backfills `target` with the existing path/symbol/ticket/version extractors, and derives `action`/`modality` from the same dictionaries the deterministic extractors use. Source anchoring went from 33% to 100% correct and empty targets from 100% to 29%. Every repair is recorded in `epistemic.basis` (`runtime_line_reanchor`, `runtime_target_backfill`, `runtime_action_backfill`, `runtime_modality_backfill`), so model output stays distinguishable from runtime inference, and neither the `llm_inference` class nor the 0.85 ceiling is affected.
+- `statement.object` no longer accepts the literal placeholder `unknown` as content in the NL and documentation extractors. `action`, `modality` and `lifecycle` are enums containing that token and models copied it into the free-text slot; because `object` seeds the linker's keyword bucket, every such record collided with every other. A placeholder is now treated as an absent value and reported in `metadata.missingFields`.
+- The documentation prompt now requires the line that carries the statement rather than the fragment start, maps descriptive documentation to `declare`/`validate`/`preserve`/`depend_on` instead of defaulting to `unknown`, and requires `target` to be filled when the text names a path, symbol, endpoint, ticket or version.
+
 - Made `make demo`, `npm run demo` and the local Python runtime example fully
   deterministic through a public `--no-summary-llm` pipeline option, and added
   the `DEMO-101` participant analysis to the standard demo.

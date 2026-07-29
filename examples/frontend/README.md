@@ -22,3 +22,14 @@ node ../../dist/src/cli.js pipeline . \
   --task task.md --todo TODO.md --changelog CHANGELOG.md \
   --docs 'README.md' --no-docs-llm --out .intent
 ```
+
+## Kontrola kodu
+
+Z katalogu głównego `todo2code`:
+
+```bash
+npx tsc -p examples/frontend/tsconfig.json --noEmit
+```
+
+Pełny `npm run examples:check` kompiluje klienta razem z backendem i sprawdza
+publikację, odczyt oraz klasyfikację zdarzenia bez zależności od frameworka UI.

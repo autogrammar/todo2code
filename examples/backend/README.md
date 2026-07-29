@@ -32,3 +32,15 @@ node ../../dist/src/cli.js pipeline . \
   --task task.md --todo TODO.md --changelog CHANGELOG.md \
   --docs 'README.md' --no-docs-llm --out .intent
 ```
+
+## Kontrola kodu
+
+Z katalogu głównego `todo2code`:
+
+```bash
+npx tsc -p examples/backend/tsconfig.json --noEmit
+```
+
+Pełny `npm run examples:check` dodatkowo uruchamia backend na losowym porcie i
+sprawdza `GET /health`, poprawny `POST /events`, stronicowanie oraz odrzucenie
+nieprawidłowego payloadu kodem `400`.

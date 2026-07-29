@@ -14,7 +14,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Granice modułów | PASS — 44 moduły, 217 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 56 zmiennych kodu/Dockera, 56 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 104 zaliczone, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
+| Testy Node | PASS — 122 zaliczone, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
 | Pipeline `examples/` | PASS — 202 rekordy; liczba relacji zależy od ostatnich 10 commitów; NL, Markdown i summary deterministyczne, dokumentacja pominięta, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, Rust fixture i `cargo test` |
@@ -35,6 +35,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
 | `project/<ticket>`: komunikacja ludzi i agentów | PASS — domyślny fixture `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę agenta poza zakresem; wariant `--no-ast` dodatkowo wykrywa claim bez dowodu |
+| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem `debfd0f1923dbae0` |
 | CLI `doctor`, `--help`, `--version` | PASS |
 | `npm audit` rdzenia | PASS — 0 podatności przy zwykłym `npm install` |
 | Izolowany adapter TensorFlow | PASS/WARN — nie należy do drzewa core; jego osobny audit nadal raportuje 7 high i 1 critical |
@@ -45,7 +46,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola po aktualizacji README obejmowała `npm run verify` i osobny
 pipeline `examples/`; nie powtarzała historycznych prób Dockera ani live
-OpenRouter. Wynik: 105 testów, 104 zaliczone, 0 błędów i 1 lokalny skip JDK.
+OpenRouter. Wynik: 123 testy, 122 zaliczone, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz jawnie niewdrożony etap DSL2TODO opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

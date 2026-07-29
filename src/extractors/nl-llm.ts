@@ -138,12 +138,14 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
   const end = clampLine(raw.sourceLines?.end ?? start, start, maxLine);
   const lines = body.split(/\r?\n/);
   const excerpt = lines.slice(start - 1, end).join('\n').slice(0, 2000);
+  const action = allowedAction(raw.action) ? raw.action : 'unknown';
+  const { object, missingFields } = resolveObject(raw, action);
   return buildRecord({
     kind: raw.kind || 'declared_intent',
     actor: raw.actor ?? null,
-    action: allowedAction(raw.action) ? raw.action : 'unknown',
+    action,
     subject: raw.subject ?? null,
-    object: raw.object || raw.text || 'unspecified',
+    object,
     target: raw.target,
     modality: allowedModality(raw.modality) ? raw.modality : 'unknown',
     polarity: raw.polarity === 'negative' ? 'negative' : 'positive',
@@ -158,6 +160,7 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
     confidence: Math.min(0.9, Math.max(0.05, Number(raw.confidence) || 0.5)),
     basis: [...new Set(['openrouter_structured_extraction', ...(raw.basis ?? [])])],
     metadata: {
+      missingFields,
       llmUsed: true,
       generation: {
         requested: 'llm',
@@ -170,6 +173,36 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
       },
     },
   });
+}
+
+/**
+ * `statement.object` is free text, but neighbouring fields (`action`, `modality`,
+ * `lifecycle`) are enums that include the literal `unknown`. Models copy that
+ * token into the free-text slot, and the runtime used to accept it as content.
+ *
+ * That is worse than an empty field: `object` seeds the linker's keyword bucket,
+ * so every record carrying the placeholder would collide with every other one.
+ * A placeholder is therefore treated as an absent value — the statement falls
+ * back to its own text, and the gap is recorded in `missingFields` so the
+ * diagnostics can see it.
+ */
+const OBJECT_PLACEHOLDERS = new Set(['unknown', 'unspecified', 'none', 'null', 'n/a', 'na', '-', 'brak', 'nieznany', 'nieokreślony']);
+
+function isPlaceholder(value: string | null | undefined): boolean {
+  return !value?.trim() || OBJECT_PLACEHOLDERS.has(value.trim().toLowerCase());
+}
+
+function resolveObject(raw: RawNlRecord, action: IntentAction): { object: string; missingFields: string[] } {
+  const missingFields: string[] = [];
+  if (action === 'unknown') missingFields.push('action');
+
+  if (!isPlaceholder(raw.object)) return { object: raw.object.trim(), missingFields };
+
+  missingFields.push('object');
+  // Falling back to the statement text keeps the record linkable by its own
+  // wording instead of by a placeholder shared with unrelated records.
+  const fallback = raw.text?.trim();
+  return { object: isPlaceholder(fallback) ? 'unspecified' : (fallback as string), missingFields };
 }
 
 function audit(
@@ -219,7 +252,7 @@ function nlResponseSchema(): Record<string, unknown> {
         properties: {
           kind: { type: 'string' }, actor: { type: ['string', 'null'] }, subject: { type: ['string', 'null'] },
           action: { type: 'string', enum: ['add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'validate', 'call', 'depend_on', 'declare', 'release', 'change', 'preserve', 'block', 'approve', 'unknown'] },
-          object: { type: 'string' }, modality: { type: 'string', enum: ['required', 'recommended', 'optional', 'observed', 'claimed', 'unknown'] },
+          object: { type: 'string', minLength: 1, description: 'Concrete thing the statement is about, in the source language. Free text: never the literal word "unknown" — quote the subject matter instead.' }, modality: { type: 'string', enum: ['required', 'recommended', 'optional', 'observed', 'claimed', 'unknown'] },
           polarity: { type: 'string', enum: ['positive', 'negative'] },
           lifecycle: { type: 'string', enum: ['proposed', 'planned', 'in_progress', 'implemented', 'verified', 'released', 'completed', 'blocked', 'unknown'] },
           confidence: { type: 'number', minimum: 0, maximum: 0.9 }, basis: { type: 'array', items: { type: 'string' } },

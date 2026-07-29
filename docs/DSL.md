@@ -67,7 +67,18 @@
 - LLM nie może zmienić `source.path`, `source.lines`, `source.extractor` ani `epistemic.class` ustawianych przez runtime.
 - `fact` jest zarezerwowany dla obserwacji deterministycznych.
 - Commit message i changelog są `claim`, nawet gdy brzmią jak zakończona praca.
-- Rekord z dokumentacji LLM nie może przekroczyć confidence `0.85`.
+- Rekord wygenerowany przez LLM ma klasę `llm_inference` i podlega pułapowi
+  confidence zależnemu od tego, jak ustrukturyzowane było źródło. Pułap nigdy nie
+  sięga poziomu obserwacji deterministycznej:
+
+  | Ekstraktor | Źródło | Pułap |
+  |---|---|--:|
+  | `t2c/markdown-openrouter@1` | TODO/CHANGELOG — wzbogacenie pozycji o znanej strukturze | `0.94` |
+  | `t2c/nl-openrouter@1` | polecenie/ticket — proza o swobodnej formie | `0.90` |
+  | `t2c/docs-openrouter@1` | dokumentacja — wnioskowanie z najdłuższego kontekstu | `0.85` |
+
+  Dla porównania: fakt AST ma `1.0`, a deterministyczna pozycja TODO do `0.98`.
+  Im mniej struktury w źródle, tym niższy sufit.
 - Rekord NL z LLM nie może przekroczyć confidence `0.9`, a runtime wymusza lifecycle `proposed` niezależnie od odpowiedzi modelu.
 - W TODO/CHANGELOG LLM nie może zmienić checkboxa, lifecycle, modality, wersji, daty, kategorii, source ani klasy `plan`/`claim`; confidence wzbogacenia nie przekracza `0.94`.
 - `metadata.generation` wskazuje `requested`, faktycznie `used`, `degraded`, `fallbackReason`, wersję runtime i — dla LLM — model.

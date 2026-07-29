@@ -4,6 +4,15 @@ import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists, readText, relativePosix, resolveGlobs } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
+import {
+  classifyActionHeuristically,
+  detectModality,
+  extractPaths,
+  extractSymbols,
+  extractTickets,
+  extractVersions,
+  keywords,
+} from '../core/text.js';
 import type {
   ExtractionResult,
   IntentAction,
@@ -212,24 +221,26 @@ async function mapConcurrent<T, R>(
 }
 
 function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk, model: string, response: LlmResponseMetadata): IntentRecord {
-  const start = clampLine(raw.sourceLines?.start ?? chunk.startLine, chunk.startLine, chunk.endLine);
-  const end = clampLine(raw.sourceLines?.end ?? start, start, chunk.endLine);
-  const action = allowedAction(raw.action) ? raw.action : 'unknown';
+  const extraBasis: string[] = [];
+  const statementText = raw.text || raw.object || '';
+
+  const { object, missingFields } = resolveObject(raw);
+  const { start, end } = anchorToSource(raw, chunk, `${object} ${statementText}`, extraBasis);
+  const target = resolveTarget(raw, statementText, extraBasis);
+  const action = resolveAction(raw, statementText, extraBasis);
+  const modality = resolveModality(raw, statementText, extraBasis);
+  if (action === 'unknown') missingFields.push('action');
+
   return buildRecord({
     kind: raw.kind || 'documented_intent',
     actor: raw.actor ?? null,
     action,
     subject: raw.subject ?? null,
-    object: raw.object || raw.text || 'unspecified',
-    target: {
-      paths: raw.target?.paths ?? [],
-      symbols: raw.target?.symbols ?? [],
-      tickets: raw.target?.tickets ?? [],
-      versions: raw.target?.versions ?? [],
-    },
-    modality: allowedModality(raw.modality) ? raw.modality : 'unknown',
+    object,
+    target,
+    modality,
     polarity: raw.polarity === 'negative' ? 'negative' : 'positive',
-    text: raw.text || raw.object,
+    text: statementText || object,
     lifecycle: allowedLifecycle(raw.lifecycle) ? raw.lifecycle : 'proposed',
     sourceKind: 'document',
     sourcePath: chunk.path,
@@ -238,8 +249,9 @@ function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk, model: str
     rawExcerpt: linesFromChunk(chunk, start, end),
     epistemicClass: 'llm_inference',
     confidence: Math.min(0.85, Math.max(0.05, Number(raw.confidence) || 0.5)),
-    basis: [...new Set(['openrouter_structured_extraction', ...(raw.basis ?? [])])],
+    basis: [...new Set(['openrouter_structured_extraction', ...(raw.basis ?? []), ...extraBasis])],
     metadata: {
+      missingFields,
       model,
       llmUsed: true,
       runtimeVersion: T2C_VERSION,
@@ -312,6 +324,132 @@ function chunkMarkdown(relativePath: string, body: string, maxChars: number): Do
   }
   flush();
   return chunks.filter((chunk) => chunk.content.trim());
+}
+
+// --- Deterministic repair of model output ----------------------------------
+//
+// The model is asked for line numbers, targets, an action and a modality, but
+// in practice it frequently returns the chunk's first line and leaves the rest
+// unclassified. Measured on a three-document corpus before this repair: 100% of
+// records carried `action: unknown`, 100% carried an empty target, and only 33%
+// cited a line that actually contained the statement.
+//
+// Every gap is filled with the same deterministic helpers the non-LLM
+// extractors use, and each repair is recorded in `epistemic.basis`, so a reader
+// can always tell which part of a record came from the model and which was
+// derived by the runtime.
+
+const OBJECT_PLACEHOLDERS = new Set(['unknown', 'unspecified', 'none', 'null', 'n/a', 'na', '-', 'brak', 'nieznany', 'nieokreślony']);
+
+function isPlaceholder(value: string | null | undefined): boolean {
+  return !value?.trim() || OBJECT_PLACEHOLDERS.has(value.trim().toLowerCase());
+}
+
+function resolveObject(raw: RawDocumentRecord): { object: string; missingFields: string[] } {
+  if (!isPlaceholder(raw.object)) return { object: raw.object.trim(), missingFields: [] };
+  const fallback = raw.text?.trim();
+  return {
+    object: isPlaceholder(fallback) ? 'unspecified' : (fallback as string),
+    missingFields: ['object'],
+  };
+}
+
+/**
+ * Re-anchors a record to the line that actually carries its statement.
+ *
+ * The model's own line is kept whenever it is at least as good as anything else
+ * in the chunk; it is only replaced when a different line demonstrably shares
+ * more vocabulary with the statement.
+ */
+function anchorToSource(
+  raw: RawDocumentRecord,
+  chunk: DocumentChunk,
+  statement: string,
+  basis: string[],
+): { start: number; end: number } {
+  const claimedStart = clampLine(raw.sourceLines?.start ?? chunk.startLine, chunk.startLine, chunk.endLine);
+  const claimedEnd = clampLine(raw.sourceLines?.end ?? claimedStart, claimedStart, chunk.endLine);
+
+  const wanted = new Set(keywords(statement));
+  if (wanted.size === 0) return { start: claimedStart, end: claimedEnd };
+
+  const lines = chunk.content.split(/\r?\n/);
+  const overlap = (index: number): number => {
+    const present = new Set(keywords(lines[index] ?? ''));
+    let shared = 0;
+    for (const word of wanted) {
+      if (present.has(word)) shared += 1;
+    }
+    return shared;
+  };
+
+  let claimedScore = 0;
+  for (let line = claimedStart; line <= claimedEnd; line += 1) {
+    claimedScore = Math.max(claimedScore, overlap(line - chunk.startLine));
+  }
+
+  let bestIndex = -1;
+  let bestScore = 0;
+  for (let index = 0; index < lines.length; index += 1) {
+    const score = overlap(index);
+    if (score > bestScore) {
+      bestScore = score;
+      bestIndex = index;
+    }
+  }
+
+  if (bestIndex < 0 || bestScore <= claimedScore) return { start: claimedStart, end: claimedEnd };
+
+  basis.push('runtime_line_reanchor');
+  const anchored = chunk.startLine + bestIndex;
+  return { start: anchored, end: anchored };
+}
+
+function resolveTarget(
+  raw: RawDocumentRecord,
+  statement: string,
+  basis: string[],
+): { paths: string[]; symbols: string[]; tickets: string[]; versions: string[] } {
+  const target = {
+    paths: raw.target?.paths ?? [],
+    symbols: raw.target?.symbols ?? [],
+    tickets: raw.target?.tickets ?? [],
+    versions: raw.target?.versions ?? [],
+  };
+  if (target.paths.length || target.symbols.length || target.tickets.length || target.versions.length) return target;
+  if (!statement.trim()) return target;
+
+  // The statement often names `src/api.ts` or `POST /events` in plain text while
+  // the model returns an empty target; the deterministic extractors recover it.
+  const derived = {
+    paths: extractPaths(statement),
+    symbols: extractSymbols(statement),
+    tickets: extractTickets(statement),
+    versions: extractVersions(statement),
+  };
+  if (!derived.paths.length && !derived.symbols.length && !derived.tickets.length && !derived.versions.length) {
+    return target;
+  }
+  basis.push('runtime_target_backfill');
+  return derived;
+}
+
+function resolveAction(raw: RawDocumentRecord, statement: string, basis: string[]): IntentAction {
+  if (allowedAction(raw.action) && raw.action !== 'unknown') return raw.action;
+  if (!statement.trim()) return 'unknown';
+  const derived = classifyActionHeuristically(statement);
+  if (derived === 'unknown') return 'unknown';
+  basis.push('runtime_action_backfill');
+  return derived;
+}
+
+function resolveModality(raw: RawDocumentRecord, statement: string, basis: string[]): Modality {
+  if (allowedModality(raw.modality) && raw.modality !== 'unknown') return raw.modality;
+  if (!statement.trim()) return 'unknown';
+  const derived = detectModality(statement);
+  if (derived === 'unknown') return 'unknown';
+  basis.push('runtime_modality_backfill');
+  return derived;
 }
 
 function linesFromChunk(chunk: DocumentChunk, start: number, end: number): string {
