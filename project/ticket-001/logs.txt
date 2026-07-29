@@ -1,0 +1,9 @@
+2026-07-29 bootstrap initialized; no test or runtime output produced.
+
+2026-07-29 validation outputs:
+GitHub repository lookup: 404 Not Found
+GitHub CLI auth: token invalid
+Docker CLI: Docker version 29.6.1, build 8900f1d
+Docker engine: permission denied while connecting to Docker Desktop Linux engine
+docker compose config --quiet: exit code 0
+Git: initialized empty repository on main; no commits yet.
