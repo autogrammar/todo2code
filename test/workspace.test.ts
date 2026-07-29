@@ -35,6 +35,7 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   config.enablePythonAst = false;
   config.enableGoAst = false;
   config.nlMode = 'deterministic';
+  config.markdownMode = 'deterministic';
   config.openRouter.apiKey = 'must-not-be-used';
   config.openRouter.baseUrl = 'http://127.0.0.1:1';
   const comparison = await compareWorkspaceIntent({

@@ -16,6 +16,8 @@
 - `t2c compare-workspace` and `compare_workspace` MCP/A2A/SDK action for comparing a Git base such as `origin/main` with committed, staged, unstaged and untracked filesystem state. It emits graph diff SVG, two reality projections and deterministic coverage-trend metrics.
 - Run-manifest execution audit containing runtime version, redacted configuration fingerprint, requested models and per-stage status, duration, record/warning counts and degradation reason.
 - Module-boundary verification for dependency cycles and independence of `src/core`, executed by `npm run verify`.
+- Audited hybrid TODO/CHANGELOG extraction: deterministic Markdown establishes lifecycle and release provenance, while one structured OpenRouter request enriches semantic fields in `prefer-llm`/`require-llm` modes.
+- Environment-contract verification covering runtime, Docker/Compose and SDK example variables, including optional synchronization checks for the private `.env`.
 
 ### Changed
 
@@ -24,6 +26,8 @@
 - All five SDKs expose workspace comparison, and their examples cover the optional origin-to-filesystem flow.
 - Run history and the SVG UI expose `succeeded`/`degraded` status and runtime version.
 - Workspace comparison classifies simultaneous coverage gains and new gaps as a `mixed` trend and uses deterministic summaries for both sides, avoiding two unnecessary OpenRouter calls.
+- All five SDKs expose explicit Markdown extraction mode and the Markdown stage audit; runnable examples select deterministic mode, assert `audit.status=succeeded` and remain offline/reproducible.
+- Docker Compose uses `T2C_DOCKER_HOST_PORT` for host mapping, legacy `T2C_URL` was consolidated into `T2C_A2A_URL`, the conflicting `compose.yml` stub was removed, and redundant Dockerfile defaults now come from the TypeScript configuration.
 
 ### Fixed
 

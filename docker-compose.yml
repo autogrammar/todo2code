@@ -12,7 +12,7 @@ services:
       T2C_A2A_PORT: 8787
       T2C_A2A_PUBLIC_URL: ${T2C_A2A_PUBLIC_URL:-http://localhost:8787/a2a}
     ports:
-      - "${T2C_A2A_PORT:-8787}:8787"
+      - "${T2C_DOCKER_HOST_PORT:-8787}:8787"
     volumes:
       - "${T2C_WORKSPACE:-.}:/workspace"
     restart: unless-stopped

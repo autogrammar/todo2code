@@ -37,9 +37,15 @@ akceptuje obie postacie.
 `link`, `diagnose`, `summarize`, `diff`, `diff_files`, `diff_git`, `reality`,
 `compare_workspace`, `pipeline`.
 
-Granica LLM obowiązuje tak samo jak w CLI: `extract_nl` w trybie
-`prefer-llm`/`require-llm`, `extract_docs` i `summarize` wołają OpenRouter.
-Każdy SDK może wymusić `nlMode: deterministic` albo odczytać audyt fallbacku.
+Granica LLM obowiązuje tak samo jak w CLI: `extract_nl` oraz semantyczne
+wzbogacanie `extract_markdown` obsługują `prefer-llm`/`require-llm`, a
+`extract_docs` i `summarize` wołają OpenRouter. Każdy SDK może wymusić
+`nlMode: deterministic` lub `markdownMode: deterministic` i odczytać audyt
+fallbacku (`audit.status`, `effectiveMode`, `reason`). Python zachowuje zgodną
+metodę `extract_markdown()` zwracającą rekordy i udostępnia pełny envelope przez
+`extract_markdown_result()`. Przykłady wymuszają deterministyczny Markdown, aby
+ich wynik i koszt nie zależały od sieci, oraz odrzucają wynik bez poprawnego
+audytu.
 
 Python ma dodatkowo lokalny most `TypeScriptRuntime`, który przez `subprocess`
 uruchamia kanoniczny CLI Node/TypeScript. Dzięki temu paczka może wykonywać
@@ -87,5 +93,5 @@ otrzymać **identyczny fingerprint grafu**. Rozjazd oznacza, że typy danego SDK
 gubią pole przy round-tripie:
 
 ```text
-graph fingerprint: 6cb862730e935e99   # TS, Python, Go, Rust, PHP
+graph fingerprint: 7ef0dc655256a432   # TS, Python, Go, Rust, PHP
 ```

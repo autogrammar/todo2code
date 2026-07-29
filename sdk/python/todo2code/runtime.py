@@ -95,6 +95,7 @@ class TypeScriptRuntime:
         changelog_file: str | None = "CHANGELOG.md",
         documents: Sequence[str] = ("README.md", "docs/**/*.md"),
         documentation_llm: bool = False,
+        markdown_mode: str = "deterministic",
         output_dir: str = ".intent",
         git_count: int = 10,
     ) -> Mapping[str, Any]:
@@ -105,6 +106,7 @@ class TypeScriptRuntime:
             "--todo", todo_file or "none",
             "--changelog", changelog_file or "none",
             "--docs", ",".join(documents),
+            "--markdown-mode", markdown_mode,
             "--out", output_dir,
             "--git-count", str(git_count),
         ]

@@ -43,7 +43,11 @@ try {
 
     // 1. Deterministic extraction -> graph -> diagnostics.
     $ast = $client->extractAst($root);
-    $markdown = $client->extractMarkdown($root);
+    $markdown = $client->extractMarkdown($root, 'deterministic');
+    if (($markdown['audit']['status'] ?? null) !== 'succeeded') {
+        throw new RuntimeException('unexpected Markdown audit: ' . json_encode($markdown['audit'] ?? null));
+    }
+    printf("markdown audit: %s %s%s", $markdown['audit']['status'], $markdown['audit']['effectiveMode'], PHP_EOL);
     $records = array_merge($ast['records'] ?? [], $markdown['records'] ?? []);
     printf("extracted %d records from %s%s", count($records), $root, PHP_EOL);
 

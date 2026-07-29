@@ -249,7 +249,7 @@ interface IntentRunListItem {
   status: 'succeeded' | 'degraded' | null;
   runtimeVersion: string | null;
   stages: Record<string, unknown> | null;
-  llm: { naturalLanguageExtraction: boolean; documentationExtraction: boolean; summary: boolean } | null;
+  llm: { naturalLanguageExtraction: boolean; markdownExtraction: boolean; documentationExtraction: boolean; summary: boolean } | null;
   graphBytes: number;
 }
 
@@ -307,6 +307,7 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
           stages: stagesValue,
           llm: llmValue ? {
             naturalLanguageExtraction: llmValue.naturalLanguageExtraction === true,
+            markdownExtraction: llmValue.markdownExtraction === true,
             documentationExtraction: llmValue.documentationExtraction === true,
             summary: llmValue.summary === true,
           } : null,

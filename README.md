@@ -17,13 +17,14 @@ Projekt działa na Node.js/TypeScript. Python i Go są używane wyłącznie jako
 | NL → DSL | OpenRouter structured output; jawny fallback heurystyczny/TensorFlow | **tak, domyślnie preferowany** |
 | 10 commitów Git → DSL | `git log`, diff, heurystyki symboli | nie |
 | TypeScript/JavaScript/Python/Go AST → DSL | TypeScript Compiler API, Python `ast`, Go `go/ast` | nie |
-| TODO + CHANGELOG → DSL | deterministyczny parser Markdown | nie |
+| TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie preferowany** |
 | Dokumentacja → DSL | OpenRouter structured outputs | **tak** |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf DSL → raport NL | OpenRouter; wejściem jest tylko graf i diagnostyka | **tak** |
 
 Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
 `npm run verify:no-llm` oraz bezcykliczny graf modułów `npm run verify:modules`.
+Kompletność i brak duplikatów zmiennych sprawdza `npm run verify:env`.
 
 ## Szybki start
 
@@ -45,7 +46,7 @@ niekompatybilny downgrade TensorFlow.
 Pełny pipeline bez połączeń LLM (również wtedy, gdy lokalny `.env` zawiera klucz):
 
 ```bash
-T2C_NL_MODE=deterministic OPENROUTER_API_KEY= node dist/src/cli.js pipeline examples \
+T2C_NL_MODE=deterministic T2C_MARKDOWN_MODE=deterministic OPENROUTER_API_KEY= node dist/src/cli.js pipeline examples \
   --task task.md \
   --todo TODO.md \
   --changelog CHANGELOG.md \
@@ -60,7 +61,9 @@ Pełny pipeline z OpenRouter:
 # w .env:
 # OPENROUTER_API_KEY=...
 # T2C_NL_MODE=prefer-llm
+# T2C_MARKDOWN_MODE=prefer-llm
 # OPENROUTER_NL_MODEL=qwen/qwen3.7-plus
+# OPENROUTER_MARKDOWN_MODEL=qwen/qwen3.7-plus
 # OPENROUTER_DOC_MODEL=openrouter/auto-beta
 # OPENROUTER_SUMMARY_MODEL=openrouter/auto-beta
 
@@ -96,7 +99,7 @@ t2c doctor
 t2c extract nl <file> [--root .] [--out nl.intent.jsonl]
 t2c extract git [--root .] [--count 10] [--out git.intent.jsonl]
 t2c extract ast [root] [--out ast.intent.jsonl]
-t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md]
+t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--markdown-mode deterministic|prefer-llm|require-llm]
 t2c extract docs [--patterns 'README.md,docs/**/*.md']
 
 t2c link <*.intent.jsonl>... --out intent.graph.json
@@ -113,10 +116,12 @@ t2c mcp
 t2c a2a
 ```
 
-`extract nl`, `extract docs` i `summarize` mogą korzystać z OpenRouter. Dla NL
-`prefer-llm` jest trybem domyślnym: awaria daje oznaczony fallback; `require-llm`
-kończy operację błędem, a `deterministic` świadomie pomija sieć. Dokumentacja bez
-klucza jest pomijana, a raport może użyć oznaczonego fallbacku deterministycznego.
+`extract nl`, `extract markdown`, `extract docs` i `summarize` mogą korzystać z
+OpenRouter. Dla NL oraz Markdown `prefer-llm` jest trybem domyślnym: awaria daje
+oznaczony fallback; `require-llm` kończy operację błędem, a `deterministic`
+świadomie pomija sieć. W Markdown LLM nie może zmienić checkboxa, lifecycle,
+wersji, daty, kategorii ani provenance — wzbogaca wyłącznie semantykę wpisu.
+Dokumentacja bez klucza jest pomijana, a raport może użyć oznaczonego fallbacku.
 
 ## Origin vs bieżący workspace
 
@@ -232,7 +237,7 @@ Każdy rekord zawiera identyfikator, statement, lifecycle, dokładne źródło, 
 
 `manifest.json` zapisuje również `runtime.version`, bezpieczny snapshot i
 fingerprint konfiguracji oraz statusy `naturalLanguageExtraction`,
-`documentationExtraction` i `summary`. Status runu `degraded` jest pokazywany
+`markdownExtraction`, `documentationExtraction` i `summary`. Status runu `degraded` jest pokazywany
 w CLI, `GET /api/runs` i UI. Parametry obejmują modele, timeout, temperaturę,
 limit tokenów i tryb structured output; klucz API nigdy nie jest zapisywany.
 
@@ -442,7 +447,11 @@ make docker-build
 make docker-up
 ```
 
-`docker compose` montuje repozytorium pod `/workspace`, uruchamia A2A na porcie `8787` i zachowuje `.intent` w analizowanym workspace.
+Jedynym plikiem Compose jest `docker-compose.yml`. Montuje repozytorium
+`T2C_WORKSPACE` pod `/workspace`, wystawia kontenerowy port `8787` jako
+`T2C_DOCKER_HOST_PORT` i zachowuje `.intent` w analizowanym workspace. Przy
+zmianie portu hosta należy odpowiednio ustawić również publiczny
+`T2C_A2A_PUBLIC_URL` oraz kliencki `T2C_A2A_URL`.
 
 ## Diagnostyka
 

@@ -161,9 +161,13 @@ final class Client
     }
 
     /** @return array<string,mixed> */
-    public function extractMarkdown(string $root = '.'): array
+    public function extractMarkdown(string $root = '.', ?string $markdownMode = null): array
     {
-        return $this->call('extract_markdown', ['root' => $root]);
+        $input = ['root' => $root];
+        if ($markdownMode !== null) {
+            $input['markdownMode'] = $markdownMode;
+        }
+        return $this->call('extract_markdown', $input);
     }
 
     /** @return array<string,mixed> */

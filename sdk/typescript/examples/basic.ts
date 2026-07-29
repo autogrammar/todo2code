@@ -25,7 +25,9 @@ async function main(): Promise<void> {
 
   // 1. Deterministic extraction -> graph -> diagnostics.
   const ast = await client.extractAst(root);
-  const markdown = await client.call<{ records: unknown[] }>('extract_markdown', { root });
+  const markdown = await client.extractMarkdown(root, { markdownMode: 'deterministic' });
+  if (markdown.audit?.status !== 'succeeded') throw new Error(`unexpected Markdown audit: ${JSON.stringify(markdown.audit)}`);
+  console.log('markdown audit:', markdown.audit.status, markdown.audit.effectiveMode);
   const records = [...ast.records, ...(markdown.records as typeof ast.records)];
   console.log(`extracted ${records.length} records from ${root}`);
 

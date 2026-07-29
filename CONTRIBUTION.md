@@ -4,7 +4,8 @@
 
 - Każda zmiana publicznego zachowania musi zawierać test albo wskazywać istniejący test, który ją pokrywa.
 - Nie wolno oznaczać zadania jako wykonane wyłącznie na podstawie deklaracji w commicie, changelogu lub odpowiedzi agenta. Wymagany jest dowód w kodzie i pozytywny wynik odpowiedniej walidacji.
-- Należy zachować jawną granicę LLM: OpenRouter może być wywoływany wyłącznie przez audytowalny orkiestrator NL (`src/extractors/nl-llm.ts`), ekstrakcję dokumentacji i podsumowanie. Deterministyczne ekstraktory, linker, diagnostyka, diff i Intent vs Reality nie mogą importować klienta LLM; sprawdzają to `verify:no-llm` i `verify:modules`.
+- Należy zachować jawną granicę LLM: OpenRouter może być wywoływany wyłącznie przez audytowalny orkiestrator NL (`src/extractors/nl-llm.ts`), semantyczne wzbogacanie TODO/CHANGELOG (`src/extractors/markdown-llm.ts`), ekstrakcję dokumentacji i podsumowanie. Deterministyczne ekstraktory, linker, diagnostyka, diff i Intent vs Reality nie mogą importować klienta LLM; sprawdzają to `verify:no-llm` i `verify:modules`.
+- Każda zmienna środowiskowa odczytywana przez kod, skrypty, Makefile, Docker/Compose lub przykłady SDK musi występować dokładnie raz w `.env.example`; `verify:env` odrzuca też przestarzałe aliasy, nadmiarowe klucze i niesynchronizowany lokalny `.env`. Sekrety pozostają wyłącznie w ignorowanym `.env`.
 - Każdy etap LLM musi zapisać model, bezpieczne parametry konfiguracji, status `succeeded|partial|fallback|failed|skipped` oraz powód degradacji. Sekrety nie mogą trafić do artefaktów.
 
 ## Workflow GitHub

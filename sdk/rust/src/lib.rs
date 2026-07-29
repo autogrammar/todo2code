@@ -207,6 +207,8 @@ pub struct ExtractionResult {
     pub records: Vec<IntentRecord>,
     #[serde(default)]
     pub warnings: Vec<String>,
+    #[serde(default)]
+    pub audit: Value,
 }
 
 /// Client for a todo2code A2A server.
@@ -318,6 +320,14 @@ impl Client {
     /// Extracts TODO and CHANGELOG records from `root`.
     pub fn extract_markdown(&self, root: &str) -> Result<ExtractionResult, Error> {
         Ok(serde_json::from_value(self.call(action::EXTRACT_MARKDOWN, &json!({ "root": root }))?)?)
+    }
+
+    /// Extracts TODO and CHANGELOG records with an explicit LLM mode.
+    pub fn extract_markdown_mode(&self, root: &str, markdown_mode: &str) -> Result<ExtractionResult, Error> {
+        Ok(serde_json::from_value(self.call(
+            action::EXTRACT_MARKDOWN,
+            &json!({ "root": root, "markdownMode": markdown_mode }),
+        )?)?)
     }
 
     /// Extracts intent claims from the last `count` commits.

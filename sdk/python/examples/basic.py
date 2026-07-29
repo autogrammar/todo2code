@@ -32,8 +32,11 @@ def main() -> int:
 
     # 1. Deterministic extraction -> graph -> diagnostics.
     ast_records = client.extract_ast(root)
-    markdown_records = client.extract_markdown(root)
-    records = [*ast_records, *markdown_records]
+    markdown = client.extract_markdown_result(root, markdown_mode="deterministic")
+    if markdown.audit is None or markdown.audit.get("status") != "succeeded":
+        raise RuntimeError(f"unexpected Markdown audit: {markdown.audit}")
+    print("markdown audit:", markdown.audit.get("status"), markdown.audit.get("effectiveMode"))
+    records = [*ast_records, *markdown.records]
     print(f"extracted {len(records)} records from {root}")
 
     graph = client.link(records)

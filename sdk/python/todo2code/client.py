@@ -78,6 +78,24 @@ class IntentRecord:
 
 
 @dataclass(frozen=True)
+class ExtractionResult:
+    """Records, warnings and the optional audited LLM stage result."""
+
+    records: Sequence[IntentRecord]
+    warnings: Sequence[str]
+    audit: Mapping[str, Any] | None = None
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> "ExtractionResult":
+        audit = payload.get("audit")
+        return cls(
+            records=tuple(IntentRecord.from_dict(item) for item in payload.get("records", ())),
+            warnings=tuple(str(item) for item in payload.get("warnings", ())),
+            audit=audit if isinstance(audit, Mapping) else None,
+        )
+
+
+@dataclass(frozen=True)
 class Diagnostic:
     id: str
     code: str
@@ -274,9 +292,27 @@ class T2CClient:
         result = self.call("extract_ast", {"root": root})
         return tuple(IntentRecord.from_dict(item) for item in result.get("records", ()))
 
-    def extract_markdown(self, root: str = ".", todo: str = "TODO.md", changelog: str = "CHANGELOG.md") -> Sequence[IntentRecord]:
-        result = self.call("extract_markdown", {"root": root, "todo": todo, "changelog": changelog})
-        return tuple(IntentRecord.from_dict(item) for item in result.get("records", ()))
+    def extract_markdown(
+        self,
+        root: str = ".",
+        todo: str = "TODO.md",
+        changelog: str = "CHANGELOG.md",
+        markdown_mode: str | None = None,
+    ) -> Sequence[IntentRecord]:
+        return self.extract_markdown_result(root, todo, changelog, markdown_mode).records
+
+    def extract_markdown_result(
+        self,
+        root: str = ".",
+        todo: str = "TODO.md",
+        changelog: str = "CHANGELOG.md",
+        markdown_mode: str | None = None,
+    ) -> ExtractionResult:
+        payload: dict[str, Any] = {"root": root, "todo": todo, "changelog": changelog}
+        if markdown_mode is not None:
+            payload["markdownMode"] = markdown_mode
+        result = self.call("extract_markdown", payload)
+        return ExtractionResult.from_dict(result)
 
     def link(self, records: Iterable[IntentRecord | Mapping[str, Any]]) -> IntentGraph:
         payload = [item.raw if isinstance(item, IntentGraph) else _as_dict(item) for item in records]

@@ -13,7 +13,8 @@ import type {
   NlExtractionMode,
   PipelineStageAudit,
 } from '../core/types.js';
-import { OpenRouterModelError, OpenRouterClient } from '../llm/openrouter.js';
+import { classifyLlmFailure } from '../llm/failure.js';
+import { OpenRouterClient } from '../llm/openrouter.js';
 import { T2C_VERSION } from '../version.js';
 import { extractNlIntent, type NlExtractionOptions } from './nl.js';
 
@@ -179,15 +180,6 @@ function audit(
   durationMs: number,
 ): PipelineStageAudit {
   return { status, requestedMode, effectiveMode, degraded, recordCount: result.records.length, warningCount: result.warnings.length, model, durationMs, reason };
-}
-
-function classifyLlmFailure(error: unknown): { code: string; message: string } {
-  const message = error instanceof Error ? error.message : String(error);
-  if (error instanceof OpenRouterModelError) return { code: 'LLM_INVALID_MODEL', message };
-  if (/timed out|timeout/i.test(message)) return { code: 'LLM_TIMEOUT', message };
-  if (/HTTP 429/i.test(message)) return { code: 'LLM_RATE_LIMITED', message };
-  if (/JSON|response does not contain|structured/i.test(message)) return { code: 'LLM_RESPONSE_INVALID', message };
-  return { code: 'LLM_UNAVAILABLE', message };
 }
 
 function clampLine(value: number, min: number, max: number): number {

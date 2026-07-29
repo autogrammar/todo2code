@@ -14,7 +14,7 @@ import type {
 import { extractAstIntent } from '../extractors/ast.js';
 import { extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractGitIntent } from '../extractors/git.js';
-import { extractMarkdownIntent } from '../extractors/markdown.js';
+import { extractMarkdownIntentAudited } from '../extractors/markdown-llm.js';
 import { extractNlIntentAudited } from '../extractors/nl-llm.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { linkIntentRecords } from '../graph/linker.js';
@@ -68,7 +68,11 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   bySource.ast = ast.records;
   warnings.push(...ast.warnings);
 
-  const markdown = await extractMarkdownIntent({ root, todoPath: options.todoFile, changelogPath: options.changelogFile }, config);
+  const markdown = await extractMarkdownIntentAudited(
+    { root, todoPath: options.todoFile, changelogPath: options.changelogFile },
+    config,
+    options.markdownMode ?? config.markdownMode,
+  );
   bySource.todo = markdown.records.filter((record) => record.source.kind === 'todo');
   bySource.changelog = markdown.records.filter((record) => record.source.kind === 'changelog');
   warnings.push(...markdown.warnings);
@@ -160,6 +164,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const documentExcludes = options.documentExcludes ?? config.documentExcludes;
   const configuration = {
     nlMode: options.nlMode ?? config.nlMode,
+    markdownMode: options.markdownMode ?? config.markdownMode,
     gitCommitCount: options.gitCommitCount,
     maxFileBytes: config.maxFileBytes,
     documentConcurrency: config.documentConcurrency,
@@ -170,6 +175,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
       configured: hasOpenRouter(config),
       baseUrl: config.openRouter.baseUrl,
       nlModel: config.openRouter.nlModel,
+      markdownModel: config.openRouter.markdownModel,
       documentModel: config.openRouter.documentModel,
       summaryModel: config.openRouter.summaryModel,
       timeoutMs: config.openRouter.timeoutMs,
@@ -181,6 +187,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   };
   const stageAudits = {
     naturalLanguageExtraction: naturalLanguageAudit,
+    markdownExtraction: markdown.audit,
     documentationExtraction: documentationAudit,
     summary: summaryAudit,
   };
@@ -201,6 +208,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     stages: stageAudits,
     llm: {
       naturalLanguageExtraction: naturalLanguageAudit.effectiveMode === 'llm',
+      markdownExtraction: markdown.audit.effectiveMode === 'llm',
       documentationExtraction: documentationAudit.effectiveMode === 'llm',
       summary: summary.llmUsed,
     },

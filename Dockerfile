@@ -21,11 +21,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=production \
-    T2C_ROOT=/workspace \
-    T2C_OUTPUT_DIR=.intent \
-    T2C_A2A_HOST=0.0.0.0 \
-    T2C_A2A_PORT=8787 \
-    T2C_A2A_PUBLIC_URL=http://localhost:8787/a2a
+    T2C_ROOT=/workspace
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json .env.example .intentignore ./

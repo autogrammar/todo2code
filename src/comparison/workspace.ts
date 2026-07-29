@@ -6,7 +6,7 @@ import { promisify } from 'node:util';
 import type { T2CConfig } from '../config/env.js';
 import { newRunId } from '../core/id.js';
 import { pathExists, readJson, writeJson, writeText } from '../core/io.js';
-import type { DiagnosticReport, IntentGraph, PipelineManifest, PipelineOptions } from '../core/types.js';
+import type { DiagnosticReport, IntentGraph, LlmExtractionMode, PipelineManifest, PipelineOptions } from '../core/types.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg, type IntentRealityView } from '../diff/reality.js';
 import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
 import { runPipeline } from '../pipeline/run.js';
@@ -22,6 +22,7 @@ export interface WorkspaceComparisonOptions {
   documentPatterns?: string[];
   documentExcludes?: string[];
   includeDocumentationLlm?: boolean;
+  markdownMode?: LlmExtractionMode;
   outputDir?: string;
   gitCommitCount?: number;
 }
@@ -192,6 +193,7 @@ function commonPipelineOptions(options: WorkspaceComparisonOptions, config: T2CC
     allowSummaryFallback: true,
     includeSummaryLlm: false,
     nlMode: config.nlMode,
+    markdownMode: options.markdownMode ?? config.markdownMode,
   };
 }
 

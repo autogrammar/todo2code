@@ -18,11 +18,13 @@ export function makeConfig(root: string): T2CConfig {
     documentPatterns: ['README.md', 'docs/**/*.md'],
     documentExcludes: ['node_modules/**', '.git/**', 'dist/**', '.intent/**', 'TODO.md', 'CHANGELOG.md'],
     nlMode: 'prefer-llm',
+    markdownMode: 'prefer-llm',
     openRouter: {
       apiKey: null,
       baseUrl: 'https://openrouter.ai/api/v1',
       model: 'test/model',
       nlModel: 'test/model',
+      markdownModel: 'test/model',
       documentModel: 'test/model',
       summaryModel: 'test/model',
       siteUrl: null,

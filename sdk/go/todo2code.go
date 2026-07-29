@@ -143,6 +143,7 @@ type DiagnosticReport struct {
 type ExtractionResult struct {
 	Records  []IntentRecord `json:"records"`
 	Warnings []string       `json:"warnings"`
+	Audit    map[string]any `json:"audit,omitempty"`
 }
 
 // Part is one A2A message or artifact part.
@@ -389,8 +390,18 @@ func (c *Client) ExtractAST(ctx context.Context, root string) (*ExtractionResult
 
 // ExtractMarkdown extracts TODO and CHANGELOG records from root.
 func (c *Client) ExtractMarkdown(ctx context.Context, root string) (*ExtractionResult, error) {
+	return c.ExtractMarkdownWithOptions(ctx, root, nil)
+}
+
+// ExtractMarkdownWithOptions extracts TODO and CHANGELOG records with optional
+// markdownMode, todo and changelog action parameters.
+func (c *Client) ExtractMarkdownWithOptions(ctx context.Context, root string, options map[string]any) (*ExtractionResult, error) {
 	result := &ExtractionResult{}
-	return result, c.Call(ctx, ActionExtractMarkdown, map[string]any{"root": root}, result)
+	payload := map[string]any{"root": root}
+	for key, value := range options {
+		payload[key] = value
+	}
+	return result, c.Call(ctx, ActionExtractMarkdown, payload, result)
 }
 
 // ExtractGit extracts intent claims from the last count commits.

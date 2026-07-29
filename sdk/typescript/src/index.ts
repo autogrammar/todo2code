@@ -216,6 +216,13 @@ export class T2CClient {
     return this.call('extract_ast', { root });
   }
 
+  extractMarkdown(
+    root = '.',
+    options: { todo?: string | null; changelog?: string | null; markdownMode?: 'deterministic' | 'prefer-llm' | 'require-llm' } = {},
+  ): Promise<{ records: IntentRecord[]; warnings: string[]; audit?: Record<string, unknown> }> {
+    return this.call('extract_markdown', { root, ...options });
+  }
+
   link(records: IntentRecord[]): Promise<IntentGraph> {
     return this.call('link', { records });
   }

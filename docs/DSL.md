@@ -30,17 +30,21 @@
     "revision": null,
     "symbol": null,
     "commitIndex": null,
-    "extractor": "t2c/markdown-todo@1",
+    "extractor": "t2c/markdown-todo-openrouter@1",
     "contentHash": "...",
     "rawExcerpt": "- [ ] Dodać walidację..."
   },
   "epistemic": {
     "class": "plan",
     "confidence": 0.9,
-    "basis": ["markdown_checkbox"]
+    "basis": ["markdown_checkbox", "openrouter_markdown_enrichment"]
   },
   "observedAt": null,
-  "metadata": { "checked": false, "llmUsed": false }
+  "metadata": {
+    "checked": false,
+    "llmUsed": true,
+    "generation": { "requested": "llm", "used": "llm", "degraded": false, "runtimeVersion": "0.2.0", "model": "qwen/qwen3.7-plus" }
+  }
 }
 ```
 
@@ -65,6 +69,7 @@
 - Commit message i changelog są `claim`, nawet gdy brzmią jak zakończona praca.
 - Rekord z dokumentacji LLM nie może przekroczyć confidence `0.85`.
 - Rekord NL z LLM nie może przekroczyć confidence `0.9`, a runtime wymusza lifecycle `proposed` niezależnie od odpowiedzi modelu.
+- W TODO/CHANGELOG LLM nie może zmienić checkboxa, lifecycle, modality, wersji, daty, kategorii, source ani klasy `plan`/`claim`; confidence wzbogacenia nie przekracza `0.94`.
 - `metadata.generation` wskazuje `requested`, faktycznie `used`, `degraded`, `fallbackReason`, wersję runtime i — dla LLM — model.
 - Brak pola pozostaje brakiem; system nie tworzy ukrytego faktu.
 
@@ -75,7 +80,7 @@ Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:
 - `status: succeeded|degraded`;
 - `runtime.name` i `runtime.version`;
 - bezpieczny `configuration` bez tokenów i kluczy oraz jego SHA-256 fingerprint;
-- statusy etapów NL, dokumentacji i podsumowania: `succeeded`, `partial`,
+- statusy etapów NL, Markdown, dokumentacji i podsumowania: `succeeded`, `partial`,
   `fallback`, `failed` albo `skipped`;
 - requested/effective mode, model, czas, liczbę rekordów/ostrzeżeń i strukturalny
   powód degradacji.
@@ -101,5 +106,6 @@ Widok zestawia źródła deklaratywne (`nl`, `todo`, `document`) z dowodami wyko
 
 Format wiąże pełny SHA bazy z HEAD i stanem roboczym, przechowuje `ahead`,
 `behind`, listę plików zmienionych przed analizą, pełny `t2c.diff/v1` oraz
-metryki pokrycia obu stron. `trend.direction` jest `improved`, `regressed` lub
-`unchanged` na podstawie zmiany współczynnika aligned/topics i liczby gaps.
+metryki pokrycia obu stron. `trend.direction` jest `improved`, `regressed`,
+`mixed` lub `unchanged` na podstawie zmian pełnego wyrównania, pokrycia
+implementacji/planów/dokumentacji i liczby gaps.

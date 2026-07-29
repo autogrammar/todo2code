@@ -13,7 +13,7 @@ OUT ?= .intent
 PACKAGE ?= todo2code.zip
 PYTHON_WHEEL_DIR ?= .intent-packages/python
 
-.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules smoke doctor mcp-probe a2a-probe protocol-smoke validate demo pipeline compare-workspace mcp a2a docker-build docker-up docker-down python-wheel package clean
+.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env smoke doctor mcp-probe a2a-probe protocol-smoke validate demo pipeline compare-workspace mcp a2a docker-build docker-up docker-down python-wheel package clean
 
 help: ## Pokaż dostępne cele
 	@awk 'BEGIN {FS = ":.*## "; printf "todo2code targets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -43,6 +43,9 @@ verify-no-llm: ## Sprawdź granicę importów LLM
 verify-modules: ## Sprawdź cykle importów i niezależność warstwy core
 	$(NPM) run verify:modules
 
+verify-env: ## Sprawdź kompletność i brak duplikatów kontraktu .env
+	$(NPM) run verify:env
+
 verify: ## Typy, granica LLM, build i testy
 	$(NPM) run verify
 
@@ -63,7 +66,7 @@ protocol-smoke: mcp-probe a2a-probe ## Uruchom probes MCP i A2A
 validate: verify smoke protocol-smoke doctor ## Pełna walidacja bez live OpenRouter i bez budowania Dockera
 
 demo: build ## Przeanalizuj katalog examples bez OpenRouter
-	$(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --out .intent-demo
+	OPENROUTER_API_KEY= T2C_NL_MODE=deterministic T2C_MARKDOWN_MODE=deterministic $(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --out .intent-demo
 
 pipeline: build ## Uruchom pipeline; parametry ROOT/TASK/TODO/CHANGELOG/DOCS/OUT
 	$(NODE) dist/src/cli.js pipeline "$(ROOT)" --task "$(TASK)" --todo "$(TODO)" --changelog "$(CHANGELOG)" --docs "$(DOCS)" --out "$(OUT)"

@@ -225,7 +225,8 @@ export interface ExtractionResult {
   warnings: string[];
 }
 
-export type NlExtractionMode = 'deterministic' | 'prefer-llm' | 'require-llm';
+export type LlmExtractionMode = 'deterministic' | 'prefer-llm' | 'require-llm';
+export type NlExtractionMode = LlmExtractionMode;
 
 export type PipelineStageStatus = 'succeeded' | 'partial' | 'fallback' | 'failed' | 'skipped';
 
@@ -253,6 +254,7 @@ export interface PipelineOptions {
   allowSummaryFallback: boolean;
   includeSummaryLlm?: boolean;
   nlMode?: NlExtractionMode;
+  markdownMode?: LlmExtractionMode;
   documentExcludes?: string[];
 }
 
@@ -272,6 +274,7 @@ export interface PipelineManifest {
   configuration: {
     fingerprint: string;
     nlMode: NlExtractionMode;
+    markdownMode: LlmExtractionMode;
     gitCommitCount: number;
     maxFileBytes: number;
     documentConcurrency: number;
@@ -282,6 +285,7 @@ export interface PipelineManifest {
       configured: boolean;
       baseUrl: string;
       nlModel: string;
+      markdownModel: string;
       documentModel: string;
       summaryModel: string;
       timeoutMs: number;
@@ -293,11 +297,13 @@ export interface PipelineManifest {
   };
   stages: {
     naturalLanguageExtraction: PipelineStageAudit;
+    markdownExtraction: PipelineStageAudit;
     documentationExtraction: PipelineStageAudit;
     summary: PipelineStageAudit;
   };
   llm: {
     naturalLanguageExtraction: boolean;
+    markdownExtraction: boolean;
     documentationExtraction: boolean;
     summary: boolean;
   };

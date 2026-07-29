@@ -35,7 +35,11 @@ fn run() -> Result<(), todo2code::Error> {
 
     // 1. Deterministic extraction -> graph -> diagnostics.
     let ast = client.extract_ast(&root)?;
-    let markdown = client.extract_markdown(&root)?;
+    let markdown = client.extract_markdown_mode(&root, "deterministic")?;
+    if markdown.audit["status"] != "succeeded" {
+        return Err(todo2code::Error::Protocol(format!("unexpected Markdown audit: {}", markdown.audit)));
+    }
+    println!("markdown audit: {} {}", markdown.audit["status"], markdown.audit["effectiveMode"]);
     println!("extracted {} records from {root}", ast.records.len() + markdown.records.len());
 
     let mut records = ast.records;

@@ -11,6 +11,6 @@ const [beforeGraph, afterGraph] = await Promise.all([
   readFile(beforePath, 'utf8').then(JSON.parse),
   readFile(afterPath, 'utf8').then(JSON.parse),
 ]);
-const client = new Todo2CodeClient({ baseUrl: process.env.T2C_URL });
+const client = new Todo2CodeClient({ baseUrl: process.env.T2C_A2A_URL });
 const { diff } = await client.diffGraphs(beforeGraph, afterGraph, false);
 console.log(JSON.stringify(diff.summary, null, 2));

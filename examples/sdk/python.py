@@ -18,6 +18,6 @@ with open(sys.argv[1], encoding="utf-8") as before_file:
 with open(sys.argv[2], encoding="utf-8") as after_file:
     after_graph = json.load(after_file)
 
-client = Todo2CodeClient(os.getenv("T2C_URL", "http://127.0.0.1:8787"))
+client = Todo2CodeClient(os.getenv("T2C_A2A_URL", "http://127.0.0.1:8787"))
 result = client.diff_graphs(before_graph, after_graph, include_svg=False)
 print(json.dumps(result["diff"]["summary"], indent=2))

@@ -3,7 +3,7 @@ import type { T2CConfig } from '../config/env.js';
 import { compareWorkspaceIntent } from '../comparison/workspace.js';
 import { readJson, readJsonl, readText } from '../core/io.js';
 import { assertPathWithinRoot } from '../core/security.js';
-import type { DiagnosticReport, IntentGraph, IntentRecord, NlExtractionMode, PipelineOptions } from '../core/types.js';
+import type { DiagnosticReport, IntentGraph, IntentRecord, LlmExtractionMode, NlExtractionMode, PipelineOptions } from '../core/types.js';
 import { collectGitDiff } from '../diff/git.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from '../diff/reality.js';
 import {
@@ -16,7 +16,7 @@ import {
 import { extractAstIntent } from '../extractors/ast.js';
 import { extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractGitIntent } from '../extractors/git.js';
-import { extractMarkdownIntent } from '../extractors/markdown.js';
+import { extractMarkdownIntentAudited } from '../extractors/markdown-llm.js';
 import { extractNlIntentAudited } from '../extractors/nl-llm.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
@@ -57,11 +57,11 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
     case 'extract_ast':
       return extractAstIntent({ root }, config);
     case 'extract_markdown':
-      return extractMarkdownIntent({
+      return extractMarkdownIntentAudited({
         root,
         todoPath: await nullableScopedPath(input.todo, 'TODO.md', root, config),
         changelogPath: await nullableScopedPath(input.changelog, 'CHANGELOG.md', root, config),
-      }, config);
+      }, config, llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'));
     case 'extract_docs':
       return extractDocumentationIntent({
         root,
@@ -164,6 +164,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         documentPatterns: stringList(input.docs, config.documentPatterns),
         documentExcludes: stringList(input.docExcludes, config.documentExcludes),
         includeDocumentationLlm: booleanValue(input.includeDocsLlm, false),
+        markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
         outputDir: stringValue(input.output, config.outputDir),
         gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
       }, config);
@@ -179,6 +180,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
         allowSummaryFallback: booleanValue(input.summaryFallback, true),
         nlMode: nlModeValue(input.nlMode, config.nlMode),
+        markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
         documentExcludes: stringList(input.docExcludes, config.documentExcludes),
       };
       return runPipeline(options, config);
@@ -187,9 +189,13 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
 }
 
 function nlModeValue(value: unknown, fallback: NlExtractionMode): NlExtractionMode {
+  return llmModeValue(value, fallback, 'nlMode');
+}
+
+function llmModeValue(value: unknown, fallback: LlmExtractionMode, name: string): LlmExtractionMode {
   if (value === undefined) return fallback;
   if (value === 'deterministic' || value === 'prefer-llm' || value === 'require-llm') return value;
-  throw new Error('nlMode must be deterministic, prefer-llm or require-llm');
+  throw new Error(`${name} must be deterministic, prefer-llm or require-llm`);
 }
 
 function withTextDiffViews(diffs: FileDiff[], input: Record<string, unknown>): Record<string, unknown> {

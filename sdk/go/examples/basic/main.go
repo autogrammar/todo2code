@@ -44,10 +44,14 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("extract_ast: %w", err)
 	}
-	markdown, err := client.ExtractMarkdown(ctx, root)
+	markdown, err := client.ExtractMarkdownWithOptions(ctx, root, map[string]any{"markdownMode": "deterministic"})
 	if err != nil {
 		return fmt.Errorf("extract_markdown: %w", err)
 	}
+	if markdown.Audit["status"] != "succeeded" {
+		return fmt.Errorf("unexpected Markdown audit: %v", markdown.Audit)
+	}
+	fmt.Println("markdown audit:", markdown.Audit["status"], markdown.Audit["effectiveMode"])
 	records := append(append([]todo2code.IntentRecord{}, ast.Records...), markdown.Records...)
 	fmt.Printf("extracted %d records from %s\n", len(records), root)
 

@@ -48,10 +48,11 @@ const TOOLS: McpTool[] = [
   tool('extract_ast', 'Extract TypeScript/JavaScript, Python and Go AST facts to Intent DSL without an LLM.', {
     root: stringProp('Repository root under T2C_ROOT.'),
   }),
-  tool('extract_markdown', 'Extract TODO.md and CHANGELOG.md to Intent DSL without an LLM.', {
+  tool('extract_markdown', 'Extract TODO.md and CHANGELOG.md structurally, with audited LLM semantic enrichment and deterministic fallback.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     todo: nullableStringProp('TODO path or null.'),
     changelog: nullableStringProp('CHANGELOG path or null.'),
+    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
   }),
   tool('extract_docs', 'Extract documentation to Intent DSL through OpenRouter structured outputs.', {
     root: stringProp('Repository root under T2C_ROOT.'),
@@ -114,6 +115,7 @@ const TOOLS: McpTool[] = [
     changelog: nullableStringProp('CHANGELOG file.'),
     docs: stringArrayProp('Documentation patterns.'),
     docExcludes: stringArrayProp('Documentation exclusion patterns.'),
+    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
     includeDocsLlm: { type: 'boolean', description: 'Run the same LLM documentation extraction on both sides.' },
     output: stringProp('Comparison artifact root, default .intent.'),
     gitCount: numberProp('Number of commit claims included per side.', 1, 100),
@@ -126,6 +128,7 @@ const TOOLS: McpTool[] = [
     docs: stringArrayProp('Documentation glob patterns.'),
     docExcludes: stringArrayProp('Documentation exclusion patterns; override to include one historical .intent report.'),
     nlMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
     includeDocsLlm: { type: 'boolean' },
     output: stringProp('Output directory, default .intent.'),
     gitCount: numberProp('Number of commits, default 10.', 1, 100),
@@ -430,7 +433,7 @@ function serverMeta(config: T2CConfig): Record<string, unknown> {
 }
 
 function serverInstructions(): string {
-  return 'NL extraction is audited and defaults to prefer-llm; deterministic extraction remains available. OpenRouter is limited to extract_nl, extract_docs and summarize.';
+  return 'NL and TODO/CHANGELOG semantic extraction are audited and default to prefer-llm; deterministic extraction remains available. OpenRouter is limited to extract_nl, extract_markdown, extract_docs and summarize.';
 }
 
 function isLegacyProtocol(value: string): value is typeof MCP_LEGACY_PROTOCOLS[number] {

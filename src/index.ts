@@ -5,6 +5,7 @@ export * from './extractors/nl.js';
 export * from './extractors/git.js';
 export * from './extractors/ast.js';
 export * from './extractors/markdown.js';
+export * from './extractors/markdown-llm.js';
 export * from './extractors/docs-llm.js';
 export * from './graph/linker.js';
 export * from './graph/diagnostics.js';

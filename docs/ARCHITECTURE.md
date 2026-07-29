@@ -11,13 +11,14 @@ flowchart LR
     CODE[TS JS Python tree] --> AE[AST extractors]
     TODO[TODO.md] --> ME[Markdown extractor]
     CHG[CHANGELOG.md] --> ME
+    ME --> MLO[Audited Markdown LLM enrichment]
     DOCS[README ADR MODULE docs] --> ORE[OpenRouter document extractor]
 
     NLLM --> DSL[Canonical t2c Intent DSL]
     NLE --> DSL
     GE --> DSL
     AE --> DSL
-    ME --> DSL
+    MLO --> DSL
     ORE --> DSL
 
     DSL --> LINK[Deterministic linker]
@@ -55,6 +56,15 @@ TypeScript Compiler API dostarcza fakty o importach, eksportach, symbolach i wyw
 ### `src/extractors/markdown.ts`
 
 TODO i CHANGELOG są parsowane osobno. Checkbox określa lifecycle planu, a wersja i kategoria changelogu określają claim wydania.
+
+### `src/extractors/markdown-llm.ts`
+
+Deterministyczne rekordy TODO/CHANGELOG są wysyłane w jednym ograniczonym
+żądaniu structured output. Model zwraca dokładnie jedno wzbogacenie na istniejący
+identyfikator i może zmienić tylko action, actor, object, polarity, targets oraz
+acceptance evidence. Runtime zachowuje strukturę Markdown, lifecycle, wersję,
+datę, kategorię, source lines i klasę epistemiczną. Brak klucza, timeout, błędny
+model albo niepełna odpowiedź uruchamia jawny fallback lub błąd w `require-llm`.
 
 ### `src/extractors/docs-llm.ts`
 

@@ -14,11 +14,14 @@ MCP i A2A rozwiązują `root` względem `T2C_ROOT` i domyślnie odrzucają ście
 
 ## Dane wysyłane do OpenRouter
 
-Ekstraktor NL wysyła wyłącznie jawnie przekazany tekst taska, a ekstraktor
-dokumentacji tylko pliki dopasowane do `T2C_DOC_PATTERNS` po zastosowaniu
-wykluczeń. Summarizer wysyła wyłącznie skompaktowany graf i diagnostykę, bez raw
-excerptów, diffów i pełnych plików kodu. `T2C_NL_MODE=deterministic` całkowicie
-wyłącza wysyłanie taska do OpenRouter.
+Ekstraktor NL wysyła wyłącznie jawnie przekazany tekst taska. Etap Markdown
+wysyła tekst i strukturalny kontekst wyłącznie wpisów rozpoznanych wcześniej
+deterministycznie jako TODO/CHANGELOG — nie wysyła całych plików ani dowolnych
+sekcji. Ekstraktor dokumentacji wysyła tylko pliki dopasowane do
+`T2C_DOC_PATTERNS` po zastosowaniu wykluczeń. Summarizer wysyła wyłącznie
+skompaktowany graf i diagnostykę, bez raw excerptów, diffów i pełnych plików
+kodu. `T2C_NL_MODE=deterministic` oraz `T2C_MARKDOWN_MODE=deterministic`
+wyłączają odpowiednie żądania OpenRouter.
 
 Przed użyciem na prywatnym repozytorium należy ustawić restrykcyjne globs i zweryfikować politykę wybranego modelu/providerów.
 
