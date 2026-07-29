@@ -1,7 +1,7 @@
 # Participant: Codex (AI Agent)
 
 - **Ticket**: ticket-001
-- **Status**: WAITING
+- **Status**: DONE
 
 ## Assigned Instructions
 
@@ -22,6 +22,4 @@ Przygotować repozytorium w organizacji `semcod`, tworząc wyłącznie obowiązk
 
 ## Blockers & Open Items
 
-- Wymagana akceptacja użytkownika dla opisu intencji i planu.
-- GitHub CLI wymaga ponownego uwierzytelnienia przed utworzeniem repozytorium zdalnego.
 - Silnik Docker musi zostać uruchomiony przed walidacją konfiguracji kontenerowej.

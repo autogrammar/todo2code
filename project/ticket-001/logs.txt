@@ -7,3 +7,8 @@ Docker CLI: Docker version 29.6.1, build 8900f1d
 Docker engine: permission denied while connecting to Docker Desktop Linux engine
 docker compose config --quiet: exit code 0
 Git: initialized empty repository on main; no commits yet.
+
+2026-07-29 GitHub publication:
+GitHub authentication: verified for account MatthiasLew with repo and read:org scopes.
+Remote repository: https://github.com/semcod/todo2code
+Visibility: PUBLIC
