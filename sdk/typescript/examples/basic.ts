@@ -44,6 +44,12 @@ async function main(): Promise<void> {
   const gitDiff = await client.diffGit({ root, revision: 'HEAD', includeSvg: true });
   console.log(`git diff files: ${gitDiff.diffs.length}, svg bytes: ${gitDiff.svg?.length ?? 0}`);
 
+  // 4. Optional origin/main -> local filesystem Intent comparison.
+  if (process.env.T2C_COMPARE_WORKSPACE === '1') {
+    const comparison = await client.compareWorkspace({ root, base: process.env.T2C_COMPARE_BASE ?? 'origin/main' });
+    console.log('workspace trend:', (comparison.trend as { direction?: string } | undefined)?.direction);
+  }
+
   console.log('OK');
 }
 

@@ -35,10 +35,11 @@ const LIST_TTL_MS = 300_000;
 const RESOURCE_TTL_MS = 60_000;
 
 const TOOLS: McpTool[] = [
-  tool('extract_nl', 'Extract NL/task text to canonical Intent DSL without an LLM.', {
+  tool('extract_nl', 'Extract NL/task text to canonical Intent DSL through audited LLM generation with a deterministic fallback.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     file: stringProp('Source file path. Defaults to TASK.md.'),
     text: stringProp('Optional inline text. When present, file is used only as source identity.'),
+    nlMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
   }),
   tool('extract_git', 'Extract the last N Git commits to Intent DSL without an LLM.', {
     root: stringProp('Repository root under T2C_ROOT.'),
@@ -105,12 +106,26 @@ const TOOLS: McpTool[] = [
     maxRows: numberProp('Maximum rendered rows, default 30.', 1, 500),
     includeSvg: { type: 'boolean', description: 'Include SVG visualization, default true.' },
   }, ['graph']),
+  tool('compare_workspace', 'Compare intent at a Git base ref (default origin/main) with committed and uncommitted workspace state.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    base: stringProp('Git base ref, default origin/main.'),
+    task: nullableStringProp('NL task file included on each side when present.'),
+    todo: nullableStringProp('TODO file.'),
+    changelog: nullableStringProp('CHANGELOG file.'),
+    docs: stringArrayProp('Documentation patterns.'),
+    docExcludes: stringArrayProp('Documentation exclusion patterns.'),
+    includeDocsLlm: { type: 'boolean', description: 'Run the same LLM documentation extraction on both sides.' },
+    output: stringProp('Comparison artifact root, default .intent.'),
+    gitCount: numberProp('Number of commit claims included per side.', 1, 100),
+  }),
   tool('pipeline', 'Run the complete todo2code pipeline and write a versioned .intent run.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     task: nullableStringProp('NL task/ticket file.'),
     todo: nullableStringProp('TODO file.'),
     changelog: nullableStringProp('CHANGELOG file.'),
     docs: stringArrayProp('Documentation glob patterns.'),
+    docExcludes: stringArrayProp('Documentation exclusion patterns; override to include one historical .intent report.'),
+    nlMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
     includeDocsLlm: { type: 'boolean' },
     output: stringProp('Output directory, default .intent.'),
     gitCount: numberProp('Number of commits, default 10.', 1, 100),
@@ -415,7 +430,7 @@ function serverMeta(config: T2CConfig): Record<string, unknown> {
 }
 
 function serverInstructions(): string {
-  return 'Use deterministic extractors first. OpenRouter is used only by extract_docs and summarize.';
+  return 'NL extraction is audited and defaults to prefer-llm; deterministic extraction remains available. OpenRouter is limited to extract_nl, extract_docs and summarize.';
 }
 
 function isLegacyProtocol(value: string): value is typeof MCP_LEGACY_PROTOCOLS[number] {

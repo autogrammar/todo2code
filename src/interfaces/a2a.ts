@@ -5,6 +5,7 @@ import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { pathToFileURL } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
+import { T2C_VERSION } from '../version.js';
 import { getConfig, loadEnvFile } from '../config/env.js';
 import { assertPathWithinRoot } from '../core/security.js';
 import { executeAction, type T2CAction } from '../services/actions.js';
@@ -99,7 +100,7 @@ interface TaskStoreSnapshot {
 
 const tasks = new Map<string, StoredTask>();
 const messageTaskIndex = new Map<string, string>();
-const ACTIONS: T2CAction[] = ['extract_nl', 'extract_git', 'extract_ast', 'extract_markdown', 'extract_docs', 'link', 'diagnose', 'summarize', 'diff', 'diff_files', 'diff_git', 'reality', 'pipeline'];
+const ACTIONS: T2CAction[] = ['extract_nl', 'extract_git', 'extract_ast', 'extract_markdown', 'extract_docs', 'link', 'diagnose', 'summarize', 'diff', 'diff_files', 'diff_git', 'reality', 'compare_workspace', 'pipeline'];
 const TERMINAL_STATES = new Set<A2ATaskState>([
   'TASK_STATE_COMPLETED',
   'TASK_STATE_FAILED',
@@ -245,7 +246,10 @@ interface IntentRunListItem {
   graphPath: string;
   summaryPath: string | null;
   warningCount: number;
-  llm: { documentationExtraction: boolean; summary: boolean } | null;
+  status: 'succeeded' | 'degraded' | null;
+  runtimeVersion: string | null;
+  stages: Record<string, unknown> | null;
+  llm: { naturalLanguageExtraction: boolean; documentationExtraction: boolean; summary: boolean } | null;
   graphBytes: number;
 }
 
@@ -288,6 +292,8 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
           : graphStat.mtime.toISOString();
         const files = isRecord(manifest.files) ? manifest.files : {};
         const llmValue = isRecord(manifest.llm) ? manifest.llm : null;
+        const runtimeValue = isRecord(manifest.runtime) ? manifest.runtime : null;
+        const stagesValue = isRecord(manifest.stages) ? manifest.stages : null;
         const warnings = Array.isArray(manifest.warnings) ? manifest.warnings : [];
         return {
           runId: typeof manifest.runId === 'string' ? manifest.runId : entry.name,
@@ -296,7 +302,11 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
           graphPath: relativeApiPath(config.root, graphPath),
           summaryPath: typeof files.summary === 'string' ? files.summary : null,
           warningCount: warnings.length,
+          status: manifest.status === 'succeeded' || manifest.status === 'degraded' ? manifest.status : null,
+          runtimeVersion: runtimeValue && typeof runtimeValue.version === 'string' ? runtimeValue.version : null,
+          stages: stagesValue,
           llm: llmValue ? {
+            naturalLanguageExtraction: llmValue.naturalLanguageExtraction === true,
             documentationExtraction: llmValue.documentationExtraction === true,
             summary: llmValue.summary === true,
           } : null,
@@ -879,7 +889,7 @@ function agentCard(config: T2CConfig): Record<string, unknown> {
   const card: Record<string, unknown> = {
     name: 'todo2code',
     description: 'Intent extraction, evidence graph, diagnostics and grounded team summaries for software repositories.',
-    version: '0.2.0',
+    version: T2C_VERSION,
     supportedInterfaces: [{ url: config.a2a.publicUrl, protocolBinding: 'JSONRPC', protocolVersion: '1.0' }],
     capabilities: { streaming: false, pushNotifications: false, extensions: [] },
     defaultInputModes: ['text/plain', 'application/json'],

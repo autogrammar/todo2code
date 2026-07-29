@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { extractNlIntent } from '../src/extractors/nl.js';
+import { extractNlIntentAudited, NlLlmRequiredError } from '../src/extractors/nl-llm.js';
 import { makeConfig } from './helpers.js';
 
 test('NL extractor produces deterministic non-LLM records', async () => {
@@ -15,4 +16,79 @@ test('NL extractor produces deterministic non-LLM records', async () => {
   assert.equal(first.records[0]?.metadata.llmUsed, false);
   assert.ok(first.records[0]?.statement.target.symbols.includes('executeContract'));
   assert.ok(first.records[0]?.statement.target.tickets.includes('T2C-14'));
+});
+
+test('deterministic NL fallback skips Markdown headings and recognizes comparison intent', async () => {
+  const config = makeConfig(process.cwd());
+  const result = await extractNlIntent({
+    root: process.cwd(),
+    sourcePath: 'TASK.md',
+    text: '# Acceptance evidence\n\n- Compare `origin/main` with the current workspace.\n',
+  }, config);
+  assert.equal(result.records.length, 1);
+  assert.equal(result.records[0]?.statement.action, 'analyze');
+  assert.equal(result.records[0]?.source.lines?.start, 3);
+});
+
+test('NL LLM extraction emits audited provenance and bounded DSL records', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.nlModel = 'qwen/test-nl';
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({
+    records: [{
+      kind: 'declared_intent', actor: 'system', action: 'validate', subject: null,
+      object: 'runtime contract', modality: 'required', polarity: 'positive', lifecycle: 'implemented',
+      confidence: 0.99, basis: ['explicit requirement'],
+      target: { paths: ['src/runtime.ts'], symbols: ['validateContract'], tickets: ['T2C-14'], versions: [] },
+      sourceLines: { start: 1, end: 9 }, text: 'System musi walidować kontrakt.',
+    }],
+  }) } }] }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  try {
+    const result = await extractNlIntentAudited({
+      root: process.cwd(), sourcePath: 'TASK.md', text: 'System musi walidować `validateContract` dla T2C-14.\n',
+    }, config, 'prefer-llm');
+    assert.equal(result.audit.status, 'succeeded');
+    assert.equal(result.audit.effectiveMode, 'llm');
+    assert.equal(result.audit.model, 'qwen/test-nl');
+    assert.equal(result.records[0]?.epistemic.class, 'llm_inference');
+    assert.equal(result.records[0]?.epistemic.confidence, 0.9);
+    assert.deepEqual(result.records[0]?.source.lines, { start: 1, end: 2 });
+    assert.equal(result.records[0]?.metadata.llmUsed, true);
+    assert.equal((result.records[0]?.metadata.generation as { runtimeVersion?: string }).runtimeVersion, '0.2.0');
+    assert.equal(result.records[0]?.lifecycle.status, 'proposed');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('NL LLM failure is explicit when deterministic fallback is used', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => { throw new DOMException('aborted', 'AbortError'); };
+  try {
+    const result = await extractNlIntentAudited({
+      root: process.cwd(), sourcePath: 'TASK.md', text: 'Dodać walidację dla T2C-14.',
+    }, config, 'prefer-llm');
+    assert.equal(result.audit.status, 'fallback');
+    assert.equal(result.audit.degraded, true);
+    assert.equal(result.audit.reason?.code, 'LLM_TIMEOUT');
+    assert.equal(result.records[0]?.metadata.llmUsed, false);
+    const generation = result.records[0]?.metadata.generation as { degraded?: boolean; fallbackReason?: string };
+    assert.equal(generation.degraded, true);
+    assert.equal(generation.fallbackReason, 'LLM_TIMEOUT');
+    assert.match(result.warnings.join('\n'), /deterministic fallback/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('require-llm rejects instead of silently falling back', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = null;
+  await assert.rejects(
+    () => extractNlIntentAudited({ root: process.cwd(), sourcePath: 'TASK.md', text: 'Dodać test.' }, config, 'require-llm'),
+    (error: unknown) => error instanceof NlLlmRequiredError && error.audit.reason?.code === 'LLM_NOT_CONFIGURED',
+  );
 });

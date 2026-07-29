@@ -2,7 +2,7 @@
 set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PORT="${T2C_A2A_PORT:-18787}"
-T2C_A2A_PORT="$PORT" T2C_A2A_PUBLIC_URL="http://127.0.0.1:$PORT/a2a" node "$PROJECT_ROOT/dist/src/interfaces/a2a.js" >/tmp/t2c-a2a.out 2>/tmp/t2c-a2a.err &
+T2C_NL_MODE=deterministic T2C_A2A_PORT="$PORT" T2C_A2A_PUBLIC_URL="http://127.0.0.1:$PORT/a2a" node "$PROJECT_ROOT/dist/src/interfaces/a2a.js" >/tmp/t2c-a2a.out 2>/tmp/t2c-a2a.err &
 PID=$!
 trap 'kill "$PID" 2>/dev/null || true' EXIT
 ready=false

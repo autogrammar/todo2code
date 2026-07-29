@@ -8,7 +8,7 @@ const ACTION_PATTERNS: Array<[IntentAction, RegExp]> = [
   ['document', /\b(document|docs|readme|changelog|udokumentowa(?:ć|c)|dokumentacj)/i],
   ['configure', /\b(configur|setup|ustawi(?:ć|c)|konfigur)/i],
   ['validate', /\b(validat|verify|check|walid|sprawdzi(?:ć|c)|zweryfikowa(?:ć|c))\b/i],
-  ['analyze', /\b(analy[sz]|inspect|scan|analiz|zbada(?:ć|c))\b/i],
+  ['analyze', /\b(analy[sz]|inspect|scan|compare|analiz|por[oó]wn|zbada(?:ć|c))\b/i],
   ['block', /\b(block|deny|prevent|zablokowa(?:ć|c)|zabroni(?:ć|c))\b/i],
   ['approve', /\b(approve|accept|zatwierdzi(?:ć|c)|zaakceptowa(?:ć|c))\b/i],
   ['add', /\b(add|create|implement|introduce|build|utworzy(?:ć|c)|doda(?:ć|c)|zaimplementowa(?:ć|c)|stworzy(?:ć|c)|zbudowa(?:ć|c))\b/i],
@@ -147,8 +147,8 @@ export function splitIntentLines(text: string): Array<{ text: string; line: numb
   const lines = text.split(/\r?\n/);
   for (let index = 0; index < lines.length; index += 1) {
     const raw = lines[index] ?? '';
+    if (/^\s{0,3}#{1,6}\s+/.test(raw)) continue;
     const cleaned = raw
-      .replace(/^\s{0,3}#{1,6}\s+/, '')
       .replace(/^\s*[-*+]\s+/, '')
       .replace(/^\s*\d+[.)]\s+/, '')
       .replace(/^\s*\[[ xX]\]\s+/, '')

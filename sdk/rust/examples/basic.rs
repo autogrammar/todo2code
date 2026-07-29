@@ -63,6 +63,13 @@ fn run() -> Result<(), todo2code::Error> {
         diff["svg"].as_str().unwrap_or_default().len()
     );
 
+    // 4. Optional origin/main -> local filesystem Intent comparison.
+    if env::var("T2C_COMPARE_WORKSPACE").ok().as_deref() == Some("1") {
+        let base = env::var("T2C_COMPARE_BASE").unwrap_or_else(|_| "origin/main".to_owned());
+        let comparison = client.compare_workspace(&json!({ "root": root, "base": base }))?;
+        println!("workspace trend: {}", comparison["trend"]["direction"]);
+    }
+
     println!("OK");
     Ok(())
 }

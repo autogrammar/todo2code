@@ -4,14 +4,17 @@
 
 ```mermaid
 flowchart LR
-    NL[NL / ticket] --> NLE[NL heuristic extractor]
+    NL[NL / ticket] --> NLO[Audited NL orchestrator]
+    NLO --> NLLM[OpenRouter structured extractor]
+    NLO --> NLE[Deterministic fallback]
     GIT[Last N commits] --> GE[Git extractor]
     CODE[TS JS Python tree] --> AE[AST extractors]
     TODO[TODO.md] --> ME[Markdown extractor]
     CHG[CHANGELOG.md] --> ME
     DOCS[README ADR MODULE docs] --> ORE[OpenRouter document extractor]
 
-    NLE --> DSL[Canonical t2c Intent DSL]
+    NLLM --> DSL[Canonical t2c Intent DSL]
+    NLE --> DSL
     GE --> DSL
     AE --> DSL
     ME --> DSL
@@ -24,16 +27,22 @@ flowchart LR
     DIAG --> SUM
     SUM --> REPORT[Grounded team report]
 
-    CLI --> NLE
+    CLI --> NLO
     MCP --> CLI
     A2A --> CLI
 ```
 
 ## Komponenty
 
-### `src/extractors/nl.ts`
+### `src/extractors/nl-llm.ts` i `src/extractors/nl.ts`
 
-Segmentuje linie i zdania, rozpoznaje modalność, negację, akcję, obiekt, ścieżki, symbole, tickety i wersje. Może użyć lokalnego klasyfikatora TensorFlow, lecz nigdy nie korzysta z OpenRouter.
+Orkiestrator LLM ma trzy jawne tryby: `deterministic`, `prefer-llm` i
+`require-llm`. Structured output jest normalizowany przez runtime, nie może
+podnieść lifecycle ponad `proposed` i zapisuje model oraz provenance. W
+`prefer-llm` błąd dostaje stabilny kod (`LLM_TIMEOUT`, `LLM_INVALID_MODEL`, …),
+a deterministyczny parser przejmuje operację z `degraded=true`. Sam `nl.ts`
+segmentuje tekst i rozpoznaje modalność, negację, akcję, obiekt oraz targets;
+może użyć lokalnego TensorFlow, lecz nie importuje OpenRouter.
 
 ### `src/extractors/git.ts`
 
@@ -63,6 +72,25 @@ Porównuje plany, claimy Git/CHANGELOG i fakty AST. Wynik nie zatwierdza pracy �
 
 Do OpenRouter trafia wyłącznie skompaktowany graf i diagnostyka. Surowy kod, diff i pełne dokumenty nie są wejściem summarizera.
 
+### `src/comparison/workspace.ts`
+
+Rozwiązuje bazę (`origin/main` lub dowolny ref) do SHA i tworzy prywatny,
+tymczasowy Git worktree. Ten sam `runPipeline` analizuje bazę oraz aktualny
+filesystem, więc porównanie uwzględnia lokalne commity, staged, unstaged i
+untracked bez modyfikowania katalogu użytkownika. Wynikiem jest diff grafów,
+dwie projekcje reality oraz trend pokrycia. Narracyjne podsumowania przebiegów
+bazowego i lokalnego są generowane deterministycznie; etap LLM summary jest
+jawnie oznaczony jako `skipped`, aby porównanie nie wykonywało dwóch kosztownych
+i semantycznie zbędnych zapytań. Worktree jest usuwany w `finally`.
+
+### Granice modułów
+
+`src/core` przechowuje wyłącznie modele, I/O, bezpieczeństwo i deterministyczne
+prymitywy. Ekstraktory nie zależą od interfejsów; pipeline składa ekstraktory i
+graf; `services/actions.ts` jest wspólną granicą CLI/MCP/A2A/SDK. Skrypt
+`verify-module-boundaries.mjs` odrzuca cykle i importy z `core` do wyższych
+warstw, a `verify-no-llm-imports.mjs` chroni deterministyczną część grafu.
+
 ### Trwałość tasków A2A
 
 `src/interfaces/a2a.ts` utrzymuje szybki store pamięciowy, a po ustawieniu
@@ -88,10 +116,10 @@ Rekord nie jest „prawdą” bez kontekstu epistemicznego:
 2. `plan` — TODO;
 3. `fact` — AST;
 4. `claim` — Git i CHANGELOG;
-5. `llm_inference` — interpretacja dokumentacji przez OpenRouter.
+5. `llm_inference` — interpretacja NL lub dokumentacji przez OpenRouter.
 
 System zachowuje różnicę między planem, twierdzeniem autora i stanem kodu. Relacja nie zmienia klasy epistemicznej rekordów.
 
 ## Determinizm
 
-Identyfikatory i fingerprint grafu bazują na SHA-256 stabilnie serializowanych danych. `observedAt` i timestamp runu mogą się zmieniać; treść rekordów dla tego samego wejścia pozostaje stabilna. TensorFlow jest opcjonalny, dlatego powtarzalność wymaga przypiętego modelu i słownika.
+Identyfikatory i fingerprint grafu bazują na SHA-256 stabilnie serializowanych danych. `observedAt` i timestamp runu mogą się zmieniać. Część deterministyczna jest powtarzalna; porównanie z `--docs-llm` oraz NL w trybie LLM zależą od odpowiedzi modelu, dlatego manifest zapisuje model, parametry, fingerprint konfiguracji i status każdego etapu. TensorFlow jest opcjonalny, dlatego jego powtarzalność wymaga przypiętego modelu i słownika.

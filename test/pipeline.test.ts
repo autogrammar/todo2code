@@ -35,12 +35,23 @@ test('Offline pipeline writes a complete run', async () => {
     outputDir: '.intent-test',
     gitCommitCount: 10,
     allowSummaryFallback: true,
+    nlMode: 'prefer-llm',
   }, config);
   assert.ok(await pathExists(result.graphPath));
   assert.ok(await pathExists(result.diagnosticsPath));
   assert.ok(await pathExists(result.summaryPath));
   assert.equal(result.manifest.llm.documentationExtraction, false);
+  assert.equal(result.manifest.llm.naturalLanguageExtraction, false);
   assert.equal(result.manifest.llm.summary, false);
+  assert.equal(result.manifest.status, 'degraded');
+  assert.equal(result.manifest.runtime.version, '0.2.0');
+  assert.equal(result.manifest.stages.naturalLanguageExtraction.status, 'fallback');
+  assert.equal(result.manifest.stages.naturalLanguageExtraction.reason?.code, 'LLM_NOT_CONFIGURED');
+  assert.equal(result.manifest.stages.documentationExtraction.status, 'skipped');
+  assert.equal(result.manifest.stages.summary.status, 'fallback');
+  assert.equal(result.manifest.configuration.llm.configured, false);
+  assert.ok(!JSON.stringify(result.manifest.configuration).includes('apiKey'));
+  assert.match(result.manifest.configuration.fingerprint, /^[a-f0-9]{64}$/);
   const graph = await readJson<IntentGraph>(result.graphPath);
   assert.ok(graph.records.some((record) => record.source.kind === 'nl'));
   assert.ok(graph.records.some((record) => record.source.kind === 'git'));

@@ -18,19 +18,20 @@ const A2AVersion = "1.0"
 
 // Action names accepted by the todo2code runtime.
 const (
-	ActionExtractNL       = "extract_nl"
-	ActionExtractGit      = "extract_git"
-	ActionExtractAST      = "extract_ast"
-	ActionExtractMarkdown = "extract_markdown"
-	ActionExtractDocs     = "extract_docs"
-	ActionLink            = "link"
-	ActionDiagnose        = "diagnose"
-	ActionSummarize       = "summarize"
-	ActionDiff            = "diff"
-	ActionDiffFiles       = "diff_files"
-	ActionDiffGit         = "diff_git"
-	ActionReality         = "reality"
-	ActionPipeline        = "pipeline"
+	ActionExtractNL        = "extract_nl"
+	ActionExtractGit       = "extract_git"
+	ActionExtractAST       = "extract_ast"
+	ActionExtractMarkdown  = "extract_markdown"
+	ActionExtractDocs      = "extract_docs"
+	ActionLink             = "link"
+	ActionDiagnose         = "diagnose"
+	ActionSummarize        = "summarize"
+	ActionDiff             = "diff"
+	ActionDiffFiles        = "diff_files"
+	ActionDiffGit          = "diff_git"
+	ActionReality          = "reality"
+	ActionCompareWorkspace = "compare_workspace"
+	ActionPipeline         = "pipeline"
 )
 
 // SourceLineRange is the 1-based inclusive line span a record was taken from.
@@ -454,6 +455,12 @@ func (c *Client) DiffFiles(ctx context.Context, before, after string, options ma
 	}
 	result := &DiffResult{}
 	return result, c.Call(ctx, ActionDiffFiles, input, result)
+}
+
+// CompareWorkspace compares a Git base ref with committed and uncommitted workspace intent.
+func (c *Client) CompareWorkspace(ctx context.Context, options map[string]any) (map[string]any, error) {
+	result := map[string]any{}
+	return result, c.Call(ctx, ActionCompareWorkspace, options, &result)
 }
 
 // Pipeline runs the full todo2code pipeline on the server.

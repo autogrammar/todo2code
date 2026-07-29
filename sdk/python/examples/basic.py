@@ -54,6 +54,11 @@ def main() -> int:
     git_diff = client.diff_git(root=root, revision="HEAD", includeSvg=True)
     print("git diff files:", len(git_diff.get("diffs", ())))
 
+    # 4. Optional origin/main -> local filesystem Intent comparison.
+    if os.environ.get("T2C_COMPARE_WORKSPACE") == "1":
+        comparison = client.compare_workspace(root=root, base=os.environ.get("T2C_COMPARE_BASE", "origin/main"))
+        print("workspace trend:", comparison.get("trend", {}).get("direction"))
+
     print("OK")
     return 0
 

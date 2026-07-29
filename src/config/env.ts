@@ -1,6 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pathExists } from '../core/io.js';
+import type { NlExtractionMode } from '../core/types.js';
+import { T2C_VERSION } from '../version.js';
 
 export interface T2CConfig {
   root: string;
@@ -18,10 +20,12 @@ export interface T2CConfig {
   tensorflowLabels: string[];
   documentPatterns: string[];
   documentExcludes: string[];
+  nlMode: NlExtractionMode;
   openRouter: {
     apiKey: string | null;
     baseUrl: string;
     model: string;
+    nlModel: string;
     documentModel: string;
     summaryModel: string;
     siteUrl: string | null;
@@ -108,6 +112,12 @@ function envList(name: string, fallback: string[]): string[] {
   return raw ? raw.split(',').map((value) => value.trim()).filter(Boolean) : fallback;
 }
 
+function envNlMode(name: string, fallback: NlExtractionMode): NlExtractionMode {
+  const value = envString(name, fallback).toLowerCase();
+  if (value === 'deterministic' || value === 'prefer-llm' || value === 'require-llm') return value;
+  throw new Error(`${name} must be deterministic, prefer-llm or require-llm`);
+}
+
 export function getConfig(cwd = process.cwd()): T2CConfig {
   const model = envString('OPENROUTER_MODEL', 'openrouter/auto-beta');
   const root = path.resolve(cwd, envString('T2C_ROOT', '.'));
@@ -127,10 +137,12 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     tensorflowLabels: envList('T2C_TF_LABELS', ['add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'unknown']),
     documentPatterns: envList('T2C_DOC_PATTERNS', ['README.md', 'docs/**/*.md', 'project/**/*.md', 'packages/**/MODULE.md']),
     documentExcludes: envList('T2C_DOC_EXCLUDES', ['node_modules/**', '.git/**', 'dist/**', '.intent/**', 'TODO.md', 'CHANGELOG.md']),
+    nlMode: envNlMode('T2C_NL_MODE', 'prefer-llm'),
     openRouter: {
       apiKey: envOptional('OPENROUTER_API_KEY'),
       baseUrl: envString('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1').replace(/\/$/, ''),
       model,
+      nlModel: envString('OPENROUTER_NL_MODEL', model),
       documentModel: envString('OPENROUTER_DOC_MODEL', model),
       summaryModel: envString('OPENROUTER_SUMMARY_MODEL', model),
       siteUrl: envOptional('OPENROUTER_SITE_URL'),
@@ -143,7 +155,7 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     },
     mcp: {
       serverName: envString('T2C_MCP_SERVER_NAME', 'todo2code'),
-      serverVersion: envString('T2C_MCP_SERVER_VERSION', '0.2.0'),
+      serverVersion: envString('T2C_MCP_SERVER_VERSION', T2C_VERSION),
     },
     a2a: {
       host: envString('T2C_A2A_HOST', '0.0.0.0'),

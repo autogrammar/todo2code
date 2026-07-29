@@ -82,7 +82,7 @@ export async function extractDocumentationIntent(options: DocumentationExtractio
           }),
         },
       ], 't2c_document_intent', documentResponseSchema(), config.openRouter.documentModel);
-      for (const raw of response.records ?? []) chunkRecords.push(toIntentRecord(raw, chunk));
+      for (const raw of response.records ?? []) chunkRecords.push(toIntentRecord(raw, chunk, config.openRouter.documentModel));
     } catch (error) {
       chunkWarnings.push(`${chunk.path}:${chunk.startLine}-${chunk.endLine}: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -116,7 +116,7 @@ async function mapConcurrent<T, R>(
   return results;
 }
 
-function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk): IntentRecord {
+function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk, model: string): IntentRecord {
   const start = clampLine(raw.sourceLines?.start ?? chunk.startLine, chunk.startLine, chunk.endLine);
   const end = clampLine(raw.sourceLines?.end ?? start, start, chunk.endLine);
   const action = allowedAction(raw.action) ? raw.action : 'unknown';
@@ -145,7 +145,7 @@ function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk): IntentRec
     confidence: Math.min(0.85, Math.max(0.05, Number(raw.confidence) || 0.5)),
     basis: [...new Set(['openrouter_structured_extraction', ...(raw.basis ?? [])])],
     metadata: {
-      model: 'configured-via-OPENROUTER_DOC_MODEL',
+      model,
       llmUsed: true,
       chunkStartLine: chunk.startLine,
       chunkEndLine: chunk.endLine,

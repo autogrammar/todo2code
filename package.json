@@ -1,7 +1,7 @@
 {
   "name": "todo2code",
   "version": "0.2.0",
-  "description": "todo2code (t2c): deterministic intent extraction, evidence graph, OpenRouter document extraction and team summaries, exposed through CLI, MCP and A2A.",
+  "description": "todo2code (t2c): audited NL/document intent extraction, evidence graphs, origin-to-workspace comparison and grounded summaries through CLI, MCP and A2A.",
   "type": "module",
   "private": true,
   "license": "MIT",
@@ -20,7 +20,8 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "node --test dist/test/*.test.js",
     "verify:no-llm": "node scripts/verify-no-llm-imports.mjs",
-    "verify": "npm run check && npm run verify:no-llm && npm run build && npm test",
+    "verify:modules": "node scripts/verify-module-boundaries.mjs",
+    "verify": "npm run check && npm run verify:no-llm && npm run verify:modules && npm run build && npm test",
     "start": "node dist/src/cli.js",
     "mcp": "node dist/src/interfaces/mcp.js",
     "a2a": "node dist/src/interfaces/a2a.js",

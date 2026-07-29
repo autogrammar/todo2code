@@ -70,6 +70,15 @@ try {
         PHP_EOL
     );
 
+    // 4. Optional origin/main -> local filesystem Intent comparison.
+    if (getenv('T2C_COMPARE_WORKSPACE') === '1') {
+        $comparison = $client->compareWorkspace([
+            'root' => $root,
+            'base' => getenv('T2C_COMPARE_BASE') ?: 'origin/main',
+        ]);
+        echo 'workspace trend: ' . ($comparison['trend']['direction'] ?? 'unknown') . PHP_EOL;
+    }
+
     echo 'OK' . PHP_EOL;
     exit(0);
 } catch (Error $error) {

@@ -14,7 +14,7 @@ Projekt działa na Node.js/TypeScript. Python i Go są używane wyłącznie jako
 
 | Etap | Mechanizm | LLM |
 |---|---|---:|
-| NL → DSL | reguły, słowniki, heurystyki; opcjonalny lokalny TensorFlow | nie |
+| NL → DSL | OpenRouter structured output; jawny fallback heurystyczny/TensorFlow | **tak, domyślnie preferowany** |
 | 10 commitów Git → DSL | `git log`, diff, heurystyki symboli | nie |
 | TypeScript/JavaScript/Python/Go AST → DSL | TypeScript Compiler API, Python `ast`, Go `go/ast` | nie |
 | TODO + CHANGELOG → DSL | deterministyczny parser Markdown | nie |
@@ -22,7 +22,8 @@ Projekt działa na Node.js/TypeScript. Python i Go są używane wyłącznie jako
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf DSL → raport NL | OpenRouter; wejściem jest tylko graf i diagnostyka | **tak** |
 
-Moduły deterministyczne nie importują klienta OpenRouter. Sprawdza to `npm run verify:no-llm`.
+Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
+`npm run verify:no-llm` oraz bezcykliczny graf modułów `npm run verify:modules`.
 
 ## Szybki start
 
@@ -35,10 +36,16 @@ npm run build
 node dist/src/cli.js doctor
 ```
 
-Pełny pipeline bez połączeń LLM:
+`make install` pomija opcjonalny TensorFlow i jest zalecaną ścieżką. Według
+audytu z 2026-07-29 instalacja core ma 0 podatności; `make install-tf` z
+`@tensorflow/tfjs-node@4.22.0` wnosi 8 zgłoszeń z zależności instalatora. Nie
+należy stosować sugerowanego `npm audit fix --force`, ponieważ proponuje
+niekompatybilny downgrade TensorFlow.
+
+Pełny pipeline bez połączeń LLM (również wtedy, gdy lokalny `.env` zawiera klucz):
 
 ```bash
-node dist/src/cli.js pipeline examples \
+T2C_NL_MODE=deterministic OPENROUTER_API_KEY= node dist/src/cli.js pipeline examples \
   --task task.md \
   --todo TODO.md \
   --changelog CHANGELOG.md \
@@ -52,6 +59,8 @@ Pełny pipeline z OpenRouter:
 ```bash
 # w .env:
 # OPENROUTER_API_KEY=...
+# T2C_NL_MODE=prefer-llm
+# OPENROUTER_NL_MODEL=qwen/qwen3.7-plus
 # OPENROUTER_DOC_MODEL=openrouter/auto-beta
 # OPENROUTER_SUMMARY_MODEL=openrouter/auto-beta
 
@@ -98,12 +107,60 @@ t2c diff --mode git . --rev HEAD --svg worktree.diff.svg
 t2c reality intent.graph.json --diagnostics diagnostics.json --svg reality.svg --md reality.md
 t2c summarize intent.graph.json --diagnostics diagnostics.json --out team-summary.md
 t2c watch [root] [--interval 60] [--scan-interval 2] [--no-initial-report]
+t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]
 t2c pipeline [root] --task TASK.md --todo TODO.md --changelog CHANGELOG.md
 t2c mcp
 t2c a2a
 ```
 
-`extract docs` i `summarize` wymagają `OPENROUTER_API_KEY`. Pipeline może działać bez klucza: dokumentacja LLM zostaje jawnie pominięta, a raport może użyć oznaczonego fallbacku deterministycznego.
+`extract nl`, `extract docs` i `summarize` mogą korzystać z OpenRouter. Dla NL
+`prefer-llm` jest trybem domyślnym: awaria daje oznaczony fallback; `require-llm`
+kończy operację błędem, a `deterministic` świadomie pomija sieć. Dokumentacja bez
+klucza jest pomijana, a raport może użyć oznaczonego fallbacku deterministycznego.
+
+## Origin vs bieżący workspace
+
+Porównanie nie wykonuje checkoutu w katalogu użytkownika. Runtime rozwiązuje bazę
+do pełnego SHA, tworzy prywatny tymczasowy Git worktree i uruchamia ten sam
+TypeScript pipeline na bazie oraz aktualnym filesystemie:
+
+```bash
+node dist/src/cli.js compare-workspace . --base origin/main --out .intent
+```
+
+Stan workspace obejmuje lokalne commity, indeks, zmiany unstaged i pliki
+untracked. Wynik `t2c.workspace-comparison/v1` zawiera `ahead`/`behind`, listę
+zmienionych plików, diff rekordów i relacji oraz zmianę metryk Intent vs Reality:
+pełne `alignmentRate`, pokrycie deklarowanej intencji implementacją, udział kodu
+posiadającego plan i dokumentację, `gaps` oraz liczniki diagnostyk. Trend może być
+`improved`, `regressed`, `mixed` albo `unchanged`. Artefakty trafiają do:
+
+```text
+.intent/comparisons/<comparison-id>/
+├── comparison.json
+├── trend.md
+├── intent-diff.svg
+├── base.graph.json
+├── workspace.graph.json
+├── base-reality.md
+├── workspace-reality.md
+└── workspace-reality.svg
+```
+
+Narracyjne podsumowania obu przebiegów są zawsze deterministyczne i nie wykonują
+zbędnych zapytań LLM. Dokumentacja LLM po obu stronach jest opcjonalna, ponieważ
+podwaja liczbę zapytań i może wprowadzać niedeterministyczny szum. Jeśli podano
+`--task`, ekstrakcja NL respektuje `T2C_NL_MODE` i jest osobno audytowana:
+
+```bash
+t2c compare-workspace . --base origin/main --docs-llm \
+  --docs 'README.md,docs/**/*.md,.intent/runs/<run-id>/team-summary.md' \
+  --doc-excludes 'node_modules/**,.git/**,dist/**,TODO.md,CHANGELOG.md'
+```
+
+Usunięcie `.intent/**` z `--doc-excludes` jest wymagane tylko dla jawnie
+wskazanego historycznego raportu. Nie należy używać szerokiego `.intent/**/*.md`,
+bo bieżące raporty zaczęłyby zasilać kolejne runy.
 
 ## Tryb obserwowania
 
@@ -173,6 +230,12 @@ buildu, więc wykluczenie zagnieżdżonej kopii jest zamierzone.
 
 Każdy rekord zawiera identyfikator, statement, lifecycle, dokładne źródło, hash treści, klasę epistemiczną, confidence i podstawy wnioskowania. Fakty AST mają confidence `1.0`; rekordy z dokumentacji LLM są oznaczone jako `llm_inference` i mają confidence maksymalnie `0.85`.
 
+`manifest.json` zapisuje również `runtime.version`, bezpieczny snapshot i
+fingerprint konfiguracji oraz statusy `naturalLanguageExtraction`,
+`documentationExtraction` i `summary`. Status runu `degraded` jest pokazywany
+w CLI, `GET /api/runs` i UI. Parametry obejmują modele, timeout, temperaturę,
+limit tokenów i tryb structured output; klucz API nigdy nie jest zapisywany.
+
 ## MCP
 
 Uruchomienie serwera stdio:
@@ -198,7 +261,7 @@ Przykładowa konfiguracja hosta MCP:
 }
 ```
 
-Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `summarize`, `pipeline`. Serwer udostępnia też zasoby `t2c://latest/*`.
+Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`. Serwer udostępnia też zasoby `t2c://latest/*`.
 
 ## Diff DSL, SVG i SDK
 
@@ -228,6 +291,7 @@ console.log(result.diff.summary, result.svg);
 
 const files = await client.diffTextFiles('before.ts', 'after.ts', { includeHtml: true });
 const reality = await client.reality(afterGraph);
+const comparison = await client.compareWorkspace({ root: '.', base: 'origin/main' });
 ```
 
 SDK Python nie ma zewnętrznych zależności:
@@ -241,6 +305,7 @@ print(result["diff"]["summary"])
 
 files = client.diff_text_files("before.ts", "after.ts", include_html=True)
 reality = client.reality(after_graph)
+comparison = client.compare_workspace(root=".", base="origin/main")
 ```
 
 Można go także zainstalować przez `python3 -m pip install ./sdk/python` i importować jako `todo2code_sdk`.
@@ -348,7 +413,10 @@ ograniczeniom `T2C_ROOT` co pozostałe operacje runtime'u.
 
 ## OpenRouter
 
-Runtime używa `POST /api/v1/chat/completions`. Ekstraktor dokumentacji prosi o `response_format: json_schema`, wymusza `provider.require_parameters`, a przy braku wsparcia endpointu próbuje kontrolowanego fallbacku `json_object`. Opcjonalny plugin `response-healing` jest sterowany przez `.env`.
+Runtime używa `POST /api/v1/chat/completions`. Ekstraktory NL i dokumentacji
+proszą o `response_format: json_schema`, wymuszają `provider.require_parameters`,
+a przy braku wsparcia endpointu próbują kontrolowanego fallbacku `json_object`.
+Opcjonalny plugin `response-healing` jest sterowany przez `.env`.
 
 Klucz nie jest zapisywany do artefaktów, logów ani odpowiedzi MCP/A2A. `doctor` pokazuje jedynie status `configured/not configured`.
 

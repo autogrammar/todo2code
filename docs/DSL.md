@@ -64,7 +64,24 @@
 - `fact` jest zarezerwowany dla obserwacji deterministycznych.
 - Commit message i changelog są `claim`, nawet gdy brzmią jak zakończona praca.
 - Rekord z dokumentacji LLM nie może przekroczyć confidence `0.85`.
+- Rekord NL z LLM nie może przekroczyć confidence `0.9`, a runtime wymusza lifecycle `proposed` niezależnie od odpowiedzi modelu.
+- `metadata.generation` wskazuje `requested`, faktycznie `used`, `degraded`, `fallbackReason`, wersję runtime i — dla LLM — model.
 - Brak pola pozostaje brakiem; system nie tworzy ukrytego faktu.
+
+## Audyt runu (`t2c.run/v1`)
+
+Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:
+
+- `status: succeeded|degraded`;
+- `runtime.name` i `runtime.version`;
+- bezpieczny `configuration` bez tokenów i kluczy oraz jego SHA-256 fingerprint;
+- statusy etapów NL, dokumentacji i podsumowania: `succeeded`, `partial`,
+  `fallback`, `failed` albo `skipped`;
+- requested/effective mode, model, czas, liczbę rekordów/ostrzeżeń i strukturalny
+  powód degradacji.
+
+Historyczne manifesty sprzed rozszerzenia nadal są czytane przez API; UI oznacza
+ich status jako `legacy`.
 
 ## Diff grafów (`t2c.diff/v1`)
 
@@ -79,3 +96,10 @@ Deterministyczny algorytm Myersa porównuje linie bez LLM i zwraca hunki z numer
 ## Intent vs reality (`t2c.reality/v1`)
 
 Widok zestawia źródła deklaratywne (`nl`, `todo`, `document`) z dowodami wykonania (`git`, `ast`) i changelogiem. Każdy temat ma jawne liczniki per źródło oraz status, m.in. `aligned`, `planned_not_implemented`, `implemented_not_planned`, `implemented_not_documented` lub `conflicting`. SVG i Markdown są projekcjami tego samego deterministycznego modelu.
+
+## Origin vs workspace (`t2c.workspace-comparison/v1`)
+
+Format wiąże pełny SHA bazy z HEAD i stanem roboczym, przechowuje `ahead`,
+`behind`, listę plików zmienionych przed analizą, pełny `t2c.diff/v1` oraz
+metryki pokrycia obu stron. `trend.direction` jest `improved`, `regressed` lub
+`unchanged` na podstawie zmiany współczynnika aligned/topics i liczby gaps.

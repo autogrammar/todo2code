@@ -12,20 +12,31 @@
 - Gitignore-compatible ignore-file support (`src/core/ignore.ts`) reading `.gitignore`, `.dockerignore` and `.intentignore` in that precedence order, with negation, directory-only rules, `**` and character classes.
 - `.intentignore`, seeded by `t2c init`, excluding every dot-directory (`.*/`), the `.intent/` output tree, build output, lockfiles, logs and temporary artefacts.
 - Optional persistent A2A task store with atomic snapshots, inter-process locking, restart recovery and cross-replica idempotency, configured through `T2C_A2A_TASK_STORE`.
+- Audited NL → Intent DSL extraction through OpenRouter with `deterministic`, `prefer-llm` and `require-llm` modes. Every record identifies LLM or fallback provenance, while failures use stable reason codes instead of silently changing semantics.
+- `t2c compare-workspace` and `compare_workspace` MCP/A2A/SDK action for comparing a Git base such as `origin/main` with committed, staged, unstaged and untracked filesystem state. It emits graph diff SVG, two reality projections and deterministic coverage-trend metrics.
+- Run-manifest execution audit containing runtime version, redacted configuration fingerprint, requested models and per-stage status, duration, record/warning counts and degradation reason.
+- Module-boundary verification for dependency cycles and independence of `src/core`, executed by `npm run verify`.
 
 ### Changed
 
 - The history UI uses compact graph diffs, reducing the measured response for the two repository runs from 38.71 MiB to 13.71 KiB.
+- NL extraction defaults to `prefer-llm`: configured OpenRouter is primary and the deterministic parser is an explicitly marked degraded fallback. `require-llm` fails instead of falling back.
+- All five SDKs expose workspace comparison, and their examples cover the optional origin-to-filesystem flow.
+- Run history and the SVG UI expose `succeeded`/`degraded` status and runtime version.
+- Workspace comparison classifies simultaneous coverage gains and new gaps as a `mixed` trend and uses deterministic summaries for both sides, avoiding two unnecessary OpenRouter calls.
 
 ### Fixed
 
 - A repository with no commits yet no longer aborts the run. `git log` fails on a freshly initialised repository — the state `t2c init` leaves behind and the first one `t2c watch` encounters — so the Git extractor now degrades to a warning like every other absent source.
 - The SVG diff UI now selects the previous and latest run by default, displays both history selectors and computes their comparison automatically.
+- Explicitly requested `.intent/runs/<id>/team-summary.md` files can be analyzed as documentation without permitting recursive ingestion of generated `.intent` output.
+- Offline A2A/MCP probes now override local LLM/version settings so validation remains deterministic and checks the current runtime version.
 
 ### Documentation
 
 - Documented the direct-to-`main` GitHub workflow and the repository-wide prohibition on pull requests.
 - Verified Intent vs Reality against a fresh project graph and documented both remote and local Python runtime modes.
+- Documented the clean core dependency audit and the unresolved advisory chain in optional `@tensorflow/tfjs-node`; the unsafe `npm audit fix --force` downgrade is explicitly rejected.
 
 ## [0.2.0] - 2026-07-29
 

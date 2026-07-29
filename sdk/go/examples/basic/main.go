@@ -84,6 +84,15 @@ func run() error {
 	}
 	fmt.Printf("git diff files: %d, svg bytes: %d\n", len(diff.Diffs), len(diff.SVG))
 
+	// 4. Optional origin/main -> local filesystem Intent comparison.
+	if os.Getenv("T2C_COMPARE_WORKSPACE") == "1" {
+		comparison, compareErr := client.CompareWorkspace(ctx, map[string]any{"root": root, "base": envOr("T2C_COMPARE_BASE", "origin/main")})
+		if compareErr != nil {
+			return fmt.Errorf("compare_workspace: %w", compareErr)
+		}
+		fmt.Println("workspace trend:", comparison["trend"])
+	}
+
 	fmt.Println("OK")
 	return nil
 }

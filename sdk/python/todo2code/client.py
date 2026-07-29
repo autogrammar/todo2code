@@ -24,6 +24,7 @@ ACTIONS = (
     "diff_files",
     "diff_git",
     "reality",
+    "compare_workspace",
     "pipeline",
 )
 
@@ -242,6 +243,10 @@ class T2CClient:
                 if "data" in part:
                     return part["data"]
         raise T2CError(f"Task {task.get('id')} returned no JSON artifact", -32001, task)
+
+    def compare_workspace(self, **options: Any) -> Mapping[str, Any]:
+        """Compares a Git base ref with committed and uncommitted workspace intent."""
+        return self.call("compare_workspace", options)
 
     def get_task(self, task_id: str, *, history_length: int | None = None, include_artifacts: bool = False) -> Mapping[str, Any]:
         params: dict[str, Any] = {"taskId": task_id, "includeArtifacts": include_artifacts}

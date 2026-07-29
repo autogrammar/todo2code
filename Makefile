@@ -13,7 +13,7 @@ OUT ?= .intent
 PACKAGE ?= todo2code.zip
 PYTHON_WHEEL_DIR ?= .intent-packages/python
 
-.PHONY: help setup install install-tf build check test verify verify-no-llm smoke doctor mcp-probe a2a-probe protocol-smoke validate demo pipeline mcp a2a docker-build docker-up docker-down python-wheel package clean
+.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules smoke doctor mcp-probe a2a-probe protocol-smoke validate demo pipeline compare-workspace mcp a2a docker-build docker-up docker-down python-wheel package clean
 
 help: ## Pokaż dostępne cele
 	@awk 'BEGIN {FS = ":.*## "; printf "todo2code targets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -40,6 +40,9 @@ test: build ## Uruchom testy Node
 verify-no-llm: ## Sprawdź granicę importów LLM
 	$(NPM) run verify:no-llm
 
+verify-modules: ## Sprawdź cykle importów i niezależność warstwy core
+	$(NPM) run verify:modules
+
 verify: ## Typy, granica LLM, build i testy
 	$(NPM) run verify
 
@@ -64,6 +67,9 @@ demo: build ## Przeanalizuj katalog examples bez OpenRouter
 
 pipeline: build ## Uruchom pipeline; parametry ROOT/TASK/TODO/CHANGELOG/DOCS/OUT
 	$(NODE) dist/src/cli.js pipeline "$(ROOT)" --task "$(TASK)" --todo "$(TODO)" --changelog "$(CHANGELOG)" --docs "$(DOCS)" --out "$(OUT)"
+
+compare-workspace: build ## Porównaj intencje origin/main z bieżącym filesystemem
+	$(NODE) dist/src/cli.js compare-workspace "$(ROOT)" --base "$${BASE_REF:-origin/main}" --out "$(OUT)"
 
 mcp: build ## Uruchom serwer MCP stdio
 	$(NODE) dist/src/interfaces/mcp.js

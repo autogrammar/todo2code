@@ -28,6 +28,7 @@ final class Client
         'diff_files',
         'diff_git',
         'reality',
+        'compare_workspace',
         'pipeline',
     ];
 
@@ -235,6 +236,15 @@ final class Client
             'afterGraph' => $after,
             'includeSvg' => $includeSvg,
         ]);
+    }
+
+    /**
+     * @param array<string,mixed> $options
+     * @return array<string,mixed>
+     */
+    public function compareWorkspace(array $options = []): array
+    {
+        return $this->call('compare_workspace', $options);
     }
 
     /**

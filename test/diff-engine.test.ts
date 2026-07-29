@@ -178,6 +178,9 @@ test('A topic holding declared and observed records is never reported as planned
   assert.ok(row, 'expected a topic for src/shared.ts');
   assert.equal(row?.lanes.todo, 1);
   assert.equal(row?.lanes.ast, 1);
+  assert.equal(view.totals.implementationCoverage, 1);
+  assert.equal(view.totals.plannedCodeCoverage, 1);
+  assert.equal(view.totals.documentedCodeCoverage, 0);
   assert.notEqual(row?.status, 'planned_not_implemented');
   assert.notEqual(row?.status, 'implemented_not_planned');
 });

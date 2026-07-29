@@ -47,6 +47,7 @@ pub mod action {
     pub const DIFF_FILES: &str = "diff_files";
     pub const DIFF_GIT: &str = "diff_git";
     pub const REALITY: &str = "reality";
+    pub const COMPARE_WORKSPACE: &str = "compare_workspace";
     pub const PIPELINE: &str = "pipeline";
 }
 
@@ -359,6 +360,11 @@ impl Client {
     /// Compares two intent graphs.
     pub fn diff_graphs(&self, before: &Value, after: &Value, include_svg: bool) -> Result<Value, Error> {
         self.call(action::DIFF, &json!({ "beforeGraph": before, "afterGraph": after, "includeSvg": include_svg }))
+    }
+
+    /// Compares a Git base ref with committed and uncommitted workspace intent.
+    pub fn compare_workspace(&self, options: &Value) -> Result<Value, Error> {
+        self.call(action::COMPARE_WORKSPACE, options)
     }
 
     /// Runs the full todo2code pipeline on the server.

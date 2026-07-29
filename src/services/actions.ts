@@ -1,8 +1,9 @@
 import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
+import { compareWorkspaceIntent } from '../comparison/workspace.js';
 import { readJson, readJsonl, readText } from '../core/io.js';
 import { assertPathWithinRoot } from '../core/security.js';
-import type { DiagnosticReport, IntentGraph, IntentRecord, PipelineOptions } from '../core/types.js';
+import type { DiagnosticReport, IntentGraph, IntentRecord, NlExtractionMode, PipelineOptions } from '../core/types.js';
 import { collectGitDiff } from '../diff/git.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from '../diff/reality.js';
 import {
@@ -16,7 +17,7 @@ import { extractAstIntent } from '../extractors/ast.js';
 import { extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntent } from '../extractors/markdown.js';
-import { extractNlIntent } from '../extractors/nl.js';
+import { extractNlIntentAudited } from '../extractors/nl-llm.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
 import { linkIntentRecords } from '../graph/linker.js';
@@ -36,7 +37,8 @@ export type T2CAction =
   | 'diff_files'
   | 'diff_git'
   | 'reality'
-  | 'pipeline';
+  | 'pipeline'
+  | 'compare_workspace';
 
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
   const root = await resolveRoot(input.root, config);
@@ -44,7 +46,11 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
     case 'extract_nl': {
       const file = await scopedPath(input.file, 'TASK.md', root, config);
       const text = typeof input.text === 'string' ? input.text : undefined;
-      return extractNlIntent({ root, sourcePath: file, ...(text !== undefined ? { text } : {}) }, config);
+      return extractNlIntentAudited(
+        { root, sourcePath: file, ...(text !== undefined ? { text } : {}) },
+        config,
+        nlModeValue(input.nlMode, config.nlMode),
+      );
     }
     case 'extract_git':
       return extractGitIntent({ root, count: numberValue(input.count, config.gitCommitCount, 1, 100) }, config);
@@ -148,6 +154,19 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
           : {}),
       };
     }
+    case 'compare_workspace':
+      return compareWorkspaceIntent({
+        root,
+        baseRef: stringValue(input.base, 'origin/main'),
+        taskFile: nullableString(input.task, null),
+        todoFile: nullableString(input.todo, 'TODO.md'),
+        changelogFile: nullableString(input.changelog, 'CHANGELOG.md'),
+        documentPatterns: stringList(input.docs, config.documentPatterns),
+        documentExcludes: stringList(input.docExcludes, config.documentExcludes),
+        includeDocumentationLlm: booleanValue(input.includeDocsLlm, false),
+        outputDir: stringValue(input.output, config.outputDir),
+        gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
+      }, config);
     case 'pipeline': {
       const options: PipelineOptions = {
         root,
@@ -159,10 +178,18 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         outputDir: await scopedPath(input.output, config.outputDir, root, config),
         gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
         allowSummaryFallback: booleanValue(input.summaryFallback, true),
+        nlMode: nlModeValue(input.nlMode, config.nlMode),
+        documentExcludes: stringList(input.docExcludes, config.documentExcludes),
       };
       return runPipeline(options, config);
     }
   }
+}
+
+function nlModeValue(value: unknown, fallback: NlExtractionMode): NlExtractionMode {
+  if (value === undefined) return fallback;
+  if (value === 'deterministic' || value === 'prefer-llm' || value === 'require-llm') return value;
+  throw new Error('nlMode must be deterministic, prefer-llm or require-llm');
 }
 
 function withTextDiffViews(diffs: FileDiff[], input: Record<string, unknown>): Record<string, unknown> {

@@ -62,6 +62,12 @@ export interface IntentRealityView {
     byStatus: Record<string, number>;
     declaredRecords: number;
     observedRecords: number;
+    declaredTopics: number;
+    observedTopics: number;
+    implementationAlignedTopics: number;
+    implementationCoverage: number;
+    plannedCodeCoverage: number;
+    documentedCodeCoverage: number;
   };
 }
 
@@ -159,6 +165,14 @@ export function buildRealityView(
   const declaredRecords = graph.records.filter((record) => DECLARED_KINDS.includes(record.source.kind)).length;
   const observedRecords = graph.records.filter((record) => OBSERVED_KINDS.includes(record.source.kind)).length;
   const aligned = rows.filter((row) => row.status === 'aligned').length;
+  const declaredTopics = rows.filter((row) => DECLARED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
+  const observedTopics = rows.filter((row) => OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
+  const implementationAlignedTopics = rows.filter((row) =>
+    DECLARED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)
+    && OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
+  const documentedObservedTopics = rows.filter((row) =>
+    (row.lanes.document ?? 0) > 0
+    && OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
 
   return {
     schemaVersion: 't2c.reality/v1',
@@ -173,8 +187,18 @@ export function buildRealityView(
       byStatus: Object.fromEntries(Object.entries(byStatus).sort(([a], [b]) => a.localeCompare(b))),
       declaredRecords,
       observedRecords,
+      declaredTopics,
+      observedTopics,
+      implementationAlignedTopics,
+      implementationCoverage: ratio(implementationAlignedTopics, declaredTopics),
+      plannedCodeCoverage: ratio(implementationAlignedTopics, observedTopics),
+      documentedCodeCoverage: ratio(documentedObservedTopics, observedTopics),
     },
   };
+}
+
+function ratio(numerator: number, denominator: number): number {
+  return denominator === 0 ? 1 : Math.round((numerator / denominator) * 10_000) / 10_000;
 }
 
 /**
@@ -379,6 +403,7 @@ export function renderRealityMarkdown(view: IntentRealityView, maxRows = 40): st
     `- Graph: \`${view.graphFingerprint.slice(0, 16)}\``,
     `- Topics: ${view.totals.topics} (aligned ${view.totals.aligned}, divergent ${view.totals.gaps})`,
     `- Declared records: ${view.totals.declaredRecords}, observed records: ${view.totals.observedRecords}`,
+    `- Implementation coverage: ${(view.totals.implementationCoverage * 100).toFixed(1)}% of declared topics; planned code: ${(view.totals.plannedCodeCoverage * 100).toFixed(1)}%; documented code: ${(view.totals.documentedCodeCoverage * 100).toFixed(1)}%`,
     '',
     `| Topic | ${LANE_ORDER.map((kind) => kind.toUpperCase()).join(' | ')} | Status |`,
     `|---|${LANE_ORDER.map(() => '--:').join('|')}|---|`,

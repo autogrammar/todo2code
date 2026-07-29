@@ -88,7 +88,7 @@ export type T2CAction =
   | 'extract_nl' | 'extract_git' | 'extract_ast' | 'extract_markdown' | 'extract_docs'
   | 'link' | 'diagnose' | 'summarize'
   | 'diff' | 'diff_files' | 'diff_git' | 'reality'
-  | 'pipeline';
+  | 'compare_workspace' | 'pipeline';
 
 export interface A2APart {
   text?: string;
@@ -226,6 +226,10 @@ export class T2CClient {
 
   summarize(graph: IntentGraph, diagnostics?: DiagnosticReport, fallback = false): Promise<{ markdown: string; llmUsed: boolean; warnings: string[] }> {
     return this.call('summarize', { graph, ...(diagnostics ? { diagnostics } : {}), fallback });
+  }
+
+  compareWorkspace(options: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+    return this.call('compare_workspace', options);
   }
 
   /** Compares two intent graphs and returns t2c.diff/v1 plus an SVG. */

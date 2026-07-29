@@ -225,6 +225,22 @@ export interface ExtractionResult {
   warnings: string[];
 }
 
+export type NlExtractionMode = 'deterministic' | 'prefer-llm' | 'require-llm';
+
+export type PipelineStageStatus = 'succeeded' | 'partial' | 'fallback' | 'failed' | 'skipped';
+
+export interface PipelineStageAudit {
+  status: PipelineStageStatus;
+  requestedMode: 'deterministic' | 'llm' | 'disabled';
+  effectiveMode: 'deterministic' | 'llm' | 'none';
+  degraded: boolean;
+  recordCount: number;
+  warningCount: number;
+  model: string | null;
+  durationMs: number;
+  reason: { code: string; message: string } | null;
+}
+
 export interface PipelineOptions {
   root: string;
   taskFile: string | null;
@@ -235,6 +251,9 @@ export interface PipelineOptions {
   outputDir: string;
   gitCommitCount: number;
   allowSummaryFallback: boolean;
+  includeSummaryLlm?: boolean;
+  nlMode?: NlExtractionMode;
+  documentExcludes?: string[];
 }
 
 export interface PipelineManifest {
@@ -245,7 +264,40 @@ export interface PipelineManifest {
   graphFingerprint: string;
   files: Record<string, string>;
   warnings: string[];
+  status: 'succeeded' | 'degraded';
+  runtime: {
+    name: 'todo2code';
+    version: string;
+  };
+  configuration: {
+    fingerprint: string;
+    nlMode: NlExtractionMode;
+    gitCommitCount: number;
+    maxFileBytes: number;
+    documentConcurrency: number;
+    summaryLlm: boolean;
+    documentPatterns: string[];
+    documentExcludes: string[];
+    llm: {
+      configured: boolean;
+      baseUrl: string;
+      nlModel: string;
+      documentModel: string;
+      summaryModel: string;
+      timeoutMs: number;
+      maxTokens: number;
+      temperature: number;
+      requireStructuredOutput: boolean;
+      responseHealing: boolean;
+    };
+  };
+  stages: {
+    naturalLanguageExtraction: PipelineStageAudit;
+    documentationExtraction: PipelineStageAudit;
+    summary: PipelineStageAudit;
+  };
   llm: {
+    naturalLanguageExtraction: boolean;
     documentationExtraction: boolean;
     summary: boolean;
   };

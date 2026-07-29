@@ -134,12 +134,23 @@ export function matchesAnyGlob(relativePath: string, patterns: string[]): boolea
 
 export async function resolveGlobs(root: string, includes: string[], excludes: string[] = []): Promise<string[]> {
   const files = await walkFiles(root, { maxFiles: 50_000 });
-  return files
+  const directFiles: string[] = [];
+  for (const include of includes) {
+    if (/[*?\[{]/.test(include)) continue;
+    const absolute = path.resolve(root, include);
+    const relative = path.relative(root, absolute).replace(/\\/g, '/');
+    if (!relative || relative.startsWith('../') || path.isAbsolute(relative) || matchesAnyGlob(relative, excludes)) continue;
+    try {
+      if ((await fs.stat(absolute)).isFile()) directFiles.push(absolute);
+    } catch {
+      // A missing explicit document behaves like an unmatched glob.
+    }
+  }
+  return [...new Set([...files
     .filter((file) => {
       const relative = path.relative(root, file).replace(/\\/g, '/');
       return matchesAnyGlob(relative, includes) && !matchesAnyGlob(relative, excludes);
-    })
-    .sort();
+    }), ...directFiles])].sort();
 }
 
 export function relativePosix(root: string, filePath: string): string {

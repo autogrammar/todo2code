@@ -14,6 +14,7 @@ export interface SummaryResult {
 
 export interface SummaryOptions {
   allowDeterministicFallback: boolean;
+  preferLlm?: boolean;
 }
 
 export async function summarizeGraph(
@@ -22,6 +23,17 @@ export async function summarizeGraph(
   config: T2CConfig,
   options: SummaryOptions,
 ): Promise<SummaryResult> {
+  if (options.preferLlm === false) {
+    return {
+      markdown: deterministicSummary(
+        graph,
+        diagnostics,
+        'Wygenerowano deterministycznie, ponieważ etap podsumowania LLM został świadomie wyłączony dla tego przebiegu.',
+      ),
+      llmUsed: false,
+      warnings: [],
+    };
+  }
   const client = new OpenRouterClient(config.openRouter);
   if (!client.isConfigured()) {
     if (!options.allowDeterministicFallback) throw new Error('OPENROUTER_API_KEY is required for Intent DSL -> NL summarization');
@@ -124,7 +136,11 @@ function compactRecord(record: IntentRecord): Record<string, unknown> {
   };
 }
 
-function deterministicSummary(graph: IntentGraph, diagnostics: DiagnosticReport): string {
+function deterministicSummary(
+  graph: IntentGraph,
+  diagnostics: DiagnosticReport,
+  provenance = 'Wygenerowano deterministycznie, ponieważ podsumowanie OpenRouter nie było dostępne.',
+): string {
   const plans = graph.records.filter((record) => ['nl', 'todo', 'document'].includes(record.source.kind));
   const git = graph.records.filter((record) => record.source.kind === 'git');
   const facts = graph.records.filter((record) => record.source.kind === 'ast' && ['symbol_fact', 'python_symbol_fact'].includes(record.statement.kind));
@@ -133,7 +149,7 @@ function deterministicSummary(graph: IntentGraph, diagnostics: DiagnosticReport)
   const lines: string[] = [
     '# Podsumowanie todo2code',
     '',
-    '> Wygenerowano deterministycznie, ponieważ podsumowanie OpenRouter nie było dostępne. Rekordy LLM z dokumentacji, jeśli istnieją w grafie, pozostają oznaczone jako `llm_inference`.',
+    `> ${provenance} Rekordy LLM z dokumentacji, jeśli istnieją w grafie, pozostają oznaczone jako \`llm_inference\`.`,
     '',
     '## Cel',
     '',

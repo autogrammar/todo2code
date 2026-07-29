@@ -2,17 +2,18 @@
 
 ## OpenRouter
 
-`todo2code` korzysta z OpenRouter wyłącznie w dwóch jawnych modułach:
+`todo2code` korzysta z OpenRouter wyłącznie w trzech jawnych etapach:
 
-1. dokumentacja → Intent DSL;
-2. graf Intent DSL + diagnostyka → raport NL.
+1. NL → Intent DSL (`prefer-llm` lub `require-llm`);
+2. dokumentacja → Intent DSL;
+3. graf Intent DSL + diagnostyka → raport NL.
 
 Klient używa:
 
 - endpointu `${OPENROUTER_BASE_URL}/chat/completions`;
 - `Authorization: Bearer ...`;
 - nagłówków identyfikacji aplikacji `HTTP-Referer` oraz `X-OpenRouter-Title`;
-- `response_format.type = "json_schema"` i `strict = true` dla dokumentacji → DSL;
+- `response_format.type = "json_schema"` i `strict = true` dla NL/dokumentacji → DSL;
 - `provider.require_parameters = true`, aby preferować endpointy obsługujące structured outputs;
 - kontrolowanego fallbacku do `json_object`, gdy endpoint odrzuci `json_schema`;
 - opcjonalnego pluginu `response-healing` dla odpowiedzi niestrumieniowanych;
@@ -48,7 +49,11 @@ Ten sam proces obsługuje także handshake `initialize` dla hostów używającyc
 
 Po `initialize` dostępne są `ping`, `tools/list`, `tools/call`, `resources/list` i `resources/read`. Żądanie legacy przed handshake jest odrzucane. Profil nowoczesny pozostaje bezstanowy; tylko ścieżka legacy utrzymuje stan negocjacji procesu stdio.
 
-Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `summarize`, `pipeline`.
+Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`.
+
+`extract_nl` przyjmuje `nlMode`, a `pipeline` dodatkowo `docExcludes`.
+`compare_workspace` przyjmuje `base` (domyślnie `origin/main`) i zwraca
+`t2c.workspace-comparison/v1` wraz ze ścieżkami artefaktów SVG/Markdown.
 
 ## A2A v1.0
 

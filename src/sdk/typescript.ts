@@ -105,6 +105,10 @@ export class Todo2CodeClient {
     return this.run<RealityResult>('reality', { graph, ...options });
   }
 
+  async compareWorkspace(options: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+    return this.run<Record<string, unknown>>('compare_workspace', options);
+  }
+
   async run<T = unknown>(action: T2CAction, input: Record<string, unknown> = {}): Promise<T> {
     return this.client.call<T>(action, input);
   }

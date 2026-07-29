@@ -14,6 +14,7 @@ export * from './diff/reality.js';
 export * from './diff/svg.js';
 export * from './diff/text.js';
 export * from './summary/summarizer.js';
+export * from './comparison/workspace.js';
 export * from './pipeline/run.js';
 export * from './services/actions.js';
 export * from './sdk/typescript.js';

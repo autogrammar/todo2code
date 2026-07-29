@@ -35,10 +35,11 @@ akceptuje obie postacie.
 
 `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`,
 `link`, `diagnose`, `summarize`, `diff`, `diff_files`, `diff_git`, `reality`,
-`pipeline`.
+`compare_workspace`, `pipeline`.
 
-Granica LLM obowiązuje tak samo jak w CLI: tylko `extract_docs` i `summarize`
-wołają OpenRouter.
+Granica LLM obowiązuje tak samo jak w CLI: `extract_nl` w trybie
+`prefer-llm`/`require-llm`, `extract_docs` i `summarize` wołają OpenRouter.
+Każdy SDK może wymusić `nlMode: deterministic` albo odczytać audyt fallbacku.
 
 Python ma dodatkowo lokalny most `TypeScriptRuntime`, który przez `subprocess`
 uruchamia kanoniczny CLI Node/TypeScript. Dzięki temu paczka może wykonywać
@@ -66,6 +67,14 @@ python3 sdk/python/examples/basic.py
 (cd sdk/go && go run ./examples/basic)
 (cd sdk/rust && cargo run --example basic)
 php sdk/php/examples/basic.php
+```
+
+Opcjonalny czwarty przypadek testuje porównanie `origin/main` z aktualnym
+filesystemem przez wspólną akcję runtime'u:
+
+```bash
+export T2C_COMPARE_WORKSPACE=1
+export T2C_COMPARE_BASE=origin/main
 ```
 
 Gdy serwer działa z `T2C_A2A_TOKEN`, ustaw tę samą zmienną w środowisku

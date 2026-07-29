@@ -5,8 +5,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { configForDisplay, getConfig, hasOpenRouter, loadEnvFile } from './config/env.js';
+import { compareWorkspaceIntent } from './comparison/workspace.js';
 import { pathExists, readJson, readJsonl, readText, writeJson, writeJsonl, writeText } from './core/io.js';
-import type { DiagnosticReport, IntentGraph, PipelineOptions } from './core/types.js';
+import type { DiagnosticReport, IntentGraph, NlExtractionMode, PipelineOptions } from './core/types.js';
 import { collectGitDiff } from './diff/git.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from './diff/reality.js';
 import {
@@ -20,7 +21,7 @@ import { extractAstIntent } from './extractors/ast.js';
 import { extractDocumentationIntent } from './extractors/docs-llm.js';
 import { extractGitIntent } from './extractors/git.js';
 import { extractMarkdownIntent } from './extractors/markdown.js';
-import { extractNlIntent } from './extractors/nl.js';
+import { extractNlIntentAudited } from './extractors/nl-llm.js';
 import { diagnoseGraph } from './graph/diagnostics.js';
 import { diffIntentGraphs, renderGraphDiffSvg } from './graph/diff.js';
 import { linkIntentRecords } from './graph/linker.js';
@@ -29,6 +30,7 @@ import { startMcpServer } from './interfaces/mcp.js';
 import { runPipeline } from './pipeline/run.js';
 import { summarizeGraph } from './summary/summarizer.js';
 import { watchRepository, type WatchEvent } from './watch/watcher.js';
+import { T2C_VERSION } from './version.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -51,7 +53,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
   if (argv[0] === '--version' || argv[0] === '-v') {
-    process.stdout.write('todo2code 0.2.0\n');
+    process.stdout.write(`todo2code ${T2C_VERSION}\n`);
     return;
   }
   const parsed = parseArgs(argv);
@@ -63,7 +65,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
   if (command === 'version' || command === '--version' || command === '-v') {
-    process.stdout.write('todo2code 0.2.0\n');
+    process.stdout.write(`todo2code ${T2C_VERSION}\n`);
     return;
   }
   if (command === 'init') {
@@ -130,6 +132,23 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     await handleWatch(parsed, config);
     return;
   }
+  if (command === 'compare-workspace') {
+    const root = path.resolve(parsed.positionals[0] ?? config.root);
+    const result = await compareWorkspaceIntent({
+      root,
+      baseRef: optionString(parsed, 'base') ?? 'origin/main',
+      taskFile: optionNullableString(parsed, 'task', null),
+      todoFile: optionNullableString(parsed, 'todo', 'TODO.md'),
+      changelogFile: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
+      documentPatterns: optionList(parsed, 'docs', config.documentPatterns),
+      documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
+      includeDocumentationLlm: optionBoolean(parsed, 'docs-llm', false),
+      outputDir: optionString(parsed, 'out') ?? config.outputDir,
+      gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
   if (command === 'pipeline') {
     const root = path.resolve(parsed.positionals[0] ?? config.root);
     const options: PipelineOptions = {
@@ -142,8 +161,11 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       outputDir: optionString(parsed, 'out') ?? config.outputDir,
       gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
       allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', true),
+      nlMode: optionNlMode(parsed, config.nlMode),
+      documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
     };
     const result = await runPipeline(options, config);
+    reportPipelineDegradation(result.manifest);
     process.stdout.write(`${JSON.stringify({ ...result, manifest: result.manifest }, null, 2)}\n`);
     return;
   }
@@ -162,6 +184,8 @@ async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConf
     outputDir: optionString(parsed, 'out') ?? config.outputDir,
     gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
     allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', true),
+    nlMode: optionNlMode(parsed, config.nlMode),
+    documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
   };
 
   const controller = new AbortController();
@@ -298,8 +322,13 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     const file = parsed.positionals[0];
     const inline = optionString(parsed, 'text');
     if (!file && !inline) throw new Error('Usage: t2c extract nl <file> [--text "..."] [--out records.jsonl]');
-    const result = await extractNlIntent({ root, sourcePath: file ?? 'cli-input.md', ...(inline ? { text: inline } : {}) }, config);
+    const result = await extractNlIntentAudited(
+      { root, sourcePath: file ?? 'cli-input.md', ...(inline ? { text: inline } : {}) },
+      config,
+      optionNlMode(parsed, config.nlMode),
+    );
     await emitExtraction(result, out);
+    process.stderr.write(`NL -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
     return;
   }
   if (extractor === 'git') {
@@ -459,12 +488,26 @@ function optionList(parsed: ParsedArgs, name: string, fallback: string[]): strin
   return value ? value.split(',').map((item) => item.trim()).filter(Boolean) : fallback;
 }
 
+function optionNlMode(parsed: ParsedArgs, fallback: NlExtractionMode): NlExtractionMode {
+  const value = optionString(parsed, 'nl-mode')?.toLowerCase() ?? fallback;
+  if (value === 'deterministic' || value === 'prefer-llm' || value === 'require-llm') return value;
+  throw new Error('--nl-mode must be deterministic, prefer-llm or require-llm');
+}
+
+function reportPipelineDegradation(manifest: import('./core/types.js').PipelineManifest): void {
+  if (manifest.status !== 'degraded') return;
+  process.stderr.write('DEGRADED: one or more pipeline stages did not complete in the requested mode\n');
+  for (const [name, stage] of Object.entries(manifest.stages)) {
+    if (stage.degraded) process.stderr.write(`  ${name}: ${stage.status} (${stage.reason?.code ?? 'UNKNOWN'})\n`);
+  }
+}
+
 function printHelp(): void {
   process.stdout.write(`todo2code (t2c)\n\n`);
   process.stdout.write(`Usage:\n`);
   process.stdout.write(`  t2c init [root]\n`);
   process.stdout.write(`  t2c doctor\n`);
-  process.stdout.write(`  t2c extract nl <file> [--root .] [--out nl.intent.jsonl]\n`);
+  process.stdout.write(`  t2c extract nl <file> [--nl-mode deterministic|prefer-llm|require-llm] [--out nl.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract git [--root .] [--count 10] [--out git.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract ast [root] [--out ast.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--out records.jsonl]\n`);
@@ -478,12 +521,15 @@ function printHelp(): void {
   process.stdout.write(`  t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg]\n`);
   process.stdout.write(`               [--md reality.md] [--gaps-only] [--max-rows 30]\n`);
   process.stdout.write(`  t2c watch [root] [--interval 60] [--scan-interval 2] [--no-initial-report]\n`);
-  process.stdout.write(`               [--task TASK.md] [--todo TODO.md] [--no-docs-llm] [--out .intent]\n`);
+  process.stdout.write(`               [--task TASK.md] [--nl-mode prefer-llm] [--todo TODO.md] [--no-docs-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
-  process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--no-docs-llm] [--out .intent]\n`);
+  process.stdout.write(`               [--nl-mode prefer-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
+  process.stdout.write(`               [--no-docs-llm] [--out .intent]\n`);
+  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]\n`);
+  process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);
   process.stdout.write(`  t2c a2a\n\n`);
-  process.stdout.write(`LLM boundary: only 'extract docs' and 'summarize' call OpenRouter.\n`);
+  process.stdout.write(`LLM boundary: NL extraction, documentation extraction and summarization are the only OpenRouter stages.\n`);
 }
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : '';
