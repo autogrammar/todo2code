@@ -2,7 +2,13 @@
 
 `todo2code` buduje wspólny **Intent Evidence DSL** z poleceń, historii Git, aktualnego kodu, list zadań, changelogu i dokumentacji. Następnie łączy rekordy w graf przepływu wiedzy, wykrywa rozbieżności i generuje raport dla zespołu.
 
-Projekt działa na Node.js/TypeScript. Python jest używany wyłącznie jako mały adapter do standardowego modułu `ast`; nie ma zewnętrznych zależności Python. Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
+Projekt działa na Node.js/TypeScript. Python i Go są używane wyłącznie jako małe adaptery do swoich standardowych parserów (`ast` oraz `go/ast`); żaden z nich nie ma zewnętrznych zależności. Oba toolchainy są opcjonalne — ich brak degraduje się do ostrzeżenia. Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
+
+## Reality vs Intent
+![reality.svg](.intent/runs/20260729T123956Z-2c6601ec/reality.svg)
+
+## GUI
+![history-ui.png](.intent/history-ui.png)
 
 ## Granica LLM
 
@@ -10,7 +16,7 @@ Projekt działa na Node.js/TypeScript. Python jest używany wyłącznie jako ma�
 |---|---|---:|
 | NL → DSL | reguły, słowniki, heurystyki; opcjonalny lokalny TensorFlow | nie |
 | 10 commitów Git → DSL | `git log`, diff, heurystyki symboli | nie |
-| TypeScript/JavaScript/Python AST → DSL | TypeScript Compiler API i Python `ast` | nie |
+| TypeScript/JavaScript/Python/Go AST → DSL | TypeScript Compiler API, Python `ast`, Go `go/ast` | nie |
 | TODO + CHANGELOG → DSL | deterministyczny parser Markdown | nie |
 | Dokumentacja → DSL | OpenRouter structured outputs | **tak** |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
