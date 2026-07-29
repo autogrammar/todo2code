@@ -197,6 +197,16 @@ rekordy TODO. Model zwraca lokalne klucze do wiązania obiektów; runtime:
 - odrzuca nieznane/zdublowane klucze, nieznane zależności i cały wynik, gdy
   choć jeden obiekt jest niepoprawny.
 
+Po walidacji `validation` rozdziela `orderedProposalIds`, `newProposalIds` i
+`duplicateProposalIds`. Dla każdego duplikatu `duplicates` wskazuje istniejące
+ID rekordów TODO oraz deterministyczną podstawę, np. `shared_ticket_and_text`,
+`shared_symbol_and_text` albo próg podobieństwa treści. `newProposalIds` jest
+gotową listą po deduplikacji; pełne `proposals` pozostaje w wyniku jako ślad
+audytowy. Kolejność jest topologiczna (zależność zawsze przed zadaniem), a wśród
+gotowych węzłów rozstrzyga `P0` → `P3` i stabilne ID. Cykle, self-dependency,
+nieznane zależności, puste lub powtórzone po trimowaniu kryteria akceptacji są
+odrzucane.
+
 Tryb `require-llm` zgłasza `TaskSynthesisRequiredError` zawierający audit
 `failed`. Tryb `prefer-llm` nie zamienia diagnostyki w pozornie semantyczne
 zadania: przy braku konfiguracji, timeoutcie lub błędnej odpowiedzi zwraca puste

@@ -15,8 +15,9 @@ diagnostyka/Intent vs Reality → raport. Kontrakty `t2c.conclusion/v1` i
 `t2c.todo-proposal/v1` wraz z walidacją cytowań i provenance są wdrożone, a API
 biblioteki potrafi je syntetyzować z grafu i diagnostyki przez OpenRouter.
 Integracja `DSL2TODO` nie jest jeszcze kompletna: obecna lista następnych
-działań w raporcie pozostaje projekcją diagnostyki, a deduplikacja, CLI/SDK i
-zatwierdzalny `TODO.patch` są kolejnymi punktami P0.
+działań w raporcie pozostaje projekcją diagnostyki, a CLI/SDK i zatwierdzalny
+`TODO.patch` są kolejnymi punktami P0. API syntezy waliduje już zależności,
+priorytety, kryteria i klasyfikuje duplikaty względem istniejącego TODO.
 
 Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
 docelowego `DSL2TODO` znajdują się w

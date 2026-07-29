@@ -24,6 +24,10 @@ import { classifyLlmFailure, type LlmFailureReason } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 import { T2C_VERSION } from '../version.js';
+import {
+  validateAndClassifyTodoProposals,
+  type TodoProposalValidationResult,
+} from './validation.js';
 
 export type TaskSynthesisMode = 'prefer-llm' | 'require-llm';
 
@@ -37,6 +41,7 @@ export interface AuditedTaskSynthesisResult {
   schemaVersion: 't2c.task-synthesis/v1';
   conclusions: Conclusion[];
   proposals: TodoProposal[];
+  validation: TodoProposalValidationResult;
   rawDiagnosticActions: RawDiagnosticAction[];
   warnings: string[];
   audit: PipelineStageAudit;
@@ -113,6 +118,7 @@ export async function synthesizeTodoProposals(
     return {
       schemaVersion: 't2c.task-synthesis/v1',
       ...output,
+      validation: validateAndClassifyTodoProposals(output.proposals, { graph, diagnostics, conclusions: output.conclusions }),
       rawDiagnosticActions: [],
       warnings: [],
       audit: synthesisAudit(
@@ -215,6 +221,7 @@ async function fallbackOrThrow(
     schemaVersion: 't2c.task-synthesis/v1',
     conclusions: [],
     proposals: [],
+    validation: { orderedProposalIds: [], newProposalIds: [], duplicateProposalIds: [], duplicates: [] },
     rawDiagnosticActions,
     warnings: [warning],
     audit: synthesisAudit(

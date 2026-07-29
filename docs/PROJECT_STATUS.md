@@ -1,7 +1,7 @@
 # Aktualny stan projektu
 
-Stan na **2026-07-29**, wersja runtime `0.4.0`, baza `b8e782e`
-(`main` równy `origin/main` przed wdrożeniem orkiestratora syntezy zadań).
+Stan na **2026-07-29**, wersja runtime `0.4.0`, baza `5c1c16b`
+(`main` równy `origin/main` przed wdrożeniem deduplikacji propozycji).
 
 ## Ocena wykonania przepływu
 
@@ -52,23 +52,23 @@ deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
 | Diagnostyka i Intent vs Reality | działa | wynik jest deterministyczny, ale AST może dominować liczbę tematów i ostrzeżeń |
 | Graf → raport NL | działa | LLM ma ograniczony payload; bez modelu powstaje jawnie oznaczony raport deterministyczny |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
-| DSL/diagnostyka → zadania DSL | działa jako API biblioteki | audytowana synteza OpenRouter tworzy zwalidowane wnioski/propozycje; `require-llm` nie fallbackuje, a `prefer-llm` zwraca wyłącznie jawne raw actions przy awarii |
+| DSL/diagnostyka → zadania DSL | działa jako API biblioteki | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
 | Zadania DSL → `TODO.patch` | brak | planowana walidacja, deduplikacja i bramka akceptacji człowieka |
 
 ## Bieżąca walidacja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 133 testy: 132 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 45 modułów i 230 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 135 testów: 134 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 46 modułów i 234 importy wewnętrzne: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 17 modułów bez tranzytywnego importu LLM;
 - 57 zmiennych używanych przez kod/Docker i 57 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` dla commita `b8e782e` utworzył 202 rekordy i
-615 relacji. Liczba relacji jest snapshotem, ponieważ wejście Git obejmuje
+Przebieg offline na `examples/` dla commita `5c1c16b` utworzył 202 rekordy i
+616 relacji. Liczba relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
 | Źródło | Rekordy |
@@ -90,9 +90,9 @@ precision/recall dla NL → DSL, dokumentacja → DSL, linkowania ani DSL2TODO.
 
 ## Najważniejsze ograniczenia
 
-1. Synteza `DSL2TODO` działa jako API biblioteki, ale nie ma jeszcze
-   deduplikacji względem istniejącego TODO, renderera `TODO.patch`, bramki
-   akceptacji ani ekspozycji przez CLI/MCP/A2A/SDK.
+1. Synteza `DSL2TODO` działa jako API biblioteki z deduplikacją, ale nie ma
+   jeszcze renderera `TODO.patch`, bramki akceptacji ani ekspozycji przez
+   CLI/MCP/A2A/SDK.
 2. Raport LLM jest nadal Markdownem i nie przechodzi jeszcze przez istniejący
    kontrakt `t2c.conclusion/v1`.
 3. Fakty AST są znacznie drobniejsze niż intencje produktowe. Bez agregacji

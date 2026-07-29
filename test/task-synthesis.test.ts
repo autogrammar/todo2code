@@ -108,6 +108,11 @@ test('Structured task synthesis materializes stable, grounded contracts with a c
     assert.equal(result.audit.status, 'succeeded');
     assert.equal(result.audit.recordCount, 2);
     assert.equal(result.audit.responses[0]?.responseId, 'generation-task-1');
+    assert.deepEqual(result.validation.orderedProposalIds, [result.proposals[0]!.id]);
+    assert.deepEqual(result.validation.newProposalIds, []);
+    assert.deepEqual(result.validation.duplicateProposalIds, [result.proposals[0]!.id]);
+    assert.deepEqual(result.validation.duplicates[0]?.existingRecordIds, diagnostic.recordIds);
+    assert.ok(result.validation.duplicates[0]?.basis.includes('shared_ticket_and_text'));
     assert.equal(requestBody.model, 'qwen/qwen3.7-plus');
     assert.equal(JSON.stringify(requestBody).includes('secret-test-key'), false);
     const payload = JSON.parse(
@@ -126,6 +131,8 @@ test('prefer-llm exposes raw diagnostic actions without claiming semantic task g
 
   assert.deepEqual(result.conclusions, []);
   assert.deepEqual(result.proposals, []);
+  assert.deepEqual(result.validation.orderedProposalIds, []);
+  assert.deepEqual(result.validation.newProposalIds, []);
   assert.ok(result.rawDiagnosticActions.some((action) => action.diagnosticId === diagnostic.id));
   assert.equal(result.audit.status, 'fallback');
   assert.equal(result.audit.effectiveMode, 'deterministic');

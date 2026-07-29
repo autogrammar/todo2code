@@ -23,6 +23,7 @@ export * from './diff/svg.js';
 export * from './diff/text.js';
 export * from './summary/summarizer.js';
 export * from './synthesis/tasks-llm.js';
+export * from './synthesis/validation.js';
 export * from './comparison/workspace.js';
 export * from './pipeline/run.js';
 export * from './services/actions.js';

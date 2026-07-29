@@ -14,6 +14,11 @@
   `prefer-llm` result keeps semantic conclusions/proposals empty and exposes
   only clearly labelled raw diagnostic actions. The runtime owns public IDs,
   provenance and validation rather than trusting those fields to the model.
+- Added deterministic proposal classification against existing TODO records,
+  with explicit matching evidence and separate ordered/new/duplicate ID lists.
+  Dependency graphs must be complete and acyclic, dependency-first ordering
+  respects P0–P3 among ready tasks, and acceptance criteria are non-blank and
+  unique after whitespace normalization.
 
 ### Fixed
 

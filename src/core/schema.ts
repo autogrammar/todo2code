@@ -242,6 +242,7 @@ export function assertTodoProposals(
       }
     }
   }
+  assertAcyclicProposalDependencies(values as TodoProposal[]);
 }
 
 function assertConclusionValue(
@@ -294,6 +295,9 @@ function assertTodoProposalValue(
   exactKeys(target, ['paths', 'symbols', 'tickets', 'versions'], `TODO proposal ${proposal.id}: target`);
   for (const key of ['paths', 'symbols', 'tickets', 'versions'] as const) {
     stringArray(target[key], `TODO proposal ${proposal.id}: target.${key}`, true);
+    if ((target[key] as string[]).some((item) => !item.trim())) {
+      throw new Error(`TODO proposal ${proposal.id}: target.${key} cannot contain blank values`);
+    }
   }
   nonEmptyUniqueStringArray(proposal.acceptanceCriteria, `TODO proposal ${proposal.id}: acceptanceCriteria`);
   uniqueIdArray(proposal.dependencies, TODO_PROPOSAL_ID, `TODO proposal ${proposal.id}: dependencies`);
@@ -454,6 +458,9 @@ function nonEmptyUniqueStringArray(value: unknown, name: string): asserts value 
   if (!value.length || value.some((item) => !item.trim().length)) {
     throw new Error(`${name} must contain at least one non-blank string`);
   }
+  if (new Set(value.map((item) => item.trim())).size !== value.length) {
+    throw new Error(`${name} must remain unique after trimming whitespace`);
+  }
 }
 
 function uniqueIdArray(value: unknown, pattern: RegExp, name: string): asserts value is string[] {
@@ -475,6 +482,24 @@ function confidence(value: unknown, name: string): asserts value is number {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) {
     throw new Error(`${name} must be between 0 and 1`);
   }
+}
+
+function assertAcyclicProposalDependencies(proposals: TodoProposal[]): void {
+  const byId = new Map(proposals.map((proposal) => [proposal.id, proposal]));
+  const visiting = new Set<string>();
+  const visited = new Set<string>();
+  const visit = (id: string, chain: string[]): void => {
+    if (visiting.has(id)) {
+      const start = chain.indexOf(id);
+      throw new Error(`TODO proposal dependency cycle: ${[...chain.slice(Math.max(0, start)), id].join(' -> ')}`);
+    }
+    if (visited.has(id)) return;
+    visiting.add(id);
+    for (const dependency of byId.get(id)?.dependencies ?? []) visit(dependency, [...chain, id]);
+    visiting.delete(id);
+    visited.add(id);
+  };
+  for (const proposal of proposals) visit(proposal.id, []);
 }
 
 function dateString(value: unknown, name: string): asserts value is string {

@@ -8,7 +8,7 @@
 - [x] Implement audited, structured graph + diagnostics → task synthesis through
   LLM. `require-llm` must fail explicitly; any `prefer-llm` degradation may
   expose raw diagnostic actions but must not claim semantic task generation.
-- [ ] Add runtime validation, stable IDs, deduplication against existing TODO
+- [x] Add runtime validation, stable IDs, deduplication against existing TODO
   records, priority/dependency handling and acceptance-criteria validation for
   generated task proposals.
 - [ ] Render validated proposals as a reviewable `TODO.patch`. Do not modify
