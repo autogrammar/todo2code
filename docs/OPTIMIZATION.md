@@ -161,6 +161,12 @@ deterministycznej kolejności. Test mierzy rzeczywistą liczbę równoległych
 fallbacku bez JSON Schema; fallback pozostaje tylko dla błędów formatu i
 obsługi structured output.
 
+Koszt całego etapu jest dodatkowo ograniczony przez `T2C_DOC_CHUNK_CHARS=8000`,
+`T2C_DOC_MAX_CHUNKS=12`, `T2C_DOC_MAX_RECORDS_PER_CHUNK=24` i osobny
+`T2C_DOC_TIMEOUT_MS=45000`. Chunks zgodne z wykrytymi wcześniej targetami są
+obsługiwane pierwsze. Przekroczenie liczby fragmentów nie jest ciche — run
+otrzymuje `DOC_CHUNK_BUDGET` z liczbą przeanalizowanych i pominiętych chunków.
+
 Payload podsumowania zachowuje najpierw wszystkie źródła nie-AST — w tym
 dokumentację — po czym dopełnia limit istotnymi faktami AST. Limity 400
 rekordów, 800 relacji i 250 diagnoz zapobiegają timeoutom dużych grafów;

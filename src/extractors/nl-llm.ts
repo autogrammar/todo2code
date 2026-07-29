@@ -9,6 +9,7 @@ import type {
   IntentAction,
   IntentRecord,
   LifecycleStatus,
+  LlmResponseMetadata,
   Modality,
   NlExtractionMode,
   PipelineStageAudit,
@@ -78,18 +79,18 @@ export async function extractNlIntentAudited(
       : options.sourcePath.replace(/\\/g, '/');
     const maxLine = Math.max(1, body.split(/\r?\n/).length);
     const prompt = await readPrompt('nl-to-intent.system.md');
-    const response = await client.chatJson<NlResponse>([
+    const completion = await client.chatJsonWithMetadata<NlResponse>([
       { role: 'system', content: prompt },
       { role: 'user', content: JSON.stringify({ sourcePath, startLine: 1, endLine: maxLine, content: body }) },
     ], 't2c_natural_language_intent', nlResponseSchema(), config.openRouter.nlModel);
-    const records = (response.records ?? []).map((raw) => toIntentRecord(raw, sourcePath, body, maxLine, config));
+    const records = (completion.value.records ?? []).map((raw) => toIntentRecord(raw, sourcePath, body, maxLine, config, completion.metadata));
     const result: ExtractionResult = {
       records,
       warnings: records.length ? [] : [`No intent-like statements found in ${sourcePath}`],
     };
     return {
       ...result,
-      audit: audit('succeeded', 'llm', 'llm', false, result, config.openRouter.nlModel, null, Date.now() - startedAt),
+      audit: audit('succeeded', 'llm', 'llm', false, result, config.openRouter.nlModel, null, Date.now() - startedAt, [completion.metadata]),
     };
   } catch (error) {
     return fallbackOrThrow(options, config, mode, startedAt, classifyLlmFailure(error));
@@ -131,7 +132,7 @@ function markDeterministic(records: IntentRecord[], degraded: boolean, fallbackR
   }));
 }
 
-function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxLine: number, config: T2CConfig): IntentRecord {
+function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxLine: number, config: T2CConfig, response: LlmResponseMetadata): IntentRecord {
   const start = clampLine(raw.sourceLines?.start ?? 1, 1, maxLine);
   const end = clampLine(raw.sourceLines?.end ?? start, start, maxLine);
   const lines = body.split(/\r?\n/);
@@ -164,6 +165,7 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
         fallbackReason: null,
         runtimeVersion: T2C_VERSION,
         model: config.openRouter.nlModel,
+        response,
       },
     },
   });
@@ -178,8 +180,9 @@ function audit(
   model: string | null,
   reason: PipelineStageAudit['reason'],
   durationMs: number,
+  responses: LlmResponseMetadata[] = [],
 ): PipelineStageAudit {
-  return { status, requestedMode, effectiveMode, degraded, recordCount: result.records.length, warningCount: result.warnings.length, model, durationMs, reason };
+  return { status, requestedMode, effectiveMode, degraded, recordCount: result.records.length, warningCount: result.warnings.length, model, durationMs, reason, responses };
 }
 
 function clampLine(value: number, min: number, max: number): number {

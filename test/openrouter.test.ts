@@ -21,15 +21,23 @@ test('OpenRouter client parses structured JSON without exposing key', async () =
     const headers = init?.headers as Record<string, string>;
     authorization = headers.Authorization ?? '';
     requestBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
-    return new Response(JSON.stringify({ choices: [{ message: { content: '{"records":[]}' } }] }), {
+    return new Response(JSON.stringify({
+      id: 'gen-test-1', model: 'qwen/resolved', provider: 'TestProvider',
+      usage: { prompt_tokens: 12, completion_tokens: 3, total_tokens: 15, cost: 0.001 },
+      choices: [{ message: { content: '{"records":[]}' } }],
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   };
   try {
     const client = new OpenRouterClient(config.openRouter);
-    const result = await client.chatJson<{ records: unknown[] }>([{ role: 'user', content: 'test' }], 'test', { type: 'object' });
-    assert.deepEqual(result, { records: [] });
+    const result = await client.chatJsonWithMetadata<{ records: unknown[] }>([{ role: 'user', content: 'test' }], 'test', { type: 'object' });
+    assert.deepEqual(result.value, { records: [] });
+    assert.deepEqual(result.metadata, {
+      responseId: 'gen-test-1', model: 'qwen/resolved', provider: 'TestProvider',
+      usage: { promptTokens: 12, completionTokens: 3, totalTokens: 15, cost: 0.001 },
+    });
     assert.equal(authorization, 'Bearer secret-test-key');
     assert.equal((requestBody.response_format as { type?: string }).type, 'json_schema');
     assert.equal((requestBody.provider as { require_parameters?: boolean }).require_parameters, true);
@@ -109,8 +117,15 @@ test('Documentation extractor converts OpenRouter structured output to bounded L
   await fs.writeFile(path.join(root, 'docs', 'architecture.md'), '# Runtime\n\nWalidacja kontraktu musi nastąpić przed wykonaniem.\n', 'utf8');
   const config = makeConfig(root);
   config.openRouter.apiKey = 'secret-test-key';
+  config.documentRecordsPerChunk = 1;
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => new Response(JSON.stringify({
+  let requestPayload: Record<string, unknown> = {};
+  globalThis.fetch = async (_input, init) => {
+    const request = JSON.parse(String(init?.body)) as { messages?: Array<{ role: string; content: string }> };
+    requestPayload = JSON.parse(request.messages?.find((message) => message.role === 'user')?.content ?? '{}') as Record<string, unknown>;
+    return new Response(JSON.stringify({
+    id: 'gen-doc-1', model: 'qwen/doc-resolved', provider: 'DocProvider',
+    usage: { prompt_tokens: 20, completion_tokens: 10, total_tokens: 30 },
     choices: [{
       message: {
         content: JSON.stringify({
@@ -132,12 +147,14 @@ test('Documentation extractor converts OpenRouter structured output to bounded L
         }),
       },
     }],
-  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
   try {
     const result = await extractDocumentationIntent({
       root,
       patterns: ['docs/**/*.md'],
       excludes: [],
+      targetHints: { paths: ['src/runtime.ts'], symbols: ['validateContract'], tickets: ['T2C-7'], versions: [] },
     }, config);
     assert.equal(result.warnings.length, 0);
     assert.equal(result.records.length, 1);
@@ -148,6 +165,41 @@ test('Documentation extractor converts OpenRouter structured output to bounded L
     assert.equal(record?.epistemic.class, 'llm_inference');
     assert.equal(record?.epistemic.confidence, 0.85);
     assert.equal(record?.metadata.llmUsed, true);
+    assert.equal(result.responses[0]?.responseId, 'gen-doc-1');
+    assert.equal(result.responses[0]?.model, 'qwen/doc-resolved');
+    assert.equal((record?.metadata.response as { provider?: string }).provider, 'DocProvider');
+    assert.equal(requestPayload.maxRecords, 1);
+    assert.deepEqual(requestPayload.targetHints, {
+      paths: ['src/runtime.ts'], symbols: ['validateContract'], tickets: ['T2C-7'], versions: [],
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('Documentation extractor reports and enforces its chunk budget', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-doc-budget-'));
+  await fs.mkdir(path.join(root, 'docs'));
+  await Promise.all([
+    fs.writeFile(path.join(root, 'docs', 'a.md'), '# A\n\nRequirement A.\n', 'utf8'),
+    fs.writeFile(path.join(root, 'docs', 'b.md'), '# B\n\nRequirement B.\n', 'utf8'),
+  ]);
+  const config = makeConfig(root);
+  config.documentMaxChunks = 1;
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    return new Response(JSON.stringify({ choices: [{ message: { content: '{"records":[]}' } }] }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  };
+  try {
+    const result = await extractDocumentationIntent({ root, patterns: ['docs/**/*.md'], excludes: [] }, config);
+    assert.equal(calls, 1);
+    assert.match(result.warnings.join('\n'), /DOC_CHUNK_BUDGET: analyzed 1 of 2/);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -213,12 +265,17 @@ test('LLM summarizer receives graph data and preserves grounded record citations
     const body = JSON.parse(String(init?.body)) as { messages?: Array<{ role: string; content: string }> };
     userPayload = body.messages?.find((message) => message.role === 'user')?.content ?? '';
     return new Response(JSON.stringify({
+      id: 'gen-summary-1', model: 'qwen/summary-resolved', provider: 'SummaryProvider',
+      usage: { prompt_tokens: 50, completion_tokens: 20, total_tokens: 70, cost: 0.004 },
       choices: [{ message: { content: `# Raport\n\n## Cel\n\nDodać walidację kontraktu. [${record.id}]` } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
   try {
     const result = await summarizeGraph(graph, diagnostics, config, { allowDeterministicFallback: false });
     assert.equal(result.llmUsed, true);
+    assert.equal(result.responses[0]?.responseId, 'gen-summary-1');
+    assert.equal(result.responses[0]?.provider, 'SummaryProvider');
+    assert.equal(result.responses[0]?.usage?.cost, 0.004);
     assert.ok(result.markdown.includes(`[${record.id}]`));
     assert.ok(result.markdown.includes(graph.fingerprint));
     assert.ok(userPayload.includes(record.id));

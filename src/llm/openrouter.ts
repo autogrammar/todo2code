@@ -1,4 +1,5 @@
 import type { T2CConfig } from '../config/env.js';
+import type { LlmResponseMetadata } from '../core/types.js';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -12,8 +13,22 @@ interface OpenRouterChoice {
 }
 
 interface OpenRouterResponse {
+  id?: string;
+  model?: string;
+  provider?: string;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+    cost?: number;
+  };
   choices?: OpenRouterChoice[];
   error?: { message?: string };
+}
+
+export interface OpenRouterResult<T> {
+  value: T;
+  metadata: LlmResponseMetadata;
 }
 
 interface OpenRouterModelsResponse {
@@ -75,6 +90,10 @@ export class OpenRouterClient {
   }
 
   async chatText(messages: ChatMessage[], model = this.config.model): Promise<string> {
+    return (await this.chatTextWithMetadata(messages, model)).value;
+  }
+
+  async chatTextWithMetadata(messages: ChatMessage[], model = this.config.model): Promise<OpenRouterResult<string>> {
     const response = await this.request({
       model,
       messages,
@@ -83,10 +102,14 @@ export class OpenRouterClient {
     });
     const content = extractContent(response);
     if (!content.trim()) throw new Error('OpenRouter returned an empty response');
-    return content.trim();
+    return { value: content.trim(), metadata: responseMetadata(response) };
   }
 
   async chatJson<T>(messages: ChatMessage[], schemaName: string, schema: Record<string, unknown>, model = this.config.model): Promise<T> {
+    return (await this.chatJsonWithMetadata<T>(messages, schemaName, schema, model)).value;
+  }
+
+  async chatJsonWithMetadata<T>(messages: ChatMessage[], schemaName: string, schema: Record<string, unknown>, model = this.config.model): Promise<OpenRouterResult<T>> {
     const structuredBody = {
       model,
       messages,
@@ -104,7 +127,7 @@ export class OpenRouterClient {
 
     try {
       const response = await this.request(structuredBody);
-      return parseJsonContent<T>(extractContent(response));
+      return { value: parseJsonContent<T>(extractContent(response)), metadata: responseMetadata(response) };
     } catch (firstError) {
       if (firstError instanceof OpenRouterModelError) throw firstError;
       if (!this.config.requireStructuredOutput) throw firstError;
@@ -123,7 +146,7 @@ export class OpenRouterClient {
         response_format: { type: 'json_object' },
         plugins: this.config.responseHealing ? [{ id: 'response-healing' }] : undefined,
       });
-      return parseJsonContent<T>(extractContent(fallback));
+      return { value: parseJsonContent<T>(extractContent(fallback)), metadata: responseMetadata(fallback) };
     }
   }
 
@@ -199,6 +222,29 @@ export class OpenRouterClient {
       clearTimeout(timeout);
     }
   }
+}
+
+function responseMetadata(response: OpenRouterResponse): LlmResponseMetadata {
+  const usage = response.usage;
+  return {
+    responseId: stringOrNull(response.id),
+    model: stringOrNull(response.model),
+    provider: stringOrNull(response.provider),
+    usage: usage ? {
+      promptTokens: finiteOrNull(usage.prompt_tokens),
+      completionTokens: finiteOrNull(usage.completion_tokens),
+      totalTokens: finiteOrNull(usage.total_tokens),
+      cost: finiteOrNull(usage.cost),
+    } : null,
+  };
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function finiteOrNull(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 function shouldRetryWithoutJsonSchema(error: unknown): boolean {

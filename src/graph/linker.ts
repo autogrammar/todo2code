@@ -1,5 +1,6 @@
 import { createRelationId, graphFingerprint } from '../core/id.js';
 import { keywords } from '../core/text.js';
+import { pathAliases, symbolAliases } from '../core/target.js';
 import type { IntentGraph, IntentRecord, IntentRelation, RelationType } from '../core/types.js';
 
 interface PairEvidence {
@@ -109,8 +110,12 @@ function collectCandidatePairs(
   for (const record of records) {
     if (record.source.kind === 'ast') astIds.add(record.id);
     for (const ticket of record.statement.target.tickets) add(`ticket:${ticket.toLowerCase()}`, record.id);
-    for (const symbol of record.statement.target.symbols) add(`symbol:${symbol.toLowerCase()}`, record.id);
-    for (const filePath of record.statement.target.paths) add(`path:${filePath.toLowerCase()}`, record.id);
+    for (const symbol of record.statement.target.symbols) {
+      for (const alias of symbolAliases(symbol)) add(`symbol:${alias}`, record.id);
+    }
+    for (const filePath of record.statement.target.paths) {
+      for (const alias of pathAliases(filePath)) add(`path:${alias}`, record.id);
+    }
     // Keyword sets are already indexed; a Set preserves the sorted insertion
     // order of `keywords()`, so the first five entries are the same tokens.
     const objectKeywords = keywordIndex.get(record.id)?.object;
@@ -158,11 +163,11 @@ function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, R
     score += 0.62;
     basis.push('shared_ticket');
   }
-  if (intersectsNormalized(left.statement.target.symbols, right.statement.target.symbols)) {
+  if (intersectsAliases(left.statement.target.symbols, right.statement.target.symbols, symbolAliases)) {
     score += 0.48;
     basis.push('shared_symbol');
   }
-  if (intersectsNormalized(left.statement.target.paths, right.statement.target.paths)) {
+  if (intersectsAliases(left.statement.target.paths, right.statement.target.paths, pathAliases)) {
     score += 0.28;
     basis.push('shared_path');
   }
@@ -214,9 +219,9 @@ function intersects(left: string[], right: string[]): boolean {
   return right.some((value) => set.has(value));
 }
 
-function intersectsNormalized(left: string[], right: string[]): boolean {
-  const set = new Set(left.map((value) => value.toLowerCase()));
-  return right.some((value) => set.has(value.toLowerCase()));
+function intersectsAliases(left: string[], right: string[], aliases: (value: string) => string[]): boolean {
+  const set = new Set(left.flatMap(aliases));
+  return right.some((value) => aliases(value).some((alias) => set.has(alias)));
 }
 
 function countBy(records: IntentRecord[], selector: (record: IntentRecord) => string): Record<string, number> {

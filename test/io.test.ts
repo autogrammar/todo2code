@@ -12,6 +12,6 @@ test('resolveGlobs permits one explicit .intent report without recursively scann
   await fs.writeFile(report, '# Team summary\n', 'utf8');
 
   assert.deepEqual(await resolveGlobs(root, ['.intent/runs/run-1/team-summary.md'], []), [report]);
-  assert.deepEqual(await resolveGlobs(root, ['.intent/runs/run-1/team-summary.md'], ['.intent/**']), []);
+  assert.deepEqual(await resolveGlobs(root, ['.intent/runs/run-1/team-summary.md'], ['.intent/**']), [report]);
   assert.deepEqual(await resolveGlobs(root, ['.intent/**/*.md'], []), []);
 });

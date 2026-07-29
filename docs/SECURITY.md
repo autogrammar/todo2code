@@ -18,7 +18,8 @@ Ekstraktor NL wysyła wyłącznie jawnie przekazany tekst taska. Etap Markdown
 wysyła tekst i strukturalny kontekst wyłącznie wpisów rozpoznanych wcześniej
 deterministycznie jako TODO/CHANGELOG — nie wysyła całych plików ani dowolnych
 sekcji. Ekstraktor dokumentacji wysyła tylko pliki dopasowane do
-`T2C_DOC_PATTERNS` po zastosowaniu wykluczeń. Summarizer wysyła wyłącznie
+`T2C_DOC_PATTERNS` po zastosowaniu wykluczeń i limitów `T2C_DOC_*`; target hints
+zawierają jedynie już rozpoznane ścieżki, symbole, tickety i wersje. Summarizer wysyła wyłącznie
 skompaktowany graf i diagnostykę, bez raw excerptów, diffów i pełnych plików
 kodu. `T2C_NL_MODE=deterministic` oraz `T2C_MARKDOWN_MODE=deterministic`
 wyłączają odpowiednie żądania OpenRouter.
@@ -30,15 +31,16 @@ Przed użyciem na prywatnym repozytorium należy ustawić restrykcyjne globs i z
 - limit rozmiaru pliku i body A2A;
 - brak wykonywania komend pochodzących z dokumentacji/LLM;
 - Git jest wywoływany przez `execFile`, nie shell;
-- Python helper dostaje tylko katalog i limit pliku;
+- helpery Python/Go/Java/Rust dostają tylko katalog i limit pliku;
 - parser OpenRouter przyjmuje JSON i następnie runtime normalizuje krytyczne pola provenance.
 - manifest zapisuje modele i parametry generacji, ale zastępuje obecność klucza wyłącznie booleanem `configured`.
 
 ## Zależności opcjonalne
 
-Zalecana instalacja `npm install --omit=optional` ma 0 wyników `npm audit`.
-Opcjonalny `@tensorflow/tfjs-node@4.22.0` wnosi obecnie 7 high i 1 critical
-przez `@mapbox/node-pre-gyp`, `tar`, `rimraf` i zależności pośrednie. Nie należy
-używać `npm audit fix --force`: proponowana wersja 0.1.11 jest łamiącym
-downgrade'em. Do czasu wymiany lub izolacji łańcucha TensorFlow nie powinien być
-instalowany w obrazie produkcyjnym.
+Zwykła instalacja rdzenia ma 0 wyników `npm audit`. Opcjonalny
+`@tensorflow/tfjs-node@4.22.0` pozostaje przypięty w osobnym
+`adapters/tensorflow/package.json` i jest instalowany wyłącznie przez
+`make install-tf`; jego 7 high i 1 critical nie zanieczyszczają głównego drzewa
+zależności ani obrazu produkcyjnego. `T2C_TF_MODULE_PATH` jawnie wskazuje moduł
+adaptera. Nie należy używać `npm audit fix --force`: proponowany downgrade jest
+niekompatybilny.

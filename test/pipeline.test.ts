@@ -6,7 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 import { pathExists, readJson } from '../src/core/io.js';
-import type { IntentGraph } from '../src/core/types.js';
+import type { IntentGraph, PipelineManifest } from '../src/core/types.js';
 import { runPipeline } from '../src/pipeline/run.js';
 import { makeConfig } from './helpers.js';
 
@@ -45,6 +45,7 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.llm.markdownExtraction, false);
   assert.equal(result.manifest.llm.summary, false);
   assert.equal(result.manifest.status, 'degraded');
+  assert.equal(result.manifest.failure, null);
   assert.equal(result.manifest.runtime.version, '0.2.0');
   assert.equal(result.manifest.stages.naturalLanguageExtraction.status, 'fallback');
   assert.equal(result.manifest.stages.naturalLanguageExtraction.reason?.code, 'LLM_NOT_CONFIGURED');
@@ -63,3 +64,42 @@ test('Offline pipeline writes a complete run', async () => {
   assert.ok(graph.records.some((record) => record.source.kind === 'ast'));
   assert.ok(graph.records.some((record) => record.source.kind === 'todo'));
 });
+
+for (const scenario of [
+  { name: 'NL', taskFile: 'TASK.md', todoFile: null, nlMode: 'require-llm' as const, markdownMode: 'deterministic' as const, stage: 'naturalLanguageExtraction' },
+  { name: 'Markdown', taskFile: null, todoFile: 'TODO.md', nlMode: 'deterministic' as const, markdownMode: 'require-llm' as const, stage: 'markdownExtraction' },
+]) {
+  test(`Pipeline persists a failed manifest when ${scenario.name} require-llm aborts`, async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-failed-'));
+    await fs.writeFile(path.join(root, 'TASK.md'), 'System musi dodać walidację.\n');
+    await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n- [ ] Dodać walidację.\n');
+    const config = makeConfig(root);
+    await assert.rejects(() => runPipeline({
+      root,
+      taskFile: scenario.taskFile,
+      todoFile: scenario.todoFile,
+      changelogFile: null,
+      documentPatterns: [],
+      includeDocumentationLlm: false,
+      outputDir: '.intent-failed',
+      gitCommitCount: 1,
+      allowSummaryFallback: true,
+      includeSummaryLlm: false,
+      nlMode: scenario.nlMode,
+      markdownMode: scenario.markdownMode,
+    }, config), /requires LLM/);
+
+    const runsRoot = path.join(root, '.intent-failed', 'runs');
+    const runIds = await fs.readdir(runsRoot);
+    assert.equal(runIds.length, 1);
+    const runDirectory = path.join(runsRoot, runIds[0] ?? '');
+    const manifest = await readJson<PipelineManifest>(path.join(runDirectory, 'manifest.json'));
+    assert.equal(manifest.status, 'failed');
+    assert.equal(manifest.graphFingerprint, null);
+    assert.equal(manifest.failure?.stage, scenario.stage);
+    assert.equal(manifest.failure?.code, 'LLM_NOT_CONFIGURED');
+    assert.equal(manifest.configuration.llm.configured, false);
+    assert.equal(await pathExists(path.join(runDirectory, 'intent.graph.json')), false);
+    assert.equal(await pathExists(path.join(root, '.intent-failed', 'latest.json')), false);
+  });
+}

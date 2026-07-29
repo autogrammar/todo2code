@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists, readText, relativePosix, resolveGlobs } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
-import type { ExtractionResult, IntentAction, IntentRecord, LifecycleStatus, Modality, Polarity } from '../core/types.js';
+import type { ExtractionResult, IntentAction, IntentRecord, LifecycleStatus, LlmResponseMetadata, Modality, Polarity } from '../core/types.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 
 interface RawDocumentRecord {
@@ -39,19 +39,32 @@ interface DocumentChunk {
   content: string;
 }
 
+export interface DocumentationTargetHints {
+  paths: string[];
+  symbols: string[];
+  tickets: string[];
+  versions: string[];
+}
+
 export interface DocumentationExtractionOptions {
   root: string;
   patterns: string[];
   excludes?: string[];
+  targetHints?: DocumentationTargetHints;
 }
 
-export async function extractDocumentationIntent(options: DocumentationExtractionOptions, config: T2CConfig): Promise<ExtractionResult> {
-  const client = new OpenRouterClient(config.openRouter);
+export interface DocumentationExtractionResult extends ExtractionResult {
+  responses: LlmResponseMetadata[];
+}
+
+export async function extractDocumentationIntent(options: DocumentationExtractionOptions, config: T2CConfig): Promise<DocumentationExtractionResult> {
+  const client = new OpenRouterClient({ ...config.openRouter, timeoutMs: config.documentTimeoutMs });
   if (!client.isConfigured()) throw new Error('OPENROUTER_API_KEY is required for documentation -> Intent DSL');
   const files = await resolveGlobs(options.root, options.patterns, options.excludes ?? config.documentExcludes);
   const systemPrompt = await readPrompt('docs-to-intent.system.md');
   const records: IntentRecord[] = [];
   const warnings: string[] = [];
+  const responses: LlmResponseMetadata[] = [];
   const documentChunks: DocumentChunk[] = [];
 
   for (const file of files) {
@@ -63,14 +76,20 @@ export async function extractDocumentationIntent(options: DocumentationExtractio
       continue;
     }
     const relative = relativePosix(options.root, file);
-    documentChunks.push(...chunkMarkdown(relative, body, 16_000));
+    documentChunks.push(...chunkMarkdown(relative, body, config.documentChunkChars));
   }
 
-  const results = await mapConcurrent(documentChunks, config.documentConcurrency, async (chunk) => {
+  const prioritizedChunks = prioritizeChunks(documentChunks, options.targetHints);
+  const selectedChunks = prioritizedChunks.slice(0, config.documentMaxChunks);
+  if (selectedChunks.length < prioritizedChunks.length) {
+    warnings.push(`DOC_CHUNK_BUDGET: analyzed ${selectedChunks.length} of ${prioritizedChunks.length} documentation chunks; increase T2C_DOC_MAX_CHUNKS to include more`);
+  }
+
+  const results = await mapConcurrent(selectedChunks, config.documentConcurrency, async (chunk) => {
     const chunkRecords: IntentRecord[] = [];
     const chunkWarnings: string[] = [];
     try {
-      const response = await client.chatJson<DocumentResponse>([
+      const completion = await client.chatJsonWithMetadata<DocumentResponse>([
         { role: 'system', content: systemPrompt },
         {
           role: 'user',
@@ -79,21 +98,44 @@ export async function extractDocumentationIntent(options: DocumentationExtractio
             startLine: chunk.startLine,
             endLine: chunk.endLine,
             content: chunk.content,
+            targetHints: options.targetHints ?? { paths: [], symbols: [], tickets: [], versions: [] },
+            maxRecords: config.documentRecordsPerChunk,
           }),
         },
-      ], 't2c_document_intent', documentResponseSchema(), config.openRouter.documentModel);
-      for (const raw of response.records ?? []) chunkRecords.push(toIntentRecord(raw, chunk, config.openRouter.documentModel));
+      ], 't2c_document_intent', documentResponseSchema(config.documentRecordsPerChunk), config.openRouter.documentModel);
+      for (const raw of (completion.value.records ?? []).slice(0, config.documentRecordsPerChunk)) {
+        chunkRecords.push(toIntentRecord(raw, chunk, config.openRouter.documentModel, completion.metadata));
+      }
+      return { records: chunkRecords, warnings: chunkWarnings, responses: [completion.metadata] };
     } catch (error) {
       chunkWarnings.push(`${chunk.path}:${chunk.startLine}-${chunk.endLine}: ${error instanceof Error ? error.message : String(error)}`);
     }
-    return { records: chunkRecords, warnings: chunkWarnings };
+    return { records: chunkRecords, warnings: chunkWarnings, responses: [] as LlmResponseMetadata[] };
   });
 
   for (const result of results) {
     records.push(...result.records);
     warnings.push(...result.warnings);
+    responses.push(...result.responses);
   }
-  return { records, warnings };
+  return { records, warnings, responses };
+}
+
+function prioritizeChunks(chunks: DocumentChunk[], hints?: DocumentationTargetHints): DocumentChunk[] {
+  const needles = hints
+    ? [...hints.paths, ...hints.symbols, ...hints.tickets, ...hints.versions]
+        .map((value) => value.trim().toLowerCase())
+        .filter((value) => value.length >= 2)
+    : [];
+  return chunks
+    .map((chunk, index) => {
+      const haystack = `${chunk.path}\n${chunk.content}`.toLowerCase();
+      const matches = needles.reduce((count, needle) => count + (haystack.includes(needle) ? 1 : 0), 0);
+      const importantFile = /(^|\/)(readme|architecture|requirements|protocols|dsl)(\.md)?$/i.test(chunk.path) ? 1 : 0;
+      return { chunk, index, score: matches * 10 + importantFile };
+    })
+    .sort((left, right) => right.score - left.score || left.index - right.index)
+    .map(({ chunk }) => chunk);
 }
 
 async function mapConcurrent<T, R>(
@@ -116,7 +158,7 @@ async function mapConcurrent<T, R>(
   return results;
 }
 
-function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk, model: string): IntentRecord {
+function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk, model: string, response: LlmResponseMetadata): IntentRecord {
   const start = clampLine(raw.sourceLines?.start ?? chunk.startLine, chunk.startLine, chunk.endLine);
   const end = clampLine(raw.sourceLines?.end ?? start, start, chunk.endLine);
   const action = allowedAction(raw.action) ? raw.action : 'unknown';
@@ -127,7 +169,7 @@ function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk, model: str
     subject: raw.subject ?? null,
     object: raw.object || raw.text || 'unspecified',
     target: {
-      paths: [...new Set([...(raw.target?.paths ?? []), chunk.path])],
+      paths: raw.target?.paths ?? [],
       symbols: raw.target?.symbols ?? [],
       tickets: raw.target?.tickets ?? [],
       versions: raw.target?.versions ?? [],
@@ -149,6 +191,7 @@ function toIntentRecord(raw: RawDocumentRecord, chunk: DocumentChunk, model: str
       llmUsed: true,
       chunkStartLine: chunk.startLine,
       chunkEndLine: chunk.endLine,
+      response,
     },
   });
 }
@@ -237,7 +280,7 @@ function allowedLifecycle(value: string): value is LifecycleStatus {
   return ['proposed', 'planned', 'in_progress', 'implemented', 'verified', 'released', 'completed', 'blocked', 'unknown'].includes(value);
 }
 
-function documentResponseSchema(): Record<string, unknown> {
+function documentResponseSchema(maxRecords: number): Record<string, unknown> {
   return {
     type: 'object',
     additionalProperties: false,
@@ -245,6 +288,7 @@ function documentResponseSchema(): Record<string, unknown> {
     properties: {
       records: {
         type: 'array',
+        maxItems: maxRecords,
         items: {
           type: 'object',
           additionalProperties: false,

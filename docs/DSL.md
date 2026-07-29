@@ -77,13 +77,17 @@
 
 Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:
 
-- `status: succeeded|degraded`;
+- `status: succeeded|degraded|failed`; failed-run ma `graphFingerprint=null`,
+  nie publikuje grafu ani `latest.json` i wskazuje etap/kod awarii;
 - `runtime.name` i `runtime.version`;
 - bezpieczny `configuration` bez tokenów i kluczy oraz jego SHA-256 fingerprint;
 - statusy etapów NL, Markdown, dokumentacji i podsumowania: `succeeded`, `partial`,
   `fallback`, `failed` albo `skipped`;
 - requested/effective mode, model, czas, liczbę rekordów/ostrzeżeń i strukturalny
-  powód degradacji.
+  powód degradacji;
+- odpowiedzi LLM z dostępnymi `responseId`, resolved model/provider,
+  prompt/completion/total tokens i cost;
+- wersję runtime oraz bezpieczne parametry adapterów i budżetów dokumentacji.
 
 Historyczne manifesty sprzed rozszerzenia nadal są czytane przez API; UI oznacza
 ich status jako `legacy`.

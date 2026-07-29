@@ -8,7 +8,7 @@ flowchart LR
     NLO --> NLLM[OpenRouter structured extractor]
     NLO --> NLE[Deterministic fallback]
     GIT[Last N commits] --> GE[Git extractor]
-    CODE[TS JS Python tree] --> AE[AST extractors]
+    CODE[TS JS Python Go Java Rust tree] --> AE[AST extractors]
     TODO[TODO.md] --> ME[Markdown extractor]
     CHG[CHANGELOG.md] --> ME
     ME --> MLO[Audited Markdown LLM enrichment]
@@ -49,9 +49,15 @@ może użyć lokalnego TensorFlow, lecz nie importuje OpenRouter.
 
 Czyta ostatnie N commitów, autorów, timestampy, message/body, statusy plików, numstat i diff. Każdy commit ma oddzielny rekord; commit dokumentacyjny nie znika, tylko dostaje `docOnly=true`.
 
-### `src/extractors/ast.ts`, `python/ast_extract.py` i `golang/ast_extract.go`
+### Wielojęzykowe adaptery AST
 
-TypeScript Compiler API dostarcza fakty o importach, eksportach, symbolach i wywołaniach. Python używa standardowego `ast` (`python/ast_extract.py`), a Go standardowego `go/ast` (`golang/ast_extract.go`, uruchamiane przez `go run`). Każdy adapter zwraca tę samą kopertę JSON `{facts, warnings}`, więc dodanie kolejnego języka nie zmienia rdzenia. Adaptery są opcjonalne: brak toolchainu daje ostrzeżenie, nie błąd. AST jest faktem o stanie implementacji, a nie intencją człowieka.
+TypeScript Compiler API dostarcza fakty o importach, eksportach, symbolach i
+wywołaniach. Python używa standardowego `ast`, Go `go/ast`, Java oficjalnego
+JDK Compiler Tree API, a Rust parsera `syn` w izolowanym helperze Cargo. Każdy
+adapter zwraca tę samą kopertę JSON `{facts, warnings}`, więc rdzeń nie zależy
+od modelu AST konkretnego języka. Adapter nie uruchamia toolchainu, gdy nie ma
+pasujących plików; brak dostępnego toolchainu daje ostrzeżenie, nie błąd całego
+runu. AST jest faktem o stanie implementacji, a nie intencją człowieka.
 
 ### `src/extractors/markdown.ts`
 
@@ -68,11 +74,21 @@ model albo niepełna odpowiedź uruchamia jawny fallback lub błąd w `require-l
 
 ### `src/extractors/docs-llm.ts`
 
-Dokumentacja jest dzielona według nagłówków i limitu znaków. OpenRouter zwraca strukturalny JSON. Runtime nadpisuje źródło, ogranicza zakres linii i confidence, dlatego model nie może podmienić provenance.
+Dokumentacja jest dzielona według nagłówków i konfigurowalnego limitu znaków.
+Fragmenty są oceniane względem celów już znalezionych w NL/Git/AST/Markdown,
+a następnie ograniczane przez maksymalną liczbę chunków. Osobny timeout,
+współbieżność i limit rekordów wyznaczają górną granicę pracy. OpenRouter zwraca
+strukturalny JSON; runtime nadpisuje źródło, ogranicza zakres linii i confidence,
+dlatego model nie może podmienić provenance.
 
 ### `src/graph/linker.ts`
 
-Kandydaci są indeksowani po ticketach, symbolach, ścieżkach i tokenach obiektu. Linker przyznaje punkty za dowody i tworzy relacje deterministycznie. Nie wykonuje zapytań sieciowych.
+Kandydaci są indeksowani po ticketach, symbolach, ścieżkach i tokenach obiektu.
+Wspólny normalizator kanonizuje separatory ścieżek oraz symbole takie jak
+`crate::Runtime::validateContract()`, `Runtime.validateContract` i
+`validateContract`, zachowując aliasy do dopasowania między językami. Linker
+przyznaje punkty za dowody i tworzy relacje deterministycznie. Nie wykonuje
+zapytań sieciowych.
 
 ### `src/graph/diagnostics.ts`
 
@@ -132,4 +148,11 @@ System zachowuje różnicę między planem, twierdzeniem autora i stanem kodu. R
 
 ## Determinizm
 
-Identyfikatory i fingerprint grafu bazują na SHA-256 stabilnie serializowanych danych. `observedAt` i timestamp runu mogą się zmieniać. Część deterministyczna jest powtarzalna; porównanie z `--docs-llm` oraz NL w trybie LLM zależą od odpowiedzi modelu, dlatego manifest zapisuje model, parametry, fingerprint konfiguracji i status każdego etapu. TensorFlow jest opcjonalny, dlatego jego powtarzalność wymaga przypiętego modelu i słownika.
+Identyfikatory i fingerprint grafu bazują na SHA-256 stabilnie serializowanych
+danych. `observedAt` i timestamp runu mogą się zmieniać. Część deterministyczna
+jest powtarzalna; porównanie z `--docs-llm` oraz NL w trybie LLM zależą od
+odpowiedzi modelu, dlatego manifest zapisuje model, zwrócone metadane odpowiedzi,
+parametry, fingerprint konfiguracji i status każdego etapu. Nieudany
+`require-llm` zachowuje manifest awarii bez grafu. TensorFlow jest opcjonalny i
+odizolowany od rdzenia, dlatego jego powtarzalność wymaga przypiętego adaptera,
+modelu i słownika.

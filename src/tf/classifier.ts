@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import type { IntentAction } from '../core/types.js';
 import { classifyActionHeuristically, normalizeToken } from '../core/text.js';
@@ -23,7 +24,7 @@ interface ModelAssets {
   labels: IntentAction[];
 }
 
-let cache: { modelPath: string; model: TfModel; tf: TfModule; assets: ModelAssets } | null = null;
+let cache: { modelPath: string; modulePath: string; model: TfModel; tf: TfModule; assets: ModelAssets } | null = null;
 
 async function dynamicImport(specifier: string): Promise<unknown> {
   const importer = new Function('specifier', 'return import(specifier)') as (value: string) => Promise<unknown>;
@@ -46,12 +47,13 @@ async function loadAssets(modelPath: string, configuredLabels: string[]): Promis
 async function loadClassifier(config: T2CConfig): Promise<typeof cache> {
   const modelPath = config.tensorflowModelPath;
   if (!config.enableTensorFlow || !modelPath) return null;
-  if (cache?.modelPath === modelPath) return cache;
-  const moduleValue = await dynamicImport('@tensorflow/tfjs-node') as TfModule;
+  const modulePath = path.resolve(config.root, config.tensorflowModulePath);
+  if (cache?.modelPath === modelPath && cache.modulePath === modulePath) return cache;
+  const moduleValue = await dynamicImport(pathToFileURL(modulePath).href) as TfModule;
   const absolute = path.resolve(modelPath);
   const model = await moduleValue.loadLayersModel(`file://${absolute}`);
   const assets = await loadAssets(absolute, config.tensorflowLabels);
-  cache = { modelPath, model, tf: moduleValue, assets };
+  cache = { modelPath, modulePath, model, tf: moduleValue, assets };
   return cache;
 }
 

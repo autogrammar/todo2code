@@ -11,6 +11,7 @@ import type {
   SourceKind,
   SourceLineRange,
 } from './types.js';
+import { normalizeTarget } from './target.js';
 
 export interface BuildRecordInput {
   prefix?: string;
@@ -40,12 +41,7 @@ export interface BuildRecordInput {
 }
 
 export function buildRecord(input: BuildRecordInput): IntentRecord {
-  const target: IntentTarget = {
-    paths: [...new Set(input.target?.paths ?? [])].sort(),
-    symbols: [...new Set(input.target?.symbols ?? [])].sort(),
-    tickets: [...new Set(input.target?.tickets ?? [])].sort(),
-    versions: [...new Set(input.target?.versions ?? [])].sort(),
-  };
+  const target: IntentTarget = normalizeTarget(input.target);
   const rawExcerpt = input.rawExcerpt ?? input.text;
   const seed = {
     kind: input.kind,

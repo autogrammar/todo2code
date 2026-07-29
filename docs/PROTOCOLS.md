@@ -18,7 +18,11 @@ Klient używa:
 - `provider.require_parameters = true`, aby preferować endpointy obsługujące structured outputs;
 - kontrolowanego fallbacku do `json_object`, gdy endpoint odrzuci `json_schema`;
 - opcjonalnego pluginu `response-healing` dla odpowiedzi niestrumieniowanych;
-- temperatury `0` jako wartości domyślnej.
+- temperatury `0` jako wartości domyślnej;
+- osobnego budżetu dokumentacji: rozmiaru i liczby chunków, liczby rekordów,
+  współbieżności oraz timeoutu;
+- metadanych odpowiedzi zwróconych przez OpenRouter: ID, resolved model/provider,
+  token usage oraz cost, jeśli provider je udostępnia.
 
 Klient ma timeout, do trzech prób dla 429/5xx i błędów transportu, nie loguje body promptu ani klucza i waliduje/normalizuje dane po stronie runtime. Model nie może podmienić provenance nadanego przez ekstraktor.
 

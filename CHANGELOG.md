@@ -4,6 +4,19 @@
 
 ### Added
 
+- Java AST adapter based on the official JDK Compiler Tree API and Rust AST
+  adapter based on `syn`; both emit the common `{facts,warnings}` envelope,
+  exact source ranges and explicit optional-toolchain degradation.
+- Failed-run manifests for NL and Markdown `require-llm` aborts. They preserve
+  runtime/configuration/stage evidence while intentionally omitting a graph and
+  leaving `latest.json` unchanged.
+- OpenRouter response audit with response ID, resolved model/provider, token
+  usage and cost whenever returned by the provider.
+- Cross-language path and symbol normalization used by record construction,
+  linking and Intent-vs-Reality projection.
+- Relevance-aware documentation extraction budgets for chunk size/count,
+  records per chunk and a separate timeout, including `DOC_CHUNK_BUDGET`
+  warnings and target hints from earlier pipeline stages.
 - Authenticated `GET /api/runs` history endpoint for complete graph runs under `.intent/runs`.
 - Optional `compact: true` graph-diff response containing fingerprints, summary counts and SVG without complete record and relation arrays.
 - Go AST adapter (`golang/ast_extract.go`) built on the standard `go/ast` parser, emitting the same `{facts, warnings}` envelope as the Python helper. It records packages, imports, types, functions, package-level vars/consts and calls; methods carry their receiver so `Entry.Describe` resolves from a TODO or commit. Enabled with `T2C_ENABLE_GO_AST` (default true) and `T2C_GO`; `doctor` now reports the Go toolchain.
@@ -21,6 +34,12 @@
 
 ### Changed
 
+- Optional TensorFlow is installed only into `adapters/tensorflow` by
+  `make install-tf`; the main dependency tree and production image remain at
+  zero audit findings. Runtime resolves it through `T2C_TF_MODULE_PATH` and
+  records an explicit heuristic fallback when unavailable.
+- Run configuration snapshots now include all AST/TensorFlow adapter settings
+  and documentation budgets in their fingerprint.
 - The history UI uses compact graph diffs, reducing the measured response for the two repository runs from 38.71 MiB to 13.71 KiB.
 - NL extraction defaults to `prefer-llm`: configured OpenRouter is primary and the deterministic parser is an explicitly marked degraded fallback. `require-llm` fails instead of falling back.
 - All five SDKs expose workspace comparison, and their examples cover the optional origin-to-filesystem flow.
@@ -31,6 +50,14 @@
 
 ### Fixed
 
+- Failed history entries no longer prevent `GET /api/runs` from listing later
+  successful graphs; graph selectors include only runs that actually have one.
+- A literal `.intent/runs/<id>/team-summary.md` documentation input can bypass
+  the default generated-output exclusion, while recursive `.intent` globs stay
+  blocked.
+- Nested Cargo `target` and adapter `node_modules` directories no longer inflate
+  Docker build context or release ZIP; the image build now uses the committed
+  root lockfile and `npm ci`.
 - A repository with no commits yet no longer aborts the run. `git log` fails on a freshly initialised repository — the state `t2c init` leaves behind and the first one `t2c watch` encounters — so the Git extractor now degrades to a warning like every other absent source.
 - The SVG diff UI now selects the previous and latest run by default, displays both history selectors and computes their comparison automatically.
 - Explicitly requested `.intent/runs/<id>/team-summary.md` files can be analyzed as documentation without permitting recursive ingestion of generated `.intent` output.

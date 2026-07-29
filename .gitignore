@@ -376,3 +376,8 @@ project/refactor/generated/
 
 # OS-level IDE chat calibration (window id + screen coords — machine-local)
 .koru/ide-os-injector.json
+
+# Reproducible locks for todo2code core and isolated language/runtime adapters.
+!/package-lock.json
+!/rust-ast/Cargo.lock
+!/adapters/tensorflow/package-lock.json

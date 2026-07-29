@@ -25,8 +25,8 @@ setup: ## Utwórz .env i zainstaluj zależności bez opcjonalnego TensorFlow
 install: ## Zainstaluj zależności bez opcjonalnego TensorFlow
 	$(NPM) install --omit=optional
 
-install-tf: ## Zainstaluj także opcjonalny @tensorflow/tfjs-node
-	$(NPM) install
+install-tf: ## Zainstaluj izolowany opcjonalny adapter @tensorflow/tfjs-node
+	$(NPM) --prefix adapters/tensorflow install
 
 build: ## Skompiluj TypeScript
 	$(NPM) run build

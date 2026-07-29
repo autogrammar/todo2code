@@ -8,7 +8,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 out = Path(sys.argv[1] if len(sys.argv) > 1 else 'todo2code.zip').resolve()
-ignored_dirs = {'.git', 'node_modules', 'coverage', '.intent', '.intent-demo', '.intent-test', '__pycache__'}
+ignored_dirs = {'.git', 'node_modules', 'target', 'coverage', '.intent', '.intent-demo', '.intent-test', '__pycache__'}
 ignored_names = {'.env', out.name}
 with zipfile.ZipFile(out, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
     for item in sorted(root.rglob('*')):

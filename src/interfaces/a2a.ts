@@ -243,10 +243,11 @@ interface IntentRunListItem {
   runId: string;
   createdAt: string;
   graphFingerprint: string | null;
-  graphPath: string;
+  graphPath: string | null;
   summaryPath: string | null;
   warningCount: number;
-  status: 'succeeded' | 'degraded' | null;
+  status: 'succeeded' | 'degraded' | 'failed' | null;
+  failure: Record<string, unknown> | null;
   runtimeVersion: string | null;
   stages: Record<string, unknown> | null;
   llm: { naturalLanguageExtraction: boolean; markdownExtraction: boolean; documentationExtraction: boolean; summary: boolean } | null;
@@ -284,12 +285,15 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
           path.join(runDirectory, 'manifest.json'),
           config.allowOutsideRoot,
         );
-        const [graphStat, manifestStat] = await Promise.all([fs.stat(graphPath), fs.stat(manifestPath)]);
-        if (!graphStat.isFile() || !manifestStat.isFile() || manifestStat.size > 2 * 1024 * 1024) return null;
+        const [graphStat, manifestStat] = await Promise.all([
+          fs.stat(graphPath).catch((error: NodeJS.ErrnoException) => error.code === 'ENOENT' ? null : Promise.reject(error)),
+          fs.stat(manifestPath),
+        ]);
+        if (!manifestStat.isFile() || manifestStat.size > 2 * 1024 * 1024) return null;
         const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8')) as Record<string, unknown>;
         const createdAtValue = typeof manifest.createdAt === 'string' && Number.isFinite(Date.parse(manifest.createdAt))
           ? manifest.createdAt
-          : graphStat.mtime.toISOString();
+          : manifestStat.mtime.toISOString();
         const files = isRecord(manifest.files) ? manifest.files : {};
         const llmValue = isRecord(manifest.llm) ? manifest.llm : null;
         const runtimeValue = isRecord(manifest.runtime) ? manifest.runtime : null;
@@ -299,10 +303,11 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
           runId: typeof manifest.runId === 'string' ? manifest.runId : entry.name,
           createdAt: createdAtValue,
           graphFingerprint: typeof manifest.graphFingerprint === 'string' ? manifest.graphFingerprint : null,
-          graphPath: relativeApiPath(config.root, graphPath),
+          graphPath: graphStat?.isFile() ? relativeApiPath(config.root, graphPath) : null,
           summaryPath: typeof files.summary === 'string' ? files.summary : null,
           warningCount: warnings.length,
-          status: manifest.status === 'succeeded' || manifest.status === 'degraded' ? manifest.status : null,
+          status: manifest.status === 'succeeded' || manifest.status === 'degraded' || manifest.status === 'failed' ? manifest.status : null,
+          failure: isRecord(manifest.failure) ? manifest.failure : null,
           runtimeVersion: runtimeValue && typeof runtimeValue.version === 'string' ? runtimeValue.version : null,
           stages: stagesValue,
           llm: llmValue ? {
@@ -311,7 +316,7 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
             documentationExtraction: llmValue.documentationExtraction === true,
             summary: llmValue.summary === true,
           } : null,
-          graphBytes: graphStat.size,
+          graphBytes: graphStat?.isFile() ? graphStat.size : 0,
         };
       } catch {
         // An incomplete, malformed or escaped run must not break the history UI.

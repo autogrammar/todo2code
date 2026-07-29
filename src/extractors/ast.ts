@@ -12,7 +12,7 @@ import type { ExtractionResult, IntentAction, IntentRecord, JsonValue } from '..
 const execFileAsync = promisify(execFile);
 const JS_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts', '.mjs', '.cjs'];
 
-interface PythonFact {
+interface AdapterFact {
   path: string;
   lineStart: number;
   lineEnd: number;
@@ -26,8 +26,8 @@ interface PythonFact {
   metadata: Record<string, JsonValue>;
 }
 
-interface PythonOutput {
-  facts: PythonFact[];
+interface AdapterOutput {
+  facts: AdapterFact[];
   warnings: string[];
 }
 
@@ -59,6 +59,16 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     const go = await extractGoAst(root, config);
     records.push(...go.records);
     warnings.push(...go.warnings);
+  }
+  if (config.enableJavaAst) {
+    const java = await extractJavaAst(root, config);
+    records.push(...java.records);
+    warnings.push(...java.warnings);
+  }
+  if (config.enableRustAst) {
+    const rust = await extractRustAst(root, config);
+    records.push(...rust.records);
+    warnings.push(...rust.warnings);
   }
   return { records, warnings };
 }
@@ -231,27 +241,8 @@ async function extractGoAst(root: string, config: T2CConfig): Promise<Extraction
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
     });
-    const parsed = JSON.parse(result.stdout) as PythonOutput;
-    const records = (parsed.facts ?? []).map((fact) => buildRecord({
-      kind: fact.kind,
-      action: fact.action,
-      subject: fact.subject,
-      object: fact.object,
-      target: { paths: [fact.path], symbols: fact.symbol ? [fact.symbol] : [] },
-      modality: 'observed',
-      text: `${fact.action} ${fact.object}`,
-      lifecycle: 'implemented',
-      sourceKind: 'ast',
-      sourcePath: fact.path,
-      sourceLines: { start: fact.lineStart, end: fact.lineEnd },
-      symbol: fact.symbol,
-      extractor: 't2c/go-ast@1',
-      rawExcerpt: fact.excerpt,
-      epistemicClass: 'fact',
-      confidence: 1,
-      basis: ['go_stdlib_ast'],
-      metadata: { language: 'go', llmUsed: false, ...fact.metadata },
-    }));
+    const parsed = JSON.parse(result.stdout) as AdapterOutput;
+    const records = adapterRecords(parsed.facts ?? [], 't2c/go-ast@1', 'go_stdlib_ast', 'go');
     return { records, warnings: parsed.warnings ?? [] };
   } catch (error) {
     return { records: [], warnings: [`Go AST extraction failed: ${error instanceof Error ? error.message : String(error)}`] };
@@ -267,29 +258,76 @@ async function extractPythonAst(root: string, config: T2CConfig): Promise<Extrac
       maxBuffer: 64 * 1024 * 1024,
       env: { ...process.env, PYTHONUTF8: '1' },
     });
-    const parsed = JSON.parse(result.stdout) as PythonOutput;
-    const records = parsed.facts.map((fact) => buildRecord({
-      kind: fact.kind,
-      action: fact.action,
-      subject: fact.subject,
-      object: fact.object,
-      target: { paths: [fact.path], symbols: fact.symbol ? [fact.symbol] : [] },
-      modality: 'observed',
-      text: `${fact.action} ${fact.object}`,
-      lifecycle: 'implemented',
-      sourceKind: 'ast',
-      sourcePath: fact.path,
-      sourceLines: { start: fact.lineStart, end: fact.lineEnd },
-      symbol: fact.symbol,
-      extractor: 't2c/python-ast@1',
-      rawExcerpt: fact.excerpt,
-      epistemicClass: 'fact',
-      confidence: 1,
-      basis: ['python_stdlib_ast'],
-      metadata: { language: 'python', llmUsed: false, ...fact.metadata },
-    }));
+    const parsed = JSON.parse(result.stdout) as AdapterOutput;
+    const records = adapterRecords(parsed.facts ?? [], 't2c/python-ast@1', 'python_stdlib_ast', 'python');
     return { records, warnings: parsed.warnings ?? [] };
   } catch (error) {
     return { records: [], warnings: [`Python AST extraction failed: ${error instanceof Error ? error.message : String(error)}`] };
   }
+}
+
+async function extractJavaAst(root: string, config: T2CConfig): Promise<ExtractionResult> {
+  const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../java/JavaAstExtract.java');
+  if (!(await pathExists(script))) return { records: [], warnings: [`Java AST helper not found: ${script}`] };
+  const files = await walkFiles(root, { extensions: ['.java'], maxFiles: 20_000 });
+  if (files.length === 0) return { records: [], warnings: [] };
+  try {
+    const result = await execFileAsync(config.javaExecutable, [
+      '--add-modules', 'jdk.compiler', script, root, '--max-file-bytes', String(config.maxFileBytes),
+    ], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    const parsed = JSON.parse(result.stdout) as AdapterOutput;
+    return {
+      records: adapterRecords(parsed.facts ?? [], 't2c/java-compiler-ast@1', 'java_compiler_tree_api', 'java'),
+      warnings: parsed.warnings ?? [],
+    };
+  } catch (error) {
+    return { records: [], warnings: [`Java AST extraction failed: ${error instanceof Error ? error.message : String(error)}`] };
+  }
+}
+
+async function extractRustAst(root: string, config: T2CConfig): Promise<ExtractionResult> {
+  const manifest = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../rust-ast/Cargo.toml');
+  if (!(await pathExists(manifest))) return { records: [], warnings: [`Rust AST helper not found: ${manifest}`] };
+  const files = await walkFiles(root, { extensions: ['.rs'], maxFiles: 20_000 });
+  if (files.length === 0) return { records: [], warnings: [] };
+  try {
+    const result = await execFileAsync(config.cargoExecutable, [
+      'run', '--quiet', '--manifest-path', manifest, '--', root, '--max-file-bytes', String(config.maxFileBytes),
+    ], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    const parsed = JSON.parse(result.stdout) as AdapterOutput;
+    return {
+      records: adapterRecords(parsed.facts ?? [], 't2c/rust-syn-ast@1', 'rust_syn_ast', 'rust'),
+      warnings: parsed.warnings ?? [],
+    };
+  } catch (error) {
+    return { records: [], warnings: [`Rust AST extraction failed: ${error instanceof Error ? error.message : String(error)}`] };
+  }
+}
+
+function adapterRecords(
+  facts: AdapterFact[],
+  extractor: string,
+  basis: string,
+  language: string,
+): IntentRecord[] {
+  return facts.map((fact) => buildRecord({
+    kind: fact.kind,
+    action: fact.action,
+    subject: fact.subject,
+    object: fact.object,
+    target: { paths: [fact.path], symbols: fact.symbol ? [fact.symbol] : [] },
+    modality: 'observed',
+    text: `${fact.action} ${fact.object}`,
+    lifecycle: 'implemented',
+    sourceKind: 'ast',
+    sourcePath: fact.path,
+    sourceLines: { start: fact.lineStart, end: fact.lineEnd },
+    symbol: fact.symbol,
+    extractor,
+    rawExcerpt: fact.excerpt,
+    epistemicClass: 'fact',
+    confidence: 1,
+    basis: [basis],
+    metadata: { language, llmUsed: false, ...fact.metadata },
+  }));
 }

@@ -410,6 +410,8 @@ async function doctor(config: ReturnType<typeof getConfig>): Promise<void> {
     ['git', 'git', ['--version']],
     ['python', config.pythonExecutable, ['--version']],
     ['go', config.goExecutable, ['version']],
+    ['java', config.javaExecutable, ['-version']],
+    ['cargo', config.cargoExecutable, ['--version']],
   ] as const) {
     try {
       const result = await execFileAsync(executable, args, { encoding: 'utf8' });

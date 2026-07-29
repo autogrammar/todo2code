@@ -2,13 +2,15 @@
 FROM node:22-bookworm-slim AS build
 
 WORKDIR /app
-COPY package.json tsconfig.json .intentignore ./
-RUN npm install --include=dev --omit=optional
+COPY package.json package-lock.json tsconfig.json .intentignore ./
+RUN npm ci --include=dev
 COPY src ./src
 COPY sdk/typescript/src ./sdk/typescript/src
 COPY test ./test
 COPY python ./python
 COPY golang ./golang
+COPY java ./java
+COPY rust-ast ./rust-ast
 COPY prompts ./prompts
 COPY schemas ./schemas
 COPY scripts ./scripts
@@ -25,10 +27,14 @@ ENV NODE_ENV=production \
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json .env.example .intentignore ./
-# The runtime image ships git and python3 but no Go toolchain, so the Go AST
-# adapter degrades to a warning here. Install Go in a derived image to enable it.
+# The runtime image ships git and python3. Go, Java and Rust adapters degrade to
+# explicit warnings when matching sources exist; install their toolchains in a
+# derived image to enable them.
 COPY python ./python
 COPY golang ./golang
+COPY java ./java
+COPY rust-ast ./rust-ast
+COPY adapters/tensorflow/package*.json ./adapters/tensorflow/
 COPY prompts ./prompts
 COPY schemas ./schemas
 RUN mkdir -p /workspace && chown -R node:node /app /workspace

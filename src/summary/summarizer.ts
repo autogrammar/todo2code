@@ -3,13 +3,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists } from '../core/io.js';
-import type { DiagnosticReport, IntentGraph, IntentRecord } from '../core/types.js';
+import type { DiagnosticReport, IntentGraph, IntentRecord, LlmResponseMetadata } from '../core/types.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 
 export interface SummaryResult {
   markdown: string;
   llmUsed: boolean;
   warnings: string[];
+  responses: LlmResponseMetadata[];
 }
 
 export interface SummaryOptions {
@@ -32,6 +33,7 @@ export async function summarizeGraph(
       ),
       llmUsed: false,
       warnings: [],
+      responses: [],
     };
   }
   const client = new OpenRouterClient(config.openRouter);
@@ -41,20 +43,22 @@ export async function summarizeGraph(
       markdown: deterministicSummary(graph, diagnostics),
       llmUsed: false,
       warnings: ['OPENROUTER_API_KEY is not configured; generated deterministic fallback summary'],
+      responses: [],
     };
   }
 
   const systemPrompt = await readPrompt('summarize.system.md');
   const payload = compactPayload(graph, diagnostics);
   try {
-    const markdown = await client.chatText([
+    const completion = await client.chatTextWithMetadata([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: JSON.stringify(payload) },
     ], config.openRouter.summaryModel);
     return {
-      markdown: validateAndAppendSources(markdown, graph),
+      markdown: validateAndAppendSources(completion.value, graph),
       llmUsed: true,
       warnings: [],
+      responses: [completion.metadata],
     };
   } catch (error) {
     if (!options.allowDeterministicFallback) throw error;
@@ -62,6 +66,7 @@ export async function summarizeGraph(
       markdown: deterministicSummary(graph, diagnostics),
       llmUsed: false,
       warnings: [`OpenRouter summary failed; generated deterministic fallback: ${error instanceof Error ? error.message : String(error)}`],
+      responses: [],
     };
   }
 }

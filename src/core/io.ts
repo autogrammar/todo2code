@@ -139,7 +139,9 @@ export async function resolveGlobs(root: string, includes: string[], excludes: s
     if (/[*?\[{]/.test(include)) continue;
     const absolute = path.resolve(root, include);
     const relative = path.relative(root, absolute).replace(/\\/g, '/');
-    if (!relative || relative.startsWith('../') || path.isAbsolute(relative) || matchesAnyGlob(relative, excludes)) continue;
+    const explicitGeneratedSummary = /^\.intent\/runs\/[^/]+\/team-summary\.md$/.test(relative);
+    if (!relative || relative.startsWith('../') || path.isAbsolute(relative)
+      || (matchesAnyGlob(relative, excludes) && !explicitGeneratedSummary)) continue;
     try {
       if ((await fs.stat(absolute)).isFile()) directFiles.push(absolute);
     } catch {

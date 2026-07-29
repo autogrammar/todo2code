@@ -35,7 +35,10 @@ test('NL LLM extraction emits audited provenance and bounded DSL records', async
   config.openRouter.apiKey = 'secret-test-key';
   config.openRouter.nlModel = 'qwen/test-nl';
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    id: 'gen-nl-1', model: 'qwen/nl-resolved', provider: 'NlProvider',
+    usage: { prompt_tokens: 14, completion_tokens: 7, total_tokens: 21, cost: 0.002 },
+    choices: [{ message: { content: JSON.stringify({
     records: [{
       kind: 'declared_intent', actor: 'system', action: 'validate', subject: null,
       object: 'runtime contract', modality: 'required', polarity: 'positive', lifecycle: 'implemented',
@@ -43,7 +46,8 @@ test('NL LLM extraction emits audited provenance and bounded DSL records', async
       target: { paths: ['src/runtime.ts'], symbols: ['validateContract'], tickets: ['T2C-14'], versions: [] },
       sourceLines: { start: 1, end: 9 }, text: 'System musi walidować kontrakt.',
     }],
-  }) } }] }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }) } }],
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   try {
     const result = await extractNlIntentAudited({
       root: process.cwd(), sourcePath: 'TASK.md', text: 'System musi walidować `validateContract` dla T2C-14.\n',
@@ -51,11 +55,15 @@ test('NL LLM extraction emits audited provenance and bounded DSL records', async
     assert.equal(result.audit.status, 'succeeded');
     assert.equal(result.audit.effectiveMode, 'llm');
     assert.equal(result.audit.model, 'qwen/test-nl');
+    assert.equal(result.audit.responses[0]?.responseId, 'gen-nl-1');
+    assert.equal(result.audit.responses[0]?.model, 'qwen/nl-resolved');
+    assert.equal(result.audit.responses[0]?.usage?.totalTokens, 21);
     assert.equal(result.records[0]?.epistemic.class, 'llm_inference');
     assert.equal(result.records[0]?.epistemic.confidence, 0.9);
     assert.deepEqual(result.records[0]?.source.lines, { start: 1, end: 2 });
     assert.equal(result.records[0]?.metadata.llmUsed, true);
     assert.equal((result.records[0]?.metadata.generation as { runtimeVersion?: string }).runtimeVersion, '0.2.0');
+    assert.equal(((result.records[0]?.metadata.generation as { response?: { provider?: string } }).response?.provider), 'NlProvider');
     assert.equal(result.records[0]?.lifecycle.status, 'proposed');
   } finally {
     globalThis.fetch = originalFetch;

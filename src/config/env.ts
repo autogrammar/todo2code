@@ -10,13 +10,22 @@ export interface T2CConfig {
   gitCommitCount: number;
   maxFileBytes: number;
   documentConcurrency: number;
+  documentChunkChars: number;
+  documentMaxChunks: number;
+  documentRecordsPerChunk: number;
+  documentTimeoutMs: number;
   pythonExecutable: string;
   enablePythonAst: boolean;
   goExecutable: string;
   enableGoAst: boolean;
+  javaExecutable: string;
+  enableJavaAst: boolean;
+  cargoExecutable: string;
+  enableRustAst: boolean;
   allowOutsideRoot: boolean;
   enableTensorFlow: boolean;
   tensorflowModelPath: string | null;
+  tensorflowModulePath: string;
   tensorflowLabels: string[];
   documentPatterns: string[];
   documentExcludes: string[];
@@ -129,13 +138,22 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     gitCommitCount: envNumber('T2C_GIT_COMMIT_COUNT', 10, 1, 100),
     maxFileBytes: envNumber('T2C_MAX_FILE_BYTES', 524_288, 1024, 100 * 1024 * 1024),
     documentConcurrency: envNumber('T2C_DOC_CONCURRENCY', 3, 1, 16),
+    documentChunkChars: envNumber('T2C_DOC_CHUNK_CHARS', 8000, 512, 100_000),
+    documentMaxChunks: envNumber('T2C_DOC_MAX_CHUNKS', 12, 1, 1000),
+    documentRecordsPerChunk: envNumber('T2C_DOC_MAX_RECORDS_PER_CHUNK', 24, 1, 200),
+    documentTimeoutMs: envNumber('T2C_DOC_TIMEOUT_MS', 45_000, 1000, 600_000),
     pythonExecutable: envString('T2C_PYTHON', 'python3'),
     enablePythonAst: envBoolean('T2C_ENABLE_PYTHON_AST', true),
     goExecutable: envString('T2C_GO', 'go'),
     enableGoAst: envBoolean('T2C_ENABLE_GO_AST', true),
+    javaExecutable: envString('T2C_JAVA', 'java'),
+    enableJavaAst: envBoolean('T2C_ENABLE_JAVA_AST', true),
+    cargoExecutable: envString('T2C_CARGO', 'cargo'),
+    enableRustAst: envBoolean('T2C_ENABLE_RUST_AST', true),
     allowOutsideRoot: envBoolean('T2C_ALLOW_OUTSIDE_ROOT', false),
     enableTensorFlow: envBoolean('T2C_ENABLE_TF', false),
     tensorflowModelPath: envOptional('T2C_TF_MODEL_PATH'),
+    tensorflowModulePath: envString('T2C_TF_MODULE_PATH', 'adapters/tensorflow/node_modules/@tensorflow/tfjs-node/dist/index.js'),
     tensorflowLabels: envList('T2C_TF_LABELS', ['add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'unknown']),
     documentPatterns: envList('T2C_DOC_PATTERNS', ['README.md', 'docs/**/*.md', 'project/**/*.md', 'packages/**/MODULE.md']),
     documentExcludes: envList('T2C_DOC_EXCLUDES', ['node_modules/**', '.git/**', 'dist/**', '.intent/**', 'TODO.md', 'CHANGELOG.md']),

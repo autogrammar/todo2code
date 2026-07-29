@@ -44,7 +44,11 @@ test('TODO and CHANGELOG receive audited LLM enrichment without changing structu
       target: { paths: ['src/api.ts'], symbols: ['validateContract'], tickets: ['T2C-7'], versions: [] },
       acceptanceEvidence: ['Contract test passes'],
     }));
-    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ enrichments }) } }] }), {
+    return new Response(JSON.stringify({
+      id: 'gen-markdown-1', model: 'qwen/markdown-resolved', provider: 'MarkdownProvider',
+      usage: { prompt_tokens: 30, completion_tokens: 15, total_tokens: 45 },
+      choices: [{ message: { content: JSON.stringify({ enrichments }) } }],
+    }), {
       status: 200, headers: { 'Content-Type': 'application/json' },
     });
   };
@@ -52,6 +56,9 @@ test('TODO and CHANGELOG receive audited LLM enrichment without changing structu
     const result = await extractMarkdownIntentAudited({ root, todoPath: 'TODO.md', changelogPath: 'CHANGELOG.md' }, config, 'prefer-llm');
     assert.equal(result.audit.status, 'succeeded');
     assert.equal(result.audit.model, 'qwen/test-markdown');
+    assert.equal(result.audit.responses[0]?.responseId, 'gen-markdown-1');
+    assert.equal(result.audit.responses[0]?.provider, 'MarkdownProvider');
+    assert.equal(result.audit.responses[0]?.usage?.totalTokens, 45);
     assert.equal(result.records.length, 2);
     const todo = result.records.find((record) => record.source.kind === 'todo');
     const changelog = result.records.find((record) => record.source.kind === 'changelog');

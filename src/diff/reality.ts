@@ -7,6 +7,7 @@
 // view reuses the linker's evidence instead of inventing a second heuristic.
 
 import { sha256, stableStringify } from '../core/id.js';
+import { symbolAliases } from '../core/target.js';
 import type {
   DiagnosticCode,
   DiagnosticReport,
@@ -213,9 +214,10 @@ function ratio(numerator: number, denominator: number): number {
  * explainable without walking the graph.
  */
 function groupIntoTopics(graph: IntentGraph): Array<{ key: string; records: IntentRecord[] }> {
+  const symbolPaths = indexUnambiguousSymbolPaths(graph.records);
   const groups = new Map<string, IntentRecord[]>();
   for (const record of graph.records) {
-    const key = primaryTargetKey(record);
+    const key = primaryTargetKey(record, symbolPaths);
     const bucket = groups.get(key) ?? [];
     bucket.push(record);
     groups.set(key, bucket);
@@ -225,25 +227,46 @@ function groupIntoTopics(graph: IntentGraph): Array<{ key: string; records: Inte
     .sort((left, right) => left.key.localeCompare(right.key));
 }
 
+function indexUnambiguousSymbolPaths(records: IntentRecord[]): Map<string, string> {
+  const candidates = new Map<string, Set<string>>();
+  for (const record of records) {
+    const paths = record.statement.target.paths;
+    if (paths.length !== 1 || !paths[0]) continue;
+    for (const alias of record.statement.target.symbols.flatMap(symbolAliases)) {
+      const values = candidates.get(alias) ?? new Set<string>();
+      values.add(paths[0]);
+      candidates.set(alias, values);
+    }
+  }
+  return new Map([...candidates.entries()]
+    .filter(([, paths]) => paths.size === 1)
+    .map(([alias, paths]) => [alias, [...paths][0] as string]));
+}
+
 /**
  * Deterministic topic key. A ticket is the strongest cross-source identifier,
- * then the file the record is *about*, then the symbol it names.
+ * then the file the record is about, then its normalized symbol.
  *
- * `statement.target.paths` deliberately outranks `source.path`: a TODO item is
+ * `statement.target.paths` outranks symbols and `source.path`: a TODO item is
  * written in TODO.md but targets `src/…`, and keying it by its source file
- * would file every task under TODO.md instead of the code it concerns.
- * `source.path` remains the fallback for records that declare no target.
+ * would file every task under TODO.md instead of the code it concerns. When a
+ * record has no target path, normalized symbol aliases still align
+ * `validateContract`, `Runtime.validateContract` and Rust `::` notation.
+ * `source.path` remains the final source-based fallback.
  */
-function primaryTargetKey(record: IntentRecord): string {
+function primaryTargetKey(record: IntentRecord, symbolPaths: Map<string, string>): string {
   const tickets = [...record.statement.target.tickets].sort();
   if (tickets.length === 1 && tickets[0]) return `ticket:${tickets[0]}`;
+
+  if (tickets.length > 1 && tickets[0]) return `ticket:${tickets[0]}`;
 
   const targetPaths = [...new Set(record.statement.target.paths)].sort();
   if (targetPaths.length && targetPaths[0]) return `path:${targetPaths[0]}`;
 
-  if (tickets.length > 1 && tickets[0]) return `ticket:${tickets[0]}`;
-
-  const symbols = [...record.statement.target.symbols].sort();
+  const symbols = [...new Set(record.statement.target.symbols.flatMap(symbolAliases))]
+    .sort((left, right) => left.split('.').length - right.split('.').length || left.localeCompare(right));
+  const resolvedPaths = [...new Set(symbols.map((symbol) => symbolPaths.get(symbol)).filter((value): value is string => Boolean(value)))];
+  if (resolvedPaths.length === 1 && resolvedPaths[0]) return `path:${resolvedPaths[0]}`;
   if (symbols.length && symbols[0]) return `symbol:${symbols[0]}`;
 
   if (record.source.path) return `path:${record.source.path}`;

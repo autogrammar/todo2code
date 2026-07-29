@@ -9,6 +9,7 @@ import type {
   IntentAction,
   IntentRecord,
   LlmExtractionMode,
+  LlmResponseMetadata,
   PipelineStageAudit,
 } from '../core/types.js';
 import { classifyLlmFailure, type LlmFailureReason } from '../llm/failure.js';
@@ -79,18 +80,18 @@ export async function extractMarkdownIntentAudited(
 
   try {
     const prompt = await readPrompt('markdown-to-intent.system.md');
-    const response = await client.chatJson<MarkdownResponse>([
+    const completion = await client.chatJsonWithMetadata<MarkdownResponse>([
       { role: 'system', content: prompt },
       { role: 'user', content: JSON.stringify({ records: deterministic.records.map(promptRecord) }) },
     ], 't2c_markdown_intent_enrichment', responseSchema(), config.openRouter.markdownModel);
-    const enrichments = validateEnrichments(response.enrichments, deterministic.records);
+    const enrichments = validateEnrichments(completion.value.enrichments, deterministic.records);
     const result: ExtractionResult = {
-      records: deterministic.records.map((record) => enrichRecord(record, enrichments.get(record.id)!, config)),
+      records: deterministic.records.map((record) => enrichRecord(record, enrichments.get(record.id)!, config, completion.metadata)),
       warnings: deterministic.warnings,
     };
     return {
       ...result,
-      audit: stageAudit('succeeded', 'llm', 'llm', false, result, config.openRouter.markdownModel, null, Date.now() - startedAt),
+      audit: stageAudit('succeeded', 'llm', 'llm', false, result, config.openRouter.markdownModel, null, Date.now() - startedAt, [completion.metadata]),
     };
   } catch (error) {
     return fallbackOrThrow(deterministic, config, mode, startedAt, classifyLlmFailure(error));
@@ -184,7 +185,7 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
 
-function enrichRecord(record: IntentRecord, enrichment: MarkdownEnrichment, config: T2CConfig): IntentRecord {
+function enrichRecord(record: IntentRecord, enrichment: MarkdownEnrichment, config: T2CConfig, response: LlmResponseMetadata): IntentRecord {
   const target = {
     paths: [...record.statement.target.paths, ...(enrichment.target?.paths ?? [])],
     symbols: [...record.statement.target.symbols, ...(enrichment.target?.symbols ?? [])],
@@ -221,6 +222,7 @@ function enrichRecord(record: IntentRecord, enrichment: MarkdownEnrichment, conf
       generation: {
         requested: 'llm', used: 'llm', degraded: false, fallbackReason: null,
         runtimeVersion: T2C_VERSION, model: config.openRouter.markdownModel,
+        response,
       },
     },
   });
@@ -249,8 +251,9 @@ function stageAudit(
   model: string | null,
   reason: PipelineStageAudit['reason'],
   durationMs: number,
+  responses: LlmResponseMetadata[] = [],
 ): PipelineStageAudit {
-  return { status, requestedMode, effectiveMode, degraded, recordCount: result.records.length, warningCount: result.warnings.length, model, durationMs, reason };
+  return { status, requestedMode, effectiveMode, degraded, recordCount: result.records.length, warningCount: result.warnings.length, model, durationMs, reason, responses };
 }
 
 async function readPrompt(name: string): Promise<string> {

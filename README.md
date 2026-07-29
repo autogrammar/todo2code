@@ -2,7 +2,11 @@
 
 `todo2code` buduje wspólny **Intent Evidence DSL** z poleceń, historii Git, aktualnego kodu, list zadań, changelogu i dokumentacji. Następnie łączy rekordy w graf przepływu wiedzy, wykrywa rozbieżności i generuje raport dla zespołu.
 
-Projekt działa na Node.js/TypeScript. Python i Go są używane wyłącznie jako małe adaptery do swoich standardowych parserów (`ast` oraz `go/ast`); żaden z nich nie ma zewnętrznych zależności. Oba toolchainy są opcjonalne — ich brak degraduje się do ostrzeżenia. Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
+Projekt działa na Node.js/TypeScript. Wielojęzykowe fakty kodu dostarczają
+adaptery TypeScript/JavaScript, Python (`ast`), Go (`go/ast`), Java (JDK
+Compiler Tree API) i Rust (`syn`). Toolchainy poza Node są opcjonalne — brak
+narzędzia daje jawne ostrzeżenie tylko wtedy, gdy repo zawiera pasujące źródła.
+Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
 ## Reality vs Intent
 ![reality.svg](.intent/runs/20260729T123956Z-2c6601ec/reality.svg)
@@ -16,7 +20,7 @@ Projekt działa na Node.js/TypeScript. Python i Go są używane wyłącznie jako
 |---|---|---:|
 | NL → DSL | OpenRouter structured output; jawny fallback heurystyczny/TensorFlow | **tak, domyślnie preferowany** |
 | 10 commitów Git → DSL | `git log`, diff, heurystyki symboli | nie |
-| TypeScript/JavaScript/Python/Go AST → DSL | TypeScript Compiler API, Python `ast`, Go `go/ast` | nie |
+| TypeScript/JavaScript/Python/Go/Java/Rust AST → DSL | natywne parsery języków; Java Tree API, Rust `syn` | nie |
 | TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie preferowany** |
 | Dokumentacja → DSL | OpenRouter structured outputs | **tak** |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
@@ -28,7 +32,8 @@ Kompletność i brak duplikatów zmiennych sprawdza `npm run verify:env`.
 
 ## Szybki start
 
-Wymagania: Node.js 20+, npm, Git i opcjonalnie Python 3.10+.
+Wymagania: Node.js 20+ i Git. Opcjonalne adaptery wymagają odpowiednio Python
+3.10+, Go, JDK 17+ lub Cargo/Rust.
 
 ```bash
 cp .env.example .env
@@ -37,11 +42,11 @@ npm run build
 node dist/src/cli.js doctor
 ```
 
-`make install` pomija opcjonalny TensorFlow i jest zalecaną ścieżką. Według
-audytu z 2026-07-29 instalacja core ma 0 podatności; `make install-tf` z
-`@tensorflow/tfjs-node@4.22.0` wnosi 8 zgłoszeń z zależności instalatora. Nie
-należy stosować sugerowanego `npm audit fix --force`, ponieważ proponuje
-niekompatybilny downgrade TensorFlow.
+Zwykłe `npm install` i `make install` instalują wyłącznie rdzeń, dla którego
+audyt z 2026-07-29 ma 0 podatności. `make install-tf` instaluje
+`@tensorflow/tfjs-node@4.22.0` w odizolowanym `adapters/tensorflow/node_modules`;
+jego 8 zgłoszeń nie trafia do drzewa zależności rdzenia. Nie należy stosować
+`npm audit fix --force`, ponieważ proponuje niekompatybilny downgrade.
 
 Pełny pipeline bez połączeń LLM (również wtedy, gdy lokalny `.env` zawiera klucz):
 
@@ -122,6 +127,10 @@ oznaczony fallback; `require-llm` kończy operację błędem, a `deterministic`
 świadomie pomija sieć. W Markdown LLM nie może zmienić checkboxa, lifecycle,
 wersji, daty, kategorii ani provenance — wzbogaca wyłącznie semantykę wpisu.
 Dokumentacja bez klucza jest pomijana, a raport może użyć oznaczonego fallbacku.
+Etap dokumentacji ma osobne limity fragmentu, liczby fragmentów, rekordów,
+współbieżności i timeoutu (`T2C_DOC_*`). Najpierw analizuje fragmenty pasujące
+do ścieżek, symboli, ticketów i wersji wykrytych w pozostałych źródłach; obcięcie
+budżetu zapisuje ostrzeżenie `DOC_CHUNK_BUDGET`.
 
 ## Origin vs bieżący workspace
 
@@ -239,7 +248,11 @@ Każdy rekord zawiera identyfikator, statement, lifecycle, dokładne źródło, 
 fingerprint konfiguracji oraz statusy `naturalLanguageExtraction`,
 `markdownExtraction`, `documentationExtraction` i `summary`. Status runu `degraded` jest pokazywany
 w CLI, `GET /api/runs` i UI. Parametry obejmują modele, timeout, temperaturę,
-limit tokenów i tryb structured output; klucz API nigdy nie jest zapisywany.
+limit tokenów, budżet dokumentów, konfigurację adapterów i tryb structured
+output; klucz API nigdy nie jest zapisywany. Odpowiedzi LLM zapisują zwrócone
+przez provider `responseId`, resolved model/provider oraz usage/cost. Awaria
+`require-llm` tworzy manifest `status=failed` z kodem i etapem awarii, ale bez
+nieistniejącego grafu ani aktualizacji `latest.json`.
 
 ## MCP
 
@@ -432,10 +445,14 @@ NL i Git zawsze mają deterministyczny klasyfikator słownikowy. Lokalny model T
 ```dotenv
 T2C_ENABLE_TF=true
 T2C_TF_MODEL_PATH=/models/action/model.json
+T2C_TF_MODULE_PATH=adapters/tensorflow/node_modules/@tensorflow/tfjs-node/dist/index.js
 T2C_TF_LABELS=add,fix,remove,refactor,test,document,configure,analyze,unknown
 ```
 
-Obok `model.json` musi znajdować się `vocabulary.json`, czyli mapa token → indeks. Model powinien przyjmować tensor `[1, vocabulary_size]` i zwracać rozkład klas. Przy błędzie modelu runtime wraca do heurystyk i zapisuje podstawę fallbacku w rekordzie.
+Najpierw należy wykonać `make install-tf`. Obok `model.json` musi znajdować się
+`vocabulary.json`, czyli mapa token → indeks. Model powinien przyjmować tensor
+`[1, vocabulary_size]` i zwracać rozkład klas. Przy braku adaptera lub błędzie
+modelu runtime wraca do heurystyk i zapisuje `heuristic_fallback:<powód>`.
 
 ## Docker i Makefile
 

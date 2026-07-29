@@ -230,6 +230,18 @@ export type NlExtractionMode = LlmExtractionMode;
 
 export type PipelineStageStatus = 'succeeded' | 'partial' | 'fallback' | 'failed' | 'skipped';
 
+export interface LlmResponseMetadata extends Record<string, JsonValue> {
+  responseId: string | null;
+  model: string | null;
+  provider: string | null;
+  usage: {
+    promptTokens: number | null;
+    completionTokens: number | null;
+    totalTokens: number | null;
+    cost: number | null;
+  } | null;
+}
+
 export interface PipelineStageAudit {
   status: PipelineStageStatus;
   requestedMode: 'deterministic' | 'llm' | 'disabled';
@@ -240,6 +252,7 @@ export interface PipelineStageAudit {
   model: string | null;
   durationMs: number;
   reason: { code: string; message: string } | null;
+  responses: LlmResponseMetadata[];
 }
 
 export interface PipelineOptions {
@@ -263,10 +276,11 @@ export interface PipelineManifest {
   runId: string;
   root: string;
   createdAt: string;
-  graphFingerprint: string;
+  graphFingerprint: string | null;
   files: Record<string, string>;
   warnings: string[];
-  status: 'succeeded' | 'degraded';
+  status: 'succeeded' | 'degraded' | 'failed';
+  failure: { stage: keyof PipelineManifest['stages']; code: string; message: string } | null;
   runtime: {
     name: 'todo2code';
     version: string;
@@ -278,9 +292,25 @@ export interface PipelineManifest {
     gitCommitCount: number;
     maxFileBytes: number;
     documentConcurrency: number;
+    documentChunkChars: number;
+    documentMaxChunks: number;
+    documentRecordsPerChunk: number;
+    documentTimeoutMs: number;
     summaryLlm: boolean;
     documentPatterns: string[];
     documentExcludes: string[];
+    adapters: {
+      python: { enabled: boolean; executable: string };
+      go: { enabled: boolean; executable: string };
+      java: { enabled: boolean; executable: string };
+      rust: { enabled: boolean; executable: string };
+      tensorflow: {
+        enabled: boolean;
+        modelPath: string | null;
+        modulePath: string;
+        labels: string[];
+      };
+    };
     llm: {
       configured: boolean;
       baseUrl: string;
