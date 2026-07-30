@@ -24,10 +24,11 @@ docelowego `DSL2TODO` znajdują się w
 [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md). Priorytety implementacyjne
 są utrzymywane w [`TODO.md`](TODO.md).
 
-Komunikację zespołu można zapisywać append-only w `project/<ticket>/`. Konwerter
-zachowuje uczestnika i rolę `human|agent`, a `t2c communication` porównuje
-wypowiedzi z dowodami Git/AST osobno dla każdego uczestnika. Kontrakt plików i
-gotowe polecenia opisuje
+Komunikację zespołu można zapisywać append-only w `project/<ticket>/`. Główny
+pipeline domyślnie zachowuje uczestnika i rolę `human|agent`, porównuje
+wypowiedzi z dowodami Git/AST, zapisuje analizę w manifeście i dodaje problemy
+do diagnostyki. Claim agenta pozostaje claimem, nigdy faktem wykonania.
+Kontrakt plików i gotowe polecenia opisuje
 [`docs/TEAM_COMMUNICATION.md`](docs/TEAM_COMMUNICATION.md).
 
 Praktyczny przebieg CLI — od instalacji przez tryb offline/LLM po diff,
@@ -111,7 +112,8 @@ console.log({ records: graph.records.length, relations: graph.relations.length, 
 NODE
 ```
 
-Weryfikowany wynik dla `0.4.0` ma 202 rekordy. Liczba relacji zależy również od
+Weryfikowany wynik dla `0.4.0` ma 207 rekordów, w tym 5 wersjonowanych rekordów
+komunikacji. Liczba relacji zależy również od
 ostatnich 10 commitów Git, dlatego po każdym commicie może się prawidłowo
 zmienić i należy odczytać ją z bieżącego grafu:
 
@@ -121,7 +123,7 @@ naturalLanguageExtraction: succeeded / deterministic
 markdownExtraction:        succeeded / deterministic
 documentationExtraction:   skipped / none
 summary:                   skipped / deterministic / LLM_DISABLED
-records: 202, relations: <zależne od ostatnich 10 commitów>
+records: 207, relations: <zależne od ostatnich 10 commitów>
 bySource: ast=180, changelog=2, git=10, nl=7, todo=3
 ```
 
@@ -434,7 +436,7 @@ Przykładowa konfiguracja hosta MCP:
 }
 ```
 
-Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `extract_communication`, `analyze_communication`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`. Serwer udostępnia też zasoby `t2c://latest/*`.
+Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `extract_communication`, `analyze_communication`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`, `propose_todo`, `render_todo`, `apply_todo`. Serwer udostępnia też zasoby `t2c://latest/*`, w tym analizę komunikacji i artefakty review/apply.
 
 ## Diff DSL, SVG i SDK
 

@@ -198,7 +198,14 @@ export type DiagnosticCode =
   | 'LOW_CONFIDENCE'
   | 'INSUFFICIENT_EVIDENCE'
   | 'LLM_NOT_CONFIGURED'
-  | 'SOURCE_UNAVAILABLE';
+  | 'SOURCE_UNAVAILABLE'
+  | 'PARTICIPANT_IDENTITY_UNRESOLVED'
+  | 'HUMAN_COMMUNICATION_CONFLICT'
+  | 'AGENT_COMMUNICATION_CONFLICT'
+  | 'HUMAN_AGENT_CONFLICT'
+  | 'REQUEST_WITHOUT_AGENT_RESPONSE'
+  | 'AGENT_CLAIM_WITHOUT_EVIDENCE'
+  | 'AGENT_WORK_OUTSIDE_REQUEST';
 
 export type DiagnosticSeverity = 'info' | 'warning' | 'review_required' | 'blocking';
 
@@ -326,6 +333,7 @@ export type PipelineFailureStage =
   | 'astExtraction'
   | 'markdownExtraction'
   | 'documentationExtraction'
+  | 'communicationAnalysis'
   | 'linking'
   | 'diagnostics'
   | 'taskSynthesis'
@@ -375,6 +383,9 @@ export interface PipelineOptions {
   markdownMode?: LlmExtractionMode;
   documentExcludes?: string[];
   taskSynthesisMode?: 'disabled' | 'prefer-llm' | 'require-llm';
+  includeCommunication?: boolean;
+  projectDirectory?: string;
+  communicationTicket?: string | null;
 }
 
 export interface PipelineManifest {
@@ -404,6 +415,9 @@ export interface PipelineManifest {
     documentTimeoutMs: number;
     summaryLlm: boolean;
     taskSynthesisMode: 'disabled' | 'prefer-llm' | 'require-llm';
+    includeCommunication: boolean;
+    projectDirectory: string;
+    communicationTicket: string | null;
     documentPatterns: string[];
     documentExcludes: string[];
     adapters: {
@@ -437,6 +451,7 @@ export interface PipelineManifest {
     naturalLanguageExtraction: PipelineStageAudit;
     markdownExtraction: PipelineStageAudit;
     documentationExtraction: PipelineStageAudit;
+    communicationAnalysis: PipelineStageAudit;
     taskSynthesis: PipelineStageAudit;
     summary: PipelineStageAudit;
   };

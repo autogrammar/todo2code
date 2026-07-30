@@ -1,7 +1,7 @@
 import { createIntentId } from '../core/id.js';
 import { assertIntentGraph } from '../core/schema.js';
 import { normalizeToken, similarity } from '../core/text.js';
-import type { IntentGraph, IntentRecord } from '../core/types.js';
+import type { Diagnostic, DiagnosticReport, IntentGraph, IntentRecord } from '../core/types.js';
 import type { CommunicationRole } from '../extractors/communication.js';
 
 export type CommunicationIssueSeverity = 'info' | 'warning' | 'review_required' | 'blocking';
@@ -179,6 +179,45 @@ export function renderCommunicationMarkdown(analysis: CommunicationAnalysis): st
     lines.push(`  - Następny krok: ${item.suggestedAction}`);
   }
   return `${lines.join('\n')}\n`;
+}
+
+export function addCommunicationIssuesToDiagnostics(
+  report: DiagnosticReport,
+  analysis: CommunicationAnalysis,
+): DiagnosticReport {
+  if (report.graphFingerprint !== analysis.graphFingerprint) {
+    throw new Error('Communication analysis does not describe the diagnostic graph');
+  }
+  const communicationDiagnostics: Diagnostic[] = analysis.issues.map((item) => ({
+    id: createIntentId({ communicationIssueId: item.id, graphFingerprint: report.graphFingerprint }, 'DIAG'),
+    code: item.code,
+    severity: item.severity,
+    title: communicationIssueTitle(item.code),
+    detail: `${item.detail} Communication issue: ${item.id}. Ticket: ${item.ticket}. Participants: ${item.participantIds.join(', ')}.`,
+    recordIds: [...item.recordIds],
+    suggestedAction: item.suggestedAction,
+  }));
+  const combined = [...report.diagnostics, ...communicationDiagnostics];
+  const hasSerious = combined.some((item) => item.severity === 'blocking' || item.severity === 'review_required');
+  const diagnostics = [...new Map(combined
+    .filter((item) => !(hasSerious && item.code === 'ALIGNED'))
+    .map((item) => [item.id, item])).values()]
+    .sort((left, right) => severityRank(right.severity) - severityRank(left.severity) || left.id.localeCompare(right.id));
+  const counts: DiagnosticReport['counts'] = { info: 0, warning: 0, review_required: 0, blocking: 0 };
+  for (const diagnostic of diagnostics) counts[diagnostic.severity] += 1;
+  return { ...report, diagnostics, counts };
+}
+
+function communicationIssueTitle(code: CommunicationIssue['code']): string {
+  return ({
+    PARTICIPANT_IDENTITY_UNRESOLVED: 'Nierozstrzygnięta tożsamość uczestnika',
+    HUMAN_COMMUNICATION_CONFLICT: 'Sprzeczne deklaracje ludzi',
+    AGENT_COMMUNICATION_CONFLICT: 'Sprzeczne deklaracje agentów',
+    HUMAN_AGENT_CONFLICT: 'Sprzeczność człowiek–agent',
+    REQUEST_WITHOUT_AGENT_RESPONSE: 'Polecenie bez odpowiedzi agenta',
+    AGENT_CLAIM_WITHOUT_EVIDENCE: 'Claim agenta bez dowodu',
+    AGENT_WORK_OUTSIDE_REQUEST: 'Praca agenta poza intencją człowieka',
+  } satisfies Record<CommunicationIssue['code'], string>)[code];
 }
 
 function evidenceNeighbors(graph: IntentGraph): Map<string, string[]> {

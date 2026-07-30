@@ -49,18 +49,18 @@
 
 ### P0.6 — communication analysis in the main runtime
 
-- [ ] Add `project/<ticket>/` and `agent_log` inputs to the main pipeline without
+- [x] Add `project/<ticket>/` and `agent_log` inputs to the main pipeline without
   requiring a separate communication command.
-- [ ] Store per-participant analysis, identity ambiguity and communication issue
+- [x] Store per-participant analysis, identity ambiguity and communication issue
   IDs as versioned run artifacts with manifest stage audit and failure state.
-- [ ] Include participant/request/plan/claim divergence in graph diagnostics,
+- [x] Include participant/request/plan/claim divergence in graph diagnostics,
   grounded task synthesis and Intent-vs-Reality without turning agent claims
   into facts.
-- [ ] Expose communication artifacts and filters in run history, comparison API
+- [x] Expose communication artifacts and filters in run history, comparison API
   and the UI, including participant, role, ticket and issue severity.
-- [ ] Make `t2c watch` react to communication changes and coalesce them under the
+- [x] Make `t2c watch` react to communication changes and coalesce them under the
   existing scan/report rate limits.
-- [ ] Add pipeline/history/UI/watcher end-to-end tests for multiple humans,
+- [x] Add pipeline/history/UI/watcher end-to-end tests for multiple humans,
   multiple agents, unresolved identities, contradictions, unanswered requests,
   work outside intent and claims without Git/AST evidence.
 

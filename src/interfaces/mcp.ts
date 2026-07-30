@@ -94,6 +94,10 @@ const TOOLS: McpTool[] = [
     after: stringProp('Alternative later graph path under root.'),
     includeSvg: { type: 'boolean', description: 'Include SVG visualization, default true.' },
     maxItems: numberProp('Maximum rows per SVG section, default 18.', 1, 100),
+    communicationOnly: { type: 'boolean', description: 'Compare only versioned agent_log communication records.' },
+    participant: stringProp('Optional exact communication participant filter.'),
+    role: stringProp('Optional human, agent or unknown communication role filter.'),
+    ticket: stringProp('Optional ticket filter applied to both graphs.'),
   }),
   tool('diff_files', 'Diff two files with the deterministic Myers engine and return unified text plus an SVG view.', {
     root: stringProp('Repository root under T2C_ROOT.'),
@@ -179,6 +183,9 @@ const TOOLS: McpTool[] = [
     summaryFallback: { type: 'boolean' },
     includeSummaryLlm: { type: 'boolean', description: 'Use the configured LLM for the final summary; false is fully deterministic.' },
     taskMode: stringProp('disabled (default), prefer-llm or require-llm task synthesis and TODO.patch rendering.'),
+    includeCommunication: { type: 'boolean', description: 'Analyze project/<ticket> communication in the main run; default true.' },
+    projectDir: stringProp('Communication directory under root, default project.'),
+    communicationTicket: nullableStringProp('Optional ticket filter for communication input.'),
   }),
 ];
 
@@ -426,6 +433,8 @@ async function listResources(config: T2CConfig): Promise<Array<Record<string, un
     { uri: 't2c://latest/todo-patch', name: 'Latest reviewable TODO patch', mimeType: 'text/markdown' },
     { uri: 't2c://latest/todo-patch-audit', name: 'Latest TODO patch audit', mimeType: 'application/json' },
     { uri: 't2c://latest/todo-apply-receipt', name: 'Latest TODO apply receipt', mimeType: 'application/json' },
+    { uri: 't2c://latest/communication-analysis', name: 'Latest participant communication analysis', mimeType: 'application/json' },
+    { uri: 't2c://latest/communication-report', name: 'Latest participant communication report', mimeType: 'text/markdown' },
   ];
 }
 
@@ -446,6 +455,8 @@ async function readResource(uri: string, config: T2CConfig): Promise<Record<stri
     't2c://latest/todo-patch': ['TODO.patch', 'text/markdown'],
     't2c://latest/todo-patch-audit': ['TODO.patch.json', 'application/json'],
     't2c://latest/todo-apply-receipt': ['TODO.patch.receipt.json', 'application/json'],
+    't2c://latest/communication-analysis': ['communication-analysis.json', 'application/json'],
+    't2c://latest/communication-report': ['communication-analysis.md', 'text/markdown'],
   };
   const selected = names[uri];
   if (!selected) throw new Error(`Unknown resource URI: ${uri}`);

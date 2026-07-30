@@ -35,6 +35,13 @@
   added to the same manifest.
 - Extended all five SDK examples and `examples:check` with cross-language
   parity for proposal IDs, duplicate IDs and the rendered patch fingerprint.
+- Integrated versioned `project/<ticket>` communication into every main
+  pipeline run. Participant analysis and its Markdown projection are persisted
+  in the manifest, while communication issues become grounded graph
+  diagnostics available to task synthesis and Intent-vs-Reality.
+- Added communication-aware run-history and graph-comparison filters for
+  participant, role, ticket and issue severity, exposed them in the history UI,
+  and verified that watcher changes coalesce under the existing rate limit.
 
 ### Fixed
 

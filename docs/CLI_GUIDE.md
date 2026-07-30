@@ -68,6 +68,9 @@ trybu wykonania. Udany run zapisuje:
     ├── document.intent.jsonl
     ├── intent.graph.json
     ├── diagnostics.json
+    ├── communication.intent.jsonl
+    ├── communication-analysis.json
+    ├── communication-analysis.md
     ├── task-synthesis.json       # gdy --task-mode != disabled
     ├── todo-validation.json      # gdy --task-mode != disabled
     ├── TODO.patch                # wyłącznie do review
@@ -216,8 +219,15 @@ node dist/src/cli.js communication . \
 
 Analiza zachowuje tożsamość i rolę każdego uczestnika. Raportuje konflikty
 człowiek–człowiek i człowiek–agent, brak odpowiedzi, działania poza zakresem
-oraz claimy wykonania bez dowodu Git/AST. Ten etap jest obecnie samodzielnym
-CLI/MCP/A2A; integracja z manifestem głównego pipeline'u pozostaje w backlogu.
+oraz claimy wykonania bez dowodu Git/AST. Główny `pipeline` i `watch` wykonują
+ten etap domyślnie z `--project-dir project`; zakres można ograniczyć przez
+`--communication-ticket TICKET` albo jawnie wyłączyć przez
+`--no-communication`. Samodzielna komenda pozostaje przydatna do szybkiego
+raportu jednego ticketu.
+
+Historia `/api/runs` przyjmuje filtry `participant`, `role`, `ticket` i
+`severity`. Te same pola są dostępne w `/ui`; participant/role/ticket zawężają
+również deterministyczny diff grafów do komunikacji wybranego zakresu.
 
 ## Watch, MCP i A2A
 

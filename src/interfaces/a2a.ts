@@ -167,7 +167,12 @@ async function handleHttp(request: IncomingMessage, response: ServerResponse, co
       sendJson(response, 401, { error: 'Unauthorized' });
       return;
     }
-    sendJson(response, 200, { runs: await listIntentRuns(config) });
+    sendJson(response, 200, { runs: await listIntentRuns(config, {
+      participant: url.searchParams.get('participant'),
+      role: url.searchParams.get('role'),
+      ticket: url.searchParams.get('ticket'),
+      severity: url.searchParams.get('severity'),
+    }) });
     return;
   }
   if (request.method === 'GET' && url.pathname === '/') {
@@ -253,9 +258,26 @@ interface IntentRunListItem {
   files: Record<string, string>;
   llm: { naturalLanguageExtraction: boolean; markdownExtraction: boolean; documentationExtraction: boolean; taskSynthesis: boolean; summary: boolean } | null;
   graphBytes: number;
+  communication: CommunicationRunSummary | null;
 }
 
-async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
+interface CommunicationRunSummary {
+  tickets: string[];
+  participants: Array<{ participant: string; role: string; tickets: string[]; issueIds: string[] }>;
+  issueSeverities: string[];
+  issueCount: number;
+}
+
+interface RunHistoryFilters {
+  participant: string | null;
+  role: string | null;
+  ticket: string | null;
+  severity: string | null;
+}
+
+async function listIntentRuns(config: T2CConfig, filters: RunHistoryFilters = {
+  participant: null, role: null, ticket: null, severity: null,
+}): Promise<IntentRunListItem[]> {
   const runsDirectory = await assertPathWithinRoot(
     config.root,
     path.resolve(config.root, config.outputDir, 'runs'),
@@ -300,6 +322,7 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
         const runtimeValue = isRecord(manifest.runtime) ? manifest.runtime : null;
         const stagesValue = isRecord(manifest.stages) ? manifest.stages : null;
         const warnings = Array.isArray(manifest.warnings) ? manifest.warnings : [];
+        const communication = await readCommunicationSummary(config.root, files);
         return {
           runId: typeof manifest.runId === 'string' ? manifest.runId : entry.name,
           createdAt: createdAtValue,
@@ -320,6 +343,7 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
             summary: llmValue.summary === true,
           } : null,
           graphBytes: graphStat?.isFile() ? graphStat.size : 0,
+          communication,
         };
       } catch {
         // An incomplete, malformed or escaped run must not break the history UI.
@@ -329,8 +353,56 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
 
   return items
     .filter((item): item is IntentRunListItem => item !== null)
+    .filter((item) => matchesRunFilters(item.communication, filters))
     .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)
       || right.runId.localeCompare(left.runId));
+}
+
+async function readCommunicationSummary(root: string, files: Record<string, string>): Promise<CommunicationRunSummary | null> {
+  const relative = files.communicationAnalysis;
+  if (!relative) return null;
+  try {
+    const filePath = path.resolve(root, relative);
+    const stat = await fs.stat(filePath);
+    if (!stat.isFile() || stat.size > 4 * 1024 * 1024) return null;
+    const value = JSON.parse(await fs.readFile(filePath, 'utf8')) as Record<string, unknown>;
+    const participants = Array.isArray(value.participants) ? value.participants
+      .filter(isRecord)
+      .map((item) => ({
+        participant: typeof item.participant === 'string' ? item.participant : '',
+        role: typeof item.role === 'string' ? item.role : 'unknown',
+        tickets: stringArray(item.tickets),
+        issueIds: stringArray(item.issueIds),
+      }))
+      .filter((item) => item.participant) : [];
+    const issues = Array.isArray(value.issues) ? value.issues.filter(isRecord) : [];
+    return {
+      tickets: stringArray(value.tickets),
+      participants,
+      issueSeverities: [...new Set(issues.flatMap((item) => typeof item.severity === 'string' ? [item.severity] : []))].sort(),
+      issueCount: issues.length,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function matchesRunFilters(summary: CommunicationRunSummary | null, filters: RunHistoryFilters): boolean {
+  const participant = filters.participant?.trim().toLowerCase();
+  const role = filters.role?.trim().toLowerCase();
+  const ticket = filters.ticket?.trim().toLowerCase();
+  const severity = filters.severity?.trim().toLowerCase();
+  if (!participant && !role && !ticket && !severity) return true;
+  if (!summary) return false;
+  if (participant && !summary.participants.some((item) => item.participant.toLowerCase().includes(participant))) return false;
+  if (role && !summary.participants.some((item) => item.role.toLowerCase() === role)) return false;
+  if (ticket && !summary.tickets.some((item) => item.toLowerCase() === ticket)) return false;
+  if (severity && !summary.issueSeverities.some((item) => item.toLowerCase() === severity)) return false;
+  return true;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }
 
 function safeManifestFiles(root: string, files: Record<string, unknown>): Record<string, string> {

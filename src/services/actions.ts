@@ -189,8 +189,10 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
       return result;
     }
     case 'diff': {
-      const before = await readGraphInput(input.beforeGraph, input.before, 'before', root, config);
-      const after = await readGraphInput(input.afterGraph, input.after, 'after', root, config);
+      const beforeInput = await readGraphInput(input.beforeGraph, input.before, 'before', root, config);
+      const afterInput = await readGraphInput(input.afterGraph, input.after, 'after', root, config);
+      const before = filterCommunicationGraph(beforeInput, input);
+      const after = filterCommunicationGraph(afterInput, input);
       const diff = diffIntentGraphs(before, after);
       const svg = booleanValue(input.includeSvg, true)
         ? renderGraphDiffSvg(diff, { maxItems: numberValue(input.maxItems, 18, 1, 100) })
@@ -287,10 +289,30 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
         documentExcludes: stringList(input.docExcludes, config.documentExcludes),
         taskSynthesisMode: pipelineTaskMode(input.taskMode),
+        includeCommunication: booleanValue(input.includeCommunication, true),
+        projectDirectory: stringValue(input.projectDir, 'project'),
+        communicationTicket: nullableString(input.communicationTicket, null),
       };
       return runPipeline(options, config);
     }
   }
+}
+
+function filterCommunicationGraph(graph: IntentGraph, input: Record<string, unknown>): IntentGraph {
+  const participant = stringValue(input.participant, '').toLowerCase();
+  const role = stringValue(input.role, '').toLowerCase();
+  const ticket = stringValue(input.ticket, '').toLowerCase();
+  const communicationOnly = booleanValue(input.communicationOnly, false);
+  if (!participant && !role && !ticket && !communicationOnly) return graph;
+  const records = graph.records.filter((record) => {
+    const isCommunication = record.source.kind === 'agent_log';
+    if (communicationOnly && !isCommunication) return false;
+    if (participant && (!isCommunication || String(record.metadata.participant ?? '').toLowerCase() !== participant)) return false;
+    if (role && (!isCommunication || String(record.metadata.participantRole ?? '').toLowerCase() !== role)) return false;
+    if (ticket && !record.statement.target.tickets.some((value) => value.toLowerCase() === ticket)) return false;
+    return true;
+  });
+  return linkIntentRecords(records, graph.generatedAt);
 }
 
 function nlModeValue(value: unknown, fallback: NlExtractionMode): NlExtractionMode {

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { addCommunicationIssuesToDiagnostics, analyzeCommunication } from '../src/communication/analyzer.js';
 import { buildRecord } from '../src/core/record.js';
 import type { Diagnostic, DiagnosticReport, IntentGraph } from '../src/core/types.js';
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
@@ -139,6 +140,33 @@ test('prefer-llm exposes raw diagnostic actions without claiming semantic task g
   assert.equal(result.audit.degraded, true);
   assert.equal(result.audit.reason?.code, 'LLM_NOT_CONFIGURED');
   assert.match(result.warnings[0] ?? '', /raw diagnostic actions only/);
+});
+
+test('communication divergence is grounded in task synthesis without treating agent claims as facts', async () => {
+  const request = buildRecord({
+    kind: 'communication_request', actor: 'Alice', action: 'add', object: 'safe flow',
+    text: 'Add safe flow for COMM-9.', target: { tickets: ['COMM-9'] }, lifecycle: 'proposed',
+    sourceKind: 'agent_log', sourcePath: 'project/COMM-9/alice.request.md', sourceLines: { start: 7, end: 7 },
+    extractor: 'test', epistemicClass: 'declaration', confidence: 0.88, basis: ['fixture'],
+    metadata: { participant: 'Alice', participantRole: 'human', messageType: 'request', ticket: 'COMM-9' },
+  });
+  const claim = buildRecord({
+    kind: 'communication_claim', actor: 'Codex', action: 'add', object: 'unrequested flow',
+    text: 'Implemented unrequested flow for COMM-9.', target: { tickets: ['COMM-9'] }, lifecycle: 'implemented',
+    sourceKind: 'agent_log', sourcePath: 'project/COMM-9/codex.claim.md', sourceLines: { start: 7, end: 7 },
+    extractor: 'test', epistemicClass: 'claim', confidence: 0.88, basis: ['fixture'],
+    metadata: { participant: 'Codex', participantRole: 'agent', messageType: 'claim', ticket: 'COMM-9' },
+  });
+  const graph = linkIntentRecords([request, claim], GENERATED_AT);
+  const diagnostics = addCommunicationIssuesToDiagnostics(
+    diagnoseGraph(graph, GENERATED_AT), analyzeCommunication(graph, GENERATED_AT),
+  );
+  const result = await synthesizeTodoProposals(graph, diagnostics, makeConfig(process.cwd()), 'prefer-llm');
+  const claimDiagnostic = diagnostics.diagnostics.find((item) => item.code === 'AGENT_CLAIM_WITHOUT_EVIDENCE');
+  assert.ok(claimDiagnostic);
+  assert.ok(result.rawDiagnosticActions.some((item) => item.diagnosticId === claimDiagnostic.id));
+  assert.equal(claim.epistemic.class, 'claim');
+  assert.equal(graph.records.some((record) => record.source.kind === 'agent_log' && record.epistemic.class === 'fact'), false);
 });
 
 test('require-llm fails explicitly when task synthesis cannot call the provider', async () => {

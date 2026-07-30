@@ -1,6 +1,7 @@
 import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
 import { hasOpenRouter } from '../config/env.js';
+import { addCommunicationIssuesToDiagnostics, analyzeCommunication, renderCommunicationMarkdown } from '../communication/analyzer.js';
 import { createIntentId, newRunId, sha256, stableStringify } from '../core/id.js';
 import { ensureDir, pathExists, readText, writeJson, writeJsonl, writeText } from '../core/io.js';
 import type {
@@ -13,6 +14,7 @@ import type {
   PipelineStageAudit,
 } from '../core/types.js';
 import { extractAstIntent } from '../extractors/ast.js';
+import { extractCommunicationIntent } from '../extractors/communication.js';
 import { DocumentationLlmRequiredError, extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntentAudited, MarkdownLlmRequiredError } from '../extractors/markdown-llm.js';
@@ -34,6 +36,7 @@ export interface PipelineResult {
   taskSynthesisPath: string | null;
   todoPatchPath: string | null;
   todoPatchAuditPath: string | null;
+  communicationAnalysisPath: string | null;
 }
 
 export async function runPipeline(options: PipelineOptions, config: T2CConfig): Promise<PipelineResult> {
@@ -56,6 +59,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     todo: [],
     changelog: [],
     document: [],
+    communication: [],
   };
 
   let naturalLanguageAudit = skippedAudit('disabled', 'No NL task file was selected');
@@ -123,12 +127,47 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   }
   completedStages.documentationExtraction = documentationAudit;
 
+  const includeCommunication = options.includeCommunication !== false;
+  const communicationStartedAt = Date.now();
+  let communicationAudit = skippedAudit('disabled', 'Communication analysis was disabled');
+  let communicationInputPresent = false;
+  if (includeCommunication) {
+    activeStage = 'communicationAnalysis';
+    const communication = await extractCommunicationIntent({
+      root,
+      projectDir: options.projectDirectory ?? 'project',
+      ticket: options.communicationTicket ?? null,
+    }, config);
+    const missingDirectory = communication.records.length === 0
+      && communication.warnings.length === 1
+      && communication.warnings[0]?.startsWith('Communication directory not found:');
+    communicationInputPresent = !missingDirectory;
+    bySource.communication = communication.records;
+    if (!missingDirectory) warnings.push(...communication.warnings);
+    communicationAudit = missingDirectory
+      ? skippedAudit('deterministic', communication.warnings[0] ?? 'Communication directory not found')
+      : {
+          runtimeVersion: T2C_VERSION,
+          configuration: {
+            projectDirectory: options.projectDirectory ?? 'project',
+            ticket: options.communicationTicket ?? null,
+          },
+          status: communication.warnings.length > 0 ? 'partial' : 'succeeded',
+          requestedMode: 'deterministic', effectiveMode: 'deterministic', degraded: false,
+          recordCount: communication.records.length, warningCount: communication.warnings.length,
+          model: null, durationMs: Date.now() - communicationStartedAt, reason: null, responses: [],
+        };
+  }
+  completedStages.communicationAnalysis = communicationAudit;
+
   activeStage = 'linking';
   const allRecords = Object.values(bySource).flat();
   const generatedAt = new Date().toISOString();
   const graph = linkIntentRecords(allRecords, generatedAt);
   activeStage = 'diagnostics';
-  const diagnostics = diagnoseGraph(graph, generatedAt);
+  const communicationAnalysis = communicationInputPresent ? analyzeCommunication(graph, generatedAt) : null;
+  let diagnostics = diagnoseGraph(graph, generatedAt);
+  if (communicationAnalysis) diagnostics = addCommunicationIssuesToDiagnostics(diagnostics, communicationAnalysis);
   if (options.includeDocumentationLlm && !hasOpenRouter(config)) appendLlmNotConfigured(diagnostics);
   const taskSynthesisMode = options.taskSynthesisMode ?? 'disabled';
   let taskSynthesis: AuditedTaskSynthesisResult | null = null;
@@ -206,9 +245,19 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const todoValidationPath = taskSynthesis ? path.join(runDirectory, 'todo-validation.json') : null;
   const todoPatchPath = todoPatch ? path.join(runDirectory, 'TODO.patch') : null;
   const todoPatchAuditPath = todoPatch ? path.join(runDirectory, 'TODO.patch.json') : null;
+  const communicationAnalysisPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.json') : null;
+  const communicationMarkdownPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.md') : null;
   await writeJson(graphPath, graph);
   await writeJson(diagnosticsPath, diagnostics);
   await writeText(summaryPath, summary.markdown);
+  if (communicationAnalysisPath && communicationMarkdownPath && communicationAnalysis) {
+    await Promise.all([
+      writeJson(communicationAnalysisPath, communicationAnalysis),
+      writeText(communicationMarkdownPath, renderCommunicationMarkdown(communicationAnalysis)),
+    ]);
+    files.communicationAnalysis = path.relative(root, communicationAnalysisPath).replace(/\\/g, '/');
+    files.communicationAnalysisMarkdown = path.relative(root, communicationMarkdownPath).replace(/\\/g, '/');
+  }
   if (taskSynthesisPath && todoValidationPath && todoPatchPath && todoPatchAuditPath && taskSynthesis && todoPatch) {
     await Promise.all([
       writeJson(taskSynthesisPath, taskSynthesis),
@@ -230,6 +279,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     naturalLanguageExtraction: naturalLanguageAudit,
     markdownExtraction: markdown.audit,
     documentationExtraction: documentationAudit,
+    communicationAnalysis: communicationAudit,
     taskSynthesis: taskSynthesisAudit,
     summary: summaryAudit,
   };
@@ -261,7 +311,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     graphFingerprint: graph.fingerprint,
     summary: files.summary,
   });
-  return { runDirectory, manifest, graphPath, diagnosticsPath, summaryPath, taskSynthesisPath, todoPatchPath, todoPatchAuditPath };
+  return { runDirectory, manifest, graphPath, diagnosticsPath, summaryPath, taskSynthesisPath, todoPatchPath, todoPatchAuditPath, communicationAnalysisPath };
   } catch (error) {
     await persistFailedRun(runId, root, runDirectory, options, config, error, activeStage, completedStages);
     throw error;
@@ -281,6 +331,9 @@ function manifestConfiguration(options: PipelineOptions, config: T2CConfig): Pip
     documentTimeoutMs: config.documentTimeoutMs,
     summaryLlm: options.includeSummaryLlm !== false,
     taskSynthesisMode: options.taskSynthesisMode ?? 'disabled',
+    includeCommunication: options.includeCommunication !== false,
+    projectDirectory: options.projectDirectory ?? 'project',
+    communicationTicket: options.communicationTicket ?? null,
     documentPatterns: [...options.documentPatterns],
     documentExcludes: [...(options.documentExcludes ?? config.documentExcludes)],
     adapters: {
@@ -371,6 +424,7 @@ async function persistFailedRun(
     naturalLanguageExtraction: stageValue('naturalLanguageExtraction', 'natural-language extraction'),
     markdownExtraction: stageValue('markdownExtraction', 'Markdown extraction'),
     documentationExtraction: stageValue('documentationExtraction', 'documentation extraction'),
+    communicationAnalysis: stageValue('communicationAnalysis', 'communication analysis'),
     taskSynthesis: stageValue('taskSynthesis', 'task synthesis'),
     summary: stageValue('summary', 'summary generation'),
   };

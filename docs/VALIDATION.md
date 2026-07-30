@@ -10,12 +10,12 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrola | Wynik |
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
-| Transitive no-LLM import boundary | PASS — 9 entrypointów, 17 modułów |
-| Granice modułów | PASS — 47 modułów, 244 importy wewnętrzne, brak cykli, niezależny `src/core` |
+| Transitive no-LLM import boundary | PASS — 9 entrypointów, 18 modułów |
+| Granice modułów | PASS — 47 modułów, 247 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 56 zmiennych kodu/Dockera, 56 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 143 zaliczone, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
-| Pipeline `examples/` | PASS — 202 rekordy; liczba relacji zależy od ostatnich 10 commitów; NL, Markdown i summary deterministyczne, dokumentacja pominięta, bez sieci i fallbacku |
+| Testy Node | PASS — 147 zaliczonych, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
+| Pipeline `examples/` | PASS — 207 rekordów, w tym 5 `agent_log`; liczba relacji zależy od ostatnich 10 commitów; NL, Markdown, komunikacja i summary deterministyczne, dokumentacja pominięta, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
@@ -34,7 +34,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Diff graf/pliki/Git i reality: JSON/SVG/HTML/Markdown | PASS |
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
-| `project/<ticket>`: komunikacja ludzi i agentów | PASS — domyślny fixture `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę agenta poza zakresem; wariant `--no-ast` dodatkowo wykrywa claim bez dowodu |
+| `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę poza zakresem; wariant `--no-ast` wykrywa claim bez dowodu |
 | `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `debfd0f1923dbae0` oraz patcha `bc9f41bdea3ad737` |
 | Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
 | CLI `doctor`, `--help`, `--version` | PASS |
@@ -47,7 +47,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline oraz build i health smoke Dockera; nie wykonywała live OpenRouter.
-Wynik: 144 testy, 143 zaliczone, 0 błędów i 1 lokalny skip JDK.
+Wynik: 148 testów, 147 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

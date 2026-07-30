@@ -265,3 +265,38 @@ test('--no-initial-report waits for a real change', async () => {
 
   assert.deepEqual(harness.reports, []);
 });
+
+test('Communication changes trigger watch and coalesce under the existing report rate limit', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-watch-communication-'));
+  const ticketRoot = path.join(root, 'project', 'WM-202');
+  await fs.mkdir(ticketRoot, { recursive: true });
+  const target = path.join(ticketRoot, 'agent.plan.md');
+  await fs.writeFile(target, 'Plan 0.\n', 'utf8');
+  const harness = createHarness();
+  const controller = new AbortController();
+  let ticks = 0;
+
+  await watchRepository({
+    root,
+    pipeline: pipelineOptions(root),
+    minIntervalMs: 5_000,
+    scanIntervalMs: 1_000,
+    signal: controller.signal,
+    now: harness.now,
+    onEvent: harness.onEvent,
+    runReport: harness.runReport,
+    sleep: async (ms) => {
+      await harness.sleep(ms);
+      ticks += 1;
+      if (ticks <= 3) {
+        await fs.writeFile(target, `Plan ${ticks}.\n`, 'utf8');
+        await fs.utimes(target, new Date(), new Date(Date.now() + ticks * 1000));
+      }
+      if (ticks >= 8) controller.abort();
+    },
+  }, makeConfig(root));
+
+  assert.equal(harness.reports.length, 2);
+  assert.match(harness.reports[1] ?? '', /project\/WM-202\/agent\.plan\.md/);
+  assert.ok(harness.events.some((event) => event.type === 'throttled'));
+});

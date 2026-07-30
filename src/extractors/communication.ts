@@ -2,6 +2,7 @@ import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists, readText, relativePosix, walkFiles } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
+import { assertPathWithinRoot } from '../core/security.js';
 import {
   detectModality,
   detectPolarity,
@@ -41,7 +42,11 @@ export async function extractCommunicationIntent(
   config: T2CConfig,
 ): Promise<ExtractionResult> {
   const root = path.resolve(options.root);
-  const projectRoot = path.resolve(root, options.projectDir ?? 'project');
+  const projectRoot = await assertPathWithinRoot(
+    root,
+    path.resolve(root, options.projectDir ?? 'project'),
+    config.allowOutsideRoot,
+  );
   if (!(await pathExists(projectRoot))) {
     return { records: [], warnings: [`Communication directory not found: ${relativePosix(root, projectRoot)}`] };
   }

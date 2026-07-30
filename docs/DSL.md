@@ -290,7 +290,7 @@ Deterministyczny algorytm Myersa porównuje linie bez LLM i zwraca hunki z numer
 
 ## Intent vs reality (`t2c.reality/v1`)
 
-Widok zestawia źródła deklaratywne (`nl`, `todo`, `document`) z dowodami wykonania (`git`, `ast`) i changelogiem. Każdy temat ma jawne liczniki per źródło oraz status, m.in. `aligned`, `planned_not_implemented`, `implemented_not_planned`, `implemented_not_documented` lub `conflicting`. SVG i Markdown są projekcjami tego samego deterministycznego modelu.
+Widok zestawia źródła deklaratywne (`nl`, `todo`, `document`, `agent_log`) z dowodami wykonania (`git`, `ast`) i changelogiem. Każdy temat ma jawne liczniki per źródło oraz status, m.in. `aligned`, `planned_not_implemented`, `implemented_not_planned`, `implemented_not_documented` lub `conflicting`. SVG i Markdown są projekcjami tego samego deterministycznego modelu.
 
 ## Analiza komunikacji (`t2c.communication-analysis/v1`)
 
@@ -305,6 +305,14 @@ problemów. Problemy zawsze wskazują rekordy źródłowe i obejmują konflikty
 między ludźmi/agentami, brak odpowiedzi, pracę poza requestem, brak dowodu
 wykonania oraz nierozpoznaną tożsamość. Szczegółowy format wejściowy opisuje
 [`TEAM_COMMUNICATION.md`](TEAM_COMMUNICATION.md).
+
+Główny pipeline domyślnie dołącza `communication.intent.jsonl` do grafu oraz
+zapisuje `communication-analysis.json` i `.md` w runie. Każdy issue otrzymuje
+uziemioną diagnostykę cytującą oryginalne `agent_log` ID, dzięki czemu może być
+wejściem task synthesis. Intent-vs-Reality pokazuje osobną lane `AGENT_LOG`;
+rekord agenta o klasie `claim` nigdy nie jest zaliczany do faktów Git/AST.
+Historia i UI filtrują runy po participant/role/ticket/severity, a porównanie
+grafów może ograniczyć diff do tego samego zakresu komunikacji.
 
 ## Origin vs workspace (`t2c.workspace-comparison/v1`)
 

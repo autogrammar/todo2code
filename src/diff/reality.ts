@@ -26,11 +26,11 @@ import {
 } from './svg.js';
 
 /** Source kinds that state what *should* exist. */
-export const DECLARED_KINDS: SourceKind[] = ['nl', 'todo', 'document'];
+export const DECLARED_KINDS: SourceKind[] = ['nl', 'todo', 'document', 'agent_log'];
 /** Source kinds that evidence what *does* exist. */
 export const OBSERVED_KINDS: SourceKind[] = ['git', 'ast'];
 
-export const LANE_ORDER: SourceKind[] = ['nl', 'todo', 'document', 'git', 'ast', 'changelog'];
+export const LANE_ORDER: SourceKind[] = ['nl', 'todo', 'document', 'agent_log', 'git', 'ast', 'changelog'];
 
 export type RealityStatus =
   | 'aligned'

@@ -7,6 +7,7 @@ import test from 'node:test';
 import { promisify } from 'node:util';
 import { pathExists, readJson } from '../src/core/io.js';
 import type { IntentGraph, PipelineManifest } from '../src/core/types.js';
+import { buildRealityView } from '../src/diff/reality.js';
 import { runPipeline } from '../src/pipeline/run.js';
 import { executeAction } from '../src/services/actions.js';
 import { makeConfig } from './helpers.js';
@@ -117,6 +118,49 @@ test('Pipeline persists synthesis, validation and review patch, then registers a
   assert.equal(updatedManifest.files.todoApplyReceipt?.endsWith('/TODO.patch.receipt.json'), true);
 });
 
+test('Pipeline integrates multi-participant communication into graph, diagnostics, reality and run artifacts', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-communication-'));
+  const ticketRoot = path.join(root, 'project', 'COM-1');
+  await fs.mkdir(ticketRoot, { recursive: true });
+  await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n', 'utf8');
+  await fs.writeFile(path.join(ticketRoot, 'alice.request.md'), [
+    '---', 'participant: Alice', 'role: human', 'type: request', 'ticket: COM-1', '---',
+    'System must add `secureApply` for COM-1.', '',
+  ].join('\n'), 'utf8');
+  await fs.writeFile(path.join(ticketRoot, 'bob.decision.md'), [
+    '---', 'participant: Bob', 'role: human', 'type: decision', 'ticket: COM-1', '---',
+    'System must not add `secureApply` for COM-1.', '',
+  ].join('\n'), 'utf8');
+  await fs.writeFile(path.join(ticketRoot, 'codex.claim.md'), [
+    '---', 'participant: Codex', 'role: agent', 'type: claim', 'ticket: COM-1', '---',
+    'Implemented `unrequestedFeature` for COM-1.', '',
+  ].join('\n'), 'utf8');
+  await fs.writeFile(path.join(ticketRoot, 'unknown.md'), 'Review `secureApply` for COM-1.\n', 'utf8');
+
+  const config = makeConfig(root);
+  const result = await runPipeline({
+    root, taskFile: null, todoFile: 'TODO.md', changelogFile: null,
+    documentPatterns: [], includeDocumentationLlm: false, outputDir: '.intent',
+    gitCommitCount: 1, allowSummaryFallback: true, includeSummaryLlm: false,
+    nlMode: 'deterministic', markdownMode: 'deterministic',
+  }, config);
+
+  assert.equal(result.manifest.stages.communicationAnalysis.status, 'partial');
+  assert.equal(result.manifest.stages.communicationAnalysis.recordCount, 4);
+  assert.ok(result.communicationAnalysisPath && await pathExists(result.communicationAnalysisPath));
+  assert.equal(result.manifest.files.communicationAnalysis?.endsWith('/communication-analysis.json'), true);
+  assert.equal(result.manifest.files.communicationAnalysisMarkdown?.endsWith('/communication-analysis.md'), true);
+  const graph = await readJson<IntentGraph>(result.graphPath);
+  assert.equal(graph.records.filter((record) => record.source.kind === 'agent_log').length, 4);
+  const diagnostics = await readJson<import('../src/core/types.js').DiagnosticReport>(result.diagnosticsPath);
+  assert.ok(diagnostics.diagnostics.some((item) => item.code === 'HUMAN_COMMUNICATION_CONFLICT'));
+  assert.ok(diagnostics.diagnostics.some((item) => item.code === 'AGENT_CLAIM_WITHOUT_EVIDENCE'));
+  assert.ok(diagnostics.diagnostics.some((item) => item.code === 'PARTICIPANT_IDENTITY_UNRESOLVED'));
+  const reality = buildRealityView(graph, diagnostics);
+  assert.ok(reality.rows.some((row) => (row.lanes.agent_log ?? 0) > 0));
+  assert.equal(graph.records.some((record) => record.source.kind === 'agent_log' && record.epistemic.class === 'fact'), false);
+});
+
 test('Pipeline require-llm task synthesis failure is audited and never publishes latest', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-task-failed-'));
   await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n- [ ] Add task synthesis.\n');
@@ -142,6 +186,24 @@ test('Pipeline require-llm task synthesis failure is audited and never publishes
   assert.equal(manifest.failure?.stage, 'taskSynthesis');
   assert.equal(manifest.failure?.code, 'LLM_NOT_CONFIGURED');
   assert.equal(manifest.stages.taskSynthesis.status, 'failed');
+  assert.equal(await pathExists(path.join(root, '.intent-failed', 'latest.json')), false);
+});
+
+test('Pipeline persists communication stage failure and does not publish latest', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-communication-failed-'));
+  await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n', 'utf8');
+  const config = makeConfig(root);
+  await assert.rejects(() => runPipeline({
+    root, taskFile: null, todoFile: 'TODO.md', changelogFile: null,
+    documentPatterns: [], includeDocumentationLlm: false, outputDir: '.intent-failed',
+    gitCommitCount: 1, allowSummaryFallback: true, includeSummaryLlm: false,
+    nlMode: 'deterministic', markdownMode: 'deterministic', projectDirectory: '../outside',
+  }, config), /outside configured T2C_ROOT/);
+  const runs = await fs.readdir(path.join(root, '.intent-failed', 'runs'));
+  const manifest = await readJson<PipelineManifest>(path.join(root, '.intent-failed', 'runs', runs[0] ?? '', 'manifest.json'));
+  assert.equal(manifest.status, 'failed');
+  assert.equal(manifest.failure?.stage, 'communicationAnalysis');
+  assert.equal(manifest.stages.communicationAnalysis.status, 'failed');
   assert.equal(await pathExists(path.join(root, '.intent-failed', 'latest.json')), false);
 });
 

@@ -152,6 +152,7 @@ function deterministicSummary(
   const git = graph.records.filter((record) => record.source.kind === 'git');
   const facts = graph.records.filter((record) => record.source.kind === 'ast' && ['symbol_fact', 'python_symbol_fact'].includes(record.statement.kind));
   const releases = graph.records.filter((record) => record.source.kind === 'changelog');
+  const communication = graph.records.filter((record) => record.source.kind === 'agent_log');
   const blocking = diagnostics.diagnostics.filter((item) => item.severity === 'blocking' || item.severity === 'review_required');
   const lines: string[] = [
     '# Podsumowanie todo2code',
@@ -177,6 +178,10 @@ function deterministicSummary(
     '## Dokumentacja i wydania',
     '',
     ...renderRecords(releases, 20, 'Brak wpisów changelogu.'),
+    '',
+    '## Komunikacja ludzi i agentów',
+    '',
+    ...renderRecords(communication, 30, 'Brak wersjonowanych rekordów komunikacji.'),
     '',
     '## Rozbieżności',
     '',

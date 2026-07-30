@@ -233,6 +233,9 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
       documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
       taskSynthesisMode: optionPipelineTaskMode(parsed),
+      includeCommunication: !optionBoolean(parsed, 'no-communication', false),
+      projectDirectory: optionString(parsed, 'project-dir') ?? 'project',
+      communicationTicket: optionNullableString(parsed, 'communication-ticket', null),
     };
     const result = await runPipeline(options, config);
     reportPipelineDegradation(result.manifest);
@@ -259,6 +262,9 @@ async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConf
     markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
     documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
     taskSynthesisMode: optionPipelineTaskMode(parsed),
+    includeCommunication: !optionBoolean(parsed, 'no-communication', false),
+    projectDirectory: optionString(parsed, 'project-dir') ?? 'project',
+    communicationTicket: optionNullableString(parsed, 'communication-ticket', null),
   };
 
   const controller = new AbortController();
@@ -657,7 +663,8 @@ function printHelp(): void {
   process.stdout.write(`               [--task TASK.md] [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--todo TODO.md] [--no-docs-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
-  process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm] [--out .intent]\n`);
+  process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm]\n`);
+  process.stdout.write(`               [--project-dir project] [--communication-ticket TICKET] [--no-communication] [--out .intent]\n`);
   process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode prefer-llm] [--docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);

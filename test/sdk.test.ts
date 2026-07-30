@@ -35,6 +35,16 @@ function graph(text: string) {
   })], '2026-07-29T00:00:00.000Z');
 }
 
+function communicationGraph(participants: string[]) {
+  return linkIntentRecords(participants.map((participant) => buildRecord({
+    kind: 'communication_plan', actor: participant, action: 'add', object: `${participant} plan`,
+    text: `${participant} plans WM-101.`, target: { tickets: ['WM-101'] }, lifecycle: 'planned',
+    sourceKind: 'agent_log', sourcePath: `project/WM-101/${participant}.plan.md`, sourceLines: { start: 7, end: 7 },
+    extractor: 'test', epistemicClass: 'plan', confidence: 0.88, basis: ['fixture'],
+    metadata: { participant, participantRole: 'agent', messageType: 'plan', ticket: 'WM-101' },
+  })), '2026-07-29T00:00:00.000Z');
+}
+
 test('diff UI and TypeScript/Python SDKs use the live backend runtime', async () => {
   clearA2aTaskStoreForTests();
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-sdk-'));
@@ -50,6 +60,12 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
     fs.writeFile(path.join(root, 'after.ts'), 'const value = 2;\n', 'utf8'),
     fs.writeFile(path.join(oldRun, 'intent.graph.json'), JSON.stringify(before), 'utf8'),
     fs.writeFile(path.join(newRun, 'intent.graph.json'), JSON.stringify(after), 'utf8'),
+    fs.writeFile(path.join(newRun, 'communication-analysis.json'), JSON.stringify({
+      schemaVersion: 't2c.communication-analysis/v1',
+      tickets: ['WM-101'],
+      participants: [{ participant: 'Codex', role: 'agent', tickets: ['WM-101'], issueIds: ['COMM-test'] }],
+      issues: [{ id: 'COMM-test', severity: 'blocking' }],
+    }), 'utf8'),
     fs.writeFile(path.join(oldRun, 'manifest.json'), JSON.stringify({
       schemaVersion: 't2c.run/v1',
       runId: 'run-old',
@@ -68,6 +84,7 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
         graph: '.intent/runs/run-new/intent.graph.json',
         taskSynthesis: '.intent/runs/run-new/task-synthesis.json',
         todoPatch: '.intent/runs/run-new/TODO.patch',
+        communicationAnalysis: '.intent/runs/run-new/communication-analysis.json',
       },
       warnings: ['test warning'],
       llm: { documentationExtraction: true, summary: true },
@@ -86,18 +103,26 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
     const uiHtml = await ui.text();
     assert.match(uiHtml, /id="before-run"/);
     assert.match(uiHtml, /id="after-run"/);
-    assert.match(uiHtml, /fetch\('\/api\/runs'/);
+    assert.match(uiHtml, /fetch\('\/api\/runs\?'/);
     assert.match(uiHtml, /compact:true/);
+    assert.match(uiHtml, /id="participant-filter"/);
+    assert.match(uiHtml, /id="severity-filter"/);
 
     const historyResponse = await fetch(`${baseUrl}/api/runs`);
     assert.equal(historyResponse.status, 200);
     const history = await historyResponse.json() as {
-      runs: Array<{ runId: string; graphPath: string; warningCount: number; files: Record<string, string> }>;
+      runs: Array<{ runId: string; graphPath: string; warningCount: number; files: Record<string, string>; communication: { issueCount: number } | null }>;
     };
     assert.deepEqual(history.runs.map((run) => run.runId), ['run-new', 'run-old']);
     assert.equal(history.runs[0]?.graphPath, '.intent/runs/run-new/intent.graph.json');
     assert.equal(history.runs[0]?.warningCount, 1);
     assert.equal(history.runs[0]?.files.todoPatch, '.intent/runs/run-new/TODO.patch');
+    assert.equal(history.runs[0]?.communication?.issueCount, 1);
+
+    const participantHistory = await fetch(`${baseUrl}/api/runs?participant=Codex&ticket=WM-101&severity=blocking`);
+    assert.deepEqual((await participantHistory.json() as { runs: Array<{ runId: string }> }).runs.map((run) => run.runId), ['run-new']);
+    const absentHistory = await fetch(`${baseUrl}/api/runs?participant=Nobody`);
+    assert.deepEqual((await absentHistory.json() as { runs: unknown[] }).runs, []);
 
     const historyDiffResponse = await fetch(`${baseUrl}/api/diff`, {
       method: 'POST',
@@ -120,6 +145,18 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
     assert.equal(historyDiff.diff.records, undefined);
     assert.equal(historyDiff.diff.relations, undefined);
     assert.match(historyDiff.svg, /^<svg /);
+
+    const communicationDiffResponse = await fetch(`${baseUrl}/api/diff`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        beforeGraph: communicationGraph(['Codex']),
+        afterGraph: communicationGraph(['Codex', 'Rogue']),
+        participant: 'Codex', communicationOnly: true, includeSvg: false,
+      }),
+    });
+    const communicationDiff = await communicationDiffResponse.json() as { diff: { summary: { recordsAdded: number; recordsUnchanged: number } } };
+    assert.equal(communicationDiff.diff.summary.recordsAdded, 0);
+    assert.equal(communicationDiff.diff.summary.recordsUnchanged, 1);
 
     const client = new Todo2CodeClient({ baseUrl });
     assert.equal((await client.health()).status, 'ok');
