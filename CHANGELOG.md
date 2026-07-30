@@ -53,6 +53,9 @@
 - Split the A2A server into HTTP/JSON-RPC routing, agent-card discovery, run
   history, message parsing, shared protocol types and persistent task-store
   modules. The A2A v1.0 and authenticated multi-replica behavior is preserved.
+- Split the versioned gold evaluator into dataset validation, extraction
+  fixtures, case evaluation, metrics and report orchestration while preserving
+  the perfect benchmark result and repeated-run stability.
 - Stopped treating ticket prefixes such as `T2C` as code symbols and stopped
   action-like inline-code identifiers such as `validateContract` from
   overriding the explicit prose verb. Validation verb forms are recognized
