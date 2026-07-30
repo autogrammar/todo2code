@@ -14,12 +14,18 @@ Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
 Wersja `0.5.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
 diagnostyka/Intent vs Reality → raport oraz zamknięty, reviewowalny przepływ
-`DSL2TODO`. Kontrakty `t2c.conclusion/v1`, `t2c.todo-proposal/v1` i
-`t2c.todo-patch/v1` są walidowane w runtime. CLI, MCP, A2A i wszystkie pięć SDK
+`DSL2TODO`. Kontrakty `t2c.conclusion/v1`, `t2c.todo-proposal/v1`,
+`t2c.todo-patch/v1`, `t2c.code-change-plan/v1` i
+`t2c.code-change-acceptance/v1` są walidowane w runtime. CLI, MCP, A2A i pięć SDK
 potrafią syntetyzować zadania, klasyfikować duplikaty, renderować audytowany
 `TODO.patch` i zastosować go wyłącznie po jawnej akceptacji jego hasha. Główny
 pipeline może zapisać artefakty review przez `--task-mode`, lecz nigdy sam nie
 modyfikuje `TODO.md`.
+
+Otwarte diagnostyki implementacyjne można przekształcić w ugruntowany plan
+zmiany kodu, a po implementacji ocenić przez ponowną analizę grafu. Ten
+przepływ nie generuje ani nie stosuje patcha; diagram i polecenia zawiera
+[`docs/CODE_CHANGE_PLANS.md`](docs/CODE_CHANGE_PLANS.md).
 
 Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
 docelowego `DSL2TODO` znajdują się w
@@ -60,6 +66,7 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
 | Propozycje → patch → approved apply | deterministyczna walidacja, renderer i atomowy zapis | nie |
+| Diagnostyka → code-change plan → acceptance | deterministyczny plan i bramka po re-analizie; bez auto-apply | nie |
 | Graf DSL → `t2c.conclusion/v1` → raport NL | OpenRouter structured output; runtime waliduje cytowania przed deterministycznym renderingiem Markdown | **tak** |
 
 Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
@@ -327,6 +334,8 @@ t2c reality intent.graph.json --diagnostics diagnostics.json --svg reality.svg -
 t2c summarize intent.graph.json --diagnostics diagnostics.json --mode prefer-llm --out team-summary.md
 t2c watch [root] [--interval 60] [--scan-interval 2] [--task TASK.md|none] [--no-summary-llm] [--no-initial-report]
 t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]
+t2c propose-code-change intent.graph.json --diagnostics diagnostics.json --out plans.json
+t2c evaluate-code-change plan.json --before-graph before.json --after-graph after.json --out acceptance.json
 t2c pipeline [root] --task TASK.md --todo TODO.md --changelog CHANGELOG.md
 t2c mcp
 t2c a2a
@@ -795,6 +804,7 @@ Wbudowane klasy obejmują m.in.:
 - [`docs/SECURITY.md`](docs/SECURITY.md) — granice dostępu i sekretów;
 - [`docs/VALIDATION.md`](docs/VALIDATION.md) — zakres oraz wynik walidacji paczki;
 - [`docs/OPTIMIZATION.md`](docs/OPTIMIZATION.md) — zmierzone wąskie gardła runtime'u i zastosowane usprawnienia;
+- [`docs/CODE_CHANGE_PLANS.md`](docs/CODE_CHANGE_PLANS.md) — ugruntowany plan zmiany kodu i bramka acceptance po ponownej analizie;
 - [`sdk/README.md`](sdk/README.md) — SDK dla TypeScript, Pythona, Go, Rusta i PHP;
 - [`docs/reference/original-monitoring-design.md`](docs/reference/original-monitoring-design.md) — materiał wejściowy dostarczony do projektu.
 

@@ -195,6 +195,45 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     return;
   }
+  if (command === 'propose-code-change') {
+    const graphPath = parsed.positionals[0];
+    const diagnosticsPath = optionString(parsed, 'diagnostics');
+    const output = optionString(parsed, 'out');
+    if (!graphPath || !diagnosticsPath || !output) {
+      throw new Error('Usage: t2c propose-code-change <graph.json> --diagnostics diagnostics.json [--proposals proposals.json] --out plans.json');
+    }
+    const result = await executeAction('propose_code_change', {
+      root: optionString(parsed, 'root') ?? config.root,
+      graphPath,
+      diagnosticsPath,
+      conclusionsPath: optionString(parsed, 'conclusions'),
+      proposalsPath: optionString(parsed, 'proposals'),
+      maxPlans: optionString(parsed, 'max-plans'),
+      output,
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
+  if (command === 'evaluate-code-change') {
+    const planPath = parsed.positionals[0];
+    const beforeGraphPath = optionString(parsed, 'before-graph');
+    const afterGraphPath = optionString(parsed, 'after-graph');
+    const output = optionString(parsed, 'out');
+    if (!planPath || !beforeGraphPath || !afterGraphPath || !output) {
+      throw new Error('Usage: t2c evaluate-code-change <plan.json> --before-graph before.json --after-graph after.json [--before-diagnostics d.json] --out acceptance.json');
+    }
+    const result = await executeAction('evaluate_code_change', {
+      root: optionString(parsed, 'root') ?? config.root,
+      planPath,
+      beforeGraphPath,
+      beforeDiagnosticsPath: optionString(parsed, 'before-diagnostics'),
+      afterGraphPath,
+      afterDiagnosticsPath: optionString(parsed, 'after-diagnostics'),
+      output,
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
   if (command === 'watch') {
     await handleWatch(parsed, config);
     return;
@@ -678,6 +717,8 @@ function printHelp(): void {
   process.stdout.write(`  t2c propose-todo <graph.json> --diagnostics diagnostics.json --mode prefer-llm|require-llm --out synthesis.json\n`);
   process.stdout.write(`  t2c render-todo <synthesis.json> --graph graph.json --diagnostics diagnostics.json --todo TODO.md --patch TODO.patch --audit TODO.patch.json\n`);
   process.stdout.write(`  t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>\n`);
+  process.stdout.write(`  t2c propose-code-change <graph.json> --diagnostics diagnostics.json [--proposals proposals.json] --out plans.json\n`);
+  process.stdout.write(`  t2c evaluate-code-change <plan.json> --before-graph before.json --after-graph after.json --out acceptance.json\n`);
   process.stdout.write(`  t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html] [--context 3]\n`);
   process.stdout.write(`  t2c diff --mode git [root] [--rev HEAD] [--staged] [--svg diff.svg] [--html diff.html]\n`);
   process.stdout.write(`  t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg]\n`);

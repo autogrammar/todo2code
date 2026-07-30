@@ -5,17 +5,17 @@
 
 - **Project**: /home/tom/github/semcod/todo2code
 - **Primary Language**: typescript
-- **Languages**: typescript: 81, md: 52, json: 20, python: 12, rust: 7
+- **Languages**: typescript: 99, md: 53, json: 22, python: 12, rust: 7
 - **Analysis Mode**: static
-- **Total Functions**: 2363
-- **Total Classes**: 258
-- **Modules**: 201
-- **Entry Points**: 1618
+- **Total Functions**: 2491
+- **Total Classes**: 271
+- **Modules**: 222
+- **Entry Points**: 1725
 
 ## Architecture by Module
 
 ### src.cli
-- **Functions**: 124
+- **Functions**: 125
 - **Classes**: 1
 - **File**: `cli.ts`
 
@@ -38,25 +38,20 @@
 - **Classes**: 3
 - **File**: `reality.ts`
 
-### src.extractors.ast
-- **Functions**: 61
-- **Classes**: 3
-- **File**: `ast.ts`
-
 ### src.graph.linker
 - **Functions**: 57
 - **Classes**: 4
 - **File**: `linker.ts`
 
-### src.summary.summarizer
-- **Functions**: 57
-- **Classes**: 4
-- **File**: `summarizer.ts`
-
 ### src.pipeline.run
-- **Functions**: 56
+- **Functions**: 57
 - **Classes**: 1
 - **File**: `run.ts`
+
+### src.comparison.workspace
+- **Functions**: 55
+- **Classes**: 3
+- **File**: `workspace.ts`
 
 ### src.extractors.communication
 - **Functions**: 54
@@ -78,11 +73,6 @@
 - **Classes**: 7
 - **File**: `llm.ts`
 
-### src.comparison.workspace
-- **Functions**: 53
-- **Classes**: 3
-- **File**: `workspace.ts`
-
 ### src.communication.analyzer
 - **Functions**: 52
 - **Classes**: 3
@@ -93,12 +83,16 @@
 - **Classes**: 6
 - **File**: `tasks-llm.ts`
 
+### src.operations.validation
+- **Functions**: 47
+- **File**: `validation.ts`
+
 ### src.interfaces.a2a
 - **Functions**: 46
 - **File**: `a2a.ts`
 
 ### sdk.python.todo2code.client
-- **Functions**: 44
+- **Functions**: 45
 - **Classes**: 7
 - **File**: `client.py`
 
@@ -112,6 +106,10 @@
 - **Classes**: 2
 - **File**: `mcp.ts`
 
+### src.core.text
+- **Functions**: 42
+- **File**: `text.ts`
+
 ## Key Entry Points
 
 Main execution flows into the system:
@@ -120,13 +118,16 @@ Main execution flows into the system:
 - **Calls**: os.environ.get, os.environ.get, os.environ.get, T2CClient, print, client.agent_card, print, client.extract_nl_result
 
 ### src.services.actions.executeAction
-- **Calls**: src.services.actions.resolveRoot, src.services.actions.scopedPath, src.services.actions.extractNlIntentAudited, src.services.actions.nlModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.extractAstIntent, src.services.actions.extractMarkdownIntentAudited
+- **Calls**: src.services.actions.resolveRoot, src.services.actions.scopedPath, src.services.actions.extractNlIntentAudited, src.services.actions.nlModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.extractAstIntent, src.services.actions.extractConfigurationIntent
 
 ### src.services.actions.root
-- **Calls**: src.services.actions.scopedPath, src.services.actions.extractNlIntentAudited, src.services.actions.nlModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.extractAstIntent, src.services.actions.extractMarkdownIntentAudited, src.services.actions.nullableScopedPath
+- **Calls**: src.services.actions.scopedPath, src.services.actions.extractNlIntentAudited, src.services.actions.nlModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.extractAstIntent, src.services.actions.extractConfigurationIntent, src.services.actions.extractMarkdownIntentAudited
 
 ### src.pipeline.run.runPipeline
 - **Calls**: src.pipeline.run.resolve, src.pipeline.run.pathExists, src.pipeline.run.Error, src.pipeline.run.newRunId, src.pipeline.run.join, src.pipeline.run.ensureDir, src.pipeline.run.skippedAudit, src.pipeline.run.extractNlIntentAudited
+
+### src.extractors.ast.typescript.extractTypeScriptFile
+- **Calls**: src.extractors.ast.typescript.relativePosix, src.extractors.ast.typescript.createSourceFile, src.extractors.ast.typescript.scriptKind, src.extractors.ast.typescript.getLineAndCharacterOfPosition, src.extractors.ast.typescript.getStart, src.extractors.ast.typescript.getEnd, src.extractors.ast.typescript.getText, src.extractors.ast.typescript.slice
 
 ### src.web.diff-ui.diffUiHtml
 - **Calls**: src.web.diff-ui.gradient, src.web.diff-ui.min, src.web.diff-ui.clamp, src.web.diff-ui.not, src.web.diff-ui.media, src.web.diff-ui.token, src.web.diff-ui.getElementById, src.web.diff-ui.byId
@@ -140,17 +141,20 @@ Main execution flows into the system:
 ### src.extractors.communication.identityRegistry
 - **Calls**: src.extractors.communication.relativePosix, src.extractors.communication.split, src.extractors.communication.test, src.extractors.communication.basename, src.extractors.communication.push, src.extractors.communication.toLowerCase, src.extractors.communication.readText, src.extractors.communication.String
 
-### src.interfaces.a2a-message.parseCommand
-- **Calls**: src.interfaces.a2a-message.find, src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.commandFromData, src.interfaces.a2a-message.map, src.interfaces.a2a-message.join, src.interfaces.a2a-message.trim, src.interfaces.a2a-message.startsWith, src.interfaces.a2a-message.parse
-
 ### src.core.text.inferObject
 - **Calls**: src.core.text.replace, src.core.text.trim, src.core.text.b, src.core.text.utworzy, src.core.text.doda, src.core.text.zaimplementowa, src.core.text.stworzy, src.core.text.zbudowa
+
+### src.interfaces.a2a-message.parseCommand
+- **Calls**: src.interfaces.a2a-message.find, src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.commandFromData, src.interfaces.a2a-message.map, src.interfaces.a2a-message.join, src.interfaces.a2a-message.trim, src.interfaces.a2a-message.startsWith, src.interfaces.a2a-message.parse
 
 ### src.communication.analyzer.analyzeCommunication
 - **Calls**: src.communication.analyzer.assertIntentGraph, src.communication.analyzer.filter, src.communication.analyzer.validateSyntheses, src.communication.analyzer.evidenceNeighbors, src.communication.analyzer.participantOf, src.communication.analyzer.get, src.communication.analyzer.push, src.communication.analyzer.set
 
 ### src.core.text.normalized
 - **Calls**: src.core.text.b, src.core.text.utworzy, src.core.text.doda, src.core.text.zaimplementowa, src.core.text.stworzy, src.core.text.zbudowa, src.core.text.napraw, src.core.text.popraw
+
+### src.operations.validation.assertOperationPlan
+- **Calls**: src.operations.validation.objectValue, src.operations.validation.exactKeys, src.operations.validation.Error, src.operations.validation.test, src.operations.validation.dateString, src.operations.validation.nonBlank, src.operations.validation.uniqueStrings, src.operations.validation.assertGeneration
 
 ### src.comparison.workspace.temporaryParent
 - **Calls**: src.comparison.workspace.git, src.comparison.workspace.join, src.comparison.workspace.commonPipelineOptions, src.comparison.workspace.optionsForRoot, src.comparison.workspace.runPipeline, src.comparison.workspace.all, src.comparison.workspace.buildRealityView, src.comparison.workspace.diffIntentGraphs
@@ -176,6 +180,9 @@ Main execution flows into the system:
 ### rust-ast.src.main.main
 - **Calls**: rust-ast.src.main.let, rust-ast.src.main.arguments, rust-ast.src.main.collect_files, rust-ast.src.main.sort, rust-ast.src.main.slash, rust-ast.src.main.strip_prefix, rust-ast.src.main.unwrap_or, rust-ast.src.main.metadata
 
+### src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
+- **Calls**: src.extractors.nl-llm.NlLlmRequiredError.assertNlExtractionOptions, src.extractors.nl-llm.now, src.extractors.nl-llm.extractNlIntent, src.extractors.nl-llm.NlLlmRequiredError.markDeterministic, src.extractors.nl-llm.NlLlmRequiredError.audit, src.extractors.nl-llm.OpenRouterClient, src.extractors.nl-llm.isConfigured, src.extractors.nl-llm.NlLlmRequiredError.fallbackOrThrow
+
 ### src.extractors.git.extractGitIntent
 - **Calls**: src.extractors.git.resolve, src.extractors.git.runGit, src.extractors.git.trim, src.extractors.git.readCommits, src.extractors.git.String, src.extractors.git.test, src.extractors.git.readChangedFiles, src.extractors.git.readStats
 
@@ -194,17 +201,8 @@ Main execution flows into the system:
 ### sdk.python.todo2code.runtime.TypeScriptRuntime.reality
 - **Calls**: tempfile.TemporaryDirectory, self.invoke, Path, Path, Path, str, str, str
 
-### src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
-- **Calls**: src.extractors.nl-llm.NlLlmRequiredError.assertNlExtractionOptions, src.extractors.nl-llm.now, src.extractors.nl-llm.extractNlIntent, src.extractors.nl-llm.NlLlmRequiredError.markDeterministic, src.extractors.nl-llm.NlLlmRequiredError.audit, src.extractors.nl-llm.OpenRouterClient, src.extractors.nl-llm.isConfigured, src.extractors.nl-llm.NlLlmRequiredError.fallbackOrThrow
-
-### src.synthesis.todo-patch.applyTodoPatch
-- **Calls**: src.synthesis.todo-patch.all, src.synthesis.todo-patch.readText, src.synthesis.todo-patch.assertTodoPatchArtifact, src.synthesis.todo-patch.sha256, src.synthesis.todo-patch.Error, src.synthesis.todo-patch.assertApproval, src.synthesis.todo-patch.ensureDir, src.synthesis.todo-patch.dirname
-
 ### src.extractors.nl.extractNlIntent
 - **Calls**: src.extractors.nl.assertNlExtractionOptions, src.extractors.nl.resolve, src.extractors.nl.readText, src.extractors.nl.isAbsolute, src.extractors.nl.relativePosix, src.extractors.nl.replace, src.extractors.nl.splitIntentLines, src.extractors.nl.classifyAction
-
-### src.graph.linker.linkIntentRecords
-- **Calls**: src.graph.linker.Date, src.graph.linker.toISOString, src.graph.linker.assertIntentRecords, src.graph.linker.deduplicateRecords, src.graph.linker.sort, src.graph.linker.localeCompare, src.graph.linker.Map, src.graph.linker.map
 
 ## Process Flows
 
@@ -235,31 +233,31 @@ root [src.services.actions]
 runPipeline [src.pipeline.run]
 ```
 
-### Flow 5: diffUiHtml
+### Flow 5: extractTypeScriptFile
+```
+extractTypeScriptFile [src.extractors.ast.typescript]
+```
+
+### Flow 6: diffUiHtml
 ```
 diffUiHtml [src.web.diff-ui]
 ```
 
-### Flow 6: extractCommunicationIntent
+### Flow 7: extractCommunicationIntent
 ```
 extractCommunicationIntent [src.extractors.communication]
 ```
 
-### Flow 7: compareWorkspaceIntent
+### Flow 8: compareWorkspaceIntent
 ```
 compareWorkspaceIntent [src.comparison.workspace]
   └─> git
       └─> execFileAsync
 ```
 
-### Flow 8: identityRegistry
+### Flow 9: identityRegistry
 ```
 identityRegistry [src.extractors.communication]
-```
-
-### Flow 9: parseCommand
-```
-parseCommand [src.interfaces.a2a-message]
 ```
 
 ### Flow 10: inferObject
@@ -282,7 +280,7 @@ inferObject [src.core.text]
 - **Key Methods**: src.llm.openrouter.OpenRouterClient.isConfigured, src.llm.openrouter.OpenRouterClient.listAvailableModels, src.llm.openrouter.OpenRouterClient.controller, src.llm.openrouter.OpenRouterClient.timeout, src.llm.openrouter.OpenRouterClient.response, src.llm.openrouter.OpenRouterClient.text, src.llm.openrouter.OpenRouterClient.clearTimeout, src.llm.openrouter.OpenRouterClient.chatText, src.llm.openrouter.OpenRouterClient.chatTextWithMetadata, src.llm.openrouter.OpenRouterClient.response
 
 ### sdk.typescript.src.T2CClient
-- **Methods**: 39
+- **Methods**: 40
 - **Key Methods**: sdk.typescript.src.T2CClient.health, sdk.typescript.src.T2CClient.agentCard, sdk.typescript.src.T2CClient.send, sdk.typescript.src.T2CClient.result, sdk.typescript.src.T2CClient.call, sdk.typescript.src.T2CClient.task, sdk.typescript.src.T2CClient.detail, sdk.typescript.src.T2CClient.part, sdk.typescript.src.T2CClient.getTask, sdk.typescript.src.T2CClient.cancelTask
 
 ### src.extractors.nl-llm.NlLlmRequiredError
@@ -294,16 +292,16 @@ inferObject [src.core.text]
 
 Example:
     >>> client = T2CClient("http://localhost:8787")
-- **Methods**: 33
+- **Methods**: 34
 - **Key Methods**: sdk.python.todo2code.client.T2CClient.__init__, sdk.python.todo2code.client.T2CClient._headers, sdk.python.todo2code.client.T2CClient._open, sdk.python.todo2code.client.T2CClient._rpc, sdk.python.todo2code.client.T2CClient._get, sdk.python.todo2code.client.T2CClient.health, sdk.python.todo2code.client.T2CClient.agent_card, sdk.python.todo2code.client.T2CClient.send, sdk.python.todo2code.client.T2CClient.call, sdk.python.todo2code.client.T2CClient.compare_workspace
 
-### sdk.php.src.Client.Todo2Code.Client
-- **Methods**: 26
-- **Key Methods**: sdk.php.src.Client.Client.__construct, sdk.php.src.Client.Client.health, sdk.php.src.Client.Client.agentCard, sdk.php.src.Client.Client.send, sdk.php.src.Client.Client.call, sdk.php.src.Client.Client.rpc, sdk.php.src.Client.Client.extractAst, sdk.php.src.Client.Client.extractNl, sdk.php.src.Client.Client.extractDocs, sdk.php.src.Client.Client.extractMarkdown
-
 ### src.extractors.markdown-llm.MarkdownLlmRequiredError
-- **Methods**: 26
-- **Key Methods**: src.extractors.markdown-llm.MarkdownLlmRequiredError.super, src.extractors.markdown-llm.MarkdownLlmRequiredError.extractMarkdownIntentAudited, src.extractors.markdown-llm.MarkdownLlmRequiredError.startedAt, src.extractors.markdown-llm.MarkdownLlmRequiredError.deterministic, src.extractors.markdown-llm.MarkdownLlmRequiredError.client, src.extractors.markdown-llm.MarkdownLlmRequiredError.prompt, src.extractors.markdown-llm.MarkdownLlmRequiredError.completion, src.extractors.markdown-llm.MarkdownLlmRequiredError.enrichments, src.extractors.markdown-llm.MarkdownLlmRequiredError.fallbackOrThrow, src.extractors.markdown-llm.MarkdownLlmRequiredError.failed
+- **Methods**: 29
+- **Key Methods**: src.extractors.markdown-llm.MarkdownLlmRequiredError.super, src.extractors.markdown-llm.MarkdownLlmRequiredError.extractMarkdownIntentAudited, src.extractors.markdown-llm.MarkdownLlmRequiredError.startedAt, src.extractors.markdown-llm.MarkdownLlmRequiredError.deterministic, src.extractors.markdown-llm.MarkdownLlmRequiredError.client, src.extractors.markdown-llm.MarkdownLlmRequiredError.prompt, src.extractors.markdown-llm.MarkdownLlmRequiredError.enrichments, src.extractors.markdown-llm.MarkdownLlmRequiredError.responseByRecord, src.extractors.markdown-llm.MarkdownLlmRequiredError.batch, src.extractors.markdown-llm.MarkdownLlmRequiredError.completion
+
+### sdk.php.src.Client.Todo2Code.Client
+- **Methods**: 27
+- **Key Methods**: sdk.php.src.Client.Client.__construct, sdk.php.src.Client.Client.health, sdk.php.src.Client.Client.agentCard, sdk.php.src.Client.Client.send, sdk.php.src.Client.Client.call, sdk.php.src.Client.Client.rpc, sdk.php.src.Client.Client.extractAst, sdk.php.src.Client.Client.extractConfig, sdk.php.src.Client.Client.extractNl, sdk.php.src.Client.Client.extractDocs
 
 ### java.JavaAstExtract.JavaAstExtract
 - **Methods**: 25
@@ -373,19 +371,46 @@ Key functions that process and transform data:
 
 ### java.JavaAstExtract.JavaAstExtract.parseFile
 
+### src.cli.parsed
+- **Output to**: src.cli.printHelp
+
+### src.cli.formatWatchEvent
+- **Output to**: src.cli.Date, src.cli.toISOString, src.cli.file, src.cli.join, src.cli.change
+
+### src.cli.parseArgs
+- **Output to**: src.cli.push, src.cli.slice, src.cli.startsWith, src.cli.split, src.cli.set
+
+### src.extractors.configuration.parsed
+- **Output to**: src.extractors.configuration.keys, src.extractors.configuration.sort, src.extractors.configuration.map, src.extractors.configuration.findKeyLine
+
+### src.extractors.docs-deterministic.convertDocument
+- **Output to**: src.extractors.docs-deterministic.relativePosix, src.extractors.docs-deterministic.split, src.extractors.docs-deterministic.match, src.extractors.docs-deterministic.trim, src.extractors.docs-deterministic.codeBlockRecord
+
 ### src.extractors.communication.parseEnvelope
 - **Output to**: src.extractors.communication.split, src.extractors.communication.trim, src.extractors.communication.slice, src.extractors.communication.findIndex, src.extractors.communication.match
 
 ### src.extractors.communication.parsed
 
+### src.extractors.markdown-llm.MarkdownLlmRequiredError.validateEnrichments
+- **Output to**: src.extractors.markdown-llm.isArray, src.extractors.markdown-llm.Error, src.extractors.markdown-llm.Set, src.extractors.markdown-llm.map, src.extractors.markdown-llm.MarkdownLlmRequiredError.isMarkdownEnrichment
+
 ### src.core.ignore.parseIgnoreFile
 - **Output to**: src.core.ignore.split, src.core.ignore.map, src.core.ignore.compileIgnorePattern, src.core.ignore.filter
+
+### src.core.schema.validateGroundedContext
+- **Output to**: src.core.schema.assertIntentGraph, src.core.schema.objectValue, src.core.schema.Error, src.core.schema.isArray, src.core.schema.test
+
+### src.core.schema.validateTodoProposalContext
+- **Output to**: src.core.schema.validateGroundedContext, src.core.schema.assertConclusions, src.core.schema.Set, src.core.schema.map
 
 ### src.web.diff-ui.formatBytes
 - **Output to**: src.web.diff-ui.selectedRun, src.web.diff-ui.byId
 
 ### src.synthesis.validation.validateAndClassifyTodoProposals
 - **Output to**: src.synthesis.validation.assertTodoProposals, src.synthesis.validation.filter, src.synthesis.validation.map, src.synthesis.validation.duplicateEvidence, src.synthesis.validation.Boolean
+
+### src.comparison.workspace.parseAheadBehind
+- **Output to**: src.comparison.workspace.trim, src.comparison.workspace.split, src.comparison.workspace.Number
 
 ### src.llm.openrouter.OpenRouterClient.formatInvalidModelError
 - **Output to**: src.llm.openrouter.models, src.llm.openrouter.n, src.llm.openrouter.map, src.llm.openrouter.join
@@ -411,32 +436,6 @@ Key functions that process and transform data:
 ### src.interfaces.a2a-message.parseScalar
 - **Output to**: src.interfaces.a2a-message.test, src.interfaces.a2a-message.Number
 
-### src.interfaces.a2a-message.parseMessage
-- **Output to**: src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.A2ARequestError, src.interfaces.a2a-message.stringParam, src.interfaces.a2a-message.isArray, src.interfaces.a2a-message.optionalString
-
-### src.interfaces.a2a-message.parsePart
-- **Output to**: src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.A2ARequestError, src.interfaces.a2a-message.filter, src.interfaces.a2a-message.call, src.interfaces.a2a-message.parsePartContent
-
-### src.interfaces.a2a-message.parsePartContent
-- **Output to**: src.interfaces.a2a-message.A2ARequestError
-
-### src.interfaces.mcp.parsed
-- **Output to**: src.interfaces.mcp.send
-
-### src.interfaces.mcp.validateModernRequest
-- **Output to**: src.interfaces.mcp.McpRequestError, src.interfaces.mcp.isArray, src.interfaces.mcp.validateModernMetadata
-
-### src.interfaces.mcp.validateModernMetadata
-- **Output to**: src.interfaces.mcp.McpRequestError, src.interfaces.mcp.isArray
-
-### src.interfaces.mcp.parseRequestLine
-
-### src.interfaces.a2a.parseRpcRequest
-- **Output to**: src.interfaces.a2a.parse, src.interfaces.a2a.readBody, src.interfaces.a2a.sendJson, src.interfaces.a2a.rpcError, src.interfaces.a2a.errorMessage
-
-### src.interfaces.a2a-types.BodyTooLargeError.parsed
-- **Output to**: src.interfaces.a2a-types.isInteger, src.interfaces.a2a-types.A2ARequestError
-
 ## Behavioral Patterns
 
 ### recursion_dotted_name
@@ -449,45 +448,45 @@ Key functions that process and transform data:
 Functions exposed as public API (no underscore prefix):
 
 - `sdk.python.examples.basic.main` - 62 calls
-- `src.services.actions.executeAction` - 53 calls
-- `src.services.actions.root` - 52 calls
-- `src.pipeline.run.runPipeline` - 49 calls
-- `src.extractors.ast.extractTypeScriptFile` - 44 calls
-- `src.web.diff-ui.diffUiHtml` - 42 calls
+- `src.services.actions.executeAction` - 54 calls
+- `src.services.actions.root` - 53 calls
+- `src.pipeline.run.runPipeline` - 50 calls
+- `src.extractors.ast.typescript.extractTypeScriptFile` - 44 calls
 - `src.cli.main` - 42 calls
+- `src.web.diff-ui.diffUiHtml` - 42 calls
 - `src.extractors.communication.extractCommunicationIntent` - 41 calls
 - `src.comparison.workspace.compareWorkspaceIntent` - 40 calls
 - `sdk.rust.src.client.parse_http_response` - 37 calls
 - `src.extractors.communication.identityRegistry` - 35 calls
 - `sdk.rust.examples.basic.run` - 33 calls
-- `src.interfaces.a2a-message.parseCommand` - 31 calls
 - `src.core.text.inferObject` - 31 calls
+- `src.interfaces.a2a-message.parseCommand` - 31 calls
 - `src.communication.analyzer.analyzeCommunication` - 30 calls
 - `src.core.text.normalized` - 29 calls
-- `src.extractors.ast.visit` - 26 calls
-- `sdk.go.examples.basic.main.run` - 25 calls
+- `src.operations.validation.assertOperationPlan` - 28 calls
+- `src.extractors.ast.typescript.visit` - 26 calls
 - `src.comparison.workspace.temporaryParent` - 25 calls
 - `src.comparison.workspace.baseWorktree` - 25 calls
+- `sdk.go.examples.basic.main.run` - 25 calls
 - `src.extractors.todo.extractTodo` - 24 calls
 - `src.graph.diagnostics.diagnoseGraph` - 24 calls
 - `scripts.verify-env-contract.makefile` - 24 calls
 - `python.ast_extract.main` - 23 calls
 - `src.communication.llm.CommunicationLlmRequiredError.extractCommunicationIntentAudited` - 22 calls
 - `rust-ast.src.main.main` - 21 calls
+- `src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited` - 21 calls
 - `src.extractors.git.extractGitIntent` - 21 calls
 - `sdk.typescript.examples.basic.baseUrl` - 21 calls
 - `sdk.typescript.examples.basic.token` - 21 calls
 - `sdk.typescript.examples.basic.root` - 21 calls
 - `sdk.typescript.examples.basic.main` - 21 calls
 - `sdk.python.todo2code.runtime.TypeScriptRuntime.reality` - 21 calls
-- `src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited` - 21 calls
 - `rust-ast.src.main.collect_files` - 20 calls
+- `src.extractors.nl.extractNlIntent` - 20 calls
+- `src.graph.linker.linkIntentRecords` - 20 calls
 - `src.core.io.walkFiles` - 20 calls
 - `src.synthesis.todo-patch.createTodoPatch` - 20 calls
 - `src.synthesis.todo-patch.applyTodoPatch` - 20 calls
-- `src.extractors.nl.extractNlIntent` - 20 calls
-- `src.graph.linker.linkIntentRecords` - 20 calls
-- `src.diff.reality.renderRealitySvg` - 20 calls
 
 ## System Interactions
 
@@ -513,6 +512,11 @@ graph TD
     runPipeline --> Error
     runPipeline --> newRunId
     runPipeline --> join
+    extractTypeScriptFil --> relativePosix
+    extractTypeScriptFil --> createSourceFile
+    extractTypeScriptFil --> scriptKind
+    extractTypeScriptFil --> getLineAndCharacterO
+    extractTypeScriptFil --> getStart
     diffUiHtml --> gradient
     diffUiHtml --> min
     diffUiHtml --> clamp
@@ -520,11 +524,6 @@ graph TD
     diffUiHtml --> media
     extractCommunication --> resolve
     extractCommunication --> assertPathWithinRoot
-    extractCommunication --> pathExists
-    extractCommunication --> relativePosix
-    extractCommunication --> walkFiles
-    compareWorkspaceInte --> resolve
-    compareWorkspaceInte --> git
 ```
 
 ## Reverse Engineering Guidelines

@@ -25,6 +25,7 @@ import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { linkIntentRecords } from '../graph/linker.js';
 import { summarizeGraph } from '../summary/summarizer.js';
+import { proposeCodeChangePlans } from '../synthesis/code-change-plan.js';
 import { synthesizeTodoProposals, TaskSynthesisRequiredError, type AuditedTaskSynthesisResult } from '../synthesis/tasks-llm.js';
 import { createTodoPatch, type CreatedTodoPatch } from '../synthesis/todo-patch.js';
 import { T2C_VERSION } from '../version.js';
@@ -39,6 +40,7 @@ export interface PipelineResult {
   taskSynthesisPath: string | null;
   todoPatchPath: string | null;
   todoPatchAuditPath: string | null;
+  codeChangePlansPath: string | null;
   communicationAnalysisPath: string | null;
 }
 
@@ -234,6 +236,34 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     });
   }
   completedStages.taskSynthesis = taskSynthesisAudit;
+
+  // Deterministic code-change plans from open implementation diagnostics.
+  // Never applies source edits; only materialises grounded review proposals.
+  activeStage = 'codeChangePlanning';
+  const codeChangePlans = proposeCodeChangePlans({
+    graph,
+    diagnostics,
+    ...(taskSynthesis
+      ? { conclusions: taskSynthesis.conclusions, proposals: taskSynthesis.proposals }
+      : {}),
+    generatedAt,
+  });
+  const codeChangePlanningAudit: PipelineStageAudit = {
+    runtimeVersion: T2C_VERSION,
+    configuration: openRouterAuditConfiguration(config, null),
+    status: 'succeeded',
+    requestedMode: 'deterministic',
+    effectiveMode: 'deterministic',
+    degraded: false,
+    recordCount: codeChangePlans.plans.length,
+    warningCount: 0,
+    model: null,
+    durationMs: 0,
+    reason: null,
+    responses: [],
+  };
+  completedStages.codeChangePlanning = codeChangePlanningAudit;
+
   activeStage = 'summary';
   const summaryStartedAt = Date.now();
   const includeSummaryLlm = options.includeSummaryLlm !== false;
@@ -286,12 +316,15 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const todoValidationPath = taskSynthesis ? path.join(runDirectory, 'todo-validation.json') : null;
   const todoPatchPath = todoPatch ? path.join(runDirectory, 'TODO.patch') : null;
   const todoPatchAuditPath = todoPatch ? path.join(runDirectory, 'TODO.patch.json') : null;
+  const codeChangePlansPath = path.join(runDirectory, 'code-change-plans.json');
   const communicationAnalysisPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.json') : null;
   const communicationMarkdownPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.md') : null;
   await writeJson(graphPath, graph);
   await writeJson(diagnosticsPath, diagnostics);
   await writeText(summaryPath, summary.markdown);
   await writeJson(summaryConclusionsPath, summary.conclusions);
+  await writeJson(codeChangePlansPath, codeChangePlans);
+  files.codeChangePlans = path.relative(root, codeChangePlansPath).replace(/\\/g, '/');
   if (communicationAnalysisPath && communicationMarkdownPath && communicationAnalysis) {
     await Promise.all([
       writeJson(communicationAnalysisPath, communicationAnalysis),
@@ -324,6 +357,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     documentationExtraction: documentationAudit,
     communicationAnalysis: communicationAudit,
     taskSynthesis: taskSynthesisAudit,
+    codeChangePlanning: codeChangePlanningAudit,
     summary: summaryAudit,
   };
   const manifest: PipelineManifest = {
@@ -358,7 +392,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   });
   return {
     runDirectory, manifest, graphPath, diagnosticsPath, summaryPath, summaryConclusionsPath,
-    taskSynthesisPath, todoPatchPath, todoPatchAuditPath, communicationAnalysisPath,
+    taskSynthesisPath, todoPatchPath, todoPatchAuditPath, codeChangePlansPath, communicationAnalysisPath,
   };
   } catch (error) {
     await persistFailedRun(runId, root, runDirectory, options, config, error, activeStage, completedStages);
@@ -477,6 +511,7 @@ async function persistFailedRun(
     documentationExtraction: stageValue('documentationExtraction', 'documentation extraction'),
     communicationAnalysis: stageValue('communicationAnalysis', 'communication analysis'),
     taskSynthesis: stageValue('taskSynthesis', 'task synthesis'),
+    codeChangePlanning: stageValue('codeChangePlanning', 'code-change planning'),
     summary: stageValue('summary', 'summary generation'),
   };
   const reason = knownAudit?.reason ?? { code: failureCode(failedStage), message };

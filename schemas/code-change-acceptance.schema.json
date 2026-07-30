@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/code-change-acceptance.schema.json",
+  "title": "todo2code Code Change Acceptance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "planId", "planHash", "beforeGraphFingerprint", "afterGraphFingerprint",
+    "beforeDiagnosticIds", "afterDiagnosticIds", "clearedDiagnosticIds", "remainingDiagnosticIds",
+    "newBlockingDiagnosticIds", "accepted", "reasons", "evaluatedAt", "generation"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "t2c.code-change-acceptance/v1" },
+    "planId": { "type": "string", "pattern": "^CPLAN-[a-f0-9]{20}$" },
+    "planHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "beforeGraphFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "afterGraphFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "beforeDiagnosticIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^DIAG-[a-f0-9]{20}$" }
+    },
+    "afterDiagnosticIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^DIAG-[a-f0-9]{20}$" }
+    },
+    "clearedDiagnosticIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^DIAG-[a-f0-9]{20}$" }
+    },
+    "remainingDiagnosticIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^DIAG-[a-f0-9]{20}$" }
+    },
+    "newBlockingDiagnosticIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^DIAG-[a-f0-9]{20}$" }
+    },
+    "accepted": { "type": "boolean" },
+    "reasons": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "evaluatedAt": { "type": "string", "format": "date-time" },
+    "generation": { "$ref": "conclusion.schema.json#/$defs/generation" }
+  }
+}

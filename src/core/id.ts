@@ -1,5 +1,12 @@
 import { createHash, randomUUID } from 'node:crypto';
-import type { Conclusion, IntentRecord, IntentRelation, JsonValue, TodoProposal } from './types.js';
+import type {
+  CodeChangePlan,
+  Conclusion,
+  IntentRecord,
+  IntentRelation,
+  JsonValue,
+  TodoProposal,
+} from './types.js';
 
 export function stableStringify(value: unknown): string {
   return JSON.stringify(sortValue(value));
@@ -64,6 +71,51 @@ TodoProposal,
     },
     acceptanceCriteria: [...new Set(value.acceptanceCriteria.map((item) => item.trim()))].sort(),
   }), 20)}`;
+}
+
+export function createCodeChangePlanHash(value: Pick<
+  CodeChangePlan,
+  'title' | 'description' | 'priority' | 'target' | 'acceptanceCriteria' | 'changes' | 'risk' | 'rollback' | 'evidence'
+>): string {
+  return sha256(stableStringify({
+    title: value.title.trim(),
+    description: value.description.trim(),
+    priority: value.priority,
+    target: {
+      paths: [...new Set(value.target.paths)].sort(),
+      symbols: [...new Set(value.target.symbols)].sort(),
+      tickets: [...new Set(value.target.tickets)].sort(),
+      versions: [...new Set(value.target.versions)].sort(),
+    },
+    acceptanceCriteria: [...new Set(value.acceptanceCriteria.map((item) => item.trim()))].sort(),
+    changes: [...value.changes]
+      .map((change) => ({
+        path: change.path.trim().replace(/\\/g, '/'),
+        action: change.action,
+        symbols: [...new Set(change.symbols.map((item) => item.trim()).filter(Boolean))].sort(),
+        rationale: change.rationale.trim(),
+      }))
+      .sort((left, right) => left.path.localeCompare(right.path) || left.action.localeCompare(right.action)),
+    risk: {
+      level: value.risk.level,
+      reasons: [...new Set(value.risk.reasons.map((item) => item.trim()).filter(Boolean))].sort(),
+    },
+    rollback: value.rollback.trim(),
+    evidence: {
+      graphFingerprint: value.evidence.graphFingerprint,
+      recordIds: [...new Set(value.evidence.recordIds)].sort(),
+      diagnosticIds: [...new Set(value.evidence.diagnosticIds)].sort(),
+      conclusionIds: [...new Set(value.evidence.conclusionIds)].sort(),
+      proposalIds: [...new Set(value.evidence.proposalIds)].sort(),
+    },
+  }));
+}
+
+export function createCodeChangePlanId(value: Pick<
+  CodeChangePlan,
+  'title' | 'description' | 'priority' | 'target' | 'acceptanceCriteria' | 'changes' | 'risk' | 'rollback' | 'evidence'
+>): string {
+  return `CPLAN-${createCodeChangePlanHash(value).slice(0, 20)}`;
 }
 
 export function graphFingerprint(records: IntentRecord[], relations: IntentRelation[]): string {

@@ -416,6 +416,98 @@
           "to": "module"
         }
       ]
+    },
+    {
+      "id": "link-bare-basename-unique",
+      "records": [
+        {
+          "label": "document",
+          "sourceKind": "document",
+          "action": "document",
+          "text": "See markdown.ts for the converter contract",
+          "lifecycle": "proposed",
+          "target": {
+            "paths": [
+              "markdown.ts"
+            ]
+          }
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/extractors/markdown.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/extractors/markdown.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "document",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "exact-target"
+        }
+      ]
+    },
+    {
+      "id": "link-bare-basename-ambiguous-forbidden",
+      "records": [
+        {
+          "label": "document",
+          "sourceKind": "document",
+          "action": "document",
+          "text": "See validation.ts for shared rules",
+          "lifecycle": "proposed",
+          "target": {
+            "paths": [
+              "validation.ts"
+            ]
+          }
+        },
+        {
+          "label": "module-a",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/synthesis/validation.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/synthesis/validation.ts"
+            ]
+          }
+        },
+        {
+          "label": "module-b",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/operations/validation.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/operations/validation.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "document",
+          "to": "module-a"
+        },
+        {
+          "from": "document",
+          "to": "module-b"
+        }
+      ]
     }
   ],
   "dsl2todo": [

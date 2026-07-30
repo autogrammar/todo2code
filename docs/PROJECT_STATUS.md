@@ -61,6 +61,8 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Pełne `make demollm` | działa live, fail-closed | zweryfikowany run `20260730T162248Z-3e22b6d6`: NL, Markdown, dokumentacja, komunikacja, synteza zadań i summary mają `succeeded / llm / degraded=false`; końcowa bramka odrzuca brak metadanych lub dowolną degradację |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
+| Diagnostyka → plan zmiany kodu | działa w pipeline/CLI/MCP/A2A/SDK | deterministyczny `t2c.code-change-plan/v1` w `code-change-plans.json` każdego runu; cytuje rekordy i diagnostyki, risk/rollback/provenance; nie stosuje zmian |
+| Re-analiza → acceptance | działa w CLI/MCP/A2A/SDK TypeScript | `t2c.code-change-acceptance/v1` wymaga zniknięcia targeted diagnostics i braku nowych blocking; wynik ma runtime-owned provenance i nadal wymaga decyzji człowieka |
 | Zadania DSL → `TODO.patch` | działa we wszystkich interfejsach | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem i rejestracją w run history |
 | Intent → proposal operacji Subactor | działa kontraktowo | `t2c.variable-contract/v1` i `t2c.operation-plan/v1` mają content-bound ID/hash, walidację authority/risk/rollback; prywatny bridge zapisuje atomowo wyłącznie `subactor.process-envelope.v2`, odmawia nadpisania i nie dispatchuje procesu |
 
@@ -68,8 +70,8 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 191 testów: 190 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 90 modułów i 411 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 201 testów: 200 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 91 modułów i 419 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
   `.env.example`, bez duplikatów;
@@ -77,7 +79,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 225 rekordów i 109 relacji. Liczba
+Przebieg offline na `examples/` utworzył 225 rekordów i 103 relacje. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -100,7 +102,7 @@ prywatnego `.env`. Nie jest to jednak dowód jakości semantycznej LLM.
 Wersjonowany `t2c.gold-dataset/v1` mierzy jakość semantyczną offline na
 niezależnych oczekiwaniach dla NL, zapisanej odpowiedzi modelu dokumentacji,
 TODO/CHANGELOG, linkowania i DSL2TODO. Zbiór obejmuje 7 oczekiwanych rekordów
-DSL, 4 relacje (3 exact-target i 1 capability-topic), hard negative oraz 2
+DSL, 5 relacji (4 exact-target i 1 capability-topic), dwa hard negatives oraz 2
 propozycje TODO. Bieżący wynik to 100% precision/recall dla ekstrakcji i obu
 klas linkowania bez naruszenia hard-negative, 100% kompletności cytowań, 100% precision/recall
 klasyfikacji duplikatów, 50% propozycji sklasyfikowanych jako duplikaty oraz
@@ -128,8 +130,10 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
    legacy; dopiero dodanie rejestru wymusza stabilne `participant-id` i wyłącza
    traktowanie nazwy wyświetlanej jako rozstrzygniętej tożsamości.
 7. Nadal otwarte są cache przyrostowe AST/dokumentacji, generowanie validatorów
-   z jednego schematu, bezpieczne rozwiązywanie jednoznacznych bare nazw plików,
-   oraz A2A streaming ze współdzielonym transakcyjnym task store.
+   z jednego schematu, structured codegen/patch z LLM oraz A2A streaming ze
+   współdzielonym transakcyjnym task store. Bare basename i prescriptive docs
+   są już w linkerze/diagnostyce; plan `t2c.code-change-plan/v1` domyka
+   ugruntowany most do review zmian kodu, ale nie generuje jeszcze diffów.
 
 ## Wdrożony przepływ DSL2TODO
 

@@ -4,6 +4,17 @@
 
 ### Added
 
+- Added grounded `t2c.code-change-plan/v1` proposals and
+  `t2c.code-change-acceptance/v1` re-analysis gates through CLI, MCP, A2A and
+  the TypeScript SDK. Plans carry content-bound IDs/hashes, exact evidence,
+  risk, rollback and runtime provenance; they never edit source files or mark
+  work complete.
+- Main pipeline always materialises `code-change-plans.json` after diagnostics
+  (deterministic `codeChangePlanning` stage in the run manifest).
+- Added `propose-code-change` and `evaluate-code-change` CLI workflows with
+  root-confined JSON artifacts and an end-to-end persisted-file test.
+- Extended the offline gold linking set with unique bare-basename positives and
+  ambiguous basename hard negatives.
 - Added `make demollm`, which requires live OpenRouter execution for all six
   semantic pipeline stages, rejects fallback or degraded manifests, reports
   model/token/cost metadata, and is documented with process/sequence diagrams.

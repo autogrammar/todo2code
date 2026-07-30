@@ -247,3 +247,82 @@ test('task synthesis timeout is audited and never retried as a format fallback',
     globalThis.fetch = originalFetch;
   }
 });
+
+test('A fabricated citation gets exactly one corrective retry before the run fails', async () => {
+  const { graph, diagnostics, diagnostic } = fixture();
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.taskModel = 'qwen/qwen3.7-plus';
+
+  // Well-formed but ungrounded: the ID matches the schema pattern and exists
+  // nowhere in the graph. This is the failure mode measured on `make demollm`,
+  // where it sank 3 of 6 runs.
+  const fabricated = JSON.parse(JSON.stringify(providerResponse(diagnostic))) as {
+    conclusions: Array<{ recordIds: string[] }>;
+  };
+  fabricated.conclusions[0]!.recordIds = ['INT-NL-cb2bb3a6706ca9e28552'];
+
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  const reply = (body: unknown): Response => new Response(JSON.stringify({
+    id: `generation-retry-${calls}`,
+    model: 'qwen/qwen3.7-plus',
+    provider: 'Qwen',
+    usage: { prompt_tokens: 100, completion_tokens: 50, total_tokens: 150, cost: 0.01 },
+    choices: [{ message: { content: JSON.stringify(body) } }],
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+  let corrections: string[] = [];
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    const body = JSON.parse(String(init?.body)) as { messages: Array<{ role: string; content: string }> };
+    corrections = body.messages.filter((item) => item.content.startsWith('The previous response was rejected'))
+      .map((item) => item.content);
+    return reply(calls === 1 ? fabricated : providerResponse(diagnostic));
+  };
+
+  try {
+    const result = await synthesizeTodoProposals(graph, diagnostics, config, 'require-llm');
+    assert.equal(calls, 2, 'the rejected response must trigger exactly one retry');
+    assert.equal(corrections.length, 1, 'the retry must quote the validation error back');
+    assert.match(corrections[0]!, /INT-NL-cb2bb3a6706ca9e28552/);
+    assert.equal(result.audit.status, 'succeeded');
+    assert.equal(result.audit.responses.length, 2, 'both attempts stay in the audit');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('A second fabricated citation still fails: the retry does not weaken grounding', async () => {
+  const { graph, diagnostics, diagnostic } = fixture();
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const fabricated = JSON.parse(JSON.stringify(providerResponse(diagnostic))) as {
+    conclusions: Array<{ recordIds: string[] }>;
+  };
+  fabricated.conclusions[0]!.recordIds = ['INT-NL-cb2bb3a6706ca9e28552'];
+
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    return new Response(JSON.stringify({
+      id: 'generation-retry-fail',
+      model: 'qwen/qwen3.7-plus',
+      provider: 'Qwen',
+      usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15, cost: 0.001 },
+      choices: [{ message: { content: JSON.stringify(fabricated) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+
+  try {
+    await assert.rejects(
+      () => synthesizeTodoProposals(graph, diagnostics, config, 'require-llm'),
+      (error: unknown) => error instanceof TaskSynthesisRequiredError
+        && error.audit.responses.length === 2,
+    );
+    assert.equal(calls, 2, 'the retry budget is exactly one extra attempt');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

@@ -1,5 +1,5 @@
 source: code2llm
-# generated in 0.12s
+# generated in 0.14s
 schema: code2llm.planfile_tickets.v1
 project_root: /home/tom/github/semcod/todo2code
 tickets:
@@ -39,7 +39,7 @@ tickets:
   dedupe_key: code2llm:cc:sdk/go/examples/basic/main.go:sdk.go.examples.basic.main.run
 - signal: code2llm_cc
   title: 'Reduce cyclomatic complexity: src.cli.main (CC=60)'
-  description: 'code2llm reports `src.cli.main` at `src/cli.ts:52` with cyclomatic
+  description: 'code2llm reports `src.cli.main` at `src/cli.ts:53` with cyclomatic
     complexity 60 (limit 15).
 
 
@@ -176,9 +176,11 @@ tickets:
   - src/core/text.ts
   dedupe_key: code2llm:cc:src/core/text.ts:src.core.text.normalized
 - signal: code2llm_cc
-  title: 'Reduce cyclomatic complexity: src.extractors.ast.extractTypeScriptFile (CC=43)'
-  description: 'code2llm reports `src.extractors.ast.extractTypeScriptFile` at `src/extractors/ast.ts:82`
-    with cyclomatic complexity 43 (limit 15).
+  title: 'Reduce cyclomatic complexity: src.extractors.ast.typescript.extractTypeScriptFile
+    (CC=43)'
+  description: 'code2llm reports `src.extractors.ast.typescript.extractTypeScriptFile`
+    at `src/extractors/ast/typescript.ts:10` with cyclomatic complexity 43 (limit
+    15).
 
 
     Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
@@ -190,11 +192,11 @@ tickets:
   - complexity
   - refactor
   files:
-  - src/extractors/ast.ts
-  dedupe_key: code2llm:cc:src/extractors/ast.ts:src.extractors.ast.extractTypeScriptFile
+  - src/extractors/ast/typescript.ts
+  dedupe_key: code2llm:cc:src/extractors/ast/typescript.ts:src.extractors.ast.typescript.extractTypeScriptFile
 - signal: code2llm_cc
-  title: 'Reduce cyclomatic complexity: src.extractors.ast.visit (CC=25)'
-  description: 'code2llm reports `src.extractors.ast.visit` at `src/extractors/ast.ts:153`
+  title: 'Reduce cyclomatic complexity: src.extractors.ast.typescript.visit (CC=25)'
+  description: 'code2llm reports `src.extractors.ast.typescript.visit` at `src/extractors/ast/typescript.ts:76`
     with cyclomatic complexity 25 (limit 15).
 
 
@@ -207,8 +209,8 @@ tickets:
   - complexity
   - refactor
   files:
-  - src/extractors/ast.ts
-  dedupe_key: code2llm:cc:src/extractors/ast.ts:src.extractors.ast.visit
+  - src/extractors/ast/typescript.ts
+  dedupe_key: code2llm:cc:src/extractors/ast/typescript.ts:src.extractors.ast.typescript.visit
 - signal: code2llm_cc
   title: 'Reduce cyclomatic complexity: src.extractors.communication.extractCommunicationIntent
     (CC=64)'
@@ -349,8 +351,112 @@ tickets:
   - src/llm/openrouter.ts
   dedupe_key: code2llm:cc:src/llm/openrouter.ts:src.llm.openrouter.OpenRouterClient.request
 - signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.operations.validation.assertOperationPlan
+    (CC=84)'
+  description: 'code2llm reports `src.operations.validation.assertOperationPlan` at
+    `src/operations/validation.ts:153` with cyclomatic complexity 84 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/operations/validation.ts
+  dedupe_key: code2llm:cc:src/operations/validation.ts:src.operations.validation.assertOperationPlan
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.operations.validation.founderDecisionRequired
+    (CC=44)'
+  description: 'code2llm reports `src.operations.validation.founderDecisionRequired`
+    at `src/operations/validation.ts:184` with cyclomatic complexity 44 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/operations/validation.ts
+  dedupe_key: code2llm:cc:src/operations/validation.ts:src.operations.validation.founderDecisionRequired
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.operations.validation.stepIds (CC=44)'
+  description: 'code2llm reports `src.operations.validation.stepIds` at `src/operations/validation.ts:183`
+    with cyclomatic complexity 44 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/operations/validation.ts
+  dedupe_key: code2llm:cc:src/operations/validation.ts:src.operations.validation.stepIds
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.operations.validation.steps (CC=44)'
+  description: 'code2llm reports `src.operations.validation.steps` at `src/operations/validation.ts:182`
+    with cyclomatic complexity 44 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/operations/validation.ts
+  dedupe_key: code2llm:cc:src/operations/validation.ts:src.operations.validation.steps
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.operations.validation.variableById (CC=44)'
+  description: 'code2llm reports `src.operations.validation.variableById` at `src/operations/validation.ts:180`
+    with cyclomatic complexity 44 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/operations/validation.ts
+  dedupe_key: code2llm:cc:src/operations/validation.ts:src.operations.validation.variableById
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.operations.validation.variables (CC=44)'
+  description: 'code2llm reports `src.operations.validation.variables` at `src/operations/validation.ts:177`
+    with cyclomatic complexity 44 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/operations/validation.ts
+  dedupe_key: code2llm:cc:src/operations/validation.ts:src.operations.validation.variables
+- signal: code2llm_cc
   title: 'Reduce cyclomatic complexity: src.pipeline.run.runPipeline (CC=52)'
-  description: 'code2llm reports `src.pipeline.run.runPipeline` at `src/pipeline/run.ts:44`
+  description: 'code2llm reports `src.pipeline.run.runPipeline` at `src/pipeline/run.ts:45`
     with cyclomatic complexity 52 (limit 15).
 
 
@@ -366,9 +472,9 @@ tickets:
   - src/pipeline/run.ts
   dedupe_key: code2llm:cc:src/pipeline/run.ts:src.pipeline.run.runPipeline
 - signal: code2llm_cc
-  title: 'Reduce cyclomatic complexity: src.services.actions.executeAction (CC=36)'
-  description: 'code2llm reports `src.services.actions.executeAction` at `src/services/actions.ts:52`
-    with cyclomatic complexity 36 (limit 15).
+  title: 'Reduce cyclomatic complexity: src.services.actions.executeAction (CC=37)'
+  description: 'code2llm reports `src.services.actions.executeAction` at `src/services/actions.ts:54`
+    with cyclomatic complexity 37 (limit 15).
 
 
     Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
@@ -383,9 +489,9 @@ tickets:
   - src/services/actions.ts
   dedupe_key: code2llm:cc:src/services/actions.ts:src.services.actions.executeAction
 - signal: code2llm_cc
-  title: 'Reduce cyclomatic complexity: src.services.actions.root (CC=36)'
-  description: 'code2llm reports `src.services.actions.root` at `src/services/actions.ts:53`
-    with cyclomatic complexity 36 (limit 15).
+  title: 'Reduce cyclomatic complexity: src.services.actions.root (CC=37)'
+  description: 'code2llm reports `src.services.actions.root` at `src/services/actions.ts:55`
+    with cyclomatic complexity 37 (limit 15).
 
 
     Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
@@ -416,23 +522,6 @@ tickets:
   files:
   - src/web/diff-ui.ts
   dedupe_key: code2llm:cc:src/web/diff-ui.ts:src.web.diff-ui.diffUiHtml
-- signal: code2llm_god
-  title: 'Split god module: src/summary/summarizer.ts'
-  description: 'code2llm reports `src/summary/summarizer.ts` as a large module (507
-    lines, 4 classes).
-
-
-    Split it by responsibility, keep public imports stable, and add focused tests
-    around the moved behavior.'
-  priority: high
-  labels:
-  - llm-ready
-  - code2llm
-  - god-module
-  - refactor
-  files:
-  - src/summary/summarizer.ts
-  dedupe_key: code2llm:god:src/summary/summarizer.ts
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: main'
   description: 'code2llm reports `God Function: main` in `sdk/python/examples/basic.py:22`.
@@ -608,7 +697,7 @@ tickets:
   dedupe_key: code2llm:cc:sdk/typescript/examples/basic.ts:sdk.typescript.examples.basic.token
 - signal: code2llm_cc
   title: 'Reduce cyclomatic complexity: src.cli.handleDiff (CC=24)'
-  description: 'code2llm reports `src.cli.handleDiff` at `src/cli.ts:312` with cyclomatic
+  description: 'code2llm reports `src.cli.handleDiff` at `src/cli.ts:313` with cyclomatic
     complexity 24 (limit 15).
 
 
@@ -623,6 +712,23 @@ tickets:
   files:
   - src/cli.ts
   dedupe_key: code2llm:cc:src/cli.ts:src.cli.handleDiff
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.cli.handleExtract (CC=16)'
+  description: 'code2llm reports `src.cli.handleExtract` at `src/cli.ts:403` with
+    cyclomatic complexity 16 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/cli.ts
+  dedupe_key: code2llm:cc:src/cli.ts:src.cli.handleExtract
 - signal: code2llm_cc
   title: 'Reduce cyclomatic complexity: src.communication.llm.CommunicationLlmRequiredError.isEnrichment
     (CC=18)'
@@ -1041,7 +1147,7 @@ tickets:
   title: 'Reduce cyclomatic complexity: src.extractors.markdown-llm.MarkdownLlmRequiredError.isMarkdownEnrichment
     (CC=17)'
   description: 'code2llm reports `src.extractors.markdown-llm.MarkdownLlmRequiredError.isMarkdownEnrichment`
-    at `src/extractors/markdown-llm.ts:158` with cyclomatic complexity 17 (limit 15).
+    at `src/extractors/markdown-llm.ts:176` with cyclomatic complexity 17 (limit 15).
 
 
     Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
@@ -1162,8 +1268,44 @@ tickets:
   - src/llm/openrouter.ts
   dedupe_key: code2llm:cc:src/llm/openrouter.ts:src.llm.openrouter.OpenRouterClient.timeout
 - signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.operations.validation.assertGeneration
+    (CC=16)'
+  description: 'code2llm reports `src.operations.validation.assertGeneration` at `src/operations/validation.ts:110`
+    with cyclomatic complexity 16 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/operations/validation.ts
+  dedupe_key: code2llm:cc:src/operations/validation.ts:src.operations.validation.assertGeneration
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.operations.validation.assertVariableContract
+    (CC=20)'
+  description: 'code2llm reports `src.operations.validation.assertVariableContract`
+    at `src/operations/validation.ts:62` with cyclomatic complexity 20 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/operations/validation.ts
+  dedupe_key: code2llm:cc:src/operations/validation.ts:src.operations.validation.assertVariableContract
+- signal: code2llm_cc
   title: 'Reduce cyclomatic complexity: src.pipeline.run.persistFailedRun (CC=19)'
-  description: 'code2llm reports `src.pipeline.run.persistFailedRun` at `src/pipeline/run.ts:424`
+  description: 'code2llm reports `src.pipeline.run.persistFailedRun` at `src/pipeline/run.ts:431`
     with cyclomatic complexity 19 (limit 15).
 
 
@@ -1182,7 +1324,7 @@ tickets:
   title: 'Reduce cyclomatic complexity: src.services.actions.filterCommunicationGraph
     (CC=17)'
   description: 'code2llm reports `src.services.actions.filterCommunicationGraph` at
-    `src/services/actions.ts:308` with cyclomatic complexity 17 (limit 15).
+    `src/services/actions.ts:312` with cyclomatic complexity 17 (limit 15).
 
 
     Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
@@ -1284,12 +1426,12 @@ tickets:
   - src/web/diff-ui.ts
   dedupe_key: code2llm:cc:src/web/diff-ui.ts:src.web.diff-ui.compareGraphs
 - signal: code2llm_smell_data_clump
-  title: 'Address code smell: Data Clump: changelog, todo, markdown_mode, self, root'
-  description: 'code2llm reports `Data Clump: changelog, todo, markdown_mode, self,
-    root` in `sdk/python/todo2code/client.py:327`.
+  title: 'Address code smell: Data Clump: changelog, markdown_mode, self, root, todo'
+  description: 'code2llm reports `Data Clump: changelog, markdown_mode, self, root,
+    todo` in `sdk/python/todo2code/client.py:332`.
 
 
-    Arguments (changelog, todo, markdown_mode, self, root) are used together in multiple
+    Arguments (changelog, markdown_mode, self, root, todo) are used together in multiple
     functions: sdk.python.todo2code.client.T2CClient.extract_markdown, sdk.python.todo2code.client.T2CClient.extract_markdown_result.
 
 
@@ -1302,15 +1444,15 @@ tickets:
   - data-clump
   files:
   - sdk/python/todo2code/client.py
-  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:327:Data Clump:
-    changelog, todo, markdown_mode, self, root'
+  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:332:Data Clump:
+    changelog, markdown_mode, self, root, todo'
 - signal: code2llm_smell_data_clump
-  title: 'Address code smell: Data Clump: changelog, todo, markdown_mode, self, root'
-  description: 'code2llm reports `Data Clump: changelog, todo, markdown_mode, self,
-    root` in `sdk/python/todo2code/client.py:336`.
+  title: 'Address code smell: Data Clump: changelog, markdown_mode, self, root, todo'
+  description: 'code2llm reports `Data Clump: changelog, markdown_mode, self, root,
+    todo` in `sdk/python/todo2code/client.py:341`.
 
 
-    Arguments (changelog, todo, markdown_mode, self, root) are used together in multiple
+    Arguments (changelog, markdown_mode, self, root, todo) are used together in multiple
     functions: sdk.python.todo2code.client.T2CClient.extract_markdown, sdk.python.todo2code.client.T2CClient.extract_markdown_result.
 
 
@@ -1323,11 +1465,11 @@ tickets:
   - data-clump
   files:
   - sdk/python/todo2code/client.py
-  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:336:Data Clump:
-    changelog, todo, markdown_mode, self, root'
+  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:341:Data Clump:
+    changelog, markdown_mode, self, root, todo'
 - signal: code2llm_smell_data_clump
   title: 'Address code smell: Data Clump: self, action, payload'
-  description: 'code2llm reports `Data Clump: self, action, payload` in `sdk/python/todo2code/client.py:248`.
+  description: 'code2llm reports `Data Clump: self, action, payload` in `sdk/python/todo2code/client.py:249`.
 
 
     Arguments (self, action, payload) are used together in multiple functions: sdk.python.todo2code.client.T2CClient.send,
@@ -1343,11 +1485,11 @@ tickets:
   - data-clump
   files:
   - sdk/python/todo2code/client.py
-  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:248:Data Clump:
+  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:249:Data Clump:
     self, action, payload'
 - signal: code2llm_smell_data_clump
   title: 'Address code smell: Data Clump: self, action, payload'
-  description: 'code2llm reports `Data Clump: self, action, payload` in `sdk/python/todo2code/client.py:260`.
+  description: 'code2llm reports `Data Clump: self, action, payload` in `sdk/python/todo2code/client.py:261`.
 
 
     Arguments (self, action, payload) are used together in multiple functions: sdk.python.todo2code.client.T2CClient.send,
@@ -1363,51 +1505,11 @@ tickets:
   - data-clump
   files:
   - sdk/python/todo2code/client.py
-  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:260:Data Clump:
+  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:261:Data Clump:
     self, action, payload'
 - signal: code2llm_smell_data_clump
-  title: 'Address code smell: Data Clump: self, excludes, patterns, root'
-  description: 'code2llm reports `Data Clump: self, excludes, patterns, root` in `sdk/python/todo2code/client.py:349`.
-
-
-    Arguments (self, excludes, patterns, root) are used together in multiple functions:
-    sdk.python.todo2code.client.T2CClient.extract_docs, sdk.python.todo2code.client.T2CClient.extract_docs_result.
-
-
-    Make the smallest refactor that removes the smell and run local tests.'
-  priority: normal
-  labels:
-  - llm-ready
-  - code2llm
-  - code-smell
-  - data-clump
-  files:
-  - sdk/python/todo2code/client.py
-  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:349:Data Clump:
-    self, excludes, patterns, root'
-- signal: code2llm_smell_data_clump
-  title: 'Address code smell: Data Clump: self, excludes, patterns, root'
-  description: 'code2llm reports `Data Clump: self, excludes, patterns, root` in `sdk/python/todo2code/client.py:357`.
-
-
-    Arguments (self, excludes, patterns, root) are used together in multiple functions:
-    sdk.python.todo2code.client.T2CClient.extract_docs, sdk.python.todo2code.client.T2CClient.extract_docs_result.
-
-
-    Make the smallest refactor that removes the smell and run local tests.'
-  priority: normal
-  labels:
-  - llm-ready
-  - code2llm
-  - code-smell
-  - data-clump
-  files:
-  - sdk/python/todo2code/client.py
-  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:357:Data Clump:
-    self, excludes, patterns, root'
-- signal: code2llm_smell_data_clump
   title: 'Address code smell: Data Clump: self, nl_mode, root, file'
-  description: 'code2llm reports `Data Clump: self, nl_mode, root, file` in `sdk/python/todo2code/client.py:306`.
+  description: 'code2llm reports `Data Clump: self, nl_mode, root, file` in `sdk/python/todo2code/client.py:307`.
 
 
     Arguments (self, nl_mode, root, file) are used together in multiple functions:
@@ -1423,11 +1525,11 @@ tickets:
   - data-clump
   files:
   - sdk/python/todo2code/client.py
-  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:306:Data Clump:
+  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:307:Data Clump:
     self, nl_mode, root, file'
 - signal: code2llm_smell_data_clump
   title: 'Address code smell: Data Clump: self, nl_mode, root, file'
-  description: 'code2llm reports `Data Clump: self, nl_mode, root, file` in `sdk/python/todo2code/client.py:311`.
+  description: 'code2llm reports `Data Clump: self, nl_mode, root, file` in `sdk/python/todo2code/client.py:312`.
 
 
     Arguments (self, nl_mode, root, file) are used together in multiple functions:
@@ -1443,8 +1545,48 @@ tickets:
   - data-clump
   files:
   - sdk/python/todo2code/client.py
-  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:311:Data Clump:
+  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:312:Data Clump:
     self, nl_mode, root, file'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, root, excludes, patterns'
+  description: 'code2llm reports `Data Clump: self, root, excludes, patterns` in `sdk/python/todo2code/client.py:354`.
+
+
+    Arguments (self, root, excludes, patterns) are used together in multiple functions:
+    sdk.python.todo2code.client.T2CClient.extract_docs, sdk.python.todo2code.client.T2CClient.extract_docs_result.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - sdk/python/todo2code/client.py
+  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:354:Data Clump:
+    self, root, excludes, patterns'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, root, excludes, patterns'
+  description: 'code2llm reports `Data Clump: self, root, excludes, patterns` in `sdk/python/todo2code/client.py:362`.
+
+
+    Arguments (self, root, excludes, patterns) are used together in multiple functions:
+    sdk.python.todo2code.client.T2CClient.extract_docs, sdk.python.todo2code.client.T2CClient.extract_docs_result.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - sdk/python/todo2code/client.py
+  dedupe_key: 'code2llm:smell:data_clump:sdk/python/todo2code/client.py:362:Data Clump:
+    self, root, excludes, patterns'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: OBJECT_PLACEHOLDERS'
   description: 'code2llm reports `God Function: OBJECT_PLACEHOLDERS` in `src/extractors/docs-record.ts:21`.
@@ -1539,7 +1681,7 @@ tickets:
     action'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: add'
-  description: 'code2llm reports `God Function: add` in `src/extractors/ast.ts:100`.
+  description: 'code2llm reports `God Function: add` in `src/extractors/ast/typescript.ts:28`.
 
 
     Function ''add'' is oversized: CC=14, fan-out=7, mutations=0.
@@ -1553,9 +1695,9 @@ tickets:
   - code-smell
   - god-function
   files:
-  - src/extractors/ast.ts
-  dedupe_key: 'code2llm:smell:god_function:src/extractors/ast.ts:100:God Function:
-    add'
+  - src/extractors/ast/typescript.ts
+  dedupe_key: 'code2llm:smell:god_function:src/extractors/ast/typescript.ts:28:God
+    Function: add'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: addCommunicationIssuesToDiagnostics'
   description: 'code2llm reports `God Function: addCommunicationIssuesToDiagnostics`
@@ -1749,7 +1891,7 @@ tickets:
   description: 'code2llm reports `God Function: baseWorktree` in `src/comparison/workspace.ts:97`.
 
 
-    Function ''baseWorktree'' is oversized: CC=2, fan-out=25, mutations=0.
+    Function ''baseWorktree'' is oversized: CC=3, fan-out=25, mutations=0.
 
 
     Make the smallest refactor that removes the smell and run local tests.'
@@ -1782,6 +1924,24 @@ tickets:
   - src/extractors/todo.ts
   dedupe_key: 'code2llm:smell:god_function:src/extractors/todo.ts:39:God Function:
     block'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: body'
+  description: 'code2llm reports `God Function: body` in `src/extractors/nl.ts:41`.
+
+
+    Function ''body'' is oversized: CC=2, fan-out=14, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/extractors/nl.ts
+  dedupe_key: 'code2llm:smell:god_function:src/extractors/nl.ts:41:God Function: body'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: body'
   description: 'code2llm reports `God Function: body` in `src/extractors/changelog.ts:20`.
@@ -1820,24 +1980,6 @@ tickets:
   - src/extractors/todo.ts
   dedupe_key: 'code2llm:smell:god_function:src/extractors/todo.ts:21:God Function:
     body'
-- signal: code2llm_smell_god_function
-  title: 'Address code smell: God Function: body'
-  description: 'code2llm reports `God Function: body` in `src/extractors/nl.ts:41`.
-
-
-    Function ''body'' is oversized: CC=2, fan-out=14, mutations=0.
-
-
-    Make the smallest refactor that removes the smell and run local tests.'
-  priority: normal
-  labels:
-  - llm-ready
-  - code2llm
-  - code-smell
-  - god-function
-  files:
-  - src/extractors/nl.ts
-  dedupe_key: 'code2llm:smell:god_function:src/extractors/nl.ts:41:God Function: body'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: byKey'
   description: 'code2llm reports `God Function: byKey` in `src/communication/llm.ts:252`.
@@ -1935,7 +2077,7 @@ tickets:
     collect_files'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: communicationOnly'
-  description: 'code2llm reports `God Function: communicationOnly` in `src/services/actions.ts:312`.
+  description: 'code2llm reports `God Function: communicationOnly` in `src/services/actions.ts:316`.
 
 
     Function ''communicationOnly'' is oversized: CC=13, fan-out=4, mutations=0.
@@ -1950,14 +2092,14 @@ tickets:
   - god-function
   files:
   - src/services/actions.ts
-  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:312:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:316:God Function:
     communicationOnly'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: compareWorkspaceIntent'
   description: 'code2llm reports `God Function: compareWorkspaceIntent` in `src/comparison/workspace.ts:78`.
 
 
-    Function ''compareWorkspaceIntent'' is oversized: CC=8, fan-out=40, mutations=0.
+    Function ''compareWorkspaceIntent'' is oversized: CC=9, fan-out=40, mutations=0.
 
 
     Make the smallest refactor that removes the smell and run local tests.'
@@ -1971,6 +2113,45 @@ tickets:
   - src/comparison/workspace.ts
   dedupe_key: 'code2llm:smell:god_function:src/comparison/workspace.ts:78:God Function:
     compareWorkspaceIntent'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: compileSubactorProcessEnvelope'
+  description: 'code2llm reports `God Function: compileSubactorProcessEnvelope` in
+    `src/operations/subactor.ts:41`.
+
+
+    Function ''compileSubactorProcessEnvelope'' is oversized: CC=13, fan-out=18, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/operations/subactor.ts
+  dedupe_key: 'code2llm:smell:god_function:src/operations/subactor.ts:41:God Function:
+    compileSubactorProcessEnvelope'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: configurationRecords'
+  description: 'code2llm reports `God Function: configurationRecords` in `src/extractors/configuration.ts:41`.
+
+
+    Function ''configurationRecords'' is oversized: CC=4, fan-out=11, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/extractors/configuration.ts
+  dedupe_key: 'code2llm:smell:god_function:src/extractors/configuration.ts:41:God
+    Function: configurationRecords'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: createTodoPatch'
   description: 'code2llm reports `God Function: createTodoPatch` in `src/synthesis/todo-patch.ts:69`.
@@ -2029,7 +2210,7 @@ tickets:
   dedupe_key: 'code2llm:smell:god_function:src/graph/diff.ts:16:God Function: diffIntentGraphs'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: enrichRecord'
-  description: 'code2llm reports `God Function: enrichRecord` in `src/extractors/markdown-llm.ts:189`.
+  description: 'code2llm reports `God Function: enrichRecord` in `src/extractors/markdown-llm.ts:207`.
 
 
     Function ''enrichRecord'' is oversized: CC=14, fan-out=4, mutations=0.
@@ -2044,7 +2225,7 @@ tickets:
   - god-function
   files:
   - src/extractors/markdown-llm.ts
-  dedupe_key: 'code2llm:smell:god_function:src/extractors/markdown-llm.ts:189:God
+  dedupe_key: 'code2llm:smell:god_function:src/extractors/markdown-llm.ts:207:God
     Function: enrichRecord'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: evaluateDsl2TodoCase'
@@ -2104,10 +2285,10 @@ tickets:
   dedupe_key: 'code2llm:smell:god_function:src/core/io.ts:89:God Function: extensions'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: extractAstIntent'
-  description: 'code2llm reports `God Function: extractAstIntent` in `src/extractors/ast.ts:39`.
+  description: 'code2llm reports `God Function: extractAstIntent` in `src/extractors/ast.ts:18`.
 
 
-    Function ''extractAstIntent'' is oversized: CC=8, fan-out=12, mutations=0.
+    Function ''extractAstIntent'' is oversized: CC=7, fan-out=14, mutations=0.
 
 
     Make the smallest refactor that removes the smell and run local tests.'
@@ -2119,7 +2300,7 @@ tickets:
   - god-function
   files:
   - src/extractors/ast.ts
-  dedupe_key: 'code2llm:smell:god_function:src/extractors/ast.ts:39:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/extractors/ast.ts:18:God Function:
     extractAstIntent'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: extractChangelog'
@@ -2182,10 +2363,10 @@ tickets:
     extractGitIntent'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: extractMarkdownIntentAudited'
-  description: 'code2llm reports `God Function: extractMarkdownIntentAudited` in `src/extractors/markdown-llm.ts:52`.
+  description: 'code2llm reports `God Function: extractMarkdownIntentAudited` in `src/extractors/markdown-llm.ts:54`.
 
 
-    Function ''extractMarkdownIntentAudited'' is oversized: CC=7, fan-out=15, mutations=0.
+    Function ''extractMarkdownIntentAudited'' is oversized: CC=9, fan-out=18, mutations=0.
 
 
     Make the smallest refactor that removes the smell and run local tests.'
@@ -2197,7 +2378,7 @@ tickets:
   - god-function
   files:
   - src/extractors/markdown-llm.ts
-  dedupe_key: 'code2llm:smell:god_function:src/extractors/markdown-llm.ts:52:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/extractors/markdown-llm.ts:54:God Function:
     extractMarkdownIntentAudited'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: extractNlIntent'
@@ -2313,7 +2494,7 @@ tickets:
     Function: graph'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: handleCommunication'
-  description: 'code2llm reports `God Function: handleCommunication` in `src/cli.ts:462`.
+  description: 'code2llm reports `God Function: handleCommunication` in `src/cli.ts:468`.
 
 
     Function ''handleCommunication'' is oversized: CC=11, fan-out=18, mutations=0.
@@ -2328,28 +2509,10 @@ tickets:
   - god-function
   files:
   - src/cli.ts
-  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:462:God Function: handleCommunication'
-- signal: code2llm_smell_god_function
-  title: 'Address code smell: God Function: handleExtract'
-  description: 'code2llm reports `God Function: handleExtract` in `src/cli.ts:402`.
-
-
-    Function ''handleExtract'' is oversized: CC=14, fan-out=17, mutations=0.
-
-
-    Make the smallest refactor that removes the smell and run local tests.'
-  priority: normal
-  labels:
-  - llm-ready
-  - code2llm
-  - code-smell
-  - god-function
-  files:
-  - src/cli.ts
-  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:402:God Function: handleExtract'
+  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:468:God Function: handleCommunication'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: handleReality'
-  description: 'code2llm reports `God Function: handleReality` in `src/cli.ts:376`.
+  description: 'code2llm reports `God Function: handleReality` in `src/cli.ts:377`.
 
 
     Function ''handleReality'' is oversized: CC=9, fan-out=12, mutations=0.
@@ -2364,10 +2527,10 @@ tickets:
   - god-function
   files:
   - src/cli.ts
-  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:376:God Function: handleReality'
+  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:377:God Function: handleReality'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: handleWatch'
-  description: 'code2llm reports `God Function: handleWatch` in `src/cli.ts:250`.
+  description: 'code2llm reports `God Function: handleWatch` in `src/cli.ts:251`.
 
 
     Function ''handleWatch'' is oversized: CC=6, fan-out=18, mutations=0.
@@ -2382,7 +2545,7 @@ tickets:
   - god-function
   files:
   - src/cli.ts
-  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:250:God Function: handleWatch'
+  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:251:God Function: handleWatch'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: ignored'
   description: 'code2llm reports `God Function: ignored` in `src/core/io.ts:88`.
@@ -2814,7 +2977,7 @@ tickets:
   dedupe_key: 'code2llm:smell:god_function:src/watch/watcher.ts:38:God Function: maxFiles'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: moduleRecords'
-  description: 'code2llm reports `God Function: moduleRecords` in `src/extractors/ast.ts:355`.
+  description: 'code2llm reports `God Function: moduleRecords` in `src/extractors/ast/records.ts:34`.
 
 
     Function ''moduleRecords'' is oversized: CC=4, fan-out=13, mutations=0.
@@ -2828,12 +2991,12 @@ tickets:
   - code-smell
   - god-function
   files:
-  - src/extractors/ast.ts
-  dedupe_key: 'code2llm:smell:god_function:src/extractors/ast.ts:355:God Function:
+  - src/extractors/ast/records.ts
+  dedupe_key: 'code2llm:smell:god_function:src/extractors/ast/records.ts:34:God Function:
     moduleRecords'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: options'
-  description: 'code2llm reports `God Function: options` in `src/cli.ts:546`.
+  description: 'code2llm reports `God Function: options` in `src/cli.ts:552`.
 
 
     Function ''options'' is oversized: CC=13, fan-out=5, mutations=0.
@@ -2848,7 +3011,7 @@ tickets:
   - god-function
   files:
   - src/cli.ts
-  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:546:God Function: options'
+  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:552:God Function: options'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: output'
   description: 'code2llm reports `God Function: output` in `src/communication/llm.ts:254`.
@@ -2870,7 +3033,7 @@ tickets:
     output'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: parseArgs'
-  description: 'code2llm reports `God Function: parseArgs` in `src/cli.ts:544`.
+  description: 'code2llm reports `God Function: parseArgs` in `src/cli.ts:550`.
 
 
     Function ''parseArgs'' is oversized: CC=13, fan-out=5, mutations=0.
@@ -2885,7 +3048,7 @@ tickets:
   - god-function
   files:
   - src/cli.ts
-  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:544:God Function: parseArgs'
+  dedupe_key: 'code2llm:smell:god_function:src/cli.ts:550:God Function: parseArgs'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: parse_base_url'
   description: 'code2llm reports `God Function: parse_base_url` in `sdk/rust/src/client.rs:172`.
@@ -2907,7 +3070,7 @@ tickets:
     parse_base_url'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: participant'
-  description: 'code2llm reports `God Function: participant` in `src/services/actions.ts:309`.
+  description: 'code2llm reports `God Function: participant` in `src/services/actions.ts:313`.
 
 
     Function ''participant'' is oversized: CC=13, fan-out=4, mutations=0.
@@ -2922,7 +3085,7 @@ tickets:
   - god-function
   files:
   - src/services/actions.ts
-  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:309:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:313:God Function:
     participant'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: participantGroups'
@@ -2982,7 +3145,7 @@ tickets:
     readCommunicationSummary'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: records'
-  description: 'code2llm reports `God Function: records` in `src/services/actions.ts:314`.
+  description: 'code2llm reports `God Function: records` in `src/services/actions.ts:318`.
 
 
     Function ''records'' is oversized: CC=13, fan-out=4, mutations=0.
@@ -2997,11 +3160,11 @@ tickets:
   - god-function
   files:
   - src/services/actions.ts
-  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:314:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:318:God Function:
     records'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: registerRunArtifacts'
-  description: 'code2llm reports `God Function: registerRunArtifacts` in `src/services/actions.ts:465`.
+  description: 'code2llm reports `God Function: registerRunArtifacts` in `src/services/actions.ts:469`.
 
 
     Function ''registerRunArtifacts'' is oversized: CC=7, fan-out=12, mutations=0.
@@ -3016,7 +3179,7 @@ tickets:
   - god-function
   files:
   - src/services/actions.ts
-  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:465:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:469:God Function:
     registerRunArtifacts'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: relative'
@@ -3095,7 +3258,7 @@ tickets:
     renderTextDiffSvg'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: request'
-  description: 'code2llm reports `God Function: request` in `sdk/php/src/Client.php:324`.
+  description: 'code2llm reports `God Function: request` in `sdk/php/src/Client.php:331`.
 
 
     Function ''request'' is oversized: CC=10, fan-out=11, mutations=0.
@@ -3110,7 +3273,7 @@ tickets:
   - god-function
   files:
   - sdk/php/src/Client.php
-  dedupe_key: 'code2llm:smell:god_function:sdk/php/src/Client.php:324:God Function:
+  dedupe_key: 'code2llm:smell:god_function:sdk/php/src/Client.php:331:God Function:
     request'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: resolveGlobs'
@@ -3150,7 +3313,7 @@ tickets:
   dedupe_key: 'code2llm:smell:god_function:src/diff/reality.ts:321:God Function: resolveStatus'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: role'
-  description: 'code2llm reports `God Function: role` in `src/services/actions.ts:310`.
+  description: 'code2llm reports `God Function: role` in `src/services/actions.ts:314`.
 
 
     Function ''role'' is oversized: CC=13, fan-out=4, mutations=0.
@@ -3165,7 +3328,7 @@ tickets:
   - god-function
   files:
   - src/services/actions.ts
-  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:310:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:314:God Function:
     role'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: rpc'
@@ -3319,7 +3482,7 @@ tickets:
     startMcpServer'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: summarizeGraph'
-  description: 'code2llm reports `God Function: summarizeGraph` in `src/summary/summarizer.ts:54`.
+  description: 'code2llm reports `God Function: summarizeGraph` in `src/summary/summarizer.ts:55`.
 
 
     Function ''summarizeGraph'' is oversized: CC=10, fan-out=14, mutations=0.
@@ -3334,7 +3497,7 @@ tickets:
   - god-function
   files:
   - src/summary/summarizer.ts
-  dedupe_key: 'code2llm:smell:god_function:src/summary/summarizer.ts:54:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/summary/summarizer.ts:55:God Function:
     summarizeGraph'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: synthesizeTodoProposals'
@@ -3379,7 +3542,7 @@ tickets:
   description: 'code2llm reports `God Function: temporaryParent` in `src/comparison/workspace.ts:96`.
 
 
-    Function ''temporaryParent'' is oversized: CC=2, fan-out=25, mutations=0.
+    Function ''temporaryParent'' is oversized: CC=3, fan-out=25, mutations=0.
 
 
     Make the smallest refactor that removes the smell and run local tests.'
@@ -3414,7 +3577,7 @@ tickets:
     text'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: ticket'
-  description: 'code2llm reports `God Function: ticket` in `src/services/actions.ts:311`.
+  description: 'code2llm reports `God Function: ticket` in `src/services/actions.ts:315`.
 
 
     Function ''ticket'' is oversized: CC=13, fan-out=4, mutations=0.
@@ -3429,7 +3592,7 @@ tickets:
   - god-function
   files:
   - src/services/actions.ts
-  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:311:God Function:
+  dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:315:God Function:
     ticket'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: toDocumentIntentRecord'
@@ -3488,6 +3651,25 @@ tickets:
   - java/JavaAstExtract.java
   dedupe_key: 'code2llm:smell:god_function:java/JavaAstExtract.java:83:God Function:
     try'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: unsupportedSourceWarning'
+  description: 'code2llm reports `God Function: unsupportedSourceWarning` in `src/extractors/ast/unsupported.ts:11`.
+
+
+    Function ''unsupportedSourceWarning'' is oversized: CC=5, fan-out=11, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/extractors/ast/unsupported.ts
+  dedupe_key: 'code2llm:smell:god_function:src/extractors/ast/unsupported.ts:11:God
+    Function: unsupportedSourceWarning'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Function: used'
   description: 'code2llm reports `God Function: used` in `src/core/record.ts:130`.
@@ -3623,7 +3805,7 @@ tickets:
   description: 'code2llm reports `God Module: sdk.python.todo2code.client` in `sdk/python/todo2code/client.py:1`.
 
 
-    Module ''sdk.python.todo2code.client'' is too large (44 functions, 7 classes).
+    Module ''sdk.python.todo2code.client'' is too large (45 functions, 7 classes).
     Consider splitting into sub-modules.
 
 
@@ -3662,7 +3844,7 @@ tickets:
   description: 'code2llm reports `God Module: sdk.typescript.src` in `sdk/typescript/src/index.ts:1`.
 
 
-    Module ''sdk.typescript.src'' is too large (41 functions, 14 classes). Consider
+    Module ''sdk.typescript.src'' is too large (42 functions, 14 classes). Consider
     splitting into sub-modules.
 
 
@@ -3682,7 +3864,7 @@ tickets:
   description: 'code2llm reports `God Module: src.cli` in `src/cli.ts:1`.
 
 
-    Module ''src.cli'' is too large (124 functions, 1 classes). Consider splitting
+    Module ''src.cli'' is too large (125 functions, 1 classes). Consider splitting
     into sub-modules.
 
 
@@ -3741,7 +3923,7 @@ tickets:
   description: 'code2llm reports `God Module: src.comparison.workspace` in `src/comparison/workspace.ts:1`.
 
 
-    Module ''src.comparison.workspace'' is too large (53 functions, 3 classes). Consider
+    Module ''src.comparison.workspace'' is too large (55 functions, 3 classes). Consider
     splitting into sub-modules.
 
 
@@ -3872,25 +4054,6 @@ tickets:
   dedupe_key: 'code2llm:smell:god_function:src/evaluation/gold-types.ts:1:God Module:
     src.evaluation.gold-types'
 - signal: code2llm_smell_god_function
-  title: 'Address code smell: God Module: src.extractors.ast'
-  description: 'code2llm reports `God Module: src.extractors.ast` in `src/extractors/ast.ts:1`.
-
-
-    Module ''src.extractors.ast'' is too large (61 functions, 3 classes). Consider
-    splitting into sub-modules.
-
-
-    Make the smallest refactor that removes the smell and run local tests.'
-  priority: normal
-  labels:
-  - llm-ready
-  - code2llm
-  - code-smell
-  - god-function
-  files:
-  - src/extractors/ast.ts
-  dedupe_key: 'code2llm:smell:god_function:src/extractors/ast.ts:1:God Module: src.extractors.ast'
-- signal: code2llm_smell_god_function
   title: 'Address code smell: God Module: src.extractors.communication'
   description: 'code2llm reports `God Module: src.extractors.communication` in `src/extractors/communication.ts:1`.
 
@@ -4007,11 +4170,31 @@ tickets:
   - src/llm/openrouter.ts
   dedupe_key: 'code2llm:smell:god_function:src/llm/openrouter.ts:1:God Module: src.llm.openrouter'
 - signal: code2llm_smell_god_function
+  title: 'Address code smell: God Module: src.operations.validation'
+  description: 'code2llm reports `God Module: src.operations.validation` in `src/operations/validation.ts:1`.
+
+
+    Module ''src.operations.validation'' is too large (47 functions, 0 classes). Consider
+    splitting into sub-modules.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/operations/validation.ts
+  dedupe_key: 'code2llm:smell:god_function:src/operations/validation.ts:1:God Module:
+    src.operations.validation'
+- signal: code2llm_smell_god_function
   title: 'Address code smell: God Module: src.pipeline.run'
   description: 'code2llm reports `God Module: src.pipeline.run` in `src/pipeline/run.ts:1`.
 
 
-    Module ''src.pipeline.run'' is too large (56 functions, 1 classes). Consider splitting
+    Module ''src.pipeline.run'' is too large (57 functions, 1 classes). Consider splitting
     into sub-modules.
 
 
@@ -4044,26 +4227,6 @@ tickets:
   files:
   - src/services/actions.ts
   dedupe_key: 'code2llm:smell:god_function:src/services/actions.ts:1:God Module: src.services.actions'
-- signal: code2llm_smell_god_function
-  title: 'Address code smell: God Module: src.summary.summarizer'
-  description: 'code2llm reports `God Module: src.summary.summarizer` in `src/summary/summarizer.ts:1`.
-
-
-    Module ''src.summary.summarizer'' is too large (57 functions, 4 classes). Consider
-    splitting into sub-modules.
-
-
-    Make the smallest refactor that removes the smell and run local tests.'
-  priority: normal
-  labels:
-  - llm-ready
-  - code2llm
-  - code-smell
-  - god-function
-  files:
-  - src/summary/summarizer.ts
-  dedupe_key: 'code2llm:smell:god_function:src/summary/summarizer.ts:1:God Module:
-    src.summary.summarizer'
 - signal: code2llm_smell_god_function
   title: 'Address code smell: God Module: src.synthesis.tasks-llm'
   description: 'code2llm reports `God Module: src.synthesis.tasks-llm` in `src/synthesis/tasks-llm.ts:1`.

@@ -1,52 +1,52 @@
-# todo2code | 2363 func | 105f | 32329L | typescript | 2026-07-30
+# todo2code | 2491 func | 121f | 33757L | typescript | 2026-07-30
 # generated in 0.00s
 
 HEALTH:
-  CC̄=3.7  critical=173 (limit:10)  dup=28  cycles=0
+  CC̄=3.8  critical=186 (limit:10)  dup=28  cycles=0
 
 ALERTS[20]:
+  !!! cc_exceeded      assertOperationPlan = 84 (limit:15)
   !!! cc_exceeded      extractCommunicationIntent = 64 (limit:15)
-  !!! cc_exceeded      identityRegistry = 60 (limit:15)
   !!! cc_exceeded      main = 60 (limit:15)
+  !!! cc_exceeded      identityRegistry = 60 (limit:15)
   !!! cc_exceeded      parseCommand = 57 (limit:15)
-  !!! high_fan_out     executeAction = 53 (limit:10)
+  !!! high_fan_out     executeAction = 54 (limit:10)
+  !!! high_fan_out     root = 53 (limit:10)
   !!! cc_exceeded      diffUiHtml = 52 (limit:15)
   !!! cc_exceeded      runPipeline = 52 (limit:15)
-  !!! high_fan_out     root = 52 (limit:10)
-  !!! high_fan_out     runPipeline = 49 (limit:10)
-  !!! high_fan_out     extractTypeScriptFile = 44 (limit:10)
+  !!! high_fan_out     runPipeline = 50 (limit:10)
 
-MODULES[201] (top by size):
-  M[docs/README.md] 2498L C:0 F:0 CC↑0 D:0 (md)
+MODULES[222] (top by size):
+  M[docs/README.md] 2694L C:0 F:0 CC↑0 D:0 (md)
   M[docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md] 872L C:0 F:0 CC↑0 D:0 (md)
   M[docs/reference/original-monitoring-design.md] 872L C:0 F:0 CC↑0 D:0 (md)
-  M[README.md] 764L C:0 F:0 CC↑0 D:0 (md)
-  M[src/cli.ts] 699L C:1 F:76 CC↑60 D:0 (typescript)
+  M[README.md] 767L C:0 F:0 CC↑0 D:0 (md)
+  M[src/cli.ts] 705L C:1 F:76 CC↑60 D:0 (typescript)
   M[src/core/schema.ts] 610L C:2 F:93 CC↑23 D:0 (typescript)
-  M[src/pipeline/run.ts] 528L C:1 F:56 CC↑52 D:0 (typescript)
+  M[src/pipeline/run.ts] 535L C:1 F:57 CC↑52 D:0 (typescript)
   M[src/interfaces/a2a-task-store.ts] 513L C:3 F:81 CC↑11 D:0 (typescript)
-  M[src/summary/summarizer.ts] 507L C:4 F:51 CC↑12 D:0 (typescript)
-  M[src/core/types.ts] 496L C:28 F:0 CC↑0 D:0 (typescript)
+  M[src/core/types.ts] 497L C:28 F:0 CC↑0 D:0 (typescript)
   M[src/communication/llm.ts] 492L C:7 F:50 CC↑18 D:0 (typescript)
   M[evaluation/gold/v1/dataset.json] 491L C:0 F:0 CC↑0 D:0 (json)
   M[src/diff/reality.ts] 486L C:3 F:64 CC↑22 D:0 (typescript)
-  M[src/services/actions.ts] 479L C:0 F:60 CC↑36 D:0 (typescript)
-  M[sdk/python/todo2code/client.py] 464L C:7 F:44 CC↑7 D:0 (python)
-  LANGS: typescript:81/md:52/json:20/python:12/rust:7/javascript:6/go:6/shell:6/php:3/toml:3/other:2/java:1/yml:1/txt:1
+  M[src/services/actions.ts] 483L C:0 F:60 CC↑37 D:0 (typescript)
+  M[sdk/python/todo2code/client.py] 469L C:7 F:45 CC↑7 D:0 (python)
+  M[docs/PIPELINE_DSL_NL.md] 462L C:0 F:0 CC↑0 D:0 (md)
+  LANGS: typescript:99/md:53/json:22/python:12/rust:7/javascript:6/go:6/shell:6/php:3/toml:3/other:2/java:1/yml:1/txt:1
 
 HOTSPOTS[10]:
-  ★ executeAction fan=53  // Orchestrates 53 calls
-  ★ root fan=52  // Orchestrates 52 calls
-  ★ runPipeline fan=49  // Orchestrates 49 calls
+  ★ executeAction fan=54  // Orchestrates 54 calls
+  ★ root fan=53  // Orchestrates 53 calls
+  ★ runPipeline fan=50  // Orchestrates 50 calls
   ★ extractTypeScriptFile fan=44  // Orchestrates 44 calls
-  ★ diffUiHtml fan=42  // Orchestrates 42 calls
+  ★ main fan=42  // Orchestrates 42 calls
 
 REFACTOR[15]:
-  [1] H/L Split extractCommunicationIntent (CC=64)
-  [2] H/L Split identityRegistry (CC=60)
-  [3] H/L Split diagnoseGraph (CC=30)
-  [4] H/L Split neighbors (CC=25)
-  [5] H/L Split recordsById (CC=25)
+  [1] H/L Split main (CC=60)
+  [2] H/L Split extractCommunicationIntent (CC=64)
+  [3] H/L Split identityRegistry (CC=60)
+  [4] H/L Split diagnoseGraph (CC=30)
+  [5] H/L Split neighbors (CC=25)
 
 EVOLUTION:
-  2026-07-30 CC̄=3.7 crit=173 32329L // Automated analysis
+  2026-07-30 CC̄=3.8 crit=186 33757L // Automated analysis

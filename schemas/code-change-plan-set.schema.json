@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/code-change-plan-set.schema.json",
+  "title": "todo2code Grounded Code Change Plan Set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "plans", "generatedAt", "graphFingerprint",
+    "sourceDiagnosticCount", "generation"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "t2c.code-change-plan-set/v1" },
+    "plans": {
+      "type": "array",
+      "items": { "$ref": "code-change-plan.schema.json" }
+    },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "graphFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "sourceDiagnosticCount": { "type": "integer", "minimum": 0 },
+    "generation": { "$ref": "conclusion.schema.json#/$defs/generation" }
+  }
+}

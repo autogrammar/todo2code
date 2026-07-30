@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/code-change-plan.schema.json",
+  "title": "todo2code Grounded Code Change Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "id", "planHash", "status", "createdAt", "title", "description",
+    "priority", "target", "acceptanceCriteria", "changes", "risk", "rollback",
+    "evidence", "confidence", "generation"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "t2c.code-change-plan/v1" },
+    "id": { "type": "string", "pattern": "^CPLAN-[a-f0-9]{20}$" },
+    "planHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "status": { "const": "proposed" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "priority": { "enum": ["P0", "P1", "P2", "P3"] },
+    "target": { "$ref": "todo-proposal.schema.json#/$defs/target" },
+    "acceptanceCriteria": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "changes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/change" }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "reasons"],
+      "properties": {
+        "level": { "enum": ["low", "medium", "high"] },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "rollback": { "type": "string", "minLength": 1 },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["graphFingerprint", "recordIds", "diagnosticIds", "conclusionIds", "proposalIds"],
+      "properties": {
+        "graphFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "recordIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^INT-[A-Z]+-[a-f0-9]{20}$" }
+        },
+        "diagnosticIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^DIAG-[a-f0-9]{20}$" }
+        },
+        "conclusionIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^CONC-[a-f0-9]{20}$" }
+        },
+        "proposalIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^TPROP-[a-f0-9]{20}$" }
+        }
+      }
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "generation": { "$ref": "conclusion.schema.json#/$defs/generation" }
+  },
+  "$defs": {
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "action", "symbols", "rationale"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "action": { "enum": ["create", "modify", "delete"] },
+        "symbols": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

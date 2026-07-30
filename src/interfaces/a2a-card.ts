@@ -141,6 +141,18 @@ function skills(): Array<Record<string, unknown>> {
       ['application/json'],
       ['application/json', 'text/markdown'],
     ),
+    skill(
+      'review_code_changes',
+      'Propose and evaluate grounded code-change plans',
+      'Turn open implementation diagnostics into t2c.code-change-plan/v1 proposals and evaluate acceptance after re-analysis. Never auto-applies source edits.',
+      ['code-change', 'acceptance', 'intent-vs-reality', 'audit'],
+      [
+        '{"action":"propose_code_change","input":{"graphPath":".intent/runs/<run>/intent.graph.json","diagnosticsPath":".intent/runs/<run>/diagnostics.json"}}',
+        '{"action":"evaluate_code_change","input":{"planPath":"plans.json","beforeGraphPath":"before.graph.json","afterGraphPath":"after.graph.json"}}',
+      ],
+      ['application/json'],
+      ['application/json'],
+    ),
   ];
 }
 

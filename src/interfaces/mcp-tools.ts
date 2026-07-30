@@ -150,6 +150,33 @@ export const MCP_TOOLS: McpTool[] = [
     actor: stringProp('Human approving actor identity.'),
     approvalHash: stringProp('Exact renderedPatchHash approved by the actor.'),
   }, ['patch', 'audit', 'receipt', 'actor', 'approvalHash']),
+  tool('propose_code_change', 'Build grounded t2c.code-change-plan/v1 proposals from open implementation diagnostics without applying code.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    graph: { type: 'object', description: 'Inline t2c.graph/v1 object.' },
+    graphPath: stringProp('Alternative graph JSON path under root.'),
+    diagnostics: { type: 'object', description: 'Inline t2c.diagnostics/v1 report; derived when omitted.' },
+    diagnosticsPath: stringProp('Alternative diagnostics JSON path under root.'),
+    conclusions: { type: 'object', description: 'Optional conclusions array used as evidence references.' },
+    conclusionsPath: stringProp('Optional conclusions JSON path under root.'),
+    proposals: { type: 'object', description: 'Optional TODO proposals used to enrich target paths/symbols.' },
+    proposalsPath: stringProp('Optional proposals JSON path under root.'),
+    maxPlans: numberProp('Maximum plans to materialise, default 50.', 1, 500),
+    output: stringProp('Optional plan-set JSON output path under root.'),
+  }),
+  tool('evaluate_code_change', 'Re-diagnose an after graph and decide whether a code-change plan cleared its targeted diagnostics.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    plan: { type: 'object', description: 'Inline t2c.code-change-plan/v1 object.' },
+    planPath: stringProp('Alternative plan JSON path under root.'),
+    beforeGraph: { type: 'object', description: 'Graph the plan was grounded on.' },
+    beforeGraphPath: stringProp('Before graph JSON path under root.'),
+    beforeDiagnostics: { type: 'object', description: 'Before diagnostics; derived when omitted.' },
+    beforeDiagnosticsPath: stringProp('Before diagnostics JSON path under root.'),
+    afterGraph: { type: 'object', description: 'Graph after an attempted implementation.' },
+    afterGraphPath: stringProp('After graph JSON path under root.'),
+    afterDiagnostics: { type: 'object', description: 'After diagnostics; derived when omitted.' },
+    afterDiagnosticsPath: stringProp('After diagnostics JSON path under root.'),
+    output: stringProp('Optional acceptance JSON output path under root.'),
+  }),
   tool('pipeline', 'Run the complete todo2code pipeline and write a versioned .intent run.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     task: nullableStringProp('NL task/ticket file.'),
@@ -204,7 +231,10 @@ function tool(
   properties: Record<string, unknown>,
   required: string[] = [],
 ): McpTool {
-  const writes = new Set<T2CAction>(['pipeline', 'propose_todo', 'render_todo', 'apply_todo']);
+  const writes = new Set<T2CAction>([
+    'pipeline', 'propose_todo', 'render_todo', 'apply_todo',
+    'propose_code_change', 'evaluate_code_change',
+  ]);
   return {
     name,
     description,

@@ -300,6 +300,74 @@ export interface TodoProposal {
   generation: GroundedGenerationMetadata;
 }
 
+/**
+ * Grounded proposal to change source files so that a plan/diagnostic can be
+ * closed by later re-analysis. Status is always `proposed`: the runtime never
+ * applies a code change and never marks work DONE from this contract alone.
+ */
+export type CodeChangeFileAction = 'create' | 'modify' | 'delete';
+
+export interface CodeChangeFile {
+  path: string;
+  action: CodeChangeFileAction;
+  symbols: string[];
+  rationale: string;
+}
+
+export type CodeChangeRiskLevel = 'low' | 'medium' | 'high';
+
+export interface CodeChangeRisk {
+  level: CodeChangeRiskLevel;
+  reasons: string[];
+}
+
+export interface CodeChangePlan {
+  schemaVersion: 't2c.code-change-plan/v1';
+  id: string;
+  planHash: string;
+  status: 'proposed';
+  createdAt: string;
+  title: string;
+  description: string;
+  priority: TodoPriority;
+  target: IntentTarget;
+  acceptanceCriteria: string[];
+  changes: CodeChangeFile[];
+  risk: CodeChangeRisk;
+  rollback: string;
+  evidence: {
+    graphFingerprint: string;
+    recordIds: string[];
+    diagnosticIds: string[];
+    conclusionIds: string[];
+    proposalIds: string[];
+  };
+  confidence: number;
+  generation: GroundedGenerationMetadata;
+}
+
+/**
+ * Result of re-diagnosing a graph after an attempted implementation.
+ * Acceptance requires every cited diagnostic to clear and no new blocking
+ * diagnostics to appear. Remaining non-targeted warnings do not fail the gate.
+ */
+export interface CodeChangeAcceptance {
+  schemaVersion: 't2c.code-change-acceptance/v1';
+  planId: string;
+  planHash: string;
+  beforeGraphFingerprint: string;
+  afterGraphFingerprint: string;
+  beforeDiagnosticIds: string[];
+  afterDiagnosticIds: string[];
+  clearedDiagnosticIds: string[];
+  remainingDiagnosticIds: string[];
+  newBlockingDiagnosticIds: string[];
+  accepted: boolean;
+  reasons: string[];
+  evaluatedAt: string;
+  generation: GroundedGenerationMetadata;
+}
+
 export interface TodoPatchDuplicateClassification {
   proposalId: string;
   existingRecordIds: string[];
@@ -366,6 +434,7 @@ export type PipelineFailureStage =
   | 'diagnostics'
   | 'taskSynthesis'
   | 'todoRendering'
+  | 'codeChangePlanning'
   | 'summary'
   | 'persistence';
 
@@ -484,6 +553,7 @@ export interface PipelineManifest {
     documentationExtraction: PipelineStageAudit;
     communicationAnalysis: PipelineStageAudit;
     taskSynthesis: PipelineStageAudit;
+    codeChangePlanning: PipelineStageAudit;
     summary: PipelineStageAudit;
   };
   llm: {

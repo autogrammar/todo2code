@@ -26,6 +26,11 @@ import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
 import { linkIntentRecords } from '../graph/linker.js';
 import { runPipeline } from '../pipeline/run.js';
 import { summarizeGraph } from '../summary/summarizer.js';
+import type { CodeChangePlan, Conclusion, TodoProposal } from '../core/types.js';
+import {
+  evaluateCodeChangeAcceptance,
+  proposeCodeChangePlans,
+} from '../synthesis/code-change-plan.js';
 import { synthesizeTodoProposals, type AuditedTaskSynthesisResult, type TaskSynthesisMode } from '../synthesis/tasks-llm.js';
 import { applyTodoPatch, createTodoPatch } from '../synthesis/todo-patch.js';
 
@@ -49,7 +54,9 @@ export type T2CAction =
   | 'compare_workspace'
   | 'propose_todo'
   | 'render_todo'
-  | 'apply_todo';
+  | 'apply_todo'
+  | 'propose_code_change'
+  | 'evaluate_code_change';
 
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
   const root = await resolveRoot(input.root, config);
@@ -195,6 +202,60 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         },
       });
       await registerRunArtifacts(root, { todoApplyReceipt: receiptPath });
+      return result;
+    }
+    case 'propose_code_change': {
+      const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
+      const diagnostics = hasInputValue(input.diagnostics) || hasInputValue(input.diagnosticsPath)
+        ? await readActionObject<DiagnosticReport>(input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config)
+        : diagnoseGraph(graph);
+      const conclusions = hasInputValue(input.conclusions) || hasInputValue(input.conclusionsPath)
+        ? await readActionObject<Conclusion[]>(input.conclusions, input.conclusionsPath, 'conclusions', root, config)
+        : undefined;
+      const proposals = hasInputValue(input.proposals) || hasInputValue(input.proposalsPath)
+        ? await readActionObject<TodoProposal[]>(input.proposals, input.proposalsPath, 'proposals', root, config)
+        : undefined;
+      const result = proposeCodeChangePlans({
+        graph,
+        diagnostics,
+        ...(conclusions !== undefined ? { conclusions } : {}),
+        ...(proposals !== undefined ? { proposals } : {}),
+        maxPlans: numberValue(input.maxPlans, 50, 1, 500),
+      });
+      if (input.output !== undefined) {
+        const output = await scopedPath(input.output, '', root, config);
+        await writeJson(output, result);
+      }
+      return result;
+    }
+    case 'evaluate_code_change': {
+      const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);
+      const beforeGraph = await readActionObject<IntentGraph>(
+        input.beforeGraph, input.beforeGraphPath, 'beforeGraph', root, config,
+      );
+      const beforeDiagnostics = hasInputValue(input.beforeDiagnostics) || hasInputValue(input.beforeDiagnosticsPath)
+        ? await readActionObject<DiagnosticReport>(
+          input.beforeDiagnostics, input.beforeDiagnosticsPath, 'beforeDiagnostics', root, config,
+        )
+        : diagnoseGraph(beforeGraph);
+      const afterGraph = await readActionObject<IntentGraph>(
+        input.afterGraph, input.afterGraphPath, 'afterGraph', root, config,
+      );
+      const afterDiagnostics = hasInputValue(input.afterDiagnostics) || hasInputValue(input.afterDiagnosticsPath)
+        ? await readActionObject<DiagnosticReport>(
+          input.afterDiagnostics, input.afterDiagnosticsPath, 'afterDiagnostics', root, config,
+        )
+        : undefined;
+      const result = evaluateCodeChangeAcceptance({
+        plan,
+        before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
+        afterGraph,
+        ...(afterDiagnostics !== undefined ? { afterDiagnostics } : {}),
+      });
+      if (input.output !== undefined) {
+        const output = await scopedPath(input.output, '', root, config);
+        await writeJson(output, result);
+      }
       return result;
     }
     case 'diff': {
@@ -453,6 +514,10 @@ function numberValue(value: unknown, fallback: number, min: number, max: number)
   const number = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : fallback;
   if (!Number.isFinite(number) || number < min || number > max) throw new Error(`Expected number between ${min} and ${max}`);
   return Math.trunc(number);
+}
+
+function hasInputValue(value: unknown): boolean {
+  return value !== undefined && value !== null && value !== '';
 }
 
 function booleanValue(value: unknown, fallback: boolean): boolean {

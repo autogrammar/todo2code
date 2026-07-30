@@ -59,7 +59,11 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.stages.documentationExtraction.status, 'succeeded');
   assert.equal(result.manifest.stages.documentationExtraction.effectiveMode, 'deterministic');
   assert.equal(result.manifest.stages.taskSynthesis.status, 'skipped');
+  assert.equal(result.manifest.stages.codeChangePlanning.status, 'succeeded');
+  assert.equal(result.manifest.stages.codeChangePlanning.effectiveMode, 'deterministic');
   assert.equal(result.manifest.stages.summary.status, 'fallback');
+  assert.equal(result.manifest.files.codeChangePlans?.endsWith('/code-change-plans.json'), true);
+  assert.ok(result.codeChangePlansPath);
   assert.equal(result.manifest.configuration.llm.configured, false);
   assert.equal(result.manifest.configuration.markdownMode, 'prefer-llm');
   assert.equal(result.manifest.configuration.taskSynthesisMode, 'disabled');

@@ -1,5 +1,5 @@
 flowchart TD
-%% generated in 0.03s
+%% generated in 0.04s
 
     %% Entry points (blue)
     classDef entry fill:#4dabf7,stroke:#1971c2,color:#fff
@@ -24,6 +24,7 @@ flowchart TD
     end
 
     subgraph Core
+        project__install_project_package["install_project_package"]
         rust_ast__src__main__main["main"]
         rust_ast__src__main__new["new"]
         rust_ast__src__main__visit_item_mod["visit_item_mod"]
@@ -38,8 +39,7 @@ flowchart TD
         rust_ast__src__main__visit_item_impl["visit_item_impl"]
         rust_ast__src__main__visit_impl_item_fn["visit_impl_item_fn"]
         rust_ast__src__main__visit_expr_call["visit_expr_call"]
-        rust_ast__src__main__visit_expr_method_call["visit_expr_method_call"]
-        ...["+1519 more"]
+        ...["+1628 more"]
     end
 
-    class rust_ast__src__main__main,rust_ast__src__main__new,rust_ast__src__main__visit_item_mod,rust_ast__src__main__visit_item_use,rust_ast__src__main__visit_item_struct,rust_ast__src__main__visit_item_enum,rust_ast__src__main__visit_item_trait,rust_ast__src__main__visit_item_type,rust_ast__src__main__visit_item_const,rust_ast__src__main__visit_item_static entry
+    class project__install_project_package,rust_ast__src__main__main,rust_ast__src__main__new,rust_ast__src__main__visit_item_mod,rust_ast__src__main__visit_item_use,rust_ast__src__main__visit_item_struct,rust_ast__src__main__visit_item_enum,rust_ast__src__main__visit_item_trait,rust_ast__src__main__visit_item_type,rust_ast__src__main__visit_item_const entry

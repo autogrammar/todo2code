@@ -14,9 +14,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 191 testów: 190 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 201 testów: 200 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
-| Moduły | `npm run verify:modules` | PASS — 90 modułów, 411 importów, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 91 modułów, 419 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
@@ -72,7 +72,7 @@ cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 225 records, 109 relations; communication: 3 blocking, 1 warning
+demo: 225 records, 103 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
@@ -121,6 +121,24 @@ akceptacji i niepoprawne powtórzone cytowania propozycji. Runtime normalizuje
 wyłącznie równoważne reprezentacje, wyprowadza cytowania propozycji z
 zatwierdzonych wniosków, a następnie nadal wykonuje pełną walidację grafu,
 cytowań, zależności i kanonicznych kontraktów DSL.
+
+Synteza zadań wykonuje teraz najwyżej jedną próbę korekcyjną po odrzuceniu
+cytowania. Obie odpowiedzi pozostają w audycie; drugie zmyślone ID nadal kończy
+`require-llm` błędem i nie osłabia walidacji ugruntowania.
+
+### Plan zmiany kodu i acceptance
+
+`t2c.code-change-plan/v1` jest budowany deterministycznie tylko z diagnostyk
+implementacyjnych mających konkretną ścieżkę. Runtime waliduje content-bound
+ID/hash, cytowania, ograniczenie `changes[].path` do `target.paths`, risk,
+rollback i provenance. `t2c.code-change-acceptance/v1` porównuje grafy przed i
+po implementacji: wszystkie targeted diagnostics muszą zniknąć i nie może
+pojawić się nowa blokada. Pozytywny wynik nadal nie ustawia `DONE`.
+
+Osiem testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
+tampering, brak provenance, niespójny verdict, JSON Schema oraz pełny przebieg
+CLI na zapisanych plikach. MCP publikuje 22 narzędzia, A2A umiejętność
+`review_code_changes`, a SDK TypeScript udostępnia oba wywołania.
 
 ### Watch
 
@@ -171,7 +189,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 225 rekordów i 109 relacji, w tym cztery rekordy `document` i cztery
+demo ma 225 rekordów i 103 relacje, w tym cztery rekordy `document` i cztery
 rekordy konfiguracji `system`.
 
 ### Ekstrakcja ścieżek i metryka dokumentacji
@@ -316,10 +334,10 @@ Kod TypeScript/JavaScript, Python, Go, Java i Rust ma adaptery AST. PHP — mimo
 że istnieje SDK PHP — oraz inne języki nie mają jeszcze adaptera. Runtime
 raportuje teraz liczbę odkrytych plików nieobsługiwanych języków, więc nie
 udaje pełnego pokrycia. JSON/YAML/TOML, Dockerfile i workflow CI mają już
-deterministyczny konwerter konfiguracji. Sam orkiestrator AST nadal wymaga
-podziału na niezależnie wersjonowane moduły językowe.
+deterministyczny konwerter konfiguracji. Adaptery językowe są już rozdzielone
+na niezależnie testowalne moduły za wspólną kopertą.
 
-### 4. Bare nazwy plików nie są rozwiązywane do katalogu
+### 4. Bare nazwy plików wymagają jednoznaczności
 
 Ekstrakcja ścieżek na `TODO.md` + `CHANGELOG.md` tego repozytorium:
 
@@ -333,10 +351,12 @@ Referencje do pól DSL (`statement.object`, `epistemic.basis`,
 `metadata.generation`) nie są już ścieżkami — trafiają do `target.symbols`,
 czyli tam, gdzie należą. Alternacje prozatorskie zniknęły całkowicie.
 
-Pozostaje jedno: bare nazwy typu `changelog.ts`, `todo.ts` czy `markdown.ts`
-są zapisywane dosłownie, choć realnie leżą w `src/extractors/`. Dopóki nie są
-rozwiązywane wobec drzewa repozytorium, nie połączą się z faktami AST z tych
-plików. To jest wąskie i wprost powiązane z pozycją 1.
+Bare nazwy typu `markdown.ts` są teraz rozwiązywane wobec rzeczywistych
+agregatów modułów AST, jeżeli basename występuje w repozytorium dokładnie raz.
+Hipotetyczna ścieżka z TODO lub dokumentacji nie zmienia tego indeksu.
+Niejednoznaczne `validation.ts`, `types.ts` czy `git.ts` celowo wymagają
+katalogu. Gold benchmark mierzy pozytywny przypadek unikalny i dwa zabronione
+dopasowania dla nazwy niejednoznacznej; wynik pozostaje 100% precision/recall.
 
 ### 5. Adapter Java nie jest weryfikowany lokalnie
 

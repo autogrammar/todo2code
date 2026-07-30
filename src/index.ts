@@ -1,7 +1,12 @@
 export * from './config/env.js';
 export * from './core/types.js';
 export * from './core/schema.js';
-export { createConclusionId, createTodoProposalId } from './core/id.js';
+export {
+  createCodeChangePlanHash,
+  createCodeChangePlanId,
+  createConclusionId,
+  createTodoProposalId,
+} from './core/id.js';
 export * from './core/target.js';
 export * from './extractors/nl.js';
 export * from './extractors/nl-llm.js';
@@ -34,6 +39,7 @@ export * from './summary/summarizer.js';
 export * from './synthesis/tasks-llm.js';
 export * from './synthesis/validation.js';
 export * from './synthesis/todo-patch.js';
+export * from './synthesis/code-change-plan.js';
 export * from './operations/types.js';
 export * from './operations/contract.js';
 export * from './operations/validation.js';
