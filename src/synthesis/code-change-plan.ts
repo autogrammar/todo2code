@@ -1071,6 +1071,7 @@ export async function applyCodeChangeSourcePatch(
       fileHashesAfter,
       generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
     };
+    assertSourceApplyReceipt(receipt, options.patch);
     await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
     return { applied: true, idempotent: false, receipt };
   } finally {
@@ -1093,11 +1094,11 @@ async function assertExistingSourceReceipt(
   patch: CodeChangeSourcePatch,
   root: string,
 ): Promise<void> {
-  if (receipt.schemaVersion !== 't2c.code-change-source-apply-receipt/v1'
-    || receipt.patchHash !== patch.patchHash || receipt.patchId !== patch.id || receipt.planId !== patch.planId) {
+  try {
+    assertSourceApplyReceipt(receipt, patch);
+  } catch {
     throw new Error('A different or invalid source patch receipt already exists at the receipt path');
   }
-  assertGroundedGenerationMetadata(receipt.generation, 'Code change source apply receipt generation');
   for (const edit of patch.edits) {
     const relative = edit.path.replace(/\\/g, '/');
     const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
@@ -1113,6 +1114,33 @@ async function assertExistingSourceReceipt(
     if (receipt.fileHashesAfter[relative] !== sha256(current)) {
       throw new Error(`Applied source patch state changed after receipt: ${relative}`);
     }
+  }
+}
+
+function assertSourceApplyReceipt(receipt: CodeChangeSourceApplyReceipt, patch: CodeChangeSourcePatch): void {
+  exactSourcePatchKeys(receipt as unknown as Record<string, unknown>, [
+    'schemaVersion', 'patchId', 'patchHash', 'planId', 'approvedBy', 'approvedAt',
+    'appliedAt', 'appliedPaths', 'fileHashesAfter', 'generation',
+  ], 'Code change source apply receipt');
+  if (receipt.schemaVersion !== 't2c.code-change-source-apply-receipt/v1'
+    || receipt.patchId !== patch.id || receipt.patchHash !== patch.patchHash || receipt.planId !== patch.planId) {
+    throw new Error('Code change source apply receipt does not match its patch');
+  }
+  if (!receipt.approvedBy.trim()) throw new Error('Code change source apply receipt approvedBy is required');
+  if (!Number.isFinite(Date.parse(receipt.approvedAt)) || !Number.isFinite(Date.parse(receipt.appliedAt))) {
+    throw new Error('Code change source apply receipt timestamps must be ISO date-times');
+  }
+  const expectedPaths = patch.edits.map((edit) => edit.path).sort();
+  exactSourcePatchSet(receipt.appliedPaths, expectedPaths, 'receipt appliedPaths');
+  const hashPaths = Object.keys(receipt.fileHashesAfter).sort();
+  exactSourcePatchSet(hashPaths, expectedPaths, 'receipt fileHashesAfter paths');
+  if (Object.values(receipt.fileHashesAfter).some((value) => !/^[a-f0-9]{64}$/.test(value))) {
+    throw new Error('Code change source apply receipt file hashes must be SHA-256');
+  }
+  assertGroundedGenerationMetadata(receipt.generation, 'Code change source apply receipt generation');
+  if (receipt.generation.generatedAt !== receipt.appliedAt
+    || receipt.generation.generator !== 't2c/code-change-source-apply') {
+    throw new Error('Code change source apply receipt generation does not match the apply operation');
   }
 }
 
