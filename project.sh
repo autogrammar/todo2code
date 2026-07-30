@@ -41,6 +41,7 @@ rm -f project/analysis.json
 rm -f project/analysis.yaml
 
 $VENV/bin/code2docs ./ --readme-only
+node scripts/sync-generated-readme-metadata.mjs "$PROJECT_ROOT" "$PROJECT_ROOT/docs/README.md"
 $VENV/bin/redup scan . --format toon --output ./project
 #$VENV/bin/redup scan . --functions-only -f toon --output ./project
 #$VENV/bin/vallm batch ./src --recursive --semantic --model qwen2.5-coder:7b

@@ -13,6 +13,10 @@
 
 ### Fixed
 
+- Synchronize generated `docs/README.md` badges and license from `package.json`
+  after `code2docs`; the external generator currently falls back to version
+  `0.1.0`, a TypeScript badge and MIT for this Node/Apache-2.0 project. Template
+  drift fails closed instead of silently publishing incorrect metadata.
 - Re-include `.github/workflows/` after the broad hidden-directory ignore rule,
   so CI configuration is actually converted to Intent DSL and can evidence
   completed workflow tasks. Documentation files now also ground changelog

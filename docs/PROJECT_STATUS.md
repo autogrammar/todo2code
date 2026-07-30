@@ -70,7 +70,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 224 testy: 223 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 227 testów: 226 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
 - 93 moduły i 426 importów wewnętrznych, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
@@ -79,7 +79,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 227 rekordów i 90 relacji. Liczba
+Przebieg offline na `examples/` utworzył 227 rekordów i 93 relacje. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 

@@ -69,6 +69,9 @@
 
 ## P2 — modularity and operations
 
+- [x] Make `project.sh` correct and validate generated README metadata against
+  `package.json`; external `code2docs` fallback values (`0.1.0`, MIT and a
+  TypeScript runtime badge) can no longer be published silently.
 - [x] Run clean-room deterministic pipelines against three external mixed
   repositories (`code2llm`, `domd`, `pactfix`) and fix Python ignore-scope
   overflow plus false-positive `project/` communication discovery.
