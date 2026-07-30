@@ -34,6 +34,9 @@ for package in regix prefact vallm redup glon goal code2logic code2llm code2docs
     install_project_package "$package"
 done
 
+# Namespace contract: root-level files under project/ are technical analysis;
+# communication lives only under recognised project/<ticket>/ directories.
+# Keep this output path for compatibility with project/analysis.toon.yaml.
 #$VENV/bin/code2llm ./ -f toon,evolution,code2logic,project-yaml -o ./project --no-chunk
 $VENV/bin/code2llm ./ -f all -o ./project --no-chunk
 #$VENV/bin/code2llm report --format all       # → all views

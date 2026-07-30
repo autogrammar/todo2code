@@ -4,6 +4,9 @@
 
 ### Changed
 
+- Define the backward-compatible `project/` namespace: root-level generated
+  files are technical analysis, while only recognised ticket directories,
+  participant registries or explicit front matter produce communication DSL.
 - Code-change plans reject non-actionable targets before materialisation:
   vendored/cache/build trees, binaries, generated analysis and todo2code run
   artifacts, directory-like and wildcard paths, absolute paths and URIs.

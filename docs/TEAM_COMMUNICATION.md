@@ -168,9 +168,13 @@ Istniejące `Prompt.txt` są poleceniami człowieka, natomiast pliki w katalogac
 agentów. Nie należy zmieniać ich roli na podstawie samego położenia — podczas
 migracji należy utworzyć nowe, jednoznacznie opisane pliki ticketu.
 
-`project.sh` wykorzystuje obecnie `./project` również jako katalog wyników
-`code2llm` i `redup`. Przed użyciem go jako kanału komunikacji należy skierować
-generowane raporty techniczne do osobnego katalogu, np. `.project-analysis/`,
-albo upewnić się, że nie nadpisują ticketów. Ekstraktor ignoruje pliki leżące
-bezpośrednio w `project/`, ale mieszanie raportów i komunikacji nadal jest
-niezalecane.
+## Kontrakt przestrzeni nazw `project/`
+
+Repozytorium zachowuje `project/analysis.toon.yaml` i pozostałe pliki leżące
+bezpośrednio w `project/` jako kompatybilną przestrzeń artefaktów analizy
+technicznej generowanych przez `project.sh`. Komunikacja ma osobną przestrzeń
+semantyczną: rekordy `agent_log` powstają z rozpoznanego
+`project/<TICKET>/`, rejestru uczestników albo jawnego front matter. Pliki
+analizy na poziomie głównym oraz ogólne katalogi takie jak `batch_1/` nie są
+rozmową i ekstraktor je pomija. Dzięki temu fizyczny katalog pozostaje
+kompatybilny ze skryptami, ale oba rodzaje danych nie mieszają się w DSL.

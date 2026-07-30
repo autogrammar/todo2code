@@ -47,7 +47,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | TODO/CHANGELOG + LLM | działa kontraktowo w porcjach | maksymalnie 32 rekordy na żądanie, stabilna kolejność, wspólny audyt i provenance odpowiedzi per rekord; porównanie live kosztu/latencji dwóch modeli pozostaje otwarte |
 | Dokumentacja → DSL | działa offline i opcjonalnie przez LLM | deterministyczny baseline obejmuje nagłówki, bloki kodu i jawne odwołania; chunking, budżet i structured output opcjonalnego wzbogacenia LLM są testowane |
 | Konfiguracja i infrastruktura → DSL | działa offline | struktury JSON/YAML/TOML, Dockerfile, Compose i workflow CI są dostępne przez pipeline, CLI, MCP, A2A i pięć SDK; `.github/workflows/` jest jawnie wyłączone z ogólnego ignorowania dot-katalogów; każdy plik ma jeden `configuration_file_fact`, który wiąże się przez jawną ścieżkę bez ogólnych dopasowań tematów |
-| `project/<ticket>/` komunikacja → DSL | działa | zachowuje uczestnika, `human|agent`, typ wypowiedzi, ticket i aliasy Git jako `agent_log` |
+| `project/<ticket>/` komunikacja → DSL | działa | zachowuje uczestnika, `human|agent`, typ wypowiedzi, ticket i aliasy Git jako `agent_log`; root-level `project/` pozostaje przestrzenią analizy technicznej i nie jest interpretowany jako rozmowa |
 | Analiza uczestników i rozbieżności komunikacji | działa w pipeline/CLI/MCP/A2A/history/UI/watch | grupuje każdego człowieka/agenta, porównuje request/plan/claim z Git/AST, zapisuje artefakty i wspiera filtry participant/role/ticket/severity |
 | Audytowane wzbogacanie komunikacji | działa opt-in | structured OpenRouter + synteza per uczestnik z cytowaniami; identity/role/ticket/source/epistemic class należą do runtime; deterministic/prefer/require mają jawny audyt |
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
@@ -79,7 +79,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 227 rekordów i 93 relacje. Liczba
+Przebieg offline na `examples/` utworzył 227 rekordów i 91 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -135,6 +135,12 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
    są już w linkerze/diagnostyce; plan `t2c.code-change-plan/v1` domyka
    ugruntowany most do review zmian kodu; deterministyczna propozycja pozostaje
    instruction-only, dopóki caller nie dostarczy kompletnego unified diffu.
+
+Ostatni deterministyczny audyt własnego repozytorium
+`20260730T202349Z-9bd483a1` zakończył się powodzeniem i nie wygenerował żadnego
+planu zmiany kodu. Wcześniejsze dziewięć kandydatów zredukowano kolejno przez
+filtrowanie ścieżek, właściwe dowody CI/dokumentacji i jawny kontrakt
+przestrzeni nazw `project/`.
 
 ## Wdrożony przepływ DSL2TODO
 

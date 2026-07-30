@@ -72,6 +72,10 @@
 - [x] Make `project.sh` correct and validate generated README metadata against
   `package.json`; external `code2docs` fallback values (`0.1.0`, MIT and a
   TypeScript runtime badge) can no longer be published silently.
+- [x] Formalize the backward-compatible `project/` namespace: root-level
+  code2llm/redup output is analysis, while communication requires a recognised
+  ticket directory, participant registry or explicit front matter. This keeps
+  `project/analysis.toon.yaml` stable without creating `agent_log` noise.
 - [x] Run clean-room deterministic pipelines against three external mixed
   repositories (`code2llm`, `domd`, `pactfix`) and fix Python ignore-scope
   overflow plus false-positive `project/` communication discovery.
