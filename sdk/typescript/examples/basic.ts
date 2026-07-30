@@ -42,16 +42,34 @@ async function main(): Promise<void> {
   const diagnostics = await client.diagnose(graph);
   console.log('diagnostics:', diagnostics.counts);
 
-  // 2. Intent-vs-reality view.
+  // 2. Audited propose -> review -> approved apply. With secrets disabled the
+  // proposal stage degrades explicitly and the approved patch is a safe no-op.
+  const synthesis = await client.proposeTodo({ root, graph, diagnostics, mode: 'prefer-llm' });
+  const validation = synthesis.validation as { newProposalIds: string[]; duplicateProposalIds: string[] };
+  const rendered = await client.renderTodo({
+    root, graph, diagnostics, synthesis, todo: 'TODO.md',
+    patch: '.intent-sdk/typescript/TODO.patch', audit: '.intent-sdk/typescript/TODO.patch.json',
+  });
+  const artifact = rendered.artifact as { renderedPatchHash: string };
+  await client.applyTodo({
+    root, todo: 'TODO.md', patch: '.intent-sdk/typescript/TODO.patch',
+    audit: '.intent-sdk/typescript/TODO.patch.json', receipt: '.intent-sdk/typescript/TODO.patch.receipt.json',
+    actor: 'sdk-typescript', approvalHash: artifact.renderedPatchHash,
+  });
+  console.log('proposal ids:', validation.newProposalIds.join(',') || '-');
+  console.log('duplicate ids:', validation.duplicateProposalIds.join(',') || '-');
+  console.log('patch fingerprint:', artifact.renderedPatchHash.slice(0, 16));
+
+  // 3. Intent-vs-reality view.
   const reality = await client.reality(graph, diagnostics, { includeSvg: true, gapsOnly: true });
   console.log('reality markdown lines:', reality.markdown.split('\n').length);
   console.log('reality svg bytes:', reality.svg?.length ?? 0);
 
-  // 3. Git diff rendered as SVG.
+  // 4. Git diff rendered as SVG.
   const gitDiff = await client.diffGit({ root, revision: 'HEAD', includeSvg: true });
   console.log(`git diff files: ${gitDiff.diffs.length}, svg bytes: ${gitDiff.svg?.length ?? 0}`);
 
-  // 4. Optional origin/main -> local filesystem Intent comparison.
+  // 5. Optional origin/main -> local filesystem Intent comparison.
   if (process.env.T2C_COMPARE_WORKSPACE === '1') {
     const comparison = await client.compareWorkspace({ root, base: process.env.T2C_COMPARE_BASE ?? 'origin/main' });
     console.log('workspace trend:', (comparison.trend as { direction?: string } | undefined)?.direction);

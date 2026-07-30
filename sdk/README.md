@@ -36,7 +36,7 @@ akceptuje obie postacie.
 `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`,
 `extract_communication`, `analyze_communication`, `link`, `diagnose`,
 `summarize`, `diff`, `diff_files`, `diff_git`, `reality`,
-`compare_workspace`, `pipeline`.
+`compare_workspace`, `pipeline`, `propose_todo`, `render_todo`, `apply_todo`.
 
 Granica LLM obowiązuje tak samo jak w CLI: `extract_nl` oraz semantyczne
 wzbogacanie `extract_markdown` obsługują `prefer-llm`/`require-llm`, a
@@ -44,7 +44,9 @@ wzbogacanie `extract_markdown` obsługują `prefer-llm`/`require-llm`, a
 `nlMode: deterministic` lub `markdownMode: deterministic` i odczytać audyt
 fallbacku (`audit.status`, `effectiveMode`, `reason`, `runtimeVersion`,
 `configuration`). Wszystkie pięć klientów ma convenience methods dla NL i
-dokumentacji. Python zachowuje metody zwracające same rekordy oraz udostępnia
+dokumentacji. Każdy klient ma też metody propose → review → approved apply;
+przykłady używają `prefer-llm`, więc bez sekretu tworzą audytowany pusty patch i
+bezpieczny, idempotentny no-op po jawnej zgodzie. Python zachowuje metody zwracające same rekordy oraz udostępnia
 pełne envelope przez warianty `*_result()`. Przykłady wymuszają
 deterministyczne NL i Markdown, aby wynik i koszt nie zależały od sieci, oraz
 odrzucają wynik bez poprawnego audytu.
@@ -64,7 +66,7 @@ node dist/src/interfaces/a2a.js        # domyślnie :8787
 ```
 
 Potem dowolny przykład (wszystkie robią to samo: NL → AST → Markdown → graf →
-diagnostyka → widok reality → diff Git):
+diagnostyka → widok reality → diff Git → propozycje → patch → approved apply):
 
 ```bash
 export T2C_A2A_URL=http://localhost:8787
@@ -91,8 +93,9 @@ klienta — każdy SDK dołączy nagłówek `Authorization: Bearer`.
 ### Kontrola spójności
 
 Wszystkie pięć przykładów przepuszcza te same 92 rekordy przez `link` i musi
-otrzymać **identyczny fingerprint grafu**. Rozjazd oznacza, że typy danego SDK
-gubią pole przy round-tripie:
+otrzymać **identyczny fingerprint grafu**, listy proposal/duplicate ID oraz
+fingerprint patcha. Rozjazd oznacza, że typy danego SDK gubią pole przy
+round-tripie:
 
 ```text
 graph fingerprint: debfd0f1923dbae0   # TS, Python, Go, Rust, PHP

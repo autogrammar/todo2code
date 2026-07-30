@@ -11,10 +11,10 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 17 modułów |
-| Granice modułów | PASS — 44 moduły, 217 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Granice modułów | PASS — 47 modułów, 244 importy wewnętrzne, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 56 zmiennych kodu/Dockera, 56 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 122 zaliczone, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
+| Testy Node | PASS — 143 zaliczone, 0 błędów, 1 skip lokalnego JDK (adapter ma wcześniejszą kontrolę kontenerową) |
 | Pipeline `examples/` | PASS — 202 rekordy; liczba relacji zależy od ostatnich 10 commitów; NL, Markdown i summary deterministyczne, dokumentacja pominięta, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, Rust fixture i `cargo test` |
@@ -25,8 +25,8 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | OpenRouter invalid-model discovery | PASS — lista modeli po błędnym identyfikatorze |
 | Dokumentacja → DSL przez mock OpenRouter | PASS — structured output, target hints, limity rekordów/chunków, timeout i współbieżność |
 | Graf → NL przez mock OpenRouter | PASS — uziemione cytowania i budżet AST |
-| MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 16 narzędzi |
-| MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 16 narzędzi |
+| MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 19 narzędzi, w tym propose/render/apply TODO |
+| MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 19 narzędzi, w tym propose/render/apply TODO |
 | A2A v1 `SendMessage` | PASS — deterministyczny task completed, 1 artifact |
 | A2A versioning, pagination, ownership, Bearer i persistent store | PASS |
 | Watch + ignore rules | PASS — rate limit, agregacja, brak pętli, błędy reportera |
@@ -35,7 +35,8 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
 | `project/<ticket>`: komunikacja ludzi i agentów | PASS — domyślny fixture `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę agenta poza zakresem; wariant `--no-ast` dodatkowo wykrywa claim bez dowodu |
-| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem `debfd0f1923dbae0` |
+| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `debfd0f1923dbae0` oraz patcha `bc9f41bdea3ad737` |
+| Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
 | CLI `doctor`, `--help`, `--version` | PASS |
 | `npm audit` rdzenia | PASS — 0 podatności przy zwykłym `npm install` |
 | Izolowany adapter TensorFlow | PASS/WARN — nie należy do drzewa core; jego osobny audit nadal raportuje 7 high i 1 critical |
@@ -44,10 +45,10 @@ Pełny przebieg wykonano poleceniem `make validate`. Próby MCP i A2A jawnie
 nadpisują lokalne ustawienia wersji/LLM, dlatego kontrola offline nie zależy od
 zawartości prywatnego `.env`.
 
-Najnowsza kontrola po aktualizacji README obejmowała `npm run verify` i osobny
-pipeline `examples/`; nie powtarzała historycznych prób Dockera ani live
-OpenRouter. Wynik: 123 testy, 122 zaliczone, 0 błędów i 1 lokalny skip JDK.
-Stan funkcjonalny oraz jawnie niewdrożony etap DSL2TODO opisuje
+Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
+offline oraz build i health smoke Dockera; nie wykonywała live OpenRouter.
+Wynik: 144 testy, 143 zaliczone, 0 błędów i 1 lokalny skip JDK.
+Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
 ## SDK i przykłady

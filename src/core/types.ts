@@ -328,6 +328,8 @@ export type PipelineFailureStage =
   | 'documentationExtraction'
   | 'linking'
   | 'diagnostics'
+  | 'taskSynthesis'
+  | 'todoRendering'
   | 'summary'
   | 'persistence';
 
@@ -372,6 +374,7 @@ export interface PipelineOptions {
   nlMode?: NlExtractionMode;
   markdownMode?: LlmExtractionMode;
   documentExcludes?: string[];
+  taskSynthesisMode?: 'disabled' | 'prefer-llm' | 'require-llm';
 }
 
 export interface PipelineManifest {
@@ -400,6 +403,7 @@ export interface PipelineManifest {
     documentRecordsPerChunk: number;
     documentTimeoutMs: number;
     summaryLlm: boolean;
+    taskSynthesisMode: 'disabled' | 'prefer-llm' | 'require-llm';
     documentPatterns: string[];
     documentExcludes: string[];
     adapters: {
@@ -433,12 +437,14 @@ export interface PipelineManifest {
     naturalLanguageExtraction: PipelineStageAudit;
     markdownExtraction: PipelineStageAudit;
     documentationExtraction: PipelineStageAudit;
+    taskSynthesis: PipelineStageAudit;
     summary: PipelineStageAudit;
   };
   llm: {
     naturalLanguageExtraction: boolean;
     markdownExtraction: boolean;
     documentationExtraction: boolean;
+    taskSynthesis: boolean;
     summary: boolean;
   };
 }

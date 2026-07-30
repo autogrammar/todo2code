@@ -134,6 +134,36 @@ const TOOLS: McpTool[] = [
     output: stringProp('Comparison artifact root, default .intent.'),
     gitCount: numberProp('Number of commit claims included per side.', 1, 100),
   }),
+  tool('propose_todo', 'Synthesize grounded TODO proposals from a graph and diagnostics with an audited LLM mode.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    graph: { type: 'object', description: 'Inline t2c.graph/v1 object.' },
+    graphPath: stringProp('Alternative graph JSON path under root.'),
+    diagnostics: { type: 'object', description: 'Inline t2c.diagnostics/v1 report; derived when omitted.' },
+    diagnosticsPath: stringProp('Alternative diagnostics JSON path under root.'),
+    mode: stringProp('prefer-llm (default) or require-llm.'),
+    output: stringProp('Optional synthesis JSON output path under root.'),
+  }),
+  tool('render_todo', 'Render validated new proposals to a reviewable TODO.patch and adjacent JSON audit without changing TODO.md.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    graph: { type: 'object', description: 'Inline t2c.graph/v1 object.' },
+    graphPath: stringProp('Alternative graph JSON path under root.'),
+    diagnostics: { type: 'object', description: 'Inline t2c.diagnostics/v1 report.' },
+    diagnosticsPath: stringProp('Alternative diagnostics JSON path under root.'),
+    synthesis: { type: 'object', description: 'Inline t2c.task-synthesis/v1 result.' },
+    synthesisPath: stringProp('Alternative synthesis JSON path under root.'),
+    todo: stringProp('Source TODO path, default TODO.md.'),
+    patch: stringProp('Review Markdown output path, default TODO.patch.'),
+    audit: stringProp('Patch audit JSON output path, default TODO.patch.json.'),
+  }),
+  tool('apply_todo', 'Apply one explicitly approved, unchanged TODO patch atomically and write an idempotency receipt.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    todo: stringProp('Source TODO path, default TODO.md.'),
+    patch: stringProp('Reviewed TODO.patch path.'),
+    audit: stringProp('TODO patch audit JSON path.'),
+    receipt: stringProp('Apply receipt output path.'),
+    actor: stringProp('Human approving actor identity.'),
+    approvalHash: stringProp('Exact renderedPatchHash approved by the actor.'),
+  }, ['patch', 'audit', 'receipt', 'actor', 'approvalHash']),
   tool('pipeline', 'Run the complete todo2code pipeline and write a versioned .intent run.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     task: nullableStringProp('NL task/ticket file.'),
@@ -148,6 +178,7 @@ const TOOLS: McpTool[] = [
     gitCount: numberProp('Number of commits, default 10.', 1, 100),
     summaryFallback: { type: 'boolean' },
     includeSummaryLlm: { type: 'boolean', description: 'Use the configured LLM for the final summary; false is fully deterministic.' },
+    taskMode: stringProp('disabled (default), prefer-llm or require-llm task synthesis and TODO.patch rendering.'),
   }),
 ];
 
@@ -390,6 +421,11 @@ async function listResources(config: T2CConfig): Promise<Array<Record<string, un
     { uri: 't2c://latest/graph', name: 'Latest Intent graph', mimeType: 'application/json' },
     { uri: 't2c://latest/diagnostics', name: 'Latest diagnostics', mimeType: 'application/json' },
     { uri: 't2c://latest/summary', name: 'Latest team summary', mimeType: 'text/markdown' },
+    { uri: 't2c://latest/task-synthesis', name: 'Latest TODO task synthesis', mimeType: 'application/json' },
+    { uri: 't2c://latest/todo-validation', name: 'Latest TODO proposal validation', mimeType: 'application/json' },
+    { uri: 't2c://latest/todo-patch', name: 'Latest reviewable TODO patch', mimeType: 'text/markdown' },
+    { uri: 't2c://latest/todo-patch-audit', name: 'Latest TODO patch audit', mimeType: 'application/json' },
+    { uri: 't2c://latest/todo-apply-receipt', name: 'Latest TODO apply receipt', mimeType: 'application/json' },
   ];
 }
 
@@ -405,6 +441,11 @@ async function readResource(uri: string, config: T2CConfig): Promise<Record<stri
     't2c://latest/graph': ['intent.graph.json', 'application/json'],
     't2c://latest/diagnostics': ['diagnostics.json', 'application/json'],
     't2c://latest/summary': ['team-summary.md', 'text/markdown'],
+    't2c://latest/task-synthesis': ['task-synthesis.json', 'application/json'],
+    't2c://latest/todo-validation': ['todo-validation.json', 'application/json'],
+    't2c://latest/todo-patch': ['TODO.patch', 'text/markdown'],
+    't2c://latest/todo-patch-audit': ['TODO.patch.json', 'application/json'],
+    't2c://latest/todo-apply-receipt': ['TODO.patch.receipt.json', 'application/json'],
   };
   const selected = names[uri];
   if (!selected) throw new Error(`Unknown resource URI: ${uri}`);
@@ -415,11 +456,16 @@ async function readResource(uri: string, config: T2CConfig): Promise<Record<stri
 }
 
 function tool(name: T2CAction, description: string, properties: Record<string, unknown>, required: string[] = []): McpTool {
+  const writes = new Set<T2CAction>(['pipeline', 'propose_todo', 'render_todo', 'apply_todo']);
   return {
     name,
     description,
     inputSchema: { type: 'object', additionalProperties: false, properties, required },
-    annotations: { readOnlyHint: name !== 'pipeline', destructiveHint: false, idempotentHint: name !== 'pipeline' },
+    annotations: {
+      readOnlyHint: !writes.has(name),
+      destructiveHint: name === 'apply_todo',
+      idempotentHint: name !== 'pipeline' && name !== 'propose_todo',
+    },
   };
 }
 

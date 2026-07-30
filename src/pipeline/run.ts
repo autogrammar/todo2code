@@ -2,7 +2,7 @@ import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
 import { hasOpenRouter } from '../config/env.js';
 import { createIntentId, newRunId, sha256, stableStringify } from '../core/id.js';
-import { ensureDir, pathExists, writeJson, writeJsonl, writeText } from '../core/io.js';
+import { ensureDir, pathExists, readText, writeJson, writeJsonl, writeText } from '../core/io.js';
 import type {
   Diagnostic,
   DiagnosticReport,
@@ -21,6 +21,8 @@ import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { linkIntentRecords } from '../graph/linker.js';
 import { summarizeGraph } from '../summary/summarizer.js';
+import { synthesizeTodoProposals, TaskSynthesisRequiredError, type AuditedTaskSynthesisResult } from '../synthesis/tasks-llm.js';
+import { createTodoPatch, type CreatedTodoPatch } from '../synthesis/todo-patch.js';
 import { T2C_VERSION } from '../version.js';
 
 export interface PipelineResult {
@@ -29,6 +31,9 @@ export interface PipelineResult {
   graphPath: string;
   diagnosticsPath: string;
   summaryPath: string;
+  taskSynthesisPath: string | null;
+  todoPatchPath: string | null;
+  todoPatchAuditPath: string | null;
 }
 
 export async function runPipeline(options: PipelineOptions, config: T2CConfig): Promise<PipelineResult> {
@@ -125,6 +130,31 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   activeStage = 'diagnostics';
   const diagnostics = diagnoseGraph(graph, generatedAt);
   if (options.includeDocumentationLlm && !hasOpenRouter(config)) appendLlmNotConfigured(diagnostics);
+  const taskSynthesisMode = options.taskSynthesisMode ?? 'disabled';
+  let taskSynthesis: AuditedTaskSynthesisResult | null = null;
+  let todoPatch: CreatedTodoPatch | null = null;
+  let taskSynthesisAudit = skippedAudit('disabled', 'Task synthesis was disabled');
+  if (taskSynthesisMode !== 'disabled') {
+    activeStage = 'taskSynthesis';
+    taskSynthesis = await synthesizeTodoProposals(graph, diagnostics, config, taskSynthesisMode);
+    warnings.push(...taskSynthesis.warnings);
+    taskSynthesisAudit = taskSynthesis.audit;
+    completedStages.taskSynthesis = taskSynthesisAudit;
+    if (!options.todoFile) throw new Error('Task synthesis rendering requires a TODO source file');
+    activeStage = 'todoRendering';
+    const todoContent = await readText(path.resolve(root, options.todoFile), config.maxFileBytes);
+    todoPatch = createTodoPatch({
+      todoPath: path.relative(root, path.resolve(root, options.todoFile)).replace(/\\/g, '/'),
+      todoContent,
+      graph,
+      diagnostics,
+      conclusions: taskSynthesis.conclusions,
+      proposals: taskSynthesis.proposals,
+      validation: taskSynthesis.validation,
+      synthesisAudit: taskSynthesis.audit,
+    });
+  }
+  completedStages.taskSynthesis = taskSynthesisAudit;
   activeStage = 'summary';
   const summaryStartedAt = Date.now();
   const includeSummaryLlm = options.includeSummaryLlm !== false;
@@ -172,9 +202,25 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const graphPath = path.join(runDirectory, 'intent.graph.json');
   const diagnosticsPath = path.join(runDirectory, 'diagnostics.json');
   const summaryPath = path.join(runDirectory, 'team-summary.md');
+  const taskSynthesisPath = taskSynthesis ? path.join(runDirectory, 'task-synthesis.json') : null;
+  const todoValidationPath = taskSynthesis ? path.join(runDirectory, 'todo-validation.json') : null;
+  const todoPatchPath = todoPatch ? path.join(runDirectory, 'TODO.patch') : null;
+  const todoPatchAuditPath = todoPatch ? path.join(runDirectory, 'TODO.patch.json') : null;
   await writeJson(graphPath, graph);
   await writeJson(diagnosticsPath, diagnostics);
   await writeText(summaryPath, summary.markdown);
+  if (taskSynthesisPath && todoValidationPath && todoPatchPath && todoPatchAuditPath && taskSynthesis && todoPatch) {
+    await Promise.all([
+      writeJson(taskSynthesisPath, taskSynthesis),
+      writeJson(todoValidationPath, taskSynthesis.validation),
+      writeText(todoPatchPath, todoPatch.markdown),
+      writeJson(todoPatchAuditPath, todoPatch.artifact),
+    ]);
+    files.taskSynthesis = path.relative(root, taskSynthesisPath).replace(/\\/g, '/');
+    files.todoValidation = path.relative(root, todoValidationPath).replace(/\\/g, '/');
+    files.todoPatch = path.relative(root, todoPatchPath).replace(/\\/g, '/');
+    files.todoPatchAudit = path.relative(root, todoPatchAuditPath).replace(/\\/g, '/');
+  }
   files.graph = path.relative(root, graphPath).replace(/\\/g, '/');
   files.diagnostics = path.relative(root, diagnosticsPath).replace(/\\/g, '/');
   files.summary = path.relative(root, summaryPath).replace(/\\/g, '/');
@@ -184,6 +230,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     naturalLanguageExtraction: naturalLanguageAudit,
     markdownExtraction: markdown.audit,
     documentationExtraction: documentationAudit,
+    taskSynthesis: taskSynthesisAudit,
     summary: summaryAudit,
   };
   const manifest: PipelineManifest = {
@@ -203,6 +250,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
       naturalLanguageExtraction: naturalLanguageAudit.effectiveMode === 'llm',
       markdownExtraction: markdown.audit.effectiveMode === 'llm',
       documentationExtraction: documentationAudit.effectiveMode === 'llm',
+      taskSynthesis: taskSynthesisAudit.effectiveMode === 'llm',
       summary: summary.llmUsed,
     },
   };
@@ -213,7 +261,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     graphFingerprint: graph.fingerprint,
     summary: files.summary,
   });
-  return { runDirectory, manifest, graphPath, diagnosticsPath, summaryPath };
+  return { runDirectory, manifest, graphPath, diagnosticsPath, summaryPath, taskSynthesisPath, todoPatchPath, todoPatchAuditPath };
   } catch (error) {
     await persistFailedRun(runId, root, runDirectory, options, config, error, activeStage, completedStages);
     throw error;
@@ -232,6 +280,7 @@ function manifestConfiguration(options: PipelineOptions, config: T2CConfig): Pip
     documentRecordsPerChunk: config.documentRecordsPerChunk,
     documentTimeoutMs: config.documentTimeoutMs,
     summaryLlm: options.includeSummaryLlm !== false,
+    taskSynthesisMode: options.taskSynthesisMode ?? 'disabled',
     documentPatterns: [...options.documentPatterns],
     documentExcludes: [...(options.documentExcludes ?? config.documentExcludes)],
     adapters: {
@@ -294,6 +343,7 @@ async function persistFailedRun(
   const knownAudit = error instanceof NlLlmRequiredError
     || error instanceof MarkdownLlmRequiredError
     || error instanceof DocumentationLlmRequiredError
+    || error instanceof TaskSynthesisRequiredError
     ? error.audit
     : null;
   const failedAudit = (stage: keyof PipelineManifest['stages']): PipelineStageAudit => {
@@ -302,10 +352,11 @@ async function persistFailedRun(
       runtimeVersion: T2C_VERSION,
       configuration: openRouterAuditConfiguration(
         config,
-        stage === 'summary' ? config.openRouter.summaryModel : null,
+        stage === 'summary' ? config.openRouter.summaryModel : stage === 'taskSynthesis' ? config.openRouter.taskModel : null,
       ),
-      status: 'failed', requestedMode: stage === 'summary' ? 'llm' : 'disabled', effectiveMode: 'none', degraded: true,
-      recordCount: 0, warningCount: 1, model: stage === 'summary' ? config.openRouter.summaryModel : null,
+      status: 'failed', requestedMode: stage === 'summary' || stage === 'taskSynthesis' ? 'llm' : 'disabled', effectiveMode: 'none', degraded: true,
+      recordCount: 0, warningCount: 1,
+      model: stage === 'summary' ? config.openRouter.summaryModel : stage === 'taskSynthesis' ? config.openRouter.taskModel : null,
       durationMs: 0,
       reason: { code: failureCode(failedStage), message },
       responses: [],
@@ -320,6 +371,7 @@ async function persistFailedRun(
     naturalLanguageExtraction: stageValue('naturalLanguageExtraction', 'natural-language extraction'),
     markdownExtraction: stageValue('markdownExtraction', 'Markdown extraction'),
     documentationExtraction: stageValue('documentationExtraction', 'documentation extraction'),
+    taskSynthesis: stageValue('taskSynthesis', 'task synthesis'),
     summary: stageValue('summary', 'summary generation'),
   };
   const reason = knownAudit?.reason ?? { code: failureCode(failedStage), message };
@@ -340,6 +392,7 @@ async function persistFailedRun(
       naturalLanguageExtraction: stages.naturalLanguageExtraction.effectiveMode === 'llm',
       markdownExtraction: stages.markdownExtraction.effectiveMode === 'llm',
       documentationExtraction: false,
+      taskSynthesis: false,
       summary: false,
     },
   };

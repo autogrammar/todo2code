@@ -1,9 +1,9 @@
 import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
 import { compareWorkspaceIntent } from '../comparison/workspace.js';
-import { readJson, readJsonl, readText } from '../core/io.js';
+import { pathExists, readJson, readJsonl, readText, writeJson, writeText } from '../core/io.js';
 import { assertPathWithinRoot } from '../core/security.js';
-import type { DiagnosticReport, IntentGraph, IntentRecord, LlmExtractionMode, NlExtractionMode, PipelineOptions } from '../core/types.js';
+import type { DiagnosticReport, IntentGraph, IntentRecord, LlmExtractionMode, NlExtractionMode, PipelineManifest, PipelineOptions } from '../core/types.js';
 import { analyzeCommunication, renderCommunicationMarkdown } from '../communication/analyzer.js';
 import { collectGitDiff } from '../diff/git.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from '../diff/reality.js';
@@ -25,6 +25,8 @@ import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
 import { linkIntentRecords } from '../graph/linker.js';
 import { runPipeline } from '../pipeline/run.js';
 import { summarizeGraph } from '../summary/summarizer.js';
+import { synthesizeTodoProposals, type AuditedTaskSynthesisResult, type TaskSynthesisMode } from '../synthesis/tasks-llm.js';
+import { applyTodoPatch, createTodoPatch } from '../synthesis/todo-patch.js';
 
 export type T2CAction =
   | 'extract_nl'
@@ -42,7 +44,10 @@ export type T2CAction =
   | 'diff_git'
   | 'reality'
   | 'pipeline'
-  | 'compare_workspace';
+  | 'compare_workspace'
+  | 'propose_todo'
+  | 'render_todo'
+  | 'apply_todo';
 
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
   const root = await resolveRoot(input.root, config);
@@ -120,6 +125,68 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
       return summarizeGraph(graph, diagnostics, config, {
         allowDeterministicFallback: booleanValue(input.fallback, false),
       });
+    }
+    case 'propose_todo': {
+      const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
+      const diagnostics = input.diagnostics !== undefined || input.diagnosticsPath !== undefined
+        ? await readActionObject<DiagnosticReport>(input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config)
+        : diagnoseGraph(graph);
+      const result = await synthesizeTodoProposals(graph, diagnostics, config, taskSynthesisMode(input.mode));
+      if (input.output !== undefined) {
+        const output = await scopedPath(input.output, '', root, config);
+        await writeJson(output, result);
+        await registerRunArtifacts(root, { taskSynthesis: output });
+      }
+      return result;
+    }
+    case 'render_todo': {
+      const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
+      const diagnostics = await readActionObject<DiagnosticReport>(
+        input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config,
+      );
+      const synthesis = await readActionObject<AuditedTaskSynthesisResult>(
+        input.synthesis, input.synthesisPath, 'synthesis', root, config,
+      );
+      const todoPath = await scopedPath(input.todo, 'TODO.md', root, config);
+      const patchPath = await scopedPath(input.patch, 'TODO.patch', root, config);
+      const auditPath = await scopedPath(input.audit, 'TODO.patch.json', root, config);
+      const todoContent = await readText(todoPath, config.maxFileBytes);
+      const rendered = createTodoPatch({
+        todoPath: path.relative(root, todoPath).replace(/\\/g, '/'),
+        todoContent,
+        graph,
+        diagnostics,
+        conclusions: synthesis.conclusions,
+        proposals: synthesis.proposals,
+        validation: synthesis.validation,
+        synthesisAudit: synthesis.audit,
+      });
+      await Promise.all([writeText(patchPath, rendered.markdown), writeJson(auditPath, rendered.artifact)]);
+      await registerRunArtifacts(root, { todoPatch: patchPath, todoPatchAudit: auditPath });
+      return {
+        schemaVersion: 't2c.todo-render-result/v1',
+        patchPath: path.relative(root, patchPath).replace(/\\/g, '/'),
+        auditPath: path.relative(root, auditPath).replace(/\\/g, '/'),
+        artifact: rendered.artifact,
+      };
+    }
+    case 'apply_todo': {
+      const todoPath = await scopedPath(input.todo, 'TODO.md', root, config);
+      const patchPath = await scopedPath(input.patch, 'TODO.patch', root, config);
+      const auditPath = await scopedPath(input.audit, 'TODO.patch.json', root, config);
+      const receiptPath = await scopedPath(input.receipt, 'TODO.patch.receipt.json', root, config);
+      const result = await applyTodoPatch({
+        todoPath,
+        patchPath,
+        auditPath,
+        receiptPath,
+        approval: {
+          actor: stringValue(input.actor, ''),
+          patchHash: stringValue(input.approvalHash, ''),
+        },
+      });
+      await registerRunArtifacts(root, { todoApplyReceipt: receiptPath });
+      return result;
     }
     case 'diff': {
       const before = await readGraphInput(input.beforeGraph, input.before, 'before', root, config);
@@ -219,6 +286,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         nlMode: nlModeValue(input.nlMode, config.nlMode),
         markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
         documentExcludes: stringList(input.docExcludes, config.documentExcludes),
+        taskSynthesisMode: pipelineTaskMode(input.taskMode),
       };
       return runPipeline(options, config);
     }
@@ -233,6 +301,18 @@ function llmModeValue(value: unknown, fallback: LlmExtractionMode, name: string)
   if (value === undefined) return fallback;
   if (value === 'deterministic' || value === 'prefer-llm' || value === 'require-llm') return value;
   throw new Error(`${name} must be deterministic, prefer-llm or require-llm`);
+}
+
+function taskSynthesisMode(value: unknown): TaskSynthesisMode {
+  if (value === undefined || value === 'prefer-llm') return 'prefer-llm';
+  if (value === 'require-llm') return 'require-llm';
+  throw new Error('mode must be prefer-llm or require-llm');
+}
+
+function pipelineTaskMode(value: unknown): 'disabled' | 'prefer-llm' | 'require-llm' {
+  if (value === undefined || value === 'disabled') return 'disabled';
+  if (value === 'prefer-llm' || value === 'require-llm') return value;
+  throw new Error('taskMode must be disabled, prefer-llm or require-llm');
 }
 
 function withTextDiffViews(diffs: FileDiff[], input: Record<string, unknown>): Record<string, unknown> {
@@ -260,6 +340,21 @@ async function readGraphInput(
   }
   const safePath = await assertPathWithinRoot(root, path.resolve(root, pathValue), config.allowOutsideRoot);
   return readJson<IntentGraph>(safePath);
+}
+
+async function readActionObject<T>(
+  objectInput: unknown,
+  pathInput: unknown,
+  name: string,
+  root: string,
+  config: T2CConfig,
+): Promise<T> {
+  if (objectInput !== undefined) return objectValue<T>(objectInput, name);
+  if (typeof pathInput !== 'string' || !pathInput.trim()) {
+    throw new Error(`${name} object or ${name}Path is required`);
+  }
+  const safePath = await assertPathWithinRoot(root, path.resolve(root, pathInput), config.allowOutsideRoot);
+  return readJson<T>(safePath);
 }
 
 async function resolveRoot(value: unknown, config: T2CConfig): Promise<string> {
@@ -330,4 +425,20 @@ function booleanValue(value: unknown, fallback: boolean): boolean {
 function objectValue<T>(value: unknown, name: string): T {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${name} must be an object`);
   return value as T;
+}
+
+async function registerRunArtifacts(root: string, artifacts: Record<string, string>): Promise<void> {
+  const directories = [...new Set(Object.values(artifacts).map((file) => path.dirname(file)))];
+  for (const directory of directories) {
+    const manifestPath = path.join(directory, 'manifest.json');
+    if (!(await pathExists(manifestPath))) continue;
+    const manifest = await readJson<PipelineManifest>(manifestPath, 2 * 1024 * 1024);
+    if (path.resolve(manifest.root) !== path.resolve(root) || manifest.status === 'failed') {
+      throw new Error('Refusing to register TODO artifacts in an unrelated or failed run manifest');
+    }
+    for (const [name, file] of Object.entries(artifacts)) {
+      if (path.dirname(file) === directory) manifest.files[name] = path.relative(root, file).replace(/\\/g, '/');
+    }
+    await writeJson(manifestPath, manifest);
+  }
 }

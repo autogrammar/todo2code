@@ -4,6 +4,7 @@ import path from 'node:path';
 import { sha256, stableStringify } from '../core/id.js';
 import { ensureDir, pathExists, readJson, readText, writeJson, writeText } from '../core/io.js';
 import type {
+  Conclusion,
   DiagnosticReport,
   IntentGraph,
   PipelineStageAudit,
@@ -13,7 +14,7 @@ import type {
   TodoPatchArtifact,
   TodoProposal,
 } from '../core/types.js';
-import type { TodoProposalValidationResult } from './validation.js';
+import { validateAndClassifyTodoProposals, type TodoProposalValidationResult } from './validation.js';
 
 const HASH = /^[a-f0-9]{64}$/;
 const PROPOSAL_ID = /^TPROP-[a-f0-9]{20}$/;
@@ -24,6 +25,7 @@ export interface CreateTodoPatchOptions {
   todoContent: string;
   graph: IntentGraph;
   diagnostics: DiagnosticReport;
+  conclusions: Conclusion[];
   proposals: TodoProposal[];
   validation: TodoProposalValidationResult;
   synthesisAudit: PipelineStageAudit;
@@ -67,6 +69,14 @@ export function diagnosticReportFingerprint(report: DiagnosticReport): string {
 export function createTodoPatch(options: CreateTodoPatchOptions): CreatedTodoPatch {
   if (options.diagnostics.graphFingerprint !== options.graph.fingerprint) {
     throw new Error('Diagnostic report does not describe the supplied graph');
+  }
+  const expectedValidation = validateAndClassifyTodoProposals(options.proposals, {
+    graph: options.graph,
+    diagnostics: options.diagnostics,
+    conclusions: options.conclusions,
+  });
+  if (stableStringify(options.validation) !== stableStringify(expectedValidation)) {
+    throw new Error('TODO proposal validation does not match the supplied evidence context');
   }
   const proposalById = new Map(options.proposals.map((proposal) => [proposal.id, proposal]));
   if (proposalById.size !== options.proposals.length) throw new Error('TODO proposal IDs must be unique');

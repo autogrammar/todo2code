@@ -181,3 +181,36 @@ test('invalid structured LLM citations are rejected or visibly degraded accordin
     globalThis.fetch = originalFetch;
   }
 });
+
+test('task synthesis timeout is audited and never retried as a format fallback', async () => {
+  const { graph, diagnostics } = fixture();
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.timeoutMs = 5;
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    return await new Promise<Response>((_resolve, reject) => {
+      const abort = (): void => {
+        const error = new Error('aborted');
+        error.name = 'AbortError';
+        reject(error);
+      };
+      if (init?.signal?.aborted) abort();
+      else init?.signal?.addEventListener('abort', abort, { once: true });
+    });
+  };
+  try {
+    const degraded = await synthesizeTodoProposals(graph, diagnostics, config, 'prefer-llm');
+    assert.equal(degraded.audit.reason?.code, 'LLM_TIMEOUT');
+    assert.equal(calls, 1);
+    await assert.rejects(
+      () => synthesizeTodoProposals(graph, diagnostics, config, 'require-llm'),
+      (error: unknown) => error instanceof TaskSynthesisRequiredError && error.audit.reason?.code === 'LLM_TIMEOUT',
+    );
+    assert.equal(calls, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

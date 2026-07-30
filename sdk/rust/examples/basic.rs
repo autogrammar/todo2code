@@ -60,12 +60,30 @@ fn run() -> Result<(), todo2code::Error> {
         println!("  - [{}] {}: {}", diagnostic.severity, diagnostic.code, diagnostic.title);
     }
 
-    // 2. Intent-vs-reality view.
+    // 2. Audited propose -> review -> approved no-op apply without secrets.
     let diagnostics_value = serde_json::to_value(&report)?;
+    let synthesis = client.propose_todo(&json!({
+        "root": root, "graph": graph, "diagnostics": diagnostics_value, "mode": "prefer-llm"
+    }))?;
+    let rendered = client.render_todo(&json!({
+        "root": root, "graph": graph, "diagnostics": diagnostics_value, "synthesis": synthesis, "todo": "TODO.md",
+        "patch": ".intent-sdk/rust/TODO.patch", "audit": ".intent-sdk/rust/TODO.patch.json"
+    }))?;
+    let patch_hash = rendered["artifact"]["renderedPatchHash"].as_str().unwrap_or_default();
+    client.apply_todo(&json!({
+        "root": root, "todo": "TODO.md", "patch": ".intent-sdk/rust/TODO.patch",
+        "audit": ".intent-sdk/rust/TODO.patch.json", "receipt": ".intent-sdk/rust/TODO.patch.receipt.json",
+        "actor": "sdk-rust", "approvalHash": patch_hash
+    }))?;
+    println!("proposal ids: {}", joined_ids(&synthesis["validation"]["newProposalIds"]));
+    println!("duplicate ids: {}", joined_ids(&synthesis["validation"]["duplicateProposalIds"]));
+    println!("patch fingerprint: {}", &patch_hash[..patch_hash.len().min(16)]);
+
+    // 3. Intent-vs-reality view.
     let reality = client.reality(&graph, Some(&diagnostics_value), &json!({ "gapsOnly": true, "includeSvg": true }))?;
     println!("reality svg bytes: {}", reality["svg"].as_str().unwrap_or_default().len());
 
-    // 3. Git diff rendered as SVG.
+    // 4. Git diff rendered as SVG.
     let diff = client.diff_git(&json!({ "root": root, "revision": "HEAD", "includeSvg": true }))?;
     println!(
         "git diff files: {}, svg bytes: {}",
@@ -73,7 +91,7 @@ fn run() -> Result<(), todo2code::Error> {
         diff["svg"].as_str().unwrap_or_default().len()
     );
 
-    // 4. Optional origin/main -> local filesystem Intent comparison.
+    // 5. Optional origin/main -> local filesystem Intent comparison.
     if env::var("T2C_COMPARE_WORKSPACE").ok().as_deref() == Some("1") {
         let base = env::var("T2C_COMPARE_BASE").unwrap_or_else(|_| "origin/main".to_owned());
         let comparison = client.compare_workspace(&json!({ "root": root, "base": base }))?;
@@ -82,4 +100,9 @@ fn run() -> Result<(), todo2code::Error> {
 
     println!("OK");
     Ok(())
+}
+
+fn joined_ids(value: &serde_json::Value) -> String {
+    let values = value.as_array().map(|items| items.iter().filter_map(|item| item.as_str()).collect::<Vec<_>>()).unwrap_or_default();
+    if values.is_empty() { "-".to_owned() } else { values.join(",") }
 }

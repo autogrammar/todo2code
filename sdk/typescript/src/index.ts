@@ -112,7 +112,8 @@ export type T2CAction =
   | 'extract_communication' | 'analyze_communication'
   | 'link' | 'diagnose' | 'summarize'
   | 'diff' | 'diff_files' | 'diff_git' | 'reality'
-  | 'compare_workspace' | 'pipeline';
+  | 'compare_workspace' | 'pipeline'
+  | 'propose_todo' | 'render_todo' | 'apply_todo';
 
 export interface A2APart {
   text?: string;
@@ -315,6 +316,18 @@ export class T2CClient {
 
   pipeline(options: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
     return this.call('pipeline', options);
+  }
+
+  proposeTodo(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.call('propose_todo', input);
+  }
+
+  renderTodo(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.call('render_todo', input);
+  }
+
+  applyTodo(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.call('apply_todo', input);
   }
 
   // ---- Transport ------------------------------------------------------------

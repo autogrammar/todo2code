@@ -11,14 +11,13 @@ Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 ## Stan projektu
 
 Wersja `0.4.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
-diagnostyka/Intent vs Reality → raport. Kontrakty `t2c.conclusion/v1` i
-`t2c.todo-proposal/v1` wraz z walidacją cytowań i provenance są wdrożone, a API
-biblioteki potrafi je syntetyzować z grafu i diagnostyki przez OpenRouter.
-Integracja `DSL2TODO` nie jest jeszcze kompletna: obecna lista następnych
-działań w raporcie pozostaje projekcją diagnostyki, a CLI/SDK są kolejnym
-punktem P0. API biblioteki waliduje zależności, priorytety i kryteria,
-klasyfikuje duplikaty, renderuje audytowany `TODO.patch` i stosuje go wyłącznie
-po jawnej akceptacji jego hasha.
+diagnostyka/Intent vs Reality → raport oraz zamknięty, reviewowalny przepływ
+`DSL2TODO`. Kontrakty `t2c.conclusion/v1`, `t2c.todo-proposal/v1` i
+`t2c.todo-patch/v1` są walidowane w runtime. CLI, MCP, A2A i wszystkie pięć SDK
+potrafią syntetyzować zadania, klasyfikować duplikaty, renderować audytowany
+`TODO.patch` i zastosować go wyłącznie po jawnej akceptacji jego hasha. Główny
+pipeline może zapisać artefakty review przez `--task-mode`, lecz nigdy sam nie
+modyfikuje `TODO.md`.
 
 Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
 docelowego `DSL2TODO` znajdują się w
@@ -52,6 +51,8 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 | Dokumentacja → DSL | OpenRouter structured outputs | **tak** |
 | `project/<ticket>/` komunikacja → DSL | deterministyczny kontrakt uczestnika, roli i typu wypowiedzi | nie |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
+| Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
+| Propozycje → patch → approved apply | deterministyczna walidacja, renderer i atomowy zapis | nie |
 | Graf DSL → raport NL | OpenRouter; wejściem jest tylko graf i diagnostyka | **tak** |
 
 Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
@@ -594,7 +595,16 @@ graf + diagnostyka → zadania i domyślnie dziedziczy `OPENROUTER_MODEL`.
 
 Klucz nie jest zapisywany do artefaktów, logów ani odpowiedzi MCP/A2A. `doctor` pokazuje jedynie status `configured/not configured`.
 
-Do czasu dodania komendy `propose-todo` etap jest publicznym API TypeScript:
+Ten sam etap jest dostępny przez CLI i publiczne API TypeScript:
+
+```bash
+node dist/src/cli.js propose-todo .intent/runs/<run>/intent.graph.json \
+  --diagnostics .intent/runs/<run>/diagnostics.json \
+  --mode require-llm --out .intent/runs/<run>/task-synthesis.json
+```
+
+Odpowiedniki `render-todo` i `apply-todo` opisuje
+[`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md). API biblioteki pozostaje dostępne:
 
 ```ts
 import { readFile } from 'node:fs/promises';
@@ -626,6 +636,7 @@ const written = await writeTodoPatchArtifacts({
   todoContent,
   graph,
   diagnostics,
+  conclusions: result.conclusions,
   proposals: result.proposals,
   validation: result.validation,
   synthesisAudit: result.audit,

@@ -26,6 +26,15 @@
 - Added explicit hash-bound TODO approval and atomic apply with stale-source and
   tamper rejection, preserved file permissions, an actor/time receipt, crash
   recovery and idempotent repeated apply.
+- Exposed the complete propose → review → approved apply workflow as
+  `propose-todo`, `render-todo` and `apply-todo` CLI commands and matching
+  service, MCP, A2A, TypeScript, Python, Go, Rust and PHP SDK operations.
+- Added optional task synthesis to the main pipeline. Successful runs persist
+  synthesis, validation and review-only patch artifacts in the versioned run
+  manifest; approval remains a separate, explicit operation and its receipt is
+  added to the same manifest.
+- Extended all five SDK examples and `examples:check` with cross-language
+  parity for proposal IDs, duplicate IDs and the rendered patch fingerprint.
 
 ### Fixed
 

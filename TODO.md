@@ -32,19 +32,19 @@
 
 ### P0.5 — expose DSL2TODO through every interface
 
-- [ ] Add CLI commands `propose-todo`, `render-todo` and `apply-todo` with
+- [x] Add CLI commands `propose-todo`, `render-todo` and `apply-todo` with
   `prefer-llm|require-llm`, explicit input/output paths and machine-readable
   JSON results.
-- [ ] Add matching service actions and expose them through MCP and A2A without
+- [x] Add matching service actions and expose them through MCP and A2A without
   weakening root-path, authentication, body-size or task-ownership checks.
-- [ ] Add TypeScript, Python, Go, Rust and PHP SDK methods and runnable examples
+- [x] Add TypeScript, Python, Go, Rust and PHP SDK methods and runnable examples
   for propose → review → approved apply.
-- [ ] Persist synthesis, validation, patch and approval artifacts in the run
+- [x] Persist synthesis, validation, patch and approval artifacts in the run
   directory and list them in the versioned manifest/history API.
-- [ ] Add end-to-end tests for LLM success, invalid structured output, timeout,
+- [x] Add end-to-end tests for LLM success, invalid structured output, timeout,
   missing model/configuration, duplicates, dependency cycle, rejected approval,
   stale/tampered patch and successful idempotent apply.
-- [ ] Extend `examples:check` so all five SDK examples agree on proposal IDs,
+- [x] Extend `examples:check` so all five SDK examples agree on proposal IDs,
   duplicate classification and patch fingerprint.
 
 ### P0.6 — communication analysis in the main runtime

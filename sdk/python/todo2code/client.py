@@ -28,6 +28,9 @@ ACTIONS = (
     "reality",
     "compare_workspace",
     "pipeline",
+    "propose_todo",
+    "render_todo",
+    "apply_todo",
 )
 
 
@@ -267,6 +270,18 @@ class T2CClient:
     def compare_workspace(self, **options: Any) -> Mapping[str, Any]:
         """Compares a Git base ref with committed and uncommitted workspace intent."""
         return self.call("compare_workspace", options)
+
+    def propose_todo(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        """Synthesizes audited grounded TODO proposals."""
+        return self.call("propose_todo", payload)
+
+    def render_todo(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        """Renders reviewable TODO.patch and JSON audit artifacts."""
+        return self.call("render_todo", payload)
+
+    def apply_todo(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        """Applies an explicitly approved TODO patch and returns its receipt."""
+        return self.call("apply_todo", payload)
 
     def get_task(self, task_id: str, *, history_length: int | None = None, include_artifacts: bool = False) -> Mapping[str, Any]:
         params: dict[str, Any] = {"taskId": task_id, "includeArtifacts": include_artifacts}

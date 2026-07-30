@@ -34,6 +34,9 @@ const (
 	ActionReality              = "reality"
 	ActionCompareWorkspace     = "compare_workspace"
 	ActionPipeline             = "pipeline"
+	ActionProposeTodo          = "propose_todo"
+	ActionRenderTodo           = "render_todo"
+	ActionApplyTodo            = "apply_todo"
 )
 
 // SourceLineRange is the 1-based inclusive line span a record was taken from.
@@ -503,4 +506,31 @@ func (c *Client) CompareWorkspace(ctx context.Context, options map[string]any) (
 func (c *Client) Pipeline(ctx context.Context, options map[string]any) (map[string]any, error) {
 	result := map[string]any{}
 	return result, c.Call(ctx, ActionPipeline, options, &result)
+}
+
+// ProposeTodo synthesizes audited grounded TODO proposals.
+func (c *Client) ProposeTodo(ctx context.Context, input map[string]any) (map[string]any, error) {
+	var result map[string]any
+	if err := c.Call(ctx, ActionProposeTodo, input, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// RenderTodo writes a reviewable TODO patch and its JSON audit.
+func (c *Client) RenderTodo(ctx context.Context, input map[string]any) (map[string]any, error) {
+	var result map[string]any
+	if err := c.Call(ctx, ActionRenderTodo, input, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// ApplyTodo applies one explicitly approved TODO patch and returns its receipt.
+func (c *Client) ApplyTodo(ctx context.Context, input map[string]any) (map[string]any, error) {
+	var result map[string]any
+	if err := c.Call(ctx, ActionApplyTodo, input, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
 }

@@ -242,6 +242,18 @@ gdy bieżący plik kończy się dokładnym patchem, a hash odtworzonego prefiksu
 hashem źródła. Stary source, zmieniony patch, niewłaściwa zgoda lub późniejsza
 zmiana TODO są odrzucane i wymagają nowego renderowania/review.
 
+CLI udostępnia trzy osobne granice: `propose-todo`, `render-todo` i
+`apply-todo`; identyczne akcje `propose_todo`, `render_todo`, `apply_todo` są
+dostępne przez service, MCP, A2A i pięć SDK. Wszystkie ścieżki wejścia/wyjścia
+podlegają ograniczeniu `T2C_ROOT`, a apply wymaga aktora i dokładnego
+`approvalHash`.
+
+Główny pipeline z `taskSynthesisMode=prefer-llm|require-llm` zapisuje
+`task-synthesis.json`, `todo-validation.json`, `TODO.patch` i
+`TODO.patch.json` oraz rejestruje je w `manifest.files`. Pipeline wyłącznie
+przygotowuje materiał do review. Receipt pojawia się w manifeście dopiero po
+osobnym, zatwierdzonym apply.
+
 ## Audyt runu (`t2c.run/v1`)
 
 Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:
@@ -250,7 +262,7 @@ Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:
   nie publikuje grafu ani `latest.json` i wskazuje etap/kod awarii;
 - `runtime.name` i `runtime.version`;
 - bezpieczny `configuration` bez tokenów i kluczy oraz jego SHA-256 fingerprint;
-- statusy etapów NL, Markdown, dokumentacji i podsumowania: `succeeded`, `partial`,
+- statusy etapów NL, Markdown, dokumentacji, syntezy zadań i podsumowania: `succeeded`, `partial`,
   `fallback`, `failed` albo `skipped`;
 - requested/effective mode, model, czas, liczbę rekordów/ostrzeżeń i strukturalny
   powód degradacji;

@@ -66,11 +66,27 @@ try {
         printf("  - [%s] %s: %s%s", $diagnostic['severity'], $diagnostic['code'], $diagnostic['title'], PHP_EOL);
     }
 
-    // 2. Intent-vs-reality view.
+    // 2. Audited propose -> review -> approved no-op apply without secrets.
+    $synthesis = $client->proposeTodo(['root' => $root, 'graph' => $graph, 'diagnostics' => $report, 'mode' => 'prefer-llm']);
+    $rendered = $client->renderTodo([
+        'root' => $root, 'graph' => $graph, 'diagnostics' => $report, 'synthesis' => $synthesis, 'todo' => 'TODO.md',
+        'patch' => '.intent-sdk/php/TODO.patch', 'audit' => '.intent-sdk/php/TODO.patch.json',
+    ]);
+    $patchHash = (string) ($rendered['artifact']['renderedPatchHash'] ?? '');
+    $client->applyTodo([
+        'root' => $root, 'todo' => 'TODO.md', 'patch' => '.intent-sdk/php/TODO.patch',
+        'audit' => '.intent-sdk/php/TODO.patch.json', 'receipt' => '.intent-sdk/php/TODO.patch.receipt.json',
+        'actor' => 'sdk-php', 'approvalHash' => $patchHash,
+    ]);
+    echo 'proposal ids: ' . (implode(',', $synthesis['validation']['newProposalIds'] ?? []) ?: '-') . PHP_EOL;
+    echo 'duplicate ids: ' . (implode(',', $synthesis['validation']['duplicateProposalIds'] ?? []) ?: '-') . PHP_EOL;
+    echo 'patch fingerprint: ' . substr($patchHash, 0, 16) . PHP_EOL;
+
+    // 3. Intent-vs-reality view.
     $reality = $client->reality($graph, $report, ['gapsOnly' => true, 'includeSvg' => true]);
     echo 'reality svg bytes: ' . strlen((string) ($reality['svg'] ?? '')) . PHP_EOL;
 
-    // 3. Git diff rendered as SVG.
+    // 4. Git diff rendered as SVG.
     $diff = $client->diffGit(['root' => $root, 'revision' => 'HEAD', 'includeSvg' => true]);
     printf(
         "git diff files: %d, svg bytes: %d%s",
@@ -79,7 +95,7 @@ try {
         PHP_EOL
     );
 
-    // 4. Optional origin/main -> local filesystem Intent comparison.
+    // 5. Optional origin/main -> local filesystem Intent comparison.
     if (getenv('T2C_COMPARE_WORKSPACE') === '1') {
         $comparison = $client->compareWorkspace([
             'root' => $root,

@@ -30,7 +30,9 @@ Kontrola wykonuje:
 4. integrację HTTP: health, publikację, odczyt, klasyfikację i błąd `400`;
 5. przykłady TypeScript oraz wszystkich dostępnych lokalnie SDK Python, Go,
    Rust i PHP;
-6. porównanie fingerprintu grafu pomiędzy językami.
+6. porównanie fingerprintu grafu pomiędzy językami;
+7. porównanie proposal ID, klasyfikacji duplikatów i fingerprintu `TODO.patch`
+   dla wszystkich pięciu SDK.
 
 Brak opcjonalnego toolchainu powoduje jawny `SKIP` tylko dla jego SDK. Node i
 przykład TypeScript są wymagane. Skrypt uruchamia A2A na wolnym porcie i usuwa
@@ -66,6 +68,10 @@ trybu wykonania. Udany run zapisuje:
     ├── document.intent.jsonl
     ├── intent.graph.json
     ├── diagnostics.json
+    ├── task-synthesis.json       # gdy --task-mode != disabled
+    ├── todo-validation.json      # gdy --task-mode != disabled
+    ├── TODO.patch                # wyłącznie do review
+    ├── TODO.patch.json           # audyt patcha
     ├── team-summary.md
     └── manifest.json
 ```
@@ -94,6 +100,7 @@ node dist/src/cli.js pipeline . \
   --docs 'README.md,docs/**/*.md,project/**/*.md' \
   --nl-mode prefer-llm \
   --markdown-mode prefer-llm \
+  --task-mode prefer-llm \
   --out .intent
 ```
 
@@ -101,6 +108,46 @@ node dist/src/cli.js pipeline . \
 niedopuszczalny, należy użyć `require-llm`. Wtedy brak klucza, timeout, błędny
 model lub niepoprawna odpowiedź kończą proces błędem i tworzą manifest
 `status=failed` bez publikowania nieistniejącego grafu jako `latest`.
+
+## DSL2TODO: propose, review i apply
+
+Pipeline z `--task-mode prefer-llm|require-llm` może od razu zapisać syntezę,
+walidację i patch w katalogu runu. Nie stosuje patcha. Te same etapy można
+wykonać jawnie na istniejących artefaktach:
+
+```bash
+RUN=.intent/runs/<run-id>
+
+node dist/src/cli.js propose-todo "$RUN/intent.graph.json" \
+  --diagnostics "$RUN/diagnostics.json" \
+  --mode require-llm \
+  --out "$RUN/task-synthesis.json"
+
+node dist/src/cli.js render-todo "$RUN/task-synthesis.json" \
+  --graph "$RUN/intent.graph.json" \
+  --diagnostics "$RUN/diagnostics.json" \
+  --todo TODO.md \
+  --patch "$RUN/TODO.patch" \
+  --audit "$RUN/TODO.patch.json"
+```
+
+Po ręcznym przejrzeniu `TODO.patch` należy odczytać `renderedPatchHash` z
+`TODO.patch.json` i przekazać go dosłownie jako zgodę:
+
+```bash
+node dist/src/cli.js apply-todo \
+  --todo TODO.md \
+  --patch "$RUN/TODO.patch" \
+  --audit "$RUN/TODO.patch.json" \
+  --receipt "$RUN/TODO.patch.receipt.json" \
+  --actor reviewer@example.com \
+  --approval-hash <renderedPatchHash>
+```
+
+Każde polecenie emituje wynik JSON. Ścieżki podlegają `T2C_ROOT`. Apply
+odrzuca brak/błędny hash zgody, zmienione TODO i zmieniony patch; poprawne
+powtórzenie jest idempotentne. Jeżeli artefakty należą do wersjonowanego runu,
+service/MCP/A2A rejestrują je w jego `manifest.files`, łącznie z receiptem.
 
 ## Osobne konwertery
 

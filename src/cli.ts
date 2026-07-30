@@ -30,6 +30,7 @@ import { linkIntentRecords } from './graph/linker.js';
 import { startA2aServer } from './interfaces/a2a.js';
 import { startMcpServer } from './interfaces/mcp.js';
 import { runPipeline } from './pipeline/run.js';
+import { executeAction } from './services/actions.js';
 import { summarizeGraph } from './summary/summarizer.js';
 import { watchRepository, type WatchEvent } from './watch/watcher.js';
 import { T2C_VERSION } from './version.js';
@@ -134,6 +135,65 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     else process.stdout.write(result.markdown);
     return;
   }
+  if (command === 'propose-todo') {
+    const graphPath = parsed.positionals[0];
+    const diagnosticsPath = optionString(parsed, 'diagnostics');
+    const output = optionString(parsed, 'out');
+    if (!graphPath || !diagnosticsPath || !output) {
+      throw new Error('Usage: t2c propose-todo <graph.json> --diagnostics diagnostics.json --mode prefer-llm|require-llm --out synthesis.json');
+    }
+    const result = await executeAction('propose_todo', {
+      root: optionString(parsed, 'root') ?? config.root,
+      graphPath,
+      diagnosticsPath,
+      mode: optionTaskMode(parsed),
+      output,
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
+  if (command === 'render-todo') {
+    const synthesisPath = parsed.positionals[0];
+    const graphPath = optionString(parsed, 'graph');
+    const diagnosticsPath = optionString(parsed, 'diagnostics');
+    const patch = optionString(parsed, 'patch');
+    const audit = optionString(parsed, 'audit');
+    if (!synthesisPath || !graphPath || !diagnosticsPath || !patch || !audit) {
+      throw new Error('Usage: t2c render-todo <synthesis.json> --graph graph.json --diagnostics diagnostics.json --todo TODO.md --patch TODO.patch --audit TODO.patch.json');
+    }
+    const result = await executeAction('render_todo', {
+      root: optionString(parsed, 'root') ?? config.root,
+      synthesisPath,
+      graphPath,
+      diagnosticsPath,
+      todo: optionString(parsed, 'todo') ?? 'TODO.md',
+      patch,
+      audit,
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
+  if (command === 'apply-todo') {
+    const patch = optionString(parsed, 'patch');
+    const audit = optionString(parsed, 'audit');
+    const receipt = optionString(parsed, 'receipt');
+    const actor = optionString(parsed, 'actor');
+    const approvalHash = optionString(parsed, 'approval-hash');
+    if (!patch || !audit || !receipt || !actor || !approvalHash) {
+      throw new Error('Usage: t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>');
+    }
+    const result = await executeAction('apply_todo', {
+      root: optionString(parsed, 'root') ?? config.root,
+      todo: optionString(parsed, 'todo') ?? 'TODO.md',
+      patch,
+      audit,
+      receipt,
+      actor,
+      approvalHash,
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
   if (command === 'watch') {
     await handleWatch(parsed, config);
     return;
@@ -172,6 +232,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       nlMode: optionNlMode(parsed, config.nlMode),
       markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
       documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
+      taskSynthesisMode: optionPipelineTaskMode(parsed),
     };
     const result = await runPipeline(options, config);
     reportPipelineDegradation(result.manifest);
@@ -197,6 +258,7 @@ async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConf
     nlMode: optionNlMode(parsed, config.nlMode),
     markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
     documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
+    taskSynthesisMode: optionPipelineTaskMode(parsed),
   };
 
   const controller = new AbortController();
@@ -547,6 +609,18 @@ function optionLlmMode(parsed: ParsedArgs, name: string, fallback: LlmExtraction
   throw new Error(`--${name} must be deterministic, prefer-llm or require-llm`);
 }
 
+function optionTaskMode(parsed: ParsedArgs): 'prefer-llm' | 'require-llm' {
+  const value = optionString(parsed, 'mode')?.toLowerCase() ?? 'prefer-llm';
+  if (value === 'prefer-llm' || value === 'require-llm') return value;
+  throw new Error('--mode must be prefer-llm or require-llm');
+}
+
+function optionPipelineTaskMode(parsed: ParsedArgs): 'disabled' | 'prefer-llm' | 'require-llm' {
+  const value = optionString(parsed, 'task-mode')?.toLowerCase() ?? 'disabled';
+  if (value === 'disabled' || value === 'prefer-llm' || value === 'require-llm') return value;
+  throw new Error('--task-mode must be disabled, prefer-llm or require-llm');
+}
+
 function reportPipelineDegradation(manifest: import('./core/types.js').PipelineManifest): void {
   if (manifest.status !== 'degraded') return;
   process.stderr.write('DEGRADED: one or more pipeline stages did not complete in the requested mode\n');
@@ -572,6 +646,9 @@ function printHelp(): void {
   process.stdout.write(`  t2c diagnose <intent.graph.json> [--out diagnostics.json]\n`);
   process.stdout.write(`  t2c diff <before.graph.json> <after.graph.json> [--out diff.json] [--svg diff.svg]\n`);
   process.stdout.write(`  t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--fallback] [--out team-summary.md]\n`);
+  process.stdout.write(`  t2c propose-todo <graph.json> --diagnostics diagnostics.json --mode prefer-llm|require-llm --out synthesis.json\n`);
+  process.stdout.write(`  t2c render-todo <synthesis.json> --graph graph.json --diagnostics diagnostics.json --todo TODO.md --patch TODO.patch --audit TODO.patch.json\n`);
+  process.stdout.write(`  t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>\n`);
   process.stdout.write(`  t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html] [--context 3]\n`);
   process.stdout.write(`  t2c diff --mode git [root] [--rev HEAD] [--staged] [--svg diff.svg] [--html diff.html]\n`);
   process.stdout.write(`  t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg]\n`);
@@ -580,7 +657,7 @@ function printHelp(): void {
   process.stdout.write(`               [--task TASK.md] [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--todo TODO.md] [--no-docs-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
-  process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--out .intent]\n`);
+  process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode prefer-llm] [--docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);

@@ -100,7 +100,7 @@ interface TaskStoreSnapshot {
 
 const tasks = new Map<string, StoredTask>();
 const messageTaskIndex = new Map<string, string>();
-const ACTIONS: T2CAction[] = ['extract_nl', 'extract_git', 'extract_ast', 'extract_markdown', 'extract_docs', 'extract_communication', 'analyze_communication', 'link', 'diagnose', 'summarize', 'diff', 'diff_files', 'diff_git', 'reality', 'compare_workspace', 'pipeline'];
+const ACTIONS: T2CAction[] = ['extract_nl', 'extract_git', 'extract_ast', 'extract_markdown', 'extract_docs', 'extract_communication', 'analyze_communication', 'link', 'diagnose', 'summarize', 'diff', 'diff_files', 'diff_git', 'reality', 'compare_workspace', 'pipeline', 'propose_todo', 'render_todo', 'apply_todo'];
 const TERMINAL_STATES = new Set<A2ATaskState>([
   'TASK_STATE_COMPLETED',
   'TASK_STATE_FAILED',
@@ -250,7 +250,8 @@ interface IntentRunListItem {
   failure: Record<string, unknown> | null;
   runtimeVersion: string | null;
   stages: Record<string, unknown> | null;
-  llm: { naturalLanguageExtraction: boolean; markdownExtraction: boolean; documentationExtraction: boolean; summary: boolean } | null;
+  files: Record<string, string>;
+  llm: { naturalLanguageExtraction: boolean; markdownExtraction: boolean; documentationExtraction: boolean; taskSynthesis: boolean; summary: boolean } | null;
   graphBytes: number;
 }
 
@@ -294,7 +295,7 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
         const createdAtValue = typeof manifest.createdAt === 'string' && Number.isFinite(Date.parse(manifest.createdAt))
           ? manifest.createdAt
           : manifestStat.mtime.toISOString();
-        const files = isRecord(manifest.files) ? manifest.files : {};
+        const files = safeManifestFiles(config.root, isRecord(manifest.files) ? manifest.files : {});
         const llmValue = isRecord(manifest.llm) ? manifest.llm : null;
         const runtimeValue = isRecord(manifest.runtime) ? manifest.runtime : null;
         const stagesValue = isRecord(manifest.stages) ? manifest.stages : null;
@@ -310,10 +311,12 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
           failure: isRecord(manifest.failure) ? manifest.failure : null,
           runtimeVersion: runtimeValue && typeof runtimeValue.version === 'string' ? runtimeValue.version : null,
           stages: stagesValue,
+          files,
           llm: llmValue ? {
             naturalLanguageExtraction: llmValue.naturalLanguageExtraction === true,
             markdownExtraction: llmValue.markdownExtraction === true,
             documentationExtraction: llmValue.documentationExtraction === true,
+            taskSynthesis: llmValue.taskSynthesis === true,
             summary: llmValue.summary === true,
           } : null,
           graphBytes: graphStat?.isFile() ? graphStat.size : 0,
@@ -328,6 +331,17 @@ async function listIntentRuns(config: T2CConfig): Promise<IntentRunListItem[]> {
     .filter((item): item is IntentRunListItem => item !== null)
     .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)
       || right.runId.localeCompare(left.runId));
+}
+
+function safeManifestFiles(root: string, files: Record<string, unknown>): Record<string, string> {
+  const output: Record<string, string> = {};
+  for (const [name, value] of Object.entries(files)) {
+    if (typeof value !== 'string') continue;
+    const absolute = path.resolve(root, value);
+    const relative = path.relative(root, absolute);
+    if (!relative.startsWith('..') && !path.isAbsolute(relative)) output[name] = value;
+  }
+  return output;
 }
 
 function relativeApiPath(root: string, filePath: string): string {
@@ -975,6 +989,18 @@ function agentCard(config: T2CConfig): Record<string, unknown> {
         examples: ['{"action":"reality","input":{"graph":{}}}'],
         inputModes: ['application/json'],
         outputModes: ['application/json', 'image/svg+xml', 'text/markdown'],
+      },
+      {
+        id: 'review_todo_changes',
+        name: 'Propose, review and apply TODO changes',
+        description: 'Synthesize grounded proposals, render a hash-bound TODO.patch, and apply it only after explicit human approval.',
+        tags: ['dsl2todo', 'review', 'approval', 'audit'],
+        examples: [
+          '{"action":"propose_todo","input":{"graphPath":".intent/runs/<run>/intent.graph.json","diagnosticsPath":".intent/runs/<run>/diagnostics.json","mode":"prefer-llm"}}',
+          '{"action":"apply_todo","input":{"patch":"TODO.patch","audit":"TODO.patch.json","receipt":"receipt.json","actor":"reviewer","approvalHash":"<sha256>"}}',
+        ],
+        inputModes: ['application/json'],
+        outputModes: ['application/json', 'text/markdown'],
       },
     ],
   };

@@ -13,6 +13,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	todo2code "github.com/semcod/todo2code/sdk/go"
@@ -82,21 +83,47 @@ func run() error {
 		fmt.Printf("  - [%s] %s: %s\n", diagnostic.Severity, diagnostic.Code, diagnostic.Title)
 	}
 
-	// 2. Intent-vs-reality view.
+	// 2. Audited propose -> review -> approved no-op apply without secrets.
+	synthesis, err := client.ProposeTodo(ctx, map[string]any{"root": root, "graph": graph, "diagnostics": report, "mode": "prefer-llm"})
+	if err != nil {
+		return fmt.Errorf("propose_todo: %w", err)
+	}
+	validation, _ := synthesis["validation"].(map[string]any)
+	rendered, err := client.RenderTodo(ctx, map[string]any{
+		"root": root, "graph": graph, "diagnostics": report, "synthesis": synthesis, "todo": "TODO.md",
+		"patch": ".intent-sdk/go/TODO.patch", "audit": ".intent-sdk/go/TODO.patch.json",
+	})
+	if err != nil {
+		return fmt.Errorf("render_todo: %w", err)
+	}
+	artifact, _ := rendered["artifact"].(map[string]any)
+	patchHash, _ := artifact["renderedPatchHash"].(string)
+	if _, err = client.ApplyTodo(ctx, map[string]any{
+		"root": root, "todo": "TODO.md", "patch": ".intent-sdk/go/TODO.patch",
+		"audit": ".intent-sdk/go/TODO.patch.json", "receipt": ".intent-sdk/go/TODO.patch.receipt.json",
+		"actor": "sdk-go", "approvalHash": patchHash,
+	}); err != nil {
+		return fmt.Errorf("apply_todo: %w", err)
+	}
+	fmt.Println("proposal ids:", joinedIDs(validation["newProposalIds"]))
+	fmt.Println("duplicate ids:", joinedIDs(validation["duplicateProposalIds"]))
+	fmt.Println("patch fingerprint:", truncate(patchHash, 16))
+
+	// 3. Intent-vs-reality view.
 	reality, err := client.Reality(ctx, graph, report, map[string]any{"gapsOnly": true, "includeSvg": true})
 	if err != nil {
 		return fmt.Errorf("reality: %w", err)
 	}
 	fmt.Printf("reality svg bytes: %d\n", len(reality.SVG))
 
-	// 3. Git diff rendered as SVG.
+	// 4. Git diff rendered as SVG.
 	diff, err := client.DiffGit(ctx, map[string]any{"root": root, "revision": "HEAD", "includeSvg": true})
 	if err != nil {
 		return fmt.Errorf("diff_git: %w", err)
 	}
 	fmt.Printf("git diff files: %d, svg bytes: %d\n", len(diff.Diffs), len(diff.SVG))
 
-	// 4. Optional origin/main -> local filesystem Intent comparison.
+	// 5. Optional origin/main -> local filesystem Intent comparison.
 	if os.Getenv("T2C_COMPARE_WORKSPACE") == "1" {
 		comparison, compareErr := client.CompareWorkspace(ctx, map[string]any{"root": root, "base": envOr("T2C_COMPARE_BASE", "origin/main")})
 		if compareErr != nil {
@@ -121,4 +148,16 @@ func truncate(value string, size int) string {
 		return value
 	}
 	return value[:size]
+}
+
+func joinedIDs(value any) string {
+	items, _ := value.([]any)
+	if len(items) == 0 {
+		return "-"
+	}
+	values := make([]string, 0, len(items))
+	for _, item := range items {
+		values = append(values, fmt.Sprint(item))
+	}
+	return strings.Join(values, ",")
 }

@@ -52,16 +52,33 @@ def main() -> int:
     for diagnostic in report.diagnostics[:3]:
         print(f"  - [{diagnostic.severity}] {diagnostic.code}: {diagnostic.title}")
 
-    # 2. Intent-vs-reality view.
+    # 2. Audited propose -> review -> approved no-op apply without secrets.
+    synthesis = client.propose_todo({"root": root, "graph": graph.raw, "diagnostics": report.raw, "mode": "prefer-llm"})
+    validation = synthesis.get("validation", {})
+    rendered = client.render_todo({
+        "root": root, "graph": graph.raw, "diagnostics": report.raw, "synthesis": synthesis, "todo": "TODO.md",
+        "patch": ".intent-sdk/python/TODO.patch", "audit": ".intent-sdk/python/TODO.patch.json",
+    })
+    patch_hash = rendered["artifact"]["renderedPatchHash"]
+    client.apply_todo({
+        "root": root, "todo": "TODO.md", "patch": ".intent-sdk/python/TODO.patch",
+        "audit": ".intent-sdk/python/TODO.patch.json", "receipt": ".intent-sdk/python/TODO.patch.receipt.json",
+        "actor": "sdk-python", "approvalHash": patch_hash,
+    })
+    print("proposal ids:", ",".join(validation.get("newProposalIds", ())) or "-")
+    print("duplicate ids:", ",".join(validation.get("duplicateProposalIds", ())) or "-")
+    print("patch fingerprint:", patch_hash[:16])
+
+    # 3. Intent-vs-reality view.
     reality = client.reality(graph, report, gapsOnly=True, includeSvg=True)
     print("reality svg bytes:", len(reality.get("svg", "")))
     print(reality["markdown"].split("\n")[4])
 
-    # 3. Git diff rendered as SVG.
+    # 4. Git diff rendered as SVG.
     git_diff = client.diff_git(root=root, revision="HEAD", includeSvg=True)
     print("git diff files:", len(git_diff.get("diffs", ())))
 
-    # 4. Optional origin/main -> local filesystem Intent comparison.
+    # 5. Optional origin/main -> local filesystem Intent comparison.
     if os.environ.get("T2C_COMPARE_WORKSPACE") == "1":
         comparison = client.compare_workspace(root=root, base=os.environ.get("T2C_COMPARE_BASE", "origin/main"))
         print("workspace trend:", comparison.get("trend", {}).get("direction"))

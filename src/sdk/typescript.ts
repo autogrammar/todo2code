@@ -119,6 +119,18 @@ export class Todo2CodeClient {
     return this.run<Record<string, unknown>>('compare_workspace', options);
   }
 
+  async proposeTodo(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.run<Record<string, unknown>>('propose_todo', input);
+  }
+
+  async renderTodo(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.run<Record<string, unknown>>('render_todo', input);
+  }
+
+  async applyTodo(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.run<Record<string, unknown>>('apply_todo', input);
+  }
+
   async extractNl(file: string, root = '.', nlMode?: SdkLlmExtractionMode): Promise<SdkExtractionResult> {
     return this.client.extractNl(file, root, nlMode);
   }

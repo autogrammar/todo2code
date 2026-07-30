@@ -64,7 +64,11 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
       runId: 'run-new',
       createdAt: '2026-07-29T01:00:00.000Z',
       graphFingerprint: after.fingerprint,
-      files: { graph: '.intent/runs/run-new/intent.graph.json' },
+      files: {
+        graph: '.intent/runs/run-new/intent.graph.json',
+        taskSynthesis: '.intent/runs/run-new/task-synthesis.json',
+        todoPatch: '.intent/runs/run-new/TODO.patch',
+      },
       warnings: ['test warning'],
       llm: { documentationExtraction: true, summary: true },
     }), 'utf8'),
@@ -88,11 +92,12 @@ test('diff UI and TypeScript/Python SDKs use the live backend runtime', async ()
     const historyResponse = await fetch(`${baseUrl}/api/runs`);
     assert.equal(historyResponse.status, 200);
     const history = await historyResponse.json() as {
-      runs: Array<{ runId: string; graphPath: string; warningCount: number }>;
+      runs: Array<{ runId: string; graphPath: string; warningCount: number; files: Record<string, string> }>;
     };
     assert.deepEqual(history.runs.map((run) => run.runId), ['run-new', 'run-old']);
     assert.equal(history.runs[0]?.graphPath, '.intent/runs/run-new/intent.graph.json');
     assert.equal(history.runs[0]?.warningCount, 1);
+    assert.equal(history.runs[0]?.files.todoPatch, '.intent/runs/run-new/TODO.patch');
 
     const historyDiffResponse = await fetch(`${baseUrl}/api/diff`, {
       method: 'POST',

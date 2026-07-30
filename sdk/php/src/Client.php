@@ -32,6 +32,9 @@ final class Client
         'reality',
         'compare_workspace',
         'pipeline',
+        'propose_todo',
+        'render_todo',
+        'apply_todo',
     ];
 
     private string $baseUrl;
@@ -287,6 +290,24 @@ final class Client
     public function pipeline(array $options = []): array
     {
         return $this->call('pipeline', $options);
+    }
+
+    /** @param array<string,mixed> $input @return array<string,mixed> */
+    public function proposeTodo(array $input): array
+    {
+        return $this->call('propose_todo', $input);
+    }
+
+    /** @param array<string,mixed> $input @return array<string,mixed> */
+    public function renderTodo(array $input): array
+    {
+        return $this->call('render_todo', $input);
+    }
+
+    /** @param array<string,mixed> $input @return array<string,mixed> */
+    public function applyTodo(array $input): array
+    {
+        return $this->call('apply_todo', $input);
     }
 
     // -- transport ------------------------------------------------------------

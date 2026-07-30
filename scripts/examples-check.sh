@@ -131,12 +131,20 @@ npm --prefix sdk/typescript run build >"$AUDIT_TMP/sdk-typescript-build.log" 2>&
 record_sdk_log() {
   local language="$1"
   local fingerprint
+  local proposal_ids
+  local duplicate_ids
+  local patch_fingerprint
   fingerprint="$(sed -n 's/^graph fingerprint: //p' "$AUDIT_TMP/sdk-$language.log")"
-  if [[ -z "$fingerprint" ]] || ! grep -qx 'OK' "$AUDIT_TMP/sdk-$language.log"; then
-    echo "$language SDK example did not produce a fingerprint and OK" >&2
+  proposal_ids="$(sed -n 's/^proposal ids: //p' "$AUDIT_TMP/sdk-$language.log")"
+  duplicate_ids="$(sed -n 's/^duplicate ids: //p' "$AUDIT_TMP/sdk-$language.log")"
+  patch_fingerprint="$(sed -n 's/^patch fingerprint: //p' "$AUDIT_TMP/sdk-$language.log")"
+  if [[ -z "$fingerprint" || -z "$proposal_ids" || -z "$duplicate_ids" || -z "$patch_fingerprint" ]] \
+    || ! grep -qx 'OK' "$AUDIT_TMP/sdk-$language.log"; then
+    echo "$language SDK example did not produce graph/proposal/duplicate/patch fingerprints and OK" >&2
     return 1
   fi
   printf '%s %s\n' "$language" "$fingerprint" >>"$AUDIT_TMP/fingerprints"
+  printf '%s|%s|%s|%s\n' "$language" "$proposal_ids" "$duplicate_ids" "$patch_fingerprint" >>"$AUDIT_TMP/todo-parity"
 }
 
 run_sdk() {
@@ -183,4 +191,12 @@ fi
 
 shared_fingerprint="$(cut -d' ' -f2 "$AUDIT_TMP/fingerprints" | head -n 1)"
 echo "SDK examples: $(wc -l <"$AUDIT_TMP/fingerprints") languages, shared fingerprint $shared_fingerprint"
+todo_parity_count="$(cut -d'|' -f2- "$AUDIT_TMP/todo-parity" | sort -u | wc -l)"
+if [[ "$todo_parity_count" -ne 1 ]]; then
+  echo 'SDK TODO proposal/duplicate/patch results differ:' >&2
+  cat "$AUDIT_TMP/todo-parity" >&2
+  exit 1
+fi
+shared_patch_fingerprint="$(cut -d'|' -f4 "$AUDIT_TMP/todo-parity" | head -n 1)"
+echo "SDK DSL2TODO: shared proposal IDs, duplicates and patch fingerprint $shared_patch_fingerprint"
 echo 'examples check: PASS'

@@ -51,6 +51,9 @@ pub mod action {
     pub const REALITY: &str = "reality";
     pub const COMPARE_WORKSPACE: &str = "compare_workspace";
     pub const PIPELINE: &str = "pipeline";
+    pub const PROPOSE_TODO: &str = "propose_todo";
+    pub const RENDER_TODO: &str = "render_todo";
+    pub const APPLY_TODO: &str = "apply_todo";
 }
 
 /// Errors returned by the SDK.
@@ -194,6 +197,10 @@ pub struct Diagnostic {
 /// The `t2c.diagnostics/v1` payload.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiagnosticReport {
+    #[serde(rename = "schemaVersion")]
+    pub schema_version: String,
+    #[serde(rename = "generatedAt")]
+    pub generated_at: String,
     #[serde(rename = "graphFingerprint")]
     pub graph_fingerprint: String,
     #[serde(default)]
@@ -404,6 +411,21 @@ impl Client {
     /// Runs the full todo2code pipeline on the server.
     pub fn pipeline(&self, options: &Value) -> Result<Value, Error> {
         self.call(action::PIPELINE, options)
+    }
+
+    /// Synthesizes audited grounded TODO proposals.
+    pub fn propose_todo(&self, input: &Value) -> Result<Value, Error> {
+        self.call(action::PROPOSE_TODO, input)
+    }
+
+    /// Writes a reviewable TODO patch and its JSON audit.
+    pub fn render_todo(&self, input: &Value) -> Result<Value, Error> {
+        self.call(action::RENDER_TODO, input)
+    }
+
+    /// Applies one explicitly approved TODO patch and returns its receipt.
+    pub fn apply_todo(&self, input: &Value) -> Result<Value, Error> {
+        self.call(action::APPLY_TODO, input)
     }
 
     // -- transport ----------------------------------------------------------

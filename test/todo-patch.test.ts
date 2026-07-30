@@ -15,12 +15,14 @@ import type {
 } from '../src/core/types.js';
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
+import { executeAction } from '../src/services/actions.js';
 import {
   applyTodoPatch,
   createTodoPatch,
   writeTodoPatchArtifacts,
 } from '../src/synthesis/todo-patch.js';
 import { validateAndClassifyTodoProposals } from '../src/synthesis/validation.js';
+import { makeConfig } from './helpers.js';
 
 const NOW = '2026-07-30T06:00:00.000Z';
 
@@ -98,7 +100,8 @@ test('TODO patch rendering is stable, dependency-first and excludes classified d
   const input = patchInput();
   const options = {
     todoPath: 'TODO.md', todoContent: input.todoContent, graph: input.graph, diagnostics: input.diagnostics,
-    proposals: input.proposals, validation: input.validation, synthesisAudit: input.audit, createdAt: NOW,
+    conclusions: [input.conclusion], proposals: input.proposals, validation: input.validation,
+    synthesisAudit: input.audit, createdAt: NOW,
   };
   const first = createTodoPatch(options);
   const second = createTodoPatch(options);
@@ -120,7 +123,7 @@ test('empty and duplicate-only results render an explicit no-op patch', () => {
   });
   const emptyRendered = createTodoPatch({
     todoPath: 'TODO.md', todoContent: input.todoContent, graph: input.graph, diagnostics: input.diagnostics,
-    proposals: [], validation: empty, synthesisAudit: input.audit, createdAt: NOW,
+    conclusions: [input.conclusion], proposals: [], validation: empty, synthesisAudit: input.audit, createdAt: NOW,
   });
   assert.deepEqual(emptyRendered.artifact.selectedProposalIds, []);
   assert.deepEqual(emptyRendered.artifact.duplicateProposalIds, []);
@@ -131,7 +134,8 @@ test('empty and duplicate-only results render an explicit no-op patch', () => {
   });
   const rendered = createTodoPatch({
     todoPath: 'TODO.md', todoContent: input.todoContent, graph: input.graph, diagnostics: input.diagnostics,
-    proposals: [input.existing], validation: duplicateOnly, synthesisAudit: input.audit, createdAt: NOW,
+    conclusions: [input.conclusion], proposals: [input.existing], validation: duplicateOnly,
+    synthesisAudit: input.audit, createdAt: NOW,
   });
   assert.deepEqual(rendered.artifact.selectedProposalIds, []);
   assert.deepEqual(rendered.artifact.duplicateProposalIds, [input.existing.id]);
@@ -145,7 +149,7 @@ test('apply rejects missing or wrong approval, stale TODO and a tampered patch',
   await fs.writeFile(todoPath, input.todoContent);
   const written = await writeTodoPatchArtifacts({
     directory, todoPath: 'TODO.md', todoContent: input.todoContent, graph: input.graph,
-    diagnostics: input.diagnostics, proposals: input.proposals, validation: input.validation,
+    diagnostics: input.diagnostics, conclusions: [input.conclusion], proposals: input.proposals, validation: input.validation,
     synthesisAudit: input.audit, createdAt: NOW,
   });
   assert.equal(await fs.readFile(todoPath, 'utf8'), input.todoContent);
@@ -169,7 +173,7 @@ test('approved apply is atomic, receipt-backed and idempotent', async () => {
   await fs.chmod(todoPath, 0o640);
   const written = await writeTodoPatchArtifacts({
     directory, todoPath: 'TODO.md', todoContent: input.todoContent, graph: input.graph,
-    diagnostics: input.diagnostics, proposals: input.proposals, validation: input.validation,
+    diagnostics: input.diagnostics, conclusions: [input.conclusion], proposals: input.proposals, validation: input.validation,
     synthesisAudit: input.audit, createdAt: NOW,
   });
   const options = {
@@ -199,3 +203,63 @@ test('approved apply is atomic, receipt-backed and idempotent', async () => {
   assert.equal(recovered.receipt.resultTodoHash, first.receipt.resultTodoHash);
   assert.equal(await fs.readFile(todoPath, 'utf8'), appliedContent);
 });
+
+test('service actions execute LLM propose -> render -> approved apply with scoped artifacts', async () => {
+  const input = patchInput();
+  const diagnostic = input.diagnostics.diagnostics.find((item) => item.recordIds.length > 0);
+  assert.ok(diagnostic);
+  const directory = await fs.mkdtemp(path.join(tmpdir(), 't2c-actions-todo-'));
+  await fs.writeFile(path.join(directory, 'TODO.md'), input.todoContent);
+  await fs.writeFile(path.join(directory, 'graph.json'), `${JSON.stringify(input.graph)}\n`);
+  await fs.writeFile(path.join(directory, 'diagnostics.json'), `${JSON.stringify(input.diagnostics)}\n`);
+  const config = makeConfig(directory);
+  config.openRouter.apiKey = 'test-secret';
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    id: 'todo-action-response', model: 'test/model', provider: 'test',
+    choices: [{ message: { content: JSON.stringify({
+      conclusions: [{
+        key: 'finding', kind: 'finding', title: 'New reviewed work is required',
+        detail: 'The cited diagnostic requires a new implementation task.', severity: diagnostic.severity,
+        diagnosticIds: [diagnostic.id], recordIds: diagnostic.recordIds, confidence: 0.9,
+      }],
+      proposals: [{
+        key: 'task', title: 'Implement a new reviewed workflow',
+        description: 'Add the missing workflow through the audited action boundary.', priority: 'P0',
+        target: { paths: ['src/new-workflow.ts'], symbols: [], tickets: ['T2C-399'], versions: [] },
+        acceptanceCriteria: ['The complete reviewed action flow passes its end-to-end test.'],
+        dependencyKeys: [], conclusionKeys: ['finding'], diagnosticIds: [diagnostic.id],
+        recordIds: diagnostic.recordIds, confidence: 0.88,
+      }],
+    }) } }],
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  try {
+    const synthesis = await executeAction('propose_todo', {
+      root: directory, graphPath: 'graph.json', diagnosticsPath: 'diagnostics.json',
+      mode: 'require-llm', output: 'run/synthesis.json',
+    }, config) as AuditedActionSynthesis;
+    assert.equal(synthesis.audit.status, 'succeeded');
+    assert.equal(synthesis.validation.newProposalIds.length, 1);
+
+    const rendered = await executeAction('render_todo', {
+      root: directory, graphPath: 'graph.json', diagnosticsPath: 'diagnostics.json', synthesis,
+      todo: 'TODO.md', patch: 'run/TODO.patch', audit: 'run/TODO.patch.json',
+    }, config) as { artifact: { renderedPatchHash: string } };
+    const applied = await executeAction('apply_todo', {
+      root: directory, todo: 'TODO.md', patch: 'run/TODO.patch', audit: 'run/TODO.patch.json',
+      receipt: 'run/TODO.patch.receipt.json', actor: 'integration-reviewer',
+      approvalHash: rendered.artifact.renderedPatchHash,
+    }, config) as { applied: boolean; receipt: { approvedBy: string } };
+    assert.equal(applied.applied, true);
+    assert.equal(applied.receipt.approvedBy, 'integration-reviewer');
+    assert.match(await fs.readFile(path.join(directory, 'TODO.md'), 'utf8'), /Implement a new reviewed workflow/);
+    assert.ok((await fs.stat(path.join(directory, 'run', 'synthesis.json'))).isFile());
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+interface AuditedActionSynthesis {
+  audit: { status: string };
+  validation: { newProposalIds: string[] };
+}

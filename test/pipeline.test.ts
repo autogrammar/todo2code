@@ -8,6 +8,7 @@ import { promisify } from 'node:util';
 import { pathExists, readJson } from '../src/core/io.js';
 import type { IntentGraph, PipelineManifest } from '../src/core/types.js';
 import { runPipeline } from '../src/pipeline/run.js';
+import { executeAction } from '../src/services/actions.js';
 import { makeConfig } from './helpers.js';
 
 const exec = promisify(execFile);
@@ -43,6 +44,7 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.llm.documentationExtraction, false);
   assert.equal(result.manifest.llm.naturalLanguageExtraction, false);
   assert.equal(result.manifest.llm.markdownExtraction, false);
+  assert.equal(result.manifest.llm.taskSynthesis, false);
   assert.equal(result.manifest.llm.summary, false);
   assert.equal(result.manifest.status, 'degraded');
   assert.equal(result.manifest.failure, null);
@@ -52,9 +54,11 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.stages.markdownExtraction.status, 'fallback');
   assert.equal(result.manifest.stages.markdownExtraction.reason?.code, 'LLM_NOT_CONFIGURED');
   assert.equal(result.manifest.stages.documentationExtraction.status, 'skipped');
+  assert.equal(result.manifest.stages.taskSynthesis.status, 'skipped');
   assert.equal(result.manifest.stages.summary.status, 'fallback');
   assert.equal(result.manifest.configuration.llm.configured, false);
   assert.equal(result.manifest.configuration.markdownMode, 'prefer-llm');
+  assert.equal(result.manifest.configuration.taskSynthesisMode, 'disabled');
   assert.equal(result.manifest.configuration.llm.markdownModel, 'test/model');
   assert.ok(!JSON.stringify(result.manifest.configuration).includes('apiKey'));
   assert.match(result.manifest.configuration.fingerprint, /^[a-f0-9]{64}$/);
@@ -63,6 +67,82 @@ test('Offline pipeline writes a complete run', async () => {
   assert.ok(graph.records.some((record) => record.source.kind === 'git'));
   assert.ok(graph.records.some((record) => record.source.kind === 'ast'));
   assert.ok(graph.records.some((record) => record.source.kind === 'todo'));
+});
+
+test('Pipeline persists synthesis, validation and review patch, then registers approval receipt', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-todo-'));
+  const todoContent = '# TODO\n\n- [ ] Existing task.\n';
+  await fs.writeFile(path.join(root, 'TODO.md'), todoContent);
+  const config = makeConfig(root);
+  const result = await runPipeline({
+    root,
+    taskFile: null,
+    todoFile: 'TODO.md',
+    changelogFile: null,
+    documentPatterns: [],
+    includeDocumentationLlm: false,
+    outputDir: '.intent-todo',
+    gitCommitCount: 1,
+    allowSummaryFallback: true,
+    includeSummaryLlm: false,
+    nlMode: 'deterministic',
+    markdownMode: 'deterministic',
+    taskSynthesisMode: 'prefer-llm',
+  }, config);
+  assert.ok(result.taskSynthesisPath && await pathExists(result.taskSynthesisPath));
+  assert.ok(result.todoPatchPath && await pathExists(result.todoPatchPath));
+  assert.ok(result.todoPatchAuditPath && await pathExists(result.todoPatchAuditPath));
+  assert.ok(await pathExists(path.join(result.runDirectory, 'todo-validation.json')));
+  assert.equal(result.manifest.stages.taskSynthesis.status, 'fallback');
+  assert.equal(result.manifest.stages.taskSynthesis.reason?.code, 'LLM_NOT_CONFIGURED');
+  assert.equal(result.manifest.configuration.taskSynthesisMode, 'prefer-llm');
+  assert.equal(result.manifest.files.taskSynthesis?.endsWith('/task-synthesis.json'), true);
+  assert.equal(result.manifest.files.todoValidation?.endsWith('/todo-validation.json'), true);
+  assert.equal(await fs.readFile(path.join(root, 'TODO.md'), 'utf8'), todoContent);
+
+  const patchAudit = await readJson<{ renderedPatchHash: string }>(result.todoPatchAuditPath!);
+  const receiptPath = path.join(result.runDirectory, 'TODO.patch.receipt.json');
+  const applied = await executeAction('apply_todo', {
+    root,
+    todo: 'TODO.md',
+    patch: path.relative(root, result.todoPatchPath!),
+    audit: path.relative(root, result.todoPatchAuditPath!),
+    receipt: path.relative(root, receiptPath),
+    actor: 'pipeline-reviewer',
+    approvalHash: patchAudit.renderedPatchHash,
+  }, config) as { applied: boolean; idempotent: boolean };
+  assert.equal(applied.applied, false);
+  assert.equal(applied.idempotent, true);
+  const updatedManifest = await readJson<PipelineManifest>(path.join(result.runDirectory, 'manifest.json'));
+  assert.equal(updatedManifest.files.todoApplyReceipt?.endsWith('/TODO.patch.receipt.json'), true);
+});
+
+test('Pipeline require-llm task synthesis failure is audited and never publishes latest', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-task-failed-'));
+  await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n- [ ] Add task synthesis.\n');
+  const config = makeConfig(root);
+  await assert.rejects(() => runPipeline({
+    root,
+    taskFile: null,
+    todoFile: 'TODO.md',
+    changelogFile: null,
+    documentPatterns: [],
+    includeDocumentationLlm: false,
+    outputDir: '.intent-failed',
+    gitCommitCount: 1,
+    allowSummaryFallback: true,
+    includeSummaryLlm: false,
+    nlMode: 'deterministic',
+    markdownMode: 'deterministic',
+    taskSynthesisMode: 'require-llm',
+  }, config), /requires LLM/);
+  const runsRoot = path.join(root, '.intent-failed', 'runs');
+  const runIds = await fs.readdir(runsRoot);
+  const manifest = await readJson<PipelineManifest>(path.join(runsRoot, runIds[0] ?? '', 'manifest.json'));
+  assert.equal(manifest.failure?.stage, 'taskSynthesis');
+  assert.equal(manifest.failure?.code, 'LLM_NOT_CONFIGURED');
+  assert.equal(manifest.stages.taskSynthesis.status, 'failed');
+  assert.equal(await pathExists(path.join(root, '.intent-failed', 'latest.json')), false);
 });
 
 for (const scenario of [
@@ -132,5 +212,6 @@ test('Pipeline persists a failed manifest for an unexpected summary failure', as
   assert.equal(manifest.stages.naturalLanguageExtraction.status, 'skipped');
   assert.equal(manifest.stages.markdownExtraction.status, 'skipped');
   assert.equal(manifest.stages.documentationExtraction.status, 'skipped');
+  assert.equal(manifest.stages.taskSynthesis.status, 'skipped');
   assert.equal(manifest.stages.summary.status, 'failed');
 });
