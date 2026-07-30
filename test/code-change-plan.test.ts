@@ -6,13 +6,19 @@ import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 import { buildRecord } from '../src/core/record.js';
-import { createCodeChangePlanHash, createCodeChangePlanId } from '../src/core/id.js';
+import {
+  createCodeChangePlanHash,
+  createCodeChangePlanId,
+  createCodeChangeSourcePatchHash,
+  createCodeChangeSourcePatchId,
+} from '../src/core/id.js';
 import { assertCodeChangeAcceptance } from '../src/core/schema.js';
 import type { IntentGraph } from '../src/core/types.js';
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
 import {
   assertCodeChangeReviewPatch,
+  assertCodeChangeSourcePatch,
   createCodeChangeReviewPatch,
   createCodeChangeSourcePatch,
   createCodeChangeSourcePatchSet,
@@ -285,6 +291,13 @@ test('createCodeChangeSourcePatch is deterministic and path-bound', () => {
   assert.equal(first.edits[0]!.unifiedDiff, null);
   assert.match(first.edits[0]!.instruction, /validateContract/);
 
+  const missingProvenance = structuredClone(plan) as unknown as Record<string, unknown>;
+  delete missingProvenance.generation;
+  assert.throws(() => createCodeChangeSourcePatch({
+    plan: missingProvenance as unknown as typeof plan,
+    createdAt: AT,
+  }), /missing: generation/);
+
   const withDiff = createCodeChangeSourcePatch({
     plan,
     createdAt: AT,
@@ -321,6 +334,16 @@ test('createCodeChangeSourcePatch is deterministic and path-bound', () => {
       'src/contracts.ts': '--- a/src/contracts.ts\n+++ b/src/contracts.ts\n@@ -0,0 +1 @@\n+api_key = "supersecretvalue"\n',
     },
   }), /secret assignment/);
+
+  const wrongAction = structuredClone(first);
+  wrongAction.edits[0]!.action = 'delete';
+  wrongAction.patchHash = createCodeChangeSourcePatchHash(wrongAction);
+  wrongAction.id = createCodeChangeSourcePatchId(wrongAction);
+  assert.throws(() => assertCodeChangeSourcePatch(wrongAction, plan), /action.*does not match the plan/);
+
+  const invalidGeneration = structuredClone(first) as unknown as Record<string, unknown>;
+  delete invalidGeneration.generation;
+  assert.throws(() => assertCodeChangeSourcePatch(invalidGeneration, plan), /keys must be exactly/);
 });
 
 test('createCodeChangeSourcePatchSet covers every plan', () => {

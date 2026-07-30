@@ -372,8 +372,14 @@ function compactSynthesisPayload(graph: IntentGraph, report: DiagnosticReport): 
   const recordIds = new Set(diagnostics.flatMap((diagnostic) => diagnostic.recordIds));
   const todoRecords = graph.records.filter((record) => record.source.kind === 'todo').slice(0, 100);
   todoRecords.forEach((record) => recordIds.add(record.id));
+  // Truncating records after collecting their IDs from diagnostics can ship a
+  // diagnostic that cites a record the model never sees, which invites exactly
+  // the fabricated citation the corrective retry then has to absorb. Drop the
+  // diagnostics whose evidence did not survive the record budget instead.
   const records = graph.records.filter((record) => recordIds.has(record.id)).slice(0, 500);
   const includedIds = new Set(records.map((record) => record.id));
+  const groundedDiagnostics = diagnostics.filter((diagnostic) =>
+    diagnostic.recordIds.some((id) => includedIds.has(id)));
   return {
     graph: {
       schemaVersion: graph.schemaVersion,

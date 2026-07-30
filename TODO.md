@@ -88,8 +88,9 @@
   completed, with `LLM_RESPONSE_INVALID` sinking three of them on well-formed
   but non-existent record IDs. The retry quotes the validation error back and
   keeps both attempts in the audit; a second fabrication still fails the run.
-- [ ] Extend the corrective retry to the summary stage, which rejects
-  fabricated citations the same way but has no second attempt.
+- [x] Extend the corrective retry to the summary stage, which rejected
+  fabricated citations the same way but had no second attempt. Both attempts
+  stay in the audit and a second fabrication still fails the run.
 - [ ] Bound the task-synthesis payload consistently: `compactSynthesisPayload`
   collects record IDs from diagnostics and then truncates records to 500, so a
   large repository can ship a diagnostic citing a record the model cannot see.

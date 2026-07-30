@@ -491,3 +491,92 @@ test('deterministic summary presents AST module aggregates instead of low-level 
   assert.match(result.markdown, /declare src\/runtime\.ts/);
   assert.doesNotMatch(result.markdown, /call trim/);
 });
+
+test('The summarizer gives a fabricated citation one corrective retry', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const record = buildRecord({
+    kind: 'declared_intent', action: 'add', object: 'contract.validation',
+    text: 'Dodać walidację kontraktu.', lifecycle: 'proposed', sourceKind: 'nl',
+    sourcePath: 'TASK.md', sourceLines: { start: 1, end: 1 }, extractor: 'test',
+    epistemicClass: 'declaration', confidence: 1, basis: ['test'],
+  });
+  const graph = linkIntentRecords([record], '2026-07-29T00:00:00.000Z');
+  const diagnostics = diagnoseGraph(graph, '2026-07-29T00:00:00.000Z');
+  const diagnostic = diagnostics.diagnostics.find((item) => item.recordIds.includes(record.id))!;
+
+  // Schema-shaped but ungrounded, the failure mode measured on `make demollm`.
+  const conclusion = (recordIds: string[]): unknown => ({
+    conclusions: [{
+      kind: 'recommendation', title: 'Dodać walidację kontraktu',
+      detail: 'Plan wymaga dowodu implementacji walidacji kontraktu.', severity: diagnostic.severity,
+      diagnosticIds: [diagnostic.id], recordIds, confidence: 0.91,
+    }],
+  });
+
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  let corrections: string[] = [];
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    const body = JSON.parse(String(init?.body)) as { messages: Array<{ role: string; content: string }> };
+    corrections = body.messages
+      .filter((message) => message.content.startsWith('The previous response was rejected'))
+      .map((message) => message.content);
+    return new Response(JSON.stringify({
+      id: `gen-summary-retry-${calls}`, model: 'qwen/summary-resolved', provider: 'SummaryProvider',
+      usage: { prompt_tokens: 50, completion_tokens: 20, total_tokens: 70, cost: 0.004 },
+      choices: [{ message: {
+        content: JSON.stringify(conclusion(calls === 1 ? ['INT-NL-cb2bb3a6706ca9e28552'] : [record.id])),
+      } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+
+  try {
+    const result = await summarizeGraph(graph, diagnostics, config, { mode: 'require-llm' });
+    assert.equal(calls, 2, 'a rejected citation must trigger exactly one retry');
+    assert.equal(corrections.length, 1, 'the retry must quote the validation error back');
+    assert.match(corrections[0]!, /INT-NL-cb2bb3a6706ca9e28552/);
+    assert.equal(result.llmUsed, true);
+    assert.equal(result.responses.length, 2, 'both attempts stay in the audit');
+    assert.deepEqual(result.conclusions[0]?.recordIds, [record.id]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('The summarizer still fails when the retry fabricates again', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const record = buildRecord({
+    kind: 'declared_intent', action: 'add', object: 'contract.validation',
+    text: 'Dodać walidację kontraktu.', lifecycle: 'proposed', sourceKind: 'nl',
+    sourcePath: 'TASK.md', sourceLines: { start: 1, end: 1 }, extractor: 'test',
+    epistemicClass: 'declaration', confidence: 1, basis: ['test'],
+  });
+  const graph = linkIntentRecords([record], '2026-07-29T00:00:00.000Z');
+  const diagnostics = diagnoseGraph(graph, '2026-07-29T00:00:00.000Z');
+  const diagnostic = diagnostics.diagnostics.find((item) => item.recordIds.includes(record.id))!;
+
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    return new Response(JSON.stringify({
+      id: 'gen-summary-retry-fail', model: 'qwen/summary-resolved', provider: 'SummaryProvider',
+      usage: { prompt_tokens: 50, completion_tokens: 20, total_tokens: 70, cost: 0.004 },
+      choices: [{ message: { content: JSON.stringify({ conclusions: [{
+        kind: 'recommendation', title: 'Dodać walidację kontraktu',
+        detail: 'Plan wymaga dowodu implementacji.', severity: diagnostic.severity,
+        diagnosticIds: [diagnostic.id], recordIds: ['INT-NL-cb2bb3a6706ca9e28552'], confidence: 0.91,
+      }] }) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+
+  try {
+    await assert.rejects(() => summarizeGraph(graph, diagnostics, config, { mode: 'require-llm' }));
+    assert.equal(calls, 2, 'the retry budget is exactly one extra attempt');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
