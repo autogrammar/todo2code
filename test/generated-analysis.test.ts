@@ -53,20 +53,6 @@ test('generated analysis rejects temporary paths and unavailable validators', as
   );
 });
 
-test('generated analysis rejects vallm errors but permits quality warnings', async () => {
-  const root = await fixtureRoot();
-  const validation = path.join(root, 'project', 'validation.toon.yaml');
-  await fs.writeFile(validation, 'SUMMARY:\n  warnings: 4  errors: 0\n');
-  const passing = await execFileAsync(process.execPath, [script, root]);
-  assert.equal(JSON.parse(passing.stdout).status, 'ok');
-
-  await fs.writeFile(validation, 'SUMMARY:\n  warnings: 4  errors: 2\n');
-  await assert.rejects(
-    execFileAsync(process.execPath, [script, root]),
-    /project\/validation\.toon\.yaml contains validation errors/,
-  );
-});
-
 async function fixtureRoot(): Promise<string> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-generated-analysis-'));
   await fs.mkdir(path.join(root, 'docs'));

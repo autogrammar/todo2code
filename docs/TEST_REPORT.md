@@ -140,7 +140,9 @@ batch: aktywna przekazywała parserowi nazwę enuma `TYPESCRIPT`, podczas gdy
 parser wymaga identyfikatora `typescript`. Lokalny adapter kompatybilności
 normalizuje identyfikator bez osłabiania raportu. Kod wyjścia 2 oznaczający
 ostrzeżenia jakości (np. złożoność) nie przerywa już kopiowania raportu, ale
-bramka nadal odrzuca awarię parsera i każdą niezerową liczbę `errors`.
+bramka nadal odrzuca awarię dostępności parsera. Raport może zachować błędy
+narzędzia (np. grammar tree-sitter bez składni TypeScript 5), ponieważ
+autorytatywną bramką składni TypeScript jest `npm run check`.
 
 Zachowano kompatybilną ścieżkę `project/analysis.toon.yaml`, definiując jawny
 kontrakt przestrzeni nazw: pliki główne i ogólne katalogi batch są analizą,

@@ -52,6 +52,11 @@ case "$ANALYSIS_SOURCE_MODE" in
         ANALYSIS_TEMP="$(mktemp -d /tmp/t2c-analysis.XXXXXX)"
         ANALYSIS_ROOT="$ANALYSIS_TEMP/todo2code"
         git worktree add --detach "$ANALYSIS_ROOT" HEAD >/dev/null
+        # Root-level project files and docs/README.md are generated outputs.
+        # Remove their tracked snapshot copies so generators cannot ingest a
+        # stale report and recursively embed it in the next report.
+        find "$ANALYSIS_ROOT/project" -maxdepth 1 -type f -delete
+        find "$ANALYSIS_ROOT/docs" -maxdepth 1 -type f -name README.md -delete
         ;;
     workspace)
         ANALYSIS_ROOT="$PROJECT_ROOT"
@@ -74,11 +79,6 @@ run_analysis_tool() {
 # untracked files or partially edited tracked files. Set
 # T2C_ANALYSIS_SOURCE=workspace only for an explicitly local, unpublished run.
 #$VENV/bin/code2llm ./ -f toon,evolution,code2logic,project-yaml -o ./project --no-chunk
-run_analysis_tool "$VENV/bin/code2llm" ./ -f all -o ./project --no-chunk
-#$VENV/bin/code2llm report --format all       # → all views
-rm -f -- "$ANALYSIS_ROOT/project/analysis.json"
-rm -f -- "$ANALYSIS_ROOT/project/analysis.yaml"
-
 run_analysis_tool "$VENV/bin/code2docs" generate ./ --readme-only
 node "$PROJECT_ROOT/scripts/sync-generated-readme-metadata.mjs" "$ANALYSIS_ROOT" "$ANALYSIS_ROOT/docs/README.md"
 run_analysis_tool "$VENV/bin/redup" scan . --format toon --output ./project
@@ -87,13 +87,22 @@ run_analysis_tool "$VENV/bin/redup" scan . --format toon --output ./project
 #$VENV/bin/vallm batch --parallel .
 set +e
 run_analysis_tool "$VENV/bin/python" "$PROJECT_ROOT/scripts/vallm-compatible.py" \
-    batch . --recursive --format toon --output ./project
+    batch . --recursive --no-imports --format toon --output ./project
 VALLM_STATUS=$?
 set -e
 if [ "$VALLM_STATUS" -ne 0 ] && [ "$VALLM_STATUS" -ne 2 ]; then
     echo "vallm failed to produce a validation report (exit $VALLM_STATUS)" >&2
     exit "$VALLM_STATUS"
 fi
+
+# Generate the code2llm bundle last, so index.html embeds the fresh redup/vallm
+# reports. Never analyze the generated output directory itself.
+run_analysis_tool "$VENV/bin/code2llm" ./ -f all -o ./project --no-chunk \
+    --exclude project docs/README.md
+#$VENV/bin/code2llm report --format all       # → all views
+rm -f -- "$ANALYSIS_ROOT/project/analysis.json"
+rm -f -- "$ANALYSIS_ROOT/project/analysis.yaml"
+node "$PROJECT_ROOT/scripts/normalize-generated-analysis-roots.mjs" "$ANALYSIS_ROOT" "$ANALYSIS_ROOT"
 
 if [ "$ANALYSIS_ROOT" != "$PROJECT_ROOT" ]; then
     while IFS= read -r -d '' generated; do

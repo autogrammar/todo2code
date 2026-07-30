@@ -22,7 +22,9 @@
   `prefact -a` is no longer an implicit side effect and requires
   `T2C_APPLY_PREFACT=1`. A compatibility entrypoint also supplies lowercase
   parser IDs to affected `vallm` batch releases and distinguishes reportable
-  quality warnings from validation errors.
+  quality findings from an unavailable parser. Absolute analysis roots are
+  normalized to `<PROJECT_ROOT>`, and generated files are not recursively
+  consumed as source input.
 - Synchronize generated `docs/README.md` badges and license from `package.json`
   after `code2docs`; the external generator currently falls back to version
   `0.1.0`, a TypeScript badge and MIT for this Node/Apache-2.0 project. Template
