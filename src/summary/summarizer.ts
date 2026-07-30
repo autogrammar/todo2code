@@ -12,13 +12,14 @@ import type {
   DiagnosticSeverity,
   GroundedGenerationMetadata,
   IntentGraph,
-  IntentRecord,
   LlmResponseMetadata,
   LlmExtractionMode,
 } from '../core/types.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 import { T2C_VERSION } from '../version.js';
+import { compactSummaryPayload } from './payload.js';
+import { compareConclusions, renderSummaryMarkdown } from './render.js';
 
 export interface SummaryResult {
   conclusions: Conclusion[];
@@ -69,7 +70,7 @@ export async function summarizeGraph(
     );
     return {
       conclusions,
-      markdown: renderSummary(
+      markdown: renderSummaryMarkdown(
         graph,
         conclusions,
         'Wygenerowano deterministycznie, ponieważ etap podsumowania LLM został świadomie wyłączony dla tego przebiegu.',
@@ -90,7 +91,7 @@ export async function summarizeGraph(
     );
     return {
       conclusions,
-      markdown: renderSummary(graph, conclusions),
+      markdown: renderSummaryMarkdown(graph, conclusions),
       llmUsed: false,
       warnings: ['OPENROUTER_API_KEY is not configured; generated deterministic fallback summary'],
       responses: [],
@@ -98,7 +99,7 @@ export async function summarizeGraph(
   }
 
   const systemPrompt = await readPrompt('summarize.system.md');
-  const payload = compactPayload(graph, diagnostics);
+  const payload = compactSummaryPayload(graph, diagnostics);
   try {
     const completion = await client.chatJsonWithMetadata<unknown>([
       { role: 'system', content: systemPrompt },
@@ -117,7 +118,7 @@ export async function summarizeGraph(
     }
     return {
       conclusions,
-      markdown: renderSummary(
+      markdown: renderSummaryMarkdown(
         graph,
         conclusions,
         'Wnioski modelu zostały zmaterializowane i zwalidowane jako `t2c.conclusion/v1` przed renderowaniem raportu.',
@@ -136,159 +137,12 @@ export async function summarizeGraph(
     );
     return {
       conclusions,
-      markdown: renderSummary(graph, conclusions),
+      markdown: renderSummaryMarkdown(graph, conclusions),
       llmUsed: false,
       warnings: [`OpenRouter summary failed; generated deterministic fallback: ${error instanceof Error ? error.message : String(error)}`],
       responses: [],
     };
   }
-}
-
-function compactPayload(graph: IntentGraph, diagnostics: DiagnosticReport): Record<string, unknown> {
-  const maxRecords = 400;
-  const maxRelations = 800;
-  const maxDiagnostics = 250;
-  const referenced = new Set(diagnostics.diagnostics.flatMap((item) => item.recordIds));
-  // Documentation and other declared/claimed evidence must survive the payload
-  // budget even in AST-heavy repositories. Previously a large block of
-  // diagnostic-referenced AST facts could consume the first 1200 slots before
-  // the model saw any documentation records.
-  const nonAst = graph.records.filter((record) => record.source.kind !== 'ast');
-  const moduleAst = graph.records.filter((record) => (
-    record.source.kind === 'ast' && record.statement.kind === 'module_fact'
-  ));
-  const relevantAst = graph.records.filter((record) => record.source.kind === 'ast'
-    && record.statement.kind !== 'module_fact' && (
-    referenced.has(record.id)
-    || record.statement.kind === 'symbol_fact'
-    || record.statement.kind === 'python_symbol_fact'
-  ));
-  const selected = [...nonAst, ...moduleAst, ...relevantAst].slice(0, maxRecords);
-  const ids = new Set(selected.map((record) => record.id));
-  const selectedRelations = graph.relations
-    .filter((relation) => ids.has(relation.from) && ids.has(relation.to))
-    .slice(0, maxRelations);
-  const severityRank: Record<string, number> = { blocking: 0, review_required: 1, warning: 2, info: 3 };
-  const selectedDiagnostics = [...diagnostics.diagnostics]
-    .sort((left, right) => (severityRank[left.severity] ?? 4) - (severityRank[right.severity] ?? 4)
-      || left.code.localeCompare(right.code)
-      || left.id.localeCompare(right.id))
-    .slice(0, maxDiagnostics);
-  return {
-    graph: {
-      schemaVersion: graph.schemaVersion,
-      fingerprint: graph.fingerprint,
-      stats: graph.stats,
-      records: selected.map(compactRecord),
-      relations: selectedRelations,
-    },
-    diagnostics: { ...diagnostics, diagnostics: selectedDiagnostics },
-    truncation: {
-      originalRecords: graph.records.length,
-      includedRecords: selected.length,
-      originalRelations: graph.relations.length,
-      includedRelations: selectedRelations.length,
-      originalDiagnostics: diagnostics.diagnostics.length,
-      includedDiagnostics: selectedDiagnostics.length,
-      includedBySource: Object.fromEntries(Object.entries(
-        selected.reduce<Record<string, number>>((counts, record) => {
-          counts[record.source.kind] = (counts[record.source.kind] ?? 0) + 1;
-          return counts;
-        }, {}),
-      ).sort(([left], [right]) => left.localeCompare(right))),
-    },
-  };
-}
-
-function compactRecord(record: IntentRecord): Record<string, unknown> {
-  return {
-    id: record.id,
-    statement: record.statement,
-    lifecycle: record.lifecycle,
-    source: {
-      kind: record.source.kind,
-      path: record.source.path,
-      lines: record.source.lines,
-      revision: record.source.revision,
-      symbol: record.source.symbol,
-      commitIndex: record.source.commitIndex,
-    },
-    epistemic: record.epistemic,
-    observedAt: record.observedAt,
-  };
-}
-
-function renderSummary(
-  graph: IntentGraph,
-  conclusions: Conclusion[],
-  provenance = 'Wygenerowano deterministycznie, ponieważ podsumowanie OpenRouter nie było dostępne.',
-): string {
-  const plans = graph.records.filter((record) => ['nl', 'todo', 'document'].includes(record.source.kind));
-  const git = graph.records.filter((record) => record.source.kind === 'git');
-  const moduleFacts = graph.records.filter((record) => (
-    record.source.kind === 'ast' && record.statement.kind === 'module_fact'
-  ));
-  const facts = moduleFacts.length > 0 ? moduleFacts : graph.records.filter((record) => (
-    record.source.kind === 'ast' && ['symbol_fact', 'python_symbol_fact'].includes(record.statement.kind)
-  ));
-  const releases = graph.records.filter((record) => record.source.kind === 'changelog');
-  const communication = graph.records.filter((record) => record.source.kind === 'agent_log');
-  const lines: string[] = [
-    '# Podsumowanie todo2code',
-    '',
-    `> ${provenance} Raport jest projekcją ${conclusions.length} zwalidowanych wniosków; rekordy LLM z dokumentacji pozostają oznaczone jako \`llm_inference\`.`,
-    '',
-    '## Cel',
-    '',
-    ...renderRecords(plans.filter((record) => record.source.kind === 'nl' || record.source.kind === 'document'), 12, 'Brak wyodrębnionej deklaracji celu.'),
-    '',
-    '## Plan',
-    '',
-    ...renderRecords(plans.filter((record) => record.source.kind === 'todo'), 20, 'Brak pozycji TODO.'),
-    '',
-    '## Zmiany deklarowane w Git',
-    '',
-    ...renderRecords(git, 10, 'Brak dostępnej historii Git.'),
-    '',
-    '## Stan rzeczywisty kodu',
-    '',
-    ...renderRecords(facts, 25, 'Brak publicznych faktów AST.'),
-    '',
-    '## Dokumentacja i wydania',
-    '',
-    ...renderRecords(releases, 20, 'Brak wpisów changelogu.'),
-    '',
-    '## Komunikacja ludzi i agentów',
-    '',
-    ...renderRecords(communication, 30, 'Brak wersjonowanych rekordów komunikacji.'),
-    '',
-    '## Rozbieżności',
-    '',
-  ];
-  const ordered = [...conclusions].sort(compareConclusions);
-  if (ordered.length === 0) {
-    lines.push('- Nie wykryto rozbieżności blokujących. Nie oznacza to automatycznego zatwierdzenia `DONE`.');
-  } else {
-    for (const conclusion of ordered.slice(0, 30)) {
-      lines.push(renderConclusion(conclusion));
-    }
-  }
-  lines.push('', '## Następne działania', '');
-  const actions = ordered.filter((item) => item.kind === 'recommendation' || item.severity !== 'info').slice(0, 20);
-  if (actions.length === 0) lines.push('- Przeprowadzić przegląd człowieka i zatwierdzić albo odrzucić wynik.');
-  for (const conclusion of actions) {
-    lines.push(`- Zweryfikować: **${conclusion.title}** — ${conclusion.detail} ${recordCitations(conclusion.recordIds)}`);
-  }
-  lines.push('', 'Graf: `' + graph.fingerprint + '`.');
-  return `${lines.join('\n')}\n`;
-}
-
-function renderRecords(records: IntentRecord[], limit: number, empty: string): string[] {
-  if (records.length === 0) return [`- ${empty}`];
-  return records.slice(0, limit).map((record) => {
-    const confidence = Math.round(record.epistemic.confidence * 100);
-    return `- ${record.statement.text} — ${record.source.kind}/${record.epistemic.class}, ${confidence}% [${record.id}]`;
-  });
 }
 
 const CONCLUSION_KINDS: ConclusionKind[] = ['finding', 'risk', 'decision', 'recommendation'];
@@ -448,20 +302,6 @@ function summaryMode(options: SummaryOptions): GroundedGenerationMetadata['reque
   }
   if (options.preferLlm === false) return 'deterministic';
   return options.allowDeterministicFallback ? 'prefer-llm' : 'require-llm';
-}
-
-function compareConclusions(left: Conclusion, right: Conclusion): number {
-  const severity: Record<DiagnosticSeverity, number> = { blocking: 0, review_required: 1, warning: 2, info: 3 };
-  return severity[left.severity] - severity[right.severity] || left.id.localeCompare(right.id);
-}
-
-function renderConclusion(conclusion: Conclusion): string {
-  const confidence = Math.round(conclusion.confidence * 100);
-  return `- **${conclusion.title}** (${conclusion.kind}/${conclusion.severity}, ${confidence}%) — ${conclusion.detail} ${recordCitations(conclusion.recordIds)} _[${conclusion.diagnosticIds.join('] [')}]_`;
-}
-
-function recordCitations(recordIds: string[]): string {
-  return `[${recordIds.join('] [')}]`;
 }
 
 function sortedUnique(values: string[]): string[] {

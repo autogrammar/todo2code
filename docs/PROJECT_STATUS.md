@@ -67,7 +67,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 `npm run verify` zakończyło się powodzeniem:
 
 - 187 testów: 186 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 88 modułów i 405 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 90 modułów i 409 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
   `.env.example`, bez duplikatów;

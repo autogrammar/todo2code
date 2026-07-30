@@ -17,7 +17,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Pełna walidacja | `npm run verify` | PASS |
 | Testy | `npm test` | 187 testów: 186 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
-| Moduły | `npm run verify:modules` | PASS — 88 modułów, 405 importów, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 90 modułów, 409 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |

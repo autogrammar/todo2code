@@ -11,7 +11,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 30 modułów |
-| Granice modułów | PASS — 88 modułów, 405 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Granice modułów | PASS — 90 modułów, 409 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
 | Testy Node | PASS — 186 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
