@@ -72,6 +72,9 @@
 - [x] Make `project.sh` correct and validate generated README metadata against
   `package.json`; external `code2docs` fallback values (`0.1.0`, MIT and a
   TypeScript runtime badge) can no longer be published silently.
+- [x] Isolate `project.sh` generators in a detached tracked-only snapshot,
+  reject references to untracked inputs, temporary paths and unavailable
+  parser downloads, and make source-changing `prefact -a` explicitly opt-in.
 - [x] Formalize the backward-compatible `project/` namespace: root-level
   code2llm/redup output is analysis, while communication requires a recognised
   ticket directory, participant registry or explicit front matter. This keeps

@@ -16,6 +16,11 @@
 
 ### Fixed
 
+- Generate committed analysis and `docs/README.md` from a detached snapshot of
+  tracked `HEAD` by default. The new verification gate rejects leaked
+  untracked paths, temporary snapshot paths and parser-download failures;
+  `prefact -a` is no longer an implicit side effect and requires
+  `T2C_APPLY_PREFACT=1`.
 - Synchronize generated `docs/README.md` badges and license from `package.json`
   after `code2docs`; the external generator currently falls back to version
   `0.1.0`, a TypeScript badge and MIT for this Node/Apache-2.0 project. Template

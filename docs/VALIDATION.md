@@ -13,6 +13,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 30 modułów |
 | Granice modułów | PASS — 93 moduły, 426 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
+| Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
 | Testy Node | PASS — 226 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
 | Pipeline `examples/` | PASS — 227 rekordów i 91 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |

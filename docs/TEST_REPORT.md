@@ -19,6 +19,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Moduły | `npm run verify:modules` | PASS — 93 moduły, 426 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
+| Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
 | Gold benchmark | `npm run evaluate:gold` | 100% precision/recall i 100% stabilności |
 | Przykłady | `npm run examples:check` | PASS — wszystkie 5 SDK |
@@ -124,6 +125,15 @@ examples check: PASS
 `docs/README.md` z `package.json`. Test integracyjny potwierdza korektę wersji,
 badge'a Node i Apache-2.0, względny link do `LICENSE`, idempotencję oraz
 fail-closed przy zmianie szablonu generatora.
+
+Generatory `code2llm`, `code2docs`, `redup` i `vallm` domyślnie pracują w
+odłączonym worktree utworzonym z aktualnego, śledzonego `HEAD`. Lokalny
+nieśledzony plik `nlp2uri.yaml` ujawnił wcześniejszą lukę: jego nazwa trafiła
+do czterech raportów, a nieudostępniony parser TypeScript do dwóch. Bramka
+odrzuciła te artefakty; ponowna generacja ze snapshotu nie zawiera żadnego z
+tych śladów. Tryb `T2C_ANALYSIS_SOURCE=workspace` jest jawnie ostrzegany i
+nadal podlega bramce, a modyfikujące źródła `prefact -a` wymaga osobnego
+`T2C_APPLY_PREFACT=1`.
 
 Zachowano kompatybilną ścieżkę `project/analysis.toon.yaml`, definiując jawny
 kontrakt przestrzeni nazw: pliki główne i ogólne katalogi batch są analizą,
