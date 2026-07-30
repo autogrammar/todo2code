@@ -110,13 +110,17 @@ node dist/src/cli.js pipeline . \
 
 ### Krótka demonstracja live bez fallbacku
 
-Najpierw utwórz stabilny graf przykładowy, następnie uruchom dwa krytyczne
-kontrakty providera w trybie `require-llm`:
+Utwórz stabilny graf przykładowy, a następnie uruchom dwa krytyczne kontrakty
+providera w trybie `require-llm` jednym targetem:
 
 ```bash
-make demo
-T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
+make demollm
 ```
+
+Jest to skrót dla `make demo` oraz
+`T2C_REQUIRE_LIVE_CHECK=1 npm run live:check`.
+Diagram przepływu, diagram sekwencji i opis każdego artefaktu zawiera
+[`DEMOLLM.md`](DEMOLLM.md).
 
 Druga komenda sprawdza zarówno `extract_nl`, jak i uziemione `summarize`.
 Wynik `PASS` oznacza, że provider zwrócił strukturę zaakceptowaną przez runtime,

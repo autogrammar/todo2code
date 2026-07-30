@@ -150,13 +150,18 @@ mode, model, czas, licznik rekordów/ostrzeżeń, powód i bezpieczne parametry;
 
 ### Demonstracja z prawdziwym LLM
 
-`make demo` jest celowo deterministyczne. Aby po jego wykonaniu sprawdzić
-rzeczywiste kontrakty OpenRouter bez możliwości ukrycia błędu fallbackiem,
-ustaw klucz w prywatnym `.env` i uruchom:
+`make demo` jest celowo deterministyczne. Aby utworzyć ten sam stabilny graf,
+a następnie sprawdzić rzeczywiste kontrakty OpenRouter bez możliwości ukrycia
+błędu fallbackiem, ustaw klucz w prywatnym `.env` i uruchom:
 
 ```bash
-T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
+make demollm
 ```
+
+Target wykonuje kolejno `make demo` oraz
+`T2C_REQUIRE_LIVE_CHECK=1 npm run live:check`.
+Szczegółowy przepływ, diagram sekwencji i opis artefaktów znajdują się w
+[`docs/DEMOLLM.md`](docs/DEMOLLM.md).
 
 Kontrola używa najnowszego grafu z `examples/.intent-demo`, wykonuje NL → DSL
 oraz graf → `t2c.conclusion/v1` w trybie `require-llm` i zapisuje zredagowany
