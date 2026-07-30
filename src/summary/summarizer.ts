@@ -101,21 +101,9 @@ export async function summarizeGraph(
   const systemPrompt = await readPrompt('summarize.system.md');
   const payload = compactSummaryPayload(graph, diagnostics);
   try {
-    const completion = await client.chatJsonWithMetadata<unknown>([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: JSON.stringify(payload) },
-    ], 't2c_grounded_summary', responseSchema(), config.openRouter.summaryModel);
-    let conclusions: Conclusion[];
-    try {
-      conclusions = materializeConclusions(
-        completion.value,
-        graph,
-        diagnostics,
-        generationMetadata(config, mode, completion.metadata),
-      );
-    } catch (error) {
-      throw new Error(`Invalid structured summary response: ${error instanceof Error ? error.message : String(error)}`);
-    }
+    const { conclusions, responses } = await summarizeWithCorrection(
+      client, config, mode, systemPrompt, JSON.stringify(payload), graph, diagnostics,
+    );
     return {
       conclusions,
       markdown: renderSummaryMarkdown(
@@ -125,7 +113,7 @@ export async function summarizeGraph(
       ),
       llmUsed: true,
       warnings: [],
-      responses: [completion.metadata],
+      responses,
     };
   } catch (error) {
     if (mode === 'require-llm') throw error;
@@ -211,6 +199,62 @@ function describe(value: unknown): string {
   if (value === null) return 'null';
   if (Array.isArray(value)) return `array(${value.length})`;
   return typeof value === 'string' ? JSON.stringify(value) : String(value);
+}
+
+/**
+ * Calls the model, and on a grounding rejection gives it exactly one corrective
+ * attempt with the specific error quoted back.
+ *
+ * Mirrors task synthesis, where the same failure mode — a well-formed but
+ * non-existent record ID — sank 3 of 6 measured `make demollm` runs. Grounding
+ * is not weakened: the same validation runs on the retry, and a second
+ * fabrication still fails.
+ */
+async function summarizeWithCorrection(
+  client: OpenRouterClient,
+  config: T2CConfig,
+  mode: LlmExtractionMode,
+  systemPrompt: string,
+  payload: string,
+  graph: IntentGraph,
+  diagnostics: DiagnosticReport,
+): Promise<{ conclusions: Conclusion[]; responses: LlmResponseMetadata[] }> {
+  const responses: LlmResponseMetadata[] = [];
+  let correction: string | null = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const messages = [
+      { role: 'system' as const, content: systemPrompt },
+      { role: 'user' as const, content: payload },
+      ...(correction
+        ? [{
+            role: 'user' as const,
+            content: `The previous response was rejected: ${correction}\n`
+              + 'Every diagnosticIds and recordIds entry must appear verbatim in the input above.'
+              + ' Re-emit the full object using only identifiers copied from it.',
+          }]
+        : []),
+    ];
+    const completion = await client.chatJsonWithMetadata<unknown>(
+      messages, 't2c_grounded_summary', responseSchema(), config.openRouter.summaryModel,
+    );
+    responses.push(completion.metadata);
+    try {
+      const conclusions = materializeConclusions(
+        completion.value,
+        graph,
+        diagnostics,
+        generationMetadata(config, mode, completion.metadata),
+      );
+      return { conclusions, responses };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempt === 1) throw new Error(`Invalid structured summary response: ${message}`);
+      correction = message;
+    }
+  }
+
+  throw new Error('Invalid structured summary response: retry budget exhausted');
 }
 
 function materializeConclusions(

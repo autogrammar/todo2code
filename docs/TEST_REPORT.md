@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 202 testy: 201 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 208 testów: 207 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
 | Moduły | `npm run verify:modules` | PASS — 91 modułów, 420 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
@@ -42,9 +42,9 @@ z `~/github/semcod`, z artefaktami poza ich worktree:
 
 | Repozytorium | Wynik | Rekordy grafu | Relacje | `PLANNED_NOT_IMPLEMENTED` | Code-change plans | Komunikacja |
 |---|---:|---:|---:|---:|---:|---:|
-| `code2llm` | succeeded | 17 647 | 60 260 | 1 | 50 (limit runu) | 0, poprawnie pominięta |
-| `domd` | succeeded | 23 276 | 249 131 | 1 942 | 50 (limit runu) | 0, poprawnie pominięta |
-| `pactfix` | succeeded | 5 295 | 5 991 | 13 | 1 | 0, poprawnie pominięta |
+| `code2llm` | succeeded | 17 647 | 60 154 | 1 | 50 (limit runu) | 0, poprawnie pominięta |
+| `domd` | succeeded | 23 276 | 247 869 | 1 942 | 50 (limit runu) | 0, poprawnie pominięta |
+| `pactfix` | succeeded | 5 295 | 5 606 | 13 | 1 | 0, poprawnie pominięta |
 
 Pierwszy przebieg na `domd` zgłosił `Python AST extraction failed: stdout
 maxBuffer length exceeded`, ponieważ helper Python omijał repozytoryjne reguły
@@ -67,6 +67,11 @@ Po dodaniu automatycznego etapu `codeChangePlanning` wszystkie trzy pipeline'y
 przeszły ponownie. Etap ma `succeeded / deterministic`, koperta plan-set używa
 generatora `t2c/code-change-plan-set`, a każdy plan podaje runtime `0.5.0`.
 `code2llm` i `domd` osiągnęły bezpieczny limit 50 planów; `pactfix` utworzył 1.
+Każdy run zapisał również hash-bound `CODE_CHANGE.review.md` i
+`t2c.code-change-review/v1` z generatorem `t2c/code-change-review`. Po
+odrzuceniu nieinformatywnych par konfiguracja↔konfiguracja we wszystkich
+trzech grafach pozostało 0 takich relacji; powiązania konfiguracji z AST,
+dokumentacją lub wspólnym ticketem nadal są dozwolone i pokryte testami.
 
 Pozostałe ostrzeżenia są oczekiwane i audytowalne: brak lokalnego JDK,
 wykryte nieobsługiwane PHP/Ruby/C#, celowo niepoprawne fixture’y parserów oraz
@@ -77,7 +82,7 @@ cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 225 records, 107 relations; communication: 3 blocking, 1 warning
+demo: 225 records, 103 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
@@ -140,10 +145,11 @@ rollback i provenance. `t2c.code-change-acceptance/v1` porównuje grafy przed i
 po implementacji: wszystkie targeted diagnostics muszą zniknąć i nie może
 pojawić się nowa blokada. Pozytywny wynik nadal nie ustawia `DONE`.
 
-Osiem testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
-tampering, brak provenance, niespójny verdict, JSON Schema oraz pełny przebieg
-CLI na zapisanych plikach. MCP publikuje 22 narzędzia, A2A umiejętność
-`review_code_changes`, a SDK TypeScript udostępnia oba wywołania.
+Dziesięć testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
+tampering, brak provenance, niespójny verdict, hash-bound review, JSON Schema
+oraz pełny przebieg CLI na zapisanych plikach. MCP publikuje 23 narzędzia, A2A
+umiejętność `review_code_changes`, a SDK TypeScript udostępnia propose, render
+i evaluate.
 
 ### Watch
 
@@ -194,7 +200,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 225 rekordów i 107 relacji, w tym cztery rekordy `document` i cztery
+demo ma 225 rekordów i 103 relacje, w tym cztery rekordy `document` i cztery
 rekordy konfiguracji `system`.
 
 ### Ekstrakcja ścieżek i metryka dokumentacji
@@ -281,8 +287,8 @@ każdego dowolnego formatu — granice opisuje punkt 4.
 
 Wersjonowany `t2c.gold-dataset/v1` osiąga:
 
-- 100% precision i recall ekstrakcji (7/7),
-- 100% precision i recall linkowania exact-target (3/3),
+- 100% precision i recall ekstrakcji (9/9),
+- 100% precision i recall linkowania exact-target (5/5),
 - 100% precision i recall capability-topic (1/1) oraz 0 naruszeń hard-negative,
 - 100% kompletności cytowań (14/14),
 - 100% poprawności deduplikacji DSL2TODO,
