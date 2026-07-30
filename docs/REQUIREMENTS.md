@@ -4,7 +4,7 @@
 |---|---|---|
 | NL → Intent DSL przez LLM z jawnym fallbackiem | `src/extractors/nl-llm.ts`, `src/extractors/nl.ts`, `src/llm/openrouter.ts` | `nl.test.ts`: sukces LLM, fallback, `require-llm`; `verify-no-llm-imports.mjs` chroni parser deterministyczny |
 | Ostatnie 10 commitów → DSL | `src/extractors/git.ts`, default `T2C_GIT_COMMIT_COUNT=10` | `git.test.ts` (dokładnie 10 z repo zawierającego 12 commitów) |
-| Aktualne AST → DSL | `src/extractors/ast.ts`, helpery `python/`, `golang/`, `java/`, `rust-ast/` | `ast.test.ts`, `ast-languages.test.ts` |
+| Aktualne AST → DSL | orkiestrator `src/extractors/ast.ts`, adaptery `src/extractors/ast/{typescript,python,go,java,rust}.ts` i helpery językowe | `ast.test.ts`, `ast-go.test.ts`, `ast-languages.test.ts` |
 | TODO + CHANGELOG → DSL, struktura + LLM | osobne `src/extractors/todo.ts`, `changelog.ts`, kompozycja `markdown.ts`, audyt `markdown-llm.ts` | `markdown.test.ts`: oba konwertery, sukces LLM, zachowanie pól strukturalnych, fallback i `require-llm`; live `qwen/qwen3.7-plus` |
 | Dokumentacja → DSL offline + opcjonalny LLM | `src/extractors/docs-deterministic.ts`, `src/extractors/docs-llm.ts`, `src/llm/openrouter.ts` | `docs.test.ts`: baseline; `openrouter.test.ts`: structured output, target hints, współbieżność, budżet chunków, runtime/config audit |
 | Konfiguracja/infrastruktura → DSL | `src/extractors/configuration.ts`, pipeline oraz CLI/MCP/A2A/SDK | `configuration.test.ts`, `mcp.test.ts`: JSON, TOML, Dockerfile, workflow CI i ekspozycja publiczna |
