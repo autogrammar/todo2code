@@ -14,9 +14,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 220 testów: 219 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 221 testów: 220 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
-| Moduły | `npm run verify:modules` | PASS — 91 modułów, 422 importy, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 92 moduły, 425 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
@@ -26,7 +26,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Docker | `make docker-smoke` | PASS — build, `/healthz`, `doctor` |
 | Wheel Pythona | `make python-wheel` | PASS |
 | Zależności produkcyjne | `npm audit --omit=dev` | 0 podatności |
-| Live OpenRouter summary | `t2c summarize … --mode require-llm` | PASS — zwalidowane wnioski, bez fallbacku (3/4 prób; jedyna porażka to HTTP 429) |
+| Live OpenRouter summary | `npm run live:check` | PASS — generator v2, jedna odpowiedź, 22,6 s, 43 426 tokenów, $0.006251, bez fallbacku |
 | Zaplanowany kontrakt live | `npm run live:check` | PASS/SKIP — NL i summary w `require-llm`, redacted audit i budżety; bez klucza kontrolowany skip |
 | Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
 | Trzy zewnętrzne repozytoria (batch 1) | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty |
@@ -110,7 +110,7 @@ cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 227 records, 84 relations; communication: 3 blocking, 1 warning
+demo: 227 records, 89 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint 2a1e0353460e6704
@@ -138,19 +138,20 @@ wskazującego konkretne pole zamiast wyjątku `reading 'trim'`.
 
 Prompt wymienia pełny, siedmiopolowy kontrakt, rozdziela `title` i `detail`
 oraz wymaga kopiowania `diagnosticIds` i `recordIds` dokładnie z wejścia.
-Rzeczywisty OpenRouter w trybie `require-llm` zwraca poprawne obiekty
-`t2c.conclusion/v1`; runtime waliduje ich cytowania i renderuje raport bez
-degradacji. Zmierzona niezawodność: **3 z 4 prób**, przy czym jedyna porażka to
-`HTTP 429` po serii wywołań diagnostycznych, a nie naruszenie kontraktu. Przed
-poprawką **każda** próba kończyła się fallbackiem.
+Rzeczywisty OpenRouter w trybie `require-llm` zwraca obiekty materializowane
+jako `t2c.conclusion/v1`; runtime waliduje diagnostyki, ogranicza `recordIds`
+do ich dowodów i renderuje raport bez degradacji. Bieżący `live:check` przeszedł
+w jednej odpowiedzi summary (22,6 s, $0.006251). Nieznany `diagnosticId` nadal
+jest odrzucany. Przed pierwszą poprawką każda próba kończyła się fallbackiem;
+historyczne 429 pozostaje problemem dostępności providera, nie kontraktu.
 
 ### Pełny pipeline `demollm`
 
-Run `20260730T162248Z-3e22b6d6` przeszedł końcową kontrolę manifestu dla
+Run `20260730T185205Z-312a0535` przeszedł końcową kontrolę manifestu dla
 wszystkich sześciu etapów LLM: NL, Markdown, dokumentacji, komunikacji,
 syntezy zadań i summary. Każdy etap ma `status=succeeded`,
 `effectiveMode=llm`, `degraded=false` i metadane odpowiedzi. Łączny zmierzony
-koszt wyniósł około **$0.09414**. Target nie zeruje już klucza z `.env`, nie
+koszt wyniósł około **$0.03602** (99 347 tokenów). Target nie zeruje klucza z `.env`, nie
 wywołuje deterministycznego `make demo` i nie wyłącza dokumentacji ani summary.
 
 Live run ujawnił odchylenia structured output providera: obiekt w polu NL
@@ -160,9 +161,13 @@ wyłącznie równoważne reprezentacje, wyprowadza cytowania propozycji z
 zatwierdzonych wniosków, a następnie nadal wykonuje pełną walidację grafu,
 cytowań, zależności i kanonicznych kontraktów DSL.
 
-Synteza zadań i summary wykonują teraz najwyżej jedną próbę korekcyjną po
-odrzuceniu cytowania. Obie odpowiedzi pozostają w audycie; drugie zmyślone ID
-nadal kończy `require-llm` błędem i nie osłabia walidacji ugruntowania.
+Zgłoszone kolejne próby ujawniły dwie pozostałe niestabilności: summary
+zmyślał `recordId`, a task synthesis zwracał pusty lokalny `proposal.key`.
+Generator v2 ogranicza rekordy wniosku do rekordów należących do cytowanych
+diagnostyk oraz nadaje brakujący klucz lokalny w runtime. Nieznany
+`diagnosticId` nadal kończy `require-llm` błędem po jednej korekcie. Bieżące
+`npm run live:check` i pełny run przeszły za pierwszym razem; task synthesis i
+summary zapisały po jednej odpowiedzi, z pełną provenance i bez degradacji.
 
 ### Plan zmiany kodu i acceptance
 
@@ -231,7 +236,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 84 relacje, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 89 relacji, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

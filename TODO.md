@@ -95,6 +95,11 @@
 - [x] Extend the corrective retry to the summary stage, which rejected
   fabricated citations the same way but had no second attempt. Both attempts
   stay in the audit and a second fabrication still fails the run.
+- [x] Remove the remaining `make demollm` flakiness without accepting invented
+  evidence: derive conclusion `recordIds` only from the cited diagnostics,
+  continue to reject unknown `diagnosticIds`, and assign blank response-local
+  proposal keys in the runtime. Live contract and full six-stage run
+  `20260730T185205Z-312a0535` pass with generator version 2.
 - [x] Bound the task-synthesis payload consistently. `compactSynthesisPayload`
   collected record IDs from diagnostics and then truncated records to 500, so a
   large repository could ship a diagnostic citing a record the model never saw.

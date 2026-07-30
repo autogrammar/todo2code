@@ -56,9 +56,9 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Przenośność między repozytoriami | zweryfikowana na 6 projektach | batch 1: `code2llm`, `domd`, `pactfix`; batch 2: `code2logic`, `code2docs`, `redup` — wszystkie `succeeded` offline z plan/review/source-patch stage; plany powstają tylko przy `target.paths` |
 | Diagnostyka i Intent vs Reality | działa | agregaty modułów i plików konfiguracji ograniczają szum; AST/Git/konfiguracja są obserwowaną rzeczywistością, `aligned` wymaga także deklaracji, a pokrycie dokumentacji jest osobną metryką |
 | Trend workspace | działa stabilnie | nagłówek trendu opiera się na pokryciu deklarowanych tematów, porównywalnej dokumentacji i ciężkich diagnostykach; churn linii i rekordów AST pozostaje metryką pomocniczą |
-| Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; surowa odpowiedź jest walidowana przed wyliczeniem ID, zweryfikowane przebiegi OpenRouter `require-llm` tworzą uziemione wnioski bez fallbacku w 3 z 4 prób, a jedyna porażka to `HTTP 429`, nie naruszenie kontraktu |
+| Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; generator v2 ogranicza `recordIds` do dowodów cytowanych diagnostyk, nieznane diagnostyki są odrzucane, a bieżący `live:check` przeszedł bez retry i fallbacku |
 | Zaplanowana kontrola live OpenRouter | działa opt-in | osobny job sprawdza NL i summary w `require-llm`, egzekwuje budżet latencji/kosztu i publikuje tylko zredagowany audyt; wymagane CI pozostaje offline |
-| Pełne `make demollm` | działa live, fail-closed | zweryfikowany run `20260730T162248Z-3e22b6d6`: NL, Markdown, dokumentacja, komunikacja, synteza zadań i summary mają `succeeded / llm / degraded=false`; końcowa bramka odrzuca brak metadanych lub dowolną degradację |
+| Pełne `make demollm` | działa live, fail-closed | zweryfikowany run `20260730T185205Z-312a0535`: NL, Markdown, dokumentacja, komunikacja, synteza zadań i summary mają `succeeded / llm / degraded=false`; task i summary używają generatora v2, a końcowa bramka odrzuca brak metadanych lub degradację |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
 | Diagnostyka → plan + review/source-patch | działa w pipeline/CLI/MCP/A2A/SDK | `code-change-plans.json`, hash-bound review oraz `code-change-source-patches.json`; brak auto-apply, a osobne apply wymaga kompletnego diffu, aktora i `patchHash`, wykonuje preflight/rollback oraz zapisuje receipt z provenance |
@@ -70,8 +70,8 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 220 testów: 219 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 91 modułów i 422 importy wewnętrzne, brak cykli, niezależny `src/core`;
+- 221 testów: 220 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 92 moduły i 425 importów wewnętrznych, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
   `.env.example`, bez duplikatów;
@@ -79,7 +79,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 227 rekordów i 84 relacje. Liczba
+Przebieg offline na `examples/` utworzył 227 rekordów i 89 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 

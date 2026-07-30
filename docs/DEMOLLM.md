@@ -142,16 +142,23 @@ prompt i surowa odpowiedź modelu nie są zapisywane w manifeście.
 
 ## Zweryfikowany przebieg
 
-Run `20260730T162248Z-3e22b6d6` z 2026-07-30 zakończył się pełnym PASS:
+Run `20260730T185205Z-312a0535` z 2026-07-30 zakończył się pełnym PASS po
+wzmocnieniu ugruntowania odpowiedzi:
 
 ```text
-naturalLanguageExtraction: google/gemini-3.6-flash · 26509 ms · 6359 tokens · $0.045292
-markdownExtraction: qwen/qwen3.7-plus · 74933 ms · 4879 tokens · $0.005504
-documentationExtraction: qwen/qwen3.7-plus · 91938 ms · 7244 tokens · $0.007126
-communicationAnalysis: deepseek/deepseek-v4-pro · 17559 ms · 2291 tokens · $0.006405
-taskSynthesis: qwen/qwen3.7-plus · 167429 ms · 36731 tokens · $0.020506
-summary: qwen/qwen3.7-flash · 45782 ms · 53344 tokens · $0.009305
+naturalLanguageExtraction: deepseek/deepseek-v4-flash · 33458 ms · 5384 tokens · $0.001366
+markdownExtraction: qwen/qwen3.7-plus · 71080 ms · 4652 tokens · $0.005213
+documentationExtraction: qwen/qwen3.7-plus · 57338 ms · 4602 tokens · $0.004463
+communicationAnalysis: deepseek/deepseek-v4-flash · 27510 ms · 4273 tokens · $0.000993
+taskSynthesis: qwen/qwen3.7-plus · 131866 ms · 35127 tokens · $0.018090
+summary: qwen/qwen3.7-flash · 18295 ms · 45309 tokens · $0.005891
 ```
+
+Task synthesis i summary zapisały po jednej odpowiedzi providera, bez retry i
+bez degradacji. Ich wnioski mają `generatorVersion: "2"`: `recordIds` są
+ograniczane do dowodów prawidłowo cytowanych diagnostyk, podczas gdy nieznany
+`diagnosticId` nadal jest odrzucany. Runtime nadaje też brakujące, lokalne
+klucze propozycji; nie zmienia to publicznych, content-bound ID.
 
 Modele routowane automatycznie, czas i koszt mogą zmieniać się pomiędzy
 uruchomieniami. Źródłem prawdy jest manifest bieżącego runu, nie powyższy

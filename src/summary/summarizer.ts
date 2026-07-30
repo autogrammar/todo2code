@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { createConclusionId, sha256, stableStringify } from '../core/id.js';
+import { groundRecordIdsByDiagnostics } from '../core/grounding.js';
 import { pathExists } from '../core/io.js';
 import { assertConclusions } from '../core/schema.js';
 import type {
@@ -239,8 +240,8 @@ async function summarizeWithCorrection(
         ? [{
             role: 'user' as const,
             content: `The previous response was rejected: ${correction}\n`
-              + 'Every diagnosticIds and recordIds entry must appear verbatim in the input above.'
-              + ' Re-emit the full object using only identifiers copied from it.',
+              + 'Correct exactly that violation and re-emit the full object.'
+              + ' Every diagnosticIds entry must appear verbatim in the input; recordIds must belong to those diagnostics.',
           }]
         : []),
     ];
@@ -285,14 +286,15 @@ function materializeConclusions(
   assertRawSummaryShape(response);
   const conclusions = response.conclusions.map((raw, index): Conclusion => {
     assertRawConclusion(raw, index);
+    const diagnosticIds = sortedUnique(raw.diagnosticIds);
     const content: Omit<Conclusion, 'id'> = {
       schemaVersion: 't2c.conclusion/v1',
       kind: raw.kind,
       title: raw.title,
       detail: raw.detail,
       severity: raw.severity,
-      diagnosticIds: sortedUnique(raw.diagnosticIds),
-      recordIds: sortedUnique(raw.recordIds),
+      diagnosticIds,
+      recordIds: groundRecordIdsByDiagnostics(diagnosticIds, raw.recordIds, diagnostics),
       confidence: raw.confidence,
       generation,
     };
@@ -342,7 +344,7 @@ function generationMetadata(
   );
   return {
     generator: 't2c/grounded-summary',
-    generatorVersion: '1',
+    generatorVersion: '2',
     runtimeVersion: T2C_VERSION,
     generatedAt: new Date().toISOString(),
     requestedMode: mode,

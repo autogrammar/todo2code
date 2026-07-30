@@ -105,6 +105,7 @@ test('Structured task synthesis materializes stable, grounded contracts with a c
       'Verify: Create and test the structured LLM synthesis stage.',
     ]);
     assert.equal(result.proposals[0]!.generation.runtimeVersion, T2C_VERSION);
+    assert.equal(result.proposals[0]!.generation.generatorVersion, '2');
     assert.equal(result.proposals[0]!.generation.requestedMode, 'require-llm');
     assert.equal(result.proposals[0]!.generation.effectiveMode, 'llm');
     assert.equal(result.proposals[0]!.generation.model, 'qwen/qwen3.7-plus');
@@ -125,6 +126,34 @@ test('Structured task synthesis materializes stable, grounded contracts with a c
       ((requestBody.messages as Array<{ role: string; content: string }>).find((item) => item.role === 'user')?.content ?? '{}'),
     ) as { graph?: { fingerprint?: string } };
     assert.equal(payload.graph?.fingerprint, graph.fingerprint);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('blank response-local proposal keys are assigned by the runtime', async () => {
+  const { graph, diagnostics, diagnostic } = fixture();
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const response = providerResponse(diagnostic) as {
+    proposals: Array<{ key: string }>;
+  };
+  response.proposals[0]!.key = '   ';
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    return new Response(JSON.stringify({
+      id: 'generation-blank-local-key', model: 'qwen/qwen3.7-plus', provider: 'Qwen',
+      usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15, cost: 0.001 },
+      choices: [{ message: { content: JSON.stringify(response) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const result = await synthesizeTodoProposals(graph, diagnostics, config, 'require-llm');
+    assert.equal(calls, 1);
+    assert.equal(result.proposals.length, 1);
+    assert.equal(result.audit.responses.length, 1);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -248,7 +277,7 @@ test('task synthesis timeout is audited and never retried as a format fallback',
   }
 });
 
-test('A fabricated citation gets exactly one corrective retry before the run fails', async () => {
+test('A fabricated record citation is grounded from its cited diagnostic without a retry', async () => {
   const { graph, diagnostics, diagnostic } = fixture();
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
@@ -272,35 +301,30 @@ test('A fabricated citation gets exactly one corrective retry before the run fai
     choices: [{ message: { content: JSON.stringify(body) } }],
   }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
-  let corrections: string[] = [];
-  globalThis.fetch = async (_input, init) => {
+  globalThis.fetch = async () => {
     calls += 1;
-    const body = JSON.parse(String(init?.body)) as { messages: Array<{ role: string; content: string }> };
-    corrections = body.messages.filter((item) => item.content.startsWith('The previous response was rejected'))
-      .map((item) => item.content);
-    return reply(calls === 1 ? fabricated : providerResponse(diagnostic));
+    return reply(fabricated);
   };
 
   try {
     const result = await synthesizeTodoProposals(graph, diagnostics, config, 'require-llm');
-    assert.equal(calls, 2, 'the rejected response must trigger exactly one retry');
-    assert.equal(corrections.length, 1, 'the retry must quote the validation error back');
-    assert.match(corrections[0]!, /INT-NL-cb2bb3a6706ca9e28552/);
+    assert.equal(calls, 1);
+    assert.deepEqual(result.conclusions[0]?.recordIds, diagnostic.recordIds);
     assert.equal(result.audit.status, 'succeeded');
-    assert.equal(result.audit.responses.length, 2, 'both attempts stay in the audit');
+    assert.equal(result.audit.responses.length, 1);
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
 
-test('A second fabricated citation still fails: the retry does not weaken grounding', async () => {
+test('A fabricated diagnostic still fails after the corrective retry', async () => {
   const { graph, diagnostics, diagnostic } = fixture();
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
   const fabricated = JSON.parse(JSON.stringify(providerResponse(diagnostic))) as {
-    conclusions: Array<{ recordIds: string[] }>;
+    conclusions: Array<{ diagnosticIds: string[] }>;
   };
-  fabricated.conclusions[0]!.recordIds = ['INT-NL-cb2bb3a6706ca9e28552'];
+  fabricated.conclusions[0]!.diagnosticIds = ['DIAG-22222222222222222222'];
 
   const originalFetch = globalThis.fetch;
   let calls = 0;

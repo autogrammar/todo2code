@@ -35,7 +35,7 @@ przed wydaniem.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | `t2c.intent/v1`, `graph`, `diagnostics`, `conclusion`, `todo-proposal`, `todo-patch`, `code-change-plan`, `code-change-source-patch`, `code-change-source-apply-receipt`, `code-change-close-result`; 220 testów, 219 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | `t2c.intent/v1`, `graph`, `diagnostics`, `conclusion`, `todo-proposal`, `todo-patch`, `code-change-plan`, `code-change-source-patch`, `code-change-source-apply-receipt`, `code-change-close-result`; 221 testów, 220 zaliczonych, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 30 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
@@ -77,10 +77,11 @@ i `partial implement / false DONE`.
 
 ### 3. Ścieżka LLM jest zależna od modelu i mierzona ręcznie
 
-`make demollm` przechodzi, ale historia przebiegów pokazała **1 z 6** przed
-dodaniem korygującej próby. Model fabrykuje poprawnie sformatowane, nieistniejące
-ID rekordów; runtime słusznie je odrzuca. Retry (synteza zadań i podsumowanie)
-podniósł skuteczność, lecz:
+`make demollm` przechodzi. Historia przebiegów pokazała **1 z 6** przed
+dodaniem korygującej próby, a później sporadyczny zmyślony `recordId` i pusty
+lokalny klucz propozycji. Generator v2 wyprowadza rekordy tylko z cytowanych
+diagnostyk, nadal odrzuca nieznane diagnostyki i nadaje lokalne klucze w
+runtime. Bieżący `live:check` i pełny run przeszły bez retry, lecz:
 
 - nie ma pomiaru, o ile — pojedyncze uruchomienia nie są statystyką;
 - gold nie uruchamia realnego wywołania, więc regresja promptu lub modelu
@@ -135,7 +136,7 @@ Punkty 1 i 3 są warunkami merytorycznymi, a punkt 2 techniczno-operacyjnym.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 220 testów, 91 modułów, kontrakt .env, workflowy
+npm run verify          # 221 testów, 92 moduły, kontrakt .env, workflowy
 npm run evaluate:gold   # precision/recall, cytowania, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 make smoke protocol-smoke docker-smoke

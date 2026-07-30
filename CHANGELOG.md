@@ -4,6 +4,11 @@
 
 ### Fixed
 
+- Stabilize live task synthesis and summary without weakening grounding:
+  provider-supplied `recordIds` are restricted to the evidence of the cited
+  diagnostics, unknown `diagnosticIds` still fail closed, and blank
+  response-local proposal keys receive deterministic runtime keys. The
+  affected LLM generators now report `generatorVersion: "2"`.
 - Stop treating parenthetical labels and bare adjectives such as
   `OpenRouter (recommended)` or `Required secrets` as deontic requirements.
 - Scope `detectPolarity` so "without …" / "bez …" complements are not whole-

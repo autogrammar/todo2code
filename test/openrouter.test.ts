@@ -381,7 +381,7 @@ test('LLM summarizer diagnoses a provider that ignores the response envelope', a
   }
 });
 
-test('LLM summarizer rejects conclusions with citations outside the supplied graph', async () => {
+test('LLM summarizer rejects diagnostic citations outside the supplied graph', async () => {
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
   const record = buildRecord({
@@ -396,8 +396,8 @@ test('LLM summarizer rejects conclusions with citations outside the supplied gra
   globalThis.fetch = async () => new Response(JSON.stringify({
     choices: [{ message: { content: JSON.stringify({ conclusions: [{
       kind: 'finding', title: 'Invented evidence', detail: 'This citation is not in the graph.',
-      severity: 'warning', diagnosticIds: [diagnostic.id],
-      recordIds: ['INT-NL-00000000000000000000'], confidence: 0.9,
+      severity: 'warning', diagnosticIds: ['DIAG-22222222222222222222'],
+      recordIds: [record.id], confidence: 0.9,
     }] }) } }],
   }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   try {
@@ -408,7 +408,7 @@ test('LLM summarizer rejects conclusions with citations outside the supplied gra
     assert.match(fallback.warnings.join('\n'), /Invalid structured summary response/);
     await assert.rejects(
       () => summarizeGraph(graph, diagnostics, config, { allowDeterministicFallback: false }),
-      /references unknown ids/,
+      /diagnosticIds references unknown ids/,
     );
   } finally {
     globalThis.fetch = originalFetch;
@@ -493,7 +493,7 @@ test('deterministic summary presents AST module aggregates instead of low-level 
   assert.doesNotMatch(result.markdown, /call trim/);
 });
 
-test('The summarizer gives a fabricated citation one corrective retry', async () => {
+test('The summarizer grounds a fabricated record citation from its diagnostic', async () => {
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
   const record = buildRecord({
@@ -517,36 +517,30 @@ test('The summarizer gives a fabricated citation one corrective retry', async ()
 
   const originalFetch = globalThis.fetch;
   let calls = 0;
-  let corrections: string[] = [];
-  globalThis.fetch = async (_input, init) => {
+  globalThis.fetch = async () => {
     calls += 1;
-    const body = JSON.parse(String(init?.body)) as { messages: Array<{ role: string; content: string }> };
-    corrections = body.messages
-      .filter((message) => message.content.startsWith('The previous response was rejected'))
-      .map((message) => message.content);
     return new Response(JSON.stringify({
       id: `gen-summary-retry-${calls}`, model: 'qwen/summary-resolved', provider: 'SummaryProvider',
       usage: { prompt_tokens: 50, completion_tokens: 20, total_tokens: 70, cost: 0.004 },
       choices: [{ message: {
-        content: JSON.stringify(conclusion(calls === 1 ? ['INT-NL-cb2bb3a6706ca9e28552'] : [record.id])),
+        content: JSON.stringify(conclusion(['INT-NL-cb2bb3a6706ca9e28552'])),
       } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
 
   try {
     const result = await summarizeGraph(graph, diagnostics, config, { mode: 'require-llm' });
-    assert.equal(calls, 2, 'a rejected citation must trigger exactly one retry');
-    assert.equal(corrections.length, 1, 'the retry must quote the validation error back');
-    assert.match(corrections[0]!, /INT-NL-cb2bb3a6706ca9e28552/);
+    assert.equal(calls, 1);
     assert.equal(result.llmUsed, true);
-    assert.equal(result.responses.length, 2, 'both attempts stay in the audit');
+    assert.equal(result.responses.length, 1);
     assert.deepEqual(result.conclusions[0]?.recordIds, [record.id]);
+    assert.equal(result.conclusions[0]?.generation.generatorVersion, '2');
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
 
-test('The summarizer still fails when the retry fabricates again', async () => {
+test('The summarizer still fails when the retry fabricates a diagnostic again', async () => {
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
   const record = buildRecord({
@@ -569,7 +563,7 @@ test('The summarizer still fails when the retry fabricates again', async () => {
       choices: [{ message: { content: JSON.stringify({ conclusions: [{
         kind: 'recommendation', title: 'Dodać walidację kontraktu',
         detail: 'Plan wymaga dowodu implementacji.', severity: diagnostic.severity,
-        diagnosticIds: [diagnostic.id], recordIds: ['INT-NL-cb2bb3a6706ca9e28552'], confidence: 0.91,
+        diagnosticIds: ['DIAG-22222222222222222222'], recordIds: [record.id], confidence: 0.91,
       }] }) } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };

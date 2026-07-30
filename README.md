@@ -186,14 +186,19 @@ ani surowej odpowiedzi modelu.
 Zweryfikowany przebieg z 2026-07-30:
 
 ```text
-demollm PASS: 20260730T162248Z-3e22b6d6
-naturalLanguageExtraction: google/gemini-3.6-flash · llm
+demollm PASS: 20260730T185205Z-312a0535
+naturalLanguageExtraction: deepseek/deepseek-v4-flash · llm
 markdownExtraction: qwen/qwen3.7-plus · llm
 documentationExtraction: qwen/qwen3.7-plus · llm
-communicationAnalysis: deepseek/deepseek-v4-pro · llm
+communicationAnalysis: deepseek/deepseek-v4-flash · llm
 taskSynthesis: qwen/qwen3.7-plus · llm
 summary: qwen/qwen3.7-flash · llm
 ```
+
+Wnioski task synthesis i summary używają generatora wersji 2. Runtime wiąże
+ich `recordIds` wyłącznie z rekordami cytowanych diagnostyk, a nieznany
+`diagnosticId` nadal powoduje błąd `require-llm`. Puste klucze lokalne
+propozycji są nadawane deterministycznie i nie trafiają do publicznego DSL.
 
 Brak klucza, timeout, niepoprawny kontrakt albo zdegradowany etap daje błąd.
 Polecenie jest kosztowym testem live; walidacja offline pozostaje w `make demo`

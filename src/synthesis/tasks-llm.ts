@@ -2,6 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createConclusionId, createTodoProposalId, sha256, stableStringify } from '../core/id.js';
+import { groundRecordIdsByDiagnostics } from '../core/grounding.js';
 import { pathExists } from '../core/io.js';
 import { assertConclusions, assertTodoProposals } from '../core/schema.js';
 import { normalizeTarget } from '../core/target.js';
@@ -169,8 +170,8 @@ async function synthesizeWithCorrection(
         ? [{
             role: 'user' as const,
             content: `The previous response was rejected: ${correction}\n`
-              + 'Every diagnosticIds and recordIds entry must appear verbatim in the input above.'
-              + ' Re-emit the full object using only identifiers copied from it.',
+              + 'Correct exactly that violation and re-emit the full object. Keep every response-local key non-blank and unique.'
+              + ' Every diagnosticIds entry must appear verbatim in the input; recordIds must belong to those diagnostics.',
           }]
         : []),
     ];
@@ -212,24 +213,33 @@ function materializeResponse(
       + ` (returned keys: ${keys.length > 0 ? keys.join(', ') : 'none'})`,
     );
   }
-  const conclusionKeys = uniqueKeys(response.conclusions, 'conclusion');
-  const proposalKeys = uniqueKeys(response.proposals, 'proposal');
+  const conclusionKeys = normalizeLocalKeys(
+    response.conclusions,
+    'conclusion',
+    response.proposals.flatMap((proposal) => rawStringArray(proposal.conclusionKeys)),
+  );
+  const proposalKeys = normalizeLocalKeys(
+    response.proposals,
+    'proposal',
+    response.proposals.flatMap((proposal) => rawStringArray(proposal.dependencyKeys)),
+  );
   const conclusions = response.conclusions.map((raw): Conclusion => {
+    const diagnosticIds = sortedUnique(raw.diagnosticIds);
     const content: Omit<Conclusion, 'id'> = {
       schemaVersion: 't2c.conclusion/v1',
       kind: normalizeConclusionKind(raw.kind),
       title: raw.title,
       detail: raw.detail,
       severity: normalizeSeverity(raw.severity),
-      diagnosticIds: sortedUnique(raw.diagnosticIds),
-      recordIds: sortedUnique(raw.recordIds),
+      diagnosticIds,
+      recordIds: groundRecordIdsByDiagnostics(diagnosticIds, normalizeStringArray(raw.recordIds), diagnostics),
       confidence: normalizeConfidence(raw.confidence),
       generation,
     };
     return { ...content, id: createConclusionId(content) };
   });
-  const conclusionIdByKey = new Map(response.conclusions.map((raw, index) => [raw.key, conclusions[index]!.id]));
-  const conclusionByKey = new Map(response.conclusions.map((raw, index) => [raw.key, conclusions[index]!]));
+  const conclusionIdByKey = new Map(conclusionKeys.map((key, index) => [key, conclusions[index]!.id]));
+  const conclusionByKey = new Map(conclusionKeys.map((key, index) => [key, conclusions[index]!]));
 
   const proposalDrafts = response.proposals.map((raw): TodoProposal => {
     const conclusionKeys = normalizeStringArray(raw.conclusionKeys);
@@ -258,7 +268,7 @@ function materializeResponse(
     };
     return { ...content, id: createTodoProposalId(content) };
   });
-  const proposalIdByKey = new Map(response.proposals.map((raw, index) => [raw.key, proposalDrafts[index]!.id]));
+  const proposalIdByKey = new Map(proposalKeys.map((key, index) => [key, proposalDrafts[index]!.id]));
   const proposals = proposalDrafts.map((proposal, index): TodoProposal => ({
     ...proposal,
     dependencies: mapKeys(
@@ -268,11 +278,6 @@ function materializeResponse(
     ),
   }));
 
-  // Keep these maps live until conversion completes so duplicate/unknown keys
-  // cannot be hidden by Map's last-value-wins behavior.
-  if (conclusionKeys.size !== conclusions.length || proposalKeys.size !== proposals.length) {
-    throw new Error('Invalid structured task synthesis response: duplicate keys');
-  }
   assertConclusions(conclusions, { graph, diagnostics });
   assertTodoProposals(proposals, { graph, diagnostics, conclusions });
   assertProposalEvidenceMatchesConclusions(proposals, conclusions);
@@ -323,7 +328,7 @@ function generationMetadata(
   const configuration = openRouterAuditConfiguration(config, config.openRouter.taskModel);
   return {
     generator: 't2c/task-synthesis',
-    generatorVersion: '1',
+    generatorVersion: '2',
     runtimeVersion: T2C_VERSION,
     generatedAt: new Date().toISOString(),
     requestedMode: mode,
@@ -427,16 +432,38 @@ function compareDiagnostics(left: Diagnostic, right: Diagnostic): number {
   return rank[left.severity] - rank[right.severity] || left.id.localeCompare(right.id);
 }
 
-function uniqueKeys(values: Array<{ key: string }>, name: string): Set<string> {
-  const keys = new Set<string>();
-  for (const value of values) {
-    if (typeof value.key !== 'string' || !value.key.trim()) {
-      throw new Error(`Invalid structured task synthesis response: ${name} key must be non-blank`);
-    }
-    if (keys.has(value.key)) throw new Error(`Invalid structured task synthesis response: duplicate ${name} key ${value.key}`);
-    keys.add(value.key);
+function normalizeLocalKeys(
+  values: Array<{ key: string }>,
+  name: string,
+  references: string[],
+): string[] {
+  const explicit = values
+    .map((value) => typeof value.key === 'string' ? value.key.trim() : '')
+    .filter(Boolean);
+  if (new Set(explicit).size !== explicit.length) {
+    throw new Error(`Invalid structured task synthesis response: duplicate ${name} key`);
   }
-  return keys;
+  const reserved = new Set(explicit);
+  const keys = new Set<string>();
+  const hasBlankKey = explicit.length !== values.length;
+  if (hasBlankKey && references.some((reference) => !reference.trim())) {
+    throw new Error(`Invalid structured task synthesis response: blank ${name} key is referenced`);
+  }
+  return values.map((value, index) => {
+    let key = typeof value.key === 'string' ? value.key.trim() : '';
+    if (!key) {
+      let suffix = index + 1;
+      do key = `${name}-${suffix++}`; while (reserved.has(key) || keys.has(key));
+    }
+    if (keys.has(key)) throw new Error(`Invalid structured task synthesis response: duplicate ${name} key ${key}`);
+    keys.add(key);
+    return key;
+  });
+}
+
+function rawStringArray(value: unknown): string[] {
+  const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
+  return values.filter((item): item is string => typeof item === 'string');
 }
 
 function mapKeys(values: unknown, ids: Map<string, string>, name: string): string[] {
