@@ -108,6 +108,32 @@ node dist/src/cli.js pipeline . \
   --out .intent
 ```
 
+### Krótka demonstracja live bez fallbacku
+
+Najpierw utwórz stabilny graf przykładowy, następnie uruchom dwa krytyczne
+kontrakty providera w trybie `require-llm`:
+
+```bash
+make demo
+T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
+```
+
+Druga komenda sprawdza zarówno `extract_nl`, jak i uziemione `summarize`.
+Wynik `PASS` oznacza, że provider zwrócił strukturę zaakceptowaną przez runtime,
+cytowania należały do wejściowego grafu, a łączna latencja i koszt mieściły się
+w limitach. Zredagowany wynik znajduje się w
+`.intent-live/contract-check.json`. Limity można zmienić bez zmiany kodu:
+
+```bash
+T2C_LIVE_MAX_LATENCY_MS=120000 \
+T2C_LIVE_MAX_COST_USD=0.50 \
+T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
+```
+
+Nie należy używać live check jako wymaganej kontroli offline — zależy od
+dostępności zewnętrznego providera. `make demo`, `npm run verify` i
+`npm run examples:check` pozostają deterministyczne.
+
 `prefer-llm` pozwala na jawnie audytowany fallback. Gdy wynik bez modelu jest
 niedopuszczalny, należy użyć `require-llm`. Wtedy brak klucza, timeout, błędny
 model lub niepoprawna odpowiedź kończą proces błędem i tworzą manifest

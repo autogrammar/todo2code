@@ -148,6 +148,33 @@ prywatnego `.env`, sieci ani fallbacku. Każdy audyt zawiera `runtimeVersion`, r
 mode, model, czas, licznik rekordów/ostrzeżeń, powód i bezpieczne parametry;
 `apiKey` nigdy nie jest zapisywany.
 
+### Demonstracja z prawdziwym LLM
+
+`make demo` jest celowo deterministyczne. Aby po jego wykonaniu sprawdzić
+rzeczywiste kontrakty OpenRouter bez możliwości ukrycia błędu fallbackiem,
+ustaw klucz w prywatnym `.env` i uruchom:
+
+```bash
+T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
+```
+
+Kontrola używa najnowszego grafu z `examples/.intent-demo`, wykonuje NL → DSL
+oraz graf → `t2c.conclusion/v1` w trybie `require-llm` i zapisuje zredagowany
+audyt w `.intent-live/contract-check.json`. Artefakt zawiera model, czas,
+tokeny i koszt, ale nie zawiera klucza, promptu ani odpowiedzi modelu.
+
+Zweryfikowany przebieg z 2026-07-30:
+
+```text
+extract_nl: ok · 9369 ms · 1136 tokens · $0.006978 · google/gemini-3.6-flash
+summarize: ok · 63064 ms · 53947 tokens · $0.009428 · qwen/qwen3.7-flash
+live contract check: PASS · total $0.016406
+```
+
+Brak klucza daje kontrolowany `SKIPPED`. Zmienna
+`T2C_REQUIRE_LIVE_CHECK=1` zamienia brak klucza w błąd, dlatego nadaje się do
+ręcznej demonstracji i opcjonalnego joba CI.
+
 ### A2A, SDK i UI
 
 Uruchom backend:
