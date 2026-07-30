@@ -64,6 +64,61 @@
       ]
     },
     {
+      "id": "nl-en-multi-clause-with-ticket",
+      "channel": "nl",
+      "sourcePath": "TASK.md",
+      "text": "For T2C-110 the service must add `exportMetrics` in `src/metrics/export.ts` and keep `src/metrics/types.ts` stable.",
+      "expected": [
+        {
+          "sourceKind": "nl",
+          "action": "add",
+          "text": "For T2C-110 the service must add `exportMetrics` in `src/metrics/export.ts` and keep `src/metrics/types.ts` stable.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [
+            "src/metrics/export.ts",
+            "src/metrics/types.ts"
+          ],
+          "symbols": [
+            "exportMetrics"
+          ],
+          "tickets": [
+            "T2C-110"
+          ],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "nl-route-and-host-are-not-repository-paths",
+      "channel": "nl",
+      "sourcePath": "TASK.md",
+      "text": "Document `/api/plans/propose` and `logo.example.com` without inventing repository files.",
+      "expected": [
+        {
+          "sourceKind": "nl",
+          "action": "document",
+          "text": "Document `/api/plans/propose` and `logo.example.com` without inventing repository files.",
+          "lifecycle": "proposed",
+          "modality": "unknown",
+          "polarity": "negative",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        }
+      ]
+    },
+    {
       "id": "documentation-repair-snapshot",
       "channel": "documentation",
       "files": {
@@ -506,6 +561,47 @@
         {
           "from": "document",
           "to": "module-b"
+        }
+      ]
+    },
+    {
+      "id": "link-ticket-exact-target",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "add",
+          "text": "T2C-220 must ship audited export metrics",
+          "lifecycle": "proposed",
+          "target": {
+            "tickets": [
+              "T2C-220"
+            ]
+          }
+        },
+        {
+          "label": "implementation",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/metrics/export.ts for T2C-220",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/metrics/export.ts"
+            ],
+            "tickets": [
+              "T2C-220"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "implementation",
+          "type": "evidenced_by",
+          "relationClass": "exact-target"
         }
       ]
     }

@@ -25,7 +25,10 @@ import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { linkIntentRecords } from '../graph/linker.js';
 import { summarizeGraph } from '../summary/summarizer.js';
-import { proposeCodeChangePlans } from '../synthesis/code-change-plan.js';
+import {
+  createCodeChangeReviewPatch,
+  proposeCodeChangePlans,
+} from '../synthesis/code-change-plan.js';
 import { synthesizeTodoProposals, TaskSynthesisRequiredError, type AuditedTaskSynthesisResult } from '../synthesis/tasks-llm.js';
 import { createTodoPatch, type CreatedTodoPatch } from '../synthesis/todo-patch.js';
 import { T2C_VERSION } from '../version.js';
@@ -41,6 +44,8 @@ export interface PipelineResult {
   todoPatchPath: string | null;
   todoPatchAuditPath: string | null;
   codeChangePlansPath: string | null;
+  codeChangeReviewPath: string | null;
+  codeChangeReviewAuditPath: string | null;
   communicationAnalysisPath: string | null;
 }
 
@@ -248,6 +253,11 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
       : {}),
     generatedAt,
   });
+  const codeChangeReview = createCodeChangeReviewPatch({
+    plans: codeChangePlans.plans,
+    graphFingerprint: graph.fingerprint,
+    createdAt: generatedAt,
+  });
   const codeChangePlanningAudit: PipelineStageAudit = {
     runtimeVersion: T2C_VERSION,
     configuration: openRouterAuditConfiguration(config, null),
@@ -317,6 +327,8 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const todoPatchPath = todoPatch ? path.join(runDirectory, 'TODO.patch') : null;
   const todoPatchAuditPath = todoPatch ? path.join(runDirectory, 'TODO.patch.json') : null;
   const codeChangePlansPath = path.join(runDirectory, 'code-change-plans.json');
+  const codeChangeReviewPath = path.join(runDirectory, 'CODE_CHANGE.review.md');
+  const codeChangeReviewAuditPath = path.join(runDirectory, 'CODE_CHANGE.review.json');
   const communicationAnalysisPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.json') : null;
   const communicationMarkdownPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.md') : null;
   await writeJson(graphPath, graph);
@@ -324,7 +336,11 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   await writeText(summaryPath, summary.markdown);
   await writeJson(summaryConclusionsPath, summary.conclusions);
   await writeJson(codeChangePlansPath, codeChangePlans);
+  await writeText(codeChangeReviewPath, codeChangeReview.markdown);
+  await writeJson(codeChangeReviewAuditPath, codeChangeReview.artifact);
   files.codeChangePlans = path.relative(root, codeChangePlansPath).replace(/\\/g, '/');
+  files.codeChangeReview = path.relative(root, codeChangeReviewPath).replace(/\\/g, '/');
+  files.codeChangeReviewAudit = path.relative(root, codeChangeReviewAuditPath).replace(/\\/g, '/');
   if (communicationAnalysisPath && communicationMarkdownPath && communicationAnalysis) {
     await Promise.all([
       writeJson(communicationAnalysisPath, communicationAnalysis),
@@ -392,7 +408,8 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   });
   return {
     runDirectory, manifest, graphPath, diagnosticsPath, summaryPath, summaryConclusionsPath,
-    taskSynthesisPath, todoPatchPath, todoPatchAuditPath, codeChangePlansPath, communicationAnalysisPath,
+    taskSynthesisPath, todoPatchPath, todoPatchAuditPath, codeChangePlansPath,
+    codeChangeReviewPath, codeChangeReviewAuditPath, communicationAnalysisPath,
   };
   } catch (error) {
     await persistFailedRun(runId, root, runDirectory, options, config, error, activeStage, completedStages);

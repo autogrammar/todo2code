@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { extractPaths, topicKeywords } from '../src/core/text.js';
+import { extractPaths, extractSymbols, topicKeywords } from '../src/core/text.js';
 import { extractNlIntent } from '../src/extractors/nl.js';
 import { extractNlIntentAudited, NlLlmRequiredError } from '../src/extractors/nl-llm.js';
 import { makeConfig } from './helpers.js';
@@ -60,6 +60,19 @@ test('path extraction rejects dotted DSL fields but keeps known file extensions'
     'Compare `metadata.generation`, `statement.object` and `epistemic.basis` with `manifest.json`, `changelog.ts` and `config/app.yaml`.',
   );
   assert.deepEqual(paths, ['changelog.ts', 'config/app.yaml', 'manifest.json']);
+});
+
+test('path extraction rejects HTTP routes, host paths and parent traversal', () => {
+  const paths = extractPaths(
+    'Compare `/api/plans/propose`, `/events`, `/var/run/docker.sock` and `../secret.env` with `src/api.ts`.',
+  );
+  assert.deepEqual(paths, ['src/api.ts']);
+});
+
+test('symbol extraction rejects hostnames without losing qualified code symbols', () => {
+  const symbols = extractSymbols('Compare `logo.subactor.com`, `api.example.io` and `Runtime.validateContract`.');
+  assert.deepEqual(symbols, ['Runtime.validateContract', 'validateContract']);
+  assert.ok(!symbols.some((value) => value.endsWith('.com') || value.endsWith('.io')));
 });
 
 test('topic keywords normalize paths, camelCase and documentation word forms', () => {

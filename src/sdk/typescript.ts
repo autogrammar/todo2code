@@ -135,6 +135,10 @@ export class Todo2CodeClient {
     return this.run<Record<string, unknown>>('propose_code_change', input);
   }
 
+  async renderCodeChange(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.run<Record<string, unknown>>('render_code_change', input);
+  }
+
   async evaluateCodeChange(input: Record<string, unknown>): Promise<Record<string, unknown>> {
     return this.run<Record<string, unknown>>('evaluate_code_change', input);
   }

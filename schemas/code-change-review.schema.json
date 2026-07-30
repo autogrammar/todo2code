@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/code-change-review.schema.json",
+  "title": "todo2code Code Change Review Patch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "createdAt", "graphFingerprint", "planIds", "planHashes",
+    "renderedPatchHash", "generation"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "t2c.code-change-review/v1" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "graphFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "planIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^CPLAN-[a-f0-9]{20}$" }
+    },
+    "planHashes": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    },
+    "renderedPatchHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generation": { "$ref": "conclusion.schema.json#/$defs/generation" }
+  }
+}

@@ -118,13 +118,14 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [x] Diagnostyka: dokumentacja jest planem tylko przy modality
   `required`/`recommended`; opisowe prose nie podnosi
   `PLANNED_NOT_IMPLEMENTED`.
-- [ ] Gold v2: trudne NL (PL/EN, wielozdaniowe, bez path), hard negatives
-  capability-topic, docs prescriptive vs descriptive, partial implement /
-  false DONE; osobne precision/recall exact-target vs topic.
-- [x] Gold v1+: bare basename unique positive i ambiguous hard negative w
-  dataset linkowania (100% P/R po rozszerzeniu).
-- [ ] Wzmocnić NL→target: resolution symboli względem AST, ticket binding,
-  actionable `missingFields` / `AMBIGUOUS_REQUIREMENT`.
+- [ ] Gold v2: docs prescriptive vs descriptive, partial implement /
+  false DONE; więcej hard negatives capability-topic.
+- [x] Gold v1+: bare basename unique/ambiguous, multi-clause NL z ticketem,
+  NL bez fałszywych path z HTTP/host, ticket exact-target linking.
+- [x] Wzmocnić NL→target: odrzucanie absolutnych/HTTP/traversal path i
+  hostnames; ticket binding w gold exact-target.
+- [ ] Dalsze NL→target: resolution symboli względem AST, actionable
+  `missingFields` / `AMBIGUOUS_REQUIREMENT`.
 - [ ] Jeden source schematów → TS validators + OpenRouter response schemas
   (patrz też P1).
 - [ ] Live latency/cost batch TODO/CHANGELOG (patrz P1).
@@ -150,9 +151,15 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   before/after; SDK TypeScript convenience methods.
 - [x] Pipeline zapisuje `code-change-plans.json` w każdym udanym runie
   (etap deterministyczny `codeChangePlanning` w manifeście).
-- [ ] Structured patch/diff z LLM (później): tylko dozwolone paths, cytowania,
+- [x] Deterministyczny review brief `CODE_CHANGE.review.md` + audit
+  `t2c.code-change-review/v1` (hash-bound, bez apply źródeł); CLI
+  `render-code-change`, MCP/A2A/SDK i zapis w pipeline.
+- [x] NL/target hardening: odrzucanie HTTP routes, host paths, `..` oraz
+  hostnames jako fałszywych symboli (gold + unit).
+- [ ] Structured source patch/diff z LLM: tylko dozwolone paths, cytowania,
   brak tajemnic; apply tylko po hash approval (jak TODO.patch).
-- [ ] Pętla: implement → re-extract → re-diagnose → acceptance gate → human DONE.
+- [ ] Pełna orkiestracja pętli implement → re-extract → re-diagnose →
+  acceptance w jednym poleceniu (dziś kroki są osobne, ale udokumentowane).
 
 ### Faza 4 — ops / multi-agent
 

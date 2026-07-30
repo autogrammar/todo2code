@@ -12,10 +12,13 @@ import type { IntentGraph } from '../src/core/types.js';
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
 import {
+  assertCodeChangeReviewPatch,
+  createCodeChangeReviewPatch,
   evaluateCodeChangeAcceptance,
   proposeCodeChangePlans,
   type ProposeCodeChangePlansResult,
 } from '../src/synthesis/code-change-plan.js';
+import { sha256 } from '../src/core/id.js';
 import { T2C_VERSION } from '../src/version.js';
 
 const AT = '2026-07-30T15:00:00.000Z';
@@ -197,6 +200,20 @@ test('Plans without repository paths are not invented', () => {
   assert.ok(result.sourceDiagnosticCount >= 1);
 });
 
+test('Non-repository paths are ignored instead of aborting code-change planning', () => {
+  const unsafe = buildRecord({
+    kind: 'todo_item', action: 'configure', object: 'Docker socket',
+    target: { paths: ['/var/run/docker.sock', '../outside.env'] },
+    text: 'Configure the host Docker socket.', lifecycle: 'planned', sourceKind: 'todo',
+    sourcePath: 'TODO.md', sourceLines: { start: 1, end: 1 }, extractor: 'test/code-change',
+    epistemicClass: 'plan', confidence: 0.9, basis: ['fixture'],
+  });
+  const graph = linkIntentRecords([unsafe], AT);
+  const diagnostics = diagnoseGraph(graph, AT);
+  assert.doesNotThrow(() => proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT }));
+  assert.equal(proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT }).plans.length, 0);
+});
+
 test('Acceptance rejects ungrounded paths, missing provenance and inconsistent verdicts', () => {
   const beforeGraph = plannedTodo();
   const beforeDiagnostics = diagnoseGraph(beforeGraph, AT);
@@ -251,6 +268,50 @@ test('Acceptance rejects ungrounded paths, missing provenance and inconsistent v
   }), /accepted flag is inconsistent/);
 });
 
+test('createCodeChangeReviewPatch is hash-stable and lists grounded paths', () => {
+  const graph = plannedTodo();
+  const diagnostics = diagnoseGraph(graph, AT);
+  const planSet = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT });
+  const first = createCodeChangeReviewPatch({
+    plans: planSet.plans,
+    graphFingerprint: planSet.graphFingerprint,
+    createdAt: AT,
+  });
+  const second = createCodeChangeReviewPatch({
+    plans: planSet.plans,
+    graphFingerprint: planSet.graphFingerprint,
+    createdAt: AT,
+  });
+  assert.equal(first.markdown, second.markdown);
+  assert.equal(first.artifact.renderedPatchHash, sha256(first.markdown));
+  assert.deepEqual(first.artifact.planIds, [planSet.plans[0]!.id]);
+  assert.match(first.markdown, /src\/contracts\.ts/);
+  assert.match(first.markdown, /evaluate-code-change/);
+  assert.ok(first.markdown.includes('<!-- t2c.code-change-review/v1 -->'));
+  const invalidArtifact = structuredClone(first.artifact) as unknown as Record<string, unknown>;
+  delete invalidArtifact.generation;
+  assert.throws(() => assertCodeChangeReviewPatch(invalidArtifact), /missing: generation/);
+  assert.throws(() => createCodeChangeReviewPatch({
+    plans: planSet.plans,
+    graphFingerprint: '0'.repeat(64),
+    createdAt: AT,
+  }), /evidence\.graphFingerprint does not match its graph/);
+  const tampered = structuredClone(planSet.plans);
+  tampered[0]!.changes[0]!.path = 'src/tampered.ts';
+  assert.throws(() => createCodeChangeReviewPatch({
+    plans: tampered,
+    graphFingerprint: planSet.graphFingerprint,
+    createdAt: AT,
+  }), /not present in target\.paths|planHash does not match semantic content/);
+  const missingProvenance = structuredClone(planSet.plans) as unknown as Array<Record<string, unknown>>;
+  delete missingProvenance[0]!.generation;
+  assert.throws(() => createCodeChangeReviewPatch({
+    plans: missingProvenance as unknown as typeof planSet.plans,
+    graphFingerprint: planSet.graphFingerprint,
+    createdAt: AT,
+  }), /missing: generation/);
+});
+
 test('CLI proposes and evaluates a grounded code-change plan through persisted JSON', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-code-change-cli-'));
   const cli = path.resolve('dist/src/cli.js');
@@ -273,6 +334,18 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
   assert.equal(planSet.generation.generator, 't2c/code-change-plan-set');
   await fs.writeFile(path.join(root, 'plan.json'), `${JSON.stringify(planSet.plans[0])}\n`, 'utf8');
 
+  const rendered = await exec(process.execPath, [
+    cli, 'render-code-change', 'plans.json',
+    '--patch', 'CODE_CHANGE.review.md', '--audit', 'CODE_CHANGE.review.json',
+  ], { cwd: root, env: environment });
+  const review = JSON.parse(rendered.stdout) as {
+    artifact: { renderedPatchHash: string; schemaVersion: string };
+    markdown: string;
+  };
+  assert.equal(review.artifact.schemaVersion, 't2c.code-change-review/v1');
+  assert.equal(review.artifact.renderedPatchHash, sha256(review.markdown));
+  assert.match(await fs.readFile(path.join(root, 'CODE_CHANGE.review.md'), 'utf8'), /src\/contracts\.ts/);
+
   const evaluated = await exec(process.execPath, [
     cli, 'evaluate-code-change', 'plan.json',
     '--before-graph', 'before.graph.json', '--before-diagnostics', 'before.diagnostics.json',
@@ -285,12 +358,14 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
 });
 
 test('Published code-change JSON schemas require provenance, risk and rollback', async () => {
-  const [plan, planSet, acceptance] = await Promise.all([
+  const [plan, planSet, acceptance, review] = await Promise.all([
     fs.readFile(path.resolve('schemas/code-change-plan.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-plan-set.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-acceptance.schema.json'), 'utf8'),
+    fs.readFile(path.resolve('schemas/code-change-review.schema.json'), 'utf8'),
   ]).then((values) => values.map((value) => JSON.parse(value) as { required: string[] }));
   assert.ok(['risk', 'rollback', 'generation'].every((field) => plan!.required.includes(field)));
   assert.ok(planSet!.required.includes('generation'));
   assert.ok(acceptance!.required.includes('generation'));
+  assert.ok(['renderedPatchHash', 'planIds', 'generation'].every((field) => review!.required.includes(field)));
 });

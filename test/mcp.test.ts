@@ -34,12 +34,12 @@ test('MCP 2026 profile is stateless and exposes discovery plus complete results'
   const tools = await handleMcpRequest(modernRequest('2', 'tools/list'), config) as Record<string, unknown>;
   assert.equal(tools.resultType, 'complete');
   const toolNames = (tools.tools as Array<{ name?: string }>).map((tool) => tool.name);
-  assert.equal(toolNames.length, 22);
+  assert.equal(toolNames.length, 23);
   assert.ok(toolNames.includes('extract_config'));
   assert.ok([
     'extract_communication', 'analyze_communication', 'diff', 'diff_files', 'diff_git', 'reality',
     'compare_workspace', 'propose_todo', 'render_todo', 'apply_todo',
-    'propose_code_change', 'evaluate_code_change',
+    'propose_code_change', 'render_code_change', 'evaluate_code_change',
   ].every((name) => toolNames.includes(name)));
   assert.equal(tools.cacheScope, 'public');
   assert.ok(tools._meta);
@@ -81,6 +81,6 @@ test('MCP legacy profile negotiates 2025-11-25 and requires initialize', async (
   assert.equal(initialized.protocolVersion, '2025-11-25');
 
   const tools = await handleMcpRequest({ jsonrpc: '2.0', id: 3, method: 'tools/list', params: {} }, config, state) as Record<string, unknown>;
-  assert.equal((tools.tools as unknown[]).length, 22);
+  assert.equal((tools.tools as unknown[]).length, 23);
   assert.equal('resultType' in tools, false);
 });

@@ -290,6 +290,31 @@ Główny pipeline z `taskSynthesisMode=prefer-llm|require-llm` zapisuje
 przygotowuje materiał do review. Receipt pojawia się w manifeście dopiero po
 osobnym, zatwierdzonym apply.
 
+## Plan zmiany kodu i acceptance
+
+`t2c.code-change-plan/v1` jest deterministycznym, nieexecutowalnym mostem od
+`PLANNED_NOT_IMPLEMENTED` lub `CHANGELOG_WITHOUT_IMPLEMENTATION` do review
+zmiany kodu. Plan wymaga ugruntowanych `recordIds` i `diagnosticIds`, dokładnych
+`target.paths`, kryteriów akceptacji, risk/rollback, content-bound `id`/hash i
+pełnej `generation`. `changes[].path` musi należeć do `target.paths`; runtime
+odrzuca traversal, obcy fingerprint, tampering i brak provenance.
+
+`t2c.code-change-acceptance/v1` porównuje diagnostykę przed i po zewnętrznej
+implementacji. `accepted=true` wymaga usunięcia wszystkich diagnostyk planu i
+braku nowych `blocking`. Artefakt sam ma deterministyczną `generation` i nie
+nadaje statusu `DONE`.
+
+`t2c.code-change-review/v1` to hash-bound brief Markdown (`CODE_CHANGE.review.md`)
+plus audit JSON — projekcja planów do review, nie apply źródeł. Pipeline zapisuje
+plan set i review w każdym udanym runie. Schematy leżą w
+`schemas/code-change-{plan,plan-set,acceptance,review}.schema.json`; przebieg i
+diagram opisuje [`CODE_CHANGE_PLANS.md`](CODE_CHANGE_PLANS.md).
+
+`target.paths` w Intent DSL jest zarezerwowane dla ścieżek repozytorium.
+Runtime odrzuca trasy HTTP (`/api/...`), ścieżki hosta (`/var/run/...`) i
+traversal `..` zarówno przy ekstrakcji NL, jak i przy materializacji planów
+zmiany kodu. Hostnames (`logo.example.com`) nie trafiają do `target.symbols`.
+
 ## Audyt runu (`t2c.run/v1`)
 
 Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:

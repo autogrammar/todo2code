@@ -1,9 +1,11 @@
 # Ugruntowane plany zmiany kodu
 
 `todo2code` potrafi przekształcić otwarte diagnostyki implementacyjne w
-walidowany `t2c.code-change-plan/v1`, a po zmianie kodu sprawdzić wynik jako
-`t2c.code-change-acceptance/v1`. Runtime nie generuje i nie stosuje patcha oraz
-nie oznacza zadania jako wykonane.
+walidowany `t2c.code-change-plan/v1`, wyrenderować hash-bound brief
+`CODE_CHANGE.review.md` (`t2c.code-change-review/v1`), a po zmianie kodu
+sprawdzić wynik jako `t2c.code-change-acceptance/v1`. Runtime **nie generuje
+diffów źródeł**, **nie stosuje** zmian w tree i **nie oznacza** zadania jako
+DONE.
 
 ```mermaid
 flowchart LR
@@ -11,7 +13,8 @@ flowchart LR
   B --> C[propose-code-change]
   C --> D{runtime validation}
   D -->|grounded paths, IDs, hash| E[code-change-plan/v1]
-  E --> F[human or authorized agent implements]
+  E --> R[CODE_CHANGE.review.md]
+  R --> F[human or authorized agent implements]
   F --> G[re-extract + re-link]
   G --> H[evaluate-code-change]
   H --> I{targeted diagnostics cleared?}
@@ -22,17 +25,28 @@ flowchart LR
 
 ## 1. Utworzenie planów
 
-Każdy udany `t2c pipeline` zapisuje automatycznie
-`code-change-plans.json` w katalogu runu (etap `codeChangePlanning`, tryb
-deterministyczny, bez LLM). Można też zbudować plany osobno:
+Każdy udany `t2c pipeline` zapisuje automatycznie w katalogu runu (etap
+`codeChangePlanning`, tryb deterministyczny, bez LLM):
+
+- `code-change-plans.json` — zbiór planów `t2c.code-change-plan-set/v1`;
+- `CODE_CHANGE.review.md` — brief reviewowy;
+- `CODE_CHANGE.review.json` — audit z `renderedPatchHash`.
+
+Można też zbudować je osobno:
 
 ```bash
 t2c pipeline . --task TASK.md --todo TODO.md --no-docs-llm --no-summary-llm --out .intent
-# artefakt: .intent/runs/<run>/code-change-plans.json
+# artefakty: .intent/runs/<run>/code-change-plans.json
+#            .intent/runs/<run>/CODE_CHANGE.review.md
+#            .intent/runs/<run>/CODE_CHANGE.review.json
 
 t2c propose-code-change .intent/runs/<run>/intent.graph.json \
   --diagnostics .intent/runs/<run>/diagnostics.json \
   --out .intent/runs/<run>/code-change-plans.json
+
+t2c render-code-change .intent/runs/<run>/code-change-plans.json \
+  --patch CODE_CHANGE.review.md \
+  --audit CODE_CHANGE.review.json
 ```
 
 Runtime tworzy plan wyłącznie dla diagnostyki
@@ -71,10 +85,25 @@ zapisuje zbiory `cleared`, `remaining` i `newBlocking`, fingerprinty obu grafów
 oraz deterministyczne provenance. Pozytywny wynik jest dowodem dla review, nie
 automatycznym zatwierdzeniem `DONE`.
 
-## 3. MCP i A2A
+## 3. Brief reviewowy (`t2c.code-change-review/v1`)
 
-Te same operacje są dostępne jako `propose_code_change` i
-`evaluate_code_change`. Wszystkie ścieżki plikowe przechodzą przez granicę
+`CODE_CHANGE.review.md` jest **stabilną projekcją** planów, nie patch'em
+źródeł. Zawiera ścieżki, akcje `create|modify|delete`, kryteria akceptacji,
+ID diagnostyk/rekordów, risk i rollback. `CODE_CHANGE.review.json` trzyma
+`renderedPatchHash = sha256(markdown)` oraz listę `planIds`/`planHashes`, więc
+każda zmiana treści briefu jest wykrywalna. Runtime **nie apply'uje** tego
+pliku do tree.
+
+## 4. MCP, A2A i SDK
+
+Te same operacje są dostępne jako `propose_code_change`, `render_code_change`
+i `evaluate_code_change`. Wszystkie ścieżki plikowe przechodzą przez granicę
 `T2C_ROOT`; dane można też przekazać inline. Karta A2A publikuje umiejętność
 `review_code_changes`. Żaden z tych interfejsów nie wykonuje zapisu do plików
 źródłowych.
+
+## 5. Co nie jest w zakresie
+
+- generacja treści plików źródłowych przez LLM (structured codegen);
+- auto-apply patchy do repozytorium;
+- automatyczne `DONE` po `accepted=true`.

@@ -368,6 +368,21 @@ export interface CodeChangeAcceptance {
   generation: GroundedGenerationMetadata;
 }
 
+/**
+ * Reviewable, non-executable projection of code-change plans.
+ * Carries a content hash of the Markdown so reviewers can detect tampering.
+ * The runtime never applies this artifact to source files.
+ */
+export interface CodeChangeReviewPatch {
+  schemaVersion: 't2c.code-change-review/v1';
+  createdAt: string;
+  graphFingerprint: string;
+  planIds: string[];
+  planHashes: string[];
+  renderedPatchHash: string;
+  generation: GroundedGenerationMetadata;
+}
+
 export interface TodoPatchDuplicateClassification {
   proposalId: string;
   existingRecordIds: string[];

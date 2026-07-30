@@ -214,6 +214,22 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     return;
   }
+  if (command === 'render-code-change') {
+    const plansPath = parsed.positionals[0];
+    const patch = optionString(parsed, 'patch') ?? 'CODE_CHANGE.review.md';
+    const audit = optionString(parsed, 'audit') ?? 'CODE_CHANGE.review.json';
+    if (!plansPath) {
+      throw new Error('Usage: t2c render-code-change <plans.json> [--patch CODE_CHANGE.review.md] [--audit CODE_CHANGE.review.json]');
+    }
+    const result = await executeAction('render_code_change', {
+      root: optionString(parsed, 'root') ?? config.root,
+      plansPath,
+      patch,
+      audit,
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
   if (command === 'evaluate-code-change') {
     const planPath = parsed.positionals[0];
     const beforeGraphPath = optionString(parsed, 'before-graph');
@@ -718,6 +734,7 @@ function printHelp(): void {
   process.stdout.write(`  t2c render-todo <synthesis.json> --graph graph.json --diagnostics diagnostics.json --todo TODO.md --patch TODO.patch --audit TODO.patch.json\n`);
   process.stdout.write(`  t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>\n`);
   process.stdout.write(`  t2c propose-code-change <graph.json> --diagnostics diagnostics.json [--proposals proposals.json] --out plans.json\n`);
+  process.stdout.write(`  t2c render-code-change <plans.json> [--patch CODE_CHANGE.review.md] [--audit CODE_CHANGE.review.json]\n`);
   process.stdout.write(`  t2c evaluate-code-change <plan.json> --before-graph before.json --after-graph after.json --out acceptance.json\n`);
   process.stdout.write(`  t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html] [--context 3]\n`);
   process.stdout.write(`  t2c diff --mode git [root] [--rev HEAD] [--staged] [--svg diff.svg] [--html diff.html]\n`);

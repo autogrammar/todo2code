@@ -1,12 +1,12 @@
 <!-- code2docs:start --># todo2code
 
-![version](https://img.shields.io/badge/version-0.1.0-blue) ![typescript](https://img.shields.io/badge/typescript-%3E%3D20-3178C6) ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey) ![functions](https://img.shields.io/badge/functions-2491-green)
+![version](https://img.shields.io/badge/version-0.5.0-blue) ![node](https://img.shields.io/badge/node-%3E%3D20-339933) ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey) ![functions](https://img.shields.io/badge/functions-2491-green)
 > **2491** functions | **271** classes | **222** files | CC̄ = 3.8
 
 > Auto-generated project documentation from source code analysis.
 
 **Author:** Tom Softreck <tom@sapletta.com>  
-**License:** MIT[(LICENSE)](./LICENSE)  
+**License:** [Apache-2.0](../LICENSE)
 **Repository:** [https://github.com/semcod/todo2code](https://github.com/semcod/todo2code)
 
 ## Installation

@@ -185,13 +185,19 @@ const PATH_ROOTS = new Set([
  * into Intent-vs-Reality topics and buried the real files.
  *
  * Extensionless paths are limited to conventional repository roots (or an
- * explicit `./`/`../` prefix). That keeps planned paths such as `src/runtime`
- * while rejecting ambiguous lowercase prose such as `vars/consts`.
+ * explicit `./` prefix). That keeps planned paths such as `src/runtime` while
+ * rejecting traversal and ambiguous lowercase prose such as `vars/consts`.
  */
 function isPathLike(value: string): boolean {
   if (!/[/.]/.test(value) || value.startsWith('http')) return false;
   if (NOT_A_PATH.test(value)) return false;
   if (CONTRACT_ID.test(value)) return false;
+  // `target.paths` means "repository path", which is relative by definition.
+  // Absolute values are HTTP routes (`/api/plans/propose`, `/events`) or host
+  // paths (`/var/run/docker.sock`, `/dev/kvm`); a platform repository yielded 36
+  // of them and they crashed code-change planning. Parent traversal can never
+  // name a file inside the analysed tree either.
+  if (value.startsWith('/') || value.split('/').includes('..')) return false;
 
   const segments = value.split('/');
   if (hasFileExtension(value)) return true;
@@ -208,6 +214,31 @@ function isPathLike(value: string): boolean {
   return !segments.every((word) => /^[A-Z]/.test(word));
 }
 
+/**
+ * Top-level domains common in infrastructure documentation.
+ *
+ * A dotted value such as `logo.subactor.com` satisfies every shape test for a
+ * qualified code symbol, and `symbolAliases` then reduces it to the leaf `com`
+ * — an alias that matches every other hostname in the repository. On an
+ * infrastructure platform this collapsed 15 unrelated documentation records
+ * into one `com` topic.
+ */
+const HOST_TLDS = new Set([
+  'com', 'org', 'net', 'edu', 'gov', 'mil', 'int', 'info', 'biz', 'name',
+  'io', 'ai', 'co', 'me', 'tv', 'cc', 'xyz', 'cloud', 'tech', 'online', 'site',
+  'pl', 'de', 'uk', 'eu', 'fr', 'es', 'it', 'nl', 'cz', 'sk', 'ua', 'ru', 'us',
+]);
+
+/** True when the dotted value names a host rather than a qualified symbol. */
+function isHostname(value: string): boolean {
+  const parts = value.split('.');
+  if (parts.length < 2) return false;
+  const tld = parts.at(-1)?.toLowerCase() ?? '';
+  if (!HOST_TLDS.has(tld)) return false;
+  // A qualified symbol carries case (`Runtime.validate`); hostnames do not.
+  return parts.every((part) => part === part.toLowerCase());
+}
+
 export function extractSymbols(text: string): string[] {
   const backticks = extractBacktickValues(text).filter((value) => /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/.test(value));
   const camel = text.match(/\b[A-Za-z_$][A-Za-z0-9_$]*(?:[A-Z][A-Za-z0-9_$]*)+\b/g) ?? [];
@@ -216,7 +247,9 @@ export function extractSymbols(text: string): string[] {
   const ticketPrefixes = new Set(extractTickets(text)
     .map((ticket) => ticket.match(/^([A-Z][A-Z0-9]+)-\d+$/)?.[1])
     .filter((value): value is string => Boolean(value)));
-  return [...new Set([...backticks, ...camel].filter((value) => !ticketPrefixes.has(value.toUpperCase())))].sort();
+  return [...new Set([...backticks, ...camel]
+    .filter((value) => !ticketPrefixes.has(value.toUpperCase()))
+    .filter((value) => !isHostname(value)))].sort();
 }
 
 export function extractTickets(text: string): string[] {

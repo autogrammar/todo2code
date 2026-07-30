@@ -163,6 +163,13 @@ export const MCP_TOOLS: McpTool[] = [
     maxPlans: numberProp('Maximum plans to materialise, default 50.', 1, 500),
     output: stringProp('Optional plan-set JSON output path under root.'),
   }),
+  tool('render_code_change', 'Render a hash-bound CODE_CHANGE.review.md brief from a code-change plan set without applying source edits.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    plans: { type: 'object', description: 'Inline t2c.code-change-plan-set/v1 object.' },
+    plansPath: stringProp('Alternative plan-set JSON path under root.'),
+    patch: stringProp('Markdown review output path, default CODE_CHANGE.review.md.'),
+    audit: stringProp('Review audit JSON path, default CODE_CHANGE.review.json.'),
+  }),
   tool('evaluate_code_change', 'Re-diagnose an after graph and decide whether a code-change plan cleared its targeted diagnostics.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     plan: { type: 'object', description: 'Inline t2c.code-change-plan/v1 object.' },
@@ -233,7 +240,7 @@ function tool(
 ): McpTool {
   const writes = new Set<T2CAction>([
     'pipeline', 'propose_todo', 'render_todo', 'apply_todo',
-    'propose_code_change', 'evaluate_code_change',
+    'propose_code_change', 'render_code_change', 'evaluate_code_change',
   ]);
   return {
     name,

@@ -28,8 +28,10 @@ import { runPipeline } from '../pipeline/run.js';
 import { summarizeGraph } from '../summary/summarizer.js';
 import type { CodeChangePlan, Conclusion, TodoProposal } from '../core/types.js';
 import {
+  createCodeChangeReviewPatch,
   evaluateCodeChangeAcceptance,
   proposeCodeChangePlans,
+  type ProposeCodeChangePlansResult,
 } from '../synthesis/code-change-plan.js';
 import { synthesizeTodoProposals, type AuditedTaskSynthesisResult, type TaskSynthesisMode } from '../synthesis/tasks-llm.js';
 import { applyTodoPatch, createTodoPatch } from '../synthesis/todo-patch.js';
@@ -56,6 +58,7 @@ export type T2CAction =
   | 'render_todo'
   | 'apply_todo'
   | 'propose_code_change'
+  | 'render_code_change'
   | 'evaluate_code_change';
 
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
@@ -227,6 +230,33 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         await writeJson(output, result);
       }
       return result;
+    }
+    case 'render_code_change': {
+      const planSet = await readActionObject<ProposeCodeChangePlansResult>(
+        input.plans, input.plansPath, 'plans', root, config,
+      );
+      if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
+        throw new Error('render_code_change requires a t2c.code-change-plan-set/v1 object');
+      }
+      const review = createCodeChangeReviewPatch({
+        plans: planSet.plans,
+        graphFingerprint: planSet.graphFingerprint,
+      });
+      const patchPath = input.patch !== undefined
+        ? await scopedPath(input.patch, 'CODE_CHANGE.review.md', root, config)
+        : null;
+      const auditPath = input.audit !== undefined
+        ? await scopedPath(input.audit, 'CODE_CHANGE.review.json', root, config)
+        : null;
+      if (patchPath) await writeText(patchPath, review.markdown);
+      if (auditPath) await writeJson(auditPath, review.artifact);
+      return {
+        schemaVersion: 't2c.code-change-render-result/v1',
+        markdown: review.markdown,
+        artifact: review.artifact,
+        ...(patchPath ? { patchPath: path.relative(root, patchPath).replace(/\\/g, '/') } : {}),
+        ...(auditPath ? { auditPath: path.relative(root, auditPath).replace(/\\/g, '/') } : {}),
+      };
     }
     case 'evaluate_code_change': {
       const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);

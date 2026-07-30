@@ -9,12 +9,18 @@
   the TypeScript SDK. Plans carry content-bound IDs/hashes, exact evidence,
   risk, rollback and runtime provenance; they never edit source files or mark
   work complete.
-- Main pipeline always materialises `code-change-plans.json` after diagnostics
+- Main pipeline always materialises `code-change-plans.json`,
+  `CODE_CHANGE.review.md` and `CODE_CHANGE.review.json` after diagnostics
   (deterministic `codeChangePlanning` stage in the run manifest).
+- Added `t2c.code-change-review/v1` hash-bound review briefs plus CLI
+  `render-code-change` (also MCP/A2A/SDK). Briefs never apply source edits.
 - Added `propose-code-change` and `evaluate-code-change` CLI workflows with
   root-confined JSON artifacts and an end-to-end persisted-file test.
-- Extended the offline gold linking set with unique bare-basename positives and
-  ambiguous basename hard negatives.
+- Reject absolute host paths, HTTP routes and parent traversal in
+  `target.paths`, and reject hostnames as false symbols, so code-change
+  planning cannot crash a finished pipeline on platform docs.
+- Extended the offline gold set with bare-basename cases, multi-clause NL,
+  non-path route/host extraction and ticket exact-target linking.
 - Added `make demollm`, which requires live OpenRouter execution for all six
   semantic pipeline stages, rejects fallback or degraded manifests, reports
   model/token/cost metadata, and is documented with process/sequence diagrams.

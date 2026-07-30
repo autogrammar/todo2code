@@ -127,7 +127,7 @@ export type T2CAction =
   | 'diff' | 'diff_files' | 'diff_git' | 'reality'
   | 'compare_workspace' | 'pipeline'
   | 'propose_todo' | 'render_todo' | 'apply_todo'
-  | 'propose_code_change' | 'evaluate_code_change';
+  | 'propose_code_change' | 'render_code_change' | 'evaluate_code_change';
 
 export interface A2APart {
   text?: string;
@@ -350,6 +350,10 @@ export class T2CClient {
 
   proposeCodeChange(input: Record<string, unknown>): Promise<Record<string, unknown>> {
     return this.call('propose_code_change', input);
+  }
+
+  renderCodeChange(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.call('render_code_change', input);
   }
 
   evaluateCodeChange(input: Record<string, unknown>): Promise<Record<string, unknown>> {

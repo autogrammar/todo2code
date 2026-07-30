@@ -14,9 +14,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 201 testów: 200 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 202 testy: 201 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
-| Moduły | `npm run verify:modules` | PASS — 91 modułów, 419 importów, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 91 modułów, 420 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
@@ -40,11 +40,11 @@ lub regresja adaptera nie mogą tam zostać pominięte.
 Pipeline uruchomiono deterministycznie na trzech rzeczywistych repozytoriach
 z `~/github/semcod`, z artefaktami poza ich worktree:
 
-| Repozytorium | Wynik | Rekordy grafu | Relacje | `PLANNED_NOT_IMPLEMENTED` | Komunikacja |
-|---|---:|---:|---:|---:|---:|
-| `code2llm` | succeeded | 17 648 | 60 286 | 1 | 0, poprawnie pominięta |
-| `domd` | succeeded | 23 277 | 249 131 | 1 942 | 0, poprawnie pominięta |
-| `pactfix` | succeeded | 5 295 | 5 991 | 13 | 0, poprawnie pominięta |
+| Repozytorium | Wynik | Rekordy grafu | Relacje | `PLANNED_NOT_IMPLEMENTED` | Code-change plans | Komunikacja |
+|---|---:|---:|---:|---:|---:|---:|
+| `code2llm` | succeeded | 17 647 | 60 260 | 1 | 50 (limit runu) | 0, poprawnie pominięta |
+| `domd` | succeeded | 23 276 | 249 131 | 1 942 | 50 (limit runu) | 0, poprawnie pominięta |
+| `pactfix` | succeeded | 5 295 | 5 991 | 13 | 1 | 0, poprawnie pominięta |
 
 Pierwszy przebieg na `domd` zgłosił `Python AST extraction failed: stdout
 maxBuffer length exceeded`, ponieważ helper Python omijał repozytoryjne reguły
@@ -63,6 +63,11 @@ Zmiana klasyfikacji dokumentacji usunęła fałszywe plany opisowe. W
 nie pochodzi z opisowej dokumentacji: 1 941 wpisów to rzeczywiste, otwarte
 checkboxy w jego `TODO.md`, a 1 to dokument o modalności `recommended`.
 
+Po dodaniu automatycznego etapu `codeChangePlanning` wszystkie trzy pipeline'y
+przeszły ponownie. Etap ma `succeeded / deterministic`, koperta plan-set używa
+generatora `t2c/code-change-plan-set`, a każdy plan podaje runtime `0.5.0`.
+`code2llm` i `domd` osiągnęły bezpieczny limit 50 planów; `pactfix` utworzył 1.
+
 Pozostałe ostrzeżenia są oczekiwane i audytowalne: brak lokalnego JDK,
 wykryte nieobsługiwane PHP/Ruby/C#, celowo niepoprawne fixture’y parserów oraz
 cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
@@ -72,7 +77,7 @@ cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 225 records, 103 relations; communication: 3 blocking, 1 warning
+demo: 225 records, 107 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
@@ -189,7 +194,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 225 rekordów i 103 relacje, w tym cztery rekordy `document` i cztery
+demo ma 225 rekordów i 107 relacji, w tym cztery rekordy `document` i cztery
 rekordy konfiguracji `system`.
 
 ### Ekstrakcja ścieżek i metryka dokumentacji
