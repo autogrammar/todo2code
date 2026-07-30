@@ -37,7 +37,10 @@
   `render-code-change` (also MCP/A2A/SDK). Briefs never apply source edits.
 - Added `t2c.code-change-source-patch/v1` structured edit proposals with
   path-bound instructions, optional validated unified diffs, secret heuristic
-  rejection and CLI `propose-source-patch` (MCP/A2A/SDK). Never applied.
+  rejection and CLI `propose-source-patch` (MCP/A2A/SDK).
+- Added `apply-source-patch` with explicit actor + patchHash approval, atomic
+  multi-file apply/rollback, symlink rejection and idempotent receipt
+  (`t2c.code-change-source-apply-receipt/v1`). Instruction-only edits refuse apply.
 - Added `propose-code-change` and `evaluate-code-change` CLI workflows with
   root-confined JSON artifacts and an end-to-end persisted-file test.
 - Reject absolute host paths, HTTP routes and parent traversal in
