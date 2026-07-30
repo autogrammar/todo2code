@@ -45,6 +45,9 @@
 - Split the dependency-free Go SDK into stable package constants, public wire
   types, the A2A transport client and action wrappers without changing its
   exported package API.
+- Split the deterministic text-diff engine from unified, SVG and HTML
+  rendering while keeping every renderer re-exported from the existing public
+  `src/diff/text` entrypoint.
 - Stopped treating ticket prefixes such as `T2C` as code symbols and stopped
   action-like inline-code identifiers such as `validateContract` from
   overriding the explicit prose verb. Validation verb forms are recognized
