@@ -43,7 +43,7 @@
   "metadata": {
     "checked": false,
     "llmUsed": true,
-    "generation": { "requested": "llm", "used": "llm", "degraded": false, "runtimeVersion": "0.4.0", "model": "qwen/qwen3.7-plus" }
+    "generation": { "requested": "llm", "used": "llm", "degraded": false, "runtimeVersion": "0.5.0", "model": "qwen/qwen3.7-plus" }
   }
 }
 ```
@@ -112,7 +112,7 @@ swobodnym tekstem raportu. Minimalny poprawny obiekt wygląda tak:
   "recordIds": ["INT-TODO-0123456789abcdefabcd"],
   "confidence": 0.94,
   "generation": {
-    "runtimeVersion": "0.4.0",
+    "runtimeVersion": "0.5.0",
     "generatedAt": "2026-07-29T12:00:00.000Z",
     "requestedMode": "require-llm",
     "effectiveMode": "llm",
@@ -159,7 +159,7 @@ rekordu intencji. `dependencies` zawiera stabilne ID innych propozycji:
   "recordIds": ["INT-TODO-0123456789abcdefabcd"],
   "confidence": 0.9,
   "generation": {
-    "runtimeVersion": "0.4.0",
+    "runtimeVersion": "0.5.0",
     "generatedAt": "2026-07-29T12:00:00.000Z",
     "requestedMode": "prefer-llm",
     "effectiveMode": "deterministic",

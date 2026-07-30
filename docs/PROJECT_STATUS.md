@@ -1,6 +1,6 @@
 # Aktualny stan projektu
 
-Stan na **2026-07-30**, wersja runtime `0.4.0`.
+Stan na **2026-07-30**, wersja runtime `0.5.0`.
 
 ## Ocena wykonania przepływu
 
@@ -67,7 +67,7 @@ diagnostyki/narracją LLM i nie zastępuje walidowanych propozycji DSL2TODO.
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 207 rekordów i 651 relacji. Liczba
+Przebieg offline na `examples/` utworzył 207 rekordów i 650 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 

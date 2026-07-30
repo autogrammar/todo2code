@@ -1,6 +1,6 @@
 # Walidacja paczki
 
-Stan walidacji: **2026-07-29**, `todo2code 0.4.0`. Najnowsza lokalna kontrola
+Stan walidacji: **2026-07-30**, `todo2code 0.5.0`. Najnowsza lokalna kontrola
 została wykonana na bieżącym drzewie `main`. Poniższe próby origin/workspace i live
 OpenRouter są zachowanymi pomiarami historycznymi i mają własne identyfikatory
 runów — nie należy interpretować ich jako porównania aktualnego drzewa.
@@ -35,7 +35,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
 | `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę poza zakresem; wariant `--no-ast` wykrywa claim bez dowodu |
-| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `debfd0f1923dbae0` oraz patcha `bc9f41bdea3ad737` |
+| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `628b4b82c64b3492` oraz patcha `fe9de905c34f6b8c` |
 | Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
 | CLI `doctor`, `--help`, `--version` | PASS |
 | `npm audit` rdzenia | PASS — 0 podatności przy zwykłym `npm install` |
@@ -61,7 +61,7 @@ Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 
 Wszystkie przykłady przeszły ścieżkę NL → AST → Markdown → graf → diagnostyka →
 Intent vs Reality → Git diff i uzyskały ten sam fingerprint
-`debfd0f1923dbae0…`; każdy potwierdził audyt NL i Markdown o statusie
+`628b4b82c64b3492…`; każdy potwierdził audyt NL i Markdown o statusie
 `succeeded` i trybie `deterministic`. Opcjonalny przykład TypeScript uruchomił także
 `compare_workspace` i zwrócił `unchanged` dla niezmienionego
 `examples/backend`. Porównanie nie wywołało summary LLM; oba manifesty oznaczają
@@ -141,7 +141,7 @@ poprawny A2A 1.0, a `/ui` HTTP 200. Usunięto konfliktujący `compose.yml`, wię
 zarówno zwykłe `docker compose`, jak i cele Makefile używają jednego
 `docker-compose.yml`.
 
-## Pozostałe ograniczenia 0.4.0
+## Pozostałe ograniczenia 0.5.0
 
 - Pełne pokrycie dokumentacją wymaga włączenia `--docs-llm`; porównanie offline
   poprawnie raportuje 0%, czyli brak załadowanego dowodu, nie brak dokumentacji.

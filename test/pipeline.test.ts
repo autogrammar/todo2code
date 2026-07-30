@@ -49,7 +49,7 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.llm.summary, false);
   assert.equal(result.manifest.status, 'degraded');
   assert.equal(result.manifest.failure, null);
-  assert.equal(result.manifest.runtime.version, '0.4.0');
+  assert.equal(result.manifest.runtime.version, '0.5.0');
   assert.equal(result.manifest.stages.naturalLanguageExtraction.status, 'fallback');
   assert.equal(result.manifest.stages.naturalLanguageExtraction.reason?.code, 'LLM_NOT_CONFIGURED');
   assert.equal(result.manifest.stages.markdownExtraction.status, 'fallback');

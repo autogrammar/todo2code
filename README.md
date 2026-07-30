@@ -10,7 +10,7 @@ Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
 ## Stan projektu
 
-Wersja `0.4.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
+Wersja `0.5.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
 diagnostyka/Intent vs Reality → raport oraz zamknięty, reviewowalny przepływ
 `DSL2TODO`. Kontrakty `t2c.conclusion/v1`, `t2c.todo-proposal/v1` i
 `t2c.todo-patch/v1` są walidowane w runtime. CLI, MCP, A2A i wszystkie pięć SDK
@@ -78,7 +78,7 @@ audyt z 2026-07-29 ma 0 podatności. `make install-tf` instaluje
 jego 8 zgłoszeń nie trafia do drzewa zależności rdzenia. Nie należy stosować
 `npm audit fix --force`, ponieważ proponuje niekompatybilny downgrade.
 
-## Demonstracja działania 0.4.0
+## Demonstracja działania 0.5.0
 
 Poniższa demonstracja używa wersjonowanego repozytorium `examples/`, nie wymaga
 klucza ani połączenia z OpenRouter i pozostawia jednoznaczny audyt. Uruchom:
@@ -112,13 +112,13 @@ console.log({ records: graph.records.length, relations: graph.relations.length, 
 NODE
 ```
 
-Weryfikowany wynik dla `0.4.0` ma 207 rekordów, w tym 5 wersjonowanych rekordów
+Weryfikowany wynik dla `0.5.0` ma 207 rekordów, w tym 5 wersjonowanych rekordów
 komunikacji. Liczba relacji zależy również od
 ostatnich 10 commitów Git, dlatego po każdym commicie może się prawidłowo
 zmienić i należy odczytać ją z bieżącego grafu:
 
 ```text
-status: succeeded, runtime: todo2code 0.4.0
+status: succeeded, runtime: todo2code 0.5.0
 naturalLanguageExtraction: succeeded / deterministic
 markdownExtraction:        succeeded / deterministic
 documentationExtraction:   skipped / none
@@ -161,7 +161,7 @@ const result = await client.extractNl('TASK.md', '.', 'deterministic');
 console.log(result.records.length);                 // 10 dla bieżącego TASK.md
 console.log(result.audit?.status);                  // succeeded
 console.log(result.audit?.effectiveMode);           // deterministic
-console.log(result.audit?.runtimeVersion);          // 0.4.0
+console.log(result.audit?.runtimeVersion);          // 0.5.0
 console.log(result.audit?.configuration);           // bez apiKey
 ```
 

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-30
+
 ### Added
 
 - Defined the grounded `t2c.conclusion/v1` and `t2c.todo-proposal/v1`
