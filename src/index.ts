@@ -33,6 +33,7 @@ export * from './operations/types.js';
 export * from './operations/contract.js';
 export * from './operations/validation.js';
 export * from './operations/subactor.js';
+export * from './operations/artifact.js';
 export * from './evaluation/gold.js';
 export * from './comparison/workspace.js';
 export * from './pipeline/run.js';

@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 import { sha256 } from '../src/core/id.js';
 import type { GroundedGenerationMetadata } from '../src/core/types.js';
 import {
   compileSubactorProcessEnvelope,
+  compileOperationPlanArtifact,
   createOperationPlan,
   createVariableContract,
 } from '../src/index.js';
@@ -178,4 +182,28 @@ test('compiler fails closed on extra, stale, wrong-source and wrong-type binding
     { value: 'docs.subactor.com', sourceRef: 'twin://projects/docs/domain', observedAt: OBSERVED },
     { 'VAR-11111111111111111111': { value: 'unexpected', sourceRef: 'runtime://unexpected', observedAt: null } },
   ), /unreferenced variable/);
+});
+
+test('file boundary writes one private envelope atomically and refuses overwrite', async () => {
+  const directory = await fs.mkdtemp(path.join(tmpdir(), 't2c-operation-plan-'));
+  const plan = createOperationPlan(queryDraft());
+  const planPath = path.join(directory, 'plan.json');
+  const bindingsPath = path.join(directory, 'bindings.json');
+  const outputPath = path.join(directory, 'envelope.json');
+  await fs.writeFile(planPath, JSON.stringify(plan));
+  await fs.writeFile(bindingsPath, JSON.stringify({
+    [plan.variables[0]!.id]: {
+      value: 'docs.subactor.com', sourceRef: 'twin://projects/docs/domain', observedAt: OBSERVED,
+    },
+  }));
+  const compiled = await compileOperationPlanArtifact({ planPath, bindingsPath, outputPath, correlationId: 'PLF-2200' });
+  assert.equal(compiled.envelope.plan_id, plan.id);
+  assert.equal(compiled.receipt.planHash, plan.planHash);
+  assert.match(compiled.receipt.envelopeHash, /^[a-f0-9]{64}$/);
+  assert.equal((await fs.stat(outputPath)).mode & 0o777, 0o600);
+  assert.equal(JSON.parse(await fs.readFile(outputPath, 'utf8')).schema, 'subactor.process-envelope.v2');
+  await assert.rejects(
+    () => compileOperationPlanArtifact({ planPath, bindingsPath, outputPath, correlationId: 'PLF-2200' }),
+    /already exists/,
+  );
 });
