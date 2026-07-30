@@ -25,29 +25,35 @@
 - [x] Require runtime-owned provenance on every Intent DSL record: converter
   name/version and todo2code version for deterministic generation, plus
   provider/model/response ID for LLM generation and explicit fallback state.
-- [ ] Add a deterministic documentation → Intent DSL baseline for headings,
+- [x] Add a deterministic documentation → Intent DSL baseline for headings,
   code blocks and explicit path/symbol references, keeping LLM extraction as
   optional audited enrichment rather than the only source of `document`
   records.
 - [x] Extend the gold linking dataset with prose-to-module positive and hard
   negative cases, then publish precision/recall separately for exact-target
   and capability-topic relations.
-- [ ] Split large TODO/CHANGELOG LLM enrichment into bounded batches with a
-  shared audit and deterministic ordering; verify latency and cost against
-  `qwen/qwen3.7-plus` and a faster configured model.
+- [x] Split large TODO/CHANGELOG LLM enrichment into bounded 32-record batches
+  with a shared audit, per-record response provenance and deterministic
+  ordering.
+- [ ] Measure live TODO/CHANGELOG batch latency and cost against
+  `qwen/qwen3.7-plus` and a faster configured model; store the redacted
+  comparison artifact without making offline CI provider-dependent.
 - [x] Make summary generation structurally validated through
   `t2c.conclusion/v1` before rendering Markdown, rather than accepting free-form
   narrative as the primary result.
 - [x] Add an explicit CLI summary mode
   `deterministic|prefer-llm|require-llm`, consistent with NL and Markdown
   extraction modes.
-- [ ] Improve workspace trend metrics so AST line movement and source-identity
+- [x] Improve workspace trend metrics so AST line movement and source-identity
   churn do not dominate business-topic coverage changes.
 - [ ] Add incremental AST and documentation-chunk caches keyed by content hash
   for very large repositories.
+- [ ] Resolve unambiguous bare source filenames such as `markdown.ts` against
+  the repository tree before linking, while preserving the current rejection
+  of prose fragments and refusing ambiguous basename matches.
 - [ ] Generate TypeScript runtime validators and OpenRouter response schemas
   from one canonical schema source to prevent manual contract drift.
-- [ ] Add deterministic converters for repository configuration and
+- [x] Add deterministic converters for repository configuration and
   infrastructure inputs (JSON/YAML/TOML, Docker and CI workflows) so their
   declared behavior is represented in DSL instead of only appearing as AST or
   documentation references.
@@ -58,20 +64,19 @@
   testable TypeScript/JavaScript, Python, Go, Java and Rust modules behind the
   existing common adapter envelope.
 - [ ] Add first-class AST adapters for PHP and other languages present in
-  analyzed repositories; until then, report unsupported source files explicitly
-  instead of implying complete code-to-DSL coverage.
+  analyzed repositories.
+- [x] Report discovered unsupported PHP/Ruby/C#/Kotlin/C/C++ and other source
+  files explicitly instead of implying complete code-to-DSL coverage.
 - [x] Add a CI job with JDK 17+ so the Java fixture cannot be skipped in the
   required validation matrix.
 - [x] Add scheduled opt-in live OpenRouter contract checks with redacted audit,
   latency/cost thresholds and no dependency of offline CI on provider uptime.
 - [ ] Add A2A streaming/push notifications and a shared transactional
   task-store backend beyond the current atomic filesystem snapshot.
-- [ ] Validate public extraction options before they reach `path.resolve`.
-  Passing an option object without `sourcePath` currently surfaces as
-  `The "paths[1]" argument must be of type string`, which names Node's
-  internals instead of the missing field. Found while wiring the live contract
-  check against `extractNlIntentAudited`.
-- [ ] Guard `.github/workflows/ci.yml` against duplicate top-level keys. Two
+- [x] Validate public extraction options before they reach `path.resolve`.
+  Missing `root`, `sourcePath` or `text` now produces a named option error at
+  the public deterministic and audited NL boundaries.
+- [x] Guard `.github/workflows/ci.yml` against duplicate top-level keys. Two
   concurrent edits produced a second `schedule:` block, which YAML silently
-  resolves to the last one — a workflow can lose a trigger without any error.
-  A parse-and-assert step in `make verify` would catch it.
+  resolves to the last one — `verify:workflows` now rejects that state before
+  a workflow can silently lose a trigger.

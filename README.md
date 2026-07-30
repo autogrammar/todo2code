@@ -54,7 +54,8 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 | 10 commitów Git → DSL | `git log`, diff, heurystyki symboli | nie |
 | TypeScript/JavaScript/Python/Go/Java/Rust AST → DSL | natywne parsery języków; Java Tree API, Rust `syn` | nie |
 | TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie preferowany** |
-| Dokumentacja → DSL | OpenRouter structured outputs | **tak** |
+| Dokumentacja → DSL | deterministyczny baseline + opcjonalne OpenRouter structured outputs | **opcjonalnie** |
+| JSON/YAML/TOML, Docker i CI → DSL | deterministyczny konwerter struktury konfiguracji | nie |
 | `project/<ticket>/` komunikacja → DSL + synteza per uczestnik | deterministyczny kontrakt; opcjonalne audytowane wzbogacanie OpenRouter | **opcjonalnie, domyślnie nie** |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
@@ -102,7 +103,8 @@ make demo
 ```
 
 Polecenie wykonuje kolejno NL → DSL, Git → DSL, AST → DSL, osobne konwertery
-TODO/CHANGELOG, linker, diagnostykę i deterministyczne podsumowanie. Następnie
+TODO/CHANGELOG, deterministyczne konwertery dokumentacji i konfiguracji,
+linker, diagnostykę i deterministyczne podsumowanie. Następnie
 analizuje komunikację `examples/project/DEMO-101` osobno dla ludzi i agentów.
 Wyniki trafiają do `examples/.intent-demo/runs/<run-id>/` oraz
 `examples/.intent-communication/`. Stan ostatniego runu można wyświetlić bez
@@ -126,7 +128,7 @@ console.log({ records: graph.records.length, relations: graph.relations.length, 
 NODE
 ```
 
-Weryfikowany wynik dla `0.5.0` ma 217 rekordów, w tym 5 wersjonowanych rekordów
+Weryfikowany wynik dla `0.5.0` ma 225 rekordów, w tym 5 wersjonowanych rekordów
 komunikacji. Liczba relacji zależy również od
 ostatnich 10 commitów Git, dlatego po każdym commicie może się prawidłowo
 zmienić i należy odczytać ją z bieżącego grafu:
@@ -135,10 +137,10 @@ zmienić i należy odczytać ją z bieżącego grafu:
 status: succeeded, runtime: todo2code 0.5.0
 naturalLanguageExtraction: succeeded / deterministic
 markdownExtraction:        succeeded / deterministic
-documentationExtraction:   skipped / none
+documentationExtraction:   succeeded / deterministic
 summary:                   skipped / deterministic / LLM_DISABLED
-records: 217, relations: <zależne od ostatnich 10 commitów>
-bySource: agent_log=5, ast=190, changelog=2, git=10, nl=7, todo=3
+records: 225, relations: <zależne od ostatnich 10 commitów>
+bySource: agent_log=5, ast=190, changelog=2, document=4, git=10, nl=7, system=4, todo=3
 ```
 
 Demo jawnie wyłącza LLM dokumentacji i podsumowania, więc nie korzysta z
@@ -472,7 +474,7 @@ Przykładowa konfiguracja hosta MCP:
 }
 ```
 
-Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`, `extract_communication`, `analyze_communication`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`, `propose_todo`, `render_todo`, `apply_todo`. Serwer udostępnia też zasoby `t2c://latest/*`, w tym analizę komunikacji i artefakty review/apply.
+Dostępne narzędzia: `extract_nl`, `extract_git`, `extract_ast`, `extract_config`, `extract_markdown`, `extract_docs`, `extract_communication`, `analyze_communication`, `link`, `diagnose`, `diff`, `diff_files`, `diff_git`, `reality`, `compare_workspace`, `summarize`, `pipeline`, `propose_todo`, `render_todo`, `apply_todo`. Serwer udostępnia też zasoby `t2c://latest/*`, w tym analizę komunikacji i artefakty review/apply.
 
 ## Diff DSL, SVG i SDK
 

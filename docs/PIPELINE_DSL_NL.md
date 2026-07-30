@@ -22,6 +22,7 @@ flowchart LR
         CODE[Drzewo kodu źródłowego]
         MARKDOWN[TODO.md i CHANGELOG.md]
         DOCS[README / ADR / dokumentacja]
+        CONFIG[JSON / YAML / TOML / Docker / CI]
         COMM[project/ticket: komunikacja ludzi i agentów]
     end
 
@@ -31,6 +32,7 @@ flowchart LR
         CAST[Adaptery AST]
         CMD[TODO + CHANGELOG converters]
         CDOC[Document converter]
+        CCONFIG[Configuration converter]
         CCOMM[Communication converter]
     end
 
@@ -39,10 +41,12 @@ flowchart LR
     CODE --> CAST
     MARKDOWN --> CMD
     DOCS --> CDOC
+    CONFIG --> CCONFIG
     COMM --> CCOMM
 
     CNL --> DSL[(IntentRecord collection<br/>t2c.intent/v1)]
     CGIT --> DSL
+    CCONFIG --> DSL
     CAST --> DSL
     CMD --> DSL
     CDOC --> DSL
@@ -155,7 +159,8 @@ tworzenia `t2c.conclusion/v1` ani renderowania `team-summary.md`.
 | Rust | helper Cargo oparty na `syn` | `ast` | `fact` | zaobserwowany fakt składniowy Rust |
 | checkboxy `TODO.md` | `todo.ts` | `todo` | `plan` | plan i jego lifecycle wynikający z checkboxa |
 | wpisy `CHANGELOG.md` | `changelog.ts` | `changelog` | `claim` | deklaracja wydania, a nie dowód kodu |
-| README, ADR, dokumenty modułów | `docs-llm.ts` | `document` | `llm_inference` | ograniczone wnioskowanie z dokumentacji |
+| README, ADR, dokumenty modułów | `docs-deterministic.ts`, opcjonalnie `docs-llm.ts` | `document` | `declaration` lub `llm_inference` | offline: nagłówki, bloki kodu i jawne referencje; LLM może dodać audytowaną semantykę |
+| JSON/YAML/TOML, Dockerfile, Compose, workflow CI | `configuration.ts` | `system` | `fact` | deterministycznie zaobserwowana struktura konfiguracji i infrastruktury |
 | pliki `project/<ticket>/` | `communication.ts` / `communication/llm.ts` | `agent_log` | `declaration`, `plan` lub `claim` | wersjonowana wypowiedź człowieka albo agenta |
 
 `source.kind` mówi, skąd pochodzi rekord. `epistemic.class` mówi, jakiego typu
@@ -262,9 +267,10 @@ flowchart TD
     FALLBACK --> RECORDS
 ```
 
-Dokumentacja jest wyjątkiem: bez włączonego i skonfigurowanego ekstraktora LLM
-etap dokumentacyjny jest pomijany, ponieważ nie istnieje deterministyczny
-odpowiednik semantycznej interpretacji dowolnej prozy.
+Dokumentacja zawsze przechodzi przez deterministyczny baseline. Bez LLM nadal
+powstają rekordy nagłówków, bloków kodu oraz jawnych odwołań do plików, symboli
+i ticketów. Tryby `prefer-llm` i `require-llm` mogą dodać audytowaną interpretację
+semantyczną, ale nie zastępują ani nie usuwają baseline'u runtime'u.
 
 ## Od rekordów do grafu dowodów
 

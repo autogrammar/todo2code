@@ -33,7 +33,7 @@ akceptuje obie postacie.
 
 ## Dostępne akcje
 
-`extract_nl`, `extract_git`, `extract_ast`, `extract_markdown`, `extract_docs`,
+`extract_nl`, `extract_git`, `extract_ast`, `extract_config`, `extract_markdown`, `extract_docs`,
 `extract_communication`, `analyze_communication`, `link`, `diagnose`,
 `summarize`, `diff`, `diff_files`, `diff_git`, `reality`,
 `compare_workspace`, `pipeline`, `propose_todo`, `render_todo`, `apply_todo`.
@@ -43,8 +43,9 @@ wzbogacanie `extract_markdown` obsługują `prefer-llm`/`require-llm`, a
 `extract_docs` i `summarize` wołają OpenRouter. Każdy SDK może wymusić
 `nlMode: deterministic` lub `markdownMode: deterministic` i odczytać audyt
 fallbacku (`audit.status`, `effectiveMode`, `reason`, `runtimeVersion`,
-`configuration`). Wszystkie pięć klientów ma convenience methods dla NL i
-dokumentacji. Każdy klient ma też metody propose → review → approved apply;
+`configuration`). Wszystkie pięć klientów ma convenience methods dla NL,
+dokumentacji i deterministycznej konfiguracji/infrastruktury. Każdy klient ma
+też metody propose → review → approved apply;
 przykłady używają `prefer-llm`, więc bez sekretu tworzą audytowany pusty patch i
 bezpieczny, idempotentny no-op po jawnej zgodzie. Python zachowuje metody zwracające same rekordy oraz udostępnia
 pełne envelope przez warianty `*_result()`. Przykłady wymuszają

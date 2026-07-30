@@ -4,6 +4,22 @@
 
 ### Added
 
+- Added a deterministic Markdown documentation baseline for headings, fenced
+  examples and explicit path/symbol/ticket references. Offline pipeline runs
+  now produce versioned `document` DSL records before optional LLM enrichment.
+- Added governed `t2c.variable-contract/v1` and `t2c.operation-plan/v1`
+  contracts plus a fail-closed compiler to a non-executing
+  `subactor.process-envelope.v2` proposal.
+- Added deterministic repository configuration extraction for JSON, YAML,
+  TOML, Dockerfile and CI workflow structures through pipeline, CLI, MCP, A2A
+  and all five SDKs.
+- Added bounded 32-record TODO/CHANGELOG LLM enrichment batches with stable
+  input ordering, one shared audit and response provenance on each output
+  record.
+- Added `verify:workflows`, which rejects duplicate top-level workflow YAML
+  keys before CI configuration can silently lose a trigger.
+- Limited the Node test runner to four concurrent files so the live Git watch
+  integration test is not starved by compiler-backed adapter suites.
 - Added an opt-in scheduled OpenRouter contract check for live NL extraction
   and grounded summary generation. It runs both paths in `require-llm`, writes
   a redacted latency/token/cost audit, enforces configurable budgets and stays
@@ -65,6 +81,15 @@
 
 ### Fixed
 
+- Workspace headline trends now use declared business-topic implementation,
+  comparable documentation and severe diagnostics. Raw AST-only topic growth,
+  source-line movement and record identity churn remain visible without
+  misclassifying the overall direction.
+- Public NL extraction rejects a missing root/source path with a named option
+  error before calling Node path helpers. AST extraction now reports counts of
+  discovered unsupported source-language files explicitly.
+- Updated project status, pipeline and validation documentation from a fresh
+  todo2code self-audit and the current offline example run.
 - Validate the raw summary envelope and every provider-owned field before
   creating semantic conclusion IDs. The summary prompt now names the exact
   seven-field contract and requires verbatim top-level diagnostic/record

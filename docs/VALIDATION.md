@@ -11,24 +11,26 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 22 moduły |
-| Granice modułów | PASS — 71 modułów, 333 importy wewnętrzne, brak cykli, niezależny `src/core` |
+| Granice modułów | PASS — 79 modułów, 369 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 171 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 217 rekordów i 99 relacji, w tym 5 `agent_log`; NL, Markdown, komunikacja i summary deterministyczne, dokumentacja pominięta, bez sieci i fallbacku |
+| Testy Node | PASS — 186 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 225 rekordów i 122 relacje, w tym 5 `agent_log`, 4 `document` i 4 `system`; NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
 | Audytowane TODO/CHANGELOG → DSL | PASS — zachowanie struktury, runtime validation, oznaczony fallback i błąd `require-llm` |
 | `npm run evaluate:gold` | PASS — ekstrakcja i linkowanie 100% precision/recall; cytowania 100%; klasyfikacja duplikatów 100% precision/recall; deduplication rate 50%; stabilność 2/2 przebiegów |
 | Pełny kontrakt runtime DSL | PASS — exact keys, enumy, ID/hash/czas/linie, relacje, końce i statystyki grafu |
+| Governed operation-plan DSL | PASS — 9 testów ID/hash, authority, sekretów, ryzyka, rollbacku, fail-closed bindingów i prywatnego atomowego artefaktu bez overwrite/dispatch |
 | Manifest każdej awarii pipeline | PASS — `require-llm` i nieoczekiwana awaria summary zapisują etap/kod bez publikowania `latest.json` |
 | OpenRouter invalid-model discovery | PASS — lista modeli po błędnym identyfikatorze |
-| Dokumentacja → DSL przez mock OpenRouter | PASS — structured output, target hints, limity rekordów/chunków, timeout i współbieżność |
+| Dokumentacja → DSL | PASS — deterministyczny baseline oraz mock OpenRouter: structured output, target hints, limity rekordów/chunków, timeout i współbieżność |
+| Konfiguracja/infrastruktura → DSL | PASS — JSON, TOML, Dockerfile i workflow CI oraz publiczne interfejsy |
 | Graf → NL przez mock OpenRouter | PASS — uziemione cytowania i budżet AST |
 | Scheduled live OpenRouter | PASS/SKIP — osobny opt-in job sprawdza NL i summary w `require-llm`, budżety i redacted audit; bez klucza jawnie pomijany |
-| MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 19 narzędzi, w tym propose/render/apply TODO |
-| MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 19 narzędzi, w tym propose/render/apply TODO |
+| MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 20 narzędzi, w tym extract config i propose/render/apply TODO |
+| MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 20 narzędzi, w tym extract config i propose/render/apply TODO |
 | A2A v1 `SendMessage` | PASS — deterministyczny task completed, 1 artifact |
 | A2A versioning, pagination, ownership, Bearer i persistent store | PASS |
 | Watch + ignore rules | PASS — rate limit, agregacja, brak pętli, błędy reportera |
@@ -51,7 +53,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 172 testy, 171 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 187 testów, 186 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

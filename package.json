@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test dist/test/*.test.js",
+    "test": "node --test --test-concurrency=4 dist/test/*.test.js",
     "verify:no-llm": "node scripts/verify-no-llm-imports.mjs",
     "verify:modules": "node scripts/verify-module-boundaries.mjs",
     "verify:env": "node scripts/verify-env-contract.mjs",

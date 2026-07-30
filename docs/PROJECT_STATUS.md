@@ -7,7 +7,7 @@ Stan na **2026-07-30**, wersja runtime `0.5.0`.
 Aktualny runtime realizuje kompletną ścieżkę wejściową i analityczną:
 
 ```text
-NL / Git / AST / TODO / CHANGELOG / dokumentacja
+NL / Git / AST / TODO / CHANGELOG / dokumentacja / konfiguracja i CI
                          ↓
                  t2c.intent/v1
                          ↓
@@ -44,8 +44,9 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Java AST → DSL | działa, wymagane w CI | lokalnie fixture może być pominięty bez JDK; osobny job Temurin 17 ustawia `T2C_REQUIRE_JAVA_TEST=1`, więc brak runtime lub regresja kończy CI błędem |
 | TODO → DSL | działa | osobny parser; checkbox i lifecycle pozostają deterministyczne |
 | CHANGELOG → DSL | działa | osobny parser; zachowuje wersję, datę, kategorię i klasę `claim` |
-| TODO/CHANGELOG + LLM | działa kontraktowo, live niestabilne | struktura jest chroniona przez runtime; ostatni run `qwen/qwen3.7-plus` przekroczył 120 s i użył jawnego fallbacku |
-| Dokumentacja → DSL | działa kontraktowo | chunking, budżet i structured output są testowane; brak deterministycznego odpowiednika semantycznego |
+| TODO/CHANGELOG + LLM | działa kontraktowo w porcjach | maksymalnie 32 rekordy na żądanie, stabilna kolejność, wspólny audyt i provenance odpowiedzi per rekord; porównanie live kosztu/latencji dwóch modeli pozostaje otwarte |
+| Dokumentacja → DSL | działa offline i opcjonalnie przez LLM | deterministyczny baseline obejmuje nagłówki, bloki kodu i jawne odwołania; chunking, budżet i structured output opcjonalnego wzbogacenia LLM są testowane |
+| Konfiguracja i infrastruktura → DSL | działa offline | struktury JSON/YAML/TOML, Dockerfile, Compose i workflow CI są dostępne przez pipeline, CLI, MCP, A2A i pięć SDK |
 | `project/<ticket>/` komunikacja → DSL | działa | zachowuje uczestnika, `human|agent`, typ wypowiedzi, ticket i aliasy Git jako `agent_log` |
 | Analiza uczestników i rozbieżności komunikacji | działa w pipeline/CLI/MCP/A2A/history/UI/watch | grupuje każdego człowieka/agenta, porównuje request/plan/claim z Git/AST, zapisuje artefakty i wspiera filtry participant/role/ticket/severity |
 | Audytowane wzbogacanie komunikacji | działa opt-in | structured OpenRouter + synteza per uczestnik z cytowaniami; identity/role/ticket/source/epistemic class należą do runtime; deterministic/prefer/require mają jawny audyt |
@@ -53,25 +54,28 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
 | Provenance rekordów DSL | działa | każdy rekord wymaga generatora i jego wersji, wersji todo2code oraz — dla LLM — providera, rozstrzygniętego modelu i response ID; niespójne rekordy są odrzucane |
 | Diagnostyka i Intent vs Reality | działa | agregaty modułów ograniczają szum AST; `aligned` wymaga deklaracji i implementacji, a pokrycie dokumentacji jest osobną metryką |
+| Trend workspace | działa stabilnie | nagłówek trendu opiera się na pokryciu deklarowanych tematów, porównywalnej dokumentacji i ciężkich diagnostykach; churn linii i rekordów AST pozostaje metryką pomocniczą |
 | Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; surowa odpowiedź jest walidowana przed wyliczeniem ID, zweryfikowane przebiegi OpenRouter `require-llm` tworzą uziemione wnioski bez fallbacku w 3 z 4 prób, a jedyna porażka to `HTTP 429`, nie naruszenie kontraktu |
 | Zaplanowana kontrola live OpenRouter | działa opt-in | osobny job sprawdza NL i summary w `require-llm`, egzekwuje budżet latencji/kosztu i publikuje tylko zredagowany audyt; wymagane CI pozostaje offline |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
 | Zadania DSL → `TODO.patch` | działa we wszystkich interfejsach | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem i rejestracją w run history |
+| Intent → proposal operacji Subactor | działa kontraktowo | `t2c.variable-contract/v1` i `t2c.operation-plan/v1` mają content-bound ID/hash, walidację authority/risk/rollback; prywatny bridge zapisuje atomowo wyłącznie `subactor.process-envelope.v2`, odmawia nadpisania i nie dispatchuje procesu |
 
 ## Bieżąca walidacja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 172 testy: 171 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 71 modułów i 333 importy wewnętrzne: brak cykli, niezależny `src/core`;
+- 187 testów: 186 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 79 modułów i 369 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 22 moduły bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
   `.env.example`, bez duplikatów;
+- workflow CI przechodzi kontrolę duplikatów kluczy najwyższego poziomu;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 217 rekordów i 99 relacji. Liczba
+Przebieg offline na `examples/` utworzył 225 rekordów i 122 relacje. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -83,9 +87,11 @@ ostatnich 10 commitów:
 | agent_log | 5 |
 | TODO | 3 |
 | CHANGELOG | 2 |
+| dokumentacja | 4 |
+| konfiguracja (`system`) | 4 |
 
 Diagnostyka zawierała 3 blokady komunikacyjne, 7 pozycji `review_required`,
-61 ostrzeżeń i 42 informacje. Bieżące `make demo` jawnie wyłącza LLM dokumentacji i
+59 ostrzeżeń i 39 informacji. Bieżące `make demo` jawnie wyłącza LLM dokumentacji i
 podsumowania, dzięki czemu stan runu jest `succeeded` i nie zależy od sieci ani
 prywatnego `.env`. Nie jest to jednak dowód jakości semantycznej LLM.
 
@@ -107,17 +113,21 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
    AST, a deklaracje mogą łączyć się z nimi przez trzy wspólne, znormalizowane
    tematy możliwości. Jakość tej heurystyki wymaga jeszcze szerszego gold
    datasetu z trudnymi przypadkami negatywnymi.
-3. Wzbogacanie całego TODO/CHANGELOG jednym dużym żądaniem może przekroczyć
-   timeout providera.
+3. Wzbogacanie TODO/CHANGELOG jest już porcjowane, ale pomiar live kosztu i
+   latencji dla modelu domyślnego i szybszego wariantu nie został jeszcze
+   wykonany w sposób nadający się do publikacji.
 4. Adaptery językowe są orkiestratorowane przez duży `src/extractors/ast.ts`;
    podział per język uprości niezależne wersjonowanie i testowanie.
-5. Przebiegi bez dokumentacyjnego DSL raportują pokrycie jako `not measured`,
-   ale nadal nie istnieje deterministyczny konwerter dokumentacji. PHP,
-   konfiguracja JSON/YAML/TOML, Dockerfile i workflow CI również nie mają
-   własnych adapterów semantycznych.
+5. Deterministyczna dokumentacja i konfiguracja mają już własne konwertery.
+   PHP oraz pozostałe języki spoza TypeScript/JavaScript, Python, Go, Java i
+   Rust nadal nie mają adapterów AST; runtime wypisuje ich liczby jawnie.
 6. Starsze repozytoria bez `project/participants.json` działają w trybie
    legacy; dopiero dodanie rejestru wymusza stabilne `participant-id` i wyłącza
    traktowanie nazwy wyświetlanej jako rozstrzygniętej tożsamości.
+7. Nadal otwarte są cache przyrostowe AST/dokumentacji, generowanie validatorów
+   z jednego schematu, bezpieczne rozwiązywanie jednoznacznych bare nazw plików,
+   podział adapterów per język oraz A2A streaming ze współdzielonym
+   transakcyjnym task store.
 
 ## Wdrożony przepływ DSL2TODO
 

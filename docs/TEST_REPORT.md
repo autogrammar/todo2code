@@ -1,8 +1,8 @@
 # Raport z testów i poprawek
 
 Data wykonania: **2026-07-30**. Runtime: **0.5.0**. Baza robocza:
-zweryfikowany `main` na `e0f33ba` (`chore: relicense project under
-Apache-2.0`) wraz z opisanymi niżej zmianami roboczymi. Środowisko: Linux,
+zweryfikowany `main` na `45e8f39` (`feat: add private operation envelope artifact bridge`)
+wraz z opisanymi niżej zmianami dokumentacyjnymi. Środowisko: Linux,
 Node.js 20.19.5, Python 3.13.12, Go 1.24.4, Rust 1.93.0 i Docker 29.1.3.
 Lokalnie nie ma JDK; adapter Java jest wymagany w osobnym jobie CI z Temurin
 17.
@@ -15,10 +15,12 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 172 testy: 171 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 187 testów: 186 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 22 moduły |
-| Moduły | `npm run verify:modules` | PASS — 71 modułów, 333 importy, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 79 modułów, 369 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
+| Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
+| Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
 | Gold benchmark | `npm run evaluate:gold` | 100% precision/recall i 100% stabilności |
 | Przykłady | `npm run examples:check` | PASS — wszystkie 5 SDK |
 | CLI/MCP/A2A | `make smoke && make protocol-smoke` | PASS |
@@ -37,7 +39,7 @@ lub regresja adaptera nie mogą tam zostać pominięte.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 217 records, 99 relations; communication: 3 blocking, 1 warning
+demo: 225 records, 122 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
@@ -119,8 +121,9 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `TODO.md` i `CHANGELOG.md`. W stanie końcowym 190 relacji ma podstawę
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
-faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. W demo
-jest 217 rekordów i 99 relacji.
+faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
+demo ma 225 rekordów i 122 relacje, w tym cztery rekordy `document` i cztery
+rekordy konfiguracji `system`.
 
 ### Ekstrakcja ścieżek i metryka dokumentacji
 
@@ -154,7 +157,7 @@ nazwy i wersji generatora todo2code, wersji runtime oraz pełnej provenance LLM
 albo deterministycznego fallbacku. Schematy i validator odrzucają anonimowy
 generator również poza rekordami Intent DSL.
 
-Audyt własnego repozytorium potwierdził **12 194/12 194** rekordów z provenance,
+Audyt własnego repozytorium potwierdził **14 583/14 583** rekordów z provenance,
 0 brakujących kopert i 0 rekordów z wersją runtime inną niż `0.5.0`. W przebiegu
 offline wszystkie miały `used=deterministic`; testy stubowanych odpowiedzi
 pokrywają rozstrzygnięty model/provider/response ID dla NL i dokumentacji.
@@ -167,21 +170,20 @@ ponownie wygenerowany aktualnym runtime'em.
 
 Po aktualizacji kodu, `TODO.md` i `CHANGELOG.md` uruchomiono deterministyczny
 pipeline samego todo2code z wyłączonymi etapami sieciowymi. Run
-`20260730T135945Z-3c956ead` zakończył się statusem `succeeded` i utworzył graf
-o fingerprintcie `d0c33d2c3e31f5f8`:
+`20260730T143424Z-0afbc328` zakończył się statusem `succeeded` i utworzył graf
+o fingerprintcie `607b467e9f8879ce`:
 
-- 12 194 rekordy i 4 041 relacji,
-- 10 rekordów NL, 24 TODO, 125 CHANGELOG, 37 komunikacji, 10 Git i 11 988 AST,
-- 0 rekordów `document`, jawnie oznaczone jako etap `skipped`,
-- 3 diagnostyki blocking, 103 review-required, 781 warning i 461 info,
-- 195 tematów: 4 aligned i 191 divergent; implementation coverage 21,1%,
-  planned code 2,6%, a dokumentacja jawnie `not measured`,
+- 14 583 rekordy i 24 444 relacje,
+- 10 rekordów NL, 27 TODO, 134 CHANGELOG, 37 komunikacji, 10 Git, 12 883 AST,
+  1 255 dokumentacji i 227 konfiguracji `system`,
+- 4 diagnostyki blocking, 108 review-required, 1 473 warning i 309 info,
+- 449 tematów: 78 aligned i 371 luk; implementation coverage 23,4%,
+  planned code 46,4%, documented code 45,8%, dokumentacja zmierzona,
 - deterministyczne podsumowanie 100 zwalidowanych wniosków.
 
-Run potwierdził też realny brak: bez sieci wszystkie skonfigurowane źródła
-pipeline'u poza dokumentacją są konwertowane do DSL, natomiast dokumentacja
-nie ma jeszcze deterministycznego konwertera. Nie oznacza to obsługi każdego
-formatu pliku w repozytorium — jej granice opisuje punkt 4.
+Run potwierdził, że dokumentacja i konfiguracja są obecnie konwertowane offline.
+Nie oznacza to obsługi każdego języka programowania ani semantycznej interpretacji
+każdego dowolnego formatu — granice opisuje punkt 4.
 
 ### Pozostałe naprawy
 
@@ -220,31 +222,19 @@ potwierdził trafne powiązania m.in. dla adapterów Java/Rust, budżetu
 dokumentacji i walidacji kontraktów. Nie jest to jednak jeszcze dowód jakości
 na wielu repozytoriach.
 
-Wartości bezwzględne pokrycia pozostają niskie i warto je czytać ostrożnie: na
-pełnym repozytorium `implementation coverage` wynosi **21,1%**, `planned code`
-**2,6%**, a `aligned` **4 z 195 tematów**. Raport nie odróżnia dziś dwóch
-przyczyn niskiego `planned code` — braku dopasowania w linkerze od faktycznego
-braku deklaracji dla większości modułów.
+Wartości bezwzględne pokrycia pozostają zależne od zbioru dokumentów i warto je
+czytać ostrożnie: na bieżącym pełnym repozytorium `implementation coverage`
+wynosi **23,4%**, `planned code` **46,4%**, a `aligned` **78 z 449 tematów**.
+Dodanie deterministycznej dokumentacji zwiększyło liczbę deklarowanych tematów,
+więc tych wartości nie należy porównywać bezpośrednio ze starym runem bez
+rekordów `document`.
 
 Gold benchmark rozdziela już exact-target od `module_topic` i zawiera pierwszy
 pozytywny przypadek prose-to-module oraz hard negative poniżej progu. To usuwa
 największą lukę testową, ale jedna para pozytywna nadal nie dowodzi jakości na
 wielu repozytoriach; przed rozszerzaniem aliasów zbiór powinien dalej rosnąć.
 
-### 2. Deterministyczne źródło rekordów `document` nadal nie istnieje
-
-Metryka nie kłamie już w raportach: `IntentRealityView.totals` niesie
-`documentationMeasured`, a widok Intent vs Reality i porównanie workspace
-wypisują „not measured (no documentation records in this run)" zamiast
-mylącego `0.0%`. Status `aligned` jest od dokumentacji odcięty.
-
-Otwarta pozostaje przyczyna: rekordy `document` powstają **wyłącznie** przez
-ekstraktor LLM, więc każdy przebieg offline — w tym `make demo` i
-`examples:check` — nie mierzy dokumentacji w ogóle. Potrzebne jest
-deterministyczne źródło (nagłówki, bloki kodu, odsyłacze do plików), żeby ta
-oś była użyteczna bez klucza.
-
-### 3. Ścieżka live LLM pozostaje kontrolą opt-in
+### 2. Ścieżka live LLM pozostaje kontrolą opt-in
 
 Gold benchmark nadal buduje wnioski deterministycznie z fikstur i nie zależy od
 sieci. Osobny job harmonogramu/`workflow_dispatch` uruchamia
@@ -256,17 +246,21 @@ sekretu jawnie pomija job live i nigdy nie blokuje wymaganej walidacji offline.
 Historycznie ręczne próby summary osiągnęły **3/4**, a jedyną porażką było
 `HTTP 429`, nie naruszenie struktury.
 
-### 4. Nie wszystkie formaty repozytorium mają własny konwerter DSL
+Porcjowanie TODO/CHANGELOG po 32 rekordy jest wdrożone i pokryte testem, ale
+brakuje opublikowanego, zredagowanego porównania kosztu i latencji
+`qwen/qwen3.7-plus` z szybszym modelem. Wymaga ono działającego providera i nie
+może stać się zależnością wymaganej walidacji offline.
+
+### 3. Nie wszystkie języki repozytorium mają adapter AST
 
 Kod TypeScript/JavaScript, Python, Go, Java i Rust ma adaptery AST. PHP — mimo
-że istnieje SDK PHP — oraz inne języki nie mają jeszcze adaptera. Pliki
-konfiguracyjne JSON/YAML/TOML, Dockerfile i workflow CI są dziś widoczne tylko
-pośrednio w Git, TODO/CHANGELOG lub dokumentacji; system nie interpretuje ich
-deterministycznie jako deklaracji konfiguracji. Pipeline powinien raportować
-liczbę pominiętych wspieranych i nieobsługiwanych plików, aby kompletność
-code-to-DSL nie była domniemana.
+że istnieje SDK PHP — oraz inne języki nie mają jeszcze adaptera. Runtime
+raportuje teraz liczbę odkrytych plików nieobsługiwanych języków, więc nie
+udaje pełnego pokrycia. JSON/YAML/TOML, Dockerfile i workflow CI mają już
+deterministyczny konwerter konfiguracji. Sam orkiestrator AST nadal wymaga
+podziału na niezależnie wersjonowane moduły językowe.
 
-### 5. Bare nazwy plików nie są rozwiązywane do katalogu
+### 4. Bare nazwy plików nie są rozwiązywane do katalogu
 
 Ekstrakcja ścieżek na `TODO.md` + `CHANGELOG.md` tego repozytorium:
 
@@ -285,20 +279,20 @@ są zapisywane dosłownie, choć realnie leżą w `src/extractors/`. Dopóki nie
 rozwiązywane wobec drzewa repozytorium, nie połączą się z faktami AST z tych
 plików. To jest wąskie i wprost powiązane z pozycją 1.
 
-### 6. Adapter Java nie jest weryfikowany lokalnie
+### 5. Adapter Java nie jest weryfikowany lokalnie
 
 `npm test` pomija fixture Javy przy braku JDK. CI wymusza go przez
 `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17 (`.github/workflows/ci.yml:34-40`),
 więc regresja nie przejdzie do `main` — ale developer bez JDK nie zobaczy jej
 przed pushem.
 
-### 7. Pozostały backlog wydajnościowy i operacyjny
+### 6. Pozostały backlog architektoniczny i operacyjny
 
-Otwarte pozostają: porcjowanie dużych TODO/CHANGELOG dla LLM, cache AST i
-fragmentów dokumentacji, stabilniejsze trendy workspace, generowanie
-walidatorów i schematów z jednego źródła, rozdzielenie adapterów językowych,
-  A2A streaming ze współdzielonym transakcyjnym task store. Pełna lista z
-  kryteriami znajduje się w `TODO.md`.
+Otwarte pozostają: cache AST i fragmentów dokumentacji, generowanie validatorów
+i schematów z jednego źródła oraz A2A streaming ze współdzielonym
+transakcyjnym task store. Trend workspace, porcjowanie LLM, deterministyczna
+dokumentacja i konfiguracja zostały wykonane. Pełna lista z kryteriami znajduje
+się w `TODO.md`.
 
 ## Licencja
 
