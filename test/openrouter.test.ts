@@ -403,6 +403,7 @@ test('LLM summarizer rejects conclusions with citations outside the supplied gra
   try {
     const fallback = await summarizeGraph(graph, diagnostics, config, { allowDeterministicFallback: true });
     assert.equal(fallback.llmUsed, false);
+    assert.equal(fallback.responses.length, 2, 'both rejected attempts stay visible in fallback audit');
     assert.ok(fallback.conclusions.every((item) => item.recordIds.includes(record.id)));
     assert.match(fallback.warnings.join('\n'), /Invalid structured summary response/);
     await assert.rejects(

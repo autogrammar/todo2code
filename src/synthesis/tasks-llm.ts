@@ -393,13 +393,13 @@ function compactSynthesisPayload(graph: IntentGraph, report: DiagnosticReport): 
     diagnostics: {
       schemaVersion: report.schemaVersion,
       graphFingerprint: report.graphFingerprint,
-      diagnostics,
+      diagnostics: groundedDiagnostics,
     },
     limits: {
       maxConclusions: 100,
       maxProposals: 100,
       originalDiagnostics: report.diagnostics.length,
-      includedDiagnostics: diagnostics.length,
+      includedDiagnostics: groundedDiagnostics.length,
       originalRecords: graph.records.length,
       includedRecords: records.length,
     },

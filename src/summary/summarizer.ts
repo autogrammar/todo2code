@@ -117,6 +117,8 @@ export async function summarizeGraph(
     };
   } catch (error) {
     if (mode === 'require-llm') throw error;
+    const failure = error instanceof SummaryAttemptError ? error.failure : error;
+    const responses = error instanceof SummaryAttemptError ? error.responses : [];
     const reason = 'LLM_UNAVAILABLE';
     const conclusions = deterministicConclusions(
       graph,
@@ -127,14 +129,21 @@ export async function summarizeGraph(
       conclusions,
       markdown: renderSummaryMarkdown(graph, conclusions),
       llmUsed: false,
-      warnings: [`OpenRouter summary failed; generated deterministic fallback: ${error instanceof Error ? error.message : String(error)}`],
-      responses: [],
+      warnings: [`OpenRouter summary failed; generated deterministic fallback: ${failure instanceof Error ? failure.message : String(failure)}`],
+      responses,
     };
   }
 }
 
 const CONCLUSION_KINDS: ConclusionKind[] = ['finding', 'risk', 'decision', 'recommendation'];
 const CONCLUSION_SEVERITIES: DiagnosticSeverity[] = ['info', 'warning', 'review_required', 'blocking'];
+
+class SummaryAttemptError extends Error {
+  constructor(readonly failure: unknown, readonly responses: LlmResponseMetadata[]) {
+    super(failure instanceof Error ? failure.message : String(failure));
+    this.name = 'SummaryAttemptError';
+  }
+}
 
 /**
  * Checks the envelope before any field is read.
@@ -235,9 +244,14 @@ async function summarizeWithCorrection(
           }]
         : []),
     ];
-    const completion = await client.chatJsonWithMetadata<unknown>(
-      messages, 't2c_grounded_summary', responseSchema(), config.openRouter.summaryModel,
-    );
+    let completion;
+    try {
+      completion = await client.chatJsonWithMetadata<unknown>(
+        messages, 't2c_grounded_summary', responseSchema(), config.openRouter.summaryModel,
+      );
+    } catch (error) {
+      throw new SummaryAttemptError(error, [...responses]);
+    }
     responses.push(completion.metadata);
     try {
       const conclusions = materializeConclusions(
@@ -249,7 +263,12 @@ async function summarizeWithCorrection(
       return { conclusions, responses };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      if (attempt === 1) throw new Error(`Invalid structured summary response: ${message}`);
+      if (attempt === 1) {
+        throw new SummaryAttemptError(
+          new Error(`Invalid structured summary response: ${message}`),
+          [...responses],
+        );
+      }
       correction = message;
     }
   }
