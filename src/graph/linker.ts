@@ -138,7 +138,7 @@ function collectCandidatePairs(
   for (const record of records) {
     if (record.source.kind === 'ast') {
       astIds.add(record.id);
-      if (record.statement.kind === 'module_fact') moduleAstIds.add(record.id);
+      if (isFileAggregate(record)) moduleAstIds.add(record.id);
       if (record.statement.action === 'declare' && record.statement.target.symbols.length > 0) {
         declarationAstIds.add(record.id);
       }
@@ -154,7 +154,7 @@ function collectCandidatePairs(
 }
 
 function isModuleTopicSource(record: IntentRecord): boolean {
-  return record.statement.kind === 'module_fact'
+  return isFileAggregate(record)
     || record.source.kind === 'nl'
     || record.source.kind === 'todo'
     || record.source.kind === 'document';
@@ -397,9 +397,21 @@ function intersectionSize(left: Set<string>, right: Set<string>): number {
   return size;
 }
 
+/**
+ * A record standing for a whole file rather than one symbol or key.
+ *
+ * `module_fact` covers source modules; `configuration_file_fact` covers
+ * configuration files. Both exist so a declaration can bind to a file instead
+ * of to every declaration inside it.
+ */
+function isFileAggregate(record: IntentRecord): boolean {
+  return record.statement.kind === 'module_fact'
+    || record.statement.kind === 'configuration_file_fact';
+}
+
 function isModuleEvidencePair(left: IntentRecord, right: IntentRecord): boolean {
   return left.source.kind !== right.source.kind
-    && (left.statement.kind === 'module_fact' || right.statement.kind === 'module_fact');
+    && (isFileAggregate(left) || isFileAggregate(right));
 }
 
 function determineRelation(left: IntentRecord, right: IntentRecord, evidence: PairEvidence): DirectedRelation {

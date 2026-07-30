@@ -208,6 +208,15 @@ function configFact(path: string, text: string): IntentRecord {
   });
 }
 
+function configAggregate(path: string, text: string): IntentRecord {
+  return buildRecord({
+    kind: 'configuration_file_fact', action: 'configure', object: path,
+    target: { paths: [path] }, text, lifecycle: 'implemented', sourceKind: 'system', sourcePath: path,
+    sourceLines: { start: 1, end: 20 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'], metadata: { aggregate: 'configuration-file' },
+  });
+}
+
 test('Two configuration declarations sharing only a key name are not linked', () => {
   // Config records are uniform: same action, tiny text, repeated key names.
   // On an infrastructure repository this produced 28 896 mutual relations,
@@ -253,4 +262,22 @@ test('Configuration still links to documentation that describes it', () => {
 
   const graph = linkIntentRecords([config, documentation], AT);
   assert.ok(graph.relations.length > 0, 'cross-kind evidence must survive the suppression');
+});
+
+test('Configuration file aggregate links to prose through grounded capability topics', () => {
+  const config = configAggregate(
+    'config/ingress.yaml',
+    'configure config/ingress.yaml ingress request timeout',
+  );
+  const documentation = buildRecord({
+    kind: 'documentation_statement', action: 'document', object: 'ingress request timeout',
+    target: {}, text: 'The ingress request timeout is configured for the gateway.',
+    lifecycle: 'proposed', sourceKind: 'document', sourcePath: 'docs/ingress.md',
+    sourceLines: { start: 3, end: 3 }, extractor: 'test', epistemicClass: 'declaration',
+    confidence: 0.8, basis: ['fixture'],
+  });
+
+  const graph = linkIntentRecords([config, documentation], AT);
+  assert.equal(graph.relations.length, 1);
+  assert.ok(graph.relations[0]?.basis.some((basis) => basis.startsWith('module_topic:')));
 });
