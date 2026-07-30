@@ -48,6 +48,8 @@
 - Split the deterministic text-diff engine from unified, SVG and HTML
   rendering while keeping every renderer re-exported from the existing public
   `src/diff/text` entrypoint.
+- Split the blocking Rust SDK into transport client, action wrappers, wire
+  types and error modules, retaining the original crate-root public exports.
 - Stopped treating ticket prefixes such as `T2C` as code symbols and stopped
   action-like inline-code identifiers such as `validateContract` from
   overriding the explicit prose verb. Validation verb forms are recognized
