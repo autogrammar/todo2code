@@ -6,7 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 import { pathExists, readJson } from '../src/core/io.js';
-import type { IntentGraph, PipelineManifest } from '../src/core/types.js';
+import type { Conclusion, IntentGraph, PipelineManifest } from '../src/core/types.js';
 import { buildRealityView } from '../src/diff/reality.js';
 import { runPipeline } from '../src/pipeline/run.js';
 import { executeAction } from '../src/services/actions.js';
@@ -42,6 +42,7 @@ test('Offline pipeline writes a complete run', async () => {
   assert.ok(await pathExists(result.graphPath));
   assert.ok(await pathExists(result.diagnosticsPath));
   assert.ok(await pathExists(result.summaryPath));
+  assert.ok(await pathExists(result.summaryConclusionsPath));
   assert.equal(result.manifest.llm.documentationExtraction, false);
   assert.equal(result.manifest.llm.naturalLanguageExtraction, false);
   assert.equal(result.manifest.llm.markdownExtraction, false);
@@ -64,6 +65,10 @@ test('Offline pipeline writes a complete run', async () => {
   assert.ok(!JSON.stringify(result.manifest.configuration).includes('apiKey'));
   assert.match(result.manifest.configuration.fingerprint, /^[a-f0-9]{64}$/);
   const graph = await readJson<IntentGraph>(result.graphPath);
+  const conclusions = await readJson<Conclusion[]>(result.summaryConclusionsPath);
+  assert.ok(conclusions.length > 0);
+  assert.ok(conclusions.every((item) => item.schemaVersion === 't2c.conclusion/v1'));
+  assert.equal(result.manifest.files.summaryConclusions?.endsWith('/summary-conclusions.json'), true);
   assert.ok(graph.records.some((record) => record.source.kind === 'nl'));
   assert.ok(graph.records.some((record) => record.source.kind === 'git'));
   assert.ok(graph.records.some((record) => record.source.kind === 'ast'));

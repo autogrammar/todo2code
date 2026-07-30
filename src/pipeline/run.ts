@@ -33,6 +33,7 @@ export interface PipelineResult {
   graphPath: string;
   diagnosticsPath: string;
   summaryPath: string;
+  summaryConclusionsPath: string;
   taskSynthesisPath: string | null;
   todoPatchPath: string | null;
   todoPatchAuditPath: string | null;
@@ -201,7 +202,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
         runtimeVersion: T2C_VERSION,
         configuration: openRouterAuditConfiguration(config, null),
         status: 'skipped', requestedMode: 'deterministic', effectiveMode: 'deterministic', degraded: false,
-        recordCount: 0, warningCount: 0, model: null,
+        recordCount: summary.conclusions.length, warningCount: 0, model: null,
         durationMs: Date.now() - summaryStartedAt,
         reason: { code: 'LLM_DISABLED', message: 'LLM summary was disabled; generated the deterministic report' },
         responses: [],
@@ -211,14 +212,14 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
         runtimeVersion: T2C_VERSION,
         configuration: openRouterAuditConfiguration(config, config.openRouter.summaryModel),
         status: 'succeeded', requestedMode: 'llm', effectiveMode: 'llm', degraded: false,
-        recordCount: 0, warningCount: summary.warnings.length, model: config.openRouter.summaryModel,
+        recordCount: summary.conclusions.length, warningCount: summary.warnings.length, model: config.openRouter.summaryModel,
         durationMs: Date.now() - summaryStartedAt, reason: null, responses: summary.responses,
       }
     : {
         runtimeVersion: T2C_VERSION,
         configuration: openRouterAuditConfiguration(config, config.openRouter.summaryModel),
         status: 'fallback', requestedMode: 'llm', effectiveMode: 'deterministic', degraded: true,
-        recordCount: 0, warningCount: summary.warnings.length, model: config.openRouter.summaryModel,
+        recordCount: summary.conclusions.length, warningCount: summary.warnings.length, model: config.openRouter.summaryModel,
         durationMs: Date.now() - summaryStartedAt,
         reason: { code: hasOpenRouter(config) ? 'LLM_UNAVAILABLE' : 'LLM_NOT_CONFIGURED', message: summary.warnings[0] ?? 'Deterministic summary fallback was used' },
         responses: [],
@@ -235,6 +236,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const graphPath = path.join(runDirectory, 'intent.graph.json');
   const diagnosticsPath = path.join(runDirectory, 'diagnostics.json');
   const summaryPath = path.join(runDirectory, 'team-summary.md');
+  const summaryConclusionsPath = path.join(runDirectory, 'summary-conclusions.json');
   const taskSynthesisPath = taskSynthesis ? path.join(runDirectory, 'task-synthesis.json') : null;
   const todoValidationPath = taskSynthesis ? path.join(runDirectory, 'todo-validation.json') : null;
   const todoPatchPath = todoPatch ? path.join(runDirectory, 'TODO.patch') : null;
@@ -244,6 +246,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   await writeJson(graphPath, graph);
   await writeJson(diagnosticsPath, diagnostics);
   await writeText(summaryPath, summary.markdown);
+  await writeJson(summaryConclusionsPath, summary.conclusions);
   if (communicationAnalysisPath && communicationMarkdownPath && communicationAnalysis) {
     await Promise.all([
       writeJson(communicationAnalysisPath, communicationAnalysis),
@@ -267,6 +270,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   files.graph = path.relative(root, graphPath).replace(/\\/g, '/');
   files.diagnostics = path.relative(root, diagnosticsPath).replace(/\\/g, '/');
   files.summary = path.relative(root, summaryPath).replace(/\\/g, '/');
+  files.summaryConclusions = path.relative(root, summaryConclusionsPath).replace(/\\/g, '/');
 
   const configuration = manifestConfiguration(options, config);
   const stageAudits = {
@@ -305,8 +309,12 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     runDirectory: path.relative(root, runDirectory).replace(/\\/g, '/'),
     graphFingerprint: graph.fingerprint,
     summary: files.summary,
+    summaryConclusions: files.summaryConclusions,
   });
-  return { runDirectory, manifest, graphPath, diagnosticsPath, summaryPath, taskSynthesisPath, todoPatchPath, todoPatchAuditPath, communicationAnalysisPath };
+  return {
+    runDirectory, manifest, graphPath, diagnosticsPath, summaryPath, summaryConclusionsPath,
+    taskSynthesisPath, todoPatchPath, todoPatchAuditPath, communicationAnalysisPath,
+  };
   } catch (error) {
     await persistFailedRun(runId, root, runDirectory, options, config, error, activeStage, completedStages);
     throw error;

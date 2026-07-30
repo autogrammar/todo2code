@@ -282,13 +282,23 @@ test('LLM summarizer receives graph data and preserves grounded record citations
   const diagnostics = diagnoseGraph(graph, '2026-07-29T00:00:00.000Z');
   const originalFetch = globalThis.fetch;
   let userPayload = '';
+  let responseFormat = '';
   globalThis.fetch = async (_input, init) => {
-    const body = JSON.parse(String(init?.body)) as { messages?: Array<{ role: string; content: string }> };
+    const body = JSON.parse(String(init?.body)) as {
+      messages?: Array<{ role: string; content: string }>;
+      response_format?: { type?: string };
+    };
     userPayload = body.messages?.find((message) => message.role === 'user')?.content ?? '';
+    responseFormat = body.response_format?.type ?? '';
+    const diagnostic = diagnostics.diagnostics.find((item) => item.recordIds.includes(record.id))!;
     return new Response(JSON.stringify({
       id: 'gen-summary-1', model: 'qwen/summary-resolved', provider: 'SummaryProvider',
       usage: { prompt_tokens: 50, completion_tokens: 20, total_tokens: 70, cost: 0.004 },
-      choices: [{ message: { content: `# Raport\n\n## Cel\n\nDodać walidację kontraktu. [${record.id}]` } }],
+      choices: [{ message: { content: JSON.stringify({ conclusions: [{
+        kind: 'recommendation', title: 'Dodać walidację kontraktu',
+        detail: 'Plan wymaga dowodu implementacji walidacji kontraktu.', severity: diagnostic.severity,
+        diagnosticIds: [diagnostic.id], recordIds: [record.id], confidence: 0.91,
+      }] }) } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
   try {
@@ -297,10 +307,48 @@ test('LLM summarizer receives graph data and preserves grounded record citations
     assert.equal(result.responses[0]?.responseId, 'gen-summary-1');
     assert.equal(result.responses[0]?.provider, 'SummaryProvider');
     assert.equal(result.responses[0]?.usage?.cost, 0.004);
+    assert.equal(result.conclusions.length, 1);
+    assert.equal(result.conclusions[0]?.schemaVersion, 't2c.conclusion/v1');
+    assert.equal(result.conclusions[0]?.generation.effectiveMode, 'llm');
     assert.ok(result.markdown.includes(`[${record.id}]`));
+    assert.ok(result.markdown.includes('t2c.conclusion/v1'));
     assert.ok(result.markdown.includes(graph.fingerprint));
     assert.ok(userPayload.includes(record.id));
     assert.ok(!userPayload.includes('secret-test-key'));
+    assert.equal(responseFormat, 'json_schema');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('LLM summarizer rejects conclusions with citations outside the supplied graph', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const record = buildRecord({
+    kind: 'declared_intent', action: 'add', object: 'grounded.summary', text: 'Add a grounded summary.',
+    lifecycle: 'proposed', sourceKind: 'nl', sourcePath: 'TASK.md', sourceLines: { start: 1, end: 1 },
+    extractor: 'test', epistemicClass: 'declaration', confidence: 1, basis: ['test'],
+  });
+  const graph = linkIntentRecords([record], '2026-07-29T00:00:00.000Z');
+  const diagnostics = diagnoseGraph(graph, '2026-07-29T00:00:00.000Z');
+  const diagnostic = diagnostics.diagnostics.find((item) => item.recordIds.includes(record.id))!;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    choices: [{ message: { content: JSON.stringify({ conclusions: [{
+      kind: 'finding', title: 'Invented evidence', detail: 'This citation is not in the graph.',
+      severity: 'warning', diagnosticIds: [diagnostic.id],
+      recordIds: ['INT-NL-00000000000000000000'], confidence: 0.9,
+    }] }) } }],
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  try {
+    const fallback = await summarizeGraph(graph, diagnostics, config, { allowDeterministicFallback: true });
+    assert.equal(fallback.llmUsed, false);
+    assert.ok(fallback.conclusions.every((item) => item.recordIds.includes(record.id)));
+    assert.match(fallback.warnings.join('\n'), /Invalid structured summary response/);
+    await assert.rejects(
+      () => summarizeGraph(graph, diagnostics, config, { allowDeterministicFallback: false }),
+      /references unknown ids/,
+    );
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -352,7 +400,7 @@ test('LLM summarizer prioritizes documentation over the AST payload budget', asy
     const user = body.messages?.find((message) => message.role === 'user')?.content ?? '{}';
     payload = JSON.parse(user) as typeof payload;
     return new Response(JSON.stringify({
-      choices: [{ message: { content: `# Report\n\nDocumentation reviewed. [${document.id}]` } }],
+      choices: [{ message: { content: JSON.stringify({ conclusions: [] }) } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
   try {

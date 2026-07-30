@@ -27,8 +27,8 @@ Rygorystyczne kontrakty wyjściowe `t2c.conclusion/v1`,
 service i pięć SDK. Główny pipeline opcjonalnie zapisuje syntezę, walidację i
 patch w manifeście runu. `TODO.md` zmienia wyłącznie osobna operacja apply po
 jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
-„Następne działania” w `team-summary.md` pozostaje niezależną projekcją
-diagnostyki/narracją LLM i nie zastępuje walidowanych propozycji DSL2TODO.
+„Następne działania” w `team-summary.md` jest projekcją zwalidowanych wniosków
+`t2c.conclusion/v1`, ale nadal nie zastępuje walidowanych propozycji DSL2TODO.
 
 ## Macierz komponentów
 
@@ -52,7 +52,7 @@ diagnostyki/narracją LLM i nie zastępuje walidowanych propozycji DSL2TODO.
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
 | Diagnostyka i Intent vs Reality | działa | wynik jest deterministyczny, ale AST może dominować liczbę tematów i ostrzeżeń |
-| Graf → raport NL | działa | LLM ma ograniczony payload; bez modelu powstaje jawnie oznaczony raport deterministyczny |
+| Graf → wnioski → raport NL | działa | LLM zwraca structured output, runtime materializuje i waliduje `t2c.conclusion/v1`, a Markdown jest dopiero deterministyczną projekcją; fallback również tworzy poprawne wnioski |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
 | Zadania DSL → `TODO.patch` | działa we wszystkich interfejsach | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem i rejestracją w run history |
@@ -61,15 +61,15 @@ diagnostyki/narracją LLM i nie zastępuje walidowanych propozycji DSL2TODO.
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 156 testów: 155 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 51 modułów i 277 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 157 testów: 156 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 51 modułów i 280 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 19 modułów bez tranzytywnego importu LLM;
 - 59 zmiennych używanych przez kod/Docker i 59 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 207 rekordów i 654 relacje. Liczba
+Przebieg offline na `examples/` utworzył 207 rekordów i 650 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -99,18 +99,16 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
 
 1. Pipeline tworzy patch do review, ale celowo nie może go sam zatwierdzić;
    approval pozostaje osobną operacją człowieka lub uprawnionego klienta.
-2. Raport LLM jest nadal Markdownem i nie przechodzi jeszcze przez istniejący
-   kontrakt `t2c.conclusion/v1`.
-3. Fakty AST są znacznie drobniejsze niż intencje produktowe. Bez agregacji
+2. Fakty AST są znacznie drobniejsze niż intencje produktowe. Bez agregacji
    zawyżają liczbę `IMPLEMENTED_NOT_PLANNED` i `IMPLEMENTED_NOT_DOCUMENTED`.
-4. Wzbogacanie całego TODO/CHANGELOG jednym dużym żądaniem może przekroczyć
+3. Wzbogacanie całego TODO/CHANGELOG jednym dużym żądaniem może przekroczyć
    timeout providera.
-5. Adaptery językowe są orkiestratorowane przez duży `src/extractors/ast.ts`;
+4. Adaptery językowe są orkiestratorowane przez duży `src/extractors/ast.ts`;
    podział per język uprości niezależne wersjonowanie i testowanie.
-6. Porównania historyczne wykonane bez dokumentacyjnego DSL raportują 0%
+5. Porównania historyczne wykonane bez dokumentacyjnego DSL raportują 0%
    pokrycia dokumentacją jako brak dowodu w grafie, a nie dowód braku
    dokumentacji w repozytorium.
-7. Starsze repozytoria bez `project/participants.json` działają w trybie
+6. Starsze repozytoria bez `project/participants.json` działają w trybie
    legacy; dopiero dodanie rejestru wymusza stabilne `participant-id` i wyłącza
    traktowanie nazwy wyświetlanej jako rozstrzygniętej tożsamości.
 

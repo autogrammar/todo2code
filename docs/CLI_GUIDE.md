@@ -75,6 +75,7 @@ trybu wykonania. Udany run zapisuje:
     ├── todo-validation.json      # gdy --task-mode != disabled
     ├── TODO.patch                # wyłącznie do review
     ├── TODO.patch.json           # audyt patcha
+    ├── summary-conclusions.json  # zwalidowane t2c.conclusion/v1
     ├── team-summary.md
     └── manifest.json
 ```

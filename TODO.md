@@ -17,7 +17,7 @@
 - [ ] Split large TODO/CHANGELOG LLM enrichment into bounded batches with a
   shared audit and deterministic ordering; verify latency and cost against
   `qwen/qwen3.7-plus` and a faster configured model.
-- [ ] Make summary generation structurally validated through
+- [x] Make summary generation structurally validated through
   `t2c.conclusion/v1` before rendering Markdown, rather than accepting free-form
   narrative as the primary result.
 - [ ] Add an explicit CLI summary mode

@@ -57,7 +57,7 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
 | Propozycje → patch → approved apply | deterministyczna walidacja, renderer i atomowy zapis | nie |
-| Graf DSL → raport NL | OpenRouter; wejściem jest tylko graf i diagnostyka | **tak** |
+| Graf DSL → `t2c.conclusion/v1` → raport NL | OpenRouter structured output; runtime waliduje cytowania przed deterministycznym renderingiem Markdown | **tak** |
 
 Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
 `npm run verify:no-llm` oraz bezcykliczny graf modułów `npm run verify:modules`.
@@ -405,13 +405,17 @@ buildu, więc wykluczenie zagnieżdżonej kopii jest zamierzone.
     ├── document.intent.jsonl
     ├── intent.graph.json
     ├── diagnostics.json
+    ├── summary-conclusions.json
     ├── team-summary.md
     └── manifest.json
 ```
 
 Każdy rekord zawiera identyfikator, statement, lifecycle, dokładne źródło, hash treści, klasę epistemiczną, confidence i podstawy wnioskowania. Fakty AST mają confidence `1.0`. Rekordy wygenerowane przez LLM są oznaczone jako `llm_inference` i mają pułap zależny od struktury źródła: `0.94` dla wzbogaconych pozycji TODO/CHANGELOG, `0.90` dla prozy NL i `0.85` dla dokumentacji. Żaden z nich nie sięga poziomu obserwacji deterministycznej — pełną tabelę zawiera [`docs/DSL.md`](docs/DSL.md).
 
-`manifest.json` zapisuje również `runtime.version`, bezpieczny snapshot i
+`summary-conclusions.json` jest strukturalnym źródłem raportu: zawiera wyłącznie
+zwalidowane `t2c.conclusion/v1`, a `team-summary.md` jest jego deterministyczną
+projekcją połączoną z sekcjami faktów grafu. `manifest.json` zapisuje również
+`runtime.version`, bezpieczny snapshot i
 fingerprint konfiguracji oraz statusy `naturalLanguageExtraction`,
 `markdownExtraction`, `documentationExtraction` i `summary`. Status runu `degraded` jest pokazywany
 w CLI, `GET /api/runs` i UI. Parametry obejmują modele, timeout, temperaturę,

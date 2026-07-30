@@ -132,6 +132,11 @@ semantycznej. Runtime odrzuca wniosek, jeżeli nie cytuje co najmniej jednej
 istniejącej diagnostyki i jednego istniejącego rekordu z grafu, raport
 diagnostyczny ma inny fingerprint lub ID nie odpowiada treści.
 
+Etap podsumowania żąda od modelu wyłącznie pól semantycznych w structured
+output. Runtime nadaje ID i provenance, odrzuca nieznane cytowania oraz waliduje
+każdy obiekt tym kontraktem. Dopiero wtedy renderuje `team-summary.md`;
+kanoniczna tablica wniosków pozostaje w `summary-conclusions.json`.
+
 ## Propozycje zadań (`t2c.todo-proposal/v1`)
 
 Propozycja zadania ma zawsze `status: proposed`, priorytet `P0`–`P3`, target,
