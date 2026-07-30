@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/variable-contract.schema.json",
+  "title": "todo2code Governed Variable Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "name", "valueType", "classification", "source", "access", "mutable", "freshnessSeconds"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.variable-contract/v1" },
+    "id": { "type": "string", "pattern": "^VAR-[a-f0-9]{20}$" },
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,79}$" },
+    "valueType": { "enum": ["string", "number", "integer", "boolean", "string[]", "object"] },
+    "classification": { "enum": ["public", "internal", "confidential", "secret"] },
+    "source": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "ref"],
+      "properties": {
+        "kind": { "enum": ["aql", "digital_twin", "vault", "runtime"] },
+        "ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "access": {
+      "type": "object", "additionalProperties": false, "required": ["readers", "writers"],
+      "properties": {
+        "readers": { "$ref": "#/$defs/principals" },
+        "writers": { "$ref": "#/$defs/principals" }
+      }
+    },
+    "mutable": { "type": "boolean" },
+    "freshnessSeconds": { "type": ["integer", "null"], "minimum": 1 }
+  },
+  "$defs": {
+    "principals": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "contains": { "const": "authority:founder" },
+      "items": { "type": "string", "pattern": "^(authority|human|bot|service|machine):[a-z0-9][a-z0-9._-]*$" }
+    }
+  }
+}

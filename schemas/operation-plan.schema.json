@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/operation-plan.schema.json",
+  "title": "todo2code Grounded Operation Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "planHash", "status", "createdAt", "contractVersion", "capabilitySnapshotHash", "requestedBy", "reason", "evidence", "generation", "variables", "steps", "expectations", "decision", "verification"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.operation-plan/v1" },
+    "id": { "type": "string", "pattern": "^OPLAN-[a-f0-9]{20}$" },
+    "planHash": { "$ref": "#/$defs/hash" },
+    "status": { "const": "proposed" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "contractVersion": { "type": "string", "minLength": 1 },
+    "capabilitySnapshotHash": { "$ref": "#/$defs/hash" },
+    "requestedBy": { "type": "string", "minLength": 1 },
+    "reason": { "type": "string", "minLength": 1 },
+    "evidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["graphFingerprint", "recordIds", "diagnosticIds", "conclusionIds"],
+      "properties": {
+        "graphFingerprint": { "$ref": "#/$defs/hash" },
+        "recordIds": { "$ref": "#/$defs/nonEmptyStrings" },
+        "diagnosticIds": { "$ref": "#/$defs/strings" },
+        "conclusionIds": { "$ref": "#/$defs/strings" }
+      }
+    },
+    "generation": { "$ref": "conclusion.schema.json#/$defs/generation" },
+    "variables": { "type": "array", "items": { "$ref": "variable-contract.schema.json" } },
+    "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/step" } },
+    "expectations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/expectation" } },
+    "decision": {
+      "type": "object", "additionalProperties": false, "required": ["required", "authority", "reason"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "authority": { "type": ["string", "null"] },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["serviceRestartRequired", "exerciseRequired", "independentReadback"],
+      "properties": {
+        "serviceRestartRequired": { "type": "boolean" },
+        "exerciseRequired": { "type": "boolean" },
+        "independentReadback": { "type": "boolean" }
+      }
+    }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "strings": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "nonEmptyStrings": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "parameter": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "variableId"],
+      "properties": { "kind": { "const": "variable" }, "variableId": { "type": "string", "pattern": "^VAR-[a-f0-9]{20}$" } }
+    },
+    "rollback": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "uriProcess", "reason"],
+      "properties": {
+        "kind": { "enum": ["uri_process", "unavailable"] },
+        "uriProcess": { "type": ["string", "null"] },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+    "step": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "name", "capability", "uriProcess", "actor", "effect", "reversible", "riskClass", "parameters", "dependsOn", "humanApproval", "rollback"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,79}$" },
+        "name": { "type": "string", "minLength": 1 },
+        "capability": { "type": "string", "minLength": 1 },
+        "uriProcess": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*://[^\\s*]+$" },
+        "actor": { "type": "string", "pattern": "^(authority|bot|service|machine):[a-z0-9][a-z0-9._-]*$" },
+        "effect": { "enum": ["query", "command"] },
+        "reversible": { "type": ["boolean", "null"] },
+        "riskClass": { "enum": ["read_only", "reversible", "boundary", "governance"] },
+        "parameters": { "type": "object", "propertyNames": { "pattern": "^[a-z][a-z0-9_]{0,79}$" }, "additionalProperties": { "$ref": "#/$defs/parameter" } },
+        "dependsOn": { "$ref": "#/$defs/strings" },
+        "humanApproval": { "type": "boolean" },
+        "rollback": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/rollback" }] }
+      }
+    },
+    "expectation": {
+      "type": "object", "additionalProperties": false, "required": ["id", "expected", "verifier", "verifiedBy"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,79}$" },
+        "expected": {},
+        "verifier": { "type": "string", "minLength": 1 },
+        "verifiedBy": { "$ref": "#/$defs/nonEmptyStrings" }
+      }
+    }
+  }
+}
