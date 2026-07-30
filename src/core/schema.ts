@@ -345,6 +345,38 @@ export function assertCodeChangePlans(
 }
 
 /**
+ * Validate persisted plans for rendering when their source graph and
+ * diagnostics are not loaded. Evidence references remain syntax-checked and
+ * content-bound by each plan hash; the supplied graph fingerprint must match.
+ */
+export function assertCodeChangePlansForReview(
+  values: unknown,
+  graphFingerprintValue: string,
+): asserts values is CodeChangePlan[] {
+  if (!Array.isArray(values)) throw new Error('Code change plans must be an array');
+  fingerprint(graphFingerprintValue, 'Code change review graphFingerprint');
+  const ids = new Set<string>();
+  for (const value of values) {
+    const plan = objectValue(value, 'Code change plan');
+    const evidence = objectValue(plan.evidence, 'Code change plan evidence');
+    uniqueIdArray(evidence.recordIds, RECORD_ID, 'Code change plan evidence.recordIds');
+    uniqueIdArray(evidence.diagnosticIds, DIAGNOSTIC_ID, 'Code change plan evidence.diagnosticIds');
+    uniqueIdArray(evidence.conclusionIds, CONCLUSION_ID, 'Code change plan evidence.conclusionIds');
+    uniqueIdArray(evidence.proposalIds, TODO_PROPOSAL_ID, 'Code change plan evidence.proposalIds');
+    assertCodeChangePlanValue(value, {
+      recordIds: new Set(evidence.recordIds as string[]),
+      diagnosticIds: new Set(evidence.diagnosticIds as string[]),
+      conclusionIds: new Set(evidence.conclusionIds as string[]),
+      proposalIds: new Set(evidence.proposalIds as string[]),
+    });
+    assertPlanGraphFingerprint(value, graphFingerprintValue);
+    const id = (value as CodeChangePlan).id;
+    if (ids.has(id)) throw new Error(`Duplicate code change plan id: ${id}`);
+    ids.add(id);
+  }
+}
+
+/**
  * Validate a persisted plan before acceptance when its full conclusion and
  * TODO-proposal objects are no longer present. Their IDs remain syntax-checked
  * and content-bound by the plan hash; records and diagnostics stay grounded in
@@ -498,7 +530,7 @@ function assertTodoProposalValue(
   if (proposal.id !== expectedId) throw new Error(`TODO proposal id does not match semantic content: expected ${expectedId}`);
 }
 
-function assertGroundedGenerationMetadata(value: unknown, name: string): asserts value is GroundedGenerationMetadata {
+export function assertGroundedGenerationMetadata(value: unknown, name: string): asserts value is GroundedGenerationMetadata {
   const generation = objectValue(value, name);
   exactKeys(generation, [
     'generator', 'generatorVersion', 'runtimeVersion', 'generatedAt', 'requestedMode', 'effectiveMode',

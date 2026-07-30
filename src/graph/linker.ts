@@ -134,6 +134,7 @@ function collectCandidatePairs(
   const astIds = new Set<string>();
   const moduleAstIds = new Set<string>();
   const declarationAstIds = new Set<string>();
+  const configurationIds = new Set<string>();
   for (const record of records) {
     if (record.source.kind === 'ast') {
       astIds.add(record.id);
@@ -142,13 +143,14 @@ function collectCandidatePairs(
         declarationAstIds.add(record.id);
       }
     }
+    if (record.source.kind === 'system') configurationIds.add(record.id);
     indexTargetBuckets(buckets, record);
     indexKeywordBuckets(buckets, record.id, keywordIndex.get(record.id)?.object);
     if (isModuleTopicSource(record)) {
       indexTopicBuckets(buckets, record.id, keywordIndex.get(record.id)?.topics);
     }
   }
-  return pairsFromBuckets(buckets, astIds, moduleAstIds, declarationAstIds);
+  return pairsFromBuckets(buckets, astIds, moduleAstIds, declarationAstIds, configurationIds);
 }
 
 function isModuleTopicSource(record: IntentRecord): boolean {
@@ -206,11 +208,33 @@ function addToBucket(buckets: Map<string, string[]>, key: string, recordId: stri
   else buckets.set(key, [recordId]);
 }
 
+/**
+ * Two configuration declarations sharing a key name are not evidence.
+ *
+ * Config records are uniform by construction: every one carries action
+ * `configure` and a fragment of text such as `params:` or `version: 1`, so
+ * `same_action` plus text similarity clears the threshold for almost any pair.
+ * On an infrastructure repository 1 263 configuration records produced 28 896
+ * mutual relations — 72% of the entire graph — restating only that YAML files
+ * reuse key names. A shared ticket still connects them, because that names one
+ * piece of work rather than a shared vocabulary.
+ */
+function isSuppressedConfigurationPair(
+  bucketKey: string,
+  leftId: string,
+  rightId: string,
+  configurationIds: Set<string>,
+): boolean {
+  if (bucketKey.startsWith('ticket:')) return false;
+  return configurationIds.has(leftId) && configurationIds.has(rightId);
+}
+
 function pairsFromBuckets(
   buckets: Map<string, string[]>,
   astIds: Set<string>,
   moduleAstIds: Set<string>,
   declarationAstIds: Set<string>,
+  configurationIds: Set<string>,
 ): Array<[string, string]> {
   const output = new Map<string, [string, string]>();
   for (const [bucketKey, ids] of buckets) {
@@ -221,6 +245,7 @@ function pairsFromBuckets(
         const rightId = limited[right];
         if (!leftId || !rightId) continue;
         if (isSuppressedAstPair(bucketKey, leftId, rightId, astIds, moduleAstIds, declarationAstIds)) continue;
+        if (isSuppressedConfigurationPair(bucketKey, leftId, rightId, configurationIds)) continue;
         output.set(`${leftId}|${rightId}`, [leftId, rightId]);
       }
     }

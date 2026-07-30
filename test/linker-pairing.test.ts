@@ -196,3 +196,61 @@ test('Pair ordering stays deterministic across rebuilds', () => {
   assert.equal(first.fingerprint, second.fingerprint);
   assert.deepEqual(first.relations, second.relations);
 });
+
+/** A configuration declaration, as the deterministic config converter emits them. */
+function configFact(path: string, text: string): IntentRecord {
+  return buildRecord({
+    kind: 'configuration_declaration', action: 'configure', object: text,
+    target: { paths: [path], symbols: ['timeout'] },
+    text, lifecycle: 'implemented', sourceKind: 'system', sourcePath: path,
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'],
+  });
+}
+
+test('Two configuration declarations sharing only a key name are not linked', () => {
+  // Config records are uniform: same action, tiny text, repeated key names.
+  // On an infrastructure repository this produced 28 896 mutual relations,
+  // 72% of the whole graph, restating only that YAML files reuse keys.
+  const graph = linkIntentRecords([
+    configFact('config/a.yaml', 'Configure timeout'),
+    configFact('config/b.yaml', 'Configure timeout'),
+  ], AT);
+
+  assert.equal(graph.relations.length, 0, 'shared config vocabulary is not evidence');
+});
+
+test('A shared ticket still connects two configuration declarations', () => {
+  const left = buildRecord({
+    kind: 'configuration_declaration', action: 'configure', object: 'Configure ingress',
+    target: { paths: ['config/a.yaml'], tickets: ['PLF-42'] }, text: 'Configure ingress PLF-42',
+    lifecycle: 'implemented', sourceKind: 'system', sourcePath: 'config/a.yaml',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'],
+  });
+  const right = buildRecord({
+    kind: 'configuration_declaration', action: 'configure', object: 'Configure ingress',
+    target: { paths: ['config/b.yaml'], tickets: ['PLF-42'] }, text: 'Configure ingress PLF-42',
+    lifecycle: 'implemented', sourceKind: 'system', sourcePath: 'config/b.yaml',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'],
+  });
+
+  const graph = linkIntentRecords([left, right], AT);
+  assert.ok(graph.relations.length > 0, 'a ticket names one piece of work, not a vocabulary');
+  assert.ok(graph.relations[0]?.basis.includes('shared_ticket'));
+});
+
+test('Configuration still links to documentation that describes it', () => {
+  const config = configFact('config/ingress.yaml', 'Configure ingress timeout');
+  const documentation = buildRecord({
+    kind: 'documentation_statement', action: 'configure', object: 'ingress timeout',
+    target: { paths: ['config/ingress.yaml'] }, text: 'Configure the ingress timeout in `config/ingress.yaml`.',
+    lifecycle: 'proposed', sourceKind: 'document', sourcePath: 'docs/ingress.md',
+    sourceLines: { start: 3, end: 3 }, extractor: 'test', epistemicClass: 'declaration',
+    confidence: 0.8, basis: ['fixture'],
+  });
+
+  const graph = linkIntentRecords([config, documentation], AT);
+  assert.ok(graph.relations.length > 0, 'cross-kind evidence must survive the suppression');
+});
