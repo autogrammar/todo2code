@@ -130,6 +130,9 @@ test('The shipped .intentignore excludes build output but keeps sources', async 
     assert.equal(ignore.ignores(excluded, true), true, excluded);
   }
   assert.equal(ignore.ignores('package-lock.json'), true);
+  assert.equal(ignore.ignores('.github/workflows', true), false, 'workflow directory stays visible');
+  assert.equal(ignore.ignores('.github/workflows/ci.yml'), false, 'workflow configuration stays visible');
+  assert.equal(ignore.ignores('.github/actions', true), true, 'unrelated hidden GitHub state stays ignored');
   assert.equal(ignore.ignores('src/cli.ts'), false);
   assert.equal(ignore.ignores('README.md'), false);
   assert.equal(ignore.ignores('.env.example'), false, '.env.example stays visible');

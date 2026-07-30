@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 223 testy: 222 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 224 testy: 223 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
 | Moduły | `npm run verify:modules` | PASS — 93 moduły, 426 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
@@ -110,7 +110,7 @@ cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 227 records, 89 relations; communication: 3 blocking, 1 warning
+demo: 227 records, 90 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint 2a1e0353460e6704
@@ -195,6 +195,15 @@ repozytorium (`20260730T191330Z-152bfed1`) zakończył się `succeeded` bez LLM;
 liczba planów po odfiltrowaniu szumu spadła z 9 do 3 i wszystkie pozostałe
 zmiany wskazują konkretne pliki.
 
+Kolejny audyt wykazał, że `.intentignore` odcinał `.github` przed
+konwerterem, mimo deklarowanej obsługi workflow CI. Po precyzyjnym ponownym
+włączeniu `.github/workflows/` run `20260730T201611Z-d65b5378` zapisał 30
+rekordów konfiguracji dla `ci.yml`, wszystkie z generatorem
+`t2c/configuration-structural@1` i runtime `0.5.0`. Jednocześnie dokument
+wyekstrahowany z dokładnej ścieżki może być dowodem dla wpisu CHANGELOG, który
+opisuje ten plik. Pipeline zakończył się `succeeded`, a liczba planów spadła z
+3 do 1; pozostała wyłącznie rzeczywista rekomendacja dotycząca `project.sh`.
+
 ### Watch
 
 `t2c watch` rozpoznaje istniejący `TASK.md` bez jawnego `--task`, obsługuje
@@ -244,7 +253,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 89 relacji, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 90 relacji, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

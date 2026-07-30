@@ -13,6 +13,10 @@ test('configuration converter covers JSON, TOML, Docker and CI workflow declarat
   await fs.writeFile(path.join(root, 'pyproject.toml'), '[project]\nname = "fixture"\n');
   await fs.writeFile(path.join(root, 'Dockerfile'), 'FROM node:22\nRUN npm test\n');
   await fs.writeFile(path.join(root, '.github', 'workflows', 'ci.yml'), 'name: ci\njobs:\n  test:\n    runs-on: ubuntu-latest\n');
+  await fs.writeFile(
+    path.join(root, '.intentignore'),
+    '.*/\n!.github/\n.github/*\n!.github/workflows/\n',
+  );
 
   const result = await extractConfigurationIntent(root, makeConfig(root));
   assert.equal(result.warnings.length, 0);

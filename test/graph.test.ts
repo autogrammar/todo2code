@@ -80,3 +80,23 @@ test('Diagnostics distinguish descriptive documentation from prescriptive requir
     assert.ok(report.diagnostics.some((item) => item.code === 'PLANNED_NOT_IMPLEMENTED'));
   }
 });
+
+test('A changelog entry naming an extracted documentation file has release evidence', () => {
+  const changelog = buildRecord({
+    kind: 'changelog_entry', action: 'document', object: 'performance analysis',
+    target: { paths: ['docs/OPTIMIZATION.md'] }, text: 'Added `docs/OPTIMIZATION.md`.',
+    lifecycle: 'released', sourceKind: 'changelog', sourcePath: 'CHANGELOG.md',
+    sourceLines: { start: 4, end: 4 }, extractor: 'test', epistemicClass: 'claim',
+    confidence: 0.95, basis: ['fixture'],
+  });
+  const documentation = buildRecord({
+    kind: 'documentation_statement', action: 'document', object: 'performance analysis',
+    target: {}, text: 'Measured performance analysis.', modality: 'observed',
+    lifecycle: 'implemented', sourceKind: 'document', sourcePath: 'docs/OPTIMIZATION.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'],
+  });
+
+  const report = diagnoseGraph(linkIntentRecords([changelog, documentation]), '2026-07-30T00:00:00.000Z');
+  assert.ok(!report.diagnostics.some((item) => item.code === 'CHANGELOG_WITHOUT_IMPLEMENTATION'));
+});

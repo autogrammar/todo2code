@@ -13,6 +13,11 @@
 
 ### Fixed
 
+- Re-include `.github/workflows/` after the broad hidden-directory ignore rule,
+  so CI configuration is actually converted to Intent DSL and can evidence
+  completed workflow tasks. Documentation files now also ground changelog
+  entries that name their exact path, removing two false code-change plans in
+  the repository audit.
 - Stabilize live task synthesis and summary without weakening grounding:
   provider-supplied `recordIds` are restricted to the evidence of the cited
   diagnostics, unknown `diagnosticIds` still fail closed, and blank

@@ -136,7 +136,7 @@ Punkty 1 i 3 są warunkami merytorycznymi, a punkt 2 techniczno-operacyjnym.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 223 testy, 93 moduły, kontrakt .env, workflowy
+npm run verify          # 224 testy, 93 moduły, kontrakt .env, workflowy
 npm run evaluate:gold   # precision/recall, cytowania, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 make smoke protocol-smoke docker-smoke

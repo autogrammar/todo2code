@@ -9,8 +9,14 @@
 # a build artefact, cache or the report itself changed.
 
 # --- Hidden directories -----------------------------------------------------
-# Every dot-directory: .git, .idea, .vscode, .venv, .cache, .github, .husky, …
+# Every dot-directory: .git, .idea, .vscode, .venv, .cache, .husky, …
 .*/
+
+# CI workflows are configuration evidence and must reach the deterministic
+# configuration converter. Re-include only this subtree, not all of `.github`.
+!.github/
+.github/*
+!.github/workflows/
 
 # The runtime writes its own output here, so watching it would loop forever.
 .intent/

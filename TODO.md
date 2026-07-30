@@ -63,7 +63,9 @@
 - [x] Add deterministic converters for repository configuration and
   infrastructure inputs (JSON/YAML/TOML, Docker and CI workflows) so their
   declared behavior is represented in DSL instead of only appearing as AST or
-  documentation references.
+  documentation references. The shipped ignore policy explicitly re-includes
+  `.github/workflows/`, so the advertised CI conversion is exercised in real
+  repositories, not only in an isolated fixture.
 
 ## P2 — modularity and operations
 

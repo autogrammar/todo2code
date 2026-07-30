@@ -15,12 +15,15 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
   const neighbors = buildNeighbors(graph);
   const recordsById = new Map(graph.records.map((record) => [record.id, record]));
   const implementedPaths = indexImplementedPaths(graph);
+  const documentedPaths = indexDocumentedPaths(graph);
 
   for (const record of graph.records) {
     const related = (neighbors.get(record.id) ?? [])
       .map((id) => recordsById.get(id))
       .filter((item): item is IntentRecord => Boolean(item));
-    const evidenced = related.some(isImplementationEvidence) || hasImplementedTarget(record, implementedPaths);
+    const evidenced = related.some(isImplementationEvidence)
+      || hasImplementedTarget(record, implementedPaths)
+      || record.source.kind === 'changelog' && hasDocumentedTarget(record, documentedPaths);
     if (isPlan(record) && !evidenced) {
       diagnostics.push(makeDiagnostic(
         record.lifecycle.status === 'completed' ? 'blocking' : 'warning',
@@ -178,9 +181,23 @@ function indexImplementedPaths(graph: IntentGraph): Set<string> {
   return paths;
 }
 
+/** Documentation files are evidence for changelog entries that name them. */
+function indexDocumentedPaths(graph: IntentGraph): Set<string> {
+  const paths = new Set<string>();
+  for (const record of graph.records) {
+    if (record.source.kind !== 'document' || !record.source.path) continue;
+    for (const alias of pathAliases(record.source.path)) paths.add(alias);
+  }
+  return paths;
+}
+
 /** True when the record names a file that Git or AST evidence covers. */
 function hasImplementedTarget(record: IntentRecord, implementedPaths: Set<string>): boolean {
   return record.statement.target.paths.some((value) => pathAliases(value).some((alias) => implementedPaths.has(alias)));
+}
+
+function hasDocumentedTarget(record: IntentRecord, documentedPaths: Set<string>): boolean {
+  return record.statement.target.paths.some((value) => pathAliases(value).some((alias) => documentedPaths.has(alias)));
 }
 
 function isPlan(record: IntentRecord): boolean {
