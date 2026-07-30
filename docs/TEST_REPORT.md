@@ -1,7 +1,7 @@
 # Raport z testów i poprawek
 
 Data wykonania: **2026-07-30**. Runtime: **0.5.0**. Baza robocza:
-zweryfikowany `main` na `e63bff3` (`feat: add required-LLM demo workflow`)
+zweryfikowany `main` na `6edaca5` (`fix: run full LLM demo without fallback`)
 wraz z opisanymi niżej zmianami dokumentacyjnymi. Środowisko: Linux,
 Node.js 20.19.5, Python 3.13.12, Go 1.24.4, Rust 1.93.0 i Docker 29.1.3.
 Lokalnie nie ma JDK; adapter Java jest wymagany w osobnym jobie CI z Temurin
@@ -15,9 +15,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 187 testów: 186 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 188 testów: 187 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
-| Moduły | `npm run verify:modules` | PASS — 90 modułów, 409 importów, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 90 modułów, 411 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
@@ -30,17 +30,45 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Live OpenRouter summary | `t2c summarize … --mode require-llm` | PASS — zwalidowane wnioski, bez fallbacku (3/4 prób; jedyna porażka to HTTP 429) |
 | Zaplanowany kontrakt live | `npm run live:check` | PASS/SKIP — NL i summary w `require-llm`, redacted audit i budżety; bez klucza kontrolowany skip |
 | Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
+| Trzy zewnętrzne repozytoria | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty, Python AST zachowany, 0 fałszywych rekordów komunikacji |
 
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
 lub regresja adaptera nie mogą tam zostać pominięte.
+
+## Walidacja na innych projektach
+
+Pipeline uruchomiono deterministycznie na trzech rzeczywistych repozytoriach
+z `~/github/semcod`, z artefaktami poza ich worktree:
+
+| Repozytorium | Wynik | Rekordy AST | Python AST | Komunikacja |
+|---|---:|---:|---:|---:|
+| `code2llm` | succeeded | 13 893 | 13 720 / 230 plików | 0, poprawnie pominięta |
+| `domd` | succeeded | 18 682 | 6 511 / 137 plików | 0, poprawnie pominięta |
+| `pactfix` | succeeded | 4 754 | 3 808 / 58 plików | 0, poprawnie pominięta |
+
+Pierwszy przebieg na `domd` zgłosił `Python AST extraction failed: stdout
+maxBuffer length exceeded`, ponieważ helper Python omijał repozytoryjne reguły
+ignore i widział około 1906 plików zamiast wybranego przez todo2code zbioru.
+Po poprawce helper otrzymuje dokładny, bezpiecznie ograniczony do root katalogu
+manifest plików z tego samego matchera co pozostałe adaptery. Wszystkie trzy
+repozytoria przeszły ponowny pipeline bez błędu Python AST.
+
+Pierwszy przebieg błędnie utworzył 1146 rekordów komunikacji w `code2llm` i
+1284 w `domd` z wygenerowanych plików typu `project/batch_1/context.md`. Po
+zawężeniu detekcji oba repozytoria mają 0 takich rekordów i etap jest jawnie
+`skipped / NO_COMMUNICATION_RECORDS`.
+
+Pozostałe ostrzeżenia są oczekiwane i audytowalne: brak lokalnego JDK,
+wykryte nieobsługiwane PHP/Ruby/C#, celowo niepoprawne fixture’y parserów oraz
+cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 
 ## Przykłady
 
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 225 records, 108 relations; communication: 3 blocking, 1 warning
+demo: 225 records, 113 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
@@ -139,7 +167,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 225 rekordów i 108 relacji, w tym cztery rekordy `document` i cztery
+demo ma 225 rekordów i 113 relacji, w tym cztery rekordy `document` i cztery
 rekordy konfiguracji `system`.
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

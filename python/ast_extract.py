@@ -110,7 +110,22 @@ class FactVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def iter_python_files(root: Path) -> list[Path]:
+def iter_python_files(root: Path, files_from: Path | None = None) -> list[Path]:
+    if files_from is not None:
+        values = json.loads(files_from.read_text(encoding='utf-8'))
+        if not isinstance(values, list) or any(not isinstance(value, str) for value in values):
+            raise ValueError('--files-from must contain a JSON array of paths')
+        output: list[Path] = []
+        for value in values:
+            candidate = (root / value).resolve()
+            try:
+                candidate.relative_to(root)
+            except ValueError as exc:
+                raise ValueError(f'Python source escapes root: {value}') from exc
+            if candidate.suffix == '.py' and candidate.is_file() and not candidate.is_symlink():
+                output.append(candidate)
+        return sorted(set(output))
+
     output: list[Path] = []
     for current, directories, files in os.walk(root):
         directories[:] = sorted(directory for directory in directories if directory not in IGNORED_DIRS)
@@ -126,11 +141,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('root')
     parser.add_argument('--max-file-bytes', type=int, default=524288)
+    parser.add_argument('--files-from', type=Path)
     args = parser.parse_args()
     root = Path(args.root).resolve()
     facts: list[dict[str, Any]] = []
     warnings: list[str] = []
-    for file_path in iter_python_files(root):
+    for file_path in iter_python_files(root, args.files_from):
         try:
             if file_path.stat().st_size > args.max_file_bytes:
                 warnings.append(f'skipped oversized Python file: {file_path.relative_to(root)}')

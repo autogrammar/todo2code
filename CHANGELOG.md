@@ -7,6 +7,7 @@
 - Added `make demollm`, which requires live OpenRouter execution for all six
   semantic pipeline stages, rejects fallback or degraded manifests, reports
   model/token/cost metadata, and is documented with process/sequence diagrams.
+
 - Added a deterministic Markdown documentation baseline for headings, fenced
   examples and explicit path/symbol/ticket references. Offline pipeline runs
   now produce versioned `document` DSL records before optional LLM enrichment.
@@ -84,6 +85,14 @@
 
 ### Fixed
 
+- Made the Python AST adapter consume the same `.gitignore`, `.dockerignore`
+  and `.intentignore`-filtered file set as the Node adapters. Large repositories
+  no longer lose all Python facts when generated project copies overflow the
+  helper output buffer.
+- Restricted automatic `project/` communication discovery to ticket-shaped
+  directories, human/agent filenames, participant registries or explicit
+  communication front matter. Generated analysis such as
+  `project/batch_1/context.md` is no longer misclassified as agent dialogue.
 - Workspace headline trends now use declared business-topic implementation,
   comparable documentation and severe diagnostics. Raw AST-only topic growth,
   source-line movement and record identity churn remain visible without

@@ -52,6 +52,13 @@ autorami commitów. `paths` i `symbols` zwiększają jakość powiązania z AST/
 Brak roli lub uczestnika nie jest uzupełniany przez domysł: runtime zapisuje
 ostrzeżenie i problem `PARTICIPANT_IDENTITY_UNRESOLVED`.
 
+Automatyczne skanowanie uznaje katalog za kanał komunikacji, gdy jego nazwa ma
+postać ticketu, np. `WM-101`, nazwa pliku identyfikuje `human.*`/`agent.*`,
+istnieje `project/participants.json` albo plik ma jawny front matter powyższego
+kontraktu. Dzięki temu wygenerowane analizy typu `project/batch_1/context.md`
+nie stają się przypadkowymi wypowiedziami agentów. Niestandardową nazwę
+ticketu można zawsze wskazać przez `--ticket` lub jawne pole `ticket:`.
+
 Rejestr `project/participants.json` ma kontrakt
 `t2c.participant-registry/v1`:
 

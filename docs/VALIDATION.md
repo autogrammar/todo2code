@@ -11,11 +11,11 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 30 modułów |
-| Granice modułów | PASS — 90 modułów, 409 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Granice modułów | PASS — 90 modułów, 411 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 186 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 225 rekordów i 108 relacji, w tym 5 `agent_log`, 4 `document` i 4 `system`; NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
+| Testy Node | PASS — 187 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 225 rekordów i 113 relacji, w tym 5 `agent_log`, 4 `document` i 4 `system`; NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
@@ -53,7 +53,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 187 testów, 186 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 188 testów, 187 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

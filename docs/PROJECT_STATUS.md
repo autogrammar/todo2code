@@ -53,6 +53,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
 | Provenance rekordów DSL | działa | każdy rekord wymaga generatora i jego wersji, wersji todo2code oraz — dla LLM — providera, rozstrzygniętego modelu i response ID; niespójne rekordy są odrzucane |
+| Przenośność między repozytoriami | zweryfikowana na 3 projektach | pełny pipeline offline przeszedł na `code2llm`, `domd` i `pactfix`; Python używa wspólnego ignore scope, a wygenerowane `project/**/context.md` nie są komunikacją bez markera kontraktu |
 | Diagnostyka i Intent vs Reality | działa | agregaty modułów ograniczają szum AST; `aligned` wymaga deklaracji i implementacji, a pokrycie dokumentacji jest osobną metryką |
 | Trend workspace | działa stabilnie | nagłówek trendu opiera się na pokryciu deklarowanych tematów, porównywalnej dokumentacji i ciężkich diagnostykach; churn linii i rekordów AST pozostaje metryką pomocniczą |
 | Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; surowa odpowiedź jest walidowana przed wyliczeniem ID, zweryfikowane przebiegi OpenRouter `require-llm` tworzą uziemione wnioski bez fallbacku w 3 z 4 prób, a jedyna porażka to `HTTP 429`, nie naruszenie kontraktu |
@@ -67,8 +68,8 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 187 testów: 186 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 90 modułów i 409 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 188 testów: 187 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 90 modułów i 411 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
   `.env.example`, bez duplikatów;
@@ -76,7 +77,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 225 rekordów i 108 relacji. Liczba
+Przebieg offline na `examples/` utworzył 225 rekordów i 113 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 

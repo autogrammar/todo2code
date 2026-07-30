@@ -58,15 +58,13 @@ export async function extractCommunicationIntent(
   );
   const records: ExtractionResult['records'] = [];
   const warnings: string[] = [];
+  let communicationFiles = 0;
 
   for (const file of files) {
     const relativeToProject = relativePosix(projectRoot, file);
     const parts = relativeToProject.split('/');
     const pathTicket = parts.length > 1 ? parts[0] ?? '' : '';
-    if (!pathTicket) {
-      if (!/^README|TEMPLATE/i.test(path.basename(file))) warnings.push(`${relativeToProject}: file is not under project/<ticket>/`);
-      continue;
-    }
+    if (!pathTicket) continue;
     if (options.ticket && pathTicket.toLowerCase() !== options.ticket.toLowerCase()) continue;
 
     let body: string;
@@ -78,6 +76,17 @@ export async function extractCommunicationIntent(
     }
     const envelope = parseEnvelope(body);
     const inferred = inferIdentity(relativeToProject);
+    const explicitEnvelope = Boolean(first(
+      envelope.metadata.participant,
+      envelope.metadata.participant_id,
+      envelope.metadata['participant-id'],
+      envelope.metadata.role,
+      envelope.metadata.type,
+      envelope.metadata.ticket,
+    ));
+    if (!options.ticket && !identityRegistry && !looksLikeTicket(pathTicket)
+      && !inferred.role && !explicitEnvelope) continue;
+    communicationFiles += 1;
     const declaredParticipant = first(envelope.metadata.participant, envelope.metadata.actor, inferred.participant);
     const declaredRole = normalizeRole(first(envelope.metadata.role, inferred.role));
     const declaredParticipantId = first(envelope.metadata.participant_id, envelope.metadata['participant-id']);
@@ -170,7 +179,7 @@ export async function extractCommunicationIntent(
     }
   }
 
-  if (records.length === 0 && files.length > 0) warnings.push('No intent-like communication statements were found');
+  if (records.length === 0 && communicationFiles > 0) warnings.push('No intent-like communication statements were found');
   return { records, warnings: [...new Set(warnings)].sort() };
 }
 
@@ -215,6 +224,10 @@ function inferIdentity(relativePath: string): { role: string | null; participant
     participant: filenameRole ? fileParts[1] ?? null : nestedParticipant,
     type: filenameRole ? fileParts[2] ?? null : fileParts.find((part) => isCommunicationType(part)) ?? null,
   };
+}
+
+function looksLikeTicket(value: string): boolean {
+  return /^[A-Za-z][A-Za-z0-9]*-\d+(?:[-_][A-Za-z0-9]+)*$/.test(value);
 }
 
 function normalizeRole(value: string | null): CommunicationRole {

@@ -105,3 +105,26 @@ test('communication extractor reports unresolved identity instead of inventing a
   const analysis = analyzeCommunication(linkIntentRecords(extracted.records));
   assert.ok(analysis.issues.some((item) => item.code === 'PARTICIPANT_IDENTITY_UNRESOLVED'));
 });
+
+test('communication extractor ignores generic generated analysis under project/', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-communication-analysis-'));
+  const generated = path.join(root, 'project', 'batch_1');
+  await fs.mkdir(generated, { recursive: true });
+  await fs.writeFile(path.join(generated, 'context.md'), '# Generated context\nAnalyze module dependencies.\n');
+  await fs.writeFile(path.join(generated, 'prompt.txt'), 'Generate a repository report.\n');
+  await fs.writeFile(path.join(root, 'project', 'README.md'), '# Analysis output\n');
+
+  const extracted = await extractCommunicationIntent({ root }, makeConfig(root));
+  assert.deepEqual(extracted.records, []);
+  assert.deepEqual(extracted.warnings, []);
+
+  const explicit = path.join(root, 'project', 'custom-stream');
+  await fs.mkdir(explicit, { recursive: true });
+  await fs.writeFile(path.join(explicit, 'note.md'), [
+    '---', 'participant: Alice', 'role: human', 'type: request', 'ticket: CUSTOM', '---',
+    'Add explicit communication parsing.', '',
+  ].join('\n'));
+  const withContract = await extractCommunicationIntent({ root }, makeConfig(root));
+  assert.equal(withContract.records.length, 1);
+  assert.equal(withContract.records[0]?.metadata.participant, 'Alice');
+});

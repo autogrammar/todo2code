@@ -15,6 +15,7 @@ test('AST extractor reads TypeScript and Python facts', async () => {
   await fs.mkdir(path.join(root, 'venv'), { recursive: true });
   await fs.writeFile(path.join(root, '.gitignore'), 'generated/\n');
   await fs.writeFile(path.join(root, 'generated', 'ignored.ts'), 'export const ignored = true;\n');
+  await fs.writeFile(path.join(root, 'generated', 'ignored.py'), 'def ignored_python() -> None:\n    pass\n');
   await fs.writeFile(path.join(root, 'venv', 'bundled.js'), 'export const bundled = true;\n');
   const result = await extractAstIntent({ root }, makeConfig(root));
   assert.ok(result.records.some((record) => record.source.path === 'runtime.ts' && record.source.symbol === 'validateContract'));
@@ -28,6 +29,7 @@ test('AST extractor reads TypeScript and Python facts', async () => {
   assert.deepEqual(runtimeModule?.metadata.capabilities, ['execute', 'validateContract']);
   assert.match(runtimeModule?.statement.text ?? '', /validateContract/);
   assert.ok(!result.records.some((record) => record.source.path === 'generated/ignored.ts'));
+  assert.ok(!result.records.some((record) => record.source.path === 'generated/ignored.py'));
   assert.ok(!result.records.some((record) => record.source.path === 'venv/bundled.js'));
   assert.ok(result.records.every((record) => record.epistemic.class === 'fact'));
   assert.match(result.warnings.join('\n'), /UNSUPPORTED_AST_FILES: php=1/);
