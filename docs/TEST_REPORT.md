@@ -14,9 +14,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 221 testów: 220 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 223 testy: 222 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
-| Moduły | `npm run verify:modules` | PASS — 92 moduły, 425 importów, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 93 moduły, 426 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
@@ -178,7 +178,7 @@ rollback i provenance. `t2c.code-change-acceptance/v1` porównuje grafy przed i
 po implementacji: wszystkie targeted diagnostics muszą zniknąć i nie może
 pojawić się nowa blokada. Pozytywny wynik nadal nie ustawia `DONE`.
 
-Piętnaście testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
+Siedemnaście testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
 tampering, brak provenance, niespójny verdict, hash-bound review i source patch,
 walidację path/akcji/sekretów, JSON Schema oraz pełny przebieg CLI wraz z
 `close-code-change` oraz zatwierdzone `apply-source-patch` z preflightem,
@@ -186,6 +186,14 @@ ochroną symlinków, kontrolą stanu receipt i rollbackiem. MCP publikuje 26 nar
 `review_code_changes`, a SDK TypeScript udostępnia propose, render,
 source-patch, jawne apply, evaluate i close. Pipeline nie wykonuje auto-apply,
 a close nie oznacza automatycznie DONE.
+
+Filtr `isUsefulCodeChangePath` jest sprawdzany osobno dla prawidłowych źródeł
+(TypeScript/Python, dokumentacja, SVG, lockfile, `Dockerfile`, `Makefile`) oraz
+dla vendoringu, cache/build, binariów, dumpów analizy, artefaktów runu,
+katalogów, globów, URI i ścieżek hosta. Deterministyczny pipeline na całym
+repozytorium (`20260730T191330Z-152bfed1`) zakończył się `succeeded` bez LLM;
+liczba planów po odfiltrowaniu szumu spadła z 9 do 3 i wszystkie pozostałe
+zmiany wskazują konkretne pliki.
 
 ### Watch
 

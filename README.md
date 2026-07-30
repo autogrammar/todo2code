@@ -74,7 +74,7 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
 | Propozycje → patch → approved apply | deterministyczna walidacja, renderer i atomowy zapis | nie |
-| Diagnostyka → code-change plan → acceptance/close | deterministyczny plan i bramka plan-set po re-analizie; bez auto-apply i auto-DONE | nie |
+| Diagnostyka → code-change plan → acceptance/close | deterministyczny plan dla konkretnych plików (bez vendoringu, binariów i artefaktów runu) oraz bramka plan-set po re-analizie; bez auto-apply i auto-DONE | nie |
 | Graf DSL → `t2c.conclusion/v1` → raport NL | OpenRouter structured output; runtime waliduje cytowania przed deterministycznym renderingiem Markdown | **tak** |
 
 Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to

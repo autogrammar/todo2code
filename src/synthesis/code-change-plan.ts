@@ -45,6 +45,9 @@ import type {
 import { normalizeTarget } from '../core/target.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { T2C_VERSION } from '../version.js';
+import { isUsefulCodeChangePath } from './code-change-path.js';
+
+export { isUsefulCodeChangePath } from './code-change-path.js';
 
 const IMPLEMENTATION_DIAGNOSTIC_CODES = new Set([
   'PLANNED_NOT_IMPLEMENTED',
@@ -335,25 +338,11 @@ function collectTarget(records: IntentRecord[], proposals: TodoProposal[]): Inte
     for (const version of proposal.target.versions) versions.add(version);
   }
   return normalizeTarget({
-    paths: [...paths].filter(isPlannablePath),
+    paths: [...paths].filter(isUsefulCodeChangePath),
     symbols: [...symbols],
     tickets: [...tickets],
     versions: [...versions],
   });
-}
-
-/**
- * A plan may only name a file inside the analysed repository.
- *
- * Extraction is the first line of defence, but records also arrive from
- * hand-written TODO items and from the LLM. One unusable value must degrade to
- * "this plan names fewer paths", never to a crashed pipeline: on an external
- * platform repository an absolute host path aborted the whole run at the
- * contract boundary, after every earlier stage had already succeeded.
- */
-function isPlannablePath(value: string): boolean {
-  const normalized = value.trim().replace(/\\/g, '/');
-  return Boolean(normalized) && !normalized.startsWith('/') && !normalized.split('/').includes('..');
 }
 
 function buildChanges(

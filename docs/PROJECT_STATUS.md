@@ -61,7 +61,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Pełne `make demollm` | działa live, fail-closed | zweryfikowany run `20260730T185205Z-312a0535`: NL, Markdown, dokumentacja, komunikacja, synteza zadań i summary mają `succeeded / llm / degraded=false`; task i summary używają generatora v2, a końcowa bramka odrzuca brak metadanych lub degradację |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
-| Diagnostyka → plan + review/source-patch | działa w pipeline/CLI/MCP/A2A/SDK | `code-change-plans.json`, hash-bound review oraz `code-change-source-patches.json`; brak auto-apply, a osobne apply wymaga kompletnego diffu, aktora i `patchHash`, wykonuje preflight/rollback oraz zapisuje receipt z provenance |
+| Diagnostyka → plan + review/source-patch | działa w pipeline/CLI/MCP/A2A/SDK | `code-change-plans.json`, hash-bound review oraz `code-change-source-patches.json`; cele są ograniczone do konkretnych plików (bez vendoringu, binariów, dumpów, katalogów, globów i artefaktów runu); brak auto-apply, a osobne apply wymaga kompletnego diffu, aktora i `patchHash`, wykonuje preflight/rollback oraz zapisuje receipt z provenance |
 | Re-analiza → acceptance | działa w CLI/MCP/A2A/SDK TypeScript | `t2c.code-change-acceptance/v1` wymaga zniknięcia targeted diagnostics i braku nowych blocking; `close-code-change` ocenia plan lub plan-set w jednym kroku i zwraca `t2c.code-change-close-result/v1` z runtime-owned provenance, bez auto-DONE |
 | Zadania DSL → `TODO.patch` | działa we wszystkich interfejsach | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem i rejestracją w run history |
 | Intent → proposal operacji Subactor | działa kontraktowo | `t2c.variable-contract/v1` i `t2c.operation-plan/v1` mają content-bound ID/hash, walidację authority/risk/rollback; prywatny bridge zapisuje atomowo wyłącznie `subactor.process-envelope.v2`, odmawia nadpisania i nie dispatchuje procesu |
@@ -70,8 +70,8 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 221 testów: 220 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 92 moduły i 425 importów wewnętrznych, brak cykli, niezależny `src/core`;
+- 223 testy: 222 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 93 moduły i 426 importów wewnętrznych, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
   `.env.example`, bez duplikatów;

@@ -183,6 +183,10 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [x] Deterministyczne budowanie planów z `PLANNED_NOT_IMPLEMENTED` /
   `CHANGELOG_WITHOUT_IMPLEMENTATION` i powiązanych propozycji TODO
   (bez auto-apply, bez udawania codegen).
+- [x] Filtrowanie celów planu do konkretnych, użytecznych plików: bez katalogów,
+  globów, ścieżek hosta/URI, vendoringu, cache/build, binariów oraz dumpów
+  `project/` i artefaktów runu todo2code; SVG, lockfile i zwykła dokumentacja
+  pozostają dozwolone. Audyt własnego repo zmniejszył szum z 9 do 3 planów.
 - [x] Kontrakt `t2c.code-change-acceptance/v1`: re-diagnose po zmianie,
   cleared vs remaining diagnostics, fail gdy pojawią się nowe blocking.
 - [x] CLI/MCP/A2A: `propose_code_change` / `evaluate_code_change` na grafie

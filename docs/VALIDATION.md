@@ -11,10 +11,10 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 30 modułów |
-| Granice modułów | PASS — 92 moduły, 425 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Granice modułów | PASS — 93 moduły, 426 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 220 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Testy Node | PASS — 222 zaliczone, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
 | Pipeline `examples/` | PASS — 227 rekordów i 89 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
@@ -23,7 +23,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | `npm run evaluate:gold` | PASS — ekstrakcja i linkowanie 100% precision/recall; cytowania 100%; klasyfikacja duplikatów 100% precision/recall; deduplication rate 50%; stabilność 2/2 przebiegów |
 | Pełny kontrakt runtime DSL | PASS — exact keys, enumy, ID/hash/czas/linie, relacje, końce i statystyki grafu |
 | Governed operation-plan DSL | PASS — 9 testów ID/hash, authority, sekretów, ryzyka, rollbacku, fail-closed bindingów i prywatnego atomowego artefaktu bez overwrite/dispatch |
-| Code-change plan, source patch i acceptance | PASS — ugruntowane ścieżki/ID, content hash, risk/rollback, provenance, tampering/sekrety, persisted CLI oraz re-diagnose pass/fail; source patch nie ma apply |
+| Code-change plan, source patch i acceptance | PASS — 17 testów: ugruntowane i użyteczne ścieżki/ID, content hash, risk/rollback, provenance, tampering/sekrety, persisted CLI, zatwierdzone apply z preflightem/rollbackiem oraz re-diagnose pass/fail |
 | Manifest każdej awarii pipeline | PASS — `require-llm` i nieoczekiwana awaria summary zapisują etap/kod bez publikowania `latest.json` |
 | OpenRouter invalid-model discovery | PASS — lista modeli po błędnym identyfikatorze |
 | Dokumentacja → DSL | PASS — deterministyczny baseline oraz mock OpenRouter: structured output, target hints, limity rekordów/chunków, timeout i współbieżność |

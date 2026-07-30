@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Code-change plans reject non-actionable targets before materialisation:
+  vendored/cache/build trees, binaries, generated analysis and todo2code run
+  artifacts, directory-like and wildcard paths, absolute paths and URIs.
+  Text sources such as SVG, lockfiles and ordinary documentation remain valid;
+  the policy lives in the dedicated `code-change-path.ts` module instead of
+  further growing the code-change planner.
+
 ### Fixed
 
 - Stabilize live task synthesis and summary without weakening grounding:

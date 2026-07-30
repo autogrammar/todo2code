@@ -51,8 +51,14 @@ t2c render-code-change .intent/runs/<run>/code-change-plans.json \
 
 Runtime tworzy plan wyłącznie dla diagnostyki
 `PLANNED_NOT_IMPLEMENTED` lub `CHANGELOG_WITHOUT_IMPLEMENTATION`, której
-dowody wskazują konkretną ścieżkę. Nie zgaduje brakujących plików. Każdy plan
-zawiera:
+dowody wskazują **użyteczną** ścieżkę implementacji. Odrzucane są m.in.
+`.venv` / `site-packages` / `node_modules`, cache i katalogi build, binaria,
+dumpy analizy (`project/analysis.toon*`, `*.mmd`), własne artefakty runu
+(`manifest.json`, `summary-conclusions.json`), katalogi, URI i globy
+(`examples/*/*`). Filtr jest konserwatywny dla ścieżek bez rozszerzenia,
+ale dopuszcza standardowe pliki źródłowe, takie jak `Dockerfile` i `Makefile`.
+SVG, lockfile i zwykłe pliki dokumentacji nie są odrzucane. Nie zgaduje
+brakujących ścieżek. Każdy plan zawiera:
 
 - dokładne `recordIds` i `diagnosticIds` oraz opcjonalne `conclusionIds` i
   `proposalIds`;

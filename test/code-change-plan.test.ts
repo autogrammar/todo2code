@@ -25,6 +25,7 @@ import {
   createCodeChangeSourcePatch,
   createCodeChangeSourcePatchSet,
   evaluateCodeChangeAcceptance,
+  isUsefulCodeChangePath,
   proposeCodeChangePlans,
   type ProposeCodeChangePlansResult,
 } from '../src/synthesis/code-change-plan.js';
@@ -590,6 +591,60 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
   assert.equal(closeResult.generation.generator, 't2c/code-change-close-result');
   assert.equal(closeResult.generation.runtimeVersion, '0.5.0');
   assert.equal(closeResult.generation.model, null);
+});
+
+test('isUsefulCodeChangePath rejects vendored, binary and analysis dump paths', () => {
+  assert.equal(isUsefulCodeChangePath('src/contracts.ts'), true);
+  assert.equal(isUsefulCodeChangePath('packages/core/index.py'), true);
+  assert.equal(isUsefulCodeChangePath('public/index.html'), true);
+  assert.equal(isUsefulCodeChangePath('docs/context.md'), true);
+  assert.equal(isUsefulCodeChangePath('assets/architecture.svg'), true);
+  assert.equal(isUsefulCodeChangePath('package-lock.json'), true);
+  assert.equal(isUsefulCodeChangePath('Cargo.lock'), true);
+  assert.equal(isUsefulCodeChangePath('Dockerfile'), true);
+  assert.equal(isUsefulCodeChangePath('tools/Makefile'), true);
+  assert.equal(isUsefulCodeChangePath('.testvenv/lib/python3.13/site-packages/pip/auth.py'), false);
+  assert.equal(isUsefulCodeChangePath('node_modules/left-pad/index.js'), false);
+  assert.equal(isUsefulCodeChangePath('.intent-demo/runs/latest/manifest.json'), false);
+  assert.equal(isUsefulCodeChangePath('project/compact_flow.png'), false);
+  assert.equal(isUsefulCodeChangePath('project/analysis.toon.yaml'), false);
+  assert.equal(isUsefulCodeChangePath('project/context.md'), false);
+  assert.equal(isUsefulCodeChangePath('project/index.html'), false);
+  assert.equal(isUsefulCodeChangePath('project'), false);
+  assert.equal(isUsefulCodeChangePath('src/core'), false);
+  assert.equal(isUsefulCodeChangePath('summary-conclusions.json'), false);
+  assert.equal(isUsefulCodeChangePath('CODE_CHANGE.review.json'), false);
+  assert.equal(isUsefulCodeChangePath('Prompt.txt'), false);
+  assert.equal(isUsefulCodeChangePath('examples/*/*'), false);
+  assert.equal(isUsefulCodeChangePath('/abs/path.ts'), false);
+  assert.equal(isUsefulCodeChangePath('C:\\outside\\path.ts'), false);
+  assert.equal(isUsefulCodeChangePath('https://example.test/source.ts'), false);
+});
+
+test('proposeCodeChangePlans skips diagnostics that only name junk paths', () => {
+  const junk = buildRecord({
+    kind: 'todo_item',
+    action: 'add',
+    object: 'vendored helper',
+    target: {
+      paths: ['.testvenv/lib/python3.13/site-packages/pip/_internal/network/auth.py'],
+      symbols: ['get_keyring_provider'],
+      tickets: [],
+    },
+    text: 'Refactor get_keyring_provider in .testvenv site-packages.',
+    lifecycle: 'planned',
+    sourceKind: 'todo',
+    sourcePath: 'TODO.md',
+    sourceLines: { start: 9, end: 9 },
+    extractor: 'test/code-change',
+    epistemicClass: 'plan',
+    confidence: 0.9,
+    basis: ['fixture'],
+  });
+  const graph = linkIntentRecords([junk], AT);
+  const diagnostics = diagnoseGraph(graph, AT);
+  const result = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT });
+  assert.equal(result.plans.length, 0);
 });
 
 test('Published code-change JSON schemas require provenance, risk and rollback', async () => {
