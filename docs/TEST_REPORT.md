@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 227 testów: 226 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 232 testy: 231 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
 | Moduły | `npm run verify:modules` | PASS — 93 moduły, 426 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
@@ -140,9 +140,10 @@ batch: aktywna przekazywała parserowi nazwę enuma `TYPESCRIPT`, podczas gdy
 parser wymaga identyfikatora `typescript`. Lokalny adapter kompatybilności
 normalizuje identyfikator bez osłabiania raportu. Kod wyjścia 2 oznaczający
 ostrzeżenia jakości (np. złożoność) nie przerywa już kopiowania raportu, ale
-bramka nadal odrzuca awarię dostępności parsera. Raport może zachować błędy
-narzędzia (np. grammar tree-sitter bez składni TypeScript 5), ponieważ
-autorytatywną bramką składni TypeScript jest `npm run check`.
+bramka nadal odrzuca awarię dostępności parsera. Dwa ostatnie fałszywe błędy
+gramatyki dla TypeScript 5 `export type *` usunięto przez jawne wyeksportowanie
+tych samych typów; publiczne API się nie zmieniło, a raport końcowy ma
+`errors: 0`. Autorytatywną bramką składni TypeScript pozostaje `npm run check`.
 
 Zachowano kompatybilną ścieżkę `project/analysis.toon.yaml`, definiując jawny
 kontrakt przestrzeni nazw: pliki główne i ogólne katalogi batch są analizą,
@@ -293,7 +294,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 91 relacji, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 92 relacje, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

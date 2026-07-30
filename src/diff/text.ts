@@ -2,7 +2,13 @@
 // to preserve the original public module API.
 
 export * from './text-render.js';
-export type * from './text-types.js';
+export type {
+  DiffHunk,
+  DiffLine,
+  DiffTextOptions,
+  FileDiff,
+  LineChangeType,
+} from './text-types.js';
 
 import type { DiffHunk, DiffLine, DiffTextOptions, FileDiff, LineChangeType } from './text-types.js';
 

@@ -21,7 +21,9 @@ for (const entry of await fs.readdir(projectDirectory, { withFileTypes: true }))
 let changed = 0;
 for (const file of files) {
   const original = await fs.readFile(file, 'utf8');
-  const normalized = original.replaceAll(sourceRoot, '<PROJECT_ROOT>');
+  const normalized = original
+    .replaceAll(sourceRoot, '<PROJECT_ROOT>')
+    .replace(/[ \t]+$/gm, '');
   if (normalized === original) continue;
   const temporary = `${file}.${process.pid}.tmp`;
   await fs.writeFile(temporary, normalized, 'utf8');

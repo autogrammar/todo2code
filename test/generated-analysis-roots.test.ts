@@ -15,7 +15,7 @@ test('generated analysis replaces its source root with a stable token', async ()
   await fs.mkdir(path.join(root, 'docs'));
   await fs.mkdir(path.join(root, 'project'));
   await fs.writeFile(path.join(root, 'docs', 'README.md'), `source: ${sourceRoot}\n`);
-  await fs.writeFile(path.join(root, 'project', 'context.md'), `root=${sourceRoot}\nagain=${sourceRoot}\n`);
+  await fs.writeFile(path.join(root, 'project', 'context.md'), `root=${sourceRoot}  \nagain=${sourceRoot}\t\n`);
   await fs.writeFile(path.join(root, 'project', 'flow.mmd'), 'relative only\n');
   await fs.writeFile(path.join(root, 'project', 'flow.png'), Buffer.from([0, 1, 2]));
 

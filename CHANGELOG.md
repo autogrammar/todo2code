@@ -25,6 +25,9 @@
   quality findings from an unavailable parser. Absolute analysis roots are
   normalized to `<PROJECT_ROOT>`, and generated files are not recursively
   consumed as source input.
+- Preserve the public diff and gold-evaluation type APIs through explicit type
+  exports instead of TypeScript 5 `export type *`; this remains equivalent for
+  TypeScript consumers and is understood by the current validation grammar.
 - Synchronize generated `docs/README.md` badges and license from `package.json`
   after `code2docs`; the external generator currently falls back to version
   `0.1.0`, a TypeScript badge and MIT for this Node/Apache-2.0 project. Template

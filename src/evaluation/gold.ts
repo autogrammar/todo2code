@@ -22,7 +22,25 @@ import {
   type GoldLinkingCase,
 } from './gold-types.js';
 
-export type * from './gold-types.js';
+export {
+  GOLD_FIXED_TIME,
+  GOLD_RELATION_CLASSES,
+  assertGoldDataset,
+} from './gold-types.js';
+export type {
+  BinaryMetric,
+  GoldDataset,
+  GoldDsl2TodoCase,
+  GoldEvaluationReport,
+  GoldExpectedRelation,
+  GoldExtractionCase,
+  GoldExtractionChannel,
+  GoldFixtureRecord,
+  GoldLinkingCase,
+  GoldProposalFixture,
+  GoldRecordProjection,
+  GoldRelationClass,
+} from './gold-types.js';
 
 interface EvaluationCore {
   extraction: GoldEvaluationReport['extraction'];
