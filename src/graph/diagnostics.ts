@@ -198,7 +198,9 @@ function isPlan(record: IntentRecord): boolean {
 }
 
 function isImplementationEvidence(record: IntentRecord): boolean {
-  return ['git', 'ast'].includes(record.source.kind);
+  // Configuration is observed reality too: a declared key in a committed file
+  // is evidence that the behaviour exists, exactly like an AST fact.
+  return ['git', 'ast', 'system'].includes(record.source.kind);
 }
 
 function isPublicImplementation(record: IntentRecord): boolean {

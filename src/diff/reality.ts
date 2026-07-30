@@ -27,10 +27,18 @@ import {
 
 /** Source kinds that state what *should* exist. */
 export const DECLARED_KINDS: SourceKind[] = ['nl', 'todo', 'document', 'agent_log'];
-/** Source kinds that evidence what *does* exist. */
-export const OBSERVED_KINDS: SourceKind[] = ['git', 'ast'];
+/**
+ * Source kinds that evidence what *does* exist.
+ *
+ * Configuration counts: a `system` record is an observed fact with lifecycle
+ * `implemented`, and for infrastructure repositories the implementation largely
+ * *is* the configuration. Leaving it out made Intent-vs-Reality structurally
+ * blind there — a platform repository with 1 263 configuration records reported
+ * 2.4% implementation coverage while documenting exactly what those files do.
+ */
+export const OBSERVED_KINDS: SourceKind[] = ['git', 'ast', 'system'];
 
-export const LANE_ORDER: SourceKind[] = ['nl', 'todo', 'document', 'agent_log', 'git', 'ast', 'changelog'];
+export const LANE_ORDER: SourceKind[] = ['nl', 'todo', 'document', 'agent_log', 'git', 'ast', 'system', 'changelog'];
 
 export type RealityStatus =
   | 'aligned'
