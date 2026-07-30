@@ -135,6 +135,13 @@ tych śladów. Tryb `T2C_ANALYSIS_SOURCE=workspace` jest jawnie ostrzegany i
 nadal podlega bramce, a modyfikujące źródła `prefact -a` wymaga osobnego
 `T2C_APPLY_PREFACT=1`.
 
+Wykryta przy regeneracji wersja `vallm 0.1.94` miała dwie równoległe ścieżki
+batch: aktywna przekazywała parserowi nazwę enuma `TYPESCRIPT`, podczas gdy
+parser wymaga identyfikatora `typescript`. Lokalny adapter kompatybilności
+normalizuje identyfikator bez osłabiania raportu. Kod wyjścia 2 oznaczający
+ostrzeżenia jakości (np. złożoność) nie przerywa już kopiowania raportu, ale
+bramka nadal odrzuca awarię parsera i każdą niezerową liczbę `errors`.
+
 Zachowano kompatybilną ścieżkę `project/analysis.toon.yaml`, definiując jawny
 kontrakt przestrzeni nazw: pliki główne i ogólne katalogi batch są analizą,
 natomiast komunikacja wymaga katalogu ticketu, rejestru uczestników albo front

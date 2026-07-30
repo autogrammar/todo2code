@@ -38,6 +38,9 @@ for (const file of generated.sort()) {
   if (/syntax\.unsupported[\s\S]{0,240}not available for download/i.test(content)) {
     failures.push(`${relative} contains a validator parser-download failure`);
   }
+  if (relative === 'project/validation.toon.yaml' && /\berrors:\s*[1-9]\d*/.test(content)) {
+    failures.push(`${relative} contains validation errors`);
+  }
 }
 
 if (failures.length > 0) {

@@ -85,7 +85,15 @@ run_analysis_tool "$VENV/bin/redup" scan . --format toon --output ./project
 #$VENV/bin/redup scan . --functions-only -f toon --output ./project
 #$VENV/bin/vallm batch ./src --recursive --semantic --model qwen2.5-coder:7b
 #$VENV/bin/vallm batch --parallel .
-run_analysis_tool "$VENV/bin/vallm" batch . --recursive --format toon --output ./project
+set +e
+run_analysis_tool "$VENV/bin/python" "$PROJECT_ROOT/scripts/vallm-compatible.py" \
+    batch . --recursive --format toon --output ./project
+VALLM_STATUS=$?
+set -e
+if [ "$VALLM_STATUS" -ne 0 ] && [ "$VALLM_STATUS" -ne 2 ]; then
+    echo "vallm failed to produce a validation report (exit $VALLM_STATUS)" >&2
+    exit "$VALLM_STATUS"
+fi
 
 if [ "$ANALYSIS_ROOT" != "$PROJECT_ROOT" ]; then
     while IFS= read -r -d '' generated; do
