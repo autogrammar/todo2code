@@ -730,6 +730,7 @@ Wbudowane klasy obejmują m.in.:
 
 ## Dokumentacja projektu
 
+- [`docs/PIPELINE_DSL_NL.md`](docs/PIPELINE_DSL_NL.md) — diagramy krok po kroku: zbiory → konwertery → Intent DSL → graf → wnioski → raport NL;
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — komponenty i przepływ;
 - [`docs/DSL.md`](docs/DSL.md) — model danych i relacje;
 - [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) — śledzenie wymagań;

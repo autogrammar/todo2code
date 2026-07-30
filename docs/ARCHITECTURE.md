@@ -1,5 +1,9 @@
 # Architektura todo2code
 
+Szczegółową kolejność konwerterów, budowę wspólnego DSL oraz przejście od
+grafu przez `t2c.conclusion/v1` do raportu NL pokazuje przewodnik
+[`PIPELINE_DSL_NL.md`](PIPELINE_DSL_NL.md).
+
 ## Przepływ
 
 ```mermaid

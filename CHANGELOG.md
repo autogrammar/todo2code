@@ -4,6 +4,9 @@
 
 ### Added
 
+- Added an end-to-end Polish architecture guide with seven validated Mermaid
+  diagrams covering source converters, Intent DSL, evidence linking,
+  diagnostics and the validated DSL-to-conclusion-to-NL path.
 - Summary generation now materializes and validates grounded
   `t2c.conclusion/v1` objects before deterministic Markdown rendering, with a
   persisted `summary-conclusions.json` artifact and citation-safe fallback.
