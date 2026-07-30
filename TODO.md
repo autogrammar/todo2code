@@ -70,6 +70,10 @@
 - [x] Run clean-room deterministic pipelines against three external mixed
   repositories (`code2llm`, `domd`, `pactfix`) and fix Python ignore-scope
   overflow plus false-positive `project/` communication discovery.
+- [x] Re-run clean-room offline pipelines on three further semcod repos
+  (`code2logic`, `code2docs`, `redup`): all `succeeded` with deterministic
+  code-change planning; fix configuration `??`/`||` SyntaxError that blocked
+  the batch.
 - [x] Split language adapters from `src/extractors/ast.ts` into independently
   testable TypeScript/JavaScript, Python, Go, Java and Rust modules behind the
   existing common adapter envelope.

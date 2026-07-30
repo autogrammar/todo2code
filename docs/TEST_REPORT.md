@@ -29,7 +29,8 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Live OpenRouter summary | `t2c summarize … --mode require-llm` | PASS — zwalidowane wnioski, bez fallbacku (3/4 prób; jedyna porażka to HTTP 429) |
 | Zaplanowany kontrakt live | `npm run live:check` | PASS/SKIP — NL i summary w `require-llm`, redacted audit i budżety; bez klucza kontrolowany skip |
 | Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
-| Trzy zewnętrzne repozytoria | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty, Python AST zachowany, 0 fałszywych rekordów komunikacji |
+| Trzy zewnętrzne repozytoria (batch 1) | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty |
+| Trzy zewnętrzne repozytoria (batch 2) | pipeline na `code2logic`, `code2docs`, `redup` | PASS — trzy `succeeded`, code-change stage deterministic, review + source patches |
 
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
@@ -45,6 +46,26 @@ z `~/github/semcod`, z artefaktami poza ich worktree:
 | `code2llm` | succeeded | 17 647 | 60 154 | 1 | 50 / 50 (limit runu) | 0, poprawnie pominięta |
 | `domd` | succeeded | 23 276 | 247 869 | 1 942 | 50 / 50 (limit runu) | 0, poprawnie pominięta |
 | `pactfix` | succeeded | 5 295 | 5 606 | 13 | 1 / 1 | 0, poprawnie pominięta |
+
+### Batch 2 — `code2logic`, `code2docs`, `redup` (2026-07-30)
+
+Deterministyczny pipeline offline (`--no-docs-llm --no-summary-llm
+--no-communication --task-mode disabled`), artefakty w
+`<repo>/.intent-t2c-semcod-batch/`. Przed uruchomieniem naprawiono składnię
+`configuration.ts` (`??`/`||` bez nawiasów psuło build JS).
+
+| Repozytorium | Wynik | Rekordy | Relacje | `PLANNED_NOT_IMPLEMENTED` | Plans / source patches | Uwagi |
+|---|---:|---:|---:|---:|---:|---|
+| `code2logic` | succeeded | 21 668 | 22 602 | 10 | 0 / 0 | 10 „planów” bez `target.paths` (nagłówki „recommended” / placeholdery TODO) — celowo brak materializacji planów |
+| `code2docs` | succeeded | 6 960 | 40 290 | 0 | 50 / 50 (limit) | review + source-patch set z provenance |
+| `redup` | succeeded | 7 803 | 28 523 | 7 | 50 / 50 (limit) | review + source-patch set z provenance |
+
+We wszystkich trzech:
+- `codeChangePlanning: succeeded / deterministic`;
+- generatory `t2c/code-change-plan-set`, `t2c/code-change-review`,
+  `t2c/code-change-source-patch-set`;
+- `agent_log=0` przy `--no-communication`.
+`code2logic` ostrzega o braku JDK (Java fixture) i 1 nieobsługiwanym pliku `.cs`.
 
 Pierwszy przebieg na `domd` zgłosił `Python AST extraction failed: stdout
 maxBuffer length exceeded`, ponieważ helper Python omijał repozytoryjne reguły

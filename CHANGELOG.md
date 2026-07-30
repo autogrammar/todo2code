@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Parenthesize mixed `??`/`||` in configuration file-aggregate format
+  resolution so the compiled extractor no longer throws a SyntaxError at runtime.
+
 ### Added
 
 - Added grounded `t2c.code-change-plan/v1` proposals and

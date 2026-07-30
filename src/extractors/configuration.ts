@@ -47,7 +47,8 @@ function configurationRecords(sourcePath: string, body: string): IntentRecord[] 
       : base.endsWith('.toml')
         ? tomlEntries(body)
         : yamlOrAssignmentEntries(body);
-  return entries.slice(0, MAX_ENTRIES_PER_FILE).map((entry) => buildRecord({
+  const bounded = entries.slice(0, MAX_ENTRIES_PER_FILE);
+  return [fileAggregate(sourcePath, bounded), ...bounded.map((entry) => buildRecord({
     kind: 'configuration_declaration',
     action: entry.action,
     object: entry.key,
@@ -65,7 +66,56 @@ function configurationRecords(sourcePath: string, body: string): IntentRecord[] 
     confidence: 0.98,
     basis: ['deterministic_configuration_structure', entry.basis],
     metadata: { format: entry.format, llmUsed: false },
-  }));
+  }))];
+}
+
+/**
+ * One record standing for the whole configuration file.
+ *
+ * Mirrors `module_fact` for AST. Without it a documentation statement about
+ * "the ingress configuration" can only bind to individual keys, which is both
+ * noisier and less useful than binding to the file — the same problem module
+ * aggregates solved on the code side. The aggregate carries the file's declared
+ * keys so capability-topic matching has something to match against.
+ */
+function fileAggregate(sourcePath: string, entries: ConfigurationEntry[]): IntentRecord {
+  const capabilities = [...new Set(entries.map((item) => item.key))].sort().slice(0, 40);
+  const format = entries[0]?.format ?? configurationFormat(sourcePath);
+  const lastLine = entries.reduce((maximum, item) => Math.max(maximum, item.line), 1);
+  return buildRecord({
+    kind: 'configuration_file_fact',
+    action: 'configure',
+    object: sourcePath,
+    target: { paths: [sourcePath], symbols: [] },
+    modality: 'observed',
+    text: `configure ${sourcePath} ${capabilities.join(' ')}`.trim(),
+    lifecycle: 'implemented',
+    sourcePath,
+    sourceKind: 'system',
+    sourceLines: { start: 1, end: lastLine },
+    extractor: 't2c/configuration-structural@1',
+    rawExcerpt: sourcePath,
+    epistemicClass: 'fact',
+    confidence: 0.98,
+    basis: ['deterministic_configuration_structure', 'configuration_file_aggregate'],
+    metadata: {
+      format,
+      aggregate: 'configuration-file',
+      factGranularity: 'file',
+      capabilities,
+      declaredKeys: entries.length,
+      llmUsed: false,
+    },
+  });
+}
+
+function configurationFormat(sourcePath: string): string {
+  const base = path.posix.basename(sourcePath).toLowerCase();
+  if (base.startsWith('dockerfile')) return 'dockerfile';
+  if (base.endsWith('.json')) return 'json';
+  if (base.endsWith('.toml')) return 'toml';
+  if (base.endsWith('.yaml') || base.endsWith('.yml')) return 'yaml';
+  return 'text';
 }
 
 interface ConfigurationEntry {
