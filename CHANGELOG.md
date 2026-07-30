@@ -42,6 +42,9 @@
 - Split the MCP stdio server into protocol orchestration, tool catalog/action
   dispatch, resource access and error modules while preserving modern 2026 and
   initialized legacy request behavior.
+- Split the dependency-free Go SDK into stable package constants, public wire
+  types, the A2A transport client and action wrappers without changing its
+  exported package API.
 - Stopped treating ticket prefixes such as `T2C` as code symbols and stopped
   action-like inline-code identifiers such as `validateContract` from
   overriding the explicit prose verb. Validation verb forms are recognized
