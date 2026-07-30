@@ -21,7 +21,10 @@ sekcji. Ekstraktor dokumentacji wysyła tylko pliki dopasowane do
 `T2C_DOC_PATTERNS` po zastosowaniu wykluczeń i limitów `T2C_DOC_*`; target hints
 zawierają jedynie już rozpoznane ścieżki, symbole, tickety i wersje. Summarizer wysyła wyłącznie
 skompaktowany graf i diagnostykę, bez raw excerptów, diffów i pełnych plików
-kodu. `T2C_NL_MODE=deterministic` oraz `T2C_MARKDOWN_MODE=deterministic`
+kodu. Opcjonalny etap komunikacji wysyła wyłącznie tekst i deterministyczne
+ID/cele rekordów `agent_log`; nie wysyła participant, roli, ticketu ani
+provenance jako pól do uzupełnienia przez model. `T2C_NL_MODE=deterministic`,
+`T2C_MARKDOWN_MODE=deterministic` oraz `T2C_COMMUNICATION_MODE=deterministic`
 wyłączają odpowiednie żądania OpenRouter.
 
 Przed użyciem na prywatnym repozytorium należy ustawić restrykcyjne globs i zweryfikować politykę wybranego modelu/providerów.

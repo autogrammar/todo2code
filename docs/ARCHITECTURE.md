@@ -87,16 +87,19 @@ współbieżność i limit rekordów wyznaczają górną granicę pracy. OpenRou
 strukturalny JSON; runtime nadpisuje źródło, ogranicza zakres linii i confidence,
 dlatego model nie może podmienić provenance.
 
-Każdy standalone wynik NL/Markdown/dokumentacji zawiera `audit.runtimeVersion`
+Każdy standalone wynik NL/Markdown/komunikacji/dokumentacji zawiera `audit.runtimeVersion`
 i bezpieczne `audit.configuration` (model, URL, timeout, token budget,
 temperatura i tryb structured output), bez klucza API. Dokumentacyjne rekordy
 LLM mają ten sam `metadata.generation` co NL i Markdown.
 
-### `src/extractors/communication.ts` i `src/communication/analyzer.ts`
+### `src/extractors/communication.ts`, `src/communication/llm.ts` i `src/communication/analyzer.ts`
 
 Pliki `project/<ticket>/*.md|txt` mają płaski front matter z uczestnikiem,
 rolą `human|agent`, typem wiadomości i opcjonalnymi aliasami autora Git.
-Konwerter emituje `agent_log` bez LLM. Analizator grupuje rekordy per uczestnik
+Konwerter emituje `agent_log` bez LLM. Opcjonalny, audytowany orkiestrator LLM
+wzbogaca dozwolone pola semantyczne i materializuje cytowaną
+`t2c.participant-synthesis/v1`, ale nie otrzymuje prawa do zmiany uczestnika,
+roli, ticketu, źródła, lifecycle ani klasy epistemicznej. Analizator grupuje rekordy per uczestnik
 i zestawia ich deklaracje/plany/claimy z komunikacją innych osób oraz dowodami
 Git/AST. Brak tożsamości pozostaje jawnym problemem; raport agenta nie jest
 podnoszony do klasy `fact`.

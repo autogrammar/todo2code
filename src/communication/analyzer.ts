@@ -3,6 +3,7 @@ import { assertIntentGraph } from '../core/schema.js';
 import { normalizeToken, similarity } from '../core/text.js';
 import type { Diagnostic, DiagnosticReport, IntentGraph, IntentRecord } from '../core/types.js';
 import type { CommunicationRole } from '../extractors/communication.js';
+import type { ParticipantCommunicationSynthesis } from './llm.js';
 
 export type CommunicationIssueSeverity = 'info' | 'warning' | 'review_required' | 'blocking';
 
@@ -43,6 +44,7 @@ export interface CommunicationAnalysis {
   graphFingerprint: string;
   tickets: string[];
   participants: ParticipantCommunicationAnalysis[];
+  syntheses: ParticipantCommunicationSynthesis[];
   issues: CommunicationIssue[];
   counts: Record<CommunicationIssueSeverity, number>;
 }
@@ -50,9 +52,11 @@ export interface CommunicationAnalysis {
 export function analyzeCommunication(
   graph: IntentGraph,
   generatedAt = new Date().toISOString(),
+  syntheses: ParticipantCommunicationSynthesis[] = [],
 ): CommunicationAnalysis {
   assertIntentGraph(graph);
   const communication = graph.records.filter((record) => record.source.kind === 'agent_log');
+  validateSyntheses(syntheses, communication);
   const evidenceByRecord = evidenceNeighbors(graph);
   const issues: CommunicationIssue[] = [];
   const participants = new Map<string, IntentRecord[]>();
@@ -158,9 +162,33 @@ export function analyzeCommunication(
     graphFingerprint: graph.fingerprint,
     tickets: [...new Set(communication.map(ticketOf))].sort(),
     participants: participantRows,
+    syntheses: [...syntheses].sort((left, right) => left.role.localeCompare(right.role) || left.participant.localeCompare(right.participant)),
     issues: uniqueIssues,
     counts,
   };
+}
+
+function validateSyntheses(syntheses: ParticipantCommunicationSynthesis[], communication: IntentRecord[]): void {
+  const byId = new Map(communication.map((record) => [record.id, record]));
+  const ids = new Set<string>();
+  for (const synthesis of syntheses) {
+    if (synthesis.schemaVersion !== 't2c.participant-synthesis/v1') {
+      throw new Error('Unsupported participant synthesis schemaVersion');
+    }
+    if (ids.has(synthesis.id)) throw new Error(`Duplicate participant synthesis id: ${synthesis.id}`);
+    ids.add(synthesis.id);
+    if (!synthesis.recordIds.length) throw new Error(`Participant synthesis ${synthesis.id} has no record citations`);
+    for (const recordId of synthesis.recordIds) {
+      const record = byId.get(recordId);
+      if (!record) throw new Error(`Participant synthesis ${synthesis.id} cites unknown communication record ${recordId}`);
+      if (participantOf(record) !== synthesis.participant || roleOf(record) !== synthesis.role) {
+        throw new Error(`Participant synthesis ${synthesis.id} cites a record owned by another participant`);
+      }
+      if (!record.statement.target.tickets.some((ticket) => synthesis.tickets.includes(ticket))) {
+        throw new Error(`Participant synthesis ${synthesis.id} cites a record outside its tickets`);
+      }
+    }
+  }
 }
 
 export function renderCommunicationMarkdown(analysis: CommunicationAnalysis): string {
@@ -171,8 +199,15 @@ export function renderCommunicationMarkdown(analysis: CommunicationAnalysis): st
     '| Uczestnik | Rola | Wiadomości | Plany | Claimy | Commity | Dowody | Problemy |',
     '|---|---|---:|---:|---:|---:|---:|---:|',
     ...analysis.participants.map((item) => `| ${escapeCell(item.participant)} | ${item.role} | ${item.communicationRecords} | ${item.plans} | ${item.claims} | ${item.matchedGitCommits} | ${item.linkedEvidenceRecords} | ${item.issueIds.length} |`),
-    '', '## Rozbieżności', '',
+    '', '## Synteza per uczestnik', '',
   ];
+  if (analysis.syntheses.length === 0) lines.push('- Brak uziemionych syntez uczestników.');
+  for (const item of analysis.syntheses) {
+    lines.push(`- **${escapeCell(item.participant)} / ${item.role}** — ${item.summary} ${item.recordIds.map((id) => `[${id}]`).join(' ')}`);
+    if (item.commitments.length) lines.push(`  - Zobowiązania: ${item.commitments.join('; ')}`);
+    if (item.risks.length) lines.push(`  - Ryzyka: ${item.risks.join('; ')}`);
+  }
+  lines.push('', '## Rozbieżności', '');
   if (analysis.issues.length === 0) lines.push('- Nie wykryto rozbieżności w dostępnych źródłach. Nie oznacza to automatycznego zatwierdzenia wykonania.');
   for (const item of analysis.issues) {
     lines.push(`- **${item.severity} / ${item.code} / ${item.ticket}** — ${item.detail} ${item.recordIds.map((id) => `[${id}]`).join(' ')}`);

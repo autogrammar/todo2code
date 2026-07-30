@@ -2,6 +2,7 @@ import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
 import { hasOpenRouter } from '../config/env.js';
 import { addCommunicationIssuesToDiagnostics, analyzeCommunication, renderCommunicationMarkdown } from '../communication/analyzer.js';
+import { CommunicationLlmRequiredError, extractCommunicationIntentAudited, type ParticipantCommunicationSynthesis } from '../communication/llm.js';
 import { createIntentId, newRunId, sha256, stableStringify } from '../core/id.js';
 import { ensureDir, pathExists, readText, writeJson, writeJsonl, writeText } from '../core/io.js';
 import type {
@@ -14,7 +15,6 @@ import type {
   PipelineStageAudit,
 } from '../core/types.js';
 import { extractAstIntent } from '../extractors/ast.js';
-import { extractCommunicationIntent } from '../extractors/communication.js';
 import { DocumentationLlmRequiredError, extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntentAudited, MarkdownLlmRequiredError } from '../extractors/markdown-llm.js';
@@ -131,32 +131,24 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const communicationStartedAt = Date.now();
   let communicationAudit = skippedAudit('disabled', 'Communication analysis was disabled');
   let communicationInputPresent = false;
+  let communicationSyntheses: ParticipantCommunicationSynthesis[] = [];
   if (includeCommunication) {
     activeStage = 'communicationAnalysis';
-    const communication = await extractCommunicationIntent({
+    const communication = await extractCommunicationIntentAudited({
       root,
       projectDir: options.projectDirectory ?? 'project',
       ticket: options.communicationTicket ?? null,
-    }, config);
+    }, config, options.communicationMode ?? config.communicationMode);
     const missingDirectory = communication.records.length === 0
       && communication.warnings.length === 1
       && communication.warnings[0]?.startsWith('Communication directory not found:');
     communicationInputPresent = !missingDirectory;
     bySource.communication = communication.records;
+    communicationSyntheses = communication.participants;
     if (!missingDirectory) warnings.push(...communication.warnings);
     communicationAudit = missingDirectory
       ? skippedAudit('deterministic', communication.warnings[0] ?? 'Communication directory not found')
-      : {
-          runtimeVersion: T2C_VERSION,
-          configuration: {
-            projectDirectory: options.projectDirectory ?? 'project',
-            ticket: options.communicationTicket ?? null,
-          },
-          status: communication.warnings.length > 0 ? 'partial' : 'succeeded',
-          requestedMode: 'deterministic', effectiveMode: 'deterministic', degraded: false,
-          recordCount: communication.records.length, warningCount: communication.warnings.length,
-          model: null, durationMs: Date.now() - communicationStartedAt, reason: null, responses: [],
-        };
+      : { ...communication.audit, durationMs: Date.now() - communicationStartedAt };
   }
   completedStages.communicationAnalysis = communicationAudit;
 
@@ -165,7 +157,9 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const generatedAt = new Date().toISOString();
   const graph = linkIntentRecords(allRecords, generatedAt);
   activeStage = 'diagnostics';
-  const communicationAnalysis = communicationInputPresent ? analyzeCommunication(graph, generatedAt) : null;
+  const communicationAnalysis = communicationInputPresent
+    ? analyzeCommunication(graph, generatedAt, communicationSyntheses)
+    : null;
   let diagnostics = diagnoseGraph(graph, generatedAt);
   if (communicationAnalysis) diagnostics = addCommunicationIssuesToDiagnostics(diagnostics, communicationAnalysis);
   if (options.includeDocumentationLlm && !hasOpenRouter(config)) appendLlmNotConfigured(diagnostics);
@@ -300,6 +294,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
       naturalLanguageExtraction: naturalLanguageAudit.effectiveMode === 'llm',
       markdownExtraction: markdown.audit.effectiveMode === 'llm',
       documentationExtraction: documentationAudit.effectiveMode === 'llm',
+      communicationEnrichment: communicationAudit.effectiveMode === 'llm',
       taskSynthesis: taskSynthesisAudit.effectiveMode === 'llm',
       summary: summary.llmUsed,
     },
@@ -322,6 +317,7 @@ function manifestConfiguration(options: PipelineOptions, config: T2CConfig): Pip
   const configuration = {
     nlMode: options.nlMode ?? config.nlMode,
     markdownMode: options.markdownMode ?? config.markdownMode,
+    communicationMode: options.communicationMode ?? config.communicationMode,
     gitCommitCount: options.gitCommitCount,
     maxFileBytes: config.maxFileBytes,
     documentConcurrency: config.documentConcurrency,
@@ -353,6 +349,7 @@ function manifestConfiguration(options: PipelineOptions, config: T2CConfig): Pip
       baseUrl: config.openRouter.baseUrl,
       nlModel: config.openRouter.nlModel,
       markdownModel: config.openRouter.markdownModel,
+      communicationModel: config.openRouter.communicationModel,
       documentModel: config.openRouter.documentModel,
       summaryModel: config.openRouter.summaryModel,
       taskModel: config.openRouter.taskModel,
@@ -396,6 +393,7 @@ async function persistFailedRun(
   const knownAudit = error instanceof NlLlmRequiredError
     || error instanceof MarkdownLlmRequiredError
     || error instanceof DocumentationLlmRequiredError
+    || error instanceof CommunicationLlmRequiredError
     || error instanceof TaskSynthesisRequiredError
     ? error.audit
     : null;
@@ -445,6 +443,7 @@ async function persistFailedRun(
     llm: {
       naturalLanguageExtraction: stages.naturalLanguageExtraction.effectiveMode === 'llm',
       markdownExtraction: stages.markdownExtraction.effectiveMode === 'llm',
+      communicationEnrichment: stages.communicationAnalysis.effectiveMode === 'llm',
       documentationExtraction: false,
       taskSynthesis: false,
       summary: false,

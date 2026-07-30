@@ -14,7 +14,7 @@ Klient używa:
 - endpointu `${OPENROUTER_BASE_URL}/chat/completions`;
 - `Authorization: Bearer ...`;
 - nagłówków identyfikacji aplikacji `HTTP-Referer` oraz `X-OpenRouter-Title`;
-- `response_format.type = "json_schema"` i `strict = true` dla NL/Markdown/dokumentacji → DSL;
+- `response_format.type = "json_schema"` i `strict = true` dla NL/Markdown/komunikacji/dokumentacji → DSL;
 - `provider.require_parameters = true`, aby preferować endpointy obsługujące structured outputs;
 - kontrolowanego fallbacku do `json_object`, gdy endpoint odrzuci `json_schema`;
 - opcjonalnego pluginu `response-healing` dla odpowiedzi niestrumieniowanych;

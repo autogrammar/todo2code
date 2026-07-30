@@ -63,11 +63,13 @@ const TOOLS: McpTool[] = [
     root: stringProp('Repository root under T2C_ROOT.'),
     projectDir: stringProp('Communication root, default project.'),
     ticket: nullableStringProp('Optional ticket filter.'),
+    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
   }),
   tool('analyze_communication', 'Analyze every human/agent separately and detect communication-to-work divergences.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     projectDir: stringProp('Communication root, default project.'),
     ticket: nullableStringProp('Optional ticket filter.'),
+    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
     graph: { type: 'object', description: 'Optional existing t2c.graph/v1 object.' },
     gitCount: numberProp('Commit evidence count, default 10.', 1, 100),
     includeAst: { type: 'boolean', description: 'Include AST evidence, default true.' },
@@ -134,6 +136,7 @@ const TOOLS: McpTool[] = [
     docs: stringArrayProp('Documentation patterns.'),
     docExcludes: stringArrayProp('Documentation exclusion patterns.'),
     markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
     includeDocsLlm: { type: 'boolean', description: 'Run the same LLM documentation extraction on both sides.' },
     output: stringProp('Comparison artifact root, default .intent.'),
     gitCount: numberProp('Number of commit claims included per side.', 1, 100),
@@ -186,6 +189,7 @@ const TOOLS: McpTool[] = [
     includeCommunication: { type: 'boolean', description: 'Analyze project/<ticket> communication in the main run; default true.' },
     projectDir: stringProp('Communication directory under root, default project.'),
     communicationTicket: nullableStringProp('Optional ticket filter for communication input.'),
+    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
   }),
 ];
 

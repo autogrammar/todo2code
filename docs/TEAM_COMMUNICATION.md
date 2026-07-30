@@ -77,6 +77,23 @@ node /home/tom/github/semcod/todo2code/dist/src/cli.js extract communication \
   --out .intent/communication.intent.jsonl
 ```
 
+Domyślny `T2C_COMMUNICATION_MODE=deterministic` nie wysyła komunikacji poza
+runtime. Tryb `prefer-llm` wzbogaca wyłącznie semantykę i tworzy osobną,
+uziemioną syntezę dla każdego uczestnika; awaria jest jawnym fallbackiem.
+`require-llm` kończy etap błędem. Przykład:
+
+```bash
+node dist/src/cli.js communication . \
+  --project-dir project --ticket WM-101 \
+  --communication-mode prefer-llm
+```
+
+Odpowiedź modelu nie zawiera pól participant/role/ticket/source/lifecycle ani
+epistemic class. Runtime zachowuje je z deterministycznego parsera, ogranicza
+confidence do 0,85, mapuje cytowania na finalne ID rekordów i odrzuca syntezę,
+która cytuje cudzy lub nieistniejący rekord. `claim` agenta nie może stać się
+faktem przez wzbogacenie LLM.
+
 Akcje `extract_communication` i `analyze_communication` są również dostępne
 przez MCP i A2A. Wszystkie SDK akceptują je przez ogólną metodę `call`/`send`.
 

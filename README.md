@@ -50,7 +50,7 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 | TypeScript/JavaScript/Python/Go/Java/Rust AST → DSL | natywne parsery języków; Java Tree API, Rust `syn` | nie |
 | TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie preferowany** |
 | Dokumentacja → DSL | OpenRouter structured outputs | **tak** |
-| `project/<ticket>/` komunikacja → DSL | deterministyczny kontrakt uczestnika, roli i typu wypowiedzi | nie |
+| `project/<ticket>/` komunikacja → DSL + synteza per uczestnik | deterministyczny kontrakt; opcjonalne audytowane wzbogacanie OpenRouter | **opcjonalnie, domyślnie nie** |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
 | Propozycje → patch → approved apply | deterministyczna walidacja, renderer i atomowy zapis | nie |
@@ -225,8 +225,10 @@ Pełny pipeline z OpenRouter:
 # OPENROUTER_API_KEY=...
 # T2C_NL_MODE=prefer-llm
 # T2C_MARKDOWN_MODE=prefer-llm
+# T2C_COMMUNICATION_MODE=prefer-llm
 # OPENROUTER_NL_MODEL=qwen/qwen3.7-plus
 # OPENROUTER_MARKDOWN_MODEL=qwen/qwen3.7-plus
+# OPENROUTER_COMMUNICATION_MODEL=qwen/qwen3.7-plus
 # OPENROUTER_DOC_MODEL=openrouter/auto-beta
 # OPENROUTER_SUMMARY_MODEL=openrouter/auto-beta
 # OPENROUTER_TASK_MODEL=qwen/qwen3.7-plus
@@ -280,11 +282,14 @@ t2c mcp
 t2c a2a
 ```
 
-`extract nl`, `extract markdown`, `extract docs` i `summarize` mogą korzystać z
+`extract nl`, `extract markdown`, `extract communication`, `extract docs` i `summarize` mogą korzystać z
 OpenRouter. Dla NL oraz Markdown `prefer-llm` jest trybem domyślnym: awaria daje
 oznaczony fallback; `require-llm` kończy operację błędem, a `deterministic`
 świadomie pomija sieć. W Markdown LLM nie może zmienić checkboxa, lifecycle,
 wersji, daty, kategorii ani provenance — wzbogaca wyłącznie semantykę wpisu.
+Komunikacja jest domyślnie deterministyczna; `--communication-mode prefer-llm`
+tworzy uziemioną syntezę per uczestnik bez oddawania modelowi kontroli nad
+identity, rolą, ticketem, źródłem, lifecycle lub klasą epistemiczną.
 Dokumentacja bez klucza jest pomijana, a raport może użyć oznaczonego fallbacku.
 Etap dokumentacji ma osobne limity fragmentu, liczby fragmentów, rekordów,
 współbieżności i timeoutu (`T2C_DOC_*`). Najpierw analizuje fragmenty pasujące

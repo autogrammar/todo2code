@@ -23,6 +23,7 @@ export interface WorkspaceComparisonOptions {
   documentExcludes?: string[];
   includeDocumentationLlm?: boolean;
   markdownMode?: LlmExtractionMode;
+  communicationMode?: LlmExtractionMode;
   outputDir?: string;
   gitCommitCount?: number;
 }
@@ -194,6 +195,7 @@ function commonPipelineOptions(options: WorkspaceComparisonOptions, config: T2CC
     includeSummaryLlm: false,
     nlMode: config.nlMode,
     markdownMode: options.markdownMode ?? config.markdownMode,
+    communicationMode: options.communicationMode ?? config.communicationMode,
   };
 }
 

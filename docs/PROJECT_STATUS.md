@@ -48,6 +48,7 @@ diagnostyki/narracją LLM i nie zastępuje walidowanych propozycji DSL2TODO.
 | Dokumentacja → DSL | działa kontraktowo | chunking, budżet i structured output są testowane; brak deterministycznego odpowiednika semantycznego |
 | `project/<ticket>/` komunikacja → DSL | działa | zachowuje uczestnika, `human|agent`, typ wypowiedzi, ticket i aliasy Git jako `agent_log` |
 | Analiza uczestników i rozbieżności komunikacji | działa w pipeline/CLI/MCP/A2A/history/UI/watch | grupuje każdego człowieka/agenta, porównuje request/plan/claim z Git/AST, zapisuje artefakty i wspiera filtry participant/role/ticket/severity |
+| Audytowane wzbogacanie komunikacji | działa opt-in | structured OpenRouter + synteza per uczestnik z cytowaniami; identity/role/ticket/source/epistemic class należą do runtime; deterministic/prefer/require mają jawny audyt |
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
 | Diagnostyka i Intent vs Reality | działa | wynik jest deterministyczny, ale AST może dominować liczbę tematów i ostrzeżeń |
 | Graf → raport NL | działa | LLM ma ograniczony payload; bez modelu powstaje jawnie oznaczony raport deterministyczny |
@@ -59,7 +60,7 @@ diagnostyki/narracją LLM i nie zastępuje walidowanych propozycji DSL2TODO.
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 148 testów: 147 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 154 testy: 153 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
 - 47 modułów i 247 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 18 modułów bez tranzytywnego importu LLM;
 - 57 zmiennych używanych przez kod/Docker i 57 odpowiadających kluczy
@@ -67,7 +68,7 @@ diagnostyki/narracją LLM i nie zastępuje walidowanych propozycji DSL2TODO.
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 207 rekordów i 656 relacji. Liczba
+Przebieg offline na `examples/` utworzył 207 rekordów i 655 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -108,8 +109,9 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
 6. Porównania historyczne wykonane bez dokumentacyjnego DSL raportują 0%
    pokrycia dokumentacją jako brak dowodu w grafie, a nie dowód braku
    dokumentacji w repozytorium.
-7. Analiza komunikacji ma deterministyczny parser. Semantyczne wzbogacanie per
-   uczestnik przez LLM i jawny rejestr aliasów tożsamości pozostają zaplanowane.
+7. Analiza komunikacji ma deterministyczny parser i opcjonalne wzbogacanie LLM;
+   jawny rejestr aliasów tożsamości pozostaje zaplanowany i model nie może go
+   zastępować zgadywaniem nazw.
 
 ## Wdrożony przepływ DSL2TODO
 

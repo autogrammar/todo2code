@@ -3,8 +3,9 @@ import type { T2CConfig } from '../config/env.js';
 import { compareWorkspaceIntent } from '../comparison/workspace.js';
 import { pathExists, readJson, readJsonl, readText, writeJson, writeText } from '../core/io.js';
 import { assertPathWithinRoot } from '../core/security.js';
-import type { DiagnosticReport, IntentGraph, IntentRecord, LlmExtractionMode, NlExtractionMode, PipelineManifest, PipelineOptions } from '../core/types.js';
+import type { DiagnosticReport, IntentGraph, IntentRecord, LlmExtractionMode, NlExtractionMode, PipelineManifest, PipelineOptions, PipelineStageAudit } from '../core/types.js';
 import { analyzeCommunication, renderCommunicationMarkdown } from '../communication/analyzer.js';
+import { extractCommunicationIntentAudited, type ParticipantCommunicationSynthesis } from '../communication/llm.js';
 import { collectGitDiff } from '../diff/git.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from '../diff/reality.js';
 import {
@@ -16,7 +17,6 @@ import {
 } from '../diff/text.js';
 import { extractAstIntent } from '../extractors/ast.js';
 import { extractDocumentationIntent } from '../extractors/docs-llm.js';
-import { extractCommunicationIntent } from '../extractors/communication.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntentAudited } from '../extractors/markdown-llm.js';
 import { extractNlIntentAudited } from '../extractors/nl-llm.js';
@@ -78,34 +78,39 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         excludes: stringList(input.excludes, config.documentExcludes),
       }, config);
     case 'extract_communication':
-      return extractCommunicationIntent({
+      return extractCommunicationIntentAudited({
         root,
         projectDir: await scopedPath(input.projectDir, 'project', root, config),
         ticket: nullableString(input.ticket, null),
-      }, config);
+      }, config, llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'));
     case 'analyze_communication': {
       let graph: IntentGraph;
       const warnings: string[] = [];
+      let communicationSyntheses: ParticipantCommunicationSynthesis[] = [];
+      let communicationAudit: PipelineStageAudit | null = null;
       if (input.graph !== undefined) {
         graph = objectValue<IntentGraph>(input.graph, 'graph');
       } else {
         const [communication, git, ast] = await Promise.all([
-          extractCommunicationIntent({
+          extractCommunicationIntentAudited({
             root,
             projectDir: await scopedPath(input.projectDir, 'project', root, config),
             ticket: nullableString(input.ticket, null),
-          }, config),
+          }, config, llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode')),
           extractGitIntent({ root, count: numberValue(input.gitCount, config.gitCommitCount, 1, 100) }, config),
           booleanValue(input.includeAst, true) ? extractAstIntent({ root }, config) : Promise.resolve({ records: [], warnings: [] }),
         ]);
         warnings.push(...communication.warnings, ...git.warnings, ...ast.warnings);
+        communicationSyntheses = communication.participants;
+        communicationAudit = communication.audit;
         graph = linkIntentRecords([...communication.records, ...git.records, ...ast.records]);
       }
-      const analysis = analyzeCommunication(graph);
+      const analysis = analyzeCommunication(graph, new Date().toISOString(), communicationSyntheses);
       return {
         analysis,
         markdown: renderCommunicationMarkdown(analysis),
         warnings: [...new Set(warnings)].sort(),
+        audit: communicationAudit,
         ...(booleanValue(input.includeGraph, false) ? { graph } : {}),
       };
     }
@@ -270,6 +275,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         documentExcludes: stringList(input.docExcludes, config.documentExcludes),
         includeDocumentationLlm: booleanValue(input.includeDocsLlm, false),
         markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
+        communicationMode: llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'),
         outputDir: stringValue(input.output, config.outputDir),
         gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
       }, config);
@@ -287,6 +293,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         includeSummaryLlm: booleanValue(input.includeSummaryLlm, true),
         nlMode: nlModeValue(input.nlMode, config.nlMode),
         markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
+        communicationMode: llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'),
         documentExcludes: stringList(input.docExcludes, config.documentExcludes),
         taskSynthesisMode: pipelineTaskMode(input.taskMode),
         includeCommunication: booleanValue(input.includeCommunication, true),

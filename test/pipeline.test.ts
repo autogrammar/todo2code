@@ -146,10 +146,14 @@ test('Pipeline integrates multi-participant communication into graph, diagnostic
   }, config);
 
   assert.equal(result.manifest.stages.communicationAnalysis.status, 'partial');
+  assert.equal(result.manifest.stages.communicationAnalysis.effectiveMode, 'deterministic');
+  assert.equal(result.manifest.llm.communicationEnrichment, false);
   assert.equal(result.manifest.stages.communicationAnalysis.recordCount, 4);
   assert.ok(result.communicationAnalysisPath && await pathExists(result.communicationAnalysisPath));
   assert.equal(result.manifest.files.communicationAnalysis?.endsWith('/communication-analysis.json'), true);
   assert.equal(result.manifest.files.communicationAnalysisMarkdown?.endsWith('/communication-analysis.md'), true);
+  const communicationAnalysis = await readJson<import('../src/communication/analyzer.js').CommunicationAnalysis>(result.communicationAnalysisPath!);
+  assert.equal(communicationAnalysis.syntheses.length, 4);
   const graph = await readJson<IntentGraph>(result.graphPath);
   assert.equal(graph.records.filter((record) => record.source.kind === 'agent_log').length, 4);
   const diagnostics = await readJson<import('../src/core/types.js').DiagnosticReport>(result.diagnosticsPath);
@@ -186,6 +190,29 @@ test('Pipeline require-llm task synthesis failure is audited and never publishes
   assert.equal(manifest.failure?.stage, 'taskSynthesis');
   assert.equal(manifest.failure?.code, 'LLM_NOT_CONFIGURED');
   assert.equal(manifest.stages.taskSynthesis.status, 'failed');
+  assert.equal(await pathExists(path.join(root, '.intent-failed', 'latest.json')), false);
+});
+
+test('Pipeline persists an audited failure when communication require-llm cannot run', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-communication-llm-failed-'));
+  await fs.mkdir(path.join(root, 'project', 'COM-9'), { recursive: true });
+  await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n');
+  await fs.writeFile(path.join(root, 'project', 'COM-9', 'human.alice.request.md'), [
+    '---', 'participant: Alice', 'role: human', 'type: request', '---',
+    'System must validate checkout for COM-9.', '',
+  ].join('\n'));
+  const config = makeConfig(root);
+  await assert.rejects(() => runPipeline({
+    root, taskFile: null, todoFile: 'TODO.md', changelogFile: null,
+    documentPatterns: [], includeDocumentationLlm: false, outputDir: '.intent-failed',
+    gitCommitCount: 1, allowSummaryFallback: true, includeSummaryLlm: false,
+    nlMode: 'deterministic', markdownMode: 'deterministic', communicationMode: 'require-llm',
+  }, config), /Communication enrichment requires LLM/);
+  const runs = await fs.readdir(path.join(root, '.intent-failed', 'runs'));
+  const manifest = await readJson<PipelineManifest>(path.join(root, '.intent-failed', 'runs', runs[0] ?? '', 'manifest.json'));
+  assert.equal(manifest.failure?.stage, 'communicationAnalysis');
+  assert.equal(manifest.failure?.code, 'LLM_NOT_CONFIGURED');
+  assert.equal(manifest.stages.communicationAnalysis.status, 'failed');
   assert.equal(await pathExists(path.join(root, '.intent-failed', 'latest.json')), false);
 });
 

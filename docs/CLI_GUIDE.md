@@ -212,6 +212,7 @@ pokrycia i kierunek trendu.
 node dist/src/cli.js communication . \
   --project-dir project \
   --ticket WM-101 \
+  --communication-mode deterministic \
   --out .intent/WM-101.analysis.json \
   --md .intent/WM-101.analysis.md \
   --graph .intent/WM-101.graph.json
@@ -224,6 +225,11 @@ ten etap domyślnie z `--project-dir project`; zakres można ograniczyć przez
 `--communication-ticket TICKET` albo jawnie wyłączyć przez
 `--no-communication`. Samodzielna komenda pozostaje przydatna do szybkiego
 raportu jednego ticketu.
+
+`--communication-mode prefer-llm` dodaje audytowane wzbogacenie semantyczne i
+uziemioną syntezę osobno dla każdego uczestnika. `require-llm` nie fallbackuje,
+a tryb domyślny `deterministic` nie używa sieci. Participant, rola, ticket,
+linie źródłowe, lifecycle i epistemic class zawsze pochodzą z runtime.
 
 Historia `/api/runs` przyjmuje filtry `participant`, `role`, `ticket` i
 `severity`. Te same pola są dostępne w `/ui`; participant/role/ticket zawężają

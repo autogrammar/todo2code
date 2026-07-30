@@ -5,7 +5,7 @@
 - [x] Build a versioned gold dataset for NL/docs/Markdown → DSL, linking and
   DSL2TODO. Report precision, recall, citation completeness, deduplication rate
   and stability between repeated runs.
-- [ ] Add audited structured LLM enrichment for communication records and a
+- [x] Add audited structured LLM enrichment for communication records and a
   grounded per-participant synthesis. Preserve human/agent identity, ticket,
   source lines and epistemic class as runtime-owned fields.
 - [ ] Add a participant identity registry mapping stable IDs to Git authors,

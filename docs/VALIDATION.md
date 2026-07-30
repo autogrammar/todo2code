@@ -36,6 +36,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
 | `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę poza zakresem; wariant `--no-ast` wykrywa claim bez dowodu |
+| Audytowane wzbogacanie komunikacji | PASS — mock structured OpenRouter, syntezy per uczestnik z cytowaniami, zachowane runtime-owned identity/role/ticket/source/epistemic class, jawny fallback i `require-llm` |
 | `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `488ffe359297e1bf` oraz patcha `907d4fd79ef9f754` |
 | Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
 | CLI `doctor`, `--help`, `--version` | PASS |
@@ -48,7 +49,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline oraz build i health smoke Dockera; nie wykonywała live OpenRouter.
-Wynik: 148 testów, 147 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 154 testy, 153 zaliczone, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

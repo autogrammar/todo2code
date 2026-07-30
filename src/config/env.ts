@@ -31,12 +31,14 @@ export interface T2CConfig {
   documentExcludes: string[];
   nlMode: NlExtractionMode;
   markdownMode: LlmExtractionMode;
+  communicationMode: LlmExtractionMode;
   openRouter: {
     apiKey: string | null;
     baseUrl: string;
     model: string;
     nlModel: string;
     markdownModel: string;
+    communicationModel: string;
     documentModel: string;
     summaryModel: string;
     taskModel: string;
@@ -160,12 +162,14 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     documentExcludes: envList('T2C_DOC_EXCLUDES', ['node_modules/**', '.git/**', 'dist/**', '.intent/**', 'TODO.md', 'CHANGELOG.md']),
     nlMode: envLlmMode('T2C_NL_MODE', 'prefer-llm'),
     markdownMode: envLlmMode('T2C_MARKDOWN_MODE', 'prefer-llm'),
+    communicationMode: envLlmMode('T2C_COMMUNICATION_MODE', 'deterministic'),
     openRouter: {
       apiKey: envOptional('OPENROUTER_API_KEY'),
       baseUrl: envString('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1').replace(/\/$/, ''),
       model,
       nlModel: envString('OPENROUTER_NL_MODEL', model),
       markdownModel: envString('OPENROUTER_MARKDOWN_MODEL', model),
+      communicationModel: envString('OPENROUTER_COMMUNICATION_MODEL', model),
       documentModel: envString('OPENROUTER_DOC_MODEL', model),
       summaryModel: envString('OPENROUTER_SUMMARY_MODEL', model),
       taskModel: envString('OPENROUTER_TASK_MODEL', model),

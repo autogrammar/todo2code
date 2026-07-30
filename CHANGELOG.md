@@ -4,6 +4,12 @@
 
 ### Added
 
+- Added opt-in audited structured OpenRouter enrichment for `project/<ticket>`
+  communication and grounded `t2c.participant-synthesis/v1` summaries for each
+  human or agent. Runtime-owned identity, role, ticket, source lines,
+  lifecycle and epistemic class cannot be supplied or promoted by the model;
+  deterministic and explicit fallback modes remain available through CLI,
+  pipeline, MCP and A2A.
 - Added the versioned offline `t2c.gold-dataset/v1` benchmark and
   `npm run evaluate:gold` quality gate for NL, captured documentation responses,
   Markdown, linking and DSL2TODO. It reports precision, recall, citation

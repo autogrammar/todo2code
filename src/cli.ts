@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 import { configForDisplay, getConfig, hasOpenRouter, loadEnvFile } from './config/env.js';
 import { compareWorkspaceIntent } from './comparison/workspace.js';
 import { analyzeCommunication, renderCommunicationMarkdown } from './communication/analyzer.js';
+import { extractCommunicationIntentAudited } from './communication/llm.js';
 import { pathExists, readJson, readJsonl, readText, writeJson, writeJsonl, writeText } from './core/io.js';
 import type { DiagnosticReport, IntentGraph, LlmExtractionMode, NlExtractionMode, PipelineOptions } from './core/types.js';
 import { collectGitDiff } from './diff/git.js';
@@ -20,7 +21,6 @@ import {
 } from './diff/text.js';
 import { extractAstIntent } from './extractors/ast.js';
 import { extractDocumentationIntent } from './extractors/docs-llm.js';
-import { extractCommunicationIntent } from './extractors/communication.js';
 import { extractGitIntent } from './extractors/git.js';
 import { extractMarkdownIntentAudited } from './extractors/markdown-llm.js';
 import { extractNlIntentAudited } from './extractors/nl-llm.js';
@@ -210,6 +210,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
       includeDocumentationLlm: optionBoolean(parsed, 'docs-llm', false),
       markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
+      communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
       outputDir: optionString(parsed, 'out') ?? config.outputDir,
       gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
     }, config);
@@ -231,6 +232,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       includeSummaryLlm: !optionBoolean(parsed, 'no-summary-llm', false),
       nlMode: optionNlMode(parsed, config.nlMode),
       markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
+      communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
       documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
       taskSynthesisMode: optionPipelineTaskMode(parsed),
       includeCommunication: !optionBoolean(parsed, 'no-communication', false),
@@ -260,6 +262,7 @@ async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConf
     includeSummaryLlm: !optionBoolean(parsed, 'no-summary-llm', false),
     nlMode: optionNlMode(parsed, config.nlMode),
     markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
+    communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
     documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
     taskSynthesisMode: optionPipelineTaskMode(parsed),
     includeCommunication: !optionBoolean(parsed, 'no-communication', false),
@@ -441,12 +444,13 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     return;
   }
   if (extractor === 'communication') {
-    const result = await extractCommunicationIntent({
+    const result = await extractCommunicationIntentAudited({
       root,
       projectDir: optionString(parsed, 'project-dir') ?? 'project',
       ticket: optionNullableString(parsed, 'ticket', null),
-    }, config);
+    }, config, optionLlmMode(parsed, 'communication-mode', config.communicationMode));
     await emitExtraction(result, out);
+    process.stderr.write(`communication -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
     return;
   }
   throw new Error('Usage: t2c extract <nl|git|ast|markdown|docs|communication> ...');
@@ -455,11 +459,11 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
 async function handleCommunication(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
   const root = path.resolve(parsed.positionals[0] ?? config.root);
   const [communication, git, ast] = await Promise.all([
-    extractCommunicationIntent({
+    extractCommunicationIntentAudited({
       root,
       projectDir: optionString(parsed, 'project-dir') ?? 'project',
       ticket: optionNullableString(parsed, 'ticket', null),
-    }, config),
+    }, config, optionLlmMode(parsed, 'communication-mode', config.communicationMode)),
     extractGitIntent({ root, count: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100) }, config),
     optionBoolean(parsed, 'no-ast', false)
       ? Promise.resolve({ records: [], warnings: [] })
@@ -467,7 +471,7 @@ async function handleCommunication(parsed: ParsedArgs, config: ReturnType<typeof
   ]);
   for (const warning of [...communication.warnings, ...git.warnings, ...ast.warnings]) process.stderr.write(`warning: ${warning}\n`);
   const graph = linkIntentRecords([...communication.records, ...git.records, ...ast.records]);
-  const analysis = analyzeCommunication(graph);
+  const analysis = analyzeCommunication(graph, new Date().toISOString(), communication.participants);
   const out = optionString(parsed, 'out');
   const markdown = optionString(parsed, 'md');
   const graphOut = optionString(parsed, 'graph');
@@ -645,8 +649,8 @@ function printHelp(): void {
   process.stdout.write(`  t2c extract ast [root] [--out ast.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--markdown-mode prefer-llm] [--out records.jsonl]\n`);
   process.stdout.write(`  t2c extract docs [--patterns 'README.md,docs/**/*.md'] [--out docs.intent.jsonl]\n`);
-  process.stdout.write(`  t2c extract communication [--root .] [--project-dir project] [--ticket TICKET] [--out communication.intent.jsonl]\n`);
-  process.stdout.write(`  t2c communication [root] [--project-dir project] [--ticket TICKET] [--no-ast]\n`);
+  process.stdout.write(`  t2c extract communication [--root .] [--project-dir project] [--ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--out communication.intent.jsonl]\n`);
+  process.stdout.write(`  t2c communication [root] [--project-dir project] [--ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-ast]\n`);
   process.stdout.write(`                    [--out analysis.json] [--md analysis.md] [--graph intent.graph.json]\n`);
   process.stdout.write(`  t2c link <*.intent.jsonl>... [--out intent.graph.json]\n`);
   process.stdout.write(`  t2c diagnose <intent.graph.json> [--out diagnostics.json]\n`);
@@ -664,12 +668,12 @@ function printHelp(): void {
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
   process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm]\n`);
-  process.stdout.write(`               [--project-dir project] [--communication-ticket TICKET] [--no-communication] [--out .intent]\n`);
+  process.stdout.write(`               [--project-dir project] [--communication-ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-communication] [--out .intent]\n`);
   process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode prefer-llm] [--docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);
   process.stdout.write(`  t2c a2a\n\n`);
-  process.stdout.write(`LLM boundary: NL extraction, TODO/CHANGELOG enrichment, documentation extraction and summarization are the only OpenRouter stages.\n`);
+  process.stdout.write(`LLM boundary: NL, TODO/CHANGELOG and communication enrichment, documentation extraction, task synthesis and summarization are the audited OpenRouter stages.\n`);
 }
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : '';

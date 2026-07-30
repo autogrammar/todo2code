@@ -90,7 +90,7 @@ confidence i linii, format ID/hash/czasu, unikalność list, końce relacji oraz
 zgodność statystyk grafu. Nieznane pola są odrzucane. Statyczne odpowiedniki
 kontraktów znajdują się w `schemas/`.
 
-Standalone ekstrakcje NL, TODO/CHANGELOG i dokumentacji zwracają `audit` z
+Standalone ekstrakcje NL, TODO/CHANGELOG, komunikacji i dokumentacji zwracają `audit` z
 wersją runtime, statusem, requested/effective mode, modelem, przyczyną
 degradacji, metadanymi odpowiedzi oraz bezpiecznymi parametrami konfiguracji.
 Klucz API nie jest częścią audytu.
@@ -262,7 +262,7 @@ Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:
   nie publikuje grafu ani `latest.json` i wskazuje etap/kod awarii;
 - `runtime.name` i `runtime.version`;
 - bezpieczny `configuration` bez tokenów i kluczy oraz jego SHA-256 fingerprint;
-- statusy etapów NL, Markdown, dokumentacji, syntezy zadań i podsumowania: `succeeded`, `partial`,
+- statusy etapów NL, Markdown, komunikacji, dokumentacji, syntezy zadań i podsumowania: `succeeded`, `partial`,
   `fallback`, `failed` albo `skipped`;
 - requested/effective mode, model, czas, liczbę rekordów/ostrzeżeń i strukturalny
   powód degradacji;
@@ -298,6 +298,13 @@ Rekordy z `project/<ticket>/` używają `source.kind=agent_log`. Runtime zachowu
 `metadata.participant`, `participantRole`, `messageType`, `ticket`, `recipient`
 i `gitAuthors`. Polecenia człowieka są deklaracjami, plany pozostają planami, a
 raporty agentów są claimami — nigdy faktami implementacji.
+
+Opcjonalne wzbogacanie tworzy `t2c.participant-synthesis/v1`: runtime nadaje
+ID, participant, rolę i tickety oraz mapuje cytowania na finalne ID
+`agent_log`; model dostarcza wyłącznie summary, commitments, risks i
+confidence. Analizator odrzuca cytowanie nieistniejącego rekordu, innego
+uczestnika lub ticketu. Schemat jest publikowany w
+`schemas/participant-synthesis.schema.json`.
 
 Projekcja komunikacji grupuje każdego uczestnika osobno i zapisuje liczbę
 deklaracji, planów, claimów, dopasowanych commitów, dowodów oraz identyfikatory

@@ -381,6 +381,7 @@ export interface PipelineOptions {
   includeSummaryLlm?: boolean;
   nlMode?: NlExtractionMode;
   markdownMode?: LlmExtractionMode;
+  communicationMode?: LlmExtractionMode;
   documentExcludes?: string[];
   taskSynthesisMode?: 'disabled' | 'prefer-llm' | 'require-llm';
   includeCommunication?: boolean;
@@ -406,6 +407,7 @@ export interface PipelineManifest {
     fingerprint: string;
     nlMode: NlExtractionMode;
     markdownMode: LlmExtractionMode;
+    communicationMode: LlmExtractionMode;
     gitCommitCount: number;
     maxFileBytes: number;
     documentConcurrency: number;
@@ -437,6 +439,7 @@ export interface PipelineManifest {
       baseUrl: string;
       nlModel: string;
       markdownModel: string;
+      communicationModel: string;
       documentModel: string;
       summaryModel: string;
       taskModel: string;
@@ -458,6 +461,7 @@ export interface PipelineManifest {
   llm: {
     naturalLanguageExtraction: boolean;
     markdownExtraction: boolean;
+    communicationEnrichment: boolean;
     documentationExtraction: boolean;
     taskSynthesis: boolean;
     summary: boolean;
