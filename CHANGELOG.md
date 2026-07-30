@@ -285,6 +285,9 @@
 
 ### Changed
 
+- Split the AST extractor into a small orchestrator, independently exported
+  TypeScript/JavaScript, Python, Go, Java and Rust adapters, and shared external
+  process/record materialization modules without changing the public envelope.
 - TODO and CHANGELOG deterministic conversion now lives in independent
   `todo.ts` and `changelog.ts` modules; `markdown.ts` only composes them and
   the audited LLM enrichment remains a bounded shared orchestration step.

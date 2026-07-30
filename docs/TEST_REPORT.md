@@ -16,8 +16,8 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
 | Testy | `npm test` | 187 testów: 186 pass, 0 fail, 1 Java skip |
-| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 22 moduły |
-| Moduły | `npm run verify:modules` | PASS — 79 modułów, 369 importów, 0 cykli |
+| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
+| Moduły | `npm run verify:modules` | PASS — 88 modułów, 405 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
@@ -39,7 +39,7 @@ lub regresja adaptera nie mogą tam zostać pominięte.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 225 records, 122 relations; communication: 3 blocking, 1 warning
+demo: 225 records, 108 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
@@ -122,7 +122,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 225 rekordów i 122 relacje, w tym cztery rekordy `document` i cztery
+demo ma 225 rekordów i 108 relacji, w tym cztery rekordy `document` i cztery
 rekordy konfiguracji `system`.
 
 ### Ekstrakcja ścieżek i metryka dokumentacji
@@ -291,8 +291,8 @@ przed pushem.
 Otwarte pozostają: cache AST i fragmentów dokumentacji, generowanie validatorów
 i schematów z jednego źródła oraz A2A streaming ze współdzielonym
 transakcyjnym task store. Trend workspace, porcjowanie LLM, deterministyczna
-dokumentacja i konfiguracja zostały wykonane. Pełna lista z kryteriami znajduje
-się w `TODO.md`.
+dokumentacja i konfiguracja oraz podział adapterów językowych zostały wykonane.
+Pełna lista z kryteriami znajduje się w `TODO.md`.
 
 ## Licencja
 

@@ -67,15 +67,15 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 `npm run verify` zakończyło się powodzeniem:
 
 - 187 testów: 186 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 79 modułów i 369 importów wewnętrznych: brak cykli, niezależny `src/core`;
-- 9 deterministycznych entrypointów i 22 moduły bez tranzytywnego importu LLM;
+- 88 modułów i 405 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
   `.env.example`, bez duplikatów;
 - workflow CI przechodzi kontrolę duplikatów kluczy najwyższego poziomu;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 225 rekordów i 122 relacje. Liczba
+Przebieg offline na `examples/` utworzył 225 rekordów i 108 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -116,8 +116,9 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
 3. Wzbogacanie TODO/CHANGELOG jest już porcjowane, ale pomiar live kosztu i
    latencji dla modelu domyślnego i szybszego wariantu nie został jeszcze
    wykonany w sposób nadający się do publikacji.
-4. Adaptery językowe są orkiestratorowane przez duży `src/extractors/ast.ts`;
-   podział per język uprości niezależne wersjonowanie i testowanie.
+4. Adaptery językowe są rozdzielone na osobne moduły za małym orkiestratorem
+   `src/extractors/ast.ts`; nadal nie mają osobnych paczek ani niezależnego
+   versioningu release'ów.
 5. Deterministyczna dokumentacja i konfiguracja mają już własne konwertery.
    PHP oraz pozostałe języki spoza TypeScript/JavaScript, Python, Go, Java i
    Rust nadal nie mają adapterów AST; runtime wypisuje ich liczby jawnie.
@@ -126,8 +127,7 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
    traktowanie nazwy wyświetlanej jako rozstrzygniętej tożsamości.
 7. Nadal otwarte są cache przyrostowe AST/dokumentacji, generowanie validatorów
    z jednego schematu, bezpieczne rozwiązywanie jednoznacznych bare nazw plików,
-   podział adapterów per język oraz A2A streaming ze współdzielonym
-   transakcyjnym task store.
+   oraz A2A streaming ze współdzielonym transakcyjnym task store.
 
 ## Wdrożony przepływ DSL2TODO
 

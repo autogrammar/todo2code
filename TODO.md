@@ -60,7 +60,7 @@
 
 ## P2 — modularity and operations
 
-- [ ] Split language adapters from `src/extractors/ast.ts` into independently
+- [x] Split language adapters from `src/extractors/ast.ts` into independently
   testable TypeScript/JavaScript, Python, Go, Java and Rust modules behind the
   existing common adapter envelope.
 - [ ] Add first-class AST adapters for PHP and other languages present in
