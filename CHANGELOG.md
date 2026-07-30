@@ -4,11 +4,18 @@
 
 ### Fixed
 
+- Restrict configuration file aggregates to explicit path evidence. Reusing
+  AST capability-topic matching produced 288 mostly generic cross-source links
+  from five config files on `code2llm`; the hardened run retains 2 grounded
+  path links and no configuration-to-configuration noise.
 - Parenthesize mixed `??`/`||` in configuration file-aggregate format
   resolution so the compiled extractor no longer throws a SyntaxError at runtime.
 
 ### Added
 
+- Added one deterministic `configuration_file_fact` per discovered config file,
+  including empty files, with bounded key inventory, runtime provenance and
+  file-level linking. Configuration is also represented as observed reality.
 - Added grounded `t2c.code-change-plan/v1` proposals and
   `t2c.code-change-acceptance/v1` re-analysis gates through CLI, MCP, A2A and
   the TypeScript SDK. Plans carry content-bound IDs/hashes, exact evidence,

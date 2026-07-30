@@ -105,10 +105,25 @@
   sources) and fix what it exposed: an absolute host path aborted code-change
   planning, HTTP routes and hostnames were extracted as repository paths and
   code symbols, and configuration declarations formed a quadratic subgraph.
-- [ ] Give configuration declarations a file-level aggregate, mirroring
-  `module_fact` for AST. Suppression now keeps them from pairing with each
-  other, but a config file still has no single record standing for it, so
-  documentation links to individual keys rather than to the file.
+- [x] Give configuration declarations a file-level aggregate, mirroring
+  `module_fact` for AST. `configuration_file_fact` carries a bounded inventory
+  of declared keys, but links as file evidence only through an explicit path.
+  A capability-topic prototype created 288 cross-source links from five files
+  on `code2llm` and was rejected; the hardened run keeps exactly 2 explicit
+  path links and 0 `system~system` relations.
+- [x] Count configuration as observed reality in Intent-vs-Reality and in
+  implementation diagnostics. A `system` record is a fact with lifecycle
+  `implemented`, and for infrastructure repositories the implementation can be
+  the configuration. Semantic impact must be measured again after the
+  capability-topic hardening rather than inferred from the rejected noisy run.
+- [ ] Reconsider the `system` lane in the Intent-vs-Reality SVG. The lane was
+  added to `LANE_ORDER`, but the eight-lane table is now wide enough that the
+  topic column truncates earlier; check whether a combined "evidence" column or
+  a wider viewBox reads better.
+- [ ] Measure whether counting configuration as evidence hides genuine gaps.
+  A documented behaviour whose only evidence is a config key is weaker than one
+  backed by AST, yet both now yield `aligned`. Consider grading alignment by
+  evidence kind instead of treating all observed records as equal.
 - [ ] `detectPolarity` treats the preposition "without" as sentence negation, so
   "Document X without inventing files" is recorded as negative intent. Scoping
   negation to the governing verb needs more than a keyword list.
@@ -179,8 +194,11 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   hash; CLI `propose-source-patch`, MCP/A2A/SDK, zapis w pipeline; **bez apply**.
 - [ ] LLM wypełniający `unifiedDiff` w source patch (require/prefer) +
   apply po hash approval (jak TODO.patch) — opcjonalna gałąź.
-- [ ] Pełna orkiestracja pętli implement → re-extract → re-diagnose →
-  acceptance w jednym poleceniu (dziś kroki są osobne, ale udokumentowane).
+- [x] Orkiestracja acceptance: `t2c close-code-change` (plan lub plan-set +
+  before/after graph) → `t2c.code-change-close-result/v1` bez auto-DONE.
+- [x] `detectModality` nie traktuje nagłówków „(recommended)” / gołych
+  przymiotników jako deontycznych (mniej fałszywych PLANNED_NOT_IMPLEMENTED
+  na `code2logic`).
 
 ### Faza 4 — ops / multi-agent
 

@@ -447,6 +447,22 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
   assert.equal(acceptance.accepted, true);
   assert.equal(acceptance.generation.generator, 't2c/code-change-acceptance');
   assert.deepEqual(JSON.parse(await fs.readFile(path.join(root, 'acceptance.json'), 'utf8')), acceptance);
+
+  const closed = await exec(process.execPath, [
+    cli, 'close-code-change', 'plans.json',
+    '--before-graph', 'before.graph.json', '--before-diagnostics', 'before.diagnostics.json',
+    '--after-graph', 'after.graph.json', '--out', 'close.json',
+  ], { cwd: root, env: environment });
+  const closeResult = JSON.parse(closed.stdout) as {
+    schemaVersion: string;
+    allAccepted: boolean;
+    acceptedCount: number;
+    planCount: number;
+  };
+  assert.equal(closeResult.schemaVersion, 't2c.code-change-close-result/v1');
+  assert.equal(closeResult.planCount, 1);
+  assert.equal(closeResult.acceptedCount, 1);
+  assert.equal(closeResult.allAccepted, true);
 });
 
 test('Published code-change JSON schemas require provenance, risk and rollback', async () => {

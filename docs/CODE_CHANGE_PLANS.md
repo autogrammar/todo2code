@@ -125,7 +125,23 @@ Pipeline zapisuje automatycznie `code-change-source-patches.json`. Każdy patch:
 LLM może w przyszłości wypełniać `unifiedDiff`, ale runtime nadal wymusza
 granice planów. Apply do worktree **nie istnieje** w tej paczce.
 
-## 6. Co nie jest w zakresie
+## 6. Zamknięcie pętli (`close-code-change`)
+
+Po implementacji i ponownym pipeline (after graph) można ocenić jeden plan albo
+cały plan-set:
+
+```bash
+t2c close-code-change .intent/runs/<before>/code-change-plans.json \
+  --before-graph .intent/runs/<before>/intent.graph.json \
+  --before-diagnostics .intent/runs/<before>/diagnostics.json \
+  --after-graph .intent/runs/<after>/intent.graph.json \
+  --out close.json
+```
+
+Wynik `t2c.code-change-close-result/v1` zawiera `acceptances[]`, liczniki
+accepted/rejected oraz `allAccepted`. Nadal **nie** oznacza DONE.
+
+## 7. Co nie jest w zakresie
 
 - auto-apply patchy do repozytorium;
 - automatyczne `DONE` po `accepted=true`;

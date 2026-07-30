@@ -75,8 +75,9 @@ function configurationRecords(sourcePath: string, body: string): IntentRecord[] 
  * Mirrors `module_fact` for AST. Without it a documentation statement about
  * "the ingress configuration" can only bind to individual keys, which is both
  * noisier and less useful than binding to the file — the same problem module
- * aggregates solved on the code side. The aggregate carries the file's declared
- * keys so capability-topic matching has something to match against.
+ * aggregates solved on the code side. The aggregate carries a bounded key
+ * inventory for inspection, while the linker uses it only for explicit file
+ * evidence; generic configuration keys are too noisy for topic matching.
  */
 function fileAggregate(sourcePath: string, entries: ConfigurationEntry[]): IntentRecord {
   const capabilities = [...new Set(entries.map((item) => item.key))].sort().slice(0, 40);

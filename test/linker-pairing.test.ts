@@ -264,20 +264,37 @@ test('Configuration still links to documentation that describes it', () => {
   assert.ok(graph.relations.length > 0, 'cross-kind evidence must survive the suppression');
 });
 
-test('Configuration file aggregate links to prose through grounded capability topics', () => {
-  const config = configAggregate(
-    'config/ingress.yaml',
-    'configure config/ingress.yaml ingress request timeout',
-  );
+test('Configuration file aggregate is the file-level target for an explicit documentation path', () => {
+  const config = configAggregate('config/ingress.yaml', 'configure config/ingress.yaml timeout');
+  const detail = configFact('config/ingress.yaml', 'Configure timeout');
   const documentation = buildRecord({
-    kind: 'documentation_statement', action: 'document', object: 'ingress request timeout',
-    target: {}, text: 'The ingress request timeout is configured for the gateway.',
+    kind: 'documentation_statement', action: 'document', object: 'gateway deployment',
+    target: { paths: ['config/ingress.yaml'] }, text: 'Deployment is described in `config/ingress.yaml`.',
     lifecycle: 'proposed', sourceKind: 'document', sourcePath: 'docs/ingress.md',
     sourceLines: { start: 3, end: 3 }, extractor: 'test', epistemicClass: 'declaration',
     confidence: 0.8, basis: ['fixture'],
   });
 
-  const graph = linkIntentRecords([config, documentation], AT);
+  const graph = linkIntentRecords([config, detail, documentation], AT);
   assert.equal(graph.relations.length, 1);
-  assert.ok(graph.relations[0]?.basis.some((basis) => basis.startsWith('module_topic:')));
+  assert.ok(graph.relations[0]?.basis.includes('module_coverage'));
+  assert.ok([graph.relations[0]?.from, graph.relations[0]?.to].includes(config.id));
+  assert.ok(![graph.relations[0]?.from, graph.relations[0]?.to].includes(detail.id));
+});
+
+test('Configuration aggregates do not create broad capability-topic links', () => {
+  const config = configAggregate(
+    'pyproject.toml',
+    'configure pyproject.toml project test dependencies analysis',
+  );
+  const unrelatedModule = buildRecord({
+    kind: 'module_fact', action: 'declare', object: 'src/project-analysis.ts',
+    target: { paths: ['src/project-analysis.ts'] },
+    text: 'module src/project-analysis.ts capabilities project test dependencies analysis',
+    lifecycle: 'implemented', sourceKind: 'ast', sourcePath: 'src/project-analysis.ts',
+    sourceLines: { start: 1, end: 20 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'], metadata: { aggregate: 'module' },
+  });
+
+  assert.equal(linkIntentRecords([config, unrelatedModule], AT).relations.length, 0);
 });

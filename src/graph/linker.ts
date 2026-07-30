@@ -154,7 +154,7 @@ function collectCandidatePairs(
 }
 
 function isModuleTopicSource(record: IntentRecord): boolean {
-  return isFileAggregate(record)
+  return record.statement.kind === 'module_fact'
     || record.source.kind === 'nl'
     || record.source.kind === 'todo'
     || record.source.kind === 'document';
@@ -357,7 +357,7 @@ function scorePair(
   if (pathsIntersect(left.statement.target.paths, right.statement.target.paths, resolvableBasenames)) {
     score += 0.28;
     basis.push('shared_path');
-    if (isModuleEvidencePair(left, right)) {
+    if (isFileAggregateEvidencePair(left, right)) {
       score += 0.24;
       basis.push('module_coverage');
     }
@@ -376,7 +376,7 @@ function scorePair(
     score += objectSimilarity * 0.48;
     basis.push(`text_similarity:${objectSimilarity.toFixed(3)}`);
   }
-  if (isModuleEvidencePair(left, right) && leftKeywords && rightKeywords) {
+  if (isModuleTopicEvidencePair(left, right) && leftKeywords && rightKeywords) {
     const sharedTopics = intersectionSize(leftKeywords.topics, rightKeywords.topics);
     // Two generic words still connected one declaration to dozens of modules
     // in the measured repository. Three independently normalised topics keeps
@@ -409,9 +409,15 @@ function isFileAggregate(record: IntentRecord): boolean {
     || record.statement.kind === 'configuration_file_fact';
 }
 
-function isModuleEvidencePair(left: IntentRecord, right: IntentRecord): boolean {
+function isFileAggregateEvidencePair(left: IntentRecord, right: IntentRecord): boolean {
   return left.source.kind !== right.source.kind
     && (isFileAggregate(left) || isFileAggregate(right));
+}
+
+/** Capability-topic matching is intentionally narrower than exact file evidence. */
+function isModuleTopicEvidencePair(left: IntentRecord, right: IntentRecord): boolean {
+  return left.source.kind !== right.source.kind
+    && (left.statement.kind === 'module_fact' || right.statement.kind === 'module_fact');
 }
 
 function determineRelation(left: IntentRecord, right: IntentRecord, evidence: PairEvidence): DirectedRelation {

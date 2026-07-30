@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { extractPaths, extractSymbols, topicKeywords } from '../src/core/text.js';
+import { detectModality, extractPaths, extractSymbols, topicKeywords } from '../src/core/text.js';
 import { extractNlIntent } from '../src/extractors/nl.js';
 import { extractNlIntentAudited, NlLlmRequiredError } from '../src/extractors/nl-llm.js';
 import { makeConfig } from './helpers.js';
@@ -60,6 +60,18 @@ test('path extraction rejects dotted DSL fields but keeps known file extensions'
     'Compare `metadata.generation`, `statement.object` and `epistemic.basis` with `manifest.json`, `changelog.ts` and `config/app.yaml`.',
   );
   assert.deepEqual(paths, ['changelog.ts', 'config/app.yaml', 'manifest.json']);
+});
+
+test('detectModality ignores parenthetical labels and bare adjectives', () => {
+  assert.equal(detectModality('System must implement validateContract'), 'required');
+  assert.equal(detectModality('Agent should remove legacyCheckout'), 'recommended');
+  assert.equal(detectModality('It is recommended to use OpenRouter'), 'recommended');
+  assert.equal(detectModality('OpenRouter (recommended)'), 'unknown');
+  assert.equal(detectModality('Hybrid YAML (recommended for code regeneration)'), 'unknown');
+  assert.equal(detectModality('List recommended models'), 'unknown');
+  assert.equal(detectModality('Required secrets'), 'unknown');
+  assert.equal(detectModality('Development setup (recommended)'), 'unknown');
+  assert.equal(detectModality('Gherkin (Recommended for LLM)'), 'unknown');
 });
 
 test('path extraction rejects HTTP routes, host paths and parent traversal', () => {

@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 212 testów: 211 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 214 testów: 213 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
 | Moduły | `npm run verify:modules` | PASS — 91 modułów, 420 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
@@ -43,7 +43,7 @@ z `~/github/semcod`, z artefaktami poza ich worktree:
 
 | Repozytorium | Wynik | Rekordy grafu | Relacje | `PLANNED_NOT_IMPLEMENTED` | Plans / source patches | Komunikacja |
 |---|---:|---:|---:|---:|---:|---:|
-| `code2llm` | succeeded | 17 647 | 60 154 | 1 | 50 / 50 (limit runu) | 0, poprawnie pominięta |
+| `code2llm` | succeeded | 17 652 | 60 156 | 1 | 50 / 50 (limit runu) | 0, poprawnie pominięta |
 | `domd` | succeeded | 23 276 | 247 869 | 1 942 | 50 / 50 (limit runu) | 0, poprawnie pominięta |
 | `pactfix` | succeeded | 5 295 | 5 606 | 13 | 1 / 1 | 0, poprawnie pominięta |
 
@@ -56,7 +56,7 @@ Deterministyczny pipeline offline (`--no-docs-llm --no-summary-llm
 
 | Repozytorium | Wynik | Rekordy | Relacje | `PLANNED_NOT_IMPLEMENTED` | Plans / source patches | Uwagi |
 |---|---:|---:|---:|---:|---:|---|
-| `code2logic` | succeeded | 21 668 | 22 602 | 10 | 0 / 0 | 10 „planów” bez `target.paths` (nagłówki „recommended” / placeholdery TODO) — celowo brak materializacji planów |
+| `code2logic` | succeeded | 21 668 | 22 602 | 10→3* | 0 / 0 | *po poprawce `detectModality` (nagłówki „recommended”); pozostałe 3 to placeholdery TODO bez path |
 | `code2docs` | succeeded | 6 960 | 40 290 | 0 | 50 / 50 (limit) | review + source-patch set z provenance |
 | `redup` | succeeded | 7 803 | 28 523 | 7 | 50 / 50 (limit) | review + source-patch set z provenance |
 
@@ -66,6 +66,12 @@ We wszystkich trzech:
   `t2c/code-change-source-patch-set`;
 - `agent_log=0` przy `--no-communication`.
 `code2logic` ostrzega o braku JDK (Java fixture) i 1 nieobsługiwanym pliku `.cs`.
+
+Ponowny przebieg `code2llm` po dodaniu agregatów konfiguracji utworzył 5
+`configuration_file_fact`. Pierwszy wariant, który dopuszczał ogólne
+`module_topic`, dał 288 relacji międzyźródłowych (głównie z `pyproject.toml` i
+`Makefile`) i został odrzucony. Wariant końcowy ma 2 relacje agregatów, obie
+przez jawną wspólną ścieżkę `pyproject.toml`, oraz 0 relacji `system~system`.
 
 Pierwszy przebieg na `domd` zgłosił `Python AST extraction failed: stdout
 maxBuffer length exceeded`, ponieważ helper Python omijał repozytoryjne reguły
@@ -104,7 +110,7 @@ cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 225 records, 90 relations; communication: 3 blocking, 1 warning
+demo: 227 records, 84 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
@@ -222,8 +228,8 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 225 rekordów i 90 relacji, w tym cztery rekordy `document` i cztery
-rekordy konfiguracji `system`.
+demo ma 227 rekordów i 84 relacje, w tym cztery rekordy `document` i sześć
+rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji
 

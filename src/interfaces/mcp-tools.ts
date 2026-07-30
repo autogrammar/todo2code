@@ -179,6 +179,22 @@ export const MCP_TOOLS: McpTool[] = [
     unifiedDiffs: { type: 'object', description: 'Optional path→unifiedDiff map for a single plan.' },
     output: stringProp('Optional JSON output path under root.'),
   }),
+  tool('close_code_change', 'Evaluate one plan or a whole plan set against before/after graphs and return aggregate acceptance without marking DONE.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    plan: { type: 'object', description: 'Inline t2c.code-change-plan/v1 object.' },
+    planPath: stringProp('Single plan JSON path under root.'),
+    plans: { type: 'object', description: 'Inline t2c.code-change-plan-set/v1 object.' },
+    plansPath: stringProp('Plan-set JSON path under root.'),
+    beforeGraph: { type: 'object', description: 'Graph the plan was grounded on.' },
+    beforeGraphPath: stringProp('Before graph JSON path under root.'),
+    beforeDiagnostics: { type: 'object', description: 'Before diagnostics; derived when omitted.' },
+    beforeDiagnosticsPath: stringProp('Before diagnostics JSON path under root.'),
+    afterGraph: { type: 'object', description: 'Graph after an attempted implementation.' },
+    afterGraphPath: stringProp('After graph JSON path under root.'),
+    afterDiagnostics: { type: 'object', description: 'After diagnostics; derived when omitted.' },
+    afterDiagnosticsPath: stringProp('After diagnostics JSON path under root.'),
+    output: stringProp('Optional close-result JSON output path under root.'),
+  }),
   tool('evaluate_code_change', 'Re-diagnose an after graph and decide whether a code-change plan cleared its targeted diagnostics.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     plan: { type: 'object', description: 'Inline t2c.code-change-plan/v1 object.' },
@@ -249,7 +265,7 @@ function tool(
 ): McpTool {
   const writes = new Set<T2CAction>([
     'pipeline', 'propose_todo', 'render_todo', 'apply_todo',
-    'propose_code_change', 'render_code_change', 'propose_source_patch', 'evaluate_code_change',
+    'propose_code_change', 'render_code_change', 'propose_source_patch', 'evaluate_code_change', 'close_code_change',
   ]);
   return {
     name,

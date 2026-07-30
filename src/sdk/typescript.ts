@@ -147,6 +147,10 @@ export class Todo2CodeClient {
     return this.run<Record<string, unknown>>('evaluate_code_change', input);
   }
 
+  async closeCodeChange(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.run<Record<string, unknown>>('close_code_change', input);
+  }
+
   async extractNl(file: string, root = '.', nlMode?: SdkLlmExtractionMode): Promise<SdkExtractionResult> {
     return this.client.extractNl(file, root, nlMode);
   }

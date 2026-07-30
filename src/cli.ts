@@ -265,6 +265,27 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     return;
   }
+  if (command === 'close-code-change') {
+    const inputPath = parsed.positionals[0];
+    const beforeGraphPath = optionString(parsed, 'before-graph');
+    const afterGraphPath = optionString(parsed, 'after-graph');
+    const output = optionString(parsed, 'out');
+    if (!inputPath || !beforeGraphPath || !afterGraphPath || !output) {
+      throw new Error('Usage: t2c close-code-change <plan.json|plans.json> --before-graph before.json --after-graph after.json --out close.json');
+    }
+    const isPlanSet = inputPath.endsWith('plans.json') || optionString(parsed, 'kind') === 'set';
+    const result = await executeAction('close_code_change', {
+      root: optionString(parsed, 'root') ?? config.root,
+      ...(isPlanSet ? { plansPath: inputPath } : { planPath: inputPath }),
+      beforeGraphPath,
+      beforeDiagnosticsPath: optionString(parsed, 'before-diagnostics'),
+      afterGraphPath,
+      afterDiagnosticsPath: optionString(parsed, 'after-diagnostics'),
+      output,
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
   if (command === 'watch') {
     await handleWatch(parsed, config);
     return;
@@ -752,6 +773,7 @@ function printHelp(): void {
   process.stdout.write(`  t2c render-code-change <plans.json> [--patch CODE_CHANGE.review.md] [--audit CODE_CHANGE.review.json]\n`);
   process.stdout.write(`  t2c propose-source-patch <plan.json|plans.json> --out source-patches.json\n`);
   process.stdout.write(`  t2c evaluate-code-change <plan.json> --before-graph before.json --after-graph after.json --out acceptance.json\n`);
+  process.stdout.write(`  t2c close-code-change <plan.json|plans.json> --before-graph before.json --after-graph after.json --out close.json\n`);
   process.stdout.write(`  t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html] [--context 3]\n`);
   process.stdout.write(`  t2c diff --mode git [root] [--rev HEAD] [--staged] [--svg diff.svg] [--html diff.html]\n`);
   process.stdout.write(`  t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg]\n`);

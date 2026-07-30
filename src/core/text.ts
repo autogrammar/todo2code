@@ -43,10 +43,28 @@ export function classifyActionHeuristically(text: string): IntentAction {
   return 'unknown';
 }
 
+/**
+ * Classify deontic force of a requirement sentence.
+ *
+ * Parenthetical and bracket labels such as "OpenRouter (recommended)" or
+ * "[required]" are section titles, not obligations. Bare adjectives in noun
+ * phrases ("List recommended models", "Required secrets") are also not
+ * deontic. Only modal verbs and predicative obligation forms count — measured
+ * false `PLANNED_NOT_IMPLEMENTED` noise on `code2logic` came almost entirely
+ * from headings that merely contained the word "recommended".
+ */
 export function detectModality(text: string): Modality {
-  if (/\b(must|required|shall|musi|muszą|należy|trzeba|wymaga)\b/i.test(text)) return 'required';
-  if (/\b(should|recommended|powinien|powinna|powinno|zaleca)\b/i.test(text)) return 'recommended';
-  if (/\b(may|optional|can|może|opcjonaln)\b/i.test(text)) return 'optional';
+  const prose = text
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/\[[^\]]*\]/g, ' ')
+    .replace(/`[^`]*`/g, ' ');
+  if (/\b(must|shall|musi|muszą|należy|trzeba|wymaga)\b/i.test(prose)) return 'required';
+  if (/\brequired\s+to\b|\bis\s+required\b|\bare\s+required\b|^\s*required\s*:/i.test(prose)) return 'required';
+  if (/\b(should|ought|powinien|powinna|powinno|zaleca)\b/i.test(prose)) return 'recommended';
+  if (/\b(?:is|are|was|were|be|being)\s+recommended\b|\brecommended\s+to\b|\brecommend(?:s|ed)?\s+that\b/i.test(prose)) {
+    return 'recommended';
+  }
+  if (/\b(may|optional|can|może|opcjonaln)\b/i.test(prose)) return 'optional';
   return 'unknown';
 }
 

@@ -62,7 +62,8 @@ export type T2CAction =
   | 'propose_code_change'
   | 'render_code_change'
   | 'propose_source_patch'
-  | 'evaluate_code_change';
+  | 'evaluate_code_change'
+  | 'close_code_change';
 
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
   const root = await resolveRoot(input.root, config);
@@ -316,6 +317,60 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         afterGraph,
         ...(afterDiagnostics !== undefined ? { afterDiagnostics } : {}),
       });
+      if (input.output !== undefined) {
+        const output = await scopedPath(input.output, '', root, config);
+        await writeJson(output, result);
+      }
+      return result;
+    }
+    case 'close_code_change': {
+      // Evaluate one plan or every plan in a set against before/after graphs.
+      const beforeGraph = await readActionObject<IntentGraph>(
+        input.beforeGraph, input.beforeGraphPath, 'beforeGraph', root, config,
+      );
+      const beforeDiagnostics = hasInputValue(input.beforeDiagnostics) || hasInputValue(input.beforeDiagnosticsPath)
+        ? await readActionObject<DiagnosticReport>(
+          input.beforeDiagnostics, input.beforeDiagnosticsPath, 'beforeDiagnostics', root, config,
+        )
+        : diagnoseGraph(beforeGraph);
+      const afterGraph = await readActionObject<IntentGraph>(
+        input.afterGraph, input.afterGraphPath, 'afterGraph', root, config,
+      );
+      const afterDiagnostics = hasInputValue(input.afterDiagnostics) || hasInputValue(input.afterDiagnosticsPath)
+        ? await readActionObject<DiagnosticReport>(
+          input.afterDiagnostics, input.afterDiagnosticsPath, 'afterDiagnostics', root, config,
+        )
+        : diagnoseGraph(afterGraph);
+
+      let plans: CodeChangePlan[] = [];
+      if (hasInputValue(input.plan) || hasInputValue(input.planPath)) {
+        plans = [await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config)];
+      } else {
+        const planSet = await readActionObject<ProposeCodeChangePlansResult>(
+          input.plans, input.plansPath, 'plans', root, config,
+        );
+        if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
+          throw new Error('close_code_change requires a plan or t2c.code-change-plan-set/v1');
+        }
+        plans = planSet.plans;
+      }
+
+      const acceptances = plans.map((plan) => evaluateCodeChangeAcceptance({
+        plan,
+        before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
+        afterGraph,
+        afterDiagnostics,
+      }));
+      const result = {
+        schemaVersion: 't2c.code-change-close-result/v1' as const,
+        graphFingerprintBefore: beforeGraph.fingerprint,
+        graphFingerprintAfter: afterGraph.fingerprint,
+        planCount: plans.length,
+        acceptedCount: acceptances.filter((item) => item.accepted).length,
+        rejectedCount: acceptances.filter((item) => !item.accepted).length,
+        allAccepted: acceptances.length > 0 && acceptances.every((item) => item.accepted),
+        acceptances,
+      };
       if (input.output !== undefined) {
         const output = await scopedPath(input.output, '', root, config);
         await writeJson(output, result);
