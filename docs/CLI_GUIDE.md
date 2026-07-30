@@ -113,6 +113,19 @@ niedopuszczalny, należy użyć `require-llm`. Wtedy brak klucza, timeout, błę
 model lub niepoprawna odpowiedź kończą proces błędem i tworzą manifest
 `status=failed` bez publikowania nieistniejącego grafu jako `latest`.
 
+Standalone podsumowanie używa tego samego jawnego kontraktu trybów (domyślnie
+`prefer-llm`):
+
+```bash
+t2c summarize intent.graph.json \
+  --diagnostics diagnostics.json \
+  --mode prefer-llm \
+  --out team-summary.md
+```
+
+Tryb `deterministic` nie dotyka sieci, `prefer-llm` tworzy oznaczony fallback,
+a `require-llm` odrzuca brak providera lub niepoprawne structured output.
+
 ## DSL2TODO: propose, review i apply
 
 Pipeline z `--task-mode prefer-llm|require-llm` może od razu zapisać syntezę,

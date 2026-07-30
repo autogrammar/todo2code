@@ -20,7 +20,7 @@
 - [x] Make summary generation structurally validated through
   `t2c.conclusion/v1` before rendering Markdown, rather than accepting free-form
   narrative as the primary result.
-- [ ] Add an explicit CLI summary mode
+- [x] Add an explicit CLI summary mode
   `deterministic|prefer-llm|require-llm`, consistent with NL and Markdown
   extraction modes.
 - [ ] Improve workspace trend metrics so AST line movement and source-identity

@@ -119,7 +119,10 @@ Porównuje plany, claimy Git/CHANGELOG i fakty AST. Wynik nie zatwierdza pracy �
 
 ### `src/summary/summarizer.ts`
 
-Do OpenRouter trafia wyłącznie skompaktowany graf i diagnostyka. Surowy kod, diff i pełne dokumenty nie są wejściem summarizera.
+Do OpenRouter trafia wyłącznie skompaktowany graf i diagnostyka. Surowy kod,
+diff i pełne dokumenty nie są wejściem summarizera. CLI udostępnia jawne tryby
+`deterministic|prefer-llm|require-llm`; każdy z nich kończy się walidacją
+`t2c.conclusion/v1` przed renderingiem Markdown albo jawnym błędem.
 
 ### `src/comparison/workspace.ts`
 

@@ -50,7 +50,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline oraz build i health smoke Dockera; nie wykonywała live OpenRouter.
-Wynik: 157 testów, 156 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 158 testów, 157 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

@@ -14,6 +14,7 @@ import type {
   IntentGraph,
   IntentRecord,
   LlmResponseMetadata,
+  LlmExtractionMode,
 } from '../core/types.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
@@ -28,7 +29,11 @@ export interface SummaryResult {
 }
 
 export interface SummaryOptions {
-  allowDeterministicFallback: boolean;
+  /** Explicit summary mode used by CLI and new integrations. */
+  mode?: LlmExtractionMode;
+  /** @deprecated Compatibility with callers predating explicit summary modes. */
+  allowDeterministicFallback?: boolean;
+  /** @deprecated Compatibility with the pipeline's includeSummaryLlm switch. */
   preferLlm?: boolean;
 }
 
@@ -55,7 +60,8 @@ export async function summarizeGraph(
   // This also proves that diagnostics belong to this exact graph before the
   // provider sees any payload or Markdown is rendered.
   assertConclusions([], { graph, diagnostics });
-  if (options.preferLlm === false) {
+  const mode = summaryMode(options);
+  if (mode === 'deterministic') {
     const conclusions = deterministicConclusions(
       graph,
       diagnostics,
@@ -75,12 +81,12 @@ export async function summarizeGraph(
   }
   const client = new OpenRouterClient(config.openRouter);
   if (!client.isConfigured()) {
-    if (!options.allowDeterministicFallback) throw new Error('OPENROUTER_API_KEY is required for Intent DSL -> NL summarization');
+    if (mode === 'require-llm') throw new Error('OPENROUTER_API_KEY is required for Intent DSL -> NL summarization');
     const reason = 'LLM_NOT_CONFIGURED';
     const conclusions = deterministicConclusions(
       graph,
       diagnostics,
-      generationMetadata(config, 'prefer-llm', undefined, reason),
+      generationMetadata(config, mode, undefined, reason),
     );
     return {
       conclusions,
@@ -104,7 +110,7 @@ export async function summarizeGraph(
         completion.value,
         graph,
         diagnostics,
-        generationMetadata(config, summaryMode(options), completion.metadata),
+        generationMetadata(config, mode, completion.metadata),
       );
     } catch (error) {
       throw new Error(`Invalid structured summary response: ${error instanceof Error ? error.message : String(error)}`);
@@ -121,12 +127,12 @@ export async function summarizeGraph(
       responses: [completion.metadata],
     };
   } catch (error) {
-    if (!options.allowDeterministicFallback) throw error;
+    if (mode === 'require-llm') throw error;
     const reason = 'LLM_UNAVAILABLE';
     const conclusions = deterministicConclusions(
       graph,
       diagnostics,
-      generationMetadata(config, 'prefer-llm', undefined, reason),
+      generationMetadata(config, mode, undefined, reason),
     );
     return {
       conclusions,
@@ -354,6 +360,12 @@ function generationMetadata(
 }
 
 function summaryMode(options: SummaryOptions): GroundedGenerationMetadata['requestedMode'] {
+  if (options.mode !== undefined) {
+    if (options.mode === 'deterministic' || options.mode === 'prefer-llm' || options.mode === 'require-llm') {
+      return options.mode;
+    }
+    throw new Error('Summary mode must be deterministic, prefer-llm or require-llm');
+  }
   if (options.preferLlm === false) return 'deterministic';
   return options.allowDeterministicFallback ? 'prefer-llm' : 'require-llm';
 }

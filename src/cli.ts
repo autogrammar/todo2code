@@ -120,14 +120,14 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
   if (command === 'summarize') {
     const graphFile = parsed.positionals[0];
-    if (!graphFile) throw new Error('Usage: t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--fallback] [--out summary.md]');
+    if (!graphFile) throw new Error('Usage: t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--mode deterministic|prefer-llm|require-llm] [--out summary.md]');
     const graph = await readJson<IntentGraph>(path.resolve(graphFile));
     const diagnosticsPath = optionString(parsed, 'diagnostics');
     const diagnostics = diagnosticsPath
       ? await readJson<DiagnosticReport>(path.resolve(diagnosticsPath))
       : diagnoseGraph(graph);
     const result = await summarizeGraph(graph, diagnostics, config, {
-      allowDeterministicFallback: optionBoolean(parsed, 'fallback', false),
+      mode: optionSummaryMode(parsed),
     });
     for (const warning of result.warnings) process.stderr.write(`warning: ${warning}\n`);
     const out = optionString(parsed, 'out');
@@ -625,6 +625,16 @@ function optionTaskMode(parsed: ParsedArgs): 'prefer-llm' | 'require-llm' {
   throw new Error('--mode must be prefer-llm or require-llm');
 }
 
+function optionSummaryMode(parsed: ParsedArgs): LlmExtractionMode {
+  if (parsed.options.has('mode')) return optionLlmMode(parsed, 'mode', 'prefer-llm');
+  // Preserve the old flag as a compatibility alias while making the same
+  // prefer-llm default used by NL and Markdown explicit for new invocations.
+  if (parsed.options.has('fallback')) {
+    return optionBoolean(parsed, 'fallback', false) ? 'prefer-llm' : 'require-llm';
+  }
+  return 'prefer-llm';
+}
+
 function optionPipelineTaskMode(parsed: ParsedArgs): 'disabled' | 'prefer-llm' | 'require-llm' {
   const value = optionString(parsed, 'task-mode')?.toLowerCase() ?? 'disabled';
   if (value === 'disabled' || value === 'prefer-llm' || value === 'require-llm') return value;
@@ -655,7 +665,7 @@ function printHelp(): void {
   process.stdout.write(`  t2c link <*.intent.jsonl>... [--out intent.graph.json]\n`);
   process.stdout.write(`  t2c diagnose <intent.graph.json> [--out diagnostics.json]\n`);
   process.stdout.write(`  t2c diff <before.graph.json> <after.graph.json> [--out diff.json] [--svg diff.svg]\n`);
-  process.stdout.write(`  t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--fallback] [--out team-summary.md]\n`);
+  process.stdout.write(`  t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--mode deterministic|prefer-llm|require-llm] [--out team-summary.md]\n`);
   process.stdout.write(`  t2c propose-todo <graph.json> --diagnostics diagnostics.json --mode prefer-llm|require-llm --out synthesis.json\n`);
   process.stdout.write(`  t2c render-todo <synthesis.json> --graph graph.json --diagnostics diagnostics.json --todo TODO.md --patch TODO.patch --audit TODO.patch.json\n`);
   process.stdout.write(`  t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>\n`);

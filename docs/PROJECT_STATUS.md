@@ -52,7 +52,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
 | Diagnostyka i Intent vs Reality | działa | wynik jest deterministyczny, ale AST może dominować liczbę tematów i ostrzeżeń |
-| Graf → wnioski → raport NL | działa | LLM zwraca structured output, runtime materializuje i waliduje `t2c.conclusion/v1`, a Markdown jest dopiero deterministyczną projekcją; fallback również tworzy poprawne wnioski |
+| Graf → wnioski → raport NL | działa | CLI ma jawne `deterministic|prefer-llm|require-llm`; LLM zwraca structured output, runtime waliduje `t2c.conclusion/v1`, a Markdown jest dopiero deterministyczną projekcją |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
 | Zadania DSL → `TODO.patch` | działa we wszystkich interfejsach | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem i rejestracją w run history |
@@ -61,7 +61,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 157 testów: 156 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 158 testów: 157 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
 - 51 modułów i 280 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 19 modułów bez tranzytywnego importu LLM;
 - 59 zmiennych używanych przez kod/Docker i 59 odpowiadających kluczy

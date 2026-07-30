@@ -277,7 +277,7 @@ t2c diff before.graph.json after.graph.json --out graph.diff.json --svg graph.di
 t2c diff --mode files before.ts after.ts --svg files.diff.svg --html files.diff.html
 t2c diff --mode git . --rev HEAD --svg worktree.diff.svg
 t2c reality intent.graph.json --diagnostics diagnostics.json --svg reality.svg --md reality.md
-t2c summarize intent.graph.json --diagnostics diagnostics.json --out team-summary.md
+t2c summarize intent.graph.json --diagnostics diagnostics.json --mode prefer-llm --out team-summary.md
 t2c watch [root] [--interval 60] [--scan-interval 2] [--no-initial-report]
 t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]
 t2c pipeline [root] --task TASK.md --todo TODO.md --changelog CHANGELOG.md
@@ -286,14 +286,16 @@ t2c a2a
 ```
 
 `extract nl`, `extract markdown`, `extract communication`, `extract docs` i `summarize` mogą korzystać z
-OpenRouter. Dla NL oraz Markdown `prefer-llm` jest trybem domyślnym: awaria daje
+OpenRouter. Dla NL, Markdown oraz `summarize` `prefer-llm` jest trybem domyślnym: awaria daje
 oznaczony fallback; `require-llm` kończy operację błędem, a `deterministic`
 świadomie pomija sieć. W Markdown LLM nie może zmienić checkboxa, lifecycle,
 wersji, daty, kategorii ani provenance — wzbogaca wyłącznie semantykę wpisu.
 Komunikacja jest domyślnie deterministyczna; `--communication-mode prefer-llm`
 tworzy uziemioną syntezę per uczestnik bez oddawania modelowi kontroli nad
 identity, rolą, ticketem, źródłem, lifecycle lub klasą epistemiczną.
-Dokumentacja bez klucza jest pomijana, a raport może użyć oznaczonego fallbacku.
+Dokumentacja bez klucza jest pomijana, a `t2c summarize --mode deterministic`
+świadomie nie wykonuje żądania sieciowego. Dawne `--fallback` pozostaje aliasem
+zgodności, ale nowe integracje powinny używać `--mode`.
 Etap dokumentacji ma osobne limity fragmentu, liczby fragmentów, rekordów,
 współbieżności i timeoutu (`T2C_DOC_*`). Najpierw analizuje fragmenty pasujące
 do ścieżek, symboli, ticketów i wersji wykrytych w pozostałych źródłach; obcięcie

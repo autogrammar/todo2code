@@ -86,7 +86,8 @@ const TOOLS: McpTool[] = [
   tool('summarize', 'Generate grounded Polish NL summary from graph and diagnostics through OpenRouter.', {
     graph: { type: 'object' },
     diagnostics: { type: 'object' },
-    fallback: { type: 'boolean', description: 'Allow deterministic summary when OpenRouter is unavailable.' },
+    mode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    fallback: { type: 'boolean', description: 'Deprecated alias: true selects prefer-llm, false selects require-llm.' },
   }, ['graph']),
   tool('diff', 'Compare two Intent graphs and return canonical t2c.diff/v1 JSON plus an SVG view.', {
     root: stringProp('Repository root under T2C_ROOT.'),

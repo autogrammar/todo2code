@@ -128,7 +128,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         ? objectValue<DiagnosticReport>(input.diagnostics, 'diagnostics')
         : diagnoseGraph(graph);
       return summarizeGraph(graph, diagnostics, config, {
-        allowDeterministicFallback: booleanValue(input.fallback, false),
+        mode: summaryModeValue(input.mode, input.fallback),
       });
     }
     case 'propose_todo': {
@@ -336,6 +336,12 @@ function taskSynthesisMode(value: unknown): TaskSynthesisMode {
   if (value === undefined || value === 'prefer-llm') return 'prefer-llm';
   if (value === 'require-llm') return 'require-llm';
   throw new Error('mode must be prefer-llm or require-llm');
+}
+
+function summaryModeValue(value: unknown, legacyFallback: unknown): LlmExtractionMode {
+  if (value !== undefined) return llmModeValue(value, 'prefer-llm', 'mode');
+  if (legacyFallback !== undefined) return booleanValue(legacyFallback, false) ? 'prefer-llm' : 'require-llm';
+  return 'prefer-llm';
 }
 
 function pipelineTaskMode(value: unknown): 'disabled' | 'prefer-llm' | 'require-llm' {
