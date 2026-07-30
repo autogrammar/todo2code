@@ -1,8 +1,7 @@
 # Raport z testów i poprawek
 
 Data wykonania: **2026-07-30**. Runtime: **0.5.0**. Baza robocza:
-zweryfikowany `main` na `6edaca5` (`fix: run full LLM demo without fallback`)
-wraz z opisanymi niżej zmianami dokumentacyjnymi. Środowisko: Linux,
+bieżący `main` wraz z opisanymi niżej poprawkami. Środowisko: Linux,
 Node.js 20.19.5, Python 3.13.12, Go 1.24.4, Rust 1.93.0 i Docker 29.1.3.
 Lokalnie nie ma JDK; adapter Java jest wymagany w osobnym jobie CI z Temurin
 17.
@@ -15,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 188 testów: 187 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 191 testów: 190 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
 | Moduły | `npm run verify:modules` | PASS — 90 modułów, 411 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
@@ -41,11 +40,11 @@ lub regresja adaptera nie mogą tam zostać pominięte.
 Pipeline uruchomiono deterministycznie na trzech rzeczywistych repozytoriach
 z `~/github/semcod`, z artefaktami poza ich worktree:
 
-| Repozytorium | Wynik | Rekordy AST | Python AST | Komunikacja |
-|---|---:|---:|---:|---:|
-| `code2llm` | succeeded | 13 893 | 13 720 / 230 plików | 0, poprawnie pominięta |
-| `domd` | succeeded | 18 682 | 6 511 / 137 plików | 0, poprawnie pominięta |
-| `pactfix` | succeeded | 4 754 | 3 808 / 58 plików | 0, poprawnie pominięta |
+| Repozytorium | Wynik | Rekordy grafu | Relacje | `PLANNED_NOT_IMPLEMENTED` | Komunikacja |
+|---|---:|---:|---:|---:|---:|
+| `code2llm` | succeeded | 17 648 | 60 286 | 1 | 0, poprawnie pominięta |
+| `domd` | succeeded | 23 277 | 249 131 | 1 942 | 0, poprawnie pominięta |
+| `pactfix` | succeeded | 5 295 | 5 991 | 13 | 0, poprawnie pominięta |
 
 Pierwszy przebieg na `domd` zgłosił `Python AST extraction failed: stdout
 maxBuffer length exceeded`, ponieważ helper Python omijał repozytoryjne reguły
@@ -59,6 +58,11 @@ Pierwszy przebieg błędnie utworzył 1146 rekordów komunikacji w `code2llm` i
 zawężeniu detekcji oba repozytoria mają 0 takich rekordów i etap jest jawnie
 `skipped / NO_COMMUNICATION_RECORDS`.
 
+Zmiana klasyfikacji dokumentacji usunęła fałszywe plany opisowe. W
+`code2llm` pozostał tylko 1 preskryptywny przypadek. Wysokie 1 942 na `domd`
+nie pochodzi z opisowej dokumentacji: 1 941 wpisów to rzeczywiste, otwarte
+checkboxy w jego `TODO.md`, a 1 to dokument o modalności `recommended`.
+
 Pozostałe ostrzeżenia są oczekiwane i audytowalne: brak lokalnego JDK,
 wykryte nieobsługiwane PHP/Ruby/C#, celowo niepoprawne fixture’y parserów oraz
 cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
@@ -68,7 +72,7 @@ cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 225 records, 113 relations; communication: 3 blocking, 1 warning
+demo: 225 records, 109 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
@@ -167,7 +171,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 225 rekordów i 113 relacji, w tym cztery rekordy `document` i cztery
+demo ma 225 rekordów i 109 relacji, w tym cztery rekordy `document` i cztery
 rekordy konfiguracji `system`.
 
 ### Ekstrakcja ścieżek i metryka dokumentacji
@@ -202,7 +206,7 @@ nazwy i wersji generatora todo2code, wersji runtime oraz pełnej provenance LLM
 albo deterministycznego fallbacku. Schematy i validator odrzucają anonimowy
 generator również poza rekordami Intent DSL.
 
-Audyt własnego repozytorium potwierdził **14 583/14 583** rekordów z provenance,
+Audyt własnego repozytorium potwierdził **14 912/14 912** rekordów z provenance,
 0 brakujących kopert i 0 rekordów z wersją runtime inną niż `0.5.0`. W przebiegu
 offline wszystkie miały `used=deterministic`; testy stubowanych odpowiedzi
 pokrywają rozstrzygnięty model/provider/response ID dla NL i dokumentacji.
@@ -214,16 +218,25 @@ ponownie wygenerowany aktualnym runtime'em.
 ### Samoanaliza wykonana przez todo2code
 
 Po aktualizacji kodu, `TODO.md` i `CHANGELOG.md` uruchomiono deterministyczny
-pipeline samego todo2code z wyłączonymi etapami sieciowymi. Run
-`20260730T143424Z-0afbc328` zakończył się statusem `succeeded` i utworzył graf
-o fingerprintcie `607b467e9f8879ce`:
+pipeline samego todo2code z wyłączonymi etapami sieciowymi:
 
-- 14 583 rekordy i 24 444 relacje,
-- 10 rekordów NL, 27 TODO, 134 CHANGELOG, 37 komunikacji, 10 Git, 12 883 AST,
-  1 255 dokumentacji i 227 konfiguracji `system`,
-- 4 diagnostyki blocking, 108 review-required, 1 473 warning i 309 info,
-- 449 tematów: 78 aligned i 371 luk; implementation coverage 23,4%,
-  planned code 46,4%, documented code 45,8%, dokumentacja zmierzona,
+```bash
+t2c pipeline . --task TASK.md --todo TODO.md --changelog CHANGELOG.md \
+  --docs 'README.md,docs/**/*.md,project/**/*.md' \
+  --nl-mode deterministic --markdown-mode deterministic \
+  --no-docs-llm --no-summary-llm
+```
+
+Zakres `--docs` trzeba podawać przy każdej liczbie, bo wpływa on na rekordy,
+relacje i pokrycie. Izolowany run `20260730T170141Z-6e43c201` zakończył się
+statusem `succeeded` i utworzył graf o fingerprintcie `b15494856a390614`:
+
+- 14 912 rekordów i 24 394 relacje,
+- 10 rekordów NL, 30 TODO, 141 CHANGELOG, 37 komunikacji, 10 Git, 13 150 AST,
+  1 305 dokumentacji i 229 konfiguracji `system`,
+- 5 diagnostyk blocking, 133 review-required, 1 117 warning i 325 info,
+- 23 `PLANNED_NOT_IMPLEMENTED`; opisowe rekordy dokumentacji nie są już
+  planami, a pozostałe wyniki pochodzą z TODO/NL lub preskryptywnych zdań,
 - deterministyczne podsumowanie 100 zwalidowanych wniosków.
 
 Run potwierdził, że dokumentacja i konfiguracja są obecnie konwertowane offline.
@@ -259,10 +272,11 @@ Uporządkowane wedle wpływu. Każda pozycja ma pomiar z tego przebiegu.
 ### 1. Dopasowanie tematyczne wymaga szerszego benchmarku jakości
 
 Pierwszy etap został wykonany: relacje AST↔NL wzrosły z 0 do **11**, a AST↔TODO
-z 1 do **203** w ostatnim pomiarze (kontrolowany pomiar samej zmiany dawał
-odpowiednio 10 i 71). W kontrolowanym pomiarze
-linkera AST↔AST pozostało na 617; obecne 647 wynika z rozbudowy kodu. Fałszywe
-`PLANNED_NOT_IMPLEMENTED` spadły przy tym z 40 do **4**. Przegląd próbek
+z 1 do **203** we wcześniejszym kontrolowanym pomiarze (pomiar samej zmiany
+dawał odpowiednio 10 i 71). W kontrolowanym pomiarze linkera AST↔AST
+pozostało na 617; późniejsze 647 wynikało z rozbudowy kodu. Bieżący audyt
+ma **22** `PLANNED_NOT_IMPLEMENTED`, po wyłączeniu opisowej dokumentacji z
+klasyfikacji planów. Przegląd próbek
 potwierdził trafne powiązania m.in. dla adapterów Java/Rust, budżetu
 dokumentacji i walidacji kontraktów. Nie jest to jednak jeszcze dowód jakości
 na wielu repozytoriach.

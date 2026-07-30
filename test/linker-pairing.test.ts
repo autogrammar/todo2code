@@ -103,6 +103,55 @@ test('A shared path still links a plan to an AST fact', () => {
   );
 });
 
+test('A bare filename links to a module only when its repository path is unique', () => {
+  const document = buildRecord({
+    kind: 'documentation_statement', action: 'document', object: 'converter reference',
+    target: { paths: ['markdown.ts'] }, text: 'See `markdown.ts` for the converter.',
+    lifecycle: 'proposed', sourceKind: 'document', sourcePath: 'docs/architecture.md',
+    sourceLines: { start: 4, end: 4 }, extractor: 'test', epistemicClass: 'declaration',
+    confidence: 0.8, basis: ['fixture'],
+  });
+  const module = buildRecord({
+    kind: 'module_fact', action: 'declare', object: 'src/extractors/markdown.ts',
+    target: { paths: ['src/extractors/markdown.ts'] }, text: 'module source implementation',
+    lifecycle: 'implemented', sourceKind: 'ast', sourcePath: 'src/extractors/markdown.ts',
+    sourceLines: { start: 1, end: 20 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'], metadata: { aggregate: 'module' },
+  });
+  const plannedPath = buildRecord({
+    kind: 'todo_item', action: 'add', object: 'future converter',
+    target: { paths: ['planned/markdown.ts'] }, text: 'Add another Markdown converter later.',
+    lifecycle: 'proposed', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 8, end: 8 }, extractor: 'test', epistemicClass: 'plan',
+    confidence: 0.9, basis: ['fixture'],
+  });
+
+  const graph = linkIntentRecords([document, module, plannedPath], AT);
+  const relation = graph.relations.find((item) => item.from === document.id && item.to === module.id);
+  assert.equal(relation?.type, 'evidenced_by');
+  assert.ok(relation?.basis.includes('shared_path'));
+  assert.ok(relation?.basis.includes('module_coverage'));
+});
+
+test('A bare filename refuses ambiguous module paths', () => {
+  const document = buildRecord({
+    kind: 'documentation_statement', action: 'document', object: 'validation reference',
+    target: { paths: ['validation.ts'] }, text: 'See `validation.ts` for details.',
+    lifecycle: 'proposed', sourceKind: 'document', sourcePath: 'docs/architecture.md',
+    sourceLines: { start: 4, end: 4 }, extractor: 'test', epistemicClass: 'declaration',
+    confidence: 0.8, basis: ['fixture'],
+  });
+  const modules = ['src/synthesis/validation.ts', 'src/runtime/validation.ts'].map((file) => buildRecord({
+    kind: 'module_fact', action: 'declare', object: file, target: { paths: [file] },
+    text: `module ${file}`, lifecycle: 'implemented', sourceKind: 'ast', sourcePath: file,
+    sourceLines: { start: 1, end: 20 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'], metadata: { aggregate: 'module' },
+  }));
+
+  const graph = linkIntentRecords([document, ...modules], AT);
+  assert.ok(!graph.relations.some((item) => item.from === document.id || item.to === document.id));
+});
+
 test('Relations that carry a conclusion survive alongside suppressed noise', () => {
   const plan = buildRecord({
     kind: 'todo_item', action: 'validate', object: 'validateContract',

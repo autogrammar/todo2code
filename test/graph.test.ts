@@ -59,3 +59,24 @@ test('Linker does not connect a module on one generic topic alone', () => {
   });
   assert.equal(linkIntentRecords([intent, module]).relations.length, 0);
 });
+
+test('Diagnostics distinguish descriptive documentation from prescriptive requirements', () => {
+  const documentation = (modality: 'observed' | 'unknown' | 'required' | 'recommended') => buildRecord({
+    kind: 'documentation_statement', action: 'document', object: 'runtime behavior',
+    target: { paths: ['src/runtime.ts'] }, text: ['required', 'recommended'].includes(modality)
+      ? 'The runtime must validate every request.'
+      : 'The runtime validates every request.',
+    modality, lifecycle: 'proposed', sourceKind: 'document', sourcePath: 'docs/runtime.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'declaration',
+    confidence: 0.8, basis: ['fixture'],
+  });
+
+  for (const modality of ['observed', 'unknown'] as const) {
+    const report = diagnoseGraph(linkIntentRecords([documentation(modality)]), '2026-07-30T00:00:00.000Z');
+    assert.ok(!report.diagnostics.some((item) => item.code === 'PLANNED_NOT_IMPLEMENTED'));
+  }
+  for (const modality of ['required', 'recommended'] as const) {
+    const report = diagnoseGraph(linkIntentRecords([documentation(modality)]), '2026-07-30T00:00:00.000Z');
+    assert.ok(report.diagnostics.some((item) => item.code === 'PLANNED_NOT_IMPLEMENTED'));
+  }
+});

@@ -74,13 +74,14 @@ export function linkIntentRecords(inputRecords: IntentRecord[], generatedAt = ne
   const byId = new Map(records.map((record) => [record.id, record]));
   const keywordIndex = indexKeywords(records);
   const candidatePairs = collectCandidatePairs(records, keywordIndex);
+  const resolvableBasenames = indexResolvableBasenames(records);
   const relations: IntentRelation[] = [];
 
   for (const [leftId, rightId] of candidatePairs) {
     const left = byId.get(leftId);
     const right = byId.get(rightId);
     if (!left || !right) continue;
-    const evidence = scorePair(left, right, keywordIndex);
+    const evidence = scorePair(left, right, keywordIndex, resolvableBasenames);
     if (evidence.score < 0.42) continue;
     const directed = determineRelation(left, right, evidence);
     const relationWithoutId = {
@@ -256,7 +257,66 @@ function isSuppressedAstPair(
   return astId !== null && !moduleAstIds.has(astId);
 }
 
-function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, RecordKeywords>): PairEvidence {
+/**
+ * Basenames that identify exactly one file in this repository.
+ *
+ * Documentation routinely names a source file without its directory —
+ * "the `markdown.ts` converter". `pathAliases` already emits the basename, but
+ * unconditionally: on this repository `validation.ts`, `types.ts` and `git.ts`
+ * each name two or three different files, so a bare mention silently matched
+ * all of them. Only a basename owned by a single full path can stand in for it;
+ * the rest keep requiring the directory.
+ */
+function indexResolvableBasenames(records: IntentRecord[]): Set<string> {
+  const owners = new Map<string, Set<string>>();
+  for (const record of records) {
+    // Module facts are observations of files that actually exist. A full path
+    // mentioned by a plan or document may be hypothetical and must not make a
+    // real repository basename appear ambiguous.
+    if (record.source.kind !== 'ast' || record.statement.kind !== 'module_fact') continue;
+    for (const value of record.statement.target.paths) {
+      const normalized = value.trim().toLowerCase().replace(/\\/g, '/');
+      if (!normalized.includes('/')) continue;
+      const basename = normalized.split('/').at(-1);
+      if (!basename) continue;
+      const paths = owners.get(basename) ?? new Set<string>();
+      paths.add(normalized);
+      owners.set(basename, paths);
+    }
+  }
+  return new Set([...owners.entries()].filter(([, paths]) => paths.size === 1).map(([basename]) => basename));
+}
+
+/**
+ * Path overlap that only trusts a bare basename when the repository resolves it
+ * unambiguously. Full paths always compare directly.
+ */
+function pathsIntersect(left: string[], right: string[], resolvable: Set<string>): boolean {
+  const expand = (values: string[]): Set<string> => {
+    const output = new Set<string>();
+    for (const value of values) {
+      const aliases = pathAliases(value);
+      const full = aliases[0];
+      if (full) output.add(full);
+      // A basename alias is evidence only when it names one file repo-wide.
+      for (const alias of aliases.slice(1)) {
+        if (resolvable.has(alias)) output.add(alias);
+      }
+      // A bare mention resolves through the same gate.
+      if (full && !full.includes('/') && resolvable.has(full)) output.add(full);
+    }
+    return output;
+  };
+  const leftSet = expand(left);
+  return [...expand(right)].some((value) => leftSet.has(value));
+}
+
+function scorePair(
+  left: IntentRecord,
+  right: IntentRecord,
+  index: Map<string, RecordKeywords>,
+  resolvableBasenames: Set<string>,
+): PairEvidence {
   let score = 0;
   const basis: string[] = [];
   const leftKeywords = index.get(left.id);
@@ -269,7 +329,7 @@ function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, R
     score += 0.48;
     basis.push('shared_symbol');
   }
-  if (intersectsAliases(left.statement.target.paths, right.statement.target.paths, pathAliases)) {
+  if (pathsIntersect(left.statement.target.paths, right.statement.target.paths, resolvableBasenames)) {
     score += 0.28;
     basis.push('shared_path');
     if (isModuleEvidencePair(left, right)) {

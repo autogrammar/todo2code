@@ -184,8 +184,17 @@ function hasImplementedTarget(record: IntentRecord, implementedPaths: Set<string
 }
 
 function isPlan(record: IntentRecord): boolean {
-  return ['nl', 'todo', 'document'].includes(record.source.kind)
-    && !['implemented', 'released'].includes(record.lifecycle.status);
+  if (['implemented', 'released'].includes(record.lifecycle.status)) return false;
+  // A TODO item or an NL task is a plan by construction. Documentation is not:
+  // most of it describes what already exists. Once the deterministic converter
+  // started emitting `document` records, treating every sentence as a plan
+  // produced 574 "planned, no code" findings on this repository, 555 of them
+  // from purely descriptive prose. Only prescriptive wording states an
+  // obligation that code can fail to meet.
+  if (record.source.kind === 'document') {
+    return ['required', 'recommended'].includes(record.statement.modality);
+  }
+  return ['nl', 'todo'].includes(record.source.kind);
 }
 
 function isImplementationEvidence(record: IntentRecord): boolean {

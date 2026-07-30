@@ -85,6 +85,12 @@
 
 ### Fixed
 
+- Bare source filenames now contribute path evidence only when they resolve to
+  exactly one repository path. Unique references such as `markdown.ts` link to
+  their module aggregate, while ambiguous names require an explicit directory.
+- Descriptive documentation is no longer diagnosed as an unimplemented plan.
+  Only prescriptive `required` or `recommended` document records participate in
+  `PLANNED_NOT_IMPLEMENTED`; TODO and NL plans retain their existing behavior.
 - Made the Python AST adapter consume the same `.gitignore`, `.dockerignore`
   and `.intentignore`-filtered file set as the Node adapters. Large repositories
   no longer lose all Python facts when generated project copies overflow the

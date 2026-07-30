@@ -48,9 +48,16 @@
   churn do not dominate business-topic coverage changes.
 - [ ] Add incremental AST and documentation-chunk caches keyed by content hash
   for very large repositories.
-- [ ] Resolve unambiguous bare source filenames such as `markdown.ts` against
+- [x] Resolve unambiguous bare source filenames such as `markdown.ts` against
   the repository tree before linking, while preserving the current rejection
-  of prose fragments and refusing ambiguous basename matches.
+  of prose fragments and refusing ambiguous basename matches. The linker indexes
+  basenames owned by exactly one full path; `validation.ts`, `types.ts` and
+  `git.ts` name several files here and keep requiring a directory.
+- [x] Treat documentation as a plan only when it is prescriptive. Descriptive
+  prose used to raise `PLANNED_NOT_IMPLEMENTED`: once the deterministic
+  converter emitted `document` records the count went to 579, of which 574 came
+  from documentation and 555 had `modality: unknown`. Scoping the rule to
+  `required`/`recommended` brought it back to 22.
 - [ ] Generate TypeScript runtime validators and OpenRouter response schemas
   from one canonical schema source to prevent manual contract drift.
 - [x] Add deterministic converters for repository configuration and
