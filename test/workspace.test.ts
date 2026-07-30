@@ -5,12 +5,34 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
-import { compareWorkspaceIntent } from '../src/comparison/workspace.js';
+import { classifyWorkspaceTrend, compareWorkspaceIntent } from '../src/comparison/workspace.js';
 import { pathExists, readJson } from '../src/core/io.js';
 import type { PipelineManifest } from '../src/core/types.js';
 import { makeConfig } from './helpers.js';
 
 const exec = promisify(execFile);
+
+test('workspace headline trend ignores AST-only topic and source churn', () => {
+  const direction = classifyWorkspaceTrend({
+    implementationCoverageDelta: 0,
+    documentedCodeCoverageDelta: 0,
+    documentationComparable: false,
+    diagnosticsDelta: { info: 25, warning: 12, review_required: 0, blocking: 0 },
+  });
+  assert.equal(direction, 'unchanged');
+  assert.equal(classifyWorkspaceTrend({
+    implementationCoverageDelta: 0.1,
+    documentedCodeCoverageDelta: 0,
+    documentationComparable: false,
+    diagnosticsDelta: { info: 0, warning: 0, review_required: 0, blocking: 0 },
+  }), 'improved');
+  assert.equal(classifyWorkspaceTrend({
+    implementationCoverageDelta: 0,
+    documentedCodeCoverageDelta: 0,
+    documentationComparable: false,
+    diagnosticsDelta: { info: 0, warning: 0, review_required: 1, blocking: 0 },
+  }), 'regressed');
+});
 
 test('workspace comparison measures origin/main against uncommitted filesystem intent', async () => {
   const parent = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workspace-test-'));

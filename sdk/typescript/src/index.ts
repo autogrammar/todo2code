@@ -121,7 +121,7 @@ export interface ExtractionResult {
 }
 
 export type T2CAction =
-  | 'extract_nl' | 'extract_git' | 'extract_ast' | 'extract_markdown' | 'extract_docs'
+  | 'extract_nl' | 'extract_git' | 'extract_ast' | 'extract_config' | 'extract_markdown' | 'extract_docs'
   | 'extract_communication' | 'analyze_communication'
   | 'link' | 'diagnose' | 'summarize'
   | 'diff' | 'diff_files' | 'diff_git' | 'reality'
@@ -252,6 +252,10 @@ export class T2CClient {
 
   extractAst(root = '.'): Promise<{ records: IntentRecord[]; warnings: string[] }> {
     return this.call('extract_ast', { root });
+  }
+
+  extractConfig(root = '.'): Promise<{ records: IntentRecord[]; warnings: string[] }> {
+    return this.call('extract_config', { root });
   }
 
   extractMarkdown(

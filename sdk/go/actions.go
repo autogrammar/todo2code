@@ -8,6 +8,12 @@ func (c *Client) ExtractAST(ctx context.Context, root string) (*ExtractionResult
 	return result, c.Call(ctx, ActionExtractAST, map[string]any{"root": root}, result)
 }
 
+// ExtractConfig extracts repository configuration and infrastructure declarations.
+func (c *Client) ExtractConfig(ctx context.Context, root string) (*ExtractionResult, error) {
+	result := &ExtractionResult{}
+	return result, c.Call(ctx, ActionExtractConfig, map[string]any{"root": root}, result)
+}
+
 // ExtractNL converts natural language into audited Intent DSL records.
 func (c *Client) ExtractNL(ctx context.Context, root, file, nlMode string) (*ExtractionResult, error) {
 	result := &ExtractionResult{}

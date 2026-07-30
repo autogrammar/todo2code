@@ -1,22 +1,22 @@
-# redup/duplication | 11 groups | 118f 20796L | 2026-07-30
+# redup/duplication | 11 groups | 123f 21968L | 2026-07-30
 
 SUMMARY:
-  files_scanned: 118
-  total_lines:   20796
+  files_scanned: 123
+  total_lines:   21968
   dup_groups:    11
   actionable:    11
   review:        0
   generated:     0
-  actionable_L:  92
+  actionable_L:  82
   review_L:      0
   generated_L:   0
   dup_fragments: 29
-  saved_lines:   92
-  scan_ms:       835
+  saved_lines:   82
+  scan_ms:       855
 
 HOTSPOTS[7] (files with most duplication):
-  src/extractors/markdown-llm.ts  dup=33L  groups=4  frags=4  (0.2%)
-  src/communication/llm.ts  dup=33L  groups=4  frags=4  (0.2%)
+  src/extractors/markdown-llm.ts  dup=23L  groups=4  frags=4  (0.1%)
+  src/communication/llm.ts  dup=23L  groups=4  frags=4  (0.1%)
   src/extractors/nl-llm.ts  dup=21L  groups=6  frags=6  (0.1%)
   src/extractors/docs-llm.ts  dup=12L  groups=3  frags=3  (0.1%)
   src/extractors/docs-record.ts  dup=12L  groups=4  frags=4  (0.1%)
@@ -26,44 +26,44 @@ HOTSPOTS[7] (files with most duplication):
 DUPLICATES[11] (ranked by impact):
   [ff0b7d1fb897f5eb]   EXAC  readPrompt  L=5 N=5 saved=20 sim=1.00
       src/extractors/docs-llm.ts:188-192  (readPrompt)
-      src/extractors/markdown-llm.ts:266-270  (readPrompt)
-      src/extractors/nl-llm.ts:240-244  (readPrompt)
-      src/summary/summarizer.ts:489-493  (readPrompt)
-      src/synthesis/tasks-llm.ts:377-381  (readPrompt)
+      src/extractors/markdown-llm.ts:261-265  (readPrompt)
+      src/extractors/nl-llm.ts:227-231  (readPrompt)
+      src/summary/summarizer.ts:503-507  (readPrompt)
+      src/synthesis/tasks-llm.ts:379-383  (readPrompt)
   [09873fe5d7f53db8]   STRU  constructor  L=4 N=5 saved=16 sim=1.00
       src/communication/llm.ts:80-83  (constructor)
       src/extractors/docs-llm.ts:36-39  (constructor)
       src/extractors/markdown-llm.ts:46-49  (constructor)
       src/extractors/nl-llm.ts:46-49  (constructor)
       src/synthesis/tasks-llm.ts:51-54  (constructor)
-  [d7c1dcfcd57eaf58]   EXAC  markDeterministic  L=13 N=2 saved=13 sim=1.00
-      src/communication/llm.ts:366-378  (markDeterministic)
-      src/extractors/markdown-llm.ts:232-244  (markDeterministic)
-  [71c0b5205da49b9f]   EXAC  arrow_function  L=11 N=2 saved=11 sim=1.00
-      src/communication/llm.ts:367-377  (arrow_function)
-      src/extractors/markdown-llm.ts:233-243  (arrow_function)
   [8f9cb44a5788fdd0]   EXAC  collect  L=9 N=2 saved=9 sim=1.00
       scripts/verify-env-contract.mjs:95-103  (collect)
       scripts/verify-module-boundaries.mjs:59-67  (collect)
+  [040774ed1317816e]   EXAC  markDeterministic  L=8 N=2 saved=8 sim=1.00
+      src/communication/llm.ts:367-374  (markDeterministic)
+      src/extractors/markdown-llm.ts:232-239  (markDeterministic)
+  [a81abf06a2409abf]   EXAC  arrow_function  L=6 N=2 saved=6 sim=1.00
+      src/communication/llm.ts:368-373  (arrow_function)
+      src/extractors/markdown-llm.ts:233-238  (arrow_function)
   [2e20d0fc42b5b689]   EXAC  errorMessage  L=3 N=3 saved=6 sim=1.00
       src/extractors/docs-llm.ts:194-196  (errorMessage)
       src/interfaces/a2a-task-store.ts:511-513  (errorMessage)
       src/interfaces/a2a.ts:310-312  (errorMessage)
   [13e54260c09235cb]   EXAC  roleOf  L=5 N=2 saved=5 sim=1.00
       src/communication/analyzer.ts:321-325  (roleOf)
-      src/communication/llm.ts:427-431  (roleOf)
+      src/communication/llm.ts:426-430  (roleOf)
   [030166b05976a014]   EXAC  isPlaceholder  L=3 N=2 saved=3 sim=1.00
-      src/extractors/docs-record.ts:80-82  (isPlaceholder)
-      src/extractors/nl-llm.ts:191-193  (isPlaceholder)
+      src/extractors/docs-record.ts:75-77  (isPlaceholder)
+      src/extractors/nl-llm.ts:178-180  (isPlaceholder)
   [cf429410d135f725]   EXAC  clampLine  L=3 N=2 saved=3 sim=1.00
-      src/extractors/docs-record.ts:184-186  (clampLine)
-      src/extractors/nl-llm.ts:228-230  (clampLine)
+      src/extractors/docs-record.ts:179-181  (clampLine)
+      src/extractors/nl-llm.ts:215-217  (clampLine)
   [85958beabc80c768]   EXAC  allowedAction  L=3 N=2 saved=3 sim=1.00
-      src/extractors/docs-record.ts:188-190  (allowedAction)
-      src/extractors/nl-llm.ts:232-234  (allowedAction)
+      src/extractors/docs-record.ts:183-185  (allowedAction)
+      src/extractors/nl-llm.ts:219-221  (allowedAction)
   [9b7097c5386e9cfa]   EXAC  allowedModality  L=3 N=2 saved=3 sim=1.00
-      src/extractors/docs-record.ts:192-194  (allowedModality)
-      src/extractors/nl-llm.ts:236-238  (allowedModality)
+      src/extractors/docs-record.ts:187-189  (allowedModality)
+      src/extractors/nl-llm.ts:223-225  (allowedModality)
 
 REFACTOR[11] (ranked by priority):
   [1] ○ extract_function   → src/utils/readPrompt.py
@@ -72,15 +72,15 @@ REFACTOR[11] (ranked by priority):
   [2] ○ extract_function   → src/utils/constructor.py
       WHY: 5 occurrences of 4-line block across 5 files — saves 16 lines
       FILES: src/communication/llm.ts, src/extractors/docs-llm.ts, src/extractors/markdown-llm.ts, src/extractors/nl-llm.ts, src/synthesis/tasks-llm.ts
-  [3] ○ extract_function   → src/utils/markDeterministic.py
-      WHY: 2 occurrences of 13-line block across 2 files — saves 13 lines
-      FILES: src/communication/llm.ts, src/extractors/markdown-llm.ts
-  [4] ○ extract_function   → src/utils/arrow_function.py
-      WHY: 2 occurrences of 11-line block across 2 files — saves 11 lines
-      FILES: src/communication/llm.ts, src/extractors/markdown-llm.ts
-  [5] ○ extract_function   → scripts/utils/collect.py
+  [3] ○ extract_function   → scripts/utils/collect.py
       WHY: 2 occurrences of 9-line block across 2 files — saves 9 lines
       FILES: scripts/verify-env-contract.mjs, scripts/verify-module-boundaries.mjs
+  [4] ○ extract_function   → src/utils/markDeterministic.py
+      WHY: 2 occurrences of 8-line block across 2 files — saves 8 lines
+      FILES: src/communication/llm.ts, src/extractors/markdown-llm.ts
+  [5] ○ extract_function   → src/utils/arrow_function.py
+      WHY: 2 occurrences of 6-line block across 2 files — saves 6 lines
+      FILES: src/communication/llm.ts, src/extractors/markdown-llm.ts
   [6] ○ extract_function   → src/utils/errorMessage.py
       WHY: 3 occurrences of 3-line block across 3 files — saves 6 lines
       FILES: src/extractors/docs-llm.ts, src/interfaces/a2a-task-store.ts, src/interfaces/a2a.ts
@@ -105,21 +105,21 @@ QUICK_WINS[6] (low risk, high savings — do first):
       FILES: docs-llm.ts, markdown-llm.ts, nl-llm.ts +2
   [2] extract_function   saved=16L  → src/utils/constructor.py
       FILES: llm.ts, docs-llm.ts, markdown-llm.ts +2
-  [3] extract_function   saved=13L  → src/utils/markDeterministic.py
-      FILES: llm.ts, markdown-llm.ts
-  [4] extract_function   saved=11L  → src/utils/arrow_function.py
-      FILES: llm.ts, markdown-llm.ts
-  [5] extract_function   saved=9L  → scripts/utils/collect.py
+  [3] extract_function   saved=9L  → scripts/utils/collect.py
       FILES: verify-env-contract.mjs, verify-module-boundaries.mjs
+  [4] extract_function   saved=8L  → src/utils/markDeterministic.py
+      FILES: llm.ts, markdown-llm.ts
+  [5] extract_function   saved=6L  → src/utils/arrow_function.py
+      FILES: llm.ts, markdown-llm.ts
   [6] extract_function   saved=6L  → src/utils/errorMessage.py
       FILES: docs-llm.ts, a2a-task-store.ts, a2a.ts
 
-EFFORT_ESTIMATE (total ≈ 3.1h):
+EFFORT_ESTIMATE (total ≈ 2.7h):
   medium readPrompt                          saved=20L  ~40min
   medium constructor                         saved=16L  ~32min
-  easy   markDeterministic                   saved=13L  ~26min
-  easy   arrow_function                      saved=11L  ~22min
   easy   collect                             saved=9L  ~18min
+  easy   markDeterministic                   saved=8L  ~16min
+  easy   arrow_function                      saved=6L  ~12min
   easy   errorMessage                        saved=6L  ~12min
   easy   roleOf                              saved=5L  ~10min
   easy   isPlaceholder                       saved=3L  ~6min
@@ -129,4 +129,4 @@ EFFORT_ESTIMATE (total ≈ 3.1h):
 
 METRICS-TARGET:
   dup_groups:  11 → 0
-  saved_lines: 92 lines recoverable
+  saved_lines: 82 lines recoverable

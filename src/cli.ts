@@ -20,6 +20,7 @@ import {
   type FileDiff,
 } from './diff/text.js';
 import { extractAstIntent } from './extractors/ast.js';
+import { extractConfigurationIntent } from './extractors/configuration.js';
 import { extractDocumentationIntent } from './extractors/docs-llm.js';
 import { extractGitIntent } from './extractors/git.js';
 import { extractMarkdownIntentAudited } from './extractors/markdown-llm.js';
@@ -426,6 +427,11 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     await emitExtraction(result, out);
     return;
   }
+  if (extractor === 'config') {
+    const result = await extractConfigurationIntent(path.resolve(parsed.positionals[0] ?? root), config);
+    await emitExtraction(result, out);
+    return;
+  }
   if (extractor === 'markdown') {
     const result = await extractMarkdownIntentAudited({
       root,
@@ -456,7 +462,7 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     process.stderr.write(`communication -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
     return;
   }
-  throw new Error('Usage: t2c extract <nl|git|ast|markdown|docs|communication> ...');
+  throw new Error('Usage: t2c extract <nl|git|ast|config|markdown|docs|communication> ...');
 }
 
 async function handleCommunication(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {

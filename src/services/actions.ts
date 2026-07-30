@@ -16,6 +16,7 @@ import {
   type FileDiff,
 } from '../diff/text.js';
 import { extractAstIntent } from '../extractors/ast.js';
+import { extractConfigurationIntent } from '../extractors/configuration.js';
 import { extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntentAudited } from '../extractors/markdown-llm.js';
@@ -32,6 +33,7 @@ export type T2CAction =
   | 'extract_nl'
   | 'extract_git'
   | 'extract_ast'
+  | 'extract_config'
   | 'extract_markdown'
   | 'extract_docs'
   | 'extract_communication'
@@ -65,6 +67,8 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
       return extractGitIntent({ root, count: numberValue(input.count, config.gitCommitCount, 1, 100) }, config);
     case 'extract_ast':
       return extractAstIntent({ root }, config);
+    case 'extract_config':
+      return extractConfigurationIntent(root, config);
     case 'extract_markdown':
       return extractMarkdownIntentAudited({
         root,

@@ -276,6 +276,7 @@ t2c doctor
 t2c extract nl <file> [--root .] [--out nl.intent.jsonl]
 t2c extract git [--root .] [--count 10] [--out git.intent.jsonl]
 t2c extract ast [root] [--out ast.intent.jsonl]
+t2c extract config [root] [--out configuration.intent.jsonl]
 t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--markdown-mode deterministic|prefer-llm|require-llm]
 t2c extract docs [--patterns 'README.md,docs/**/*.md']
 

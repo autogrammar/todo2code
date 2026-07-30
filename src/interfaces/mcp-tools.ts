@@ -23,6 +23,9 @@ export const MCP_TOOLS: McpTool[] = [
   tool('extract_ast', 'Extract TypeScript/JavaScript, Python, Go, Java and Rust AST facts to Intent DSL without an LLM.', {
     root: stringProp('Repository root under T2C_ROOT.'),
   }),
+  tool('extract_config', 'Extract repository configuration, Docker and CI declarations to Intent DSL without an LLM.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+  }),
   tool('extract_markdown', 'Extract TODO.md and CHANGELOG.md structurally, with audited LLM semantic enrichment and deterministic fallback.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     todo: nullableStringProp('TODO path or null.'),

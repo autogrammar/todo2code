@@ -12,6 +12,11 @@ import type { ExtractionResult, IntentAction, IntentRecord, JsonValue } from '..
 
 const execFileAsync = promisify(execFile);
 const JS_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts', '.mjs', '.cjs'];
+const UNSUPPORTED_SOURCE_EXTENSIONS = [
+  '.php', '.rb', '.cs', '.fs', '.fsx', '.kt', '.kts', '.swift', '.scala',
+  '.c', '.cc', '.cpp', '.cxx', '.h', '.hh', '.hpp', '.m', '.mm', '.lua',
+  '.r', '.dart', '.ex', '.exs',
+];
 
 interface AdapterFact {
   path: string;
@@ -76,7 +81,29 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     records.push(...rust.records);
     warnings.push(...rust.warnings);
   }
+  const unsupported = await unsupportedSourceWarning(root, matcher);
+  if (unsupported) warnings.push(unsupported);
   return { records, warnings };
+}
+
+async function unsupportedSourceWarning(
+  root: string,
+  matcher: Awaited<ReturnType<typeof loadIgnoreMatcher>>,
+): Promise<string | null> {
+  const files = await walkFiles(root, {
+    extensions: UNSUPPORTED_SOURCE_EXTENSIONS,
+    maxFiles: 20_000,
+    matcher,
+  });
+  if (!files.length) return null;
+  const counts = new Map<string, number>();
+  for (const file of files) {
+    const extension = path.extname(file).toLowerCase().slice(1) || 'unknown';
+    counts.set(extension, (counts.get(extension) ?? 0) + 1);
+  }
+  const summary = [...counts.entries()].sort(([left], [right]) => left.localeCompare(right))
+    .map(([extension, count]) => `${extension}=${count}`).join(', ');
+  return `UNSUPPORTED_AST_FILES: ${summary}; these source files were discovered but not converted to AST DSL`;
 }
 
 function extractTypeScriptFile(root: string, filePath: string, body: string): IntentRecord[] {

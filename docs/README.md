@@ -1,14 +1,12 @@
 <!-- code2docs:start --># todo2code
 
-![version](https://img.shields.io/badge/version-0.5.0-blue) ![typescript](https://img.shields.io/badge/typescript-%3E%3D20-3178C6) ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey) ![functions](https://img.shields.io/badge/functions-2225-green)
-> **2225** functions | **249** classes | **196** files | CC̄ = 3.7
+![version](https://img.shields.io/badge/version-0.1.0-blue) ![typescript](https://img.shields.io/badge/typescript-%3E%3D20-3178C6) ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey) ![functions](https://img.shields.io/badge/functions-2363-green)
+> **2363** functions | **258** classes | **201** files | CC̄ = 3.7
 
 > Auto-generated project documentation from source code analysis.
 
 **Author:** Tom Softreck <tom@sapletta.com>
-
-**License:** [Apache-2.0](../LICENSE)
-
+**License:** MIT[(LICENSE)](./LICENSE)
 **Repository:** [https://github.com/semcod/todo2code](https://github.com/semcod/todo2code)
 
 ## Installation
@@ -119,6 +117,7 @@ todo2code/
         ├── docs-llm
         ├── markdown
         ├── changelog
+        ├── docs-deterministic
         ├── docs-record
         ├── todo
         ├── markdown-block
@@ -138,6 +137,7 @@ todo2code/
         ├── security
         ├── ignore
         ├── id
+        ├── version
         ├── record
         ├── io
         ├── schema
@@ -190,8 +190,11 @@ todo2code/
     ├── package
     ├── a2a-request
     ├── mcp-request
+    ├── docker-smoke
     ├── examples-check
+    ├── live-contract-check
     ├── verify-no-llm-imports
+    ├── verify-workflow-yaml
     ├── verify-module-boundaries
     ├── smoke
         ├── package
@@ -266,6 +269,7 @@ todo2code/
 - **`NlLlmRequiredError`** — —
 - **`DocumentationLlmRequiredError`** — —
 - **`MarkdownExtractionOptions`** — —
+- **`DeterministicDocumentationOptions`** — —
 - **`MarkdownListBlock`** — —
 - **`CommunicationExtractionOptions`** — —
 - **`CommunicationEnvelope`** — —
@@ -298,6 +302,8 @@ todo2code/
 - **`IntentSource`** — —
 - **`IntentEpistemic`** — —
 - **`IntentLifecycle`** — —
+- **`IntentGenerationMetadata`** — —
+- **`IntentRecordMetadata`** — —
 - **`IntentRecord`** — —
 - **`IntentRelation`** — —
 - **`IntentGraph`** — —
@@ -321,6 +327,7 @@ todo2code/
 - **`IgnoreRule`** — —
 - **`IgnoreMatcher`** — —
 - **`LoadIgnoreOptions`** — —
+- **`BuildRecordGenerationInput`** — —
 - **`BuildRecordInput`** — —
 - **`WalkOptions`** — —
 - **`GroundedValidationContext`** — —
@@ -393,12 +400,14 @@ todo2code/
 - **`GoldDocumentModelRecord`** — —
 - **`GoldExtractionCase`** — —
 - **`GoldFixtureRecord`** — —
+- **`GoldExpectedRelation`** — —
 - **`GoldLinkingCase`** — —
 - **`GoldProposalFixture`** — —
 - **`GoldDsl2TodoCase`** — —
 - **`GoldDataset`** — —
 - **`BinaryMetric`** — —
 - **`GoldEvaluationReport`** — —
+- **`LinkingCaseResult`** — —
 - **`Dsl2TodoCaseResult`** — —
 - **`Counts`** — —
 - **`EvaluationCore`** — —
@@ -439,6 +448,7 @@ todo2code/
 - **`IntentStatement`** — —
 - **`IntentSource`** — —
 - **`IntentEpistemic`** — —
+- **`IntentGenerationMetadata`** — —
 - **`IntentRecord`** — —
 - **`IntentRelation`** — —
 - **`IntentGraph`** — —
@@ -454,6 +464,7 @@ todo2code/
 - **`Error`** — —
 - **`IntentTarget`** — —
 - **`IntentStatement`** — —
+- **`IntentGenerationMetadata`** — —
 - **`IntentRecord`** — —
 - **`IntentGraph`** — —
 - **`DiagnosticReport`** — —
@@ -471,6 +482,7 @@ todo2code/
 - **`IntentSource`** — —
 - **`IntentEpistemic`** — —
 - **`IntentLifecycle`** — —
+- **`IntentGenerationMetadata`** — —
 - **`IntentRecord`** — —
 - **`Diagnostic`** — —
 - **`DiagnosticReport`** — —
@@ -565,6 +577,7 @@ todo2code/
 - `approvalHash()` — —
 - `root()` — —
 - `handleWatch()` — —
+- `taskFile()` — —
 - `controller()` — —
 - `stop()` — —
 - `formatWatchEvent()` — —
@@ -617,6 +630,7 @@ todo2code/
 - `reportPipelineDegradation()` — —
 - `printHelp()` — —
 - `invokedPath()` — —
+- `assertNlExtractionOptions()` — —
 - `extractNlIntent()` — —
 - `absolute()` — —
 - `body()` — —
@@ -641,6 +655,7 @@ todo2code/
 - `extractTypeScriptFile()` — —
 - `relative()` — —
 - `sourceFile()` — —
+- `moduleCapabilities()` — —
 - `lineRange()` — —
 - `excerpt()` — —
 - `add()` — —
@@ -650,6 +665,7 @@ todo2code/
 - `visit()` — —
 - `declarationIsCallable()` — —
 - `callee()` — —
+- `capabilities()` — —
 - `isTopLevel()` — —
 - `scriptKind()` — —
 - `extension()` — —
@@ -665,6 +681,14 @@ todo2code/
 - `extractRustAst()` — —
 - `manifest()` — —
 - `adapterRecords()` — —
+- `detailRecords()` — —
+- `moduleRecords()` — —
+- `byPath()` — —
+- `bucket()` — —
+- `start()` — —
+- `end()` — —
+- `boundedCapabilities()` — —
+- `moduleTopicText()` — —
 - `documentResponseSchema()` — —
 - `extractMarkdownIntent()` — —
 - `todo()` — —
@@ -684,6 +708,35 @@ todo2code/
 - `changelogAction()` — —
 - `normalized()` — —
 - `lower()` — —
+- `MAX_HEADING_LEVEL()` — —
+- `MIN_STATEMENT_CHARS()` — —
+- `extractDocumentationBaseline()` — —
+- `root()` — —
+- `body()` — —
+- `convertDocument()` — —
+- `relative()` — —
+- `lines()` — —
+- `raw()` — —
+- `fenceMatch()` — —
+- `marker()` — —
+- `language()` — —
+- `record()` — —
+- `heading()` — —
+- `level()` — —
+- `title()` — —
+- `bullet()` — —
+- `block()` — —
+- `paragraph()` — —
+- `readParagraph()` — —
+- `cursor()` — —
+- `line()` — —
+- `qualifyingStatement()` — —
+- `target()` — —
+- `hasCodeSpanIdentifier()` — —
+- `statementRecord()` — —
+- `action()` — —
+- `codeBlockRecord()` — —
+- `targetsOf()` — —
 - `OBJECT_PLACEHOLDERS()` — —
 - `toDocumentIntentRecord()` — —
 - `statementText()` — —
@@ -902,21 +955,32 @@ todo2code/
 - `collectCandidatePairs()` — —
 - `buckets()` — —
 - `astIds()` — —
+- `moduleAstIds()` — —
+- `declarationAstIds()` — —
+- `isModuleTopicSource()` — —
 - `indexTargetBuckets()` — —
 - `indexAliases()` — —
 - `indexKeywordBuckets()` — —
+- `indexTopicBuckets()` — —
 - `addToBucket()` — —
 - `values()` — —
 - `pairsFromBuckets()` — —
 - `output()` — —
 - `leftId()` — —
 - `rightId()` — —
-- `isSuppressedAstPathPair()` — —
+- `isSuppressedAstPair()` — —
+- `leftAst()` — —
+- `rightAst()` — —
+- `astId()` — —
 - `scorePair()` — —
 - `score()` — —
 - `leftKeywords()` — —
 - `rightKeywords()` — —
 - `objectSimilarity()` — —
+- `sharedTopics()` — —
+- `intersectionSize()` — —
+- `size()` — —
+- `isModuleEvidencePair()` — —
 - `determineRelation()` — —
 - `textScore()` — —
 - `sourceRelation()` — —
@@ -1059,6 +1123,9 @@ todo2code/
 - `detectPolarity()` — —
 - `normalizeToken()` — —
 - `keywords()` — —
+- `GENERIC_TOPICS()` — —
+- `topicKeywords()` — —
+- `separated()` — —
 - `similarity()` — —
 - `left()` — —
 - `right()` — —
@@ -1066,9 +1133,13 @@ todo2code/
 - `extractBacktickValues()` — —
 - `value()` — —
 - `extractPaths()` — —
+- `FILE_EXTENSIONS()` — —
+- `hasFileExtension()` — —
+- `last()` — —
+- `dot()` — —
+- `PATH_ROOTS()` — —
 - `isPathLike()` — —
 - `segments()` — —
-- `words()` — —
 - `extractSymbols()` — —
 - `backticks()` — —
 - `camel()` — —
@@ -1132,6 +1203,11 @@ todo2code/
 - `asJsonValue()` — —
 - `buildRecord()` — —
 - `rawExcerpt()` — —
+- `withRecordGeneration()` — —
+- `generationMetadata()` — —
+- `used()` — —
+- `extractorIdentity()` — —
+- `separator()` — —
 - `clamp()` — —
 - `sourcePrefix()` — —
 - `DEFAULT_IGNORED_DIRS()` — —
@@ -1187,6 +1263,11 @@ todo2code/
 - `lines()` — —
 - `epistemic()` — —
 - `metadata()` — —
+- `assertGenerationMatchesExtractor()` — —
+- `generation()` — —
+- `separator()` — —
+- `expectedGenerator()` — —
+- `assertIntentGenerationMetadata()` — —
 - `assertIntentRecords()` — —
 - `assertIntentGraph()` — —
 - `graph()` — —
@@ -1214,7 +1295,6 @@ todo2code/
 - `assertTodoProposalValue()` — —
 - `proposal()` — —
 - `assertGroundedGenerationMetadata()` — —
-- `generation()` — —
 - `validateGroundedContext()` — —
 - `report()` — —
 - `diagnosticIds()` — —
@@ -1349,6 +1429,7 @@ todo2code/
 - `root()` — —
 - `repositoryRoot()` — —
 - `relativeAnalysisRoot()` — —
+- `outputDir()` — —
 - `baseRef()` — —
 - `baseCommit()` — —
 - `headCommit()` — —
@@ -1375,6 +1456,8 @@ todo2code/
 - `comparisonId()` — —
 - `comparisonDirectory()` — —
 - `artifacts()` — —
+- `scopedOutputDirectory()` — —
+- `absolute()` — —
 - `commonPipelineOptions()` — —
 - `optionsForRoot()` — —
 - `existingFile()` — —
@@ -1390,6 +1473,7 @@ todo2code/
 - `artifactPaths()` — —
 - `renderTrendMarkdown()` — —
 - `percent()` — —
+- `documentationLine()` — —
 - `git()` — —
 - `result()` — —
 - `classifyLlmFailure()` — —
@@ -1752,6 +1836,7 @@ todo2code/
 - `implementationAlignedTopics()` — —
 - `documentedObservedTopics()` — —
 - `ratio()` — —
+- `documentedCoverageLabel()` — —
 - `LABEL_CHAR()` — —
 - `BADGE_CHAR()` — —
 - `widestLabel()` — —
@@ -1866,6 +1951,7 @@ todo2code/
 - `maxDiagnostics()` — —
 - `referenced()` — —
 - `nonAst()` — —
+- `moduleAst()` — —
 - `relevantAst()` — —
 - `ids()` — —
 - `selectedRelations()` — —
@@ -1873,6 +1959,7 @@ todo2code/
 - `renderSummary()` — —
 - `plans()` — —
 - `git()` — —
+- `moduleFacts()` — —
 - `facts()` — —
 - `releases()` — —
 - `communication()` — —
@@ -1880,6 +1967,7 @@ todo2code/
 - `renderRecords()` — —
 - `confidence()` — —
 - `assertRawSummaryShape()` — —
+- `candidate()` — —
 - `keys()` — —
 - `assertRawConclusion()` — —
 - `requireText()` — —
@@ -1911,7 +1999,9 @@ todo2code/
 - `git()` — —
 - `ast()` — —
 - `markdown()` — —
-- `documentationAudit()` — —
+- `deterministicDocumentFiles()` — —
+- `documentationStartedAt()` — —
+- `deterministicDocs()` — —
 - `docs()` — —
 - `includeCommunication()` — —
 - `communicationStartedAt()` — —
@@ -1977,7 +2067,14 @@ todo2code/
 - `evaluateLinkingCase()` — —
 - `idToLabel()` — —
 - `graph()` — —
+- `observed()` — —
 - `actual()` — —
+- `expected()` — —
+- `byClass()` — —
+- `forbidden()` — —
+- `forbiddenViolations()` — —
+- `classifyRelation()` — —
+- `exact()` — —
 - `evaluateDsl2TodoCase()` — —
 - `diagnostics()` — —
 - `diagnosticIds()` — —
@@ -1985,7 +2082,6 @@ todo2code/
 - `proposals()` — —
 - `validation()` — —
 - `duplicateIds()` — —
-- `expected()` — —
 - `citations()` — —
 - `buildConclusion()` — —
 - `buildProposal()` — —
@@ -2031,6 +2127,8 @@ todo2code/
 - `overall()` — —
 - `evaluateLinking()` — —
 - `counts()` — —
+- `byClass()` — —
+- `forbiddenViolations()` — —
 - `snapshots()` — —
 - `result()` — —
 - `evaluateDsl2Todo()` — —
@@ -2175,14 +2273,62 @@ todo2code/
 - `absolute()` — —
 - `collect()` — —
 - `cleanup()` — —
+- `cleanup()` — —
 - `record_sdk_log()` — —
 - `run_sdk()` — —
+- `REPO_ROOT()` — —
+- `envNumber()` — —
+- `value()` — —
+- `main()` — —
+- `config()` — —
+- `stages()` — —
+- `audit()` — —
+- `runStages()` — —
+- `runDirectory()` — —
+- `graph()` — —
+- `diagnostics()` — —
+- `nl()` — —
+- `summary()` — —
+- `latestDemoRun()` — —
+- `runsRoot()` — —
+- `latest()` — —
+- `timeStage()` — —
+- `startedAt()` — —
+- `result()` — —
+- `responses()` — —
+- `redactedError()` — —
+- `message()` — —
+- `buildAudit()` — —
+- `measured()` — —
+- `usage()` — —
+- `cost()` — —
+- `totalTokens()` — —
+- `overLatency()` — —
+- `totalCostUsd()` — —
+- `overCost()` — —
+- `failures()` — —
+- `sum()` — —
+- `numbers()` — —
+- `writeAudit()` — —
+- `target()` — —
+- `report()` — —
+- `status()` — —
+- `total()` — —
 - `visited()` — —
 - `visit()` — —
 - `body()` — —
 - `resolved()` — —
 - `resolveSource()` — —
 - `raw()` — —
+- `explicit()` — —
+- `files()` — —
+- `body()` — —
+- `seen()` — —
+- `match()` — —
+- `key()` — —
+- `previous()` — —
+- `workflowFiles()` — —
+- `directory()` — —
 - `sourceRoot()` — —
 - `files()` — —
 - `graph()` — —
@@ -2213,6 +2359,7 @@ todo2code/
 - `Health()` — —
 - `AgentCard()` — —
 - `getJSON()` — —
+- `Generation()` — —
 - `Error()` — —
 - `ExtractAST()` — —
 - `ExtractNL()` — —
@@ -2345,13 +2492,16 @@ todo2code/
 📄 `schemas.todo-patch.schema`
 📄 `schemas.todo-proposal.schema`
 📄 `scripts.a2a-request`
+📄 `scripts.docker-smoke` (1 functions)
 📄 `scripts.examples-check` (3 functions)
+📄 `scripts.live-contract-check` (39 functions)
 📄 `scripts.mcp-request`
 📄 `scripts.package`
 📄 `scripts.smoke`
 📄 `scripts.verify-env-contract` (18 functions)
 📄 `scripts.verify-module-boundaries` (17 functions)
 📄 `scripts.verify-no-llm-imports` (6 functions)
+📄 `scripts.verify-workflow-yaml` (9 functions)
 📦 `sdk`
 📄 `sdk.README`
 📄 `sdk.go.README`
@@ -2359,7 +2509,7 @@ todo2code/
 📄 `sdk.go.client` (10 functions, 3 classes)
 📄 `sdk.go.examples.basic.main` (5 functions)
 📄 `sdk.go.todo2code`
-📄 `sdk.go.types` (1 functions, 18 classes)
+📄 `sdk.go.types` (2 functions, 19 classes)
 📄 `sdk.php.README`
 📄 `sdk.php.composer`
 📄 `sdk.php.examples.basic`
@@ -2381,44 +2531,46 @@ todo2code/
 📄 `sdk.rust.src.actions` (19 functions)
 📄 `sdk.rust.src.client` (19 functions, 1 classes)
 📄 `sdk.rust.src.error` (3 functions)
-📄 `sdk.rust.src.types` (10 classes)
+📄 `sdk.rust.src.types` (1 functions, 11 classes)
 📄 `sdk.typescript.README`
 📄 `sdk.typescript.examples.basic` (19 functions)
 📄 `sdk.typescript.package`
-📦 `sdk.typescript.src` (41 functions, 13 classes)
+📦 `sdk.typescript.src` (41 functions, 14 classes)
 📄 `sdk.typescript.tsconfig`
 📦 `src`
-📄 `src.cli` (123 functions, 1 classes)
+📄 `src.cli` (124 functions, 1 classes)
 📄 `src.communication.analyzer` (52 functions, 3 classes)
 📄 `src.communication.identity` (14 functions, 3 classes)
-📄 `src.communication.llm` (52 functions, 7 classes)
-📄 `src.comparison.workspace` (49 functions, 3 classes)
+📄 `src.communication.llm` (53 functions, 7 classes)
+📄 `src.comparison.workspace` (53 functions, 3 classes)
 📄 `src.config.env` (26 functions, 1 classes)
 📄 `src.core.id` (12 functions)
 📄 `src.core.ignore` (24 functions, 3 classes)
 📄 `src.core.io` (36 functions, 1 classes)
-📄 `src.core.record` (4 functions, 1 classes)
-📄 `src.core.schema` (97 functions, 2 classes)
+📄 `src.core.record` (9 functions, 2 classes)
+📄 `src.core.schema` (103 functions, 2 classes)
 📄 `src.core.security` (11 functions)
 📄 `src.core.target` (13 functions)
-📄 `src.core.text` (35 functions)
-📄 `src.core.types` (26 classes)
+📄 `src.core.text` (42 functions)
+📄 `src.core.types` (28 classes)
+📄 `src.core.version`
 📄 `src.diff.git` (21 functions, 3 classes)
-📄 `src.diff.reality` (65 functions, 3 classes)
+📄 `src.diff.reality` (66 functions, 3 classes)
 📄 `src.diff.svg` (7 functions, 2 classes)
 📄 `src.diff.text` (53 functions, 1 classes)
 📄 `src.diff.text-render` (35 functions, 2 classes)
 📄 `src.diff.text-types` (4 classes)
-📄 `src.evaluation.gold` (27 functions, 3 classes)
-📄 `src.evaluation.gold-cases` (27 functions, 1 classes)
+📄 `src.evaluation.gold` (29 functions, 3 classes)
+📄 `src.evaluation.gold-cases` (34 functions, 2 classes)
 📄 `src.evaluation.gold-cli` (10 functions)
 📄 `src.evaluation.gold-extraction` (12 functions)
 📄 `src.evaluation.gold-metrics` (12 functions, 1 classes)
-📄 `src.evaluation.gold-types` (8 functions, 10 classes)
-📄 `src.extractors.ast` (50 functions, 3 classes)
+📄 `src.evaluation.gold-types` (8 functions, 11 classes)
+📄 `src.extractors.ast` (61 functions, 3 classes)
 📄 `src.extractors.changelog` (15 functions)
 📄 `src.extractors.communication` (54 functions, 2 classes)
 📄 `src.extractors.docs-chunks` (29 functions)
+📄 `src.extractors.docs-deterministic` (31 functions, 1 classes)
 📄 `src.extractors.docs-llm` (24 functions, 1 classes)
 📄 `src.extractors.docs-record` (36 functions)
 📄 `src.extractors.docs-schema` (1 functions)
@@ -2426,13 +2578,13 @@ todo2code/
 📄 `src.extractors.git` (29 functions, 3 classes)
 📄 `src.extractors.markdown` (3 functions, 1 classes)
 📄 `src.extractors.markdown-block` (3 functions, 1 classes)
-📄 `src.extractors.markdown-llm` (26 functions, 4 classes)
-📄 `src.extractors.nl` (11 functions, 1 classes)
-📄 `src.extractors.nl-llm` (33 functions, 4 classes)
+📄 `src.extractors.markdown-llm` (27 functions, 4 classes)
+📄 `src.extractors.nl` (12 functions, 1 classes)
+📄 `src.extractors.nl-llm` (34 functions, 4 classes)
 📄 `src.extractors.todo` (17 functions)
 📄 `src.graph.diagnostics` (22 functions)
 📄 `src.graph.diff` (38 functions, 1 classes)
-📄 `src.graph.linker` (46 functions, 4 classes)
+📄 `src.graph.linker` (57 functions, 4 classes)
 📄 `src.interfaces.a2a` (46 functions)
 📄 `src.interfaces.a2a-card` (7 functions)
 📄 `src.interfaces.a2a-history` (38 functions, 3 classes)
@@ -2446,10 +2598,10 @@ todo2code/
 📄 `src.llm.audit` (1 functions)
 📄 `src.llm.failure` (2 functions, 1 classes)
 📄 `src.llm.openrouter` (43 functions, 7 classes)
-📄 `src.pipeline.run` (54 functions, 1 classes)
+📄 `src.pipeline.run` (56 functions, 1 classes)
 📄 `src.sdk.typescript` (10 functions, 6 classes)
 📄 `src.services.actions` (76 functions)
-📄 `src.summary.summarizer` (53 functions, 4 classes)
+📄 `src.summary.summarizer` (57 functions, 4 classes)
 📄 `src.synthesis.tasks-llm` (47 functions, 6 classes)
 📄 `src.synthesis.todo-patch` (53 functions, 5 classes)
 📄 `src.synthesis.validation` (29 functions, 2 classes)

@@ -15,6 +15,7 @@ ACTIONS = (
     "extract_nl",
     "extract_git",
     "extract_ast",
+    "extract_config",
     "extract_markdown",
     "extract_docs",
     "extract_communication",
@@ -322,6 +323,10 @@ class T2CClient:
 
     def extract_ast(self, root: str = ".") -> Sequence[IntentRecord]:
         result = self.call("extract_ast", {"root": root})
+        return tuple(IntentRecord.from_dict(item) for item in result.get("records", ()))
+
+    def extract_config(self, root: str = ".") -> Sequence[IntentRecord]:
+        result = self.call("extract_config", {"root": root})
         return tuple(IntentRecord.from_dict(item) for item in result.get("records", ()))
 
     def extract_markdown(

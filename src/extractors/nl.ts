@@ -21,7 +21,22 @@ export interface NlExtractionOptions {
   text?: string;
 }
 
+/** Validates the public boundary before Node path helpers can throw opaque errors. */
+export function assertNlExtractionOptions(options: NlExtractionOptions): void {
+  if (!options || typeof options !== 'object') throw new Error('NL extraction options must be an object');
+  if (typeof options.root !== 'string' || !options.root.trim()) {
+    throw new Error('NL extraction option root must be a non-empty string');
+  }
+  if (typeof options.sourcePath !== 'string' || !options.sourcePath.trim()) {
+    throw new Error('NL extraction option sourcePath must be a non-empty string');
+  }
+  if (options.text !== undefined && typeof options.text !== 'string') {
+    throw new Error('NL extraction option text must be a string when provided');
+  }
+}
+
 export async function extractNlIntent(options: NlExtractionOptions, config: T2CConfig): Promise<ExtractionResult> {
+  assertNlExtractionOptions(options);
   const absolute = path.resolve(options.root, options.sourcePath);
   const body = options.text ?? await readText(absolute, config.maxFileBytes);
   const sourcePath = path.isAbsolute(options.sourcePath)

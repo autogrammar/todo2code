@@ -172,6 +172,7 @@ service/MCP/A2A rejestrują je w jego `manifest.files`, łącznie z receiptem.
 node dist/src/cli.js extract nl TASK.md --nl-mode deterministic --out nl.intent.jsonl
 node dist/src/cli.js extract git --root . --count 10 --out git.intent.jsonl
 node dist/src/cli.js extract ast . --out ast.intent.jsonl
+node dist/src/cli.js extract config . --out configuration.intent.jsonl
 node dist/src/cli.js extract markdown --root . --todo TODO.md --changelog CHANGELOG.md \
   --markdown-mode deterministic --out markdown.intent.jsonl
 node dist/src/cli.js extract docs --root . --patterns 'README.md,docs/**/*.md' \

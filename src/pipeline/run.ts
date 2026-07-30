@@ -4,7 +4,7 @@ import { hasOpenRouter } from '../config/env.js';
 import { addCommunicationIssuesToDiagnostics, analyzeCommunication, renderCommunicationMarkdown } from '../communication/analyzer.js';
 import { CommunicationLlmRequiredError, extractCommunicationIntentAudited, type ParticipantCommunicationSynthesis } from '../communication/llm.js';
 import { createIntentId, newRunId, sha256, stableStringify } from '../core/id.js';
-import { ensureDir, pathExists, readText, writeJson, writeJsonl, writeText } from '../core/io.js';
+import { ensureDir, pathExists, readText, resolveGlobs, writeJson, writeJsonl, writeText } from '../core/io.js';
 import type {
   Diagnostic,
   DiagnosticReport,
@@ -15,7 +15,9 @@ import type {
   PipelineStageAudit,
 } from '../core/types.js';
 import { extractAstIntent } from '../extractors/ast.js';
+import { extractConfigurationIntent } from '../extractors/configuration.js';
 import { DocumentationLlmRequiredError, extractDocumentationIntent } from '../extractors/docs-llm.js';
+import { extractDocumentationBaseline } from '../extractors/docs-deterministic.js';
 import { extractGitIntent } from '../extractors/git.js';
 import { extractMarkdownIntentAudited, MarkdownLlmRequiredError } from '../extractors/markdown-llm.js';
 import { extractNlIntentAudited, NlLlmRequiredError } from '../extractors/nl-llm.js';
@@ -60,6 +62,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     todo: [],
     changelog: [],
     document: [],
+    configuration: [],
     communication: [],
   };
 
@@ -99,7 +102,34 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   warnings.push(...markdown.warnings);
   completedStages.markdownExtraction = markdown.audit;
 
-  let documentationAudit = skippedAudit('disabled', 'Documentation LLM extraction was disabled');
+  activeStage = 'documentationExtraction';
+  const deterministicDocumentFiles = await resolveGlobs(
+    root,
+    options.documentPatterns,
+    options.documentExcludes ?? config.documentExcludes,
+  );
+  const documentationStartedAt = Date.now();
+  const deterministicDocs = await extractDocumentationBaseline({ root, files: deterministicDocumentFiles }, config);
+  bySource.document = deterministicDocs.records;
+  warnings.push(...deterministicDocs.warnings);
+  let documentationAudit: PipelineStageAudit = deterministicDocumentFiles.length === 0
+    ? skippedAudit('deterministic', 'No documentation files matched the configured patterns')
+    : {
+        runtimeVersion: T2C_VERSION,
+        configuration: { generator: 't2c/markdown-documentation', generatorVersion: '1' },
+        status: deterministicDocs.warnings.length ? 'partial' : 'succeeded',
+        requestedMode: 'deterministic',
+        effectiveMode: 'deterministic',
+        degraded: deterministicDocs.warnings.length > 0,
+        recordCount: deterministicDocs.records.length,
+        warningCount: deterministicDocs.warnings.length,
+        model: null,
+        durationMs: Date.now() - documentationStartedAt,
+        reason: deterministicDocs.warnings.length
+          ? { code: 'DOCUMENT_EXTRACTION_PARTIAL', message: `${deterministicDocs.warnings.length} deterministic documentation warning(s)` }
+          : null,
+        responses: [],
+      };
   if (options.includeDocumentationLlm) {
     if (hasOpenRouter(config)) {
       activeStage = 'documentationExtraction';
@@ -109,17 +139,27 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
         excludes: options.documentExcludes ?? config.documentExcludes,
         targetHints: collectTargetHints(Object.values(bySource).flat()),
       }, config);
-      bySource.document = docs.records;
+      bySource.document.push(...docs.records);
       warnings.push(...docs.warnings);
-      documentationAudit = docs.audit;
+      documentationAudit = {
+        ...docs.audit,
+        recordCount: bySource.document.length,
+        configuration: {
+          ...docs.audit.configuration,
+          deterministicGenerator: 't2c/markdown-documentation@1',
+          deterministicRecordCount: deterministicDocs.records.length,
+        },
+      };
     } else {
       const message = 'OPENROUTER_API_KEY is not configured; documentation -> Intent DSL was skipped';
       warnings.push(message);
       documentationAudit = {
         ...skippedAudit('llm', message),
         configuration: openRouterAuditConfiguration(config, config.openRouter.documentModel, config.documentTimeoutMs),
-        status: 'failed',
+        status: deterministicDocs.records.length ? 'fallback' : 'failed',
+        effectiveMode: deterministicDocs.records.length ? 'deterministic' : 'none',
         degraded: true,
+        recordCount: deterministicDocs.records.length,
         model: config.openRouter.documentModel,
         reason: { code: 'LLM_NOT_CONFIGURED', message },
         responses: [],
@@ -127,6 +167,11 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     }
   }
   completedStages.documentationExtraction = documentationAudit;
+
+  activeStage = 'configurationExtraction';
+  const configurationExtraction = await extractConfigurationIntent(root, config);
+  bySource.configuration = configurationExtraction.records;
+  warnings.push(...configurationExtraction.warnings);
 
   const includeCommunication = options.includeCommunication !== false;
   const communicationStartedAt = Date.now();

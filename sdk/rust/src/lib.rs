@@ -29,6 +29,7 @@ pub mod action {
     pub const EXTRACT_NL: &str = "extract_nl";
     pub const EXTRACT_GIT: &str = "extract_git";
     pub const EXTRACT_AST: &str = "extract_ast";
+    pub const EXTRACT_CONFIG: &str = "extract_config";
     pub const EXTRACT_MARKDOWN: &str = "extract_markdown";
     pub const EXTRACT_DOCS: &str = "extract_docs";
     pub const EXTRACT_COMMUNICATION: &str = "extract_communication";

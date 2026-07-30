@@ -12,6 +12,8 @@ export * from './extractors/todo.js';
 export * from './extractors/changelog.js';
 export * from './extractors/markdown-llm.js';
 export * from './extractors/docs-llm.js';
+export * from './extractors/docs-deterministic.js';
+export * from './extractors/configuration.js';
 export * from './extractors/communication.js';
 export * from './communication/analyzer.js';
 export * from './communication/llm.js';

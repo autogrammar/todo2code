@@ -7,6 +7,10 @@ impl Client {
         Ok(serde_json::from_value(self.call(action::EXTRACT_AST, &json!({ "root": root }))?)?)
     }
 
+    pub fn extract_config(&self, root: &str) -> Result<ExtractionResult, Error> {
+        Ok(serde_json::from_value(self.call(action::EXTRACT_CONFIG, &json!({ "root": root }))?)?)
+    }
+
     pub fn extract_nl(&self, root: &str, file: &str) -> Result<ExtractionResult, Error> {
         self.extract_nl_mode(root, file, None)
     }

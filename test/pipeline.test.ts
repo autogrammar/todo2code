@@ -19,6 +19,7 @@ test('Offline pipeline writes a complete run', async () => {
   await fs.writeFile(path.join(root, 'TASK.md'), 'System musi dodać `validateContract` dla T2C-14.\n');
   await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n- [x] Dodać `validateContract` dla T2C-14.\n');
   await fs.writeFile(path.join(root, 'CHANGELOG.md'), '# Changelog\n## [1.0.0] - 2026-07-29\n### Added\n- Dodano `validateContract` dla T2C-14.\n');
+  await fs.writeFile(path.join(root, 'README.md'), '# Runtime\n\nUse `validateContract` from `runtime.ts` for T2C-14.\n');
   await fs.writeFile(path.join(root, 'runtime.ts'), 'export function validateContract(): void {}\n');
   await exec('git', ['init', '-q'], { cwd: root });
   await exec('git', ['config', 'user.email', 'test@todo2code.local'], { cwd: root });
@@ -32,7 +33,7 @@ test('Offline pipeline writes a complete run', async () => {
     taskFile: 'TASK.md',
     todoFile: 'TODO.md',
     changelogFile: 'CHANGELOG.md',
-    documentPatterns: [],
+    documentPatterns: ['README.md'],
     includeDocumentationLlm: false,
     outputDir: '.intent-test',
     gitCommitCount: 10,
@@ -55,7 +56,8 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.stages.naturalLanguageExtraction.reason?.code, 'LLM_NOT_CONFIGURED');
   assert.equal(result.manifest.stages.markdownExtraction.status, 'fallback');
   assert.equal(result.manifest.stages.markdownExtraction.reason?.code, 'LLM_NOT_CONFIGURED');
-  assert.equal(result.manifest.stages.documentationExtraction.status, 'skipped');
+  assert.equal(result.manifest.stages.documentationExtraction.status, 'succeeded');
+  assert.equal(result.manifest.stages.documentationExtraction.effectiveMode, 'deterministic');
   assert.equal(result.manifest.stages.taskSynthesis.status, 'skipped');
   assert.equal(result.manifest.stages.summary.status, 'fallback');
   assert.equal(result.manifest.configuration.llm.configured, false);
@@ -73,6 +75,8 @@ test('Offline pipeline writes a complete run', async () => {
   assert.ok(graph.records.some((record) => record.source.kind === 'git'));
   assert.ok(graph.records.some((record) => record.source.kind === 'ast'));
   assert.ok(graph.records.some((record) => record.source.kind === 'todo'));
+  assert.ok(graph.records.some((record) => record.source.kind === 'document'
+    && record.source.extractor === 't2c/markdown-documentation@1'));
 });
 
 test('Pipeline persists synthesis, validation and review patch, then registers approval receipt', async () => {

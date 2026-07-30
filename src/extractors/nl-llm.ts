@@ -18,7 +18,7 @@ import { classifyLlmFailure } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 import { T2C_VERSION } from '../version.js';
-import { extractNlIntent, type NlExtractionOptions } from './nl.js';
+import { assertNlExtractionOptions, extractNlIntent, type NlExtractionOptions } from './nl.js';
 
 interface RawNlRecord {
   kind: string;
@@ -54,6 +54,7 @@ export async function extractNlIntentAudited(
   config: T2CConfig,
   mode: NlExtractionMode = config.nlMode,
 ): Promise<AuditedNlExtractionResult> {
+  assertNlExtractionOptions(options);
   const startedAt = Date.now();
   if (mode === 'deterministic') {
     const result = await extractNlIntent(options, config);

@@ -10,6 +10,7 @@ test('AST extractor reads TypeScript and Python facts', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-ast-'));
   await fs.writeFile(path.join(root, 'runtime.ts'), 'export function validateContract(): void {}\nexport function execute(): void { validateContract(); }\n');
   await fs.writeFile(path.join(root, 'helper.py'), 'def normalize(value: str) -> str:\n    return value.strip()\n');
+  await fs.writeFile(path.join(root, 'legacy.php'), '<?php function legacy_handler() { return true; }\n');
   await fs.mkdir(path.join(root, 'generated'), { recursive: true });
   await fs.mkdir(path.join(root, 'venv'), { recursive: true });
   await fs.writeFile(path.join(root, '.gitignore'), 'generated/\n');
@@ -29,4 +30,5 @@ test('AST extractor reads TypeScript and Python facts', async () => {
   assert.ok(!result.records.some((record) => record.source.path === 'generated/ignored.ts'));
   assert.ok(!result.records.some((record) => record.source.path === 'venv/bundled.js'));
   assert.ok(result.records.every((record) => record.epistemic.class === 'fact'));
+  assert.match(result.warnings.join('\n'), /UNSUPPORTED_AST_FILES: php=1/);
 });

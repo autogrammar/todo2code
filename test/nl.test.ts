@@ -20,6 +20,22 @@ test('NL extractor produces deterministic non-LLM records', async () => {
   assert.ok(first.records[0]?.statement.target.tickets.includes('T2C-14'));
 });
 
+test('NL public extraction boundary names a missing sourcePath before path resolution', async () => {
+  const config = makeConfig(process.cwd());
+  await assert.rejects(
+    () => extractNlIntent({ root: process.cwd() } as Parameters<typeof extractNlIntent>[0], config),
+    /NL extraction option sourcePath must be a non-empty string/,
+  );
+  await assert.rejects(
+    () => extractNlIntentAudited(
+      { root: process.cwd() } as Parameters<typeof extractNlIntentAudited>[0],
+      config,
+      'prefer-llm',
+    ),
+    /NL extraction option sourcePath must be a non-empty string/,
+  );
+});
+
 test('deterministic NL fallback skips Markdown headings and recognizes comparison intent', async () => {
   const config = makeConfig(process.cwd());
   const result = await extractNlIntent({

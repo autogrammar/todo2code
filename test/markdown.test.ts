@@ -3,7 +3,11 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { extractMarkdownIntentAudited, MarkdownLlmRequiredError } from '../src/extractors/markdown-llm.js';
+import {
+  extractMarkdownIntentAudited,
+  MARKDOWN_LLM_BATCH_RECORDS,
+  MarkdownLlmRequiredError,
+} from '../src/extractors/markdown-llm.js';
 import { extractMarkdownIntent } from '../src/extractors/markdown.js';
 import { extractChangelog } from '../src/extractors/changelog.js';
 import { extractTodo } from '../src/extractors/todo.js';
@@ -116,6 +120,54 @@ test('TODO and CHANGELOG receive audited LLM enrichment without changing structu
     assert.equal(changelog?.statement.subject, 'release:2.0.0');
     assert.equal(changelog?.observedAt, '2026-07-29T00:00:00.000Z');
     assert.equal(changelog?.metadata.version, '2.0.0');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('large Markdown enrichment is split into bounded, ordered provider batches', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-batches-'));
+  const count = MARKDOWN_LLM_BATCH_RECORDS + 1;
+  const tasks = Array.from({ length: count }, (_, index) => `- [ ] Add item ${index} in \`src/item-${index}.ts\`.`);
+  await fs.writeFile(path.join(root, 'TODO.md'), `# TODO\n\n${tasks.join('\n')}\n`);
+  const config = makeConfig(root);
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  const batchSizes: number[] = [];
+  let call = 0;
+  globalThis.fetch = async (_input, init) => {
+    call += 1;
+    const request = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> };
+    const payload = JSON.parse(request.messages[1]?.content ?? '{}') as { records: Array<{ recordId: string }> };
+    batchSizes.push(payload.records.length);
+    const enrichments = payload.records.map((record) => ({
+      recordId: record.recordId,
+      actor: null,
+      action: 'add',
+      object: 'bounded item',
+      polarity: 'positive',
+      confidence: 0.8,
+      basis: ['batch_test'],
+      target: { paths: [], symbols: [], tickets: [], versions: [] },
+      acceptanceEvidence: [],
+    }));
+    return new Response(JSON.stringify({
+      id: `batch-${call}`,
+      model: 'test/batched',
+      provider: 'test',
+      choices: [{ message: { content: JSON.stringify({ enrichments }) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const result = await extractMarkdownIntentAudited({ root, todoPath: 'TODO.md', changelogPath: null }, config, 'require-llm');
+    assert.deepEqual(batchSizes, [MARKDOWN_LLM_BATCH_RECORDS, 1]);
+    assert.equal(result.records.length, count);
+    assert.equal(result.audit.responses.length, 2);
+    assert.deepEqual(result.audit.responses.map((response) => response.responseId), ['batch-1', 'batch-2']);
+    assert.equal(result.records[0]?.metadata.generation.responseId, 'batch-1');
+    assert.equal(result.records.at(-1)?.metadata.generation.responseId, 'batch-2');
+    assert.deepEqual(result.records.map((record) => record.source.lines?.start),
+      [...result.records].map((record) => record.source.lines?.start).sort((a, b) => (a ?? 0) - (b ?? 0)));
   } finally {
     globalThis.fetch = originalFetch;
   }

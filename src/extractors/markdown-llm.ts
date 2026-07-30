@@ -37,6 +37,8 @@ const MARKDOWN_ACTIONS: IntentAction[] = [
   'call', 'depend_on', 'declare', 'release', 'change', 'preserve', 'block', 'approve', 'unknown',
 ];
 const MARKDOWN_ACTION_SET = new Set<IntentAction>(MARKDOWN_ACTIONS);
+/** Keeps one provider request bounded even for repository-sized backlogs. */
+export const MARKDOWN_LLM_BATCH_RECORDS = 32;
 
 export interface AuditedMarkdownExtractionResult extends ExtractionResult {
   audit: PipelineStageAudit;
@@ -81,18 +83,34 @@ export async function extractMarkdownIntentAudited(
 
   try {
     const prompt = await readPrompt('markdown-to-intent.system.md');
-    const completion = await client.chatJsonWithMetadata<MarkdownResponse>([
-      { role: 'system', content: prompt },
-      { role: 'user', content: JSON.stringify({ records: deterministic.records.map(promptRecord) }) },
-    ], 't2c_markdown_intent_enrichment', responseSchema(), config.openRouter.markdownModel);
-    const enrichments = validateEnrichments(completion.value.enrichments, deterministic.records);
+    const enrichments = new Map<string, MarkdownEnrichment>();
+    const responseByRecord = new Map<string, LlmResponseMetadata>();
+    const responses: LlmResponseMetadata[] = [];
+    for (let offset = 0; offset < deterministic.records.length; offset += MARKDOWN_LLM_BATCH_RECORDS) {
+      const batch = deterministic.records.slice(offset, offset + MARKDOWN_LLM_BATCH_RECORDS);
+      const completion = await client.chatJsonWithMetadata<MarkdownResponse>([
+        { role: 'system', content: prompt },
+        { role: 'user', content: JSON.stringify({ records: batch.map(promptRecord) }) },
+      ], 't2c_markdown_intent_enrichment', responseSchema(batch.length), config.openRouter.markdownModel);
+      const batchEnrichments = validateEnrichments(completion.value.enrichments, batch);
+      for (const record of batch) {
+        enrichments.set(record.id, batchEnrichments.get(record.id)!);
+        responseByRecord.set(record.id, completion.metadata);
+      }
+      responses.push(completion.metadata);
+    }
     const result: ExtractionResult = {
-      records: deterministic.records.map((record) => enrichRecord(record, enrichments.get(record.id)!, config, completion.metadata)),
+      records: deterministic.records.map((record) => enrichRecord(
+        record,
+        enrichments.get(record.id)!,
+        config,
+        responseByRecord.get(record.id)!,
+      )),
       warnings: deterministic.warnings,
     };
     return {
       ...result,
-      audit: stageAudit('succeeded', 'llm', 'llm', false, result, config.openRouter.markdownModel, null, Date.now() - startedAt, [completion.metadata], config),
+      audit: stageAudit('succeeded', 'llm', 'llm', false, result, config.openRouter.markdownModel, null, Date.now() - startedAt, responses, config),
     };
   } catch (error) {
     return fallbackOrThrow(deterministic, config, mode, startedAt, classifyLlmFailure(error));
@@ -264,10 +282,10 @@ async function readPrompt(name: string): Promise<string> {
   return fs.readFile(promptPath, 'utf8');
 }
 
-function responseSchema(): Record<string, unknown> {
+function responseSchema(batchSize: number): Record<string, unknown> {
   return {
     type: 'object', additionalProperties: false, required: ['enrichments'], properties: {
-      enrichments: { type: 'array', items: {
+      enrichments: { type: 'array', minItems: batchSize, maxItems: batchSize, items: {
         type: 'object', additionalProperties: false,
         required: ['recordId', 'actor', 'action', 'object', 'polarity', 'confidence', 'basis', 'target', 'acceptanceEvidence'],
         properties: {

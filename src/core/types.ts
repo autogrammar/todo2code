@@ -360,6 +360,7 @@ export type PipelineFailureStage =
   | 'astExtraction'
   | 'markdownExtraction'
   | 'documentationExtraction'
+  | 'configurationExtraction'
   | 'communicationAnalysis'
   | 'linking'
   | 'diagnostics'

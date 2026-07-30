@@ -1,6 +1,6 @@
 # code2llm call graph | /home/tom/github/semcod/todo2code
-# generated in 0.20s
-# nodes: 435 | edges: 500 | modules: 31
+# generated in 0.22s
+# nodes: 416 | edges: 500 | modules: 31
 # CC̄=3.7
 
 HUBS[20]:
@@ -8,42 +8,42 @@ HUBS[20]:
     CC=36  in:0  out:53  total:53
   src.services.actions.root
     CC=36  in:0  out:52  total:52
-  src.cli.main
-    CC=60  in:1  out:42  total:43
-  src.extractors.ast.extractTypeScriptFile
-    CC=39  in:1  out:42  total:43
+  src.web.diff-ui.diffUiHtml
+    CC=52  in:0  out:42  total:42
   src.extractors.communication.identityRegistry
     CC=60  in:0  out:35  total:35
-  src.extractors.ast.visit
-    CC=25  in:1  out:26  total:27
-  src.extractors.todo.extractTodo
-    CC=5  in:0  out:24  total:24
+  src.interfaces.a2a-message.parseCommand
+    CC=57  in:0  out:31  total:31
   src.graph.diagnostics.diagnoseGraph
     CC=30  in:0  out:24  total:24
-  src.core.schema.objectValue
-    CC=4  in:21  out:2  total:23
-  src.cli.optionNumber
-    CC=5  in:17  out:5  total:22
+  src.extractors.todo.extractTodo
+    CC=5  in:0  out:24  total:24
   src.core.io.walkFiles
     CC=15  in:2  out:20  total:22
-  src.core.io.visit
-    CC=11  in:6  out:15  total:21
-  src.extractors.git.extractGitIntent
-    CC=13  in:0  out:21  total:21
+  src.llm.openrouter.OpenRouterClient.request
+    CC=25  in:3  out:18  total:21
+  src.llm.openrouter.OpenRouterClient.listAvailableModels
+    CC=13  in:5  out:16  total:21
   rust-ast.src.main.collect_files
     CC=9  in:1  out:20  total:21
+  src.extractors.git.extractGitIntent
+    CC=13  in:0  out:21  total:21
   rust-ast.src.main.main
     CC=6  in:0  out:21  total:21
+  src.synthesis.todo-patch.createTodoPatch
+    CC=8  in:1  out:20  total:21
+  src.core.io.visit
+    CC=11  in:6  out:15  total:21
   src.services.actions.numberValue
     CC=6  in:16  out:4  total:20
-  src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
-    CC=9  in:0  out:20  total:20
-  src.cli.handleDiff
-    CC=24  in:1  out:19  total:20
+  src.synthesis.todo-patch.applyTodoPatch
+    CC=12  in:0  out:20  total:20
   src.extractors.todo.relative
     CC=5  in:0  out:19  total:19
-  src.cli.handleCommunication
-    CC=11  in:1  out:18  total:19
+  src.synthesis.todo-patch.atomicWrite
+    CC=5  in:6  out:13  total:19
+  rust-ast.src.main.add
+    CC=1  in:9  out:10  total:19
 
 MODULES:
   examples.backend.src.server  [12 funcs]
@@ -101,17 +101,16 @@ MODULES:
     slash  CC=1  out:2
     type_item  CC=1  out:8
     visit_expr_call  CC=1  out:9
-  src.cli  [43 funcs]
-    command  CC=4  out:1
-    config  CC=4  out:1
-    context  CC=9  out:10
-    controller  CC=1  out:5
-    diagnostics  CC=2  out:5
-    diagnosticsPath  CC=2  out:5
-    diff  CC=2  out:4
-    doctor  CC=6  out:7
-    emitExtraction  CC=4  out:4
-    execFileAsync  CC=2  out:2
+  src.config.env  [9 funcs]
+    envBoolean  CC=5  out:4
+    envList  CC=3  out:4
+    envLlmMode  CC=4  out:3
+    envNumber  CC=6  out:4
+    envOptional  CC=3  out:1
+    envString  CC=3  out:1
+    getConfig  CC=1  out:9
+    model  CC=1  out:7
+    root  CC=1  out:7
   src.core.id  [9 funcs]
     createConclusionId  CC=1  out:5
     createIntentId  CC=1  out:2
@@ -144,21 +143,6 @@ MODULES:
     globToRegExp  CC=11  out:3
     ignored  CC=11  out:16
     matcher  CC=11  out:16
-  src.core.record  [3 funcs]
-    buildRecord  CC=18  out:7
-    clamp  CC=1  out:3
-    sourcePrefix  CC=1  out:0
-  src.core.schema  [15 funcs]
-    assertIntentRecord  CC=21  out:12
-    enumValue  CC=3  out:3
-    epistemic  CC=1  out:1
-    exactKeys  CC=3  out:6
-    lifecycle  CC=1  out:1
-    lines  CC=1  out:1
-    metadata  CC=1  out:1
-    nonEmptyString  CC=3  out:1
-    nullableString  CC=3  out:1
-    objectValue  CC=4  out:2
   src.core.security  [4 funcs]
     assertDescendant  CC=3  out:4
     assertPathWithinRoot  CC=3  out:5
@@ -173,27 +157,6 @@ MODULES:
     pathAliases  CC=5  out:8
     symbolAliases  CC=6  out:10
     unique  CC=1  out:5
-  src.core.text  [9 funcs]
-    STOP_WORDS  CC=17  out:5
-    classifyActionHeuristically  CC=17  out:5
-    extractBacktickValues  CC=4  out:4
-    extractPaths  CC=4  out:7
-    extractSymbols  CC=6  out:11
-    extractTickets  CC=2  out:7
-    keywords  CC=2  out:6
-    normalizeToken  CC=1  out:4
-    similarity  CC=5  out:3
-  src.extractors.ast  [20 funcs]
-    adapterRecords  CC=2  out:2
-    add  CC=10  out:7
-    callee  CC=2  out:2
-    declarationIsCallable  CC=4  out:2
-    excerpt  CC=1  out:2
-    execFileAsync  CC=1  out:0
-    extractAstIntent  CC=8  out:12
-    extractGoAst  CC=7  out:9
-    extractJavaAst  CC=7  out:9
-    extractPythonAst  CC=6  out:8
   src.extractors.changelog  [5 funcs]
     body  CC=7  out:14
     changelogAction  CC=11  out:3
@@ -232,17 +195,6 @@ MODULES:
     readPrompt  CC=2  out:6
     requireConfiguredClient  CC=3  out:4
     selectWithinBudget  CC=2  out:3
-  src.extractors.docs-record  [20 funcs]
-    OBJECT_PLACEHOLDERS  CC=12  out:13
-    action  CC=9  out:7
-    allowedAction  CC=1  out:1
-    allowedLifecycle  CC=1  out:1
-    allowedModality  CC=1  out:1
-    anchorToSource  CC=7  out:10
-    clampLine  CC=1  out:3
-    fallback  CC=2  out:1
-    hasTarget  CC=4  out:1
-    isPlaceholder  CC=3  out:3
   src.extractors.git  [10 funcs]
     count  CC=3  out:2
     execFileAsync  CC=1  out:0
@@ -254,39 +206,6 @@ MODULES:
     result  CC=1  out:1
     root  CC=3  out:2
     runGit  CC=1  out:1
-  src.extractors.markdown-llm  [17 funcs]
-    client  CC=2  out:2
-    deterministic  CC=4  out:2
-    enrichRecord  CC=12  out:4
-    enrichments  CC=1  out:3
-    expected  CC=5  out:4
-    extractMarkdownIntentAudited  CC=7  out:15
-    failed  CC=1  out:2
-    fallbackOrThrow  CC=2  out:5
-    isMarkdownEnrichment  CC=17  out:4
-    isStringArray  CC=2  out:2
-  src.extractors.nl  [11 funcs]
-    absolute  CC=2  out:14
-    action  CC=1  out:9
-    body  CC=2  out:14
-    classified  CC=1  out:9
-    confidence  CC=1  out:9
-    detectMissingFields  CC=10  out:5
-    extractNlIntent  CC=5  out:19
-    inferActor  CC=5  out:2
-    missing  CC=1  out:9
-    object  CC=1  out:9
-  src.extractors.nl-llm  [21 funcs]
-    action  CC=1  out:1
-    allowedAction  CC=1  out:1
-    allowedModality  CC=1  out:1
-    audit  CC=1  out:1
-    clampLine  CC=1  out:3
-    client  CC=2  out:2
-    deterministic  CC=1  out:1
-    end  CC=1  out:1
-    excerpt  CC=1  out:1
-    extractNlIntentAudited  CC=9  out:20
   src.extractors.todo  [15 funcs]
     action  CC=2  out:13
     block  CC=2  out:13
@@ -320,6 +239,48 @@ MODULES:
     diffIntentGraphs  CC=11  out:19
     escapeXml  CC=2  out:1
     groupRecords  CC=4  out:6
+  src.interfaces.a2a  [3 funcs]
+    handleHttp  CC=9  out:8
+    handleUnexpectedError  CC=2  out:3
+    startA2aServer  CC=6  out:10
+  src.interfaces.a2a-card  [4 funcs]
+    agentCard  CC=3  out:1
+    sendAgentCard  CC=3  out:8
+    skill  CC=1  out:0
+    skills  CC=2  out:1
+  src.interfaces.a2a-message  [20 funcs]
+    cloneMessage  CC=6  out:1
+    commandFromData  CC=6  out:2
+    contextId  CC=6  out:2
+    extensions  CC=6  out:2
+    first  CC=3  out:3
+    metadata  CC=6  out:2
+    normalizeAction  CC=4  out:4
+    normalizeUserMessage  CC=1  out:1
+    objectData  CC=5  out:8
+    parseCommand  CC=57  out:31
+  src.interfaces.mcp  [24 funcs]
+    completePublic  CC=1  out:0
+    createMcpConnectionState  CC=1  out:0
+    handleLegacyRequest  CC=8  out:4
+    handleMcpRequest  CC=5  out:6
+    handleModernRequest  CC=8  out:7
+    hasModernMetadata  CC=5  out:2
+    initializeLegacy  CC=4  out:3
+    invokedPath  CC=4  out:3
+    isLegacyProtocol  CC=1  out:1
+    parseRequestLine  CC=1  out:0
+  src.llm.openrouter  [22 funcs]
+    apiKey  CC=23  out:15
+    chatJsonWithMetadata  CC=10  out:4
+    chatText  CC=1  out:1
+    chatTextWithMetadata  CC=2  out:5
+    controller  CC=23  out:15
+    extractContent  CC=7  out:4
+    fallback  CC=2  out:1
+    finiteOrNull  CC=3  out:1
+    formatInvalidModelError  CC=2  out:4
+    isInvalidModelError  CC=4  out:2
   src.services.actions  [36 funcs]
     after  CC=2  out:2
     afterInput  CC=2  out:2
@@ -331,6 +292,28 @@ MODULES:
     beforePath  CC=1  out:4
     booleanValue  CC=3  out:2
     diagnostics  CC=2  out:4
+  src.synthesis.todo-patch  [37 funcs]
+    appendPatch  CC=2  out:1
+    applied  CC=5  out:4
+    applyTodoPatch  CC=12  out:20
+    artifact  CC=6  out:8
+    assertApproval  CC=3  out:2
+    assertReceipt  CC=7  out:4
+    assertTodoPatchArtifact  CC=11  out:16
+    atomicWrite  CC=5  out:13
+    classified  CC=6  out:8
+    createTodoPatch  CC=8  out:20
+  src.synthesis.validation  [12 funcs]
+    dependencyFirstPriorityOrder  CC=11  out:10
+    duplicateEvidence  CC=11  out:9
+    intersects  CC=1  out:5
+    jaccard  CC=5  out:1
+    proposalWords  CC=1  out:1
+    sharedPath  CC=1  out:2
+    sharedSymbol  CC=1  out:2
+    sharedTicket  CC=1  out:2
+    similarity  CC=1  out:2
+    target  CC=1  out:2
   src.tf.classifier  [6 funcs]
     classifyAction  CC=17  out:12
     dynamicImport  CC=1  out:3
@@ -338,6 +321,16 @@ MODULES:
     loadAssets  CC=2  out:6
     loadClassifier  CC=6  out:5
     vectorize  CC=6  out:5
+  src.web.diff-ui  [9 funcs]
+    byId  CC=1  out:0
+    compareGraphs  CC=15  out:13
+    diffUiHtml  CC=52  out:42
+    fillSelect  CC=6  out:9
+    formatBytes  CC=7  out:2
+    loadRuns  CC=12  out:14
+    requestHeaders  CC=3  out:2
+    selectedRun  CC=7  out:2
+    updateMeta  CC=7  out:3
 
 EDGES:
   rust-ast.src.main.main → rust-ast.src.main.arguments

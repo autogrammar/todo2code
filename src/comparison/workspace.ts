@@ -122,6 +122,7 @@ export async function compareWorkspaceIntent(
     const plannedCodeCoverageDelta = rounded(currentCoverage.plannedCodeCoverage - baseCoverage.plannedCodeCoverage);
     const documentedCodeCoverageDelta = rounded(currentCoverage.documentedCodeCoverage - baseCoverage.documentedCodeCoverage);
     const gapsDelta = currentCoverage.gaps - baseCoverage.gaps;
+    const diagnosticsDelta = diagnosticDelta(baseDiagnostics, currentDiagnostics);
     const comparisonId = newRunId();
     const comparisonDirectory = path.resolve(root, outputDir, 'comparisons', comparisonId);
     await fs.mkdir(comparisonDirectory, { recursive: true });
@@ -141,12 +142,11 @@ export async function compareWorkspaceIntent(
         coverage: currentCoverage,
       },
       trend: {
-        direction: trendDirection({
-          alignmentRateDelta,
+        direction: classifyWorkspaceTrend({
           implementationCoverageDelta,
-          plannedCodeCoverageDelta,
           documentedCodeCoverageDelta,
-          gapsDelta,
+          documentationComparable: baseCoverage.documentationMeasured || currentCoverage.documentationMeasured,
+          diagnosticsDelta,
         }),
         alignmentRateDelta,
         implementationCoverageDelta,
@@ -154,7 +154,7 @@ export async function compareWorkspaceIntent(
         documentedCodeCoverageDelta,
         alignedDelta: currentCoverage.aligned - baseCoverage.aligned,
         gapsDelta,
-        diagnosticsDelta: diagnosticDelta(baseDiagnostics, currentDiagnostics),
+        diagnosticsDelta,
       },
       diff,
       artifacts,
@@ -241,21 +241,23 @@ function diagnosticDelta(before: DiagnosticReport, after: DiagnosticReport): Dia
   };
 }
 
-function trendDirection(deltas: {
-  alignmentRateDelta: number;
+export function classifyWorkspaceTrend(deltas: {
   implementationCoverageDelta: number;
-  plannedCodeCoverageDelta: number;
   documentedCodeCoverageDelta: number;
-  gapsDelta: number;
+  documentationComparable: boolean;
+  diagnosticsDelta: DiagnosticReport['counts'];
 }): WorkspaceComparison['trend']['direction'] {
+  // Only declared/business-topic implementation and comparable documentation
+  // decide the headline direction. AST-only module growth, source-line churn,
+  // raw gap counts and planned-code denominators remain visible metrics but do
+  // not turn an otherwise unchanged workspace into a regression.
   const coverageDeltas = [
-    deltas.alignmentRateDelta,
     deltas.implementationCoverageDelta,
-    deltas.plannedCodeCoverageDelta,
-    deltas.documentedCodeCoverageDelta,
+    ...(deltas.documentationComparable ? [deltas.documentedCodeCoverageDelta] : []),
   ];
-  const improved = coverageDeltas.some((delta) => delta > 0) || deltas.gapsDelta < 0;
-  const regressed = coverageDeltas.some((delta) => delta < 0) || deltas.gapsDelta > 0;
+  const severeDelta = deltas.diagnosticsDelta.blocking + deltas.diagnosticsDelta.review_required;
+  const improved = coverageDeltas.some((delta) => delta > 0) || severeDelta < 0;
+  const regressed = coverageDeltas.some((delta) => delta < 0) || severeDelta > 0;
   if (improved && regressed) return 'mixed';
   if (improved) return 'improved';
   if (regressed) return 'regressed';

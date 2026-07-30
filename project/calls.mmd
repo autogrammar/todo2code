@@ -1,35 +1,35 @@
 flowchart LR
 %% generated in 0.03s
     subgraph examples__backend
-        examples__backend__src__validation__object["object"]
+        examples__backend__src__server__validation["validation"]
+        examples__backend__src__server__startBackend["startBackend"]
+        examples__backend__src__server__handleRequest["handleRequest"]
         examples__backend__src__validation__ALLOWED_ACTIONS["ALLOWED_ACTIONS"]
-        examples__backend__src__server__sendJson["sendJson"]
+        examples__backend__src__validation__object["object"]
         examples__backend__src__server__store["store"]
         examples__backend__src__server__offset["offset"]
+        examples__backend__src__validation__validateEventPayload["validateEventPayload"]
+        examples__backend__src__server__limit["limit"]
+        examples__backend__src__validation__agent["agent"]
         examples__backend__src__server__createBackend["createBackend"]
         examples__backend__src__server__server["server"]
-        examples__backend__src__server__limit["limit"]
         examples__backend__src__validation__invalid["invalid"]
-        examples__backend__src__validation__action["action"]
-        examples__backend__src__server__startBackend["startBackend"]
-        examples__backend__src__server__readBody["readBody"]
         examples__backend__src__server__event["event"]
-        examples__backend__src__validation__validateEventPayload["validateEventPayload"]
-        examples__backend__src__server__size["size"]
-        examples__backend__src__server__handleRequest["handleRequest"]
-        examples__backend__src__validation__agent["agent"]
-        examples__backend__src__server__validation["validation"]
+        examples__backend__src__server__readBody["readBody"]
         examples__backend__src__validation__record["record"]
+        examples__backend__src__server__size["size"]
+        examples__backend__src__validation__action["action"]
+        examples__backend__src__server__sendJson["sendJson"]
     end
     subgraph examples__frontend
-        examples__frontend__src__render__renderTable["renderTable"]
-        examples__frontend__src__render__headerRow["headerRow"]
-        examples__frontend__src__app__createState["createState"]
-        examples__frontend__src__app__reload["reload"]
         examples__frontend__src__render__classifyEvent["classifyEvent"]
-        examples__frontend__src__app__state["state"]
-        examples__frontend__src__app__mountPanel["mountPanel"]
         examples__frontend__src__app__refresh["refresh"]
+        examples__frontend__src__app__mountPanel["mountPanel"]
+        examples__frontend__src__app__createState["createState"]
+        examples__frontend__src__render__renderTable["renderTable"]
+        examples__frontend__src__app__state["state"]
+        examples__frontend__src__render__headerRow["headerRow"]
+        examples__frontend__src__app__reload["reload"]
         examples__frontend__src__render__toRows["toRows"]
     end
     subgraph examples__src
@@ -37,425 +37,414 @@ flowchart LR
         examples__src__runtime__executeContract["executeContract"]
     end
     subgraph java__JavaAstExtract
+        java__JavaAstExtract__JavaAstExtract__add["add"]
+        java__JavaAstExtract__JavaAstExtract__try["try"]
+        java__JavaAstExtract__JavaAstExtract__main["main"]
+        java__JavaAstExtract__JavaAstExtract__map["map"]
+        java__JavaAstExtract__JavaAstExtract__containsIgnored["containsIgnored"]
+        java__JavaAstExtract__JavaAstExtract__json["json"]
         java__JavaAstExtract__JavaAstExtract__escape["escape"]
         java__JavaAstExtract__JavaAstExtract__emit["emit"]
-        java__JavaAstExtract__JavaAstExtract__map["map"]
-        java__JavaAstExtract__JavaAstExtract__slash["slash"]
-        java__JavaAstExtract__JavaAstExtract__main["main"]
-        java__JavaAstExtract__JavaAstExtract__json["json"]
-        java__JavaAstExtract__JavaAstExtract__add["add"]
-        java__JavaAstExtract__JavaAstExtract__containsIgnored["containsIgnored"]
         java__JavaAstExtract__JavaAstExtract__collect["collect"]
-        java__JavaAstExtract__JavaAstExtract__try["try"]
+        java__JavaAstExtract__JavaAstExtract__slash["slash"]
     end
     subgraph rust_ast__src
-        rust_ast__src__main__excerpt["excerpt"]
-        rust_ast__src__main__visit_item_enum["visit_item_enum"]
-        rust_ast__src__main__visit_item_struct["visit_item_struct"]
-        rust_ast__src__main__visit_item_use["visit_item_use"]
-        rust_ast__src__main__visit_impl_item_fn["visit_impl_item_fn"]
-        rust_ast__src__main__modifiers["modifiers"]
         rust_ast__src__main__visit_expr_method_call["visit_expr_method_call"]
-        rust_ast__src__main__visit_item_fn["visit_item_fn"]
-        rust_ast__src__main__slash["slash"]
+        rust_ast__src__main__visit_item_mod["visit_item_mod"]
+        rust_ast__src__main__visit_item_trait["visit_item_trait"]
+        rust_ast__src__main__collect_files["collect_files"]
         rust_ast__src__main__arguments["arguments"]
         rust_ast__src__main__qualified["qualified"]
-        rust_ast__src__main__visit_item_trait["visit_item_trait"]
-        rust_ast__src__main__visit_expr_call["visit_expr_call"]
-        rust_ast__src__main__type_item["type_item"]
+        rust_ast__src__main__visit_item_struct["visit_item_struct"]
         rust_ast__src__main__visit_item_const["visit_item_const"]
+        rust_ast__src__main__excerpt["excerpt"]
+        rust_ast__src__main__slash["slash"]
         rust_ast__src__main__add["add"]
-        rust_ast__src__main__visit_item_static["visit_item_static"]
-        rust_ast__src__main__collect_files["collect_files"]
-        rust_ast__src__main__visit_item_type["visit_item_type"]
-        rust_ast__src__main__visit_item_mod["visit_item_mod"]
+        rust_ast__src__main__type_item["type_item"]
+        rust_ast__src__main__modifiers["modifiers"]
+        rust_ast__src__main__visit_impl_item_fn["visit_impl_item_fn"]
+        rust_ast__src__main__visit_expr_call["visit_expr_call"]
         rust_ast__src__main__main["main"]
+        rust_ast__src__main__visit_item_use["visit_item_use"]
+        rust_ast__src__main__visit_item_fn["visit_item_fn"]
+        rust_ast__src__main__visit_item_static["visit_item_static"]
+        rust_ast__src__main__visit_item_enum["visit_item_enum"]
+        rust_ast__src__main__visit_item_type["visit_item_type"]
     end
-    subgraph src__cli
-        src__cli__optionNumber["optionNumber"]
-        src__cli__context["context"]
-        src__cli__optionString["optionString"]
-        src__cli__diagnosticsPath["diagnosticsPath"]
-        src__cli__main["main"]
-        src__cli__optionList["optionList"]
-        src__cli__stop["stop"]
-        src__cli__optionSummaryMode["optionSummaryMode"]
-        src__cli__mode["mode"]
-        src__cli__file["file"]
-        src__cli__root["root"]
-        src__cli__handleExtract["handleExtract"]
-        src__cli__optionLlmMode["optionLlmMode"]
-        src__cli__printHelp["printHelp"]
-        src__cli__diff["diff"]
-        src__cli__diagnostics["diagnostics"]
-        src__cli__optionTaskMode["optionTaskMode"]
-        src__cli__parsed["parsed"]
-        src__cli__formatWatchEvent["formatWatchEvent"]
-        src__cli__html["html"]
-        src__cli__command["command"]
-        src__cli__emitExtraction["emitExtraction"]
-        src__cli__handleReality["handleReality"]
-        src__cli__controller["controller"]
-        src__cli__execFileAsync["execFileAsync"]
-        src__cli__optionBoolean["optionBoolean"]
-        src__cli__extractor["extractor"]
-        src__cli__config["config"]
-        src__cli__initProject["initProject"]
-        src__cli__handleWatch["handleWatch"]
-        src__cli__handleCommunication["handleCommunication"]
-        src__cli__optionNlMode["optionNlMode"]
-        src__cli__optionPipelineTaskMode["optionPipelineTaskMode"]
-        src__cli__invokedPath["invokedPath"]
-        src__cli__parseArgs["parseArgs"]
-        src__cli__optionNullableString["optionNullableString"]
-        src__cli__svg["svg"]
-        src__cli__doctor["doctor"]
-        src__cli__stamp["stamp"]
-        src__cli__view["view"]
-        src__cli__handleDiff["handleDiff"]
-        src__cli__result["result"]
-        src__cli__maxRows["maxRows"]
+    subgraph src__config
+        src__config__env__envList["envList"]
+        src__config__env__getConfig["getConfig"]
+        src__config__env__envString["envString"]
+        src__config__env__root["root"]
+        src__config__env__model["model"]
+        src__config__env__envOptional["envOptional"]
+        src__config__env__envBoolean["envBoolean"]
+        src__config__env__envLlmMode["envLlmMode"]
+        src__config__env__envNumber["envNumber"]
     end
     subgraph src__core
-        src__core__ignore__escapeLiteral["escapeLiteral"]
-        src__core__io__resolveGlobs["resolveGlobs"]
-        src__core__io__stat["stat"]
-        src__core__schema__nullableString["nullableString"]
-        src__core__record__buildRecord["buildRecord"]
-        src__core__io__visit["visit"]
-        src__core__id__graphFingerprint["graphFingerprint"]
         src__core__io__extensions["extensions"]
-        src__core__id__sortValue["sortValue"]
-        src__core__ignore__segments["segments"]
-        src__core__security__assertDescendant["assertDescendant"]
-        src__core__target__normalizeTarget["normalizeTarget"]
-        src__core__text__STOP_WORDS["STOP_WORDS"]
+        src__core__ignore__char["char"]
+        src__core__ignore__compileIgnorePattern["compileIgnorePattern"]
+        src__core__io__globToRegExp["globToRegExp"]
+        src__core__security__assertPathWithinRoot["assertPathWithinRoot"]
+        src__core__io__maxFiles["maxFiles"]
+        src__core__security__relative["relative"]
         src__core__io__writeText["writeText"]
-        src__core__io__matcher["matcher"]
-        src__core__io__files["files"]
+        src__core__ignore__parseIgnoreFile["parseIgnoreFile"]
+        src__core__target__symbolAliases["symbolAliases"]
+        src__core__target__normalizeTarget["normalizeTarget"]
         src__core__id__createIntentId["createIntentId"]
-        src__core__schema__nonEmptyString["nonEmptyString"]
-        src__core__text__extractTickets["extractTickets"]
-        src__core__io__readJsonl["readJsonl"]
+        src__core__target__normalizePath["normalizePath"]
+        src__core__id__createRelationId["createRelationId"]
+        src__core__target__unique["unique"]
+        src__core__io__walkFiles["walkFiles"]
+        src__core__io__writeJson["writeJson"]
+        src__core__target__normalizeSymbol["normalizeSymbol"]
+        src__core__io__base["base"]
+        src__core__id__sortValue["sortValue"]
         src__core__io__relative["relative"]
-        src__core__ignore__translateGlob["translateGlob"]
-        src__core__id__createConclusionId["createConclusionId"]
+        src__core__io__resolveGlobs["resolveGlobs"]
         src__core__io__absolute["absolute"]
         src__core__security__nearestExistingPath["nearestExistingPath"]
-        src__core__ignore__compileIgnorePattern["compileIgnorePattern"]
-        src__core__io__writeJson["writeJson"]
-        src__core__target__GENERIC_SYMBOLS["GENERIC_SYMBOLS"]
-        src__core__target__normalizePath["normalizePath"]
-        src__core__text__keywords["keywords"]
-        src__core__ignore__createIgnoreMatcher["createIgnoreMatcher"]
-        src__core__schema__assertIntentRecord["assertIntentRecord"]
-        src__core__target__normalizeSymbol["normalizeSymbol"]
-        src__core__text__extractPaths["extractPaths"]
-        src__core__io__writeJsonl["writeJsonl"]
-        src__core__ignore__next["next"]
-        src__core__schema__lines["lines"]
-        src__core__text__similarity["similarity"]
-        src__core__io__next["next"]
-        src__core__io__base["base"]
-        src__core__text__extractSymbols["extractSymbols"]
-        src__core__schema__target["target"]
-        src__core__io__ensureDir["ensureDir"]
-        src__core__schema__exactKeys["exactKeys"]
-        src__core__schema__record["record"]
-        src__core__schema__objectValue["objectValue"]
-        src__core__io__relativePosix["relativePosix"]
-        src__core__io__readJson["readJson"]
-        src__core__target__unique["unique"]
-        src__core__io__maxFiles["maxFiles"]
-        src__core__ignore__loadIgnoreMatcher["loadIgnoreMatcher"]
-        src__core__text__classifyActionHeuristically["classifyActionHeuristically"]
-        src__core__security__relative["relative"]
-        src__core__schema__source["source"]
-        src__core__schema__epistemic["epistemic"]
-        src__core__ignore__parseIgnoreFile["parseIgnoreFile"]
+        src__core__io__matcher["matcher"]
         src__core__io__matchesAnyGlob["matchesAnyGlob"]
-        src__core__io__ignored["ignored"]
-        src__core__target__pathAliases["pathAliases"]
-        src__core__target__symbolAliases["symbolAliases"]
-        src__core__io__globToRegExp["globToRegExp"]
-        src__core__io__escapeRegex["escapeRegex"]
-        src__core__record__clamp["clamp"]
+        src__core__io__writeJsonl["writeJsonl"]
         src__core__id__sha256["sha256"]
-        src__core__io__readText["readText"]
-        src__core__ignore__decide["decide"]
-        src__core__io__walkFiles["walkFiles"]
-        src__core__id__createTodoProposalId["createTodoProposalId"]
-        src__core__id__createRelationId["createRelationId"]
-        src__core__text__normalizeToken["normalizeToken"]
-        src__core__security__assertPathWithinRoot["assertPathWithinRoot"]
         src__core__ignore__normalize["normalize"]
-        src__core__id__stableStringify["stableStringify"]
-        src__core__ignore__char["char"]
-        src__core__target__GENERIC_FILES["GENERIC_FILES"]
-        src__core__schema__metadata["metadata"]
-        src__core__schema__lifecycle["lifecycle"]
-        src__core__ignore__target["target"]
-        src__core__io__char["char"]
-        src__core__text__extractBacktickValues["extractBacktickValues"]
+        src__core__ignore__createIgnoreMatcher["createIgnoreMatcher"]
+        src__core__io__ensureDir["ensureDir"]
         src__core__ignore__files["files"]
+        src__core__target__GENERIC_FILES["GENERIC_FILES"]
+        src__core__target__GENERIC_SYMBOLS["GENERIC_SYMBOLS"]
+        src__core__id__createConclusionId["createConclusionId"]
+        src__core__io__char["char"]
+        src__core__ignore__segments["segments"]
+        src__core__ignore__loadIgnoreMatcher["loadIgnoreMatcher"]
+        src__core__io__escapeRegex["escapeRegex"]
+        src__core__ignore__next["next"]
+        src__core__security__assertDescendant["assertDescendant"]
+        src__core__io__stat["stat"]
+        src__core__io__readText["readText"]
+        src__core__io__files["files"]
+        src__core__ignore__decide["decide"]
+        src__core__ignore__target["target"]
+        src__core__target__pathAliases["pathAliases"]
+        src__core__io__readJson["readJson"]
+        src__core__id__stableStringify["stableStringify"]
+        src__core__io__visit["visit"]
         src__core__id__shortHash["shortHash"]
-        src__core__record__sourcePrefix["sourcePrefix"]
-        src__core__schema__enumValue["enumValue"]
-        src__core__schema__stringArray["stringArray"]
-        src__core__schema__statement["statement"]
+        src__core__ignore__translateGlob["translateGlob"]
+        src__core__io__next["next"]
+        src__core__id__graphFingerprint["graphFingerprint"]
+        src__core__io__ignored["ignored"]
+        src__core__io__readJsonl["readJsonl"]
+        src__core__id__createTodoProposalId["createTodoProposalId"]
+        src__core__ignore__escapeLiteral["escapeLiteral"]
+        src__core__io__relativePosix["relativePosix"]
     end
     subgraph src__extractors
-        src__extractors__docs_llm__DocumentationLlmRequiredError__errorMessage["errorMessage"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__isStringArray["isStringArray"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__readPrompt["readPrompt"]
-        src__extractors__git__execFileAsync["execFileAsync"]
-        src__extractors__communication__identityRegistry["identityRegistry"]
-        src__extractors__docs_record__resolveAction["resolveAction"]
-        src__extractors__ast__visit["visit"]
-        src__extractors__git__extractChangedSymbols["extractChangedSymbols"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__enrichments["enrichments"]
-        src__extractors__docs_chunks__chunkMarkdown["chunkMarkdown"]
-        src__extractors__docs_record__statementText["statementText"]
-        src__extractors__communication__normalize["normalize"]
-        src__extractors__nl_llm__NlLlmRequiredError__startedAt["startedAt"]
-        src__extractors__nl_llm__NlLlmRequiredError__action["action"]
-        src__extractors__nl__body["body"]
-        src__extractors__communication__parseEnvelope["parseEnvelope"]
-        src__extractors__docs_chunks__chunkPriority["chunkPriority"]
-        src__extractors__nl_llm__NlLlmRequiredError__fallback["fallback"]
-        src__extractors__docs_record__isPlaceholder["isPlaceholder"]
-        src__extractors__nl__object["object"]
-        src__extractors__nl_llm__NlLlmRequiredError__allowedModality["allowedModality"]
-        src__extractors__docs_chunks__item["item"]
-        src__extractors__docs_record__toDocumentIntentRecord["toDocumentIntentRecord"]
-        src__extractors__docs_chunks__takeLineBatch["takeLineBatch"]
-        src__extractors__communication__sameStrings["sameStrings"]
-        src__extractors__ast__extractRustAst["extractRustAst"]
-        src__extractors__docs_record__OBJECT_PLACEHOLDERS["OBJECT_PLACEHOLDERS"]
-        src__extractors__nl__sourcePath["sourcePath"]
-        src__extractors__nl_llm__NlLlmRequiredError__deterministic["deterministic"]
-        src__extractors__git__readStats["readStats"]
-        src__extractors__nl_llm__NlLlmRequiredError__client["client"]
-        src__extractors__nl__action["action"]
-        src__extractors__docs_record__allowedModality["allowedModality"]
-        src__extractors__docs_record__modality["modality"]
-        src__extractors__nl_llm__NlLlmRequiredError__toIntentRecord["toIntentRecord"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__selectWithinBudget["selectWithinBudget"]
-        src__extractors__docs_record__anchorToSource["anchorToSource"]
-        src__extractors__changelog__changelogAction["changelogAction"]
-        src__extractors__nl__absolute["absolute"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__client["client"]
-        src__extractors__ast__excerpt["excerpt"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__extractMarkdownIntentAudited["extractMarkdownIntentAudited"]
-        src__extractors__todo__raw["raw"]
-        src__extractors__git__runGit["runGit"]
-        src__extractors__nl__detectMissingFields["detectMissingFields"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__isTarget["isTarget"]
-        src__extractors__communication__normalizeType["normalizeType"]
-        src__extractors__docs_chunks__sectionText["sectionText"]
-        src__extractors__todo__action["action"]
         src__extractors__docs_chunks__index["index"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__expected["expected"]
-        src__extractors__nl__confidence["confidence"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__output["output"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__requireConfiguredClient["requireConfiguredClient"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__fallbackOrThrow["fallbackOrThrow"]
-        src__extractors__docs_record__action["action"]
-        src__extractors__nl_llm__NlLlmRequiredError__fallbackOrThrow["fallbackOrThrow"]
-        src__extractors__docs_record__resolveObject["resolveObject"]
-        src__extractors__todo__classified["classified"]
         src__extractors__todo__extractTodo["extractTodo"]
-        src__extractors__ast__adapterRecords["adapterRecords"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__markDeterministic["markDeterministic"]
-        src__extractors__communication__fileParts["fileParts"]
-        src__extractors__todo__checked["checked"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__loadDocumentChunks["loadDocumentChunks"]
-        src__extractors__nl_llm__NlLlmRequiredError__excerpt["excerpt"]
-        src__extractors__git__count["count"]
-        src__extractors__docs_record__clampLine["clampLine"]
-        src__extractors__ast__extractGoAst["extractGoAst"]
-        src__extractors__nl_llm__NlLlmRequiredError__lines["lines"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__extractDocumentationIntent["extractDocumentationIntent"]
-        src__extractors__todo__relative["relative"]
-        src__extractors__git__extractGitIntent["extractGitIntent"]
-        src__extractors__ast__parsed["parsed"]
-        src__extractors__docs_chunks__flush["flush"]
-        src__extractors__nl_llm__NlLlmRequiredError__result["result"]
-        src__extractors__docs_chunks__splitLongSection["splitLongSection"]
-        src__extractors__docs_chunks__mapConcurrent["mapConcurrent"]
-        src__extractors__nl__inferActor["inferActor"]
-        src__extractors__communication__isCommunicationType["isCommunicationType"]
-        src__extractors__communication__nestedParticipant["nestedParticipant"]
-        src__extractors__communication__nestedRoleIndex["nestedRoleIndex"]
-        src__extractors__communication__match["match"]
-        src__extractors__docs_record__keywordOverlap["keywordOverlap"]
-        src__extractors__todo__heading["heading"]
-        src__extractors__communication__parts["parts"]
-        src__extractors__ast__symbol["symbol"]
-        src__extractors__communication__listValue["listValue"]
-        src__extractors__nl_llm__NlLlmRequiredError__isPlaceholder["isPlaceholder"]
         src__extractors__docs_chunks__markdownSections["markdownSections"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__stageAudit["stageAudit"]
-        src__extractors__git__result["result"]
-        src__extractors__todo__extractExplicitId["extractExplicitId"]
+        src__extractors__todo__relative["relative"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__selectWithinBudget["selectWithinBudget"]
+        src__extractors__git__count["count"]
         src__extractors__git__readChangedFiles["readChangedFiles"]
-        src__extractors__docs_chunks__sectionLines["sectionLines"]
-        src__extractors__ast__languageName["languageName"]
-        src__extractors__ast__execFileAsync["execFileAsync"]
-        src__extractors__docs_chunks__needles["needles"]
-        src__extractors__ast__isTopLevel["isTopLevel"]
-        src__extractors__todo__inferOwner["inferOwner"]
-        src__extractors__todo__block["block"]
-        src__extractors__ast__extractTypeScriptFile["extractTypeScriptFile"]
-        src__extractors__ast__modifiers["modifiers"]
-        src__extractors__ast__extractPythonAst["extractPythonAst"]
-        src__extractors__docs_record__linesFromChunk["linesFromChunk"]
-        src__extractors__communication__inferIdentity["inferIdentity"]
-        src__extractors__todo__match["match"]
-        src__extractors__docs_record__allowedLifecycle["allowedLifecycle"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__enrichRecord["enrichRecord"]
-        src__extractors__ast__extractAstIntent["extractAstIntent"]
-        src__extractors__todo__lines["lines"]
-        src__extractors__nl_llm__NlLlmRequiredError__clampLine["clampLine"]
-        src__extractors__todo__task["task"]
-        src__extractors__changelog__body["body"]
-        src__extractors__ast__extractJavaAst["extractJavaAst"]
-        src__extractors__docs_record__allowedAction["allowedAction"]
-        src__extractors__nl__extractNlIntent["extractNlIntent"]
-        src__extractors__docs_record__resolveTarget["resolveTarget"]
-        src__extractors__git__root["root"]
-        src__extractors__todo__body["body"]
-        src__extractors__nl__classified["classified"]
-        src__extractors__docs_chunks__workerCount["workerCount"]
-        src__extractors__nl_llm__NlLlmRequiredError__start["start"]
-        src__extractors__todo__text["text"]
-        src__extractors__docs_chunks__worker["worker"]
-        src__extractors__communication__nestedRole["nestedRole"]
-        src__extractors__docs_record__fallback["fallback"]
-        src__extractors__ast__scriptKind["scriptKind"]
-        src__extractors__nl_llm__NlLlmRequiredError__failedAudit["failedAudit"]
         src__extractors__docs_llm__DocumentationLlmRequiredError__files["files"]
-        src__extractors__ast__declarationIsCallable["declarationIsCallable"]
-        src__extractors__communication__unquote["unquote"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__deterministic["deterministic"]
-        src__extractors__changelog__lines["lines"]
-        src__extractors__ast__lineRange["lineRange"]
-        src__extractors__ast__add["add"]
-        src__extractors__docs_record__target["target"]
-        src__extractors__nl_llm__NlLlmRequiredError__resolveObject["resolveObject"]
-        src__extractors__nl__missing["missing"]
-        src__extractors__nl_llm__NlLlmRequiredError__allowedAction["allowedAction"]
-        src__extractors__docs_record__hasTarget["hasTarget"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__startedAt["startedAt"]
+        src__extractors__communication__isCommunicationType["isCommunicationType"]
+        src__extractors__todo__checked["checked"]
+        src__extractors__todo__raw["raw"]
+        src__extractors__docs_chunks__workerCount["workerCount"]
+        src__extractors__communication__match["match"]
         src__extractors__docs_llm__DocumentationLlmRequiredError__readPrompt["readPrompt"]
-        src__extractors__changelog__relative["relative"]
-        src__extractors__nl_llm__NlLlmRequiredError__markDeterministic["markDeterministic"]
-        src__extractors__nl_llm__NlLlmRequiredError__audit["audit"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__failed["failed"]
-        src__extractors__nl_llm__NlLlmRequiredError__end["end"]
-        src__extractors__docs_record__resolveModality["resolveModality"]
-        src__extractors__changelog__extractChangelog["extractChangelog"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__isMarkdownEnrichment["isMarkdownEnrichment"]
+        src__extractors__communication__normalizeType["normalizeType"]
+        src__extractors__todo__match["match"]
+        src__extractors__git__result["result"]
+        src__extractors__communication__parseEnvelope["parseEnvelope"]
+        src__extractors__todo__task["task"]
+        src__extractors__communication__unquote["unquote"]
+        src__extractors__todo__text["text"]
+        src__extractors__docs_chunks__chunkMarkdown["chunkMarkdown"]
+        src__extractors__communication__identityRegistry["identityRegistry"]
+        src__extractors__docs_chunks__item["item"]
+        src__extractors__git__extractGitIntent["extractGitIntent"]
         src__extractors__docs_llm__DocumentationLlmRequiredError__buildAudit["buildAudit"]
-        src__extractors__docs_chunks__prioritizeDocumentChunks["prioritizeDocumentChunks"]
-        src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited["extractNlIntentAudited"]
+        src__extractors__communication__nestedRole["nestedRole"]
+        src__extractors__docs_chunks__mapConcurrent["mapConcurrent"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__extractDocumentationIntent["extractDocumentationIntent"]
+        src__extractors__communication__fileParts["fileParts"]
+        src__extractors__communication__nestedRoleIndex["nestedRoleIndex"]
+        src__extractors__docs_chunks__needles["needles"]
+        src__extractors__docs_chunks__sectionLines["sectionLines"]
+        src__extractors__communication__normalize["normalize"]
+        src__extractors__docs_chunks__flush["flush"]
+        src__extractors__todo__extractExplicitId["extractExplicitId"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__loadDocumentChunks["loadDocumentChunks"]
+        src__extractors__changelog__extractChangelog["extractChangelog"]
+        src__extractors__todo__action["action"]
+        src__extractors__todo__lines["lines"]
+        src__extractors__docs_chunks__takeLineBatch["takeLineBatch"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__errorMessage["errorMessage"]
+        src__extractors__communication__sameStrings["sameStrings"]
+        src__extractors__todo__classified["classified"]
+        src__extractors__git__runGit["runGit"]
+        src__extractors__todo__block["block"]
+        src__extractors__communication__nestedParticipant["nestedParticipant"]
+        src__extractors__changelog__body["body"]
+        src__extractors__git__root["root"]
+        src__extractors__git__readStats["readStats"]
         src__extractors__git__readCommits["readCommits"]
-        src__extractors__ast__callee["callee"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__validateEnrichments["validateEnrichments"]
+        src__extractors__git__execFileAsync["execFileAsync"]
+        src__extractors__communication__parts["parts"]
+        src__extractors__todo__inferOwner["inferOwner"]
+        src__extractors__docs_chunks__worker["worker"]
+        src__extractors__docs_chunks__sectionText["sectionText"]
+        src__extractors__communication__listValue["listValue"]
+        src__extractors__communication__inferIdentity["inferIdentity"]
+        src__extractors__git__extractChangedSymbols["extractChangedSymbols"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__requireConfiguredClient["requireConfiguredClient"]
+        src__extractors__docs_chunks__prioritizeDocumentChunks["prioritizeDocumentChunks"]
+        src__extractors__changelog__relative["relative"]
+        src__extractors__todo__body["body"]
+        src__extractors__docs_chunks__splitLongSection["splitLongSection"]
+        src__extractors__changelog__changelogAction["changelogAction"]
+        src__extractors__changelog__lines["lines"]
         src__extractors__docs_llm__DocumentationLlmRequiredError__extractChunk["extractChunk"]
+        src__extractors__todo__heading["heading"]
+        src__extractors__docs_chunks__chunkPriority["chunkPriority"]
     end
     subgraph src__graph
-        src__graph__diagnostics__indexImplementedPaths["indexImplementedPaths"]
-        src__graph__diff__visibleRows["visibleRows"]
-        src__graph__diff__relationKey["relationKey"]
-        src__graph__diagnostics__isPublicImplementation["isPublicImplementation"]
-        src__graph__diff__assertGraph["assertGraph"]
-        src__graph__diff__afterGroups["afterGroups"]
-        src__graph__diagnostics__hasImplementedTarget["hasImplementedTarget"]
-        src__graph__diagnostics__related["related"]
-        src__graph__diff__compareRelations["compareRelations"]
-        src__graph__diagnostics__paths["paths"]
-        src__graph__diff__recordIdentity["recordIdentity"]
-        src__graph__diagnostics__missingFields["missingFields"]
-        src__graph__diff__left["left"]
-        src__graph__diff__afterRecord["afterRecord"]
-        src__graph__diagnostics__isReleaseCandidate["isReleaseCandidate"]
-        src__graph__diff__metricCard["metricCard"]
-        src__graph__diff__changedFieldPaths["changedFieldPaths"]
-        src__graph__diagnostics__buildNeighbors["buildNeighbors"]
-        src__graph__diff__y["y"]
-        src__graph__diagnostics__isImplementationEvidence["isImplementationEvidence"]
-        src__graph__diagnostics__recordsById["recordsById"]
-        src__graph__diff__beforeRecord["beforeRecord"]
-        src__graph__diagnostics__map["map"]
-        src__graph__diff__right["right"]
+        src__graph__diagnostics__diagnoseGraph["diagnoseGraph"]
         src__graph__diagnostics__appendNeighbor["appendNeighbor"]
-        src__graph__diff__isObject["isObject"]
+        src__graph__diff__right["right"]
+        src__graph__diff__values["values"]
+        src__graph__diff__width["width"]
+        src__graph__diff__escapeXml["escapeXml"]
         src__graph__diff__beforeGroups["beforeGroups"]
-        src__graph__diff__paired["paired"]
-        src__graph__diagnostics__isImportantRecord["isImportantRecord"]
+        src__graph__diff__compareRelations["compareRelations"]
+        src__graph__diagnostics__isImplementationEvidence["isImplementationEvidence"]
+        src__graph__diff__afterGroups["afterGroups"]
+        src__graph__diff__groupRecords["groupRecords"]
+        src__graph__diagnostics__missingFields["missingFields"]
+        src__graph__diff__normalizeRecord["normalizeRecord"]
+        src__graph__diff__y["y"]
+        src__graph__diagnostics__buildNeighbors["buildNeighbors"]
+        src__graph__diff__height["height"]
+        src__graph__diagnostics__implementedPaths["implementedPaths"]
+        src__graph__diff__afterRecord["afterRecord"]
+        src__graph__diagnostics__isPlan["isPlan"]
+        src__graph__diagnostics__related["related"]
+        src__graph__diagnostics__isReleaseCandidate["isReleaseCandidate"]
+        src__graph__diagnostics__neighbors["neighbors"]
+        src__graph__diagnostics__map["map"]
         src__graph__diagnostics__evidenced["evidenced"]
         src__graph__diff__renderGraphDiffSvg["renderGraphDiffSvg"]
-        src__graph__diff__groupRecords["groupRecords"]
-        src__graph__diff__groups["groups"]
-        src__graph__diff__width["width"]
-        src__graph__diagnostics__implementedPaths["implementedPaths"]
-        src__graph__diff__height["height"]
-        src__graph__diagnostics__makeDiagnostic["makeDiagnostic"]
-        src__graph__diagnostics__neighbors["neighbors"]
-        src__graph__diff__values["values"]
-        src__graph__diff__escapeXml["escapeXml"]
-        src__graph__diagnostics__isPlan["isPlan"]
-        src__graph__diff__diffIntentGraphs["diffIntentGraphs"]
+        src__graph__diff__beforeRecord["beforeRecord"]
         src__graph__diff__truncate["truncate"]
-        src__graph__diagnostics__diagnoseGraph["diagnoseGraph"]
-        src__graph__diff__normalizeRecord["normalizeRecord"]
+        src__graph__diff__relationKey["relationKey"]
+        src__graph__diff__assertGraph["assertGraph"]
+        src__graph__diagnostics__isImportantRecord["isImportantRecord"]
+        src__graph__diff__left["left"]
+        src__graph__diagnostics__makeDiagnostic["makeDiagnostic"]
+        src__graph__diff__changedFieldPaths["changedFieldPaths"]
+        src__graph__diagnostics__paths["paths"]
+        src__graph__diagnostics__hasImplementedTarget["hasImplementedTarget"]
+        src__graph__diff__isObject["isObject"]
+        src__graph__diff__diffIntentGraphs["diffIntentGraphs"]
+        src__graph__diagnostics__isPublicImplementation["isPublicImplementation"]
+        src__graph__diff__metricCard["metricCard"]
+        src__graph__diagnostics__recordsById["recordsById"]
+        src__graph__diff__paired["paired"]
+        src__graph__diff__groups["groups"]
+        src__graph__diff__recordIdentity["recordIdentity"]
+        src__graph__diagnostics__indexImplementedPaths["indexImplementedPaths"]
+        src__graph__diff__visibleRows["visibleRows"]
+    end
+    subgraph src__interfaces
+        src__interfaces__a2a_message__parseSendConfiguration["parseSendConfiguration"]
+        src__interfaces__a2a__handleUnexpectedError["handleUnexpectedError"]
+        src__interfaces__mcp__protocolVersion["protocolVersion"]
+        src__interfaces__a2a_message__referenceTaskIds["referenceTaskIds"]
+        src__interfaces__mcp__createMcpConnectionState["createMcpConnectionState"]
+        src__interfaces__mcp__serverMeta["serverMeta"]
+        src__interfaces__a2a_card__skills["skills"]
+        src__interfaces__a2a_message__normalizeUserMessage["normalizeUserMessage"]
+        src__interfaces__mcp__validateModernMetadata["validateModernMetadata"]
+        src__interfaces__a2a_card__skill["skill"]
+        src__interfaces__a2a_message__commandFromData["commandFromData"]
+        src__interfaces__mcp__serverInfo["serverInfo"]
+        src__interfaces__a2a_card__agentCard["agentCard"]
+        src__interfaces__mcp__responseMeta["responseMeta"]
+        src__interfaces__a2a_message__taskId["taskId"]
+        src__interfaces__a2a__startA2aServer["startA2aServer"]
+        src__interfaces__a2a_message__parseScalar["parseScalar"]
+        src__interfaces__a2a__handleHttp["handleHttp"]
+        src__interfaces__a2a_message__text["text"]
+        src__interfaces__mcp__sendError["sendError"]
+        src__interfaces__a2a_message__validateOutputModes["validateOutputModes"]
+        src__interfaces__a2a_message__cloneMessage["cloneMessage"]
+        src__interfaces__mcp__validateModernRequest["validateModernRequest"]
+        src__interfaces__a2a_message__parsePartContent["parsePartContent"]
+        src__interfaces__mcp__result["result"]
+        src__interfaces__mcp__parseRequestLine["parseRequestLine"]
+        src__interfaces__mcp__parsed["parsed"]
+        src__interfaces__mcp__isLegacyProtocol["isLegacyProtocol"]
+        src__interfaces__a2a_message__parsePart["parsePart"]
+        src__interfaces__a2a_message__parseKeyValues["parseKeyValues"]
+        src__interfaces__a2a_message__contextId["contextId"]
+        src__interfaces__mcp__handleModernRequest["handleModernRequest"]
+        src__interfaces__a2a_card__sendAgentCard["sendAgentCard"]
+        src__interfaces__a2a_message__metadata["metadata"]
+        src__interfaces__mcp__serverInstructions["serverInstructions"]
+        src__interfaces__a2a_message__first["first"]
+        src__interfaces__a2a_message__parseMessage["parseMessage"]
+        src__interfaces__mcp__startMcpServer["startMcpServer"]
+        src__interfaces__mcp__handleMcpRequest["handleMcpRequest"]
+        src__interfaces__mcp__hasModernMetadata["hasModernMetadata"]
+        src__interfaces__a2a_message__parseCommand["parseCommand"]
+        src__interfaces__mcp__send["send"]
+        src__interfaces__mcp__initializeLegacy["initializeLegacy"]
+        src__interfaces__a2a_message__objectData["objectData"]
+        src__interfaces__mcp__request["request"]
+        src__interfaces__a2a_message__normalizeAction["normalizeAction"]
+        src__interfaces__mcp__handleLegacyRequest["handleLegacyRequest"]
+        src__interfaces__mcp__invokedPath["invokedPath"]
+        src__interfaces__mcp__rpcError["rpcError"]
+        src__interfaces__a2a_message__extensions["extensions"]
+        src__interfaces__mcp__completePublic["completePublic"]
+    end
+    subgraph src__llm
+        src__llm__openrouter__OpenRouterClient__request["request"]
+        src__llm__openrouter__OpenRouterClient__listAvailableModels["listAvailableModels"]
+        src__llm__openrouter__OpenRouterClient__usage["usage"]
+        src__llm__openrouter__OpenRouterClient__formatInvalidModelError["formatInvalidModelError"]
+        src__llm__openrouter__OpenRouterClient__text["text"]
+        src__llm__openrouter__OpenRouterClient__apiKey["apiKey"]
+        src__llm__openrouter__OpenRouterClient__removeUndefined["removeUndefined"]
+        src__llm__openrouter__OpenRouterClient__chatTextWithMetadata["chatTextWithMetadata"]
+        src__llm__openrouter__OpenRouterClient__stringOrNull["stringOrNull"]
+        src__llm__openrouter__OpenRouterClient__controller["controller"]
+        src__llm__openrouter__OpenRouterClient__chatJsonWithMetadata["chatJsonWithMetadata"]
+        src__llm__openrouter__OpenRouterClient__chatText["chatText"]
+        src__llm__openrouter__OpenRouterClient__extractContent["extractContent"]
+        src__llm__openrouter__OpenRouterClient__response["response"]
+        src__llm__openrouter__OpenRouterClient__model["model"]
+        src__llm__openrouter__OpenRouterClient__isInvalidModelError["isInvalidModelError"]
+        src__llm__openrouter__OpenRouterClient__finiteOrNull["finiteOrNull"]
+        src__llm__openrouter__OpenRouterClient__responseMetadata["responseMetadata"]
+        src__llm__openrouter__OpenRouterClient__shouldRetryWithoutJsonSchema["shouldRetryWithoutJsonSchema"]
+        src__llm__openrouter__OpenRouterClient__timeout["timeout"]
+        src__llm__openrouter__OpenRouterClient__sleep["sleep"]
+        src__llm__openrouter__OpenRouterClient__fallback["fallback"]
     end
     subgraph src__services
-        src__services__actions__executeAction["executeAction"]
-        src__services__actions__beforeInput["beforeInput"]
-        src__services__actions__patchPath["patchPath"]
-        src__services__actions__view["view"]
-        src__services__actions__diagnostics["diagnostics"]
-        src__services__actions__afterPath["afterPath"]
-        src__services__actions__graph["graph"]
-        src__services__actions__title["title"]
-        src__services__actions__after["after"]
-        src__services__actions__nullableScopedPath["nullableScopedPath"]
-        src__services__actions__withTextDiffViews["withTextDiffViews"]
-        src__services__actions__stringList["stringList"]
-        src__services__actions__auditPath["auditPath"]
         src__services__actions__filterCommunicationGraph["filterCommunicationGraph"]
-        src__services__actions__before["before"]
-        src__services__actions__numberValue["numberValue"]
-        src__services__actions__summaryModeValue["summaryModeValue"]
-        src__services__actions__result["result"]
-        src__services__actions__output["output"]
-        src__services__actions__beforePath["beforePath"]
-        src__services__actions__registerRunArtifacts["registerRunArtifacts"]
-        src__services__actions__readRecords["readRecords"]
-        src__services__actions__todoPath["todoPath"]
-        src__services__actions__svg["svg"]
         src__services__actions__diff["diff"]
+        src__services__actions__beforeInput["beforeInput"]
+        src__services__actions__beforePath["beforePath"]
+        src__services__actions__result["result"]
+        src__services__actions__graph["graph"]
+        src__services__actions__afterInput["afterInput"]
+        src__services__actions__view["view"]
+        src__services__actions__summaryModeValue["summaryModeValue"]
+        src__services__actions__stringValue["stringValue"]
+        src__services__actions__output["output"]
+        src__services__actions__analysis["analysis"]
+        src__services__actions__title["title"]
+        src__services__actions__registerRunArtifacts["registerRunArtifacts"]
         src__services__actions__booleanValue["booleanValue"]
         src__services__actions__scopedPath["scopedPath"]
-        src__services__actions__nullableString["nullableString"]
-        src__services__actions__root["root"]
-        src__services__actions__llmModeValue["llmModeValue"]
         src__services__actions__resolveRoot["resolveRoot"]
-        src__services__actions__receiptPath["receiptPath"]
-        src__services__actions__afterInput["afterInput"]
-        src__services__actions__analysis["analysis"]
+        src__services__actions__withTextDiffViews["withTextDiffViews"]
         src__services__actions__nlModeValue["nlModeValue"]
-        src__services__actions__stringValue["stringValue"]
+        src__services__actions__afterPath["afterPath"]
+        src__services__actions__receiptPath["receiptPath"]
+        src__services__actions__numberValue["numberValue"]
+        src__services__actions__executeAction["executeAction"]
+        src__services__actions__before["before"]
+        src__services__actions__root["root"]
+        src__services__actions__stringList["stringList"]
+        src__services__actions__nullableString["nullableString"]
+        src__services__actions__diagnostics["diagnostics"]
+        src__services__actions__readRecords["readRecords"]
+        src__services__actions__after["after"]
+        src__services__actions__auditPath["auditPath"]
+        src__services__actions__nullableScopedPath["nullableScopedPath"]
+        src__services__actions__llmModeValue["llmModeValue"]
+        src__services__actions__todoPath["todoPath"]
+        src__services__actions__svg["svg"]
+        src__services__actions__patchPath["patchPath"]
+    end
+    subgraph src__synthesis
+        src__synthesis__validation__sharedTicket["sharedTicket"]
+        src__synthesis__todo_patch__wasAlreadyAppended["wasAlreadyAppended"]
+        src__synthesis__todo_patch__orderedSelected["orderedSelected"]
+        src__synthesis__todo_patch__uniqueIds["uniqueIds"]
+        src__synthesis__todo_patch__result["result"]
+        src__synthesis__todo_patch__appendPatch["appendPatch"]
+        src__synthesis__todo_patch__duplicates["duplicates"]
+        src__synthesis__todo_patch__now["now"]
+        src__synthesis__validation__proposalWords["proposalWords"]
+        src__synthesis__todo_patch__classified["classified"]
+        src__synthesis__todo_patch__sameArray["sameArray"]
+        src__synthesis__validation__dependencyFirstPriorityOrder["dependencyFirstPriorityOrder"]
+        src__synthesis__validation__words["words"]
+        src__synthesis__todo_patch__hash["hash"]
+        src__synthesis__validation__similarity["similarity"]
+        src__synthesis__todo_patch__writeTodoPatchArtifacts["writeTodoPatchArtifacts"]
+        src__synthesis__todo_patch__normalizePath["normalizePath"]
+        src__synthesis__todo_patch__inline["inline"]
+        src__synthesis__todo_patch__renderIds["renderIds"]
+        src__synthesis__todo_patch__artifact["artifact"]
+        src__synthesis__todo_patch__nonBlank["nonBlank"]
+        src__synthesis__todo_patch__atomicWrite["atomicWrite"]
+        src__synthesis__validation__jaccard["jaccard"]
+        src__synthesis__todo_patch__assertTodoPatchArtifact["assertTodoPatchArtifact"]
+        src__synthesis__validation__duplicateEvidence["duplicateEvidence"]
+        src__synthesis__todo_patch__current["current"]
+        src__synthesis__validation__validateAndClassifyTodoProposals["validateAndClassifyTodoProposa"]
+        src__synthesis__todo_patch__exactKeys["exactKeys"]
+        src__synthesis__todo_patch__applied["applied"]
+        src__synthesis__todo_patch__rendered["rendered"]
+        src__synthesis__todo_patch__renderTargets["renderTargets"]
+        src__synthesis__todo_patch__selected["selected"]
+        src__synthesis__todo_patch__currentHash["currentHash"]
+        src__synthesis__todo_patch__renderTodoPatchMarkdown["renderTodoPatchMarkdown"]
+        src__synthesis__validation__target["target"]
+        src__synthesis__todo_patch__recovered["recovered"]
+        src__synthesis__validation__sharedSymbol["sharedSymbol"]
+        src__synthesis__todo_patch__sourceTodo["sourceTodo"]
+        src__synthesis__todo_patch__createTodoPatch["createTodoPatch"]
+        src__synthesis__validation__sharedPath["sharedPath"]
+        src__synthesis__todo_patch__object["object"]
+        src__synthesis__todo_patch__assertReceipt["assertReceipt"]
+        src__synthesis__validation__intersects["intersects"]
+        src__synthesis__todo_patch__isoDate["isoDate"]
+        src__synthesis__todo_patch__uniqueStrings["uniqueStrings"]
+        src__synthesis__todo_patch__assertApproval["assertApproval"]
+        src__synthesis__todo_patch__diagnosticReportFingerprint["diagnosticReportFingerprint"]
+        src__synthesis__todo_patch__markdown["markdown"]
+        src__synthesis__todo_patch__applyTodoPatch["applyTodoPatch"]
     end
     subgraph src__tf
-        src__tf__classifier__importer["importer"]
-        src__tf__classifier__loadAssets["loadAssets"]
-        src__tf__classifier__classifyAction["classifyAction"]
-        src__tf__classifier__vectorize["vectorize"]
-        src__tf__classifier__dynamicImport["dynamicImport"]
         src__tf__classifier__loadClassifier["loadClassifier"]
+        src__tf__classifier__importer["importer"]
+        src__tf__classifier__classifyAction["classifyAction"]
+        src__tf__classifier__loadAssets["loadAssets"]
+        src__tf__classifier__dynamicImport["dynamicImport"]
+        src__tf__classifier__vectorize["vectorize"]
+    end
+    subgraph src__web
+        src__web__diff_ui__requestHeaders["requestHeaders"]
+        src__web__diff_ui__fillSelect["fillSelect"]
+        src__web__diff_ui__diffUiHtml["diffUiHtml"]
+        src__web__diff_ui__selectedRun["selectedRun"]
+        src__web__diff_ui__compareGraphs["compareGraphs"]
+        src__web__diff_ui__formatBytes["formatBytes"]
+        src__web__diff_ui__updateMeta["updateMeta"]
+        src__web__diff_ui__byId["byId"]
+        src__web__diff_ui__loadRuns["loadRuns"]
     end
     rust_ast__src__main__main --> rust_ast__src__main__arguments
     rust_ast__src__main__main --> rust_ast__src__main__collect_files
@@ -521,132 +510,6 @@ flowchart LR
     java__JavaAstExtract__JavaAstExtract__collect --> java__JavaAstExtract__JavaAstExtract__containsIgnored
     java__JavaAstExtract__JavaAstExtract__try --> java__JavaAstExtract__JavaAstExtract__slash
     java__JavaAstExtract__JavaAstExtract__json --> java__JavaAstExtract__JavaAstExtract__escape
-    src__cli__main --> src__cli__printHelp
-    src__cli__main --> src__cli__parseArgs
-    src__cli__main --> src__cli__initProject
-    src__cli__main --> src__cli__doctor
-    src__cli__parsed --> src__cli__printHelp
-    src__cli__command --> src__cli__printHelp
-    src__cli__config --> src__cli__printHelp
-    src__cli__diagnosticsPath --> src__cli__optionNumber
-    src__cli__diagnosticsPath --> src__cli__optionBoolean
-    src__cli__diagnostics --> src__cli__optionNumber
-    src__cli__diagnostics --> src__cli__optionBoolean
-    src__cli__result --> src__cli__execFileAsync
-    src__cli__root --> src__cli__optionString
-    src__cli__root --> src__cli__optionNullableString
-    src__cli__root --> src__cli__optionLlmMode
-    src__cli__handleWatch --> src__cli__optionNullableString
-    src__cli__handleWatch --> src__cli__optionList
-    src__cli__handleWatch --> src__cli__optionBoolean
-    src__cli__handleWatch --> src__cli__optionString
-    src__cli__handleWatch --> src__cli__optionNumber
-    src__cli__handleWatch --> src__cli__optionNlMode
-    src__cli__handleWatch --> src__cli__optionLlmMode
-    src__cli__handleWatch --> src__cli__optionPipelineTaskMode
-    src__cli__controller --> src__cli__optionNumber
-    src__cli__controller --> src__cli__optionBoolean
-    src__cli__controller --> src__cli__formatWatchEvent
-    src__cli__stop --> src__cli__optionNumber
-    src__cli__stop --> src__cli__optionBoolean
-    src__cli__stop --> src__cli__formatWatchEvent
-    src__cli__formatWatchEvent --> src__cli__file
-    src__cli__stamp --> src__cli__file
-    src__cli__handleDiff --> src__cli__optionString
-    src__cli__handleDiff --> src__cli__optionNumber
-    src__cli__mode --> src__cli__optionNumber
-    src__cli__svg --> src__cli__optionNumber
-    src__cli__svg --> src__cli__optionBoolean
-    src__cli__html --> src__cli__optionNumber
-    src__cli__diff --> src__cli__optionNumber
-    src__cli__context --> src__cli__optionString
-    src__cli__context --> src__cli__optionBoolean
-    src__cli__context --> src__cli__optionNumber
-    src__cli__maxRows --> src__cli__optionString
-    src__cli__maxRows --> src__cli__optionBoolean
-    src__cli__maxRows --> src__cli__optionNumber
-    src__cli__handleReality --> src__cli__optionString
-    src__cli__handleReality --> src__cli__optionNumber
-    src__cli__handleReality --> src__cli__optionBoolean
-    src__cli__view --> src__cli__optionNumber
-    src__cli__view --> src__cli__optionBoolean
-    src__cli__handleExtract --> src__cli__optionString
-    src__cli__handleExtract --> src__cli__optionNlMode
-    src__cli__handleExtract --> src__cli__emitExtraction
-    src__cli__handleExtract --> src__cli__optionNumber
-    src__cli__extractor --> src__cli__optionString
-    src__cli__extractor --> src__cli__optionNlMode
-    src__cli__extractor --> src__cli__emitExtraction
-    src__cli__handleCommunication --> src__cli__optionString
-    src__cli__handleCommunication --> src__cli__optionNullableString
-    src__cli__handleCommunication --> src__cli__optionLlmMode
-    src__cli__handleCommunication --> src__cli__optionNumber
-    src__cli__handleCommunication --> src__cli__optionBoolean
-    src__cli__doctor --> src__cli__execFileAsync
-    src__cli__optionNumber --> src__cli__optionString
-    src__cli__optionList --> src__cli__optionString
-    src__cli__optionNlMode --> src__cli__optionLlmMode
-    src__cli__optionLlmMode --> src__cli__optionString
-    src__cli__optionTaskMode --> src__cli__optionString
-    src__cli__optionSummaryMode --> src__cli__optionLlmMode
-    src__cli__optionSummaryMode --> src__cli__optionBoolean
-    src__cli__optionPipelineTaskMode --> src__cli__optionString
-    src__cli__invokedPath --> src__cli__main
-    src__extractors__nl__extractNlIntent --> src__extractors__nl__detectMissingFields
-    src__extractors__nl__absolute --> src__extractors__nl__detectMissingFields
-    src__extractors__nl__absolute --> src__extractors__nl__inferActor
-    src__extractors__nl__body --> src__extractors__nl__detectMissingFields
-    src__extractors__nl__body --> src__extractors__nl__inferActor
-    src__extractors__nl__sourcePath --> src__extractors__nl__detectMissingFields
-    src__extractors__nl__sourcePath --> src__extractors__nl__inferActor
-    src__extractors__nl__classified --> src__extractors__nl__inferActor
-    src__extractors__nl__action --> src__extractors__nl__inferActor
-    src__extractors__nl__object --> src__extractors__nl__inferActor
-    src__extractors__nl__missing --> src__extractors__nl__inferActor
-    src__extractors__nl__confidence --> src__extractors__nl__inferActor
-    src__extractors__ast__extractAstIntent --> src__extractors__ast__extractTypeScriptFile
-    src__extractors__ast__extractAstIntent --> src__extractors__ast__extractPythonAst
-    src__extractors__ast__extractAstIntent --> src__extractors__ast__extractGoAst
-    src__extractors__ast__extractTypeScriptFile --> src__extractors__ast__scriptKind
-    src__extractors__ast__add --> src__extractors__ast__lineRange
-    src__extractors__ast__add --> src__extractors__ast__excerpt
-    src__extractors__ast__add --> src__extractors__ast__languageName
-    src__extractors__ast__symbol --> src__extractors__ast__add
-    src__extractors__ast__symbol --> src__extractors__ast__modifiers
-    src__extractors__ast__visit --> src__extractors__ast__add
-    src__extractors__ast__declarationIsCallable --> src__extractors__ast__isTopLevel
-    src__extractors__ast__declarationIsCallable --> src__extractors__ast__add
-    src__extractors__ast__callee --> src__extractors__ast__add
-    src__extractors__ast__extractGoAst --> src__extractors__ast__execFileAsync
-    src__extractors__ast__extractGoAst --> src__extractors__ast__adapterRecords
-    src__extractors__ast__parsed --> src__extractors__ast__adapterRecords
-    src__extractors__ast__extractPythonAst --> src__extractors__ast__execFileAsync
-    src__extractors__ast__extractPythonAst --> src__extractors__ast__adapterRecords
-    src__extractors__ast__extractJavaAst --> src__extractors__ast__execFileAsync
-    src__extractors__ast__extractJavaAst --> src__extractors__ast__adapterRecords
-    src__extractors__ast__extractRustAst --> src__extractors__ast__execFileAsync
-    src__extractors__ast__extractRustAst --> src__extractors__ast__adapterRecords
-    src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited --> src__extractors__nl_llm__NlLlmRequiredError__markDeterministic
-    src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited --> src__extractors__nl_llm__NlLlmRequiredError__audit
-    src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited --> src__extractors__nl_llm__NlLlmRequiredError__fallbackOrThrow
-    src__extractors__nl_llm__NlLlmRequiredError__startedAt --> src__extractors__nl_llm__NlLlmRequiredError__markDeterministic
-    src__extractors__nl_llm__NlLlmRequiredError__startedAt --> src__extractors__nl_llm__NlLlmRequiredError__audit
-    src__extractors__nl_llm__NlLlmRequiredError__result --> src__extractors__nl_llm__NlLlmRequiredError__markDeterministic
-    src__extractors__nl_llm__NlLlmRequiredError__result --> src__extractors__nl_llm__NlLlmRequiredError__audit
-    src__extractors__nl_llm__NlLlmRequiredError__client --> src__extractors__nl_llm__NlLlmRequiredError__fallbackOrThrow
-    src__extractors__nl_llm__NlLlmRequiredError__failedAudit --> src__extractors__nl_llm__NlLlmRequiredError__audit
-    src__extractors__nl_llm__NlLlmRequiredError__deterministic --> src__extractors__nl_llm__NlLlmRequiredError__fallback
-    src__extractors__nl_llm__NlLlmRequiredError__toIntentRecord --> src__extractors__nl_llm__NlLlmRequiredError__clampLine
-    src__extractors__nl_llm__NlLlmRequiredError__toIntentRecord --> src__extractors__nl_llm__NlLlmRequiredError__allowedAction
-    src__extractors__nl_llm__NlLlmRequiredError__toIntentRecord --> src__extractors__nl_llm__NlLlmRequiredError__resolveObject
-    src__extractors__nl_llm__NlLlmRequiredError__toIntentRecord --> src__extractors__nl_llm__NlLlmRequiredError__allowedModality
-    src__extractors__nl_llm__NlLlmRequiredError__start --> src__extractors__nl_llm__NlLlmRequiredError__resolveObject
-    src__extractors__nl_llm__NlLlmRequiredError__end --> src__extractors__nl_llm__NlLlmRequiredError__resolveObject
-    src__extractors__nl_llm__NlLlmRequiredError__lines --> src__extractors__nl_llm__NlLlmRequiredError__resolveObject
-    src__extractors__nl_llm__NlLlmRequiredError__excerpt --> src__extractors__nl_llm__NlLlmRequiredError__resolveObject
-    src__extractors__nl_llm__NlLlmRequiredError__action --> src__extractors__nl_llm__NlLlmRequiredError__resolveObject
-    src__extractors__nl_llm__NlLlmRequiredError__resolveObject --> src__extractors__nl_llm__NlLlmRequiredError__isPlaceholder
-    src__extractors__nl_llm__NlLlmRequiredError__fallback --> src__extractors__nl_llm__NlLlmRequiredError__isPlaceholder
     src__extractors__docs_llm__DocumentationLlmRequiredError__extractDocumentationIntent --> src__extractors__docs_llm__DocumentationLlmRequiredError__requireConfiguredClient
     src__extractors__docs_llm__DocumentationLlmRequiredError__extractDocumentationIntent --> src__extractors__docs_llm__DocumentationLlmRequiredError__loadDocumentChunks
     src__extractors__docs_llm__DocumentationLlmRequiredError__extractDocumentationIntent --> src__extractors__docs_llm__DocumentationLlmRequiredError__selectWithinBudget
@@ -660,34 +523,6 @@ flowchart LR
     src__extractors__changelog__body --> src__extractors__changelog__changelogAction
     src__extractors__changelog__relative --> src__extractors__changelog__changelogAction
     src__extractors__changelog__lines --> src__extractors__changelog__changelogAction
-    src__extractors__docs_record__OBJECT_PLACEHOLDERS --> src__extractors__docs_record__resolveObject
-    src__extractors__docs_record__OBJECT_PLACEHOLDERS --> src__extractors__docs_record__anchorToSource
-    src__extractors__docs_record__OBJECT_PLACEHOLDERS --> src__extractors__docs_record__resolveTarget
-    src__extractors__docs_record__OBJECT_PLACEHOLDERS --> src__extractors__docs_record__resolveAction
-    src__extractors__docs_record__OBJECT_PLACEHOLDERS --> src__extractors__docs_record__resolveModality
-    src__extractors__docs_record__OBJECT_PLACEHOLDERS --> src__extractors__docs_record__allowedLifecycle
-    src__extractors__docs_record__OBJECT_PLACEHOLDERS --> src__extractors__docs_record__linesFromChunk
-    src__extractors__docs_record__toDocumentIntentRecord --> src__extractors__docs_record__resolveObject
-    src__extractors__docs_record__toDocumentIntentRecord --> src__extractors__docs_record__anchorToSource
-    src__extractors__docs_record__toDocumentIntentRecord --> src__extractors__docs_record__resolveTarget
-    src__extractors__docs_record__toDocumentIntentRecord --> src__extractors__docs_record__resolveAction
-    src__extractors__docs_record__toDocumentIntentRecord --> src__extractors__docs_record__resolveModality
-    src__extractors__docs_record__toDocumentIntentRecord --> src__extractors__docs_record__allowedLifecycle
-    src__extractors__docs_record__toDocumentIntentRecord --> src__extractors__docs_record__linesFromChunk
-    src__extractors__docs_record__statementText --> src__extractors__docs_record__resolveObject
-    src__extractors__docs_record__target --> src__extractors__docs_record__allowedLifecycle
-    src__extractors__docs_record__target --> src__extractors__docs_record__linesFromChunk
-    src__extractors__docs_record__action --> src__extractors__docs_record__allowedLifecycle
-    src__extractors__docs_record__action --> src__extractors__docs_record__linesFromChunk
-    src__extractors__docs_record__modality --> src__extractors__docs_record__allowedLifecycle
-    src__extractors__docs_record__modality --> src__extractors__docs_record__linesFromChunk
-    src__extractors__docs_record__resolveObject --> src__extractors__docs_record__isPlaceholder
-    src__extractors__docs_record__fallback --> src__extractors__docs_record__isPlaceholder
-    src__extractors__docs_record__anchorToSource --> src__extractors__docs_record__clampLine
-    src__extractors__docs_record__anchorToSource --> src__extractors__docs_record__keywordOverlap
-    src__extractors__docs_record__resolveTarget --> src__extractors__docs_record__hasTarget
-    src__extractors__docs_record__resolveAction --> src__extractors__docs_record__allowedAction
-    src__extractors__docs_record__resolveModality --> src__extractors__docs_record__allowedModality
     src__extractors__todo__extractTodo --> src__extractors__todo__match
     src__extractors__todo__body --> src__extractors__todo__match
     src__extractors__todo__body --> src__extractors__todo__inferOwner
@@ -744,23 +579,6 @@ flowchart LR
     src__extractors__docs_chunks__sectionText --> src__extractors__docs_chunks__flush
     src__extractors__docs_chunks__sectionText --> src__extractors__docs_chunks__splitLongSection
     src__extractors__docs_chunks__splitLongSection --> src__extractors__docs_chunks__takeLineBatch
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__extractMarkdownIntentAudited --> src__extractors__markdown_llm__MarkdownLlmRequiredError__stageAudit
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__extractMarkdownIntentAudited --> src__extractors__markdown_llm__MarkdownLlmRequiredError__markDeterministic
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__extractMarkdownIntentAudited --> src__extractors__markdown_llm__MarkdownLlmRequiredError__fallbackOrThrow
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__extractMarkdownIntentAudited --> src__extractors__markdown_llm__MarkdownLlmRequiredError__readPrompt
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__startedAt --> src__extractors__markdown_llm__MarkdownLlmRequiredError__stageAudit
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__deterministic --> src__extractors__markdown_llm__MarkdownLlmRequiredError__stageAudit
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__client --> src__extractors__markdown_llm__MarkdownLlmRequiredError__fallbackOrThrow
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__enrichments --> src__extractors__markdown_llm__MarkdownLlmRequiredError__enrichRecord
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__fallbackOrThrow --> src__extractors__markdown_llm__MarkdownLlmRequiredError__stageAudit
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__fallbackOrThrow --> src__extractors__markdown_llm__MarkdownLlmRequiredError__markDeterministic
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__failed --> src__extractors__markdown_llm__MarkdownLlmRequiredError__stageAudit
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__validateEnrichments --> src__extractors__markdown_llm__MarkdownLlmRequiredError__isMarkdownEnrichment
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__expected --> src__extractors__markdown_llm__MarkdownLlmRequiredError__isMarkdownEnrichment
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__output --> src__extractors__markdown_llm__MarkdownLlmRequiredError__isMarkdownEnrichment
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__isMarkdownEnrichment --> src__extractors__markdown_llm__MarkdownLlmRequiredError__isStringArray
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__isMarkdownEnrichment --> src__extractors__markdown_llm__MarkdownLlmRequiredError__isTarget
-    src__extractors__markdown_llm__MarkdownLlmRequiredError__isTarget --> src__extractors__markdown_llm__MarkdownLlmRequiredError__isStringArray
     src__graph__diff__diffIntentGraphs --> src__graph__diff__assertGraph
     src__graph__diff__diffIntentGraphs --> src__graph__diff__groupRecords
     src__graph__diff__beforeGroups --> src__graph__diff__changedFieldPaths
@@ -882,14 +700,6 @@ flowchart LR
     src__core__target__normalizeTarget --> src__core__target__unique
     src__core__target__symbolAliases --> src__core__target__normalizeSymbol
     src__core__target__pathAliases --> src__core__target__normalizePath
-    src__core__text__STOP_WORDS --> src__core__text__normalizeToken
-    src__core__text__classifyActionHeuristically --> src__core__text__normalizeToken
-    src__core__text__keywords --> src__core__text__normalizeToken
-    src__core__text__similarity --> src__core__text__keywords
-    src__core__text__extractPaths --> src__core__text__extractBacktickValues
-    src__core__text__extractSymbols --> src__core__text__extractBacktickValues
-    src__core__text__extractSymbols --> src__core__text__extractTickets
-    src__core__text__extractTickets --> src__core__text__normalizeToken
     src__core__security__assertPathWithinRoot --> src__core__security__assertDescendant
     src__core__security__assertPathWithinRoot --> src__core__security__nearestExistingPath
     src__core__security__assertDescendant --> src__core__security__relative
@@ -918,8 +728,6 @@ flowchart LR
     src__core__id__createTodoProposalId --> src__core__id__stableStringify
     src__core__id__graphFingerprint --> src__core__id__sha256
     src__core__id__graphFingerprint --> src__core__id__stableStringify
-    src__core__record__buildRecord --> src__core__record__sourcePrefix
-    src__core__record__buildRecord --> src__core__record__clamp
     src__core__io__readText --> src__core__io__stat
     src__core__io__writeJson --> src__core__io__ensureDir
     src__core__io__writeText --> src__core__io__ensureDir
@@ -943,17 +751,198 @@ flowchart LR
     src__core__io__resolveGlobs --> src__core__io__stat
     src__core__io__files --> src__core__io__walkFiles
     src__core__io__relativePosix --> src__core__io__relative
-    src__core__schema__assertIntentRecord --> src__core__schema__objectValue
-    src__core__schema__assertIntentRecord --> src__core__schema__exactKeys
-    src__core__schema__assertIntentRecord --> src__core__schema__nonEmptyString
-    src__core__schema__assertIntentRecord --> src__core__schema__nullableString
-    src__core__schema__assertIntentRecord --> src__core__schema__enumValue
-    src__core__schema__assertIntentRecord --> src__core__schema__stringArray
-    src__core__schema__record --> src__core__schema__objectValue
-    src__core__schema__statement --> src__core__schema__objectValue
-    src__core__schema__target --> src__core__schema__objectValue
-    src__core__schema__lifecycle --> src__core__schema__objectValue
-    src__core__schema__source --> src__core__schema__objectValue
-    src__core__schema__lines --> src__core__schema__objectValue
-    src__core__schema__epistemic --> src__core__schema__objectValue
-    src__core__schema__metadata --> src__core__schema__objectValue
+    src__web__diff_ui__diffUiHtml --> src__web__diff_ui__byId
+    src__web__diff_ui__requestHeaders --> src__web__diff_ui__byId
+    src__web__diff_ui__formatBytes --> src__web__diff_ui__selectedRun
+    src__web__diff_ui__formatBytes --> src__web__diff_ui__byId
+    src__web__diff_ui__selectedRun --> src__web__diff_ui__byId
+    src__web__diff_ui__selectedRun --> src__web__diff_ui__formatBytes
+    src__web__diff_ui__updateMeta --> src__web__diff_ui__selectedRun
+    src__web__diff_ui__updateMeta --> src__web__diff_ui__byId
+    src__web__diff_ui__updateMeta --> src__web__diff_ui__formatBytes
+    src__web__diff_ui__fillSelect --> src__web__diff_ui__byId
+    src__web__diff_ui__fillSelect --> src__web__diff_ui__updateMeta
+    src__web__diff_ui__loadRuns --> src__web__diff_ui__byId
+    src__web__diff_ui__loadRuns --> src__web__diff_ui__requestHeaders
+    src__web__diff_ui__compareGraphs --> src__web__diff_ui__byId
+    src__web__diff_ui__compareGraphs --> src__web__diff_ui__requestHeaders
+    src__synthesis__todo_patch__createTodoPatch --> src__synthesis__todo_patch__sameArray
+    src__synthesis__todo_patch__selected --> src__synthesis__todo_patch__object
+    src__synthesis__todo_patch__selected --> src__synthesis__todo_patch__exactKeys
+    src__synthesis__todo_patch__selected --> src__synthesis__todo_patch__uniqueIds
+    src__synthesis__todo_patch__selected --> src__synthesis__todo_patch__uniqueStrings
+    src__synthesis__todo_patch__orderedSelected --> src__synthesis__todo_patch__sameArray
+    src__synthesis__todo_patch__markdown --> src__synthesis__todo_patch__normalizePath
+    src__synthesis__todo_patch__markdown --> src__synthesis__todo_patch__diagnosticReportFingerprint
+    src__synthesis__todo_patch__renderTodoPatchMarkdown --> src__synthesis__todo_patch__inline
+    src__synthesis__todo_patch__renderTodoPatchMarkdown --> src__synthesis__todo_patch__renderTargets
+    src__synthesis__todo_patch__renderTodoPatchMarkdown --> src__synthesis__todo_patch__renderIds
+    src__synthesis__todo_patch__writeTodoPatchArtifacts --> src__synthesis__todo_patch__createTodoPatch
+    src__synthesis__todo_patch__applyTodoPatch --> src__synthesis__todo_patch__assertTodoPatchArtifact
+    src__synthesis__todo_patch__applyTodoPatch --> src__synthesis__todo_patch__assertApproval
+    src__synthesis__todo_patch__current --> src__synthesis__todo_patch__assertReceipt
+    src__synthesis__todo_patch__now --> src__synthesis__todo_patch__appendPatch
+    src__synthesis__todo_patch__now --> src__synthesis__todo_patch__atomicWrite
+    src__synthesis__todo_patch__now --> src__synthesis__todo_patch__wasAlreadyAppended
+    src__synthesis__todo_patch__currentHash --> src__synthesis__todo_patch__appendPatch
+    src__synthesis__todo_patch__currentHash --> src__synthesis__todo_patch__atomicWrite
+    src__synthesis__todo_patch__currentHash --> src__synthesis__todo_patch__wasAlreadyAppended
+    src__synthesis__todo_patch__result --> src__synthesis__todo_patch__appendPatch
+    src__synthesis__todo_patch__result --> src__synthesis__todo_patch__atomicWrite
+    src__synthesis__todo_patch__result --> src__synthesis__todo_patch__wasAlreadyAppended
+    src__synthesis__todo_patch__applied --> src__synthesis__todo_patch__appendPatch
+    src__synthesis__todo_patch__applied --> src__synthesis__todo_patch__atomicWrite
+    src__synthesis__todo_patch__applied --> src__synthesis__todo_patch__wasAlreadyAppended
+    src__synthesis__todo_patch__recovered --> src__synthesis__todo_patch__appendPatch
+    src__synthesis__todo_patch__recovered --> src__synthesis__todo_patch__atomicWrite
+    src__synthesis__todo_patch__recovered --> src__synthesis__todo_patch__wasAlreadyAppended
+    src__synthesis__todo_patch__assertTodoPatchArtifact --> src__synthesis__todo_patch__object
+    src__synthesis__todo_patch__assertTodoPatchArtifact --> src__synthesis__todo_patch__exactKeys
+    src__synthesis__todo_patch__assertTodoPatchArtifact --> src__synthesis__todo_patch__isoDate
+    src__synthesis__todo_patch__assertTodoPatchArtifact --> src__synthesis__todo_patch__hash
+    src__synthesis__todo_patch__assertTodoPatchArtifact --> src__synthesis__todo_patch__nonBlank
+    src__synthesis__todo_patch__assertTodoPatchArtifact --> src__synthesis__todo_patch__uniqueIds
+    src__synthesis__todo_patch__artifact --> src__synthesis__todo_patch__object
+    src__synthesis__todo_patch__artifact --> src__synthesis__todo_patch__exactKeys
+    src__synthesis__todo_patch__artifact --> src__synthesis__todo_patch__uniqueIds
+    src__synthesis__todo_patch__artifact --> src__synthesis__todo_patch__uniqueStrings
+    src__synthesis__todo_patch__sourceTodo --> src__synthesis__todo_patch__object
+    src__synthesis__todo_patch__sourceTodo --> src__synthesis__todo_patch__exactKeys
+    src__synthesis__todo_patch__sourceTodo --> src__synthesis__todo_patch__uniqueIds
+    src__synthesis__todo_patch__sourceTodo --> src__synthesis__todo_patch__uniqueStrings
+    src__synthesis__todo_patch__duplicates --> src__synthesis__todo_patch__object
+    src__synthesis__todo_patch__duplicates --> src__synthesis__todo_patch__exactKeys
+    src__synthesis__todo_patch__duplicates --> src__synthesis__todo_patch__uniqueIds
+    src__synthesis__todo_patch__duplicates --> src__synthesis__todo_patch__uniqueStrings
+    src__synthesis__todo_patch__classified --> src__synthesis__todo_patch__object
+    src__synthesis__todo_patch__classified --> src__synthesis__todo_patch__exactKeys
+    src__synthesis__todo_patch__classified --> src__synthesis__todo_patch__uniqueIds
+    src__synthesis__todo_patch__classified --> src__synthesis__todo_patch__uniqueStrings
+    src__synthesis__todo_patch__assertApproval --> src__synthesis__todo_patch__nonBlank
+    src__synthesis__todo_patch__assertReceipt --> src__synthesis__todo_patch__sameArray
+    src__synthesis__todo_patch__assertReceipt --> src__synthesis__todo_patch__nonBlank
+    src__synthesis__todo_patch__assertReceipt --> src__synthesis__todo_patch__isoDate
+    src__synthesis__todo_patch__renderTargets --> src__synthesis__todo_patch__inline
+    src__synthesis__todo_patch__rendered --> src__synthesis__todo_patch__inline
+    src__synthesis__validation__validateAndClassifyTodoProposals --> src__synthesis__validation__duplicateEvidence
+    src__synthesis__validation__validateAndClassifyTodoProposals --> src__synthesis__validation__dependencyFirstPriorityOrder
+    src__synthesis__validation__duplicateEvidence --> src__synthesis__validation__words
+    src__synthesis__validation__duplicateEvidence --> src__synthesis__validation__intersects
+    src__synthesis__validation__duplicateEvidence --> src__synthesis__validation__jaccard
+    src__synthesis__validation__proposalWords --> src__synthesis__validation__words
+    src__synthesis__validation__target --> src__synthesis__validation__jaccard
+    src__synthesis__validation__target --> src__synthesis__validation__words
+    src__synthesis__validation__sharedTicket --> src__synthesis__validation__jaccard
+    src__synthesis__validation__sharedTicket --> src__synthesis__validation__words
+    src__synthesis__validation__sharedSymbol --> src__synthesis__validation__jaccard
+    src__synthesis__validation__sharedSymbol --> src__synthesis__validation__words
+    src__synthesis__validation__sharedPath --> src__synthesis__validation__jaccard
+    src__synthesis__validation__sharedPath --> src__synthesis__validation__words
+    src__synthesis__validation__similarity --> src__synthesis__validation__jaccard
+    src__synthesis__validation__similarity --> src__synthesis__validation__words
+    src__llm__openrouter__OpenRouterClient__listAvailableModels --> src__llm__openrouter__OpenRouterClient__text
+    src__llm__openrouter__OpenRouterClient__controller --> src__llm__openrouter__OpenRouterClient__removeUndefined
+    src__llm__openrouter__OpenRouterClient__controller --> src__llm__openrouter__OpenRouterClient__text
+    src__llm__openrouter__OpenRouterClient__controller --> src__llm__openrouter__OpenRouterClient__sleep
+    src__llm__openrouter__OpenRouterClient__controller --> src__llm__openrouter__OpenRouterClient__isInvalidModelError
+    src__llm__openrouter__OpenRouterClient__controller --> src__llm__openrouter__OpenRouterClient__listAvailableModels
+    src__llm__openrouter__OpenRouterClient__timeout --> src__llm__openrouter__OpenRouterClient__removeUndefined
+    src__llm__openrouter__OpenRouterClient__timeout --> src__llm__openrouter__OpenRouterClient__text
+    src__llm__openrouter__OpenRouterClient__timeout --> src__llm__openrouter__OpenRouterClient__sleep
+    src__llm__openrouter__OpenRouterClient__timeout --> src__llm__openrouter__OpenRouterClient__isInvalidModelError
+    src__llm__openrouter__OpenRouterClient__timeout --> src__llm__openrouter__OpenRouterClient__listAvailableModels
+    src__llm__openrouter__OpenRouterClient__response --> src__llm__openrouter__OpenRouterClient__removeUndefined
+    src__llm__openrouter__OpenRouterClient__chatText --> src__llm__openrouter__OpenRouterClient__chatTextWithMetadata
+    src__llm__openrouter__OpenRouterClient__chatTextWithMetadata --> src__llm__openrouter__OpenRouterClient__request
+    src__llm__openrouter__OpenRouterClient__chatTextWithMetadata --> src__llm__openrouter__OpenRouterClient__extractContent
+    src__llm__openrouter__OpenRouterClient__chatTextWithMetadata --> src__llm__openrouter__OpenRouterClient__responseMetadata
+    src__llm__openrouter__OpenRouterClient__chatJsonWithMetadata --> src__llm__openrouter__OpenRouterClient__request
+    src__llm__openrouter__OpenRouterClient__chatJsonWithMetadata --> src__llm__openrouter__OpenRouterClient__extractContent
+    src__llm__openrouter__OpenRouterClient__chatJsonWithMetadata --> src__llm__openrouter__OpenRouterClient__responseMetadata
+    src__llm__openrouter__OpenRouterClient__chatJsonWithMetadata --> src__llm__openrouter__OpenRouterClient__shouldRetryWithoutJsonSchema
+    src__llm__openrouter__OpenRouterClient__fallback --> src__llm__openrouter__OpenRouterClient__request
+    src__llm__openrouter__OpenRouterClient__request --> src__llm__openrouter__OpenRouterClient__removeUndefined
+    src__llm__openrouter__OpenRouterClient__request --> src__llm__openrouter__OpenRouterClient__text
+    src__llm__openrouter__OpenRouterClient__apiKey --> src__llm__openrouter__OpenRouterClient__removeUndefined
+    src__llm__openrouter__OpenRouterClient__apiKey --> src__llm__openrouter__OpenRouterClient__text
+    src__llm__openrouter__OpenRouterClient__apiKey --> src__llm__openrouter__OpenRouterClient__sleep
+    src__llm__openrouter__OpenRouterClient__apiKey --> src__llm__openrouter__OpenRouterClient__isInvalidModelError
+    src__llm__openrouter__OpenRouterClient__apiKey --> src__llm__openrouter__OpenRouterClient__listAvailableModels
+    src__llm__openrouter__OpenRouterClient__model --> src__llm__openrouter__OpenRouterClient__listAvailableModels
+    src__llm__openrouter__OpenRouterClient__model --> src__llm__openrouter__OpenRouterClient__formatInvalidModelError
+    src__llm__openrouter__OpenRouterClient__responseMetadata --> src__llm__openrouter__OpenRouterClient__stringOrNull
+    src__llm__openrouter__OpenRouterClient__responseMetadata --> src__llm__openrouter__OpenRouterClient__finiteOrNull
+    src__llm__openrouter__OpenRouterClient__usage --> src__llm__openrouter__OpenRouterClient__stringOrNull
+    src__llm__openrouter__OpenRouterClient__usage --> src__llm__openrouter__OpenRouterClient__finiteOrNull
+    src__llm__openrouter__OpenRouterClient__isInvalidModelError --> src__llm__openrouter__OpenRouterClient__model
+    src__config__env__envLlmMode --> src__config__env__envString
+    src__config__env__getConfig --> src__config__env__envString
+    src__config__env__getConfig --> src__config__env__envNumber
+    src__config__env__getConfig --> src__config__env__envBoolean
+    src__config__env__getConfig --> src__config__env__envOptional
+    src__config__env__getConfig --> src__config__env__envList
+    src__config__env__getConfig --> src__config__env__envLlmMode
+    src__config__env__model --> src__config__env__envString
+    src__config__env__model --> src__config__env__envNumber
+    src__config__env__model --> src__config__env__envBoolean
+    src__config__env__model --> src__config__env__envOptional
+    src__config__env__model --> src__config__env__envList
+    src__config__env__model --> src__config__env__envLlmMode
+    src__config__env__root --> src__config__env__envString
+    src__config__env__root --> src__config__env__envNumber
+    src__config__env__root --> src__config__env__envBoolean
+    src__config__env__root --> src__config__env__envOptional
+    src__config__env__root --> src__config__env__envList
+    src__config__env__root --> src__config__env__envLlmMode
+    src__interfaces__a2a_card__sendAgentCard --> src__interfaces__a2a_card__agentCard
+    src__interfaces__a2a_card__agentCard --> src__interfaces__a2a_card__skills
+    src__interfaces__a2a_card__skills --> src__interfaces__a2a_card__skill
+    src__interfaces__a2a_message__parseSendConfiguration --> src__interfaces__a2a_message__validateOutputModes
+    src__interfaces__a2a_message__parseCommand --> src__interfaces__a2a_message__commandFromData
+    src__interfaces__a2a_message__objectData --> src__interfaces__a2a_message__commandFromData
+    src__interfaces__a2a_message__objectData --> src__interfaces__a2a_message__parseKeyValues
+    src__interfaces__a2a_message__text --> src__interfaces__a2a_message__commandFromData
+    src__interfaces__a2a_message__text --> src__interfaces__a2a_message__parseKeyValues
+    src__interfaces__a2a_message__first --> src__interfaces__a2a_message__parseKeyValues
+    src__interfaces__a2a_message__commandFromData --> src__interfaces__a2a_message__normalizeAction
+    src__interfaces__a2a_message__parseKeyValues --> src__interfaces__a2a_message__parseScalar
+    src__interfaces__a2a_message__parseMessage --> src__interfaces__a2a_message__parsePart
+    src__interfaces__a2a_message__contextId --> src__interfaces__a2a_message__parsePart
+    src__interfaces__a2a_message__taskId --> src__interfaces__a2a_message__parsePart
+    src__interfaces__a2a_message__referenceTaskIds --> src__interfaces__a2a_message__parsePart
+    src__interfaces__a2a_message__extensions --> src__interfaces__a2a_message__parsePart
+    src__interfaces__a2a_message__metadata --> src__interfaces__a2a_message__parsePart
+    src__interfaces__a2a_message__parsePart --> src__interfaces__a2a_message__parsePartContent
+    src__interfaces__a2a_message__normalizeUserMessage --> src__interfaces__a2a_message__cloneMessage
+    src__interfaces__mcp__startMcpServer --> src__interfaces__mcp__createMcpConnectionState
+    src__interfaces__mcp__startMcpServer --> src__interfaces__mcp__parseRequestLine
+    src__interfaces__mcp__startMcpServer --> src__interfaces__mcp__send
+    src__interfaces__mcp__startMcpServer --> src__interfaces__mcp__handleMcpRequest
+    src__interfaces__mcp__startMcpServer --> src__interfaces__mcp__sendError
+    src__interfaces__mcp__parsed --> src__interfaces__mcp__send
+    src__interfaces__mcp__request --> src__interfaces__mcp__handleMcpRequest
+    src__interfaces__mcp__request --> src__interfaces__mcp__send
+    src__interfaces__mcp__request --> src__interfaces__mcp__sendError
+    src__interfaces__mcp__result --> src__interfaces__mcp__send
+    src__interfaces__mcp__handleMcpRequest --> src__interfaces__mcp__initializeLegacy
+    src__interfaces__mcp__handleMcpRequest --> src__interfaces__mcp__hasModernMetadata
+    src__interfaces__mcp__handleMcpRequest --> src__interfaces__mcp__validateModernRequest
+    src__interfaces__mcp__handleMcpRequest --> src__interfaces__mcp__handleModernRequest
+    src__interfaces__mcp__handleMcpRequest --> src__interfaces__mcp__handleLegacyRequest
+    src__interfaces__mcp__initializeLegacy --> src__interfaces__mcp__isLegacyProtocol
+    src__interfaces__mcp__initializeLegacy --> src__interfaces__mcp__serverInfo
+    src__interfaces__mcp__initializeLegacy --> src__interfaces__mcp__serverInstructions
+    src__interfaces__mcp__protocolVersion --> src__interfaces__mcp__serverInfo
+    src__interfaces__mcp__protocolVersion --> src__interfaces__mcp__serverInstructions
+    src__interfaces__mcp__handleModernRequest --> src__interfaces__mcp__serverMeta
+    src__interfaces__mcp__handleModernRequest --> src__interfaces__mcp__serverInstructions
+    src__interfaces__mcp__handleModernRequest --> src__interfaces__mcp__completePublic
+    src__interfaces__mcp__responseMeta --> src__interfaces__mcp__serverInstructions
+    src__interfaces__mcp__responseMeta --> src__interfaces__mcp__completePublic
+    src__interfaces__mcp__validateModernRequest --> src__interfaces__mcp__validateModernMetadata
+    src__interfaces__mcp__serverMeta --> src__interfaces__mcp__serverInfo
+    src__interfaces__mcp__sendError --> src__interfaces__mcp__send
+    src__interfaces__mcp__sendError --> src__interfaces__mcp__rpcError
+    src__interfaces__mcp__invokedPath --> src__interfaces__mcp__startMcpServer
+    src__interfaces__a2a__startA2aServer --> src__interfaces__a2a__handleHttp
+    src__interfaces__a2a__startA2aServer --> src__interfaces__a2a__handleUnexpectedError

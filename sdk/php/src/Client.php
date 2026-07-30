@@ -19,6 +19,7 @@ final class Client
         'extract_nl',
         'extract_git',
         'extract_ast',
+        'extract_config',
         'extract_markdown',
         'extract_docs',
         'extract_communication',
@@ -163,6 +164,12 @@ final class Client
     public function extractAst(string $root = '.'): array
     {
         return $this->call('extract_ast', ['root' => $root]);
+    }
+
+    /** @return array<string,mixed> */
+    public function extractConfig(string $root = '.'): array
+    {
+        return $this->call('extract_config', ['root' => $root]);
     }
 
     /** @return array<string,mixed> */

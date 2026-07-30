@@ -20,11 +20,10 @@ flowchart TD
         src__cli__out["out"]
         src__cli__graphPath["graphPath"]
         src__cli__output["output"]
-        ...["+60 more"]
+        ...["+61 more"]
     end
 
     subgraph Core
-        project__install_project_package["install_project_package"]
         rust_ast__src__main__main["main"]
         rust_ast__src__main__new["new"]
         rust_ast__src__main__visit_item_mod["visit_item_mod"]
@@ -39,7 +38,8 @@ flowchart TD
         rust_ast__src__main__visit_item_impl["visit_item_impl"]
         rust_ast__src__main__visit_impl_item_fn["visit_impl_item_fn"]
         rust_ast__src__main__visit_expr_call["visit_expr_call"]
-        ...["+1452 more"]
+        rust_ast__src__main__visit_expr_method_call["visit_expr_method_call"]
+        ...["+1519 more"]
     end
 
-    class project__install_project_package,rust_ast__src__main__main,rust_ast__src__main__new,rust_ast__src__main__visit_item_mod,rust_ast__src__main__visit_item_use,rust_ast__src__main__visit_item_struct,rust_ast__src__main__visit_item_enum,rust_ast__src__main__visit_item_trait,rust_ast__src__main__visit_item_type,rust_ast__src__main__visit_item_const entry
+    class rust_ast__src__main__main,rust_ast__src__main__new,rust_ast__src__main__visit_item_mod,rust_ast__src__main__visit_item_use,rust_ast__src__main__visit_item_struct,rust_ast__src__main__visit_item_enum,rust_ast__src__main__visit_item_trait,rust_ast__src__main__visit_item_type,rust_ast__src__main__visit_item_const,rust_ast__src__main__visit_item_static entry

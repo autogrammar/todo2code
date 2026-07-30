@@ -10,6 +10,7 @@ const (
 	ActionExtractNL            = "extract_nl"
 	ActionExtractGit           = "extract_git"
 	ActionExtractAST           = "extract_ast"
+	ActionExtractConfig        = "extract_config"
 	ActionExtractMarkdown      = "extract_markdown"
 	ActionExtractDocs          = "extract_docs"
 	ActionExtractCommunication = "extract_communication"
