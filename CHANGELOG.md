@@ -36,6 +36,9 @@
 
 ### Fixed
 
+- Split the documentation-to-Intent LLM extractor into focused orchestration,
+  chunking, schema, record-repair and type modules. The public API and audited
+  output remain unchanged while the former 531-line god module is removed.
 - Stopped treating ticket prefixes such as `T2C` as code symbols and stopped
   action-like inline-code identifiers such as `validateContract` from
   overriding the explicit prose verb. Validation verb forms are recognized

@@ -145,7 +145,7 @@ test('The documented confidence hierarchy holds across LLM extractors', async ()
   const sources = await Promise.all([
     fs.readFile(path.resolve('src/extractors/markdown-llm.ts'), 'utf8'),
     fs.readFile(path.resolve('src/extractors/nl-llm.ts'), 'utf8'),
-    fs.readFile(path.resolve('src/extractors/docs-llm.ts'), 'utf8'),
+    fs.readFile(path.resolve('src/extractors/docs-record.ts'), 'utf8'),
   ]);
   const ceilings = sources.map((source) => {
     const match = source.match(/confidence:\s*Math\.min\((0\.\d+)/);
