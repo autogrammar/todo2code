@@ -14,6 +14,8 @@ import { linkIntentRecords } from '../src/graph/linker.js';
 import {
   assertCodeChangeReviewPatch,
   createCodeChangeReviewPatch,
+  createCodeChangeSourcePatch,
+  createCodeChangeSourcePatchSet,
   evaluateCodeChangeAcceptance,
   proposeCodeChangePlans,
   type ProposeCodeChangePlansResult,
@@ -266,6 +268,73 @@ test('Acceptance rejects ungrounded paths, missing provenance and inconsistent v
     before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
     after: { graph: afterGraph, diagnostics: afterDiagnostics },
   }), /accepted flag is inconsistent/);
+});
+
+test('createCodeChangeSourcePatch is deterministic and path-bound', () => {
+  const graph = plannedTodo();
+  const diagnostics = diagnoseGraph(graph, AT);
+  const plan = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT }).plans[0]!;
+  const first = createCodeChangeSourcePatch({ plan, createdAt: AT });
+  const second = createCodeChangeSourcePatch({ plan, createdAt: AT });
+  assert.deepEqual(first, second);
+  assert.match(first.id, /^SPATCH-[a-f0-9]{20}$/);
+  assert.equal(first.id, `SPATCH-${first.patchHash.slice(0, 20)}`);
+  assert.equal(first.planId, plan.id);
+  assert.equal(first.edits.length, 1);
+  assert.equal(first.edits[0]!.path, 'src/contracts.ts');
+  assert.equal(first.edits[0]!.unifiedDiff, null);
+  assert.match(first.edits[0]!.instruction, /validateContract/);
+
+  const withDiff = createCodeChangeSourcePatch({
+    plan,
+    createdAt: AT,
+    unifiedDiffs: {
+      'src/contracts.ts': [
+        '--- a/src/contracts.ts',
+        '+++ b/src/contracts.ts',
+        '@@ -1 +1,2 @@',
+        ' export {}',
+        '+export function validateContract() { return true; }',
+        '',
+      ].join('\n'),
+    },
+  });
+  assert.ok(withDiff.edits[0]!.unifiedDiff?.includes('validateContract'));
+
+  assert.throws(() => createCodeChangeSourcePatch({
+    plan,
+    unifiedDiffs: {
+      'src/other.ts': '--- a/src/other.ts\n+++ b/src/other.ts\n',
+    },
+  }), /not declared by plan/);
+
+  assert.throws(() => createCodeChangeSourcePatch({
+    plan,
+    unifiedDiffs: {
+      'src/contracts.ts': '--- a/../secret.env\n+++ b/../secret.env\n@@ -0,0 +1 @@\n+x\n',
+    },
+  }), /non-repository path|foreign path/);
+
+  assert.throws(() => createCodeChangeSourcePatch({
+    plan,
+    unifiedDiffs: {
+      'src/contracts.ts': '--- a/src/contracts.ts\n+++ b/src/contracts.ts\n@@ -0,0 +1 @@\n+api_key = "supersecretvalue"\n',
+    },
+  }), /secret assignment/);
+});
+
+test('createCodeChangeSourcePatchSet covers every plan', () => {
+  const graph = plannedTodo();
+  const diagnostics = diagnoseGraph(graph, AT);
+  const planSet = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT });
+  const patches = createCodeChangeSourcePatchSet({
+    plans: planSet.plans,
+    graphFingerprint: planSet.graphFingerprint,
+    generatedAt: AT,
+  });
+  assert.equal(patches.schemaVersion, 't2c.code-change-source-patch-set/v1');
+  assert.equal(patches.patches.length, planSet.plans.length);
+  assert.equal(patches.patches[0]!.planId, planSet.plans[0]!.id);
 });
 
 test('createCodeChangeReviewPatch is hash-stable and lists grounded paths', () => {

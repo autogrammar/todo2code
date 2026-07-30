@@ -10,10 +10,14 @@
   risk, rollback and runtime provenance; they never edit source files or mark
   work complete.
 - Main pipeline always materialises `code-change-plans.json`,
-  `CODE_CHANGE.review.md` and `CODE_CHANGE.review.json` after diagnostics
+  `CODE_CHANGE.review.md`, `CODE_CHANGE.review.json` and
+  `code-change-source-patches.json` after diagnostics
   (deterministic `codeChangePlanning` stage in the run manifest).
 - Added `t2c.code-change-review/v1` hash-bound review briefs plus CLI
   `render-code-change` (also MCP/A2A/SDK). Briefs never apply source edits.
+- Added `t2c.code-change-source-patch/v1` structured edit proposals with
+  path-bound instructions, optional validated unified diffs, secret heuristic
+  rejection and CLI `propose-source-patch` (MCP/A2A/SDK). Never applied.
 - Added `propose-code-change` and `evaluate-code-change` CLI workflows with
   root-confined JSON artifacts and an end-to-end persisted-file test.
 - Reject absolute host paths, HTTP routes and parent traversal in
@@ -102,6 +106,12 @@
 
 ### Fixed
 
+- Suppressed configuration-to-configuration relations based only on repeated
+  key vocabulary while preserving shared-ticket and cross-source evidence.
+  Re-runs on `code2llm`, `domd` and `pactfix` produced no config↔config noise.
+- Code-change review rendering now validates every persisted plan's structure,
+  content-bound ID/hash, graph fingerprint and generator provenance before it
+  creates the Markdown and audit hashes.
 - Bare source filenames now contribute path evidence only when they resolve to
   exactly one repository path. Unique references such as `markdown.ts` link to
   their module aggregate, while ambiguous names require an explicit directory.

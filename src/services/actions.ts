@@ -29,6 +29,8 @@ import { summarizeGraph } from '../summary/summarizer.js';
 import type { CodeChangePlan, Conclusion, TodoProposal } from '../core/types.js';
 import {
   createCodeChangeReviewPatch,
+  createCodeChangeSourcePatch,
+  createCodeChangeSourcePatchSet,
   evaluateCodeChangeAcceptance,
   proposeCodeChangePlans,
   type ProposeCodeChangePlansResult,
@@ -59,6 +61,7 @@ export type T2CAction =
   | 'apply_todo'
   | 'propose_code_change'
   | 'render_code_change'
+  | 'propose_source_patch'
   | 'evaluate_code_change';
 
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
@@ -257,6 +260,37 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         ...(patchPath ? { patchPath: path.relative(root, patchPath).replace(/\\/g, '/') } : {}),
         ...(auditPath ? { auditPath: path.relative(root, auditPath).replace(/\\/g, '/') } : {}),
       };
+    }
+    case 'propose_source_patch': {
+      // Single plan path or full plan-set path.
+      if (hasInputValue(input.plan) || hasInputValue(input.planPath)) {
+        const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);
+        const unifiedDiffs = objectMapOfStrings(input.unifiedDiffs);
+        const patch = createCodeChangeSourcePatch({
+          plan,
+          ...(unifiedDiffs ? { unifiedDiffs } : {}),
+        });
+        if (input.output !== undefined) {
+          const output = await scopedPath(input.output, '', root, config);
+          await writeJson(output, patch);
+        }
+        return patch;
+      }
+      const planSet = await readActionObject<ProposeCodeChangePlansResult>(
+        input.plans, input.plansPath, 'plans', root, config,
+      );
+      if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
+        throw new Error('propose_source_patch requires a plan or t2c.code-change-plan-set/v1');
+      }
+      const result = createCodeChangeSourcePatchSet({
+        plans: planSet.plans,
+        graphFingerprint: planSet.graphFingerprint,
+      });
+      if (input.output !== undefined) {
+        const output = await scopedPath(input.output, '', root, config);
+        await writeJson(output, result);
+      }
+      return result;
     }
     case 'evaluate_code_change': {
       const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);
@@ -548,6 +582,20 @@ function numberValue(value: unknown, fallback: number, min: number, max: number)
 
 function hasInputValue(value: unknown): boolean {
   return value !== undefined && value !== null && value !== '';
+}
+
+/** Optional map of relative path → string (used for unified diffs). */
+function objectMapOfStrings(value: unknown): Record<string, string> | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('unifiedDiffs must be an object of path to string');
+  }
+  const output: Record<string, string> = {};
+  for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof item !== 'string') throw new Error(`unifiedDiffs.${key} must be a string`);
+    output[key] = item;
+  }
+  return output;
 }
 
 function booleanValue(value: unknown, fallback: boolean): boolean {

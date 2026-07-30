@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type {
   CodeChangePlan,
+  CodeChangeSourcePatch,
   Conclusion,
   IntentRecord,
   IntentRelation,
@@ -116,6 +117,36 @@ export function createCodeChangePlanId(value: Pick<
   'title' | 'description' | 'priority' | 'target' | 'acceptanceCriteria' | 'changes' | 'risk' | 'rollback' | 'evidence'
 >): string {
   return `CPLAN-${createCodeChangePlanHash(value).slice(0, 20)}`;
+}
+
+export function createCodeChangeSourcePatchHash(value: Pick<
+  CodeChangeSourcePatch,
+  'planId' | 'planHash' | 'graphFingerprint' | 'diagnosticIds' | 'recordIds' | 'edits' | 'acceptanceCriteria'
+>): string {
+  return sha256(stableStringify({
+    planId: value.planId,
+    planHash: value.planHash,
+    graphFingerprint: value.graphFingerprint,
+    diagnosticIds: [...new Set(value.diagnosticIds)].sort(),
+    recordIds: [...new Set(value.recordIds)].sort(),
+    acceptanceCriteria: [...new Set(value.acceptanceCriteria.map((item) => item.trim()))].sort(),
+    edits: [...value.edits]
+      .map((edit) => ({
+        path: edit.path.trim().replace(/\\/g, '/'),
+        action: edit.action,
+        symbols: [...new Set(edit.symbols.map((item) => item.trim()).filter(Boolean))].sort(),
+        instruction: edit.instruction.trim(),
+        unifiedDiff: edit.unifiedDiff === null ? null : edit.unifiedDiff.replace(/\r\n/g, '\n'),
+      }))
+      .sort((left, right) => left.path.localeCompare(right.path) || left.action.localeCompare(right.action)),
+  }));
+}
+
+export function createCodeChangeSourcePatchId(value: Pick<
+  CodeChangeSourcePatch,
+  'planId' | 'planHash' | 'graphFingerprint' | 'diagnosticIds' | 'recordIds' | 'edits' | 'acceptanceCriteria'
+>): string {
+  return `SPATCH-${createCodeChangeSourcePatchHash(value).slice(0, 20)}`;
 }
 
 export function graphFingerprint(records: IntentRecord[], relations: IntentRelation[]): string {

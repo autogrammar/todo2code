@@ -230,6 +230,21 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     return;
   }
+  if (command === 'propose-source-patch') {
+    const inputPath = parsed.positionals[0];
+    const output = optionString(parsed, 'out');
+    if (!inputPath || !output) {
+      throw new Error('Usage: t2c propose-source-patch <plan.json|plans.json> --out source-patches.json');
+    }
+    const isPlanSet = inputPath.endsWith('plans.json') || optionString(parsed, 'kind') === 'set';
+    const result = await executeAction('propose_source_patch', {
+      root: optionString(parsed, 'root') ?? config.root,
+      ...(isPlanSet ? { plansPath: inputPath } : { planPath: inputPath }),
+      output,
+    }, config);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
   if (command === 'evaluate-code-change') {
     const planPath = parsed.positionals[0];
     const beforeGraphPath = optionString(parsed, 'before-graph');
@@ -735,6 +750,7 @@ function printHelp(): void {
   process.stdout.write(`  t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>\n`);
   process.stdout.write(`  t2c propose-code-change <graph.json> --diagnostics diagnostics.json [--proposals proposals.json] --out plans.json\n`);
   process.stdout.write(`  t2c render-code-change <plans.json> [--patch CODE_CHANGE.review.md] [--audit CODE_CHANGE.review.json]\n`);
+  process.stdout.write(`  t2c propose-source-patch <plan.json|plans.json> --out source-patches.json\n`);
   process.stdout.write(`  t2c evaluate-code-change <plan.json> --before-graph before.json --after-graph after.json --out acceptance.json\n`);
   process.stdout.write(`  t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html] [--context 3]\n`);
   process.stdout.write(`  t2c diff --mode git [root] [--rev HEAD] [--staged] [--svg diff.svg] [--html diff.html]\n`);

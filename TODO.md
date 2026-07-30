@@ -95,6 +95,18 @@
   large repository can ship a diagnostic citing a record the model cannot see.
   Not reproduced on `examples/` (49 of 49 records included), but the ordering
   invites exactly the fabrication the retry now absorbs.
+- [x] Run a clean-room deterministic pipeline against the external
+  `subactor/platform` repository (144 Markdown files, 43 configs, `.mjs`
+  sources) and fix what it exposed: an absolute host path aborted code-change
+  planning, HTTP routes and hostnames were extracted as repository paths and
+  code symbols, and configuration declarations formed a quadratic subgraph.
+- [ ] Give configuration declarations a file-level aggregate, mirroring
+  `module_fact` for AST. Suppression now keeps them from pairing with each
+  other, but a config file still has no single record standing for it, so
+  documentation links to individual keys rather than to the file.
+- [ ] `detectPolarity` treats the preposition "without" as sentence negation, so
+  "Document X without inventing files" is recorded as negative intent. Scoping
+  negation to the governing verb needs more than a keyword list.
 - [ ] Add A2A streaming/push notifications and a shared transactional
   task-store backend beyond the current atomic filesystem snapshot.
 - [x] Validate public extraction options before they reach `path.resolve`.
@@ -118,10 +130,11 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [x] Diagnostyka: dokumentacja jest planem tylko przy modality
   `required`/`recommended`; opisowe prose nie podnosi
   `PLANNED_NOT_IMPLEMENTED`.
-- [ ] Gold v2: docs prescriptive vs descriptive, partial implement /
-  false DONE; więcej hard negatives capability-topic.
-- [x] Gold v1+: bare basename unique/ambiguous, multi-clause NL z ticketem,
-  NL bez fałszywych path z HTTP/host, ticket exact-target linking.
+- [x] Gold v2 (część): capability hard-negative (2 tematy), partial symbol
+  still evidenced; bare basename, multi-clause NL, route/host non-paths,
+  ticket exact-target.
+- [ ] Gold v2 (reszta): docs prescriptive vs descriptive w ekstrakcji,
+  false DONE lifecycle cases.
 - [x] Wzmocnić NL→target: odrzucanie absolutnych/HTTP/traversal path i
   hostnames; ticket binding w gold exact-target.
 - [ ] Dalsze NL→target: resolution symboli względem AST, actionable
@@ -156,8 +169,11 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   `render-code-change`, MCP/A2A/SDK i zapis w pipeline.
 - [x] NL/target hardening: odrzucanie HTTP routes, host paths, `..` oraz
   hostnames jako fałszywych symboli (gold + unit).
-- [ ] Structured source patch/diff z LLM: tylko dozwolone paths, cytowania,
-  brak tajemnic; apply tylko po hash approval (jak TODO.patch).
+- [x] Structured source patch `t2c.code-change-source-patch/v1`: instrukcje
+  per path, opcjonalny unified diff z walidacją path/sekretów, content-bound
+  hash; CLI `propose-source-patch`, MCP/A2A/SDK, zapis w pipeline; **bez apply**.
+- [ ] LLM wypełniający `unifiedDiff` w source patch (require/prefer) +
+  apply po hash approval (jak TODO.patch) — opcjonalna gałąź.
 - [ ] Pełna orkiestracja pętli implement → re-extract → re-diagnose →
   acceptance w jednym poleceniu (dziś kroki są osobne, ale udokumentowane).
 

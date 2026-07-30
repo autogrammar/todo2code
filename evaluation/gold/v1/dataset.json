@@ -604,6 +604,88 @@
           "relationClass": "exact-target"
         }
       ]
+    },
+    {
+      "id": "link-capability-two-topics-hard-negative",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Extraction validation remains important",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/extractors/validation-helper.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/extractors/validation-helper.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "module"
+        }
+      ]
+    },
+    {
+      "id": "link-partial-symbol-still-evidenced",
+      "records": [
+        {
+          "label": "plan",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Add exportMetrics and renderMetrics for T2C-230",
+          "lifecycle": "planned",
+          "target": {
+            "paths": [
+              "src/metrics/export.ts"
+            ],
+            "symbols": [
+              "exportMetrics",
+              "renderMetrics"
+            ],
+            "tickets": [
+              "T2C-230"
+            ]
+          }
+        },
+        {
+          "label": "partial",
+          "sourceKind": "ast",
+          "action": "declare",
+          "text": "declare exportMetrics",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/metrics/export.ts"
+            ],
+            "symbols": [
+              "exportMetrics"
+            ],
+            "tickets": [
+              "T2C-230"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "plan",
+          "to": "partial",
+          "type": "evidenced_by",
+          "relationClass": "exact-target"
+        }
+      ]
     }
   ],
   "dsl2todo": [

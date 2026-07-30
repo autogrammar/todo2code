@@ -383,6 +383,48 @@ export interface CodeChangeReviewPatch {
   generation: GroundedGenerationMetadata;
 }
 
+/**
+ * Structured, non-executable source-edit proposal bound to one code-change plan.
+ * Instructions (and optional unified diffs) may only name paths declared by the
+ * plan. The runtime never applies this artifact to the working tree.
+ */
+export interface CodeChangeSourceEdit {
+  path: string;
+  action: CodeChangeFileAction;
+  symbols: string[];
+  instruction: string;
+  /**
+   * Optional unified diff body for the single file. Null for instruction-only
+   * deterministic proposals. When set, the runtime checks path headers and
+   * rejects parent traversal / absolute host paths.
+   */
+  unifiedDiff: string | null;
+}
+
+export interface CodeChangeSourcePatch {
+  schemaVersion: 't2c.code-change-source-patch/v1';
+  id: string;
+  patchHash: string;
+  status: 'proposed';
+  createdAt: string;
+  planId: string;
+  planHash: string;
+  graphFingerprint: string;
+  diagnosticIds: string[];
+  recordIds: string[];
+  edits: CodeChangeSourceEdit[];
+  acceptanceCriteria: string[];
+  generation: GroundedGenerationMetadata;
+}
+
+export interface CodeChangeSourcePatchSet {
+  schemaVersion: 't2c.code-change-source-patch-set/v1';
+  generatedAt: string;
+  graphFingerprint: string;
+  patches: CodeChangeSourcePatch[];
+  generation: GroundedGenerationMetadata;
+}
+
 export interface TodoPatchDuplicateClassification {
   proposalId: string;
   existingRecordIds: string[];

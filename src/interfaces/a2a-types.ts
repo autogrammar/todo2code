@@ -70,7 +70,7 @@ export const A2A_ACTIONS: T2CAction[] = [
   'extract_communication', 'analyze_communication', 'link', 'diagnose', 'summarize',
   'diff', 'diff_files', 'diff_git', 'reality', 'compare_workspace', 'pipeline',
   'propose_todo', 'render_todo', 'apply_todo',
-  'propose_code_change', 'render_code_change', 'evaluate_code_change',
+  'propose_code_change', 'render_code_change', 'propose_source_patch', 'evaluate_code_change',
 ];
 
 export const TERMINAL_TASK_STATES = new Set<A2ATaskState>([

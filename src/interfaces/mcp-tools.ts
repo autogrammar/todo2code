@@ -170,6 +170,15 @@ export const MCP_TOOLS: McpTool[] = [
     patch: stringProp('Markdown review output path, default CODE_CHANGE.review.md.'),
     audit: stringProp('Review audit JSON path, default CODE_CHANGE.review.json.'),
   }),
+  tool('propose_source_patch', 'Build structured t2c.code-change-source-patch/v1 edit proposals from a plan or plan set without applying them.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    plan: { type: 'object', description: 'Inline t2c.code-change-plan/v1 object.' },
+    planPath: stringProp('Single plan JSON path under root.'),
+    plans: { type: 'object', description: 'Inline t2c.code-change-plan-set/v1 object.' },
+    plansPath: stringProp('Plan-set JSON path under root.'),
+    unifiedDiffs: { type: 'object', description: 'Optional path→unifiedDiff map for a single plan.' },
+    output: stringProp('Optional JSON output path under root.'),
+  }),
   tool('evaluate_code_change', 'Re-diagnose an after graph and decide whether a code-change plan cleared its targeted diagnostics.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     plan: { type: 'object', description: 'Inline t2c.code-change-plan/v1 object.' },
@@ -240,7 +249,7 @@ function tool(
 ): McpTool {
   const writes = new Set<T2CAction>([
     'pipeline', 'propose_todo', 'render_todo', 'apply_todo',
-    'propose_code_change', 'render_code_change', 'evaluate_code_change',
+    'propose_code_change', 'render_code_change', 'propose_source_patch', 'evaluate_code_change',
   ]);
   return {
     name,

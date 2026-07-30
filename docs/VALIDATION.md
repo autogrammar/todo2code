@@ -14,8 +14,8 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Granice modułów | PASS — 91 modułów, 420 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 201 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 225 rekordów i 107 relacji, w tym 5 `agent_log`, 4 `document` i 4 `system`; NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
+| Testy Node | PASS — 207 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 225 rekordów i 103 relacje, w tym 5 `agent_log`, 4 `document` i 4 `system`; NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
@@ -30,8 +30,8 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Konfiguracja/infrastruktura → DSL | PASS — JSON, TOML, Dockerfile i workflow CI oraz publiczne interfejsy |
 | Graf → NL przez mock OpenRouter | PASS — uziemione cytowania i budżet AST |
 | Scheduled live OpenRouter | PASS/SKIP — osobny opt-in job sprawdza NL i summary w `require-llm`, budżety i redacted audit; bez klucza jawnie pomijany |
-| MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 23 narzędzi, w tym extract config, propose/render/apply TODO oraz propose/render/evaluate code-change |
-| MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 23 narzędzi, w tym extract config, propose/render/apply TODO oraz propose/render/evaluate code-change |
+| MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 24 narzędzi, w tym TODO propose/render/apply oraz code-change propose/render/source-patch/evaluate |
+| MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 24 narzędzi, w tym TODO propose/render/apply oraz code-change propose/render/source-patch/evaluate |
 | A2A v1 `SendMessage` | PASS — deterministyczny task completed, 1 artifact |
 | A2A versioning, pagination, ownership, Bearer i persistent store | PASS |
 | Watch + ignore rules | PASS — rate limit, agregacja, brak pętli, błędy reportera |
@@ -54,7 +54,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 202 testy, 201 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 208 testów, 207 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

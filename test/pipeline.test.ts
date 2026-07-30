@@ -65,9 +65,11 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.files.codeChangePlans?.endsWith('/code-change-plans.json'), true);
   assert.equal(result.manifest.files.codeChangeReview?.endsWith('/CODE_CHANGE.review.md'), true);
   assert.equal(result.manifest.files.codeChangeReviewAudit?.endsWith('/CODE_CHANGE.review.json'), true);
+  assert.equal(result.manifest.files.codeChangeSourcePatches?.endsWith('/code-change-source-patches.json'), true);
   assert.ok(result.codeChangePlansPath);
   assert.ok(result.codeChangeReviewPath);
   assert.ok(result.codeChangeReviewAuditPath);
+  assert.ok(result.codeChangeSourcePatchesPath);
   assert.equal(result.manifest.configuration.llm.configured, false);
   assert.equal(result.manifest.configuration.markdownMode, 'prefer-llm');
   assert.equal(result.manifest.configuration.taskSynthesisMode, 'disabled');

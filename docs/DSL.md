@@ -305,10 +305,15 @@ braku nowych `blocking`. Artefakt sam ma deterministyczną `generation` i nie
 nadaje statusu `DONE`.
 
 `t2c.code-change-review/v1` to hash-bound brief Markdown (`CODE_CHANGE.review.md`)
-plus audit JSON — projekcja planów do review, nie apply źródeł. Pipeline zapisuje
-plan set i review w każdym udanym runie. Schematy leżą w
-`schemas/code-change-{plan,plan-set,acceptance,review}.schema.json`; przebieg i
-diagram opisuje [`CODE_CHANGE_PLANS.md`](CODE_CHANGE_PLANS.md).
+plus audit JSON — projekcja planów do review, nie apply źródeł.
+
+`t2c.code-change-source-patch/v1` to strukturalna propozycja edycji plików
+(instrukcja + opcjonalny unified diff) powiązana z planem. Diffy są walidowane
+pod kątem path headers i oczywistych sekretów; runtime **nie apply'uje** ich.
+
+Pipeline zapisuje plan set, review i source-patches w każdym udanym runie.
+Schematy: `schemas/code-change-{plan,plan-set,acceptance,review,source-patch,source-patch-set}.schema.json`.
+Przebieg: [`CODE_CHANGE_PLANS.md`](CODE_CHANGE_PLANS.md).
 
 `target.paths` w Intent DSL jest zarezerwowane dla ścieżek repozytorium.
 Runtime odrzuca trasy HTTP (`/api/...`), ścieżki hosta (`/var/run/...`) i

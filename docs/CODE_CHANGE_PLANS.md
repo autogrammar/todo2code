@@ -102,8 +102,32 @@ i `evaluate_code_change`. Wszystkie ścieżki plikowe przechodzą przez granicę
 `review_code_changes`. Żaden z tych interfejsów nie wykonuje zapisu do plików
 źródłowych.
 
-## 5. Co nie jest w zakresie
+## 5. Structured source patch (`t2c.code-change-source-patch/v1`)
 
-- generacja treści plików źródłowych przez LLM (structured codegen);
+Z planu powstaje **propozycja edycji źródeł** (instrukcje per plik + opcjonalny
+unified diff), nadal bez apply:
+
+```bash
+t2c propose-source-patch plan.json --out source-patch.json
+# albo zbiór planów:
+t2c propose-source-patch code-change-plans.json --out source-patches.json
+```
+
+Pipeline zapisuje automatycznie `code-change-source-patches.json`. Każdy patch:
+
+- jest powiązany z dokładnie jednym `planId` / `planHash`;
+- zawiera wyłącznie ścieżki z `target.paths`;
+- ma content-bound `id` / `patchHash`;
+- może dostać `unifiedDiff` (walidacja nagłówków `---/+++`, zakaz `..` i
+  absolutnych pathów, heurystyka na oczywiste sekrety);
+- ma zawsze `status: proposed`.
+
+LLM może w przyszłości wypełniać `unifiedDiff`, ale runtime nadal wymusza
+granice planów. Apply do worktree **nie istnieje** w tej paczce.
+
+## 6. Co nie jest w zakresie
+
 - auto-apply patchy do repozytorium;
-- automatyczne `DONE` po `accepted=true`.
+- automatyczne `DONE` po `accepted=true`;
+- pełny codegen LLM end-to-end (kontrakt structured patch jest gotowy na
+  dołączenie modelu, ale domyślnie jest deterministyczny).

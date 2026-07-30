@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/code-change-source-patch-set.schema.json",
+  "title": "todo2code Structured Source Change Patch Set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "graphFingerprint", "patches", "generation"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.code-change-source-patch-set/v1" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "graphFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "patches": {
+      "type": "array",
+      "items": { "$ref": "code-change-source-patch.schema.json" }
+    },
+    "generation": { "$ref": "conclusion.schema.json#/$defs/generation" }
+  }
+}

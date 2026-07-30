@@ -1,4 +1,11 @@
-import { createCodeChangePlanHash, createCodeChangePlanId, sha256, stableStringify } from '../core/id.js';
+import {
+  createCodeChangePlanHash,
+  createCodeChangePlanId,
+  createCodeChangeSourcePatchHash,
+  createCodeChangeSourcePatchId,
+  sha256,
+  stableStringify,
+} from '../core/id.js';
 import {
   assertCodeChangeAcceptance,
   assertCodeChangePlanForAcceptance,
@@ -13,6 +20,9 @@ import type {
   CodeChangeFile,
   CodeChangePlan,
   CodeChangeReviewPatch,
+  CodeChangeSourceEdit,
+  CodeChangeSourcePatch,
+  CodeChangeSourcePatchSet,
   Conclusion,
   Diagnostic,
   DiagnosticReport,
@@ -562,4 +572,222 @@ function inline(value: string): string {
 
 function renderIds(ids: string[]): string {
   return ids.length ? ids.map((id) => `\`${id}\``).join(', ') : '_none_';
+}
+
+export interface CreateCodeChangeSourcePatchOptions {
+  plan: CodeChangePlan;
+  /** Optional per-path unified diffs keyed by relative repository path. */
+  unifiedDiffs?: Record<string, string>;
+  createdAt?: string;
+}
+
+/**
+ * Build a structured source-edit proposal from one grounded code-change plan.
+ *
+ * Deterministic by default: each planned file gets an imperative instruction.
+ * Callers may attach a unified diff per path; the runtime validates path headers
+ * and rejects traversal / host paths. Nothing is written to the working tree.
+ */
+export function createCodeChangeSourcePatch(
+  options: CreateCodeChangeSourcePatchOptions,
+): CodeChangeSourcePatch {
+  const plan = options.plan;
+  if (plan.schemaVersion !== 't2c.code-change-plan/v1') {
+    throw new Error('createCodeChangeSourcePatch requires t2c.code-change-plan/v1');
+  }
+  if (plan.status !== 'proposed') throw new Error(`Plan ${plan.id} status must remain proposed`);
+  const createdAt = options.createdAt ?? new Date().toISOString();
+  if (Number.isNaN(Date.parse(createdAt))) throw new Error('createdAt must be an ISO date-time');
+  const allowed = new Set(plan.target.paths.map((path) => path.replace(/\\/g, '/')));
+  const diffs = options.unifiedDiffs ?? {};
+  for (const path of Object.keys(diffs)) {
+    const normalized = path.replace(/\\/g, '/');
+    if (!allowed.has(normalized)) {
+      throw new Error(`Unified diff path ${normalized} is not declared by plan ${plan.id}`);
+    }
+  }
+  const edits: CodeChangeSourceEdit[] = [...plan.changes]
+    .map((change) => {
+      const path = change.path.replace(/\\/g, '/');
+      if (!allowed.has(path)) {
+        throw new Error(`Edit path ${path} is not present in plan target.paths`);
+      }
+      const rawDiff = diffs[path];
+      const unifiedDiff = rawDiff === undefined ? null : normalizeUnifiedDiff(rawDiff, path);
+      return {
+        path,
+        action: change.action,
+        symbols: uniqueSorted(change.symbols),
+        instruction: instructionFor(change, plan),
+        unifiedDiff,
+      };
+    })
+    .sort((left, right) => left.path.localeCompare(right.path) || left.action.localeCompare(right.action));
+  if (!edits.length) throw new Error(`Plan ${plan.id} has no editable paths`);
+
+  const semantic = {
+    planId: plan.id,
+    planHash: plan.planHash,
+    graphFingerprint: plan.evidence.graphFingerprint,
+    diagnosticIds: uniqueSorted(plan.evidence.diagnosticIds),
+    recordIds: uniqueSorted(plan.evidence.recordIds),
+    edits,
+    acceptanceCriteria: uniqueSorted(plan.acceptanceCriteria),
+  };
+  const patchHash = createCodeChangeSourcePatchHash(semantic);
+  const patch: CodeChangeSourcePatch = {
+    schemaVersion: 't2c.code-change-source-patch/v1',
+    id: createCodeChangeSourcePatchId(semantic),
+    patchHash,
+    status: 'proposed',
+    createdAt,
+    ...semantic,
+    generation: deterministicGeneration(createdAt, 't2c/code-change-source-patch'),
+  };
+  assertCodeChangeSourcePatch(patch, plan);
+  return patch;
+}
+
+export function createCodeChangeSourcePatchSet(options: {
+  plans: CodeChangePlan[];
+  graphFingerprint: string;
+  unifiedDiffsByPlanId?: Record<string, Record<string, string>>;
+  generatedAt?: string;
+}): CodeChangeSourcePatchSet {
+  if (typeof options.graphFingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(options.graphFingerprint)) {
+    throw new Error('graphFingerprint must be a SHA-256 hex digest');
+  }
+  assertCodeChangePlansForReview(options.plans, options.graphFingerprint);
+  const generatedAt = options.generatedAt ?? new Date().toISOString();
+  const patches = [...options.plans]
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .map((plan) => createCodeChangeSourcePatch({
+      plan,
+      createdAt: generatedAt,
+      ...(options.unifiedDiffsByPlanId?.[plan.id]
+        ? { unifiedDiffs: options.unifiedDiffsByPlanId[plan.id] }
+        : {}),
+    }));
+  return {
+    schemaVersion: 't2c.code-change-source-patch-set/v1',
+    generatedAt,
+    graphFingerprint: options.graphFingerprint,
+    patches,
+    generation: deterministicGeneration(generatedAt, 't2c/code-change-source-patch-set'),
+  };
+}
+
+export function assertCodeChangeSourcePatch(
+  value: unknown,
+  plan?: CodeChangePlan,
+): asserts value is CodeChangeSourcePatch {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Code change source patch must be an object');
+  }
+  const patch = value as CodeChangeSourcePatch;
+  if (patch.schemaVersion !== 't2c.code-change-source-patch/v1') {
+    throw new Error('Unsupported code change source patch schemaVersion');
+  }
+  if (typeof patch.id !== 'string' || !/^SPATCH-[a-f0-9]{20}$/.test(patch.id)) {
+    throw new Error('Source patch id must match SPATCH-<20 hex>');
+  }
+  if (typeof patch.patchHash !== 'string' || !/^[a-f0-9]{64}$/.test(patch.patchHash)) {
+    throw new Error('Source patch patchHash must be SHA-256');
+  }
+  if (patch.status !== 'proposed') throw new Error('Source patch status must be proposed');
+  if (typeof patch.planId !== 'string' || !/^CPLAN-[a-f0-9]{20}$/.test(patch.planId)) {
+    throw new Error('Source patch planId must match CPLAN-<20 hex>');
+  }
+  if (typeof patch.planHash !== 'string' || !/^[a-f0-9]{64}$/.test(patch.planHash)) {
+    throw new Error('Source patch planHash must be SHA-256');
+  }
+  if (typeof patch.graphFingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(patch.graphFingerprint)) {
+    throw new Error('Source patch graphFingerprint must be SHA-256');
+  }
+  if (!Array.isArray(patch.edits) || patch.edits.length === 0) {
+    throw new Error('Source patch edits must be a non-empty array');
+  }
+  const paths = new Set<string>();
+  for (const edit of patch.edits) {
+    if (!edit || typeof edit !== 'object') throw new Error('Source patch edit must be an object');
+    const path = edit.path?.trim().replace(/\\/g, '/') ?? '';
+    if (!path || path.startsWith('/') || path.split('/').includes('..')) {
+      throw new Error(`Source patch edit path is not a relative repository path: ${path}`);
+    }
+    if (!['create', 'modify', 'delete'].includes(edit.action)) {
+      throw new Error(`Source patch edit action is unsupported: ${String(edit.action)}`);
+    }
+    if (typeof edit.instruction !== 'string' || !edit.instruction.trim()) {
+      throw new Error('Source patch edit instruction must be non-blank');
+    }
+    if (edit.unifiedDiff !== null) {
+      if (typeof edit.unifiedDiff !== 'string') throw new Error('Source patch unifiedDiff must be string or null');
+      normalizeUnifiedDiff(edit.unifiedDiff, path);
+    }
+    const key = `${path}::${edit.action}`;
+    if (paths.has(key)) throw new Error(`Duplicate source patch edit for ${path}`);
+    paths.add(key);
+  }
+  const expectedHash = createCodeChangeSourcePatchHash(patch);
+  if (patch.patchHash !== expectedHash) {
+    throw new Error(`Source patch patchHash does not match semantic content: expected ${expectedHash}`);
+  }
+  if (patch.id !== createCodeChangeSourcePatchId(patch)) {
+    throw new Error('Source patch id does not match semantic content');
+  }
+  if (plan) {
+    if (patch.planId !== plan.id || patch.planHash !== plan.planHash) {
+      throw new Error('Source patch is not bound to the supplied plan');
+    }
+    if (patch.graphFingerprint !== plan.evidence.graphFingerprint) {
+      throw new Error('Source patch graphFingerprint does not match the plan');
+    }
+    const allowed = new Set(plan.target.paths.map((item) => item.replace(/\\/g, '/')));
+    for (const edit of patch.edits) {
+      if (!allowed.has(edit.path.replace(/\\/g, '/'))) {
+        throw new Error(`Source patch path ${edit.path} is outside plan target.paths`);
+      }
+    }
+  }
+}
+
+function instructionFor(change: CodeChangeFile, plan: CodeChangePlan): string {
+  const symbols = change.symbols.length
+    ? ` Focus on symbols: ${change.symbols.join(', ')}.`
+    : '';
+  const criteria = plan.acceptanceCriteria.length
+    ? ` Acceptance: ${plan.acceptanceCriteria.join(' ')}`
+    : '';
+  return `${change.action} \`${change.path}\`. ${change.rationale.trim()}.${symbols}${criteria}`.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Validate a single-file unified diff body.
+ * Accepts optional `--- a/path` / `+++ b/path` headers and rejects foreign paths.
+ */
+function normalizeUnifiedDiff(diff: string, expectedPath: string): string {
+  const normalized = diff.replace(/\r\n/g, '\n');
+  if (!normalized.trim()) throw new Error(`Unified diff for ${expectedPath} is empty`);
+  if (normalized.includes('\0')) throw new Error(`Unified diff for ${expectedPath} contains NUL bytes`);
+  // Lightweight secret heuristic — refuse obvious credential dumps in proposed diffs.
+  if (/(?:api[_-]?key|secret|password|private[_-]?key)\s*[:=]\s*['"]?[^'"\s]{8,}/i.test(normalized)) {
+    throw new Error(`Unified diff for ${expectedPath} appears to contain a secret assignment`);
+  }
+  const headers = [...normalized.matchAll(/^(?:---|\+\+\+)\s+(?:[ab]\/)?(.+)$/gm)].map((match) => match[1]!.trim());
+  for (const header of headers) {
+    if (header === '/dev/null') continue;
+    const path = header.replace(/\\/g, '/');
+    if (path.startsWith('/') || path.split('/').includes('..')) {
+      throw new Error(`Unified diff for ${expectedPath} uses a non-repository path header: ${path}`);
+    }
+    if (path !== expectedPath && path !== `a/${expectedPath}` && path !== `b/${expectedPath}`) {
+      // Headers may include timestamps after a tab; strip them.
+      const bare = path.split('\t')[0] ?? path;
+      const stripped = bare.replace(/^[ab]\//, '');
+      if (stripped !== expectedPath) {
+        throw new Error(`Unified diff for ${expectedPath} references foreign path: ${path}`);
+      }
+    }
+  }
+  return normalized;
 }
