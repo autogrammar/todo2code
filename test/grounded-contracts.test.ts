@@ -226,13 +226,16 @@ test('TODO proposal collections enforce dependency integrity', () => {
   );
 });
 
-test('Published JSON schemas identify both grounded contract versions', async () => {
-  const [conclusionSchema, proposalSchema] = await Promise.all([
+test('Published JSON schemas identify all grounded output contract versions', async () => {
+  const [conclusionSchema, proposalSchema, patchSchema] = await Promise.all([
     readFile(resolve('schemas/conclusion.schema.json'), 'utf8'),
     readFile(resolve('schemas/todo-proposal.schema.json'), 'utf8'),
+    readFile(resolve('schemas/todo-patch.schema.json'), 'utf8'),
   ]);
   const conclusion = JSON.parse(conclusionSchema) as { properties: { schemaVersion: { const: string } } };
   const proposal = JSON.parse(proposalSchema) as { properties: { schemaVersion: { const: string } } };
+  const patch = JSON.parse(patchSchema) as { properties: { schemaVersion: { const: string } } };
   assert.equal(conclusion.properties.schemaVersion.const, 't2c.conclusion/v1');
   assert.equal(proposal.properties.schemaVersion.const, 't2c.todo-proposal/v1');
+  assert.equal(patch.properties.schemaVersion.const, 't2c.todo-patch/v1');
 });

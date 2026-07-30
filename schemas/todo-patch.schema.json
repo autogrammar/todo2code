@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/todo-patch.schema.json",
+  "title": "todo2code Reviewed TODO Patch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "createdAt", "sourceTodo", "graphFingerprint", "diagnosticsFingerprint", "selectedProposalIds", "duplicateProposalIds", "duplicates", "synthesisAudit", "renderedPatchHash"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.todo-patch/v1" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "sourceTodo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "contentHash"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "contentHash": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "graphFingerprint": { "$ref": "#/$defs/hash" },
+    "diagnosticsFingerprint": { "$ref": "#/$defs/hash" },
+    "selectedProposalIds": { "$ref": "#/$defs/proposalIds" },
+    "duplicateProposalIds": { "$ref": "#/$defs/proposalIds" },
+    "duplicates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["proposalId", "existingRecordIds", "basis"],
+        "properties": {
+          "proposalId": { "$ref": "#/$defs/proposalId" },
+          "existingRecordIds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^INT-[A-Z]+-[a-f0-9]{20}$" }
+          },
+          "basis": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "synthesisAudit": { "type": "object" },
+    "renderedPatchHash": { "$ref": "#/$defs/hash" }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "proposalId": { "type": "string", "pattern": "^TPROP-[a-f0-9]{20}$" },
+    "proposalIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/proposalId" }
+    }
+  }
+}

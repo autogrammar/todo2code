@@ -215,6 +215,33 @@ zadania: przy braku konfiguracji, timeoutcie lub błędnej odpowiedzi zwraca pus
 przyczyny. Model etapu wybiera `OPENROUTER_TASK_MODEL`, z fallbackiem
 konfiguracyjnym do `OPENROUTER_MODEL`.
 
+## Patch TODO (`t2c.todo-patch/v1`)
+
+Renderer przyjmuje wyłącznie `validation.newProposalIds` w ustalonej wcześniej
+kolejności topologicznej. Duplikaty nie trafiają do Markdownu, ale pozostają w
+audytowym JSON jako `duplicateProposalIds` i `duplicates` wraz z ID istniejących
+rekordów oraz podstawą klasyfikacji. Kontrakt `schemas/todo-patch.schema.json`
+zawiera ponadto:
+
+- hash dokładnej treści źródłowego `TODO.md`;
+- fingerprint grafu i deterministyczny fingerprint diagnostyki;
+- wybrane ID propozycji i pełny audit etapu syntezy (runtime/model/response);
+- SHA-256 dokładnej treści reviewowalnego `TODO.patch`.
+
+Markdown pokazuje opis, kryteria akceptacji, targety, zależności oraz ID
+wniosków, diagnostyk i rekordów. Samo tworzenie i zapis artefaktów nigdy nie
+zmienia `TODO.md`.
+
+Zastosowanie wymaga jawnego `{ actor, patchHash }`. Runtime ponownie hashuje
+patch, sprawdza niezmieniony hash źródłowego TODO i pod blokadą zapisuje wynik
+przez plik tymczasowy + `fsync` + atomowy rename. Receipt
+`t2c.todo-apply-receipt/v1` zachowuje aktora i czas akceptacji/zastosowania,
+hash źródła, patcha i wyniku oraz wybrane ID. Ponowne wywołanie z tym samym
+receiptem jest no-op; brak receipt po udanym rename można odzyskać tylko wtedy,
+gdy bieżący plik kończy się dokładnym patchem, a hash odtworzonego prefiksu jest
+hashem źródła. Stary source, zmieniony patch, niewłaściwa zgoda lub późniejsza
+zmiana TODO są odrzucane i wymagają nowego renderowania/review.
+
 ## Audyt runu (`t2c.run/v1`)
 
 Manifest jest częścią dowodu wykonania, nie tylko indeksem plików. Zawiera:

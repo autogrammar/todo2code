@@ -15,9 +15,10 @@ diagnostyka/Intent vs Reality → raport. Kontrakty `t2c.conclusion/v1` i
 `t2c.todo-proposal/v1` wraz z walidacją cytowań i provenance są wdrożone, a API
 biblioteki potrafi je syntetyzować z grafu i diagnostyki przez OpenRouter.
 Integracja `DSL2TODO` nie jest jeszcze kompletna: obecna lista następnych
-działań w raporcie pozostaje projekcją diagnostyki, a CLI/SDK i zatwierdzalny
-`TODO.patch` są kolejnymi punktami P0. API syntezy waliduje już zależności,
-priorytety, kryteria i klasyfikuje duplikaty względem istniejącego TODO.
+działań w raporcie pozostaje projekcją diagnostyki, a CLI/SDK są kolejnym
+punktem P0. API biblioteki waliduje zależności, priorytety i kryteria,
+klasyfikuje duplikaty, renderuje audytowany `TODO.patch` i stosuje go wyłącznie
+po jawnej akceptacji jego hasha.
 
 Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
 docelowego `DSL2TODO` znajdują się w
@@ -607,6 +608,47 @@ console.log(JSON.stringify(result, null, 2));
 
 W `prefer-llm` awaria daje puste `conclusions`/`proposals` i osobne
 `rawDiagnosticActions`; nie są one oznaczane jako wynik semantycznej syntezy.
+
+### Review i zastosowanie `TODO.patch`
+
+`writeTodoPatchArtifacts` przyjmuje wyłącznie zwalidowane `newProposalIds` i
+zapisuje obok siebie czytelny `TODO.patch` oraz audyt `TODO.patch.json`.
+Renderer zachowuje kolejność zależność-przed-zadaniem, grupuje kolejne zadania
+według P0–P3 i pokazuje kryteria akceptacji, targety, zależności oraz wszystkie
+ID dowodów. Nie modyfikuje źródłowego `TODO.md`.
+
+```ts
+import { applyTodoPatch, writeTodoPatchArtifacts } from 'todo2code';
+
+const written = await writeTodoPatchArtifacts({
+  directory: '.intent/runs/<run>',
+  todoPath: 'TODO.md',
+  todoContent,
+  graph,
+  diagnostics,
+  proposals: result.proposals,
+  validation: result.validation,
+  synthesisAudit: result.audit,
+});
+
+// Człowiek najpierw przegląda written.patchPath i kopiuje hash z audytu.
+await applyTodoPatch({
+  todoPath: 'TODO.md',
+  patchPath: written.patchPath,
+  auditPath: written.auditPath,
+  receiptPath: '.intent/runs/<run>/TODO.patch.receipt.json',
+  approval: { actor: 'reviewer@example.com', patchHash: written.artifact.renderedPatchHash },
+});
+```
+
+Apply odrzuca brak lub błędny hash akceptacji, zmieniony `TODO.md` i zmieniony
+patch. Aktualizacja `TODO.md` używa pliku tymczasowego, `fsync` i atomowego
+rename, zachowując dotychczasowe prawa pliku. Receipt zapisuje aktora, czas,
+hash źródła, patcha i wyniku. Powtórzenie tej samej operacji zwraca wynik
+idempotentny bez ponownego dopisania. Jeżeli proces zakończy się po rename, ale
+przed zapisem receipt, następne wywołanie rozpozna dokładny suffix i hash
+oryginału, po czym bezpiecznie odtworzy receipt. Każda inna zmiana wymaga
+ponownej syntezy i przeglądu.
 
 ## Opcjonalny TensorFlow
 

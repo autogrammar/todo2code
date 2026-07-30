@@ -14,20 +14,20 @@
 
 ### P0.4 — reviewable TODO patch and human approval
 
-- [ ] Define a versioned `t2c.todo-patch/v1` artifact containing the source TODO
+- [x] Define a versioned `t2c.todo-patch/v1` artifact containing the source TODO
   content hash, graph/diagnostic fingerprints, selected proposal IDs, duplicate
   classifications, runtime/model audit and rendered patch hash.
-- [ ] Implement a deterministic renderer that takes only `newProposalIds`, uses
+- [x] Implement a deterministic renderer that takes only `newProposalIds`, uses
   dependency-first order, groups P0–P3 tasks, and includes acceptance criteria,
   targets, dependencies and evidence IDs in reviewable Markdown.
-- [ ] Write `TODO.patch` and its JSON audit beside the synthesis artifacts.
+- [x] Write `TODO.patch` and its JSON audit beside the synthesis artifacts.
   Rendering must never modify `TODO.md`.
-- [ ] Implement an explicit approval/apply operation. It must verify the patch
+- [x] Implement an explicit approval/apply operation. It must verify the patch
   hash and unchanged source TODO hash, reject missing/wrong approval, apply
   atomically and preserve a receipt identifying the approving actor and time.
-- [ ] Test stable rendering, empty/new/duplicate-only results, stale source TODO,
+- [x] Test stable rendering, empty/new/duplicate-only results, stale source TODO,
   tampered patch, rejected approval, successful apply and repeated apply.
-- [ ] Document the complete review flow and recovery behavior in README and DSL
+- [x] Document the complete review flow and recovery behavior in README and DSL
   documentation.
 
 ### P0.5 — expose DSL2TODO through every interface

@@ -1,7 +1,7 @@
 # Aktualny stan projektu
 
-Stan na **2026-07-29**, wersja runtime `0.4.0`, baza `5c1c16b`
-(`main` równy `origin/main` przed wdrożeniem deduplikacji propozycji).
+Stan na **2026-07-30**, wersja runtime `0.4.0`, baza `74cd76f`
+(`main` równy `origin/main` przed wdrożeniem reviewowalnego patcha).
 
 ## Ocena wykonania przepływu
 
@@ -22,13 +22,13 @@ NL / Git / AST / TODO / CHANGELOG / dokumentacja
                               (audytowane API LLM)
 ```
 
-Istnieją już rygorystyczne kontrakty wyjściowe `t2c.conclusion/v1` i
-`t2c.todo-proposal/v1`, lecz nie istnieje jeszcze pełna ścieżka wykonawcza
-`DSL2TODO`. Sekcja „Następne
+Istnieją już rygorystyczne kontrakty wyjściowe `t2c.conclusion/v1`,
+`t2c.todo-proposal/v1` i `t2c.todo-patch/v1`, lecz nie istnieje jeszcze pełna
+ekspozycja ścieżki `DSL2TODO` przez CLI/MCP/A2A/SDK. Sekcja „Następne
 działania” w `team-summary.md` jest projekcją pola `suggestedAction` z
 diagnostyki albo narracją LLM. Nie jest walidowanym DSL zadań, nie wykonuje
-deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
-`TODO.patch`.
+deduplikacji z istniejącym `TODO.md` i nie jest automatycznie przekazywana do
+zatwierdzalnego `TODO.patch`.
 
 ## Macierz komponentów
 
@@ -53,22 +53,22 @@ deduplikacji z istniejącym `TODO.md` i nie generuje zatwierdzalnego
 | Graf → raport NL | działa | LLM ma ograniczony payload; bez modelu powstaje jawnie oznaczony raport deterministyczny |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa jako API biblioteki | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
-| Zadania DSL → `TODO.patch` | brak | planowana walidacja, deduplikacja i bramka akceptacji człowieka |
+| Zadania DSL → `TODO.patch` | działa jako API biblioteki | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem; ekspozycja interfejsów pozostaje P0.5 |
 
 ## Bieżąca walidacja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 135 testów: 134 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 46 modułów i 234 importy wewnętrzne: brak cykli, niezależny `src/core`;
+- 139 testów: 138 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 47 modułów i 239 importów wewnętrznych: brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 17 modułów bez tranzytywnego importu LLM;
 - 57 zmiennych używanych przez kod/Docker i 57 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` dla commita `5c1c16b` utworzył 202 rekordy i
-616 relacji. Liczba relacji jest snapshotem, ponieważ wejście Git obejmuje
+Przebieg offline na `examples/` utworzył 202 rekordy i 602 relacje. Liczba
+relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
 | Źródło | Rekordy |
@@ -90,9 +90,8 @@ precision/recall dla NL → DSL, dokumentacja → DSL, linkowania ani DSL2TODO.
 
 ## Najważniejsze ograniczenia
 
-1. Synteza `DSL2TODO` działa jako API biblioteki z deduplikacją, ale nie ma
-   jeszcze renderera `TODO.patch`, bramki akceptacji ani ekspozycji przez
-   CLI/MCP/A2A/SDK.
+1. Synteza i review/apply `DSL2TODO` działają jako API biblioteki, ale nie mają
+   jeszcze ekspozycji przez CLI/MCP/A2A/SDK ani integracji z manifestem runu.
 2. Raport LLM jest nadal Markdownem i nie przechodzi jeszcze przez istniejący
    kontrakt `t2c.conclusion/v1`.
 3. Fakty AST są znacznie drobniejsze niż intencje produktowe. Bez agregacji

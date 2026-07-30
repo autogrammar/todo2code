@@ -19,6 +19,13 @@
   Dependency graphs must be complete and acyclic, dependency-first ordering
   respects P0–P3 among ready tasks, and acceptance criteria are non-blank and
   unique after whitespace normalization.
+- Added the versioned `t2c.todo-patch/v1` audit and deterministic review
+  renderer. It emits only new dependency-ordered proposals while retaining
+  duplicate evidence, graph/diagnostic/source fingerprints and complete
+  synthesis runtime/model metadata in the adjacent JSON artifact.
+- Added explicit hash-bound TODO approval and atomic apply with stale-source and
+  tamper rejection, preserved file permissions, an actor/time receipt, crash
+  recovery and idempotent repeated apply.
 
 ### Fixed
 
