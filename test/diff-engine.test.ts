@@ -181,8 +181,8 @@ test('A topic holding declared and observed records is never reported as planned
   assert.equal(view.totals.implementationCoverage, 1);
   assert.equal(view.totals.plannedCodeCoverage, 1);
   assert.equal(view.totals.documentedCodeCoverage, 0);
-  assert.notEqual(row?.status, 'planned_not_implemented');
-  assert.notEqual(row?.status, 'implemented_not_planned');
+  assert.equal(row?.status, 'aligned');
+  assert.ok(row?.diagnosticCodes.includes('IMPLEMENTED_NOT_DOCUMENTED'));
 });
 
 test('Shared-path relations do not collapse unrelated files into one topic', () => {

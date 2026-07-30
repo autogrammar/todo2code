@@ -321,6 +321,62 @@ test('LLM summarizer receives graph data and preserves grounded record citations
   }
 });
 
+test('LLM summarizer validates provider fields before creating semantic IDs', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const record = buildRecord({
+    kind: 'declared_intent', action: 'add', object: 'safe materialization', text: 'Add safe materialization.',
+    lifecycle: 'proposed', sourceKind: 'nl', sourcePath: 'TASK.md', sourceLines: { start: 1, end: 1 },
+    extractor: 'test', epistemicClass: 'declaration', confidence: 1, basis: ['test'],
+  });
+  const graph = linkIntentRecords([record], '2026-07-29T00:00:00.000Z');
+  const diagnostics = diagnoseGraph(graph, '2026-07-29T00:00:00.000Z');
+  const diagnostic = diagnostics.diagnostics.find((item) => item.recordIds.includes(record.id))!;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    choices: [{ message: { content: JSON.stringify({ conclusions: [{
+      kind: 'finding', detail: 'The provider omitted the required title.', severity: 'warning',
+      diagnosticIds: [diagnostic.id], recordIds: [record.id], confidence: 0.8,
+    }] }) } }],
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  try {
+    const fallback = await summarizeGraph(graph, diagnostics, config, { mode: 'prefer-llm' });
+    assert.equal(fallback.llmUsed, false);
+    assert.match(fallback.warnings.join('\n'), /conclusions\[0\]\.title must be a non-empty string/);
+    assert.doesNotMatch(fallback.warnings.join('\n'), /reading 'trim'/);
+    await assert.rejects(
+      () => summarizeGraph(graph, diagnostics, config, { mode: 'require-llm' }),
+      /conclusions\[0\]\.title must be a non-empty string/,
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('LLM summarizer diagnoses a provider that ignores the response envelope', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const record = buildRecord({
+    kind: 'declared_intent', action: 'add', object: 'summary envelope', text: 'Add a summary envelope.',
+    lifecycle: 'proposed', sourceKind: 'nl', sourcePath: 'TASK.md', sourceLines: { start: 1, end: 1 },
+    extractor: 'test', epistemicClass: 'declaration', confidence: 1, basis: ['test'],
+  });
+  const graph = linkIntentRecords([record], '2026-07-29T00:00:00.000Z');
+  const diagnostics = diagnoseGraph(graph, '2026-07-29T00:00:00.000Z');
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    choices: [{ message: { content: JSON.stringify({ conclusion: 'wrong shape', status: 'ok' }) } }],
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  try {
+    await assert.rejects(
+      () => summarizeGraph(graph, diagnostics, config, { mode: 'require-llm' }),
+      /model did not honour.*returned keys: conclusion, status/,
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('LLM summarizer rejects conclusions with citations outside the supplied graph', async () => {
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
@@ -411,4 +467,22 @@ test('LLM summarizer prioritizes documentation over the AST payload budget', asy
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test('deterministic summary presents AST module aggregates instead of low-level calls', async () => {
+  const config = makeConfig(process.cwd());
+  const module = buildRecord({
+    kind: 'module_fact', action: 'declare', object: 'src/runtime.ts', target: { paths: ['src/runtime.ts'] },
+    text: 'declare src/runtime.ts', lifecycle: 'implemented', sourceKind: 'ast', sourcePath: 'src/runtime.ts',
+    sourceLines: { start: 1, end: 20 }, extractor: 'test', epistemicClass: 'fact', confidence: 1, basis: ['test'],
+  });
+  const call = buildRecord({
+    kind: 'call_fact', action: 'call', object: 'trim', target: { paths: ['src/runtime.ts'], symbols: ['run'] },
+    text: 'call trim', lifecycle: 'implemented', sourceKind: 'ast', sourcePath: 'src/runtime.ts',
+    sourceLines: { start: 4, end: 4 }, extractor: 'test', epistemicClass: 'fact', confidence: 1, basis: ['test'],
+  });
+  const graph = linkIntentRecords([module, call], '2026-07-29T00:00:00.000Z');
+  const result = await summarizeGraph(graph, diagnoseGraph(graph), config, { mode: 'deterministic' });
+  assert.match(result.markdown, /declare src\/runtime\.ts/);
+  assert.doesNotMatch(result.markdown, /call trim/);
 });

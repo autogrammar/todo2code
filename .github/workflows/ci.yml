@@ -18,6 +18,7 @@ jobs:
       - run: npm install --omit=optional
       - run: make verify
       - run: make smoke
+      - run: make docker-smoke
 
   java-adapter:
     name: Java adapter (JDK 17 required)

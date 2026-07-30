@@ -47,6 +47,43 @@ test('AST facts sharing a symbol are still linked despite the path rule', () => 
   assert.ok(graph.relations.length > 0, 'shared symbol must survive as evidence');
 });
 
+test('AST details sharing only a file and generic tokens do not create a quadratic subgraph', () => {
+  const records = Array.from({ length: 20 }, (_, index) => buildRecord({
+    kind: 'call_fact', action: 'call', object: 'validate shared contract',
+    target: { paths: ['src/runtime.ts'], symbols: ['sharedOwner'] },
+    text: 'call validate shared contract', lifecycle: 'implemented', sourceKind: 'ast',
+    sourcePath: 'src/runtime.ts', sourceLines: { start: index + 1, end: index + 1 },
+    symbol: 'sharedOwner', extractor: 'test', epistemicClass: 'fact', confidence: 1, basis: ['fixture'],
+  }));
+
+  const graph = linkIntentRecords(records, AT);
+  assert.equal(graph.relations.length, 0);
+});
+
+test('A file-level plan links once to the AST module aggregate instead of every detail', () => {
+  const plan = buildRecord({
+    kind: 'todo_item', action: 'add', object: 'runtime module', target: { paths: ['src/runtime.ts'] },
+    text: 'Add the runtime module.', lifecycle: 'planned', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'plan', confidence: 1, basis: ['fixture'],
+  });
+  const module = buildRecord({
+    kind: 'module_fact', action: 'declare', object: 'src/runtime.ts', target: { paths: ['src/runtime.ts'] },
+    text: 'declare src/runtime.ts', lifecycle: 'implemented', sourceKind: 'ast', sourcePath: 'src/runtime.ts',
+    sourceLines: { start: 1, end: 20 }, extractor: 'test', epistemicClass: 'fact', confidence: 1, basis: ['fixture'],
+  });
+  const details = Array.from({ length: 10 }, (_, index) => astFact(
+    'src/runtime.ts',
+    `detail${index}`,
+    `unrelated detail ${index}`,
+  ));
+
+  const graph = linkIntentRecords([plan, module, ...details], AT);
+  const planRelations = graph.relations.filter((relation) => relation.from === plan.id || relation.to === plan.id);
+  assert.equal(planRelations.length, 1);
+  assert.ok(planRelations.some((relation) => relation.from === plan.id && relation.to === module.id));
+  assert.ok(planRelations[0]?.basis.includes('module_coverage'));
+});
+
 test('A shared path still links a plan to an AST fact', () => {
   // The rule is narrow: it only suppresses AST-to-AST pairs. Plan-to-code
   // evidence is exactly what the graph exists to record.

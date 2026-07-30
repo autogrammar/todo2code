@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { extractPaths } from '../src/core/text.js';
 import { extractNlIntent } from '../src/extractors/nl.js';
 import { extractNlIntentAudited, NlLlmRequiredError } from '../src/extractors/nl-llm.js';
 import { makeConfig } from './helpers.js';
@@ -29,6 +30,13 @@ test('deterministic NL fallback skips Markdown headings and recognizes compariso
   assert.equal(result.records.length, 1);
   assert.equal(result.records[0]?.statement.action, 'analyze');
   assert.equal(result.records[0]?.source.lines?.start, 3);
+});
+
+test('path extraction rejects lowercase prose alternations without losing repository paths', () => {
+  const paths = extractPaths(
+    'Compare backend/frontend, human/agent and NL/docs/Markdown with `src/core`, `docs/api`, `src/runtime.ts` and packages/sdk/runtime now.',
+  );
+  assert.deepEqual(paths, ['docs/api', 'packages/sdk/runtime', 'src/core', 'src/runtime.ts']);
 });
 
 test('NL LLM extraction emits audited provenance and bounded DSL records', async () => {

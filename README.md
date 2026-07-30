@@ -280,7 +280,7 @@ t2c diff --mode files before.ts after.ts --svg files.diff.svg --html files.diff.
 t2c diff --mode git . --rev HEAD --svg worktree.diff.svg
 t2c reality intent.graph.json --diagnostics diagnostics.json --svg reality.svg --md reality.md
 t2c summarize intent.graph.json --diagnostics diagnostics.json --mode prefer-llm --out team-summary.md
-t2c watch [root] [--interval 60] [--scan-interval 2] [--no-initial-report]
+t2c watch [root] [--interval 60] [--scan-interval 2] [--task TASK.md|none] [--no-summary-llm] [--no-initial-report]
 t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]
 t2c pipeline [root] --task TASK.md --todo TODO.md --changelog CHANGELOG.md
 t2c mcp
@@ -352,8 +352,11 @@ bo bieżące raporty zaczęłyby zasilać kolejne runy.
 `t2c watch` pilnuje lokalnych zmian i generuje świeży raport **najwyżej raz na minutę**:
 
 ```bash
-node dist/src/cli.js watch . --task TASK.md --no-docs-llm
+node dist/src/cli.js watch . --no-docs-llm --no-summary-llm
 ```
+
+Istniejący `TASK.md` jest czytany domyślnie; `--task none` wyłącza to źródło.
+Opcja `--no-summary-llm` eliminuje sieciowy etap podsumowania z każdego cyklu.
 
 Obowiązują dwa niezależne czasy:
 
@@ -705,6 +708,7 @@ make setup
 make verify
 make demo
 make docker-build
+make docker-smoke
 make docker-up
 ```
 
@@ -713,6 +717,7 @@ Jedynym plikiem Compose jest `docker-compose.yml`. Montuje repozytorium
 `T2C_DOCKER_HOST_PORT` i zachowuje `.intent` w analizowanym workspace. Przy
 zmianie portu hosta należy odpowiednio ustawić również publiczny
 `T2C_A2A_PUBLIC_URL` oraz kliencki `T2C_A2A_URL`.
+`DOCKER_SMOKE_IMAGE` pozwala zmienić lokalny tag używany przez smoke test.
 
 ## Diagnostyka
 

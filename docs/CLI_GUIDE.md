@@ -252,10 +252,15 @@ również deterministyczny diff grafów do komunikacji wybranego zakresu.
 ## Watch, MCP i A2A
 
 ```bash
-node dist/src/cli.js watch . --interval 60 --scan-interval 2 --out .intent
+node dist/src/cli.js watch . --interval 60 --scan-interval 2 \
+  --no-summary-llm --out .intent
 node dist/src/interfaces/mcp.js
 node dist/src/interfaces/a2a.js
 ```
+
+Jeżeli w repozytorium istnieje `TASK.md`, `watch` włącza go domyślnie jako
+źródło NL. `--task none` wyłącza ten automat. `--no-summary-llm` wykonuje
+deterministyczne podsumowanie bez oczekiwania na provider przy każdym cyklu.
 
 A2A domyślnie udostępnia health pod `http://localhost:8787/healthz`, Agent Card
 pod `/.well-known/agent-card.json` i UI historii/diffów pod `/ui`.

@@ -4,6 +4,14 @@
 
 ### Added
 
+- Added module-level AST facts for every supported language and made them the
+  file-level linking/summarization boundary. Low-level calls no longer form a
+  quadratic AST-to-AST subgraph merely because they share a source file.
+- Added a live Git-repository watch regression test, automatic `TASK.md`
+  discovery, explicit `--task none`, and documented `--no-summary-llm`
+  support for fast deterministic watch cycles.
+- Added `make docker-smoke`; `make validate` and CI now build the production
+  image and verify its A2A health endpoint plus `doctor` inside the container.
 - Added an end-to-end Polish architecture guide with seven validated Mermaid
   diagrams covering source converters, Intent DSL, evidence linking,
   diagnostics and the validated DSL-to-conclusion-to-NL path.
@@ -36,6 +44,22 @@
 
 ### Fixed
 
+- Validate the raw summary envelope and every provider-owned field before
+  creating semantic conclusion IDs. The summary prompt now names the exact
+  seven-field contract and requires verbatim top-level diagnostic/record
+  citations; a live `require-llm` OpenRouter run produces validated
+  `t2c.conclusion/v1` objects instead of falling back on an internal `.trim()`
+  error.
+- `compare-workspace --out` now applies the same root confinement as other
+  artifact-producing actions and rejects absolute or traversing paths outside
+  `T2C_ROOT` instead of silently rewriting them below the repository.
+- Intent-vs-Reality now treats declaration plus observed implementation as
+  `aligned` offline. Documentation coverage remains an independent metric and
+  `IMPLEMENTED_NOT_DOCUMENTED` remains a visible diagnostic.
+- Markdown TODO/CHANGELOG continuation lines retain their complete statement
+  and source range; repository ignores and hard vendor/environment exclusions
+  are honored during AST walking; prose alternatives such as
+  `backend/frontend` no longer become path targets.
 - Split the documentation-to-Intent LLM extractor into focused orchestration,
   chunking, schema, record-repair and type modules. The public API and audited
   output remain unchanged while the former 531-line god module is removed.

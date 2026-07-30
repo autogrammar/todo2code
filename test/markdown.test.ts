@@ -27,6 +27,42 @@ test('Markdown extractor separates TODO plans and changelog claims', async () =>
   assert.equal((await extractChangelog(root, 'CHANGELOG.md', makeConfig(root))).records.length, 1);
 });
 
+test('Markdown extractor preserves indented continuation lines and their source range', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-block-'));
+  await fs.writeFile(path.join(root, 'TODO.md'), [
+    '# TODO',
+    '',
+    '- [ ] Add the runtime validation in',
+    '  `src/runtime.ts` using `validateContract`.',
+    '- [ ] Keep the next task separate.',
+    '',
+  ].join('\n'));
+  await fs.writeFile(path.join(root, 'CHANGELOG.md'), [
+    '# Changelog',
+    '',
+    '## [1.3.0] - 2026-07-30',
+    '',
+    '### Fixed',
+    '',
+    '- Fixed runtime validation in',
+    '  `src/runtime.ts` using `validateContract`.',
+    '',
+  ].join('\n'));
+
+  const result = await extractMarkdownIntent(
+    { root, todoPath: 'TODO.md', changelogPath: 'CHANGELOG.md' },
+    makeConfig(root),
+  );
+  const todo = result.records.find((record) => record.source.kind === 'todo');
+  const changelog = result.records.find((record) => record.source.kind === 'changelog');
+  assert.equal(todo?.statement.text, 'Add the runtime validation in `src/runtime.ts` using `validateContract`.');
+  assert.deepEqual(todo?.source.lines, { start: 3, end: 4 });
+  assert.deepEqual(todo?.statement.target.paths, ['src/runtime.ts']);
+  assert.equal(result.records.filter((record) => record.source.kind === 'todo').length, 2);
+  assert.equal(changelog?.statement.text, 'Fixed runtime validation in `src/runtime.ts` using `validateContract`.');
+  assert.deepEqual(changelog?.source.lines, { start: 7, end: 8 });
+});
+
 test('TODO and CHANGELOG receive audited LLM enrichment without changing structural facts', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-llm-'));
   await fs.writeFile(path.join(root, 'TODO.md'), '# API\n\n- [x] Obsłużyć kontrakt dla T2C-7.\n');

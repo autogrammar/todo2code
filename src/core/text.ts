@@ -95,7 +95,48 @@ export function extractPaths(text: string): string[] {
     ...extractBacktickValues(text),
     ...(text.match(/(?:^|\s)([A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.@*{}-]+)+)/g) ?? []).map((item) => item.trim()),
   ];
-  return [...new Set(candidates.filter((value) => /[/.]/.test(value) && !value.startsWith('http')))].sort();
+  return [...new Set(candidates.filter(isPathLike))].sort();
+}
+
+/** Placeholder segments (`<ticket>`, `<id>`) and shell/HTTP fragments. */
+const NOT_A_PATH = /[\s<>=(),;"'|?]/;
+/** Contract identifiers such as `t2c.conclusion/v1` are versions, not files. */
+const CONTRACT_ID = /^[a-z0-9]+(?:[.-][a-z0-9-]+)+\/v\d+$/i;
+/** A conventional file extension: lowercase, short, at the very end. */
+const FILE_EXTENSION = /\.[a-z0-9]{1,8}$/;
+const PATH_ROOTS = new Set([
+  'app', 'apps', 'bin', 'config', 'docs', 'examples', 'infra', 'lib', 'packages',
+  'project', 'public', 'scripts', 'sdk', 'src', 'test', 'tests', 'tools',
+]);
+
+/**
+ * Decides whether a candidate names a file or directory rather than prose.
+ *
+ * Documentation is full of slash-separated alternations — `human/agent`,
+ * `NL/Markdown`, `TypeScript/JavaScript`, `GET /api/runs` — and the original
+ * "contains a slash or a dot" rule accepted all of them. On this repository 69
+ * of 81 extracted TODO/CHANGELOG paths were such fragments, which turned them
+ * into Intent-vs-Reality topics and buried the real files.
+ *
+ * Extensionless paths are limited to conventional repository roots (or an
+ * explicit `./`/`../` prefix). That keeps planned paths such as `src/runtime`
+ * while rejecting ambiguous lowercase prose such as `vars/consts`.
+ */
+function isPathLike(value: string): boolean {
+  if (!/[/.]/.test(value) || value.startsWith('http')) return false;
+  if (NOT_A_PATH.test(value)) return false;
+  if (CONTRACT_ID.test(value)) return false;
+
+  const segments = value.split('/');
+  if (FILE_EXTENSION.test(value)) return true;
+  if (segments.length > 1 && segments[0] && !PATH_ROOTS.has(segments[0].toLowerCase())
+    && !value.startsWith('./') && !value.startsWith('../')) {
+    return false;
+  }
+  // Without an extension, an all-capitalised alternation (`Git/AST`,
+  // `Entry.Describe`) is prose or a symbol, never a path in this repository.
+  const words = segments.length > 1 ? segments : value.split('.');
+  return !(words.length > 1 && words.every((word) => /^[A-Z]/.test(word)));
 }
 
 export function extractSymbols(text: string): string[] {

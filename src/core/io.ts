@@ -2,7 +2,15 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { IntentRecord } from './types.js';
 
-const DEFAULT_IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'build', 'coverage', '.intent', '.next', '.cache', '__pycache__']);
+// Vendored and virtual-environment trees are never repository intent, and they
+// are large: an unexcluded `venv/` on this repository pushed a TypeScript walk
+// from 9.5k to 247k AST records — Python wheels ship bundled `.js` assets — and
+// exhausted a 4 GiB heap. Ignore files remain the configurable contract; this
+// set is the floor that applies even when a repository ships none.
+const DEFAULT_IGNORED_DIRS = new Set([
+  '.git', 'node_modules', 'dist', 'build', 'coverage', '.intent', '.next', '.cache', '__pycache__',
+  'venv', '.venv', 'site-packages', 'vendor', 'target', '.tox', '.mypy_cache', '.pytest_cache',
+]);
 
 export async function ensureDir(directory: string): Promise<void> {
   await fs.mkdir(directory, { recursive: true });
@@ -69,12 +77,19 @@ export interface WalkOptions {
   extensions?: string[];
   ignoredDirs?: string[];
   maxFiles?: number;
+  /**
+   * Exclusion rules for this tree, normally the merged `.gitignore`,
+   * `.dockerignore` and `.intentignore` from `loadIgnoreMatcher`.
+   */
+  matcher?: { ignores(relativePath: string, isDirectory?: boolean): boolean };
 }
 
 export async function walkFiles(root: string, options: WalkOptions = {}): Promise<string[]> {
   const ignored = new Set([...DEFAULT_IGNORED_DIRS, ...(options.ignoredDirs ?? [])]);
   const extensions = options.extensions ? new Set(options.extensions.map((value) => value.toLowerCase())) : null;
   const maxFiles = options.maxFiles ?? 20_000;
+  const matcher = options.matcher;
+  const base = path.resolve(root);
   const output: string[] = [];
 
   async function visit(directory: string): Promise<void> {
@@ -84,6 +99,8 @@ export async function walkFiles(root: string, options: WalkOptions = {}): Promis
       if (output.length >= maxFiles) throw new Error(`File limit exceeded (${maxFiles}) under ${root}`);
       const absolute = path.join(directory, entry.name);
       if (entry.isSymbolicLink()) continue;
+      const relative = relativePosix(base, absolute);
+      if (matcher?.ignores(relative, entry.isDirectory())) continue;
       if (entry.isDirectory()) {
         if (!ignored.has(entry.name)) await visit(absolute);
       } else if (entry.isFile()) {
@@ -93,7 +110,7 @@ export async function walkFiles(root: string, options: WalkOptions = {}): Promis
     }
   }
 
-  if (await pathExists(root)) await visit(path.resolve(root));
+  if (await pathExists(root)) await visit(base);
   return output;
 }
 

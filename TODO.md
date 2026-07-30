@@ -11,7 +11,7 @@
 - [x] Add a participant identity registry mapping stable IDs to Git authors,
   A2A agent IDs and optional human aliases without guessing identity from
   display names.
-- [ ] Aggregate low-level AST calls and symbols into module/capability topics
+- [x] Aggregate low-level AST calls and symbols into module/capability topics
   before coverage metrics and team-summary prioritization, while preserving
   links to the original evidence records.
 - [ ] Split large TODO/CHANGELOG LLM enrichment into bounded batches with a

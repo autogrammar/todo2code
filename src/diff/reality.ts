@@ -204,6 +204,15 @@ function ratio(numerator: number, denominator: number): number {
   return denominator === 0 ? 1 : Math.round((numerator / denominator) * 10_000) / 10_000;
 }
 
+/** Approximate advance width per character for the `.label` and `.badge` styles. */
+const LABEL_CHAR = 7.2;
+const BADGE_CHAR = 7.4;
+
+/** Longest label in the set, in characters. */
+function widestLabel(labels: string[]): number {
+  return labels.reduce((widest, label) => Math.max(widest, label.length), 0);
+}
+
 /**
  * Groups records by their primary target.
  *
@@ -312,8 +321,10 @@ function resolveStatus(codes: Set<DiagnosticCode>, lanes: Record<string, number>
   }
   if (observed > 0 && declared === 0) return 'implemented_not_planned';
 
-  // Both sides present. Documentation is the remaining axis worth reporting.
-  if ((lanes.document ?? 0) === 0 && codes.has('IMPLEMENTED_NOT_DOCUMENTED')) return 'implemented_not_documented';
+  // Both sides are present, so plan-to-code alignment is proven. Documentation
+  // coverage is an independent metric and its diagnostic remains attached to
+  // the row; requiring a document lane here made `aligned` impossible in a
+  // fully offline run because semantic document records are LLM-only.
   return 'aligned';
 }
 
@@ -349,9 +360,16 @@ export function renderRealitySvg(view: IntentRealityView, options: RealitySvgOpt
   const rows = (options.gapsOnly ? view.rows.filter((row) => row.status !== 'aligned') : view.rows);
   const visible = rows.slice(0, maxRows);
 
-  const width = 1280;
+  // The lane columns and the status column are sized from their own content.
+  // Both were hardcoded for six lanes, so adding `agent_log` made the headers
+  // overlap and pushed "CHANGELOG, NO CODE" past the right edge of the
+  // viewBox. Deriving the geometry keeps the table readable when a lane is
+  // added again.
   const laneX = 720;
-  const laneStep = 62;
+  const laneStep = Math.max(62, Math.ceil(widestLabel(LANE_ORDER.map((kind) => kind.toUpperCase())) * LABEL_CHAR + 14));
+  const statusX = laneX + LANE_ORDER.length * laneStep + 30;
+  const statusWidth = Math.ceil(widestLabel(Object.values(STATUS_LABEL).map((label) => label.toUpperCase())) * BADGE_CHAR);
+  const width = statusX + statusWidth + 40;
   const rowHeight = 30;
   const headerY = 214;
   let y = headerY + 28;
@@ -367,7 +385,7 @@ export function renderRealitySvg(view: IntentRealityView, options: RealitySvgOpt
       + ` fill="${isDeclared ? theme.muted : theme.accent}">${escapeXml(kind.toUpperCase())}</text>`,
     );
   });
-  body.push(`<text x="${laneX + LANE_ORDER.length * laneStep + 30}" y="${headerY}" class="label">STATUS</text>`);
+  body.push(`<text x="${statusX}" y="${headerY}" class="label">STATUS</text>`);
   body.push(`<line x1="40" y1="${headerY + 10}" x2="${width - 40}" y2="${headerY + 10}" stroke="${theme.panelStroke}"/>`);
 
   for (const row of visible) {
@@ -380,15 +398,22 @@ export function renderRealitySvg(view: IntentRealityView, options: RealitySvgOpt
       const count = row.lanes[kind] ?? 0;
       const cx = laneX + index * laneStep;
       if (count > 0) {
-        body.push(`<circle cx="${cx}" cy="${y - 5}" r="8" fill="${DECLARED_KINDS.includes(kind) ? theme.changed : theme.accent}"/>`);
-        body.push(`<text x="${cx}" y="${y - 1}" class="badge" text-anchor="middle" fill="${theme.background}">${count}</text>`);
+        // A 16px circle fits two digits; a file with 161 AST facts overflowed
+        // it, so wider counts get a pill sized to their own text.
+        const fill = DECLARED_KINDS.includes(kind) ? theme.changed : theme.accent;
+        const label = String(count);
+        const pillWidth = Math.max(16, Math.ceil(label.length * BADGE_CHAR) + 8);
+        body.push(
+          `<rect x="${cx - pillWidth / 2}" y="${y - 13}" width="${pillWidth}" height="16" rx="8" fill="${fill}"/>`,
+        );
+        body.push(`<text x="${cx}" y="${y - 1}" class="badge" text-anchor="middle" fill="${theme.background}">${label}</text>`);
       } else {
         body.push(`<circle cx="${cx}" cy="${y - 5}" r="7" fill="none" stroke="${theme.neutral}" stroke-width="1.5" stroke-dasharray="2 2"/>`);
       }
     });
 
     body.push(
-      `<text x="${laneX + LANE_ORDER.length * laneStep + 30}" y="${y}" class="badge" fill="${color}">`
+      `<text x="${statusX}" y="${y}" class="badge" fill="${color}">`
       + `${escapeXml(STATUS_LABEL[row.status].toUpperCase())}</text>`,
     );
     y += rowHeight;

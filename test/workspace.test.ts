@@ -51,9 +51,9 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   assert.equal(comparison.workspace.behind, 0);
   assert.ok(comparison.diff.summary.recordsAdded > 0);
   assert.ok(comparison.diff.records.added.some((record) => record.statement.object.includes('validateContract')));
-  assert.equal(comparison.trend.direction, 'mixed');
+  assert.equal(comparison.trend.direction, 'improved');
   assert.ok(comparison.trend.implementationCoverageDelta > 0);
-  assert.ok(comparison.trend.gapsDelta > 0);
+  assert.equal(comparison.trend.gapsDelta, 0);
   assert.notEqual(comparison.workspace.graphFingerprint, comparison.base.graphFingerprint);
   assert.ok(await pathExists(path.join(root, comparison.artifacts.comparison ?? '')));
   assert.ok(await pathExists(path.join(root, comparison.artifacts.diffSvg ?? '')));
@@ -63,4 +63,11 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   assert.equal(baseManifest.stages.summary.status, 'skipped');
   assert.equal(workspaceManifest.stages.summary.status, 'skipped');
   assert.equal(baseManifest.configuration.summaryLlm, false);
+
+  const outside = path.join(parent, 'outside-comparison');
+  await assert.rejects(
+    () => compareWorkspaceIntent({ root, outputDir: outside, includeDocumentationLlm: false }, config),
+    /outside configured T2C_ROOT/,
+  );
+  assert.equal(await pathExists(outside), false, 'an absolute --out must not be rewritten under or outside the repo');
 });

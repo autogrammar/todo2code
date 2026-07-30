@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import ts from 'typescript';
 import type { T2CConfig } from '../config/env.js';
+import { loadIgnoreMatcher } from '../core/ignore.js';
 import { readText, relativePosix, walkFiles, pathExists } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
 import type { ExtractionResult, IntentAction, IntentRecord, JsonValue } from '../core/types.js';
@@ -39,7 +40,12 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
   const root = path.resolve(options.root);
   const records: IntentRecord[] = [];
   const warnings: string[] = [];
-  const files = await walkFiles(root, { extensions: JS_EXTENSIONS, maxFiles: 20_000 });
+  // `.gitignore`/`.dockerignore`/`.intentignore` are the documented exclusion
+  // contract, but until now only `t2c watch` consulted them: extraction walked
+  // the tree with a hardcoded directory list and happily descended into
+  // gitignored vendor trees.
+  const matcher = await loadIgnoreMatcher(root);
+  const files = await walkFiles(root, { extensions: JS_EXTENSIONS, maxFiles: 20_000, matcher });
 
   for (const file of files) {
     try {
@@ -194,6 +200,12 @@ function extractTypeScriptFile(root: string, filePath: string, body: string): In
     ts.forEachChild(node, visit);
   }
 
+  add(sourceFile, {
+    kind: 'module_fact',
+    action: 'declare',
+    object: relative,
+    metadata: { aggregate: 'module', factGranularity: 'file' },
+  });
   visit(sourceFile);
   return records;
 }
@@ -310,7 +322,7 @@ function adapterRecords(
   basis: string,
   language: string,
 ): IntentRecord[] {
-  return facts.map((fact) => buildRecord({
+  const detailRecords = facts.map((fact) => buildRecord({
     kind: fact.kind,
     action: fact.action,
     subject: fact.subject,
@@ -330,4 +342,47 @@ function adapterRecords(
     basis: [basis],
     metadata: { language, llmUsed: false, ...fact.metadata },
   }));
+  return [...moduleRecords(facts, extractor, basis, language), ...detailRecords];
+}
+
+function moduleRecords(
+  facts: AdapterFact[],
+  extractor: string,
+  basis: string,
+  language: string,
+): IntentRecord[] {
+  const byPath = new Map<string, AdapterFact[]>();
+  for (const fact of facts) {
+    const bucket = byPath.get(fact.path) ?? [];
+    bucket.push(fact);
+    byPath.set(fact.path, bucket);
+  }
+  return [...byPath.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([filePath, fileFacts]) => {
+    const start = Math.min(...fileFacts.map((fact) => fact.lineStart));
+    const end = Math.max(...fileFacts.map((fact) => fact.lineEnd));
+    return buildRecord({
+      kind: 'module_fact',
+      action: 'declare',
+      object: filePath,
+      target: { paths: [filePath], symbols: [] },
+      modality: 'observed',
+      text: `declare ${filePath}`,
+      lifecycle: 'implemented',
+      sourceKind: 'ast',
+      sourcePath: filePath,
+      sourceLines: { start, end },
+      extractor,
+      rawExcerpt: `${language} module ${filePath}`,
+      epistemicClass: 'fact',
+      confidence: 1,
+      basis: [basis],
+      metadata: {
+        language,
+        llmUsed: false,
+        aggregate: 'module',
+        factGranularity: 'file',
+        factCount: fileFacts.length,
+      },
+    });
+  });
 }

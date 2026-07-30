@@ -11,6 +11,7 @@ import {
   inferObject,
 } from '../core/text.js';
 import type { ExtractionResult, IntentAction, IntentRecord } from '../core/types.js';
+import { readListBlock } from './markdown-block.js';
 
 /** Deterministic CHANGELOG.md -> Intent DSL converter. */
 export async function extractChangelog(root: string, changelogPath: string, config: T2CConfig): Promise<ExtractionResult> {
@@ -39,7 +40,9 @@ export async function extractChangelog(root: string, changelogPath: string, conf
     }
     const bullet = raw.match(/^\s*[-*+]\s+(.+?)\s*$/);
     if (!bullet || !version) continue;
-    const text = bullet[1]?.trim() ?? '';
+    const block = readListBlock(lines, index, bullet[1] ?? '');
+    index = block.endIndex;
+    const text = block.text;
     const action = changelogAction(category, text);
     records.push(buildRecord({
       kind: 'changelog_entry',
@@ -58,9 +61,9 @@ export async function extractChangelog(root: string, changelogPath: string, conf
       lifecycle: version.toLowerCase() === 'unreleased' ? 'proposed' : 'released',
       sourceKind: 'changelog',
       sourcePath: relative,
-      sourceLines: { start: index + 1, end: index + 1 },
+      sourceLines: { start: block.startLine, end: block.endLine },
       extractor: 't2c/markdown-changelog@1',
-      rawExcerpt: raw,
+      rawExcerpt: block.raw.join('\n'),
       epistemicClass: 'claim',
       confidence: 0.92,
       basis: ['markdown_release_heading', 'keep_a_changelog_category'],

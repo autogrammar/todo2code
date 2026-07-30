@@ -16,6 +16,13 @@ trap cleanup EXIT INT TERM
 
 cd "$PROJECT_ROOT"
 
+# Artifacts from an earlier run are bound to that run's graph and patch hashes.
+# Leaving them in place made the DSL2TODO stage fail with "receipt does not
+# belong to this patch" the moment extraction or linking changed, which reads as
+# a regression in the examples rather than as stale state. The check owns these
+# directories, so it starts from a clean tree.
+rm -rf examples/.intent-demo examples/.intent-communication examples/backend/.intent-sdk
+
 npm run demo >"$AUDIT_TMP/demo.log" 2>&1
 
 node --input-type=module <<'NODE'

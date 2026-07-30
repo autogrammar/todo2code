@@ -129,12 +129,20 @@ function collectCandidatePairs(
 ): Array<[string, string]> {
   const buckets = new Map<string, string[]>();
   const astIds = new Set<string>();
+  const moduleAstIds = new Set<string>();
+  const declarationAstIds = new Set<string>();
   for (const record of records) {
-    if (record.source.kind === 'ast') astIds.add(record.id);
+    if (record.source.kind === 'ast') {
+      astIds.add(record.id);
+      if (record.statement.kind === 'module_fact') moduleAstIds.add(record.id);
+      if (record.statement.action === 'declare' && record.statement.target.symbols.length > 0) {
+        declarationAstIds.add(record.id);
+      }
+    }
     indexTargetBuckets(buckets, record);
     indexKeywordBuckets(buckets, record.id, keywordIndex.get(record.id)?.object);
   }
-  return pairsFromBuckets(buckets, astIds);
+  return pairsFromBuckets(buckets, astIds, moduleAstIds, declarationAstIds);
 }
 
 function indexTargetBuckets(buckets: Map<string, string[]>, record: IntentRecord): void {
@@ -178,6 +186,8 @@ function addToBucket(buckets: Map<string, string[]>, key: string, recordId: stri
 function pairsFromBuckets(
   buckets: Map<string, string[]>,
   astIds: Set<string>,
+  moduleAstIds: Set<string>,
+  declarationAstIds: Set<string>,
 ): Array<[string, string]> {
   const output = new Map<string, [string, string]>();
   for (const [bucketKey, ids] of buckets) {
@@ -187,12 +197,7 @@ function pairsFromBuckets(
         const leftId = limited[left];
         const rightId = limited[right];
         if (!leftId || !rightId) continue;
-        // A shared file is weak evidence between two AST facts: every symbol
-        // declared in a module shares that module's path, so this bucket alone
-        // produced ~80% of all candidate pairs and filled the graph with
-        // `related_to` noise between unrelated functions. Such a pair still
-        // enters the graph when the symbol or keyword bucket also connects it.
-        if (isSuppressedAstPathPair(bucketKey, leftId, rightId, astIds)) continue;
+        if (isSuppressedAstPair(bucketKey, leftId, rightId, astIds, moduleAstIds, declarationAstIds)) continue;
         output.set(`${leftId}|${rightId}`, [leftId, rightId]);
       }
     }
@@ -203,13 +208,30 @@ function pairsFromBuckets(
     .map(([, pair]) => pair);
 }
 
-function isSuppressedAstPathPair(
+function isSuppressedAstPair(
   bucketKey: string,
   leftId: string,
   rightId: string,
   astIds: Set<string>,
+  moduleAstIds: Set<string>,
+  declarationAstIds: Set<string>,
 ): boolean {
-  return bucketKey.startsWith('path:') && astIds.has(leftId) && astIds.has(rightId);
+  const leftAst = astIds.has(leftId);
+  const rightAst = astIds.has(rightId);
+  // AST details may relate only through an explicit shared symbol. Shared file
+  // and generic keyword buckets otherwise create a quadratic graph of calls
+  // within one module without adding plan/code evidence.
+  if (leftAst && rightAst) {
+    return !bucketKey.startsWith('symbol:')
+      || !declarationAstIds.has(leftId)
+      || !declarationAstIds.has(rightId);
+  }
+  if (!bucketKey.startsWith('path:')) return false;
+  // A file-level declaration links to one module aggregate, not every call and
+  // symbol extracted from that file. Exact symbol and semantic token matches
+  // remain available through their stronger buckets.
+  const astId = leftAst ? leftId : rightAst ? rightId : null;
+  return astId !== null && !moduleAstIds.has(astId);
 }
 
 function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, RecordKeywords>): PairEvidence {
@@ -228,6 +250,10 @@ function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, R
   if (intersectsAliases(left.statement.target.paths, right.statement.target.paths, pathAliases)) {
     score += 0.28;
     basis.push('shared_path');
+    if (isModuleEvidencePair(left, right)) {
+      score += 0.24;
+      basis.push('module_coverage');
+    }
   }
   if (left.statement.action === right.statement.action && left.statement.action !== 'unknown') {
     score += 0.13;
@@ -245,6 +271,11 @@ function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, R
   }
   if (left.source.kind === right.source.kind) score -= 0.08;
   return { score: Math.max(0, score), basis: [...new Set(basis)].sort(), textScore: objectSimilarity };
+}
+
+function isModuleEvidencePair(left: IntentRecord, right: IntentRecord): boolean {
+  return left.source.kind !== right.source.kind
+    && (left.statement.kind === 'module_fact' || right.statement.kind === 'module_fact');
 }
 
 function determineRelation(left: IntentRecord, right: IntentRecord, evidence: PairEvidence): DirectedRelation {

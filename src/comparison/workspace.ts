@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import type { T2CConfig } from '../config/env.js';
 import { newRunId } from '../core/id.js';
 import { pathExists, readJson, writeJson, writeText } from '../core/io.js';
+import { assertPathWithinRoot } from '../core/security.js';
 import type { DiagnosticReport, IntentGraph, LlmExtractionMode, PipelineManifest, PipelineOptions } from '../core/types.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg, type IntentRealityView } from '../diff/reality.js';
 import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
@@ -82,6 +83,7 @@ export async function compareWorkspaceIntent(
   if (relativeAnalysisRoot.startsWith('..') || path.isAbsolute(relativeAnalysisRoot)) {
     throw new Error(`Analysis root is outside the Git repository: ${root}`);
   }
+  const outputDir = await scopedOutputDirectory(root, options.outputDir ?? config.outputDir);
   const baseRef = options.baseRef?.trim() || defaultBaseRef();
   const baseCommit = (await git(repositoryRoot, ['rev-parse', '--verify', `${baseRef}^{commit}`])).trim();
   const headCommit = (await git(repositoryRoot, ['rev-parse', '--verify', 'HEAD^{commit}'])).trim();
@@ -94,9 +96,9 @@ export async function compareWorkspaceIntent(
   try {
     await git(repositoryRoot, ['worktree', 'add', '--detach', baseWorktree, baseCommit]);
     const baseRoot = path.join(baseWorktree, relativeAnalysisRoot);
-    const pipelineOptions = commonPipelineOptions(options, config);
+    const pipelineOptions = commonPipelineOptions({ ...options, outputDir }, config);
     const baseOptions = await optionsForRoot(baseRoot, { ...pipelineOptions, root: baseRoot, outputDir: '.intent-compare-base' });
-    const currentOptions = await optionsForRoot(root, { ...pipelineOptions, root, outputDir: options.outputDir ?? config.outputDir });
+    const currentOptions = await optionsForRoot(root, { ...pipelineOptions, root, outputDir });
     const baseConfig = { ...config, root: baseRoot };
     const currentConfig = { ...config, root };
 
@@ -119,7 +121,7 @@ export async function compareWorkspaceIntent(
     const documentedCodeCoverageDelta = rounded(currentCoverage.documentedCodeCoverage - baseCoverage.documentedCodeCoverage);
     const gapsDelta = currentCoverage.gaps - baseCoverage.gaps;
     const comparisonId = newRunId();
-    const comparisonDirectory = path.join(root, options.outputDir ?? config.outputDir, 'comparisons', comparisonId);
+    const comparisonDirectory = path.resolve(root, outputDir, 'comparisons', comparisonId);
     await fs.mkdir(comparisonDirectory, { recursive: true });
 
     const artifacts = artifactPaths(root, comparisonDirectory);
@@ -178,6 +180,11 @@ export async function compareWorkspaceIntent(
     }
     await fs.rm(temporaryParent, { recursive: true, force: true });
   }
+}
+
+async function scopedOutputDirectory(root: string, requested: string): Promise<string> {
+  const absolute = await assertPathWithinRoot(root, path.resolve(root, requested));
+  return path.relative(root, absolute) || '.';
 }
 
 function commonPipelineOptions(options: WorkspaceComparisonOptions, config: T2CConfig): PipelineOptions {

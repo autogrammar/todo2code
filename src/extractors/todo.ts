@@ -12,6 +12,7 @@ import {
 } from '../core/text.js';
 import type { ExtractionResult, IntentRecord } from '../core/types.js';
 import { classifyAction } from '../tf/classifier.js';
+import { readListBlock } from './markdown-block.js';
 
 /** Deterministic TODO.md -> Intent DSL converter. */
 export async function extractTodo(root: string, todoPath: string, config: T2CConfig): Promise<ExtractionResult> {
@@ -35,7 +36,9 @@ export async function extractTodo(root: string, todoPath: string, config: T2CCon
     const task = raw.match(/^\s*[-*+]\s+\[([ xX])\]\s+(.+?)\s*$/);
     if (!task) continue;
     const checked = (task[1] ?? '').toLowerCase() === 'x';
-    const text = task[2]?.trim() ?? '';
+    const block = readListBlock(lines, index, task[2] ?? '');
+    index = block.endIndex;
+    const text = block.text;
     const classified = await classifyAction(text, config);
     const action = classified.action;
     records.push(buildRecord({
@@ -55,9 +58,9 @@ export async function extractTodo(root: string, todoPath: string, config: T2CCon
       lifecycle: checked ? 'completed' : 'planned',
       sourceKind: 'todo',
       sourcePath: relative,
-      sourceLines: { start: index + 1, end: index + 1 },
+      sourceLines: { start: block.startLine, end: block.endLine },
       extractor: 't2c/markdown-todo@1',
-      rawExcerpt: raw,
+      rawExcerpt: block.raw.join('\n'),
       epistemicClass: 'plan',
       confidence: Math.min(0.98, classified.confidence + 0.12),
       basis: [classified.basis, 'markdown_checkbox', 'heading_context'],

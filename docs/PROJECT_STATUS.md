@@ -51,8 +51,8 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Audytowane wzbogacanie komunikacji | działa opt-in | structured OpenRouter + synteza per uczestnik z cytowaniami; identity/role/ticket/source/epistemic class należą do runtime; deterministic/prefer/require mają jawny audyt |
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
-| Diagnostyka i Intent vs Reality | działa | wynik jest deterministyczny, ale AST może dominować liczbę tematów i ostrzeżeń |
-| Graf → wnioski → raport NL | działa | CLI ma jawne `deterministic|prefer-llm|require-llm`; LLM zwraca structured output, runtime waliduje `t2c.conclusion/v1`, a Markdown jest dopiero deterministyczną projekcją |
+| Diagnostyka i Intent vs Reality | działa | agregaty modułów ograniczają szum AST; `aligned` wymaga deklaracji i implementacji, a pokrycie dokumentacji jest osobną metryką |
+| Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; surowa odpowiedź jest walidowana przed wyliczeniem ID, a zweryfikowany przebieg OpenRouter `require-llm` utworzył 4 uziemione wnioski bez fallbacku |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
 | Zadania DSL → `TODO.patch` | działa we wszystkich interfejsach | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem i rejestracją w run history |
@@ -61,28 +61,28 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 158 testów: 157 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 51 modułów i 280 importów wewnętrznych: brak cykli, niezależny `src/core`;
-- 9 deterministycznych entrypointów i 19 modułów bez tranzytywnego importu LLM;
+- 166 testów: 165 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 70 modułów i 331 importów wewnętrznych: brak cykli, niezależny `src/core`;
+- 9 deterministycznych entrypointów i 21 modułów bez tranzytywnego importu LLM;
 - 59 zmiennych używanych przez kod/Docker i 59 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 207 rekordów i 650 relacji. Liczba
+Przebieg offline na `examples/` utworzył 217 rekordów i 104 relacje. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
 | Źródło | Rekordy |
 |---|---:|
-| AST | 180 |
+| AST | 190 |
 | Git | 10 |
 | NL | 7 |
 | TODO | 3 |
 | CHANGELOG | 2 |
 
-Diagnostyka zawierała 0 blokad, 6 pozycji `review_required`, 41 ostrzeżeń i
-39 informacji. Bieżące `make demo` jawnie wyłącza LLM dokumentacji i
+Diagnostyka zawierała 3 blokady komunikacyjne, 7 pozycji `review_required`,
+59 ostrzeżeń i 41 informacji. Bieżące `make demo` jawnie wyłącza LLM dokumentacji i
 podsumowania, dzięki czemu stan runu jest `succeeded` i nie zależy od sieci ani
 prywatnego `.env`. Nie jest to jednak dowód jakości semantycznej LLM.
 
@@ -99,8 +99,9 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
 
 1. Pipeline tworzy patch do review, ale celowo nie może go sam zatwierdzić;
    approval pozostaje osobną operacją człowieka lub uprawnionego klienta.
-2. Fakty AST są znacznie drobniejsze niż intencje produktowe. Bez agregacji
-   zawyżają liczbę `IMPLEMENTED_NOT_PLANNED` i `IMPLEMENTED_NOT_DOCUMENTED`.
+2. Agregaty modułów ograniczają relacje i prezentację niskopoziomowych faktów
+   AST, ale mapowanie intencji produktowych na możliwości przekrojowe nadal
+   zależy od nazwanych ścieżek lub symboli.
 3. Wzbogacanie całego TODO/CHANGELOG jednym dużym żądaniem może przekroczyć
    timeout providera.
 4. Adaptery językowe są orkiestratorowane przez duży `src/extractors/ast.ts`;

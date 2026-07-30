@@ -249,9 +249,12 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
 
 async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
   const root = path.resolve(parsed.positionals[0] ?? config.root);
+  const taskFile = parsed.options.has('task')
+    ? optionNullableString(parsed, 'task', null)
+    : await pathExists(path.join(root, 'TASK.md')) ? 'TASK.md' : null;
   const pipeline: PipelineOptions = {
     root,
-    taskFile: optionNullableString(parsed, 'task', null),
+    taskFile,
     todoFile: optionNullableString(parsed, 'todo', 'TODO.md'),
     changelogFile: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
     documentPatterns: optionList(parsed, 'docs', config.documentPatterns),
@@ -674,7 +677,8 @@ function printHelp(): void {
   process.stdout.write(`  t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg]\n`);
   process.stdout.write(`               [--md reality.md] [--gaps-only] [--max-rows 30]\n`);
   process.stdout.write(`  t2c watch [root] [--interval 60] [--scan-interval 2] [--no-initial-report]\n`);
-  process.stdout.write(`               [--task TASK.md] [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--todo TODO.md] [--no-docs-llm] [--out .intent]\n`);
+  process.stdout.write(`               [--task TASK.md|none] [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--todo TODO.md]\n`);
+  process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
   process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm]\n`);

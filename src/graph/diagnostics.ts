@@ -1,5 +1,6 @@
 import { createIntentId } from '../core/id.js';
 import { assertIntentGraph } from '../core/schema.js';
+import { pathAliases } from '../core/target.js';
 import type {
   Diagnostic,
   DiagnosticReport,
@@ -13,12 +14,14 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
   const diagnostics: Diagnostic[] = [];
   const neighbors = buildNeighbors(graph);
   const recordsById = new Map(graph.records.map((record) => [record.id, record]));
+  const implementedPaths = indexImplementedPaths(graph);
 
   for (const record of graph.records) {
     const related = (neighbors.get(record.id) ?? [])
       .map((id) => recordsById.get(id))
       .filter((item): item is IntentRecord => Boolean(item));
-    if (isPlan(record) && !related.some(isImplementationEvidence)) {
+    const evidenced = related.some(isImplementationEvidence) || hasImplementedTarget(record, implementedPaths);
+    if (isPlan(record) && !evidenced) {
       diagnostics.push(makeDiagnostic(
         record.lifecycle.status === 'completed' ? 'blocking' : 'warning',
         'PLANNED_NOT_IMPLEMENTED',
@@ -51,7 +54,7 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
       ));
     }
 
-    if (record.source.kind === 'changelog' && !related.some(isImplementationEvidence)) {
+    if (record.source.kind === 'changelog' && !evidenced) {
       diagnostics.push(makeDiagnostic(
         'review_required',
         'CHANGELOG_WITHOUT_IMPLEMENTATION',
@@ -147,6 +150,37 @@ function appendNeighbor(map: Map<string, string[]>, from: string, to: string): v
   const values = map.get(from);
   if (values) values.push(to);
   else map.set(from, [to]);
+}
+
+/**
+ * Files that Git or AST evidence actually touched, as an alias set.
+ *
+ * Symbol-level facts cannot be linked to a file-level plan without pairing that
+ * plan with every symbol in the module, which the linker deliberately refuses
+ * to do (see `test/linker-pairing.test.ts`). The evidence is nevertheless real:
+ * a task naming `src/extractors/ast.ts` *is* implemented when facts were
+ * extracted from that exact file. Reading it from the graph here keeps the
+ * relation set sparse while removing the false "planned, no code" verdict —
+ * measured on this repository as 7 blocking findings against tasks whose code
+ * and passing tests were present.
+ */
+function indexImplementedPaths(graph: IntentGraph): Set<string> {
+  const paths = new Set<string>();
+  for (const record of graph.records) {
+    if (!isImplementationEvidence(record)) continue;
+    for (const value of record.statement.target.paths) {
+      for (const alias of pathAliases(value)) paths.add(alias);
+    }
+    if (record.source.path) {
+      for (const alias of pathAliases(record.source.path)) paths.add(alias);
+    }
+  }
+  return paths;
+}
+
+/** True when the record names a file that Git or AST evidence covers. */
+function hasImplementedTarget(record: IntentRecord, implementedPaths: Set<string>): boolean {
+  return record.statement.target.paths.some((value) => pathAliases(value).some((alias) => implementedPaths.has(alias)));
 }
 
 function isPlan(record: IntentRecord): boolean {
