@@ -1,0 +1,231 @@
+import type { T2CConfig } from '../config/env.js';
+import { executeAction, type T2CAction } from '../services/actions.js';
+import { McpRequestError } from './mcp-errors.js';
+
+interface McpTool {
+  name: T2CAction;
+  description: string;
+  inputSchema: Record<string, unknown>;
+  annotations?: Record<string, unknown>;
+}
+
+export const MCP_TOOLS: McpTool[] = [
+  tool('extract_nl', 'Extract NL/task text to canonical Intent DSL through audited LLM generation with a deterministic fallback.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    file: stringProp('Source file path. Defaults to TASK.md.'),
+    text: stringProp('Optional inline text. When present, file is used only as source identity.'),
+    nlMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+  }),
+  tool('extract_git', 'Extract the last N Git commits to Intent DSL without an LLM.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    count: numberProp('Number of commits, default 10.', 1, 100),
+  }),
+  tool('extract_ast', 'Extract TypeScript/JavaScript, Python, Go, Java and Rust AST facts to Intent DSL without an LLM.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+  }),
+  tool('extract_markdown', 'Extract TODO.md and CHANGELOG.md structurally, with audited LLM semantic enrichment and deterministic fallback.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    todo: nullableStringProp('TODO path or null.'),
+    changelog: nullableStringProp('CHANGELOG path or null.'),
+    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+  }),
+  tool('extract_docs', 'Extract documentation to Intent DSL through OpenRouter structured outputs.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    patterns: stringArrayProp('Documentation glob patterns.'),
+    excludes: stringArrayProp('Exclusion glob patterns.'),
+  }),
+  tool('extract_communication', 'Extract per-ticket human and agent communication under project/<ticket>/ to canonical Intent DSL.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    projectDir: stringProp('Communication root, default project.'),
+    ticket: nullableStringProp('Optional ticket filter.'),
+    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
+  }),
+  tool('analyze_communication', 'Analyze every human/agent separately and detect communication-to-work divergences.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    projectDir: stringProp('Communication root, default project.'),
+    ticket: nullableStringProp('Optional ticket filter.'),
+    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
+    graph: { type: 'object', description: 'Optional existing t2c.graph/v1 object.' },
+    gitCount: numberProp('Commit evidence count, default 10.', 1, 100),
+    includeAst: { type: 'boolean', description: 'Include AST evidence, default true.' },
+    includeGraph: { type: 'boolean', description: 'Include the constructed graph in the result.' },
+  }),
+  tool('link', 'Link Intent DSL records into a deterministic evidence graph.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    records: { type: 'array', items: { type: 'object' } },
+    files: stringArrayProp('Alternative list of JSONL paths.'),
+  }),
+  tool('diagnose', 'Run deterministic alignment diagnostics on an Intent graph.', {
+    graph: { type: 'object', description: 't2c.graph/v1 object.' },
+  }, ['graph']),
+  tool('summarize', 'Generate grounded Polish NL summary from graph and diagnostics through OpenRouter.', {
+    graph: { type: 'object' },
+    diagnostics: { type: 'object' },
+    mode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    fallback: { type: 'boolean', description: 'Deprecated alias: true selects prefer-llm, false selects require-llm.' },
+  }, ['graph']),
+  tool('diff', 'Compare two Intent graphs and return canonical t2c.diff/v1 JSON plus an SVG view.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    beforeGraph: { type: 'object', description: 'Earlier t2c.graph/v1 object.' },
+    afterGraph: { type: 'object', description: 'Later t2c.graph/v1 object.' },
+    before: stringProp('Alternative earlier graph path under root.'),
+    after: stringProp('Alternative later graph path under root.'),
+    includeSvg: { type: 'boolean', description: 'Include SVG visualization, default true.' },
+    maxItems: numberProp('Maximum rows per SVG section, default 18.', 1, 100),
+    communicationOnly: { type: 'boolean', description: 'Compare only versioned agent_log communication records.' },
+    participant: stringProp('Optional exact communication participant filter.'),
+    role: stringProp('Optional human, agent or unknown communication role filter.'),
+    ticket: stringProp('Optional ticket filter applied to both graphs.'),
+  }),
+  tool('diff_files', 'Diff two files with the deterministic Myers engine and return unified text plus an SVG view.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    before: stringProp('Earlier file path under root.'),
+    after: stringProp('Later file path under root.'),
+    path: stringProp('Display path for the rendered diff.'),
+    context: numberProp('Unchanged context lines per hunk, default 3.', 0, 100),
+    includeSvg: { type: 'boolean', description: 'Include SVG visualization, default true.' },
+    includeHtml: { type: 'boolean', description: 'Include HTML visualization, default false.' },
+    maxRows: numberProp('Maximum rendered SVG rows, default 400.', 1, 4000),
+  }, ['before', 'after']),
+  tool('diff_git', 'Diff the Git work tree or index against a revision and render it.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    revision: stringProp('Base revision, default HEAD.'),
+    staged: { type: 'boolean', description: 'Compare the index instead of the work tree.' },
+    context: numberProp('Unchanged context lines per hunk, default 3.', 0, 100),
+    maxFiles: numberProp('Maximum files inspected, default 50.', 1, 500),
+    includeSvg: { type: 'boolean', description: 'Include SVG visualization, default true.' },
+    includeHtml: { type: 'boolean', description: 'Include HTML visualization, default false.' },
+  }),
+  tool('reality', 'Compare declared intent against observed code and return the t2c.reality/v1 view.', {
+    graph: { type: 'object', description: 't2c.graph/v1 object.' },
+    diagnostics: { type: 'object', description: 'Optional t2c.diagnostics/v1 report; recomputed when absent.' },
+    gapsOnly: { type: 'boolean', description: 'Render only divergent topics.' },
+    maxRows: numberProp('Maximum rendered rows, default 30.', 1, 500),
+    includeSvg: { type: 'boolean', description: 'Include SVG visualization, default true.' },
+  }, ['graph']),
+  tool('compare_workspace', 'Compare intent at a Git base ref (default origin/main) with committed and uncommitted workspace state.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    base: stringProp('Git base ref, default origin/main.'),
+    task: nullableStringProp('NL task file included on each side when present.'),
+    todo: nullableStringProp('TODO file.'),
+    changelog: nullableStringProp('CHANGELOG file.'),
+    docs: stringArrayProp('Documentation patterns.'),
+    docExcludes: stringArrayProp('Documentation exclusion patterns.'),
+    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
+    includeDocsLlm: { type: 'boolean', description: 'Run the same LLM documentation extraction on both sides.' },
+    output: stringProp('Comparison artifact root, default .intent.'),
+    gitCount: numberProp('Number of commit claims included per side.', 1, 100),
+  }),
+  tool('propose_todo', 'Synthesize grounded TODO proposals from a graph and diagnostics with an audited LLM mode.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    graph: { type: 'object', description: 'Inline t2c.graph/v1 object.' },
+    graphPath: stringProp('Alternative graph JSON path under root.'),
+    diagnostics: { type: 'object', description: 'Inline t2c.diagnostics/v1 report; derived when omitted.' },
+    diagnosticsPath: stringProp('Alternative diagnostics JSON path under root.'),
+    mode: stringProp('prefer-llm (default) or require-llm.'),
+    output: stringProp('Optional synthesis JSON output path under root.'),
+  }),
+  tool('render_todo', 'Render validated new proposals to a reviewable TODO.patch and adjacent JSON audit without changing TODO.md.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    graph: { type: 'object', description: 'Inline t2c.graph/v1 object.' },
+    graphPath: stringProp('Alternative graph JSON path under root.'),
+    diagnostics: { type: 'object', description: 'Inline t2c.diagnostics/v1 report.' },
+    diagnosticsPath: stringProp('Alternative diagnostics JSON path under root.'),
+    synthesis: { type: 'object', description: 'Inline t2c.task-synthesis/v1 result.' },
+    synthesisPath: stringProp('Alternative synthesis JSON path under root.'),
+    todo: stringProp('Source TODO path, default TODO.md.'),
+    patch: stringProp('Review Markdown output path, default TODO.patch.'),
+    audit: stringProp('Patch audit JSON output path, default TODO.patch.json.'),
+  }),
+  tool('apply_todo', 'Apply one explicitly approved, unchanged TODO patch atomically and write an idempotency receipt.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    todo: stringProp('Source TODO path, default TODO.md.'),
+    patch: stringProp('Reviewed TODO.patch path.'),
+    audit: stringProp('TODO patch audit JSON path.'),
+    receipt: stringProp('Apply receipt output path.'),
+    actor: stringProp('Human approving actor identity.'),
+    approvalHash: stringProp('Exact renderedPatchHash approved by the actor.'),
+  }, ['patch', 'audit', 'receipt', 'actor', 'approvalHash']),
+  tool('pipeline', 'Run the complete todo2code pipeline and write a versioned .intent run.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    task: nullableStringProp('NL task/ticket file.'),
+    todo: nullableStringProp('TODO file.'),
+    changelog: nullableStringProp('CHANGELOG file.'),
+    docs: stringArrayProp('Documentation glob patterns.'),
+    docExcludes: stringArrayProp('Documentation exclusion patterns; override to include one historical .intent report.'),
+    nlMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    includeDocsLlm: { type: 'boolean' },
+    output: stringProp('Output directory, default .intent.'),
+    gitCount: numberProp('Number of commits, default 10.', 1, 100),
+    summaryFallback: { type: 'boolean' },
+    includeSummaryLlm: { type: 'boolean', description: 'Use the configured LLM for the final summary; false is fully deterministic.' },
+    taskMode: stringProp('disabled (default), prefer-llm or require-llm task synthesis and TODO.patch rendering.'),
+    includeCommunication: { type: 'boolean', description: 'Analyze project/<ticket> communication in the main run; default true.' },
+    projectDir: stringProp('Communication directory under root, default project.'),
+    communicationTicket: nullableStringProp('Optional ticket filter for communication input.'),
+    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
+  }),
+];
+
+export async function callMcpTool(
+  params: Record<string, unknown>,
+  config: T2CConfig,
+): Promise<Record<string, unknown>> {
+  const name = params.name;
+  if (typeof name !== 'string' || !MCP_TOOLS.some((item) => item.name === name)) {
+    throw new McpRequestError(-32602, `Unknown tool: ${String(name)}`);
+  }
+  const args = params.arguments && typeof params.arguments === 'object' && !Array.isArray(params.arguments)
+    ? params.arguments as Record<string, unknown>
+    : {};
+  try {
+    const result = await executeAction(name as T2CAction, args, config);
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      structuredContent: result,
+      isError: false,
+    };
+  } catch (error) {
+    return {
+      content: [{ type: 'text', text: error instanceof Error ? error.message : String(error) }],
+      isError: true,
+    };
+  }
+}
+
+function tool(
+  name: T2CAction,
+  description: string,
+  properties: Record<string, unknown>,
+  required: string[] = [],
+): McpTool {
+  const writes = new Set<T2CAction>(['pipeline', 'propose_todo', 'render_todo', 'apply_todo']);
+  return {
+    name,
+    description,
+    inputSchema: { type: 'object', additionalProperties: false, properties, required },
+    annotations: {
+      readOnlyHint: !writes.has(name),
+      destructiveHint: name === 'apply_todo',
+      idempotentHint: name !== 'pipeline' && name !== 'propose_todo',
+    },
+  };
+}
+
+function stringProp(description: string): Record<string, unknown> {
+  return { type: 'string', description };
+}
+
+function nullableStringProp(description: string): Record<string, unknown> {
+  return { type: ['string', 'null'], description };
+}
+
+function stringArrayProp(description: string): Record<string, unknown> {
+  return { type: 'array', items: { type: 'string' }, description };
+}
+
+function numberProp(description: string, minimum: number, maximum: number): Record<string, unknown> {
+  return { type: 'integer', minimum, maximum, description };
+}

@@ -39,6 +39,9 @@
 - Split the documentation-to-Intent LLM extractor into focused orchestration,
   chunking, schema, record-repair and type modules. The public API and audited
   output remain unchanged while the former 531-line god module is removed.
+- Split the MCP stdio server into protocol orchestration, tool catalog/action
+  dispatch, resource access and error modules while preserving modern 2026 and
+  initialized legacy request behavior.
 - Stopped treating ticket prefixes such as `T2C` as code symbols and stopped
   action-like inline-code identifiers such as `validateContract` from
   overriding the explicit prose verb. Validation verb forms are recognized
