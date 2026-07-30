@@ -26,6 +26,7 @@ odtworzenie kolejności, lecz to `timestamp` jest źródłem czasu w DSL.
 ```markdown
 ---
 participant: Codex
+participant-id: agent:codex
 role: agent
 type: report
 timestamp: 2026-07-29T18:00:00+02:00
@@ -39,7 +40,9 @@ Dodano walidację kontraktu dla WM-101 i uruchomiono test integracyjny.
 
 Wymagane pola:
 
-- `participant` — stabilna nazwa uczestnika;
+- `participant-id` — stabilne, kanoniczne ID `human:<id>` albo `agent:<id>`,
+  wymagane, gdy istnieje `project/participants.json`;
+- `participant` — nazwa wyświetlana; nie służy do zgadywania tożsamości;
 - `role` — wyłącznie `human` albo `agent`;
 - `type` — `request`, `plan`, `decision`, `message`, `report`, `result` lub
   `claim`.
@@ -48,6 +51,30 @@ Ticket jest pobierany z katalogu. `git-authors` wiąże nazwę uczestnika z
 autorami commitów. `paths` i `symbols` zwiększają jakość powiązania z AST/Git.
 Brak roli lub uczestnika nie jest uzupełniany przez domysł: runtime zapisuje
 ostrzeżenie i problem `PARTICIPANT_IDENTITY_UNRESOLVED`.
+
+Rejestr `project/participants.json` ma kontrakt
+`t2c.participant-registry/v1`:
+
+```json
+{
+  "schemaVersion": "t2c.participant-registry/v1",
+  "participants": [{
+    "id": "agent:codex",
+    "role": "agent",
+    "displayName": "Codex",
+    "gitAuthors": ["Agent Codex"],
+    "a2aAgentIds": ["agent://codex/primary"],
+    "humanAliases": []
+  }]
+}
+```
+
+ID oraz wszystkie zewnętrzne identyfikatory muszą być unikalne. Runtime
+wyszukuje wyłącznie dokładne `participant-id`; nie przeszukuje `displayName`
+ani aliasów i nie stosuje podobieństwa tekstowego. `humanAliases` służą jako
+jawna mapa integracyjna, a nie jako heurystyka. Przy aktywnym rejestrze role i
+autorzy Git z front matter sprzeczni z wpisem są ignorowani i raportowani.
+Schemat znajduje się w `schemas/participant-registry.schema.json`.
 
 ## Uruchomienie
 

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.dev/schemas/participant-registry.schema.json",
+  "title": "todo2code participant identity registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "participants"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.participant-registry/v1" },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "role", "displayName", "gitAuthors", "a2aAgentIds", "humanAliases"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^(human|agent):[a-z0-9][a-z0-9._-]*$" },
+          "role": { "enum": ["human", "agent"] },
+          "displayName": { "type": "string", "minLength": 1 },
+          "gitAuthors": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+          "a2aAgentIds": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+          "humanAliases": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        }
+      }
+    }
+  }
+}

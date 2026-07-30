@@ -15,6 +15,7 @@ export * from './extractors/docs-llm.js';
 export * from './extractors/communication.js';
 export * from './communication/analyzer.js';
 export * from './communication/llm.js';
+export * from './communication/identity.js';
 export * from './graph/linker.js';
 export * from './graph/diagnostics.js';
 export * from './graph/diff.js';

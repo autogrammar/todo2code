@@ -30,6 +30,9 @@ wypowiedzi z dowodami Git/AST, zapisuje analizę w manifeście i dodaje problemy
 do diagnostyki. Claim agenta pozostaje claimem, nigdy faktem wykonania.
 Kontrakt plików i gotowe polecenia opisuje
 [`docs/TEAM_COMMUNICATION.md`](docs/TEAM_COMMUNICATION.md).
+Opcjonalny `project/participants.json` wiąże kanoniczne `human:<id>` i
+`agent:<id>` z autorami Git, identyfikatorami A2A oraz aliasami ludzi bez
+zgadywania tożsamości na podstawie nazw wyświetlanych.
 
 Praktyczny przebieg CLI — od instalacji przez tryb offline/LLM po diff,
 Intent vs Reality, komunikację i automatyczną kontrolę wszystkich przykładów —

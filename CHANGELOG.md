@@ -4,6 +4,12 @@
 
 ### Added
 
+- Added the strict `t2c.participant-registry/v1` contract at
+  `project/participants.json`. Communication front matter can bind an exact
+  `participant-id` to runtime-owned human/agent role, Git authors, A2A agent
+  IDs and optional human aliases; duplicate external identifiers, unknown IDs,
+  role conflicts and display-name-only messages are never guessed into an
+  identity.
 - Added opt-in audited structured OpenRouter enrichment for `project/<ticket>`
   communication and grounded `t2c.participant-synthesis/v1` summaries for each
   human or agent. Runtime-owned identity, role, ticket, source lines,

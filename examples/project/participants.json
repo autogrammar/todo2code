@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "t2c.participant-registry/v1",
+  "participants": [
+    {
+      "id": "human:product-owner",
+      "role": "human",
+      "displayName": "Product Owner",
+      "gitAuthors": [],
+      "a2aAgentIds": [],
+      "humanAliases": ["product-owner@example.test"]
+    },
+    {
+      "id": "human:security-owner",
+      "role": "human",
+      "displayName": "Security Owner",
+      "gitAuthors": [],
+      "a2aAgentIds": [],
+      "humanAliases": ["security-owner@example.test"]
+    },
+    {
+      "id": "agent:codex",
+      "role": "agent",
+      "displayName": "Codex",
+      "gitAuthors": ["Agent Codex"],
+      "a2aAgentIds": ["agent://codex/demo"],
+      "humanAliases": []
+    },
+    {
+      "id": "agent:rogue",
+      "role": "agent",
+      "displayName": "Rogue Agent",
+      "gitAuthors": [],
+      "a2aAgentIds": ["agent://rogue/demo"],
+      "humanAliases": []
+    }
+  ]
+}

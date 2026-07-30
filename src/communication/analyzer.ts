@@ -27,6 +27,7 @@ export interface CommunicationIssue {
 
 export interface ParticipantCommunicationAnalysis {
   participant: string;
+  displayName: string;
   role: CommunicationRole;
   tickets: string[];
   communicationRecords: number;
@@ -66,7 +67,7 @@ export function analyzeCommunication(
     const values = participants.get(participant);
     if (values) values.push(record);
     else participants.set(participant, [record]);
-    if (roleOf(record) === 'unknown' || participant.startsWith('unknown:')) {
+    if (roleOf(record) === 'unknown' || participant.startsWith('unknown:') || record.metadata.identityResolved === false) {
       issues.push(issue(
         'PARTICIPANT_IDENTITY_UNRESOLVED', 'review_required', ticketOf(record), [participant], [record.id],
         `Nie można wiarygodnie przypisać komunikatu do człowieka albo agenta: ${record.source.path ?? record.id}.`,
@@ -143,6 +144,9 @@ export function analyzeCommunication(
     const evidence = new Set(records.flatMap((record) => evidenceByRecord.get(record.id) ?? []));
     return {
       participant,
+      displayName: typeof records[0]?.metadata.displayName === 'string'
+        ? records[0].metadata.displayName
+        : participant,
       role: roleOf(records[0]),
       tickets: [...new Set(records.map(ticketOf))].sort(),
       communicationRecords: records.length,
@@ -196,9 +200,9 @@ export function renderCommunicationMarkdown(analysis: CommunicationAnalysis): st
     '# Analiza komunikacji ludzi i agentów', '',
     `Graf: \`${analysis.graphFingerprint}\`. Tickety: ${analysis.tickets.map((ticket) => `\`${ticket}\``).join(', ') || 'brak'}.`, '',
     '## Uczestnicy', '',
-    '| Uczestnik | Rola | Wiadomości | Plany | Claimy | Commity | Dowody | Problemy |',
-    '|---|---|---:|---:|---:|---:|---:|---:|',
-    ...analysis.participants.map((item) => `| ${escapeCell(item.participant)} | ${item.role} | ${item.communicationRecords} | ${item.plans} | ${item.claims} | ${item.matchedGitCommits} | ${item.linkedEvidenceRecords} | ${item.issueIds.length} |`),
+    '| Uczestnik | Stabilne ID | Rola | Wiadomości | Plany | Claimy | Commity | Dowody | Problemy |',
+    '|---|---|---|---:|---:|---:|---:|---:|---:|',
+    ...analysis.participants.map((item) => `| ${escapeCell(item.displayName)} | ${escapeCell(item.participant)} | ${item.role} | ${item.communicationRecords} | ${item.plans} | ${item.claims} | ${item.matchedGitCommits} | ${item.linkedEvidenceRecords} | ${item.issueIds.length} |`),
     '', '## Synteza per uczestnik', '',
   ];
   if (analysis.syntheses.length === 0) lines.push('- Brak uziemionych syntez uczestników.');
@@ -307,7 +311,9 @@ function intersects(left: string[], right: string[]): boolean {
 }
 
 function participantOf(record: IntentRecord): string {
-  return typeof record.metadata.participant === 'string'
+  return typeof record.metadata.participantId === 'string'
+    ? record.metadata.participantId
+    : typeof record.metadata.participant === 'string'
     ? record.metadata.participant
     : record.statement.actor ?? `unknown:${record.id}`;
 }

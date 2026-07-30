@@ -296,7 +296,10 @@ Widok zestawia źródła deklaratywne (`nl`, `todo`, `document`, `agent_log`) z 
 
 Rekordy z `project/<ticket>/` używają `source.kind=agent_log`. Runtime zachowuje
 `metadata.participant`, `participantRole`, `messageType`, `ticket`, `recipient`
-i `gitAuthors`. Polecenia człowieka są deklaracjami, plany pozostają planami, a
+i `gitAuthors`. Gdy istnieje `project/participants.json`, rekord zawiera też
+runtime-owned `participantId`, `displayName`, `a2aAgentIds`, `humanAliases`,
+`identityResolved` i `identitySource`; display name nigdy nie jest używana do
+zgadywania stabilnego ID. Polecenia człowieka są deklaracjami, plany pozostają planami, a
 raporty agentów są claimami — nigdy faktami implementacji.
 
 Opcjonalne wzbogacanie tworzy `t2c.participant-synthesis/v1`: runtime nadaje

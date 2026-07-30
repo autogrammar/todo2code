@@ -1,5 +1,6 @@
 ---
 participant: Product Owner
+participant-id: human:product-owner
 role: human
 type: request
 timestamp: 2026-07-29T18:00:00+02:00

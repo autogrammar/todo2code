@@ -8,7 +8,7 @@
 - [x] Add audited structured LLM enrichment for communication records and a
   grounded per-participant synthesis. Preserve human/agent identity, ticket,
   source lines and epistemic class as runtime-owned fields.
-- [ ] Add a participant identity registry mapping stable IDs to Git authors,
+- [x] Add a participant identity registry mapping stable IDs to Git authors,
   A2A agent IDs and optional human aliases without guessing identity from
   display names.
 - [ ] Aggregate low-level AST calls and symbols into module/capability topics

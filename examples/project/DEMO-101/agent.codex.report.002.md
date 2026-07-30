@@ -1,5 +1,6 @@
 ---
 participant: Codex
+participant-id: agent:codex
 role: agent
 type: report
 timestamp: 2026-07-29T18:05:00+02:00

@@ -15,6 +15,7 @@ import {
 } from '../core/text.js';
 import type { EpistemicClass, ExtractionResult, LifecycleStatus } from '../core/types.js';
 import { classifyAction } from '../tf/classifier.js';
+import { loadParticipantIdentityRegistry, type ParticipantIdentityEntry } from '../communication/identity.js';
 
 export type CommunicationRole = 'human' | 'agent' | 'unknown';
 export type CommunicationType = 'request' | 'plan' | 'decision' | 'message' | 'report' | 'result' | 'claim';
@@ -52,6 +53,9 @@ export async function extractCommunicationIntent(
   }
 
   const files = await walkFiles(projectRoot, { extensions: ['.md', '.txt'], maxFiles: 20_000 });
+  const identityRegistry = await loadParticipantIdentityRegistry(
+    root, projectRoot, config.maxFileBytes, config.allowOutsideRoot,
+  );
   const records: ExtractionResult['records'] = [];
   const warnings: string[] = [];
 
@@ -74,19 +78,40 @@ export async function extractCommunicationIntent(
     }
     const envelope = parseEnvelope(body);
     const inferred = inferIdentity(relativeToProject);
-    const participant = first(envelope.metadata.participant, envelope.metadata.actor, inferred.participant)
-      ?? `unknown:${path.basename(file)}`;
-    const role = normalizeRole(first(envelope.metadata.role, inferred.role));
+    const declaredParticipant = first(envelope.metadata.participant, envelope.metadata.actor, inferred.participant);
+    const declaredRole = normalizeRole(first(envelope.metadata.role, inferred.role));
+    const declaredParticipantId = first(envelope.metadata.participant_id, envelope.metadata['participant-id']);
+    const identity = resolveIdentity(identityRegistry?.byId ?? null, declaredParticipantId);
+    const participant = identity.entry?.id ?? declaredParticipantId ?? declaredParticipant ?? `unknown:${path.basename(file)}`;
+    const role = identity.entry?.role ?? declaredRole;
+    const displayName = identity.entry?.displayName ?? declaredParticipant ?? participant;
     const messageType = normalizeType(first(envelope.metadata.type, envelope.metadata.kind, inferred.type));
     const ticket = first(envelope.metadata.ticket, pathTicket) ?? pathTicket;
     const recipient = first(envelope.metadata.recipient, envelope.metadata.to);
     const timestamp = validTimestamp(first(envelope.metadata.timestamp, envelope.metadata.created_at, envelope.metadata.createdat));
-    const gitAuthors = listValue(first(envelope.metadata.git_authors, envelope.metadata['git-authors'], envelope.metadata.git_author));
+    const declaredGitAuthors = listValue(first(envelope.metadata.git_authors, envelope.metadata['git-authors'], envelope.metadata.git_author));
+    const gitAuthors = identity.entry ? [...identity.entry.gitAuthors] : declaredGitAuthors;
+    const declaredA2aAgentId = first(envelope.metadata.a2a_agent_id, envelope.metadata['a2a-agent-id']);
     const explicitPaths = listValue(first(envelope.metadata.paths, envelope.metadata.target_paths, envelope.metadata['target-paths']));
     const explicitSymbols = listValue(first(envelope.metadata.symbols, envelope.metadata.target_symbols, envelope.metadata['target-symbols']));
 
     if (role === 'unknown') warnings.push(`${relativeToProject}: role must be human or agent`);
     if (participant.startsWith('unknown:')) warnings.push(`${relativeToProject}: participant is missing`);
+    if (identityRegistry && !declaredParticipantId) {
+      warnings.push(`${relativeToProject}: participant-id is required when project/participants.json exists`);
+    } else if (identityRegistry && !identity.entry) {
+      warnings.push(`${relativeToProject}: participant-id is not present in project/participants.json`);
+    }
+    if (identity.entry && declaredRole !== 'unknown' && declaredRole !== identity.entry.role) {
+      warnings.push(`${relativeToProject}: declared role conflicts with participant registry`);
+    }
+    if (identity.entry && declaredGitAuthors.length
+      && !sameStrings(declaredGitAuthors, identity.entry.gitAuthors)) {
+      warnings.push(`${relativeToProject}: git-authors differ from participant registry and were ignored`);
+    }
+    if (declaredA2aAgentId && (!identity.entry || !identity.entry.a2aAgentIds.includes(declaredA2aAgentId))) {
+      warnings.push(`${relativeToProject}: a2a-agent-id is not assigned to participant-id in the registry`);
+    }
     if (!timestamp && first(envelope.metadata.timestamp, envelope.metadata.created_at, envelope.metadata.createdat)) {
       warnings.push(`${relativeToProject}: invalid timestamp`);
     }
@@ -127,11 +152,18 @@ export async function extractCommunicationIntent(
         observedAt: timestamp,
         metadata: {
           participant,
+          participantId: identity.entry?.id ?? null,
+          displayName,
           participantRole: role,
           messageType,
           ticket,
           recipient,
           gitAuthors,
+          a2aAgentIds: identity.entry?.a2aAgentIds ?? [],
+          humanAliases: identity.entry?.humanAliases ?? [],
+          identityResolved: identityRegistry ? Boolean(identity.entry) : role !== 'unknown' && !participant.startsWith('unknown:'),
+          identitySource: identity.entry ? 'registry' : identityRegistry ? 'unresolved' : 'legacy',
+          participantRegistry: identityRegistry ? relativePosix(root, identityRegistry.path) : null,
           llmUsed: false,
         },
       }));
@@ -140,6 +172,21 @@ export async function extractCommunicationIntent(
 
   if (records.length === 0 && files.length > 0) warnings.push('No intent-like communication statements were found');
   return { records, warnings: [...new Set(warnings)].sort() };
+}
+
+function resolveIdentity(
+  byId: Map<string, ParticipantIdentityEntry> | null,
+  participantId: string | null,
+): { entry: ParticipantIdentityEntry | null } {
+  if (!byId || !participantId) return { entry: null };
+  // Stable IDs are canonical and exact. Display names and aliases are never
+  // searched here, so a similar-looking name cannot acquire another identity.
+  return { entry: byId.get(participantId) ?? null };
+}
+
+function sameStrings(left: string[], right: string[]): boolean {
+  const normalize = (values: string[]): string[] => values.map((value) => value.trim().toLowerCase()).sort();
+  return JSON.stringify(normalize(left)) === JSON.stringify(normalize(right));
 }
 
 function parseEnvelope(value: string): CommunicationEnvelope {

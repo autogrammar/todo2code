@@ -1,5 +1,6 @@
 ---
 participant: Security Owner
+participant-id: human:security-owner
 role: human
 type: decision
 timestamp: 2026-07-29T18:02:00+02:00
