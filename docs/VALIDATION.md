@@ -20,6 +20,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
 | Audytowane TODO/CHANGELOG → DSL | PASS — zachowanie struktury, runtime validation, oznaczony fallback i błąd `require-llm` |
+| `npm run evaluate:gold` | PASS — ekstrakcja i linkowanie 100% precision/recall; cytowania 100%; klasyfikacja duplikatów 100% precision/recall; deduplication rate 50%; stabilność 2/2 przebiegów |
 | Pełny kontrakt runtime DSL | PASS — exact keys, enumy, ID/hash/czas/linie, relacje, końce i statystyki grafu |
 | Manifest każdej awarii pipeline | PASS — `require-llm` i nieoczekiwana awaria summary zapisują etap/kod bez publikowania `latest.json` |
 | OpenRouter invalid-model discovery | PASS — lista modeli po błędnym identyfikatorze |
@@ -35,7 +36,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
 | `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę poza zakresem; wariant `--no-ast` wykrywa claim bez dowodu |
-| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `628b4b82c64b3492` oraz patcha `fe9de905c34f6b8c` |
+| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `488ffe359297e1bf` oraz patcha `907d4fd79ef9f754` |
 | Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
 | CLI `doctor`, `--help`, `--version` | PASS |
 | `npm audit` rdzenia | PASS — 0 podatności przy zwykłym `npm install` |
@@ -61,7 +62,7 @@ Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 
 Wszystkie przykłady przeszły ścieżkę NL → AST → Markdown → graf → diagnostyka →
 Intent vs Reality → Git diff i uzyskały ten sam fingerprint
-`628b4b82c64b3492…`; każdy potwierdził audyt NL i Markdown o statusie
+`488ffe359297e1bf…`; każdy potwierdził audyt NL i Markdown o statusie
 `succeeded` i trybie `deterministic`. Opcjonalny przykład TypeScript uruchomił także
 `compare_workspace` i zwrócił `unchanged` dla niezmienionego
 `examples/backend`. Porównanie nie wywołało summary LLM; oba manifesty oznaczają

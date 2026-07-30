@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added the versioned offline `t2c.gold-dataset/v1` benchmark and
+  `npm run evaluate:gold` quality gate for NL, captured documentation responses,
+  Markdown, linking and DSL2TODO. It reports precision, recall, citation
+  completeness, duplicate classification/rate and repeated-run stability.
+
+### Fixed
+
+- Stopped treating ticket prefixes such as `T2C` as code symbols and stopped
+  action-like inline-code identifiers such as `validateContract` from
+  overriding the explicit prose verb. Validation verb forms are recognized
+  without misclassifying the noun "validation" as an action.
+
 ## [0.5.0] - 2026-07-30
 
 ### Added

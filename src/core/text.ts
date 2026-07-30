@@ -7,7 +7,7 @@ const ACTION_PATTERNS: Array<[IntentAction, RegExp]> = [
   ['test', /\b(test|spec|coverage|przetestowa(?:ć|c)|testowa(?:ć|c))\b/i],
   ['document', /\b(document|docs|readme|changelog|udokumentowa(?:ć|c)|dokumentacj)/i],
   ['configure', /\b(configur|setup|ustawi(?:ć|c)|konfigur)/i],
-  ['validate', /\b(validat|verify|check|walid|sprawdzi(?:ć|c)|zweryfikowa(?:ć|c))\b/i],
+  ['validate', /\b(validat(?:e[sd]?|ing)|verify|check|walid(?:uj\w*|ow\w*)|sprawdzi(?:ć|c)|zweryfikowa(?:ć|c))\b/i],
   ['analyze', /\b(analy[sz]|inspect|scan|compare|analiz|por[oó]wn|zbada(?:ć|c))\b/i],
   ['block', /\b(block|deny|prevent|zablokowa(?:ć|c)|zabroni(?:ć|c))\b/i],
   ['approve', /\b(approve|accept|zatwierdzi(?:ć|c)|zaakceptowa(?:ć|c))\b/i],
@@ -30,12 +30,15 @@ export function classifyActionHeuristically(text: string): IntentAction {
   if (conventional === 'test') return 'test';
   if (conventional === 'docs') return 'document';
   if (conventional === 'build' || conventional === 'ci' || conventional === 'chore') return 'configure';
+  // Inline code is a target, not a verb. Without masking it, an identifier
+  // such as `validateContract` can override the explicit verb "implement".
+  const prose = text.replace(/`[^`]*`/g, ' ');
   // Fold diacritics before dictionary matching. JavaScript's `\b` treats letters such
   // as `ć` or `ą` as non-word characters, so matching only the raw Polish text
   // would miss perfectly valid imperatives such as `dodać`.
-  const searchable = normalizeToken(text);
+  const searchable = normalizeToken(prose);
   for (const [action, pattern] of ACTION_PATTERNS) {
-    if (pattern.test(text) || pattern.test(searchable)) return action;
+    if (pattern.test(prose) || pattern.test(searchable)) return action;
   }
   return 'unknown';
 }
@@ -98,7 +101,12 @@ export function extractPaths(text: string): string[] {
 export function extractSymbols(text: string): string[] {
   const backticks = extractBacktickValues(text).filter((value) => /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/.test(value));
   const camel = text.match(/\b[A-Za-z_$][A-Za-z0-9_$]*(?:[A-Z][A-Za-z0-9_$]*)+\b/g) ?? [];
-  return [...new Set([...backticks, ...camel])].sort();
+  // Ticket prefixes such as `T2C` in `T2C-101` satisfy the loose camel-case
+  // expression, but they identify work items rather than code symbols.
+  const ticketPrefixes = new Set(extractTickets(text)
+    .map((ticket) => ticket.match(/^([A-Z][A-Z0-9]+)-\d+$/)?.[1])
+    .filter((value): value is string => Boolean(value)));
+  return [...new Set([...backticks, ...camel].filter((value) => !ticketPrefixes.has(value.toUpperCase())))].sort();
 }
 
 export function extractTickets(text: string): string[] {

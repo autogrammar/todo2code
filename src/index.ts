@@ -25,6 +25,7 @@ export * from './summary/summarizer.js';
 export * from './synthesis/tasks-llm.js';
 export * from './synthesis/validation.js';
 export * from './synthesis/todo-patch.js';
+export * from './evaluation/gold.js';
 export * from './comparison/workspace.js';
 export * from './pipeline/run.js';
 export * from './services/actions.js';

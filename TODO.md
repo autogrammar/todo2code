@@ -2,7 +2,7 @@
 
 ## P1 — improve semantic quality and signal
 
-- [ ] Build a versioned gold dataset for NL/docs/Markdown → DSL, linking and
+- [x] Build a versioned gold dataset for NL/docs/Markdown → DSL, linking and
   DSL2TODO. Report precision, recall, citation completeness, deduplication rate
   and stability between repeated runs.
 - [ ] Add audited structured LLM enrichment for communication records and a

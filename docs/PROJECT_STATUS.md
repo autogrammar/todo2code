@@ -67,7 +67,7 @@ diagnostyki/narracją LLM i nie zastępuje walidowanych propozycji DSL2TODO.
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 207 rekordów i 650 relacji. Liczba
+Przebieg offline na `examples/` utworzył 207 rekordów i 656 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -84,9 +84,14 @@ Diagnostyka zawierała 0 blokad, 6 pozycji `review_required`, 41 ostrzeżeń i
 podsumowania, dzięki czemu stan runu jest `succeeded` i nie zależy od sieci ani
 prywatnego `.env`. Nie jest to jednak dowód jakości semantycznej LLM.
 
-Testy potwierdzają wykonanie ścieżek i kontraktów, nie mierzą jeszcze jakości
-semantycznej na zbiorze wzorcowym. Projekt nie ma obecnie raportowanych metryk
-precision/recall dla NL → DSL, dokumentacja → DSL, linkowania ani DSL2TODO.
+Wersjonowany `t2c.gold-dataset/v1` mierzy jakość semantyczną offline na
+niezależnych oczekiwaniach dla NL, zapisanej odpowiedzi modelu dokumentacji,
+TODO/CHANGELOG, linkowania i DSL2TODO. Pierwsza wersja obejmuje 7 oczekiwanych
+rekordów DSL, 3 relacje oraz 2 propozycje TODO. Bieżący wynik to 100% precision/recall
+dla ekstrakcji i linkowania, 100% kompletności cytowań, 100% precision/recall
+klasyfikacji duplikatów, 50% propozycji sklasyfikowanych jako duplikaty oraz
+100% stabilności między dwoma przebiegami. Snapshot dokumentacyjny sprawdza
+runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego modelu.
 
 ## Najważniejsze ograniczenia
 
