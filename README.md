@@ -23,14 +23,20 @@ pipeline może zapisać artefakty review przez `--task-mode`, lecz nigdy sam nie
 modyfikuje `TODO.md`.
 
 Otwarte diagnostyki implementacyjne można przekształcić w ugruntowany plan
-zmiany kodu, a po implementacji ocenić przez ponowną analizę grafu. Ten
-przepływ nie generuje ani nie stosuje patcha; diagram i polecenia zawiera
+zmiany kodu, hash-bound review i strukturalną propozycję source patch, a po
+zewnętrznej implementacji ocenić przez ponowną analizę grafu. Ten przepływ
+celowo nie stosuje patcha do worktree; diagram i polecenia zawiera
 [`docs/CODE_CHANGE_PLANS.md`](docs/CODE_CHANGE_PLANS.md).
 
 Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
 docelowego `DSL2TODO` znajdują się w
 [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md). Priorytety implementacyjne
 są utrzymywane w [`TODO.md`](TODO.md).
+
+**Czy projekt jest kompletny?** Nie — warstwa deterministyczna jest operacyjnie
+dojrzała, natomiast semantyczna mierzy niskie pokrycie na obcych repozytoriach.
+Ocenę dystansu do wydania, kryteria zamknięcia i listę blokerów z pomiarami zawiera
+[`docs/READINESS.md`](docs/READINESS.md).
 
 Komunikację zespołu można zapisywać append-only w `project/<ticket>/`. Główny
 pipeline domyślnie zachowuje uczestnika i rolę `human|agent`, porównuje
@@ -805,6 +811,7 @@ Wbudowane klasy obejmują m.in.:
 - [`docs/VALIDATION.md`](docs/VALIDATION.md) — zakres oraz wynik walidacji paczki;
 - [`docs/OPTIMIZATION.md`](docs/OPTIMIZATION.md) — zmierzone wąskie gardła runtime'u i zastosowane usprawnienia;
 - [`docs/CODE_CHANGE_PLANS.md`](docs/CODE_CHANGE_PLANS.md) — ugruntowany plan zmiany kodu i bramka acceptance po ponownej analizie;
+- [`docs/READINESS.md`](docs/READINESS.md) — ocena gotowości, zmierzone luki i kryteria wydania;
 - [`sdk/README.md`](sdk/README.md) — SDK dla TypeScript, Pythona, Go, Rusta i PHP;
 - [`docs/reference/original-monitoring-design.md`](docs/reference/original-monitoring-design.md) — materiał wejściowy dostarczony do projektu.
 

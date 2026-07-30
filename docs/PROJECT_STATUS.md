@@ -53,7 +53,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
 | Provenance rekordów DSL | działa | każdy rekord wymaga generatora i jego wersji, wersji todo2code oraz — dla LLM — providera, rozstrzygniętego modelu i response ID; niespójne rekordy są odrzucane |
-| Przenośność między repozytoriami | zweryfikowana na 3 projektach | pełny pipeline offline wraz z deterministycznym `codeChangePlanning` przeszedł na `code2llm`, `domd` i `pactfix`; wszystkie plany mają provenance, Python używa wspólnego ignore scope, a wygenerowane `project/**/context.md` nie są komunikacją bez markera kontraktu |
+| Przenośność między repozytoriami | zweryfikowana na 3 projektach | pełny pipeline offline wraz z planami, review i source patches przeszedł na `code2llm`, `domd` i `pactfix`; wszystkie artefakty mają provenance, Python używa wspólnego ignore scope, a wygenerowane `project/**/context.md` nie są komunikacją bez markera kontraktu |
 | Diagnostyka i Intent vs Reality | działa | agregaty modułów ograniczają szum AST; `aligned` wymaga deklaracji i implementacji, a pokrycie dokumentacji jest osobną metryką |
 | Trend workspace | działa stabilnie | nagłówek trendu opiera się na pokryciu deklarowanych tematów, porównywalnej dokumentacji i ciężkich diagnostykach; churn linii i rekordów AST pozostaje metryką pomocniczą |
 | Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; surowa odpowiedź jest walidowana przed wyliczeniem ID, zweryfikowane przebiegi OpenRouter `require-llm` tworzą uziemione wnioski bez fallbacku w 3 z 4 prób, a jedyna porażka to `HTTP 429`, nie naruszenie kontraktu |
@@ -61,7 +61,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Pełne `make demollm` | działa live, fail-closed | zweryfikowany run `20260730T162248Z-3e22b6d6`: NL, Markdown, dokumentacja, komunikacja, synteza zadań i summary mają `succeeded / llm / degraded=false`; końcowa bramka odrzuca brak metadanych lub dowolną degradację |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
-| Diagnostyka → plan + review brief | działa w pipeline/CLI/MCP/A2A/SDK | `code-change-plans.json`, `CODE_CHANGE.review.md` i audit hash-bound w każdym runie; `render-code-change`; nie apply źródeł |
+| Diagnostyka → plan + review/source-patch | działa w pipeline/CLI/MCP/A2A/SDK | `code-change-plans.json`, hash-bound review oraz `code-change-source-patches.json`; source patch wiąże ścieżki, akcje, cytowania i provenance z planem, ale celowo nie wykonuje apply |
 | Re-analiza → acceptance | działa w CLI/MCP/A2A/SDK TypeScript | `t2c.code-change-acceptance/v1` wymaga zniknięcia targeted diagnostics i braku nowych blocking; wynik ma runtime-owned provenance i nadal wymaga decyzji człowieka |
 | Zadania DSL → `TODO.patch` | działa we wszystkich interfejsach | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem i rejestracją w run history |
 | Intent → proposal operacji Subactor | działa kontraktowo | `t2c.variable-contract/v1` i `t2c.operation-plan/v1` mają content-bound ID/hash, walidację authority/risk/rollback; prywatny bridge zapisuje atomowo wyłącznie `subactor.process-envelope.v2`, odmawia nadpisania i nie dispatchuje procesu |
@@ -70,7 +70,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 208 testów: 207 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 212 testów: 211 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
 - 91 modułów i 420 importów wewnętrznych, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
@@ -79,7 +79,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 225 rekordów i 103 relacje. Liczba
+Przebieg offline na `examples/` utworzył 225 rekordów i 90 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -101,8 +101,8 @@ prywatnego `.env`. Nie jest to jednak dowód jakości semantycznej LLM.
 
 Wersjonowany `t2c.gold-dataset/v1` mierzy jakość semantyczną offline na
 niezależnych oczekiwaniach dla NL, zapisanej odpowiedzi modelu dokumentacji,
-TODO/CHANGELOG, linkowania i DSL2TODO. Zbiór obejmuje 7 oczekiwanych rekordów
-DSL, 5 relacji (4 exact-target i 1 capability-topic), dwa hard negatives oraz 2
+TODO/CHANGELOG, linkowania i DSL2TODO. Zbiór obejmuje 9 oczekiwanych rekordów
+DSL, 7 relacji (6 exact-target i 1 capability-topic), hard negatives oraz 2
 propozycje TODO. Bieżący wynik to 100% precision/recall dla ekstrakcji i obu
 klas linkowania bez naruszenia hard-negative, 100% kompletności cytowań, 100% precision/recall
 klasyfikacji duplikatów, 50% propozycji sklasyfikowanych jako duplikaty oraz
