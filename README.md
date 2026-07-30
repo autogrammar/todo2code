@@ -62,6 +62,8 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
 `npm run verify:no-llm` oraz bezcykliczny graf modułów `npm run verify:modules`.
 Kompletność i brak duplikatów zmiennych sprawdza `npm run verify:env`.
+Osobny wymagany job CI instaluje Temurin JDK 17 i uruchamia fixture adaptera
+Java z `T2C_REQUIRE_JAVA_TEST=1`, co zamienia brak runtime w błąd zamiast skipu.
 Wersjonowany benchmark semantyczny uruchamia `npm run evaluate:gold`; mierzy on
 precision/recall ekstrakcji i linkowania, kompletność cytowań DSL2TODO,
 deduplikację oraz stabilność dwóch identycznych przebiegów offline.

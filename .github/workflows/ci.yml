@@ -18,3 +18,23 @@ jobs:
       - run: npm install --omit=optional
       - run: make verify
       - run: make smoke
+
+  java-adapter:
+    name: Java adapter (JDK 17 required)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci --omit=optional
+      - run: npm run build
+      - name: Run required Java fixture
+        env:
+          T2C_REQUIRE_JAVA_TEST: '1'
+        run: node --test --test-name-pattern='^Java adapter records' dist/test/ast-languages.test.js

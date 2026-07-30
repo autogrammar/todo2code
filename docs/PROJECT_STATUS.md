@@ -41,7 +41,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Python AST → DSL | działa | helper standard-library `ast` |
 | Go AST → DSL | działa | helper `go/ast` i jawna degradacja bez toolchainu |
 | Rust AST → DSL | działa | helper `syn` i jawna degradacja bez toolchainu |
-| Java AST → DSL | działa warunkowo | adapter ma testy, ale bieżąca lokalna walidacja pominęła fixture z powodu braku JDK |
+| Java AST → DSL | działa, wymagane w CI | lokalnie fixture może być pominięty bez JDK; osobny job Temurin 17 ustawia `T2C_REQUIRE_JAVA_TEST=1`, więc brak runtime lub regresja kończy CI błędem |
 | TODO → DSL | działa | osobny parser; checkbox i lifecycle pozostają deterministyczne |
 | CHANGELOG → DSL | działa | osobny parser; zachowuje wersję, datę, kategorię i klasę `claim` |
 | TODO/CHANGELOG + LLM | działa kontraktowo, live niestabilne | struktura jest chroniona przez runtime; ostatni run `qwen/qwen3.7-plus` przekroczył 120 s i użył jawnego fallbacku |

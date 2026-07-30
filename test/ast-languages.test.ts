@@ -51,7 +51,12 @@ test('Rust adapter records uses, types, functions, methods, values and calls', a
 });
 
 test('Java adapter records packages, imports, types, fields, methods and calls', async (t) => {
-  if (!await executableAvailable('java', ['-version'])) return t.skip('JDK not installed');
+  if (!await executableAvailable('java', ['-version'])) {
+    if (process.env.T2C_REQUIRE_JAVA_TEST === '1') {
+      assert.fail('JDK is required by T2C_REQUIRE_JAVA_TEST but java is unavailable');
+    }
+    return t.skip('JDK not installed');
+  }
   const config = languageConfig(fixtureRoot);
   config.enableJavaAst = true;
   const result = await extractAstIntent({ root: fixtureRoot }, config);

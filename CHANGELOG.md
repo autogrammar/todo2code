@@ -11,6 +11,9 @@
   `deterministic|prefer-llm|require-llm` mode contract used by NL and Markdown;
   `prefer-llm` is the default and the former `--fallback` switch remains a
   compatibility alias.
+- CI now has a required Temurin JDK 17 job for the Java compiler-tree adapter;
+  `T2C_REQUIRE_JAVA_TEST=1` turns a missing Java runtime into a test failure
+  instead of a local skip.
 - Added the strict `t2c.participant-registry/v1` contract at
   `project/participants.json`. Communication front matter can bind an exact
   `participant-id` to runtime-owned human/agent role, Git authors, A2A agent

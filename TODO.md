@@ -35,7 +35,7 @@
 - [ ] Split language adapters from `src/extractors/ast.ts` into independently
   testable TypeScript/JavaScript, Python, Go, Java and Rust modules behind the
   existing common adapter envelope.
-- [ ] Add a CI job with JDK 17+ so the Java fixture cannot be skipped in the
+- [x] Add a CI job with JDK 17+ so the Java fixture cannot be skipped in the
   required validation matrix.
 - [ ] Add scheduled opt-in live OpenRouter contract checks with redacted audit,
   latency/cost thresholds and no dependency of offline CI on provider uptime.
