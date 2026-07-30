@@ -325,6 +325,7 @@ export function assertCodeChangePlan(
 ): asserts value is CodeChangePlan {
   const known = validateCodeChangePlanContext(context);
   assertCodeChangePlanValue(value, known);
+  assertPlanGraphFingerprint(value, context.graph.fingerprint);
 }
 
 export function assertCodeChangePlans(
@@ -336,6 +337,7 @@ export function assertCodeChangePlans(
   const ids = new Set<string>();
   for (const value of values) {
     assertCodeChangePlanValue(value, known);
+    assertPlanGraphFingerprint(value, context.graph.fingerprint);
     const id = (value as CodeChangePlan).id;
     if (ids.has(id)) throw new Error(`Duplicate code change plan id: ${id}`);
     ids.add(id);
@@ -362,6 +364,13 @@ export function assertCodeChangePlanForAcceptance(
     conclusionIds: new Set(evidence.conclusionIds as string[]),
     proposalIds: new Set(evidence.proposalIds as string[]),
   });
+  assertPlanGraphFingerprint(value, context.graph.fingerprint);
+}
+
+function assertPlanGraphFingerprint(plan: CodeChangePlan, graphFingerprintValue: string): void {
+  if (plan.evidence.graphFingerprint !== graphFingerprintValue) {
+    throw new Error('Code change plan evidence.graphFingerprint does not match its graph');
+  }
 }
 
 export function assertCodeChangeAcceptance(

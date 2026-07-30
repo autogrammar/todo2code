@@ -3,6 +3,7 @@ import {
   assertCodeChangeAcceptance,
   assertCodeChangePlanForAcceptance,
   assertCodeChangePlans,
+  assertConclusions,
   assertIntentGraph,
 } from '../core/schema.js';
 import type {
@@ -67,9 +68,7 @@ export interface EvaluateCodeChangeAcceptanceOptions {
  */
 export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): ProposeCodeChangePlansResult {
   assertIntentGraph(options.graph);
-  if (options.diagnostics.graphFingerprint !== options.graph.fingerprint) {
-    throw new Error('Diagnostic report does not describe the supplied graph');
-  }
+  assertConclusions([], { graph: options.graph, diagnostics: options.diagnostics });
   const generatedAt = options.generatedAt ?? new Date().toISOString();
   if (Number.isNaN(Date.parse(generatedAt))) throw new Error('generatedAt must be an ISO date-time');
   const maxPlans = options.maxPlans ?? 50;
@@ -162,21 +161,14 @@ export function evaluateCodeChangeAcceptance(
 ): CodeChangeAcceptance {
   assertIntentGraph(options.before.graph);
   assertIntentGraph(options.afterGraph);
-  if (options.before.diagnostics.graphFingerprint !== options.before.graph.fingerprint) {
-    throw new Error('Before diagnostics do not describe the before graph');
-  }
+  assertConclusions([], options.before);
   assertCodeChangePlanForAcceptance(options.plan, options.before);
-  if (options.plan.evidence.graphFingerprint !== options.before.graph.fingerprint) {
-    throw new Error('Code change plan is not grounded on the before graph');
-  }
 
   const afterDiagnostics = options.afterDiagnostics ?? diagnoseGraph(
     options.afterGraph,
     options.evaluatedAt ?? new Date().toISOString(),
   );
-  if (afterDiagnostics.graphFingerprint !== options.afterGraph.fingerprint) {
-    throw new Error('After diagnostics do not describe the after graph');
-  }
+  assertConclusions([], { graph: options.afterGraph, diagnostics: afterDiagnostics });
 
   const beforeIds = new Set(options.before.diagnostics.diagnostics.map((item) => item.id));
   const afterById = new Map(afterDiagnostics.diagnostics.map((item) => [item.id, item]));

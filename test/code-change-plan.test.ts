@@ -6,6 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 import { buildRecord } from '../src/core/record.js';
+import { createCodeChangePlanHash, createCodeChangePlanId } from '../src/core/id.js';
 import { assertCodeChangeAcceptance } from '../src/core/schema.js';
 import type { IntentGraph } from '../src/core/types.js';
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
@@ -222,6 +223,18 @@ test('Acceptance rejects ungrounded paths, missing provenance and inconsistent v
     afterDiagnostics,
     evaluatedAt: AT,
   }), /missing: generation/);
+
+  const foreign = structuredClone(plan);
+  foreign.evidence.graphFingerprint = afterGraph.fingerprint;
+  foreign.planHash = createCodeChangePlanHash(foreign);
+  foreign.id = createCodeChangePlanId(foreign);
+  assert.throws(() => evaluateCodeChangeAcceptance({
+    plan: foreign,
+    before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
+    afterGraph,
+    afterDiagnostics,
+    evaluatedAt: AT,
+  }), /evidence\.graphFingerprint does not match its graph/);
 
   const acceptance = evaluateCodeChangeAcceptance({
     plan,
