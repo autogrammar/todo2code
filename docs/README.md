@@ -7,7 +7,7 @@
 
 **Author:** Tom Softreck <tom@sapletta.com>
 
-**License:** [MIT](../LICENSE)
+**License:** [Apache-2.0](../LICENSE)
 
 **Repository:** [https://github.com/semcod/todo2code](https://github.com/semcod/todo2code)
 

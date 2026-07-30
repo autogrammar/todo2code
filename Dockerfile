@@ -26,7 +26,7 @@ ENV NODE_ENV=production \
     T2C_ROOT=/workspace
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-COPY package.json .env.example .intentignore ./
+COPY package.json LICENSE .env.example .intentignore ./
 # The runtime image ships git and python3. Go, Java and Rust adapters degrade to
 # explicit warnings when matching sources exist; install their toolchains in a
 # derived image to enable them.

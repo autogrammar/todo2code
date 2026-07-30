@@ -2,7 +2,7 @@
   "name": "semcod/todo2code-sdk",
   "description": "PHP SDK for the todo2code A2A v1.0 endpoint.",
   "type": "library",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "require": {
     "php": ">=8.1",
     "ext-json": "*"

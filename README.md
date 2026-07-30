@@ -1,5 +1,7 @@
 # todo2code (`t2c`)
 
+![License](https://img.shields.io/badge/license-Apache--2.0-green)
+
 `todo2code` buduje wspólny **Intent Evidence DSL** z poleceń, historii Git, aktualnego kodu, list zadań, changelogu i dokumentacji. Następnie łączy rekordy w graf przepływu wiedzy, wykrywa rozbieżności i generuje raport dla zespołu.
 
 Projekt działa na Node.js/TypeScript. Wielojęzykowe fakty kodu dostarczają
@@ -745,3 +747,7 @@ Wbudowane klasy obejmują m.in.:
 - [`docs/OPTIMIZATION.md`](docs/OPTIMIZATION.md) — zmierzone wąskie gardła runtime'u i zastosowane usprawnienia;
 - [`sdk/README.md`](sdk/README.md) — SDK dla TypeScript, Pythona, Go, Rusta i PHP;
 - [`docs/reference/original-monitoring-design.md`](docs/reference/original-monitoring-design.md) — materiał wejściowy dostarczony do projektu.
+
+## Licencja
+
+Projekt jest udostępniany na warunkach [Apache License 2.0](LICENSE).

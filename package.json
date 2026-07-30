@@ -4,7 +4,7 @@
   "description": "todo2code (t2c): audited intent and team-communication extraction, evidence graphs, origin-to-workspace comparison and grounded summaries through CLI, MCP and A2A.",
   "type": "module",
   "private": true,
-  "license": "MIT",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=20"
   },

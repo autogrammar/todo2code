@@ -4,7 +4,7 @@
   "description": "TypeScript SDK for the todo2code A2A v1.0 endpoint.",
   "type": "module",
   "private": true,
-  "license": "MIT",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=20"
   },
