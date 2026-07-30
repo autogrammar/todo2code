@@ -41,34 +41,31 @@ function providerResponse(diagnostic: Diagnostic): Record<string, unknown> {
   return {
     conclusions: [{
       key: 'conclusion-1',
-      kind: 'finding',
+      kind: 'issue',
       title: 'Task has no implementation evidence',
       detail: 'The planned task is not connected to Git or AST evidence.',
-      severity: diagnostic.severity,
+      severity: 'error',
       diagnosticIds: [diagnostic.id],
       recordIds: diagnostic.recordIds,
-      confidence: 0.93,
+      confidence: 93,
     }],
     proposals: [{
       key: 'task-1',
       title: 'Implement audited task synthesis',
       description: 'Create and test the structured LLM synthesis stage.',
-      priority: 'P0',
+      priority: 'high',
       target: {
         paths: ['src/synthesis/tasks-llm.ts'],
         symbols: ['synthesizeTodoProposals'],
         tickets: ['T2C-102'],
         versions: [],
       },
-      acceptanceCriteria: [
-        'require-llm fails when the provider is unavailable.',
-        'Every emitted task passes contextual runtime validation.',
-      ],
+      acceptanceCriteria: [],
       dependencyKeys: [],
-      conclusionKeys: ['conclusion-1'],
-      diagnosticIds: [diagnostic.id],
-      recordIds: diagnostic.recordIds,
-      confidence: 0.9,
+      conclusionKeys: 'conclusion-1',
+      diagnosticIds: ['DIAG-provider-invented-this'],
+      recordIds: ['INT-NL-provider-invented-this'],
+      confidence: '90%',
     }],
   };
 }
@@ -99,6 +96,14 @@ test('Structured task synthesis materializes stable, grounded contracts with a c
     assert.match(result.proposals[0]!.id, /^TPROP-[a-f0-9]{20}$/);
     assert.deepEqual(result.proposals[0]!.conclusionIds, [result.conclusions[0]!.id]);
     assert.deepEqual(result.proposals[0]!.diagnosticIds, [diagnostic.id]);
+    assert.equal(result.conclusions[0]!.confidence, 0.93);
+    assert.equal(result.conclusions[0]!.kind, 'finding');
+    assert.equal(result.conclusions[0]!.severity, 'blocking');
+    assert.equal(result.proposals[0]!.confidence, 0.9);
+    assert.equal(result.proposals[0]!.priority, 'P1');
+    assert.deepEqual(result.proposals[0]!.acceptanceCriteria, [
+      'Verify: Create and test the structured LLM synthesis stage.',
+    ]);
     assert.equal(result.proposals[0]!.generation.runtimeVersion, T2C_VERSION);
     assert.equal(result.proposals[0]!.generation.requestedMode, 'require-llm');
     assert.equal(result.proposals[0]!.generation.effectiveMode, 'llm');

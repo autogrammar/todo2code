@@ -113,7 +113,10 @@ export async function synthesizeTodoProposals(
     try {
       output = materializeResponse(completion.value, graph, diagnostics, generation);
     } catch (error) {
-      throw new Error(`Invalid structured task synthesis response: ${error instanceof Error ? error.message : String(error)}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message.startsWith('Invalid structured task synthesis response:')
+        ? message
+        : `Invalid structured task synthesis response: ${message}`);
     }
     return {
       schemaVersion: 't2c.task-synthesis/v1',
@@ -138,40 +141,54 @@ function materializeResponse(
   generation: GroundedGenerationMetadata,
 ): { conclusions: Conclusion[]; proposals: TodoProposal[] } {
   if (!Array.isArray(response?.conclusions) || !Array.isArray(response?.proposals)) {
-    throw new Error('Invalid structured task synthesis response: conclusions and proposals must be arrays');
+    const keys = response && typeof response === 'object' ? Object.keys(response).sort() : [];
+    throw new Error(
+      'Invalid structured task synthesis response: conclusions and proposals must be arrays'
+      + ` (returned keys: ${keys.length > 0 ? keys.join(', ') : 'none'})`,
+    );
   }
   const conclusionKeys = uniqueKeys(response.conclusions, 'conclusion');
   const proposalKeys = uniqueKeys(response.proposals, 'proposal');
   const conclusions = response.conclusions.map((raw): Conclusion => {
     const content: Omit<Conclusion, 'id'> = {
       schemaVersion: 't2c.conclusion/v1',
-      kind: raw.kind,
+      kind: normalizeConclusionKind(raw.kind),
       title: raw.title,
       detail: raw.detail,
-      severity: raw.severity,
+      severity: normalizeSeverity(raw.severity),
       diagnosticIds: sortedUnique(raw.diagnosticIds),
       recordIds: sortedUnique(raw.recordIds),
-      confidence: raw.confidence,
+      confidence: normalizeConfidence(raw.confidence),
       generation,
     };
     return { ...content, id: createConclusionId(content) };
   });
   const conclusionIdByKey = new Map(response.conclusions.map((raw, index) => [raw.key, conclusions[index]!.id]));
+  const conclusionByKey = new Map(response.conclusions.map((raw, index) => [raw.key, conclusions[index]!]));
 
   const proposalDrafts = response.proposals.map((raw): TodoProposal => {
+    const conclusionKeys = normalizeStringArray(raw.conclusionKeys);
+    const citedConclusions = conclusionKeys.map((key) => {
+      const conclusion = conclusionByKey.get(key);
+      if (!conclusion) throw new Error(`Invalid structured task synthesis response: proposal ${raw.key} conclusionKeys references unknown key ${key}`);
+      return conclusion;
+    });
     const content: Omit<TodoProposal, 'id'> = {
       schemaVersion: 't2c.todo-proposal/v1',
       title: raw.title,
       description: raw.description,
-      priority: raw.priority,
+      priority: normalizePriority(raw.priority),
       status: 'proposed',
-      target: normalizeTarget(raw.target),
-      acceptanceCriteria: sortedUnique(raw.acceptanceCriteria.map((item) => item.trim())),
+      target: normalizeRawTarget(raw.target),
+      acceptanceCriteria: normalizeAcceptanceCriteria(raw.acceptanceCriteria, raw.description),
       dependencies: [],
-      conclusionIds: mapKeys(raw.conclusionKeys, conclusionIdByKey, `proposal ${raw.key} conclusionKeys`),
-      diagnosticIds: sortedUnique(raw.diagnosticIds),
-      recordIds: sortedUnique(raw.recordIds),
-      confidence: raw.confidence,
+      conclusionIds: mapKeys(conclusionKeys, conclusionIdByKey, `proposal ${raw.key} conclusionKeys`),
+      // Proposal citations duplicate its conclusion citations in the provider
+      // schema. Derive them from already validated conclusion keys so a model
+      // cannot smuggle in a fabricated ID through the redundant fields.
+      diagnosticIds: sortedUnique(citedConclusions.flatMap((conclusion) => conclusion.diagnosticIds)),
+      recordIds: sortedUnique(citedConclusions.flatMap((conclusion) => conclusion.recordIds)),
+      confidence: normalizeConfidence(raw.confidence),
       generation,
     };
     return { ...content, id: createTodoProposalId(content) };
@@ -348,17 +365,80 @@ function uniqueKeys(values: Array<{ key: string }>, name: string): Set<string> {
   return keys;
 }
 
-function mapKeys(values: string[], ids: Map<string, string>, name: string): string[] {
-  if (!Array.isArray(values)) throw new Error(`Invalid structured task synthesis response: ${name} must be an array`);
-  return sortedUnique(values.map((key) => {
+function mapKeys(values: unknown, ids: Map<string, string>, name: string): string[] {
+  const keys = normalizeStringArray(values);
+  return sortedUnique(keys.map((key) => {
     const id = ids.get(key);
     if (!id) throw new Error(`Invalid structured task synthesis response: ${name} references unknown key ${key}`);
     return id;
   }));
 }
 
-function sortedUnique(values: string[]): string[] {
-  return [...new Set(values)].sort((left, right) => left.localeCompare(right));
+function sortedUnique(values: unknown): string[] {
+  return [...new Set(normalizeStringArray(values))].sort((left, right) => left.localeCompare(right));
+}
+
+function normalizeStringArray(value: unknown): string[] {
+  const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
+  return values
+    .filter((item): item is string => typeof item === 'string')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeRawTarget(value: unknown): ReturnType<typeof normalizeTarget> {
+  const target = value && typeof value === 'object' ? value as Record<string, unknown> : {};
+  return normalizeTarget({
+    paths: normalizeStringArray(target.paths),
+    symbols: normalizeStringArray(target.symbols),
+    tickets: normalizeStringArray(target.tickets),
+    versions: normalizeStringArray(target.versions),
+  });
+}
+
+function normalizeAcceptanceCriteria(value: unknown, description: unknown): string[] {
+  const criteria = sortedUnique(value);
+  if (criteria.length > 0) return criteria;
+  const source = typeof description === 'string' ? description.trim() : '';
+  return source ? [`Verify: ${source}`] : [];
+}
+
+/** Providers occasionally return confidence as a percentage despite JSON Schema. */
+function normalizeConfidence(value: unknown): number {
+  const text = typeof value === 'string' ? value.trim().replace(/%$/, '') : value;
+  const numeric = typeof text === 'number' ? text : Number(text);
+  if (!Number.isFinite(numeric)) return 0.5;
+  if (numeric >= 0 && numeric <= 1) return numeric;
+  if (numeric > 1 && numeric <= 100) return numeric / 100;
+  return 0.5;
+}
+
+function normalizeConclusionKind(value: unknown): ConclusionKind {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (normalized === 'finding' || normalized === 'risk'
+    || normalized === 'decision' || normalized === 'recommendation') return normalized;
+  if (['issue', 'observation', 'fact', 'error', 'problem'].includes(normalized)) return 'finding';
+  if (['action', 'proposal', 'suggestion'].includes(normalized)) return 'recommendation';
+  return 'finding';
+}
+
+function normalizeSeverity(value: unknown): DiagnosticSeverity {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (normalized === 'info' || normalized === 'warning'
+    || normalized === 'review_required' || normalized === 'blocking') return normalized;
+  if (['error', 'critical', 'blocker', 'fatal', 'high'].includes(normalized)) return 'blocking';
+  if (['review', 'needs_review', 'medium'].includes(normalized)) return 'review_required';
+  if (['warn', 'caution'].includes(normalized)) return 'warning';
+  return 'info';
+}
+
+function normalizePriority(value: unknown): TodoPriority {
+  const normalized = typeof value === 'string' ? value.trim().toUpperCase() : '';
+  if (normalized === 'P0' || normalized === 'P1' || normalized === 'P2' || normalized === 'P3') return normalized;
+  if (['CRITICAL', 'BLOCKING', 'BLOCKER', 'URGENT'].includes(normalized)) return 'P0';
+  if (['HIGH', 'IMPORTANT'].includes(normalized)) return 'P1';
+  if (['MEDIUM', 'NORMAL'].includes(normalized)) return 'P2';
+  return 'P3';
 }
 
 function assertProposalEvidenceMatchesConclusions(proposals: TodoProposal[], conclusions: Conclusion[]): void {

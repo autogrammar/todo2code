@@ -72,8 +72,9 @@ demo: build ## Przeanalizuj katalog examples bez OpenRouter
 	OPENROUTER_API_KEY= T2C_NL_MODE=deterministic T2C_MARKDOWN_MODE=deterministic T2C_COMMUNICATION_MODE=deterministic $(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --no-summary-llm --out .intent-demo
 	T2C_COMMUNICATION_MODE=deterministic $(NODE) dist/src/cli.js communication examples --project-dir project --ticket DEMO-101 --out examples/.intent-communication/analysis.json --md examples/.intent-communication/analysis.md --graph examples/.intent-communication/graph.json
 
-demollm: demo ## Zbuduj stabilny graf demo i wymuś live kontrakty OpenRouter bez fallbacku
-	T2C_REQUIRE_LIVE_CHECK=1 $(NPM) run live:check
+demollm: build ## Uruchom pełny pipeline examples z wymaganym OpenRouter bez fallbacku
+	OPENROUTER_TIMEOUT_MS=300000 T2C_DOC_TIMEOUT_MS=300000 $(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --nl-mode require-llm --markdown-mode require-llm --communication-mode require-llm --summary-fallback false --task-mode require-llm --out .intent-demo-llm
+	$(NODE) scripts/assert-demollm-run.mjs examples .intent-demo-llm
 
 examples-check: build ## Sprawdź demo, backend/frontend i przykłady wszystkich dostępnych SDK
 	bash scripts/examples-check.sh

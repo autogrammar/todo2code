@@ -150,35 +150,39 @@ mode, model, czas, licznik rekordów/ostrzeżeń, powód i bezpieczne parametry;
 
 ### Demonstracja z prawdziwym LLM
 
-`make demo` jest celowo deterministyczne. Aby utworzyć ten sam stabilny graf,
-a następnie sprawdzić rzeczywiste kontrakty OpenRouter bez możliwości ukrycia
-błędu fallbackiem, ustaw klucz w prywatnym `.env` i uruchom:
+`make demo` jest celowo deterministyczne. Aby uruchomić pełny pipeline
+semantyczny z prawdziwym OpenRouterem i bez możliwości ukrycia błędu
+fallbackiem, ustaw klucz w prywatnym `.env` i uruchom:
 
 ```bash
 make demollm
 ```
 
-Target wykonuje kolejno `make demo` oraz
-`T2C_REQUIRE_LIVE_CHECK=1 npm run live:check`.
-Szczegółowy przepływ, diagram sekwencji i opis artefaktów znajdują się w
+Target używa LLM dla NL, TODO/CHANGELOG, dokumentacji, komunikacji, syntezy
+zadań i podsumowania. Kończy się sukcesem tylko wtedy, gdy manifest potwierdza
+`succeeded / llm / degraded=false` oraz metadane odpowiedzi dla każdego z tych
+sześciu etapów. Szczegółowy przepływ, diagram sekwencji i opis artefaktów są w
 [`docs/DEMOLLM.md`](docs/DEMOLLM.md).
 
-Kontrola używa najnowszego grafu z `examples/.intent-demo`, wykonuje NL → DSL
-oraz graf → `t2c.conclusion/v1` w trybie `require-llm` i zapisuje zredagowany
-audyt w `.intent-live/contract-check.json`. Artefakt zawiera model, czas,
-tokeny i koszt, ale nie zawiera klucza, promptu ani odpowiedzi modelu.
+Artefakty trafiają do `examples/.intent-demo-llm`. Manifest zawiera model,
+provider, response ID, czas, tokeny i koszt, ale nie zawiera klucza, promptu
+ani surowej odpowiedzi modelu.
 
 Zweryfikowany przebieg z 2026-07-30:
 
 ```text
-extract_nl: ok · 9369 ms · 1136 tokens · $0.006978 · google/gemini-3.6-flash
-summarize: ok · 63064 ms · 53947 tokens · $0.009428 · qwen/qwen3.7-flash
-live contract check: PASS · total $0.016406
+demollm PASS: 20260730T162248Z-3e22b6d6
+naturalLanguageExtraction: google/gemini-3.6-flash · llm
+markdownExtraction: qwen/qwen3.7-plus · llm
+documentationExtraction: qwen/qwen3.7-plus · llm
+communicationAnalysis: deepseek/deepseek-v4-pro · llm
+taskSynthesis: qwen/qwen3.7-plus · llm
+summary: qwen/qwen3.7-flash · llm
 ```
 
-Brak klucza daje kontrolowany `SKIPPED`. Zmienna
-`T2C_REQUIRE_LIVE_CHECK=1` zamienia brak klucza w błąd, dlatego nadaje się do
-ręcznej demonstracji i opcjonalnego joba CI.
+Brak klucza, timeout, niepoprawny kontrakt albo zdegradowany etap daje błąd.
+Polecenie jest kosztowym testem live; walidacja offline pozostaje w `make demo`
+i `npm run verify`.
 
 ### A2A, SDK i UI
 

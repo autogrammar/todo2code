@@ -108,25 +108,25 @@ node dist/src/cli.js pipeline . \
   --out .intent
 ```
 
-### Krótka demonstracja live bez fallbacku
+### Pełna demonstracja LLM bez fallbacku
 
-Utwórz stabilny graf przykładowy, a następnie uruchom dwa krytyczne kontrakty
-providera w trybie `require-llm` jednym targetem:
+Uruchom wszystkie etapy semantyczne przykładowego pipeline z prawdziwym
+providerem jednym targetem:
 
 ```bash
 make demollm
 ```
 
-Jest to skrót dla `make demo` oraz
-`T2C_REQUIRE_LIVE_CHECK=1 npm run live:check`.
-Diagram przepływu, diagram sekwencji i opis każdego artefaktu zawiera
+Target uruchamia NL, Markdown, dokumentację, komunikację, syntezę zadań i
+summary z LLM. Końcowa bramka wymaga dla wszystkich sześciu etapów
+`status=succeeded`, `effectiveMode=llm`, braku degradacji oraz metadanych
+odpowiedzi. Diagram przepływu, sekwencji i opis każdego artefaktu zawiera
 [`DEMOLLM.md`](DEMOLLM.md).
 
-Druga komenda sprawdza zarówno `extract_nl`, jak i uziemione `summarize`.
-Wynik `PASS` oznacza, że provider zwrócił strukturę zaakceptowaną przez runtime,
-cytowania należały do wejściowego grafu, a łączna latencja i koszt mieściły się
-w limitach. Zredagowany wynik znajduje się w
-`.intent-live/contract-check.json`. Limity można zmienić bez zmiany kodu:
+Wynik i manifest znajdują się w `examples/.intent-demo-llm`. Target ustawia
+300-sekundowy timeout pojedynczego żądania, ale pozostawia modele wybrane w
+`.env`. Dla samodzielnego, krótszego testu dwóch kontraktów i budżetów nadal
+można użyć:
 
 ```bash
 T2C_LIVE_MAX_LATENCY_MS=120000 \

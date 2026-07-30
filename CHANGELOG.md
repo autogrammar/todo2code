@@ -4,9 +4,9 @@
 
 ### Added
 
-- Added `make demollm`, which builds the deterministic example graph and then
-  requires live OpenRouter NL and grounded-summary contracts, plus a dedicated
-  process/sequence diagram guide.
+- Added `make demollm`, which requires live OpenRouter execution for all six
+  semantic pipeline stages, rejects fallback or degraded manifests, reports
+  model/token/cost metadata, and is documented with process/sequence diagrams.
 - Added a deterministic Markdown documentation baseline for headings, fenced
   examples and explicit path/symbol/ticket references. Offline pipeline runs
   now produce versioned `document` DSL records before optional LLM enrichment.

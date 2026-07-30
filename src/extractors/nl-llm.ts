@@ -131,6 +131,9 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
   const excerpt = lines.slice(start - 1, end).join('\n').slice(0, 2000);
   const action = allowedAction(raw.action) ? raw.action : 'unknown';
   const { object, missingFields } = resolveObject(raw, action);
+  const normalizedText = nonEmptyText(raw.text);
+  if (normalizedText === null) missingFields.push('text');
+  const statementText = normalizedText ?? object;
   return buildRecord({
     kind: raw.kind || 'declared_intent',
     actor: raw.actor ?? null,
@@ -140,13 +143,13 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
     target: raw.target,
     modality: allowedModality(raw.modality) ? raw.modality : 'unknown',
     polarity: raw.polarity === 'negative' ? 'negative' : 'positive',
-    text: raw.text || raw.object,
+    text: statementText,
     lifecycle: 'proposed',
     sourceKind: 'nl',
     sourcePath,
     sourceLines: { start, end },
     extractor: 't2c/nl-openrouter@1',
-    rawExcerpt: excerpt || raw.text || raw.object,
+    rawExcerpt: excerpt || statementText,
     epistemicClass: 'llm_inference',
     confidence: Math.min(0.9, Math.max(0.05, Number(raw.confidence) || 0.5)),
     basis: [...new Set(['openrouter_structured_extraction', ...(raw.basis ?? [])])],
@@ -175,20 +178,25 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
  */
 const OBJECT_PLACEHOLDERS = new Set(['unknown', 'unspecified', 'none', 'null', 'n/a', 'na', '-', 'brak', 'nieznany', 'nieokreślony']);
 
-function isPlaceholder(value: string | null | undefined): boolean {
-  return !value?.trim() || OBJECT_PLACEHOLDERS.has(value.trim().toLowerCase());
+function nonEmptyText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function isPlaceholder(value: unknown): boolean {
+  const text = nonEmptyText(value);
+  return text === null || OBJECT_PLACEHOLDERS.has(text.toLowerCase());
 }
 
 function resolveObject(raw: RawNlRecord, action: IntentAction): { object: string; missingFields: string[] } {
   const missingFields: string[] = [];
   if (action === 'unknown') missingFields.push('action');
 
-  if (!isPlaceholder(raw.object)) return { object: raw.object.trim(), missingFields };
+  if (!isPlaceholder(raw.object)) return { object: nonEmptyText(raw.object) as string, missingFields };
 
   missingFields.push('object');
   // Falling back to the statement text keeps the record linkable by its own
   // wording instead of by a placeholder shared with unrelated records.
-  const fallback = raw.text?.trim();
+  const fallback = nonEmptyText(raw.text);
   return { object: isPlaceholder(fallback) ? 'unspecified' : (fallback as string), missingFields };
 }
 

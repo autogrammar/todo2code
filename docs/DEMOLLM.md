@@ -1,53 +1,74 @@
 # Proces `make demollm`
 
-`make demollm` demonstruje cały stabilny przepływ todo2code oraz dwa krytyczne
-kontrakty prawdziwego modelu. Polecenie kończy się błędem, jeżeli brakuje klucza,
-provider odrzuci żądanie, odpowiedź nie spełni schematu, cytowania nie należą do
-grafu albo zostanie przekroczony budżet kosztu lub latencji.
+`make demollm` uruchamia pełny pipeline przykładowego projektu z prawdziwym
+OpenRouterem. Nie jest aliasem `make demo`: nie zeruje `OPENROUTER_API_KEY`, nie
+ustawia trybów deterministycznych i nie przekazuje `--no-docs-llm` ani
+`--no-summary-llm`.
+
+Sukces oznacza, że wszystkie sześć etapów semantycznych rzeczywiście użyło LLM:
+
+1. polecenie NL → Intent DSL;
+2. TODO i CHANGELOG → Intent DSL;
+3. dokumentacja → Intent DSL;
+4. komunikacja zespołu → Intent DSL;
+5. graf i diagnostyka → wnioski oraz propozycje TODO;
+6. graf i diagnostyka → raport NL.
+
+Git, AST oraz konfiguracja są nadal konwertowane przez deterministyczne,
+wersjonowane ekstraktory. W tych źródłach LLM nie jest potrzebny do odczytania
+faktów strukturalnych.
 
 ## Uruchomienie
 
-W prywatnym `.env` ustaw co najmniej `OPENROUTER_API_KEY`. Modele i budżety mogą
-pozostać zgodne z `.env.example`.
+W prywatnym `.env` ustaw co najmniej:
+
+```dotenv
+OPENROUTER_API_KEY=...
+```
+
+Modele można wybrać przez `OPENROUTER_NL_MODEL`,
+`OPENROUTER_MARKDOWN_MODEL`, `OPENROUTER_DOC_MODEL`,
+`OPENROUTER_COMMUNICATION_MODEL`, `OPENROUTER_TASK_MODEL` i
+`OPENROUTER_SUMMARY_MODEL`. Następnie uruchom:
 
 ```bash
 make demollm
 ```
 
-Target rozwija się do dwóch poleceń:
-
-```bash
-make demo
-T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
-```
+Target podnosi timeout pojedynczego żądania do 300 sekund, ponieważ synteza
+zadań z całego grafu bywa znacznie wolniejsza niż ekstrakcja pojedynczego
+dokumentu. Nie nadpisuje klucza ani modeli z `.env`.
 
 ## Przepływ procesu
 
 ```mermaid
 flowchart TD
     START[make demollm] --> BUILD[npm run build]
-    BUILD --> OFFLINE[Deterministyczny pipeline examples]
+    BUILD --> ENV[Wczytanie .env]
+    ENV --> KEY{OPENROUTER_API_KEY?}
+    KEY -->|brak| FAIL[Błąd bez fallbacku]
+    KEY -->|jest| INPUTS[examples: task, Git, kod, TODO,<br/>CHANGELOG, docs, config, project]
 
-    subgraph BASE[Budowa stabilnego grafu bez sieci]
-        OFFLINE --> INPUTS[task.md + Git + kod + TODO/CHANGELOG<br/>dokumentacja + konfiguracja + komunikacja]
-        INPUTS --> DSL[Rekordy t2c.intent/v1]
-        DSL --> GRAPH[Linker tworzy t2c.graph/v1]
-        GRAPH --> DIAG[Diagnostyka i Intent vs Reality]
-        DIAG --> REPORT[Deterministyczne conclusions i team-summary.md]
-        REPORT --> LATEST[examples/.intent-demo/latest.json]
-    end
+    INPUTS --> NL[NL → DSL<br/>LLM require-llm]
+    INPUTS --> MD[TODO/CHANGELOG → DSL<br/>parser + LLM require-llm]
+    INPUTS --> DOC[Docs → DSL<br/>baseline + LLM]
+    INPUTS --> COMM[Komunikacja → DSL<br/>LLM require-llm]
+    INPUTS --> FACTS[Git + AST + config → DSL<br/>wersjonowane ekstraktory]
 
-    LATEST --> ENV[Wczytanie prywatnego .env]
-    ENV --> KEY{Klucz OpenRouter?}
-    KEY -->|nie| FAILKEY[Błąd: T2C_REQUIRE_LIVE_CHECK=1]
-    KEY -->|tak| NLLM[NL → Intent DSL<br/>require-llm]
-    NLLM --> NVALID[Walidacja t2c.intent/v1<br/>i provenance modelu]
-    NVALID --> SLLM[Graf + diagnostyka → conclusions<br/>require-llm]
-    SLLM --> SVALID[Walidacja t2c.conclusion/v1<br/>oraz diagnosticIds i recordIds]
-    SVALID --> BUDGET{Koszt i latencja<br/>w limitach?}
-    BUDGET -->|nie| FAILBUDGET[Błąd live check]
-    BUDGET -->|tak| AUDIT[Zredagowany contract-check.json]
-    AUDIT --> PASS[PASS]
+    NL --> VALID[Walidacja t2c.intent/v1 i provenance]
+    MD --> VALID
+    DOC --> VALID
+    COMM --> VALID
+    FACTS --> VALID
+    VALID --> GRAPH[Linker → t2c.graph/v1]
+    GRAPH --> DIAG[Diagnostyka Intent vs Reality]
+    DIAG --> TASK[DSL → wnioski + TODO<br/>LLM require-llm]
+    DIAG --> SUMMARY[DSL → raport NL<br/>LLM bez fallbacku]
+    TASK --> FILES[Artefakty runu + manifest]
+    SUMMARY --> FILES
+    FILES --> GATE{6 etapów succeeded + llm<br/>bez degradacji?}
+    GATE -->|nie| FAIL
+    GATE -->|tak| PASS[demollm PASS]
 ```
 
 ## Kolejność wywołań
@@ -56,70 +77,92 @@ flowchart TD
 sequenceDiagram
     actor U as Użytkownik
     participant M as Make
-    participant P as Pipeline offline
-    participant F as System plików
-    participant L as Live contract check
+    participant P as Pipeline
     participant O as OpenRouter
     participant V as Runtime validators
+    participant F as System plików
+    participant G as Bramka demollm
 
     U->>M: make demollm
-    M->>P: make demo
-    P->>P: NL/Git/AST/Markdown/docs/config/communication → DSL
-    P->>V: walidacja rekordów i grafu
-    V-->>P: poprawny t2c.graph/v1
-    P->>F: zapis runu i latest.json
-    M->>L: T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
-    L->>F: wczytaj .env, latest graph i diagnostics
-    L->>O: TASK.md → structured Intent DSL
-    O-->>L: JSON + model/response/tokens/cost
-    L->>V: waliduj rekordy i provenance
-    V-->>L: OK
-    L->>O: graph + diagnostics → structured conclusions
-    O-->>L: JSON + model/response/tokens/cost
-    L->>V: waliduj schema, IDs i cytowania
-    V-->>L: OK
-    L->>F: .intent-live/contract-check.json
-    L-->>M: PASS lub błąd
-    M-->>U: kod wyjścia 0 tylko po pełnym PASS
+    M->>P: pipeline examples + require-llm
+    P->>O: task.md → Intent DSL
+    O-->>V: rekordy NL + metadata
+    P->>O: TODO i CHANGELOG → Intent DSL
+    O-->>V: rekordy Markdown + metadata
+    P->>O: docs/**/*.md → Intent DSL
+    O-->>V: rekordy dokumentacji + metadata
+    P->>O: project/** → Intent DSL komunikacji
+    O-->>V: rekordy komunikacji + metadata
+    P->>P: Git + AST + config → fakty DSL
+    V-->>P: poprawne rekordy t2c.intent/v1
+    P->>P: linkowanie grafu i diagnostyka
+    P->>O: graf + diagnostyka → zadania
+    O-->>V: conclusions + proposals + metadata
+    P->>O: graf + diagnostyka → raport NL
+    O-->>V: grounded conclusions + metadata
+    V-->>P: poprawne cytowania i kontrakty
+    P->>F: run, latest.json, graf, raporty i TODO.patch
+    M->>G: assert-demollm-run.mjs
+    G->>F: odczytaj manifest bieżącego runu
+    G-->>M: PASS tylko dla 6 pełnych etapów LLM
+    M-->>U: modele, czasy, tokeny, koszty
 ```
 
-## Artefakty i interpretacja
+## Warunek sukcesu
+
+Skrypt `scripts/assert-demollm-run.mjs` sprawdza dla każdego z sześciu etapów:
+
+- `status === "succeeded"`;
+- `effectiveMode === "llm"`;
+- `degraded === false`;
+- co najmniej jeden wpis w `responses` z metadanymi providera.
+
+Sprawdza również `manifest.status === "succeeded"`. Brak klucza, timeout,
+błędna struktura, obce cytowanie albo częściowa ekstrakcja dokumentacji daje
+niezerowy kod wyjścia. Target nie może więc ponownie pokazać sukcesu z
+`llm.* = false`.
+
+## Artefakty
 
 | Artefakt | Znaczenie |
 |---|---|
-| `examples/.intent-demo/latest.json` | wskaźnik najnowszego kompletnego runu offline |
-| `examples/.intent-demo/runs/<run-id>/manifest.json` | tryby etapów, wersja runtime, ostrzeżenia i status |
-| `intent.graph.json` | graf dowodów przekazywany do testu summary |
-| `diagnostics.json` | deterministyczne rozbieżności cytowane przez LLM |
-| `team-summary.md` | raport offline; nie jest odpowiedzią live check |
-| `.intent-live/contract-check.json` | zredagowany audyt modeli, tokenów, kosztu i latencji |
+| `examples/.intent-demo-llm/latest.json` | wskaźnik ostatniego kompletnego runu LLM |
+| `runs/<run-id>/manifest.json` | tryby, modele, wersje runtime, czasy, tokeny i koszt |
+| `*.intent.jsonl` | kanoniczne rekordy DSL ze źródeł |
+| `intent.graph.json` | połączony graf dowodów |
+| `diagnostics.json` | deterministyczne rozbieżności Intent vs Reality |
+| `task-synthesis.json` | uziemione wnioski i propozycje TODO |
+| `TODO.patch` / `TODO.patch.json` | propozycja zmiany i jej audyt; nie jest automatycznie stosowana |
+| `summary-conclusions.json` | walidowane wnioski do raportu |
+| `team-summary.md` | końcowa reprezentacja NL |
 
-Live check nie zapisuje klucza, promptów ani treści odpowiedzi modelu. Pełna
-odpowiedź jest walidowana w pamięci, a do audytu trafiają wyłącznie metadane.
+Każdy rekord DSL ma wersję runtime i informację o generatorze. Dla wyników LLM
+zapisywane są również provider, rozwiązany model i response ID. Klucz API,
+prompt i surowa odpowiedź modelu nie są zapisywane w manifeście.
 
-## Co dokładnie korzysta z LLM
+## Zweryfikowany przebieg
 
-Bazowy `make demo` pozostaje deterministyczny, aby ten sam kod tworzył stabilny
-graf niezależnie od sieci. Część live uruchamia w `require-llm`:
-
-1. `TASK.md` → `t2c.intent/v1`;
-2. graf i diagnostyka → `t2c.conclusion/v1`.
-
-Nie jest to pełne wzbogacanie LLM każdego dokumentu ani całego TODO/CHANGELOG.
-Do takiego przebiegu służy `pipeline` z trybami `prefer-llm` lub `require-llm`;
-`demollm` jest krótkim testem kontraktów, kosztu i dostępności providera.
-
-## Zweryfikowany wynik
-
-Przebieg z 2026-07-30:
+Run `20260730T162248Z-3e22b6d6` z 2026-07-30 zakończył się pełnym PASS:
 
 ```text
-extract_nl: ok · 7164 ms · 1284 tokens · $0.008088 · google/gemini-3.6-flash
-summarize: ok · 18349 ms · 44136 tokens · $0.005666 · qwen/qwen3.7-flash
-live contract check: PASS · total $0.013754
+naturalLanguageExtraction: google/gemini-3.6-flash · 26509 ms · 6359 tokens · $0.045292
+markdownExtraction: qwen/qwen3.7-plus · 74933 ms · 4879 tokens · $0.005504
+documentationExtraction: qwen/qwen3.7-plus · 91938 ms · 7244 tokens · $0.007126
+communicationAnalysis: deepseek/deepseek-v4-pro · 17559 ms · 2291 tokens · $0.006405
+taskSynthesis: qwen/qwen3.7-plus · 167429 ms · 36731 tokens · $0.020506
+summary: qwen/qwen3.7-flash · 45782 ms · 53344 tokens · $0.009305
 ```
 
-Wyniki live mogą zmieniać się wraz z providerem i modelem. Warunkiem sukcesu
-nie jest identyczny czas lub koszt, lecz poprawny kontrakt oraz zmieszczenie się
-w skonfigurowanych limitach `T2C_LIVE_MAX_LATENCY_MS` i
-`T2C_LIVE_MAX_COST_USD`.
+Modele routowane automatycznie, czas i koszt mogą zmieniać się pomiędzy
+uruchomieniami. Źródłem prawdy jest manifest bieżącego runu, nie powyższy
+historyczny pomiar.
+
+## `demo` a `demollm`
+
+| Polecenie | Sieć | Przeznaczenie |
+|---|---|---|
+| `make demo` | nie | szybki, powtarzalny pipeline deterministyczny |
+| `make demollm` | tak | pełna demonstracja wszystkich etapów semantycznych z LLM, bez fallbacku |
+
+Do szybkiej walidacji offline używaj `make demo` lub `npm run verify`.
+`make demollm` zależy od dostępności i rozliczeń zewnętrznego providera.

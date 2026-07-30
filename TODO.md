@@ -71,6 +71,8 @@
   required validation matrix.
 - [x] Add scheduled opt-in live OpenRouter contract checks with redacted audit,
   latency/cost thresholds and no dependency of offline CI on provider uptime.
+- [x] Make `make demollm` execute and verify all six semantic LLM stages
+  end-to-end, with no deterministic fallback and a manifest-based PASS gate.
 - [ ] Add A2A streaming/push notifications and a shared transactional
   task-store backend beyond the current atomic filesystem snapshot.
 - [x] Validate public extraction options before they reach `path.resolve`.

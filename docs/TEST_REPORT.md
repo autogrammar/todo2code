@@ -1,7 +1,7 @@
 # Raport z testów i poprawek
 
 Data wykonania: **2026-07-30**. Runtime: **0.5.0**. Baza robocza:
-zweryfikowany `main` na `45e8f39` (`feat: add private operation envelope artifact bridge`)
+zweryfikowany `main` na `e63bff3` (`feat: add required-LLM demo workflow`)
 wraz z opisanymi niżej zmianami dokumentacyjnymi. Środowisko: Linux,
 Node.js 20.19.5, Python 3.13.12, Go 1.24.4, Rust 1.93.0 i Docker 29.1.3.
 Lokalnie nie ma JDK; adapter Java jest wymagany w osobnym jobie CI z Temurin
@@ -29,6 +29,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Zależności produkcyjne | `npm audit --omit=dev` | 0 podatności |
 | Live OpenRouter summary | `t2c summarize … --mode require-llm` | PASS — zwalidowane wnioski, bez fallbacku (3/4 prób; jedyna porażka to HTTP 429) |
 | Zaplanowany kontrakt live | `npm run live:check` | PASS/SKIP — NL i summary w `require-llm`, redacted audit i budżety; bez klucza kontrolowany skip |
+| Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
 
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
@@ -72,6 +73,22 @@ Rzeczywisty OpenRouter w trybie `require-llm` zwraca poprawne obiekty
 degradacji. Zmierzona niezawodność: **3 z 4 prób**, przy czym jedyna porażka to
 `HTTP 429` po serii wywołań diagnostycznych, a nie naruszenie kontraktu. Przed
 poprawką **każda** próba kończyła się fallbackiem.
+
+### Pełny pipeline `demollm`
+
+Run `20260730T162248Z-3e22b6d6` przeszedł końcową kontrolę manifestu dla
+wszystkich sześciu etapów LLM: NL, Markdown, dokumentacji, komunikacji,
+syntezy zadań i summary. Każdy etap ma `status=succeeded`,
+`effectiveMode=llm`, `degraded=false` i metadane odpowiedzi. Łączny zmierzony
+koszt wyniósł około **$0.09414**. Target nie zeruje już klucza z `.env`, nie
+wywołuje deterministycznego `make demo` i nie wyłącza dokumentacji ani summary.
+
+Live run ujawnił odchylenia structured output providera: obiekt w polu NL
+`text`, procentową pewność, skalarne listy, aliasy enumów, brak kryterium
+akceptacji i niepoprawne powtórzone cytowania propozycji. Runtime normalizuje
+wyłącznie równoważne reprezentacje, wyprowadza cytowania propozycji z
+zatwierdzonych wniosków, a następnie nadal wykonuje pełną walidację grafu,
+cytowań, zależności i kanonicznych kontraktów DSL.
 
 ### Watch
 
