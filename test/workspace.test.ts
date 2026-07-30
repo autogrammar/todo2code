@@ -54,10 +54,14 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   assert.equal(comparison.trend.direction, 'improved');
   assert.ok(comparison.trend.implementationCoverageDelta > 0);
   assert.equal(comparison.trend.gapsDelta, 0);
+  assert.equal(comparison.base.coverage.documentationMeasured, false);
+  assert.equal(comparison.workspace.coverage.documentationMeasured, false);
   assert.notEqual(comparison.workspace.graphFingerprint, comparison.base.graphFingerprint);
   assert.ok(await pathExists(path.join(root, comparison.artifacts.comparison ?? '')));
   assert.ok(await pathExists(path.join(root, comparison.artifacts.diffSvg ?? '')));
   assert.ok(await pathExists(path.join(root, comparison.artifacts.trendMarkdown ?? '')));
+  const trendMarkdown = await fs.readFile(path.join(root, comparison.artifacts.trendMarkdown ?? ''), 'utf8');
+  assert.match(trendMarkdown, /Code with documentation: not measured/);
   const baseManifest = await readJson<PipelineManifest>(path.join(root, comparison.artifacts.baseManifest ?? ''));
   const workspaceManifest = await readJson<PipelineManifest>(path.join(root, comparison.artifacts.workspaceManifest ?? ''));
   assert.equal(baseManifest.stages.summary.status, 'skipped');

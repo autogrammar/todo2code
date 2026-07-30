@@ -3,6 +3,11 @@ name: ci
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    # Live provider checks only. The offline verify jobs never gate on this
+    # trigger, so CI can never start depending on provider uptime.
+    - cron: '17 4 * * 1'
 
 jobs:
   verify:
@@ -39,3 +44,32 @@ jobs:
         env:
           T2C_REQUIRE_JAVA_TEST: '1'
         run: node --test --test-name-pattern='^Java adapter records' dist/test/ast-languages.test.js
+
+  live-openrouter:
+    name: Live OpenRouter contract (opt-in)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      T2C_REQUIRE_LIVE_CHECK: '1'
+      T2C_LIVE_MAX_LATENCY_MS: '120000'
+      T2C_LIVE_MAX_COST_USD: '0.5'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --omit=optional
+      - run: npm run demo
+      - name: Check structured contracts and budgets
+        if: env.OPENROUTER_API_KEY != ''
+        run: npm run live:check
+      - name: Explain disabled live check
+        if: env.OPENROUTER_API_KEY == ''
+        run: echo 'OPENROUTER_API_KEY secret is not configured; live check is opt-in.'
+      - uses: actions/upload-artifact@v4
+        if: always() && env.OPENROUTER_API_KEY != ''
+        with:
+          name: openrouter-contract-audit
+          path: .intent-live/contract-check.json

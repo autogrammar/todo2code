@@ -70,6 +70,14 @@ export interface IntentRealityView {
     implementationCoverage: number;
     plannedCodeCoverage: number;
     documentedCodeCoverage: number;
+    /**
+     * False when the graph holds no `document` record at all, which makes
+     * `documentedCodeCoverage` structurally 0 rather than measured. Reporting
+     * a bare 0.0% in that case reads as "nothing is documented" when the truth
+     * is "documentation extraction did not run" — it is LLM-only, so every
+     * offline run produced that number.
+     */
+    documentationMeasured: boolean;
   };
 }
 
@@ -196,12 +204,19 @@ export function buildRealityView(
       implementationCoverage: ratio(implementationAlignedTopics, declaredTopics),
       plannedCodeCoverage: ratio(implementationAlignedTopics, observedTopics),
       documentedCodeCoverage: ratio(documentedObservedTopics, observedTopics),
+      documentationMeasured: graph.records.some((record) => record.source.kind === 'document'),
     },
   };
 }
 
 function ratio(numerator: number, denominator: number): number {
   return denominator === 0 ? 1 : Math.round((numerator / denominator) * 10_000) / 10_000;
+}
+
+/** Renders documentation coverage, or says it was not measured at all. */
+function documentedCoverageLabel(totals: IntentRealityView['totals']): string {
+  if (!totals.documentationMeasured) return 'not measured (no documentation records in this run)';
+  return `${(totals.documentedCodeCoverage * 100).toFixed(1)}%`;
 }
 
 /** Approximate advance width per character for the `.label` and `.badge` styles. */
@@ -453,7 +468,7 @@ export function renderRealityMarkdown(view: IntentRealityView, maxRows = 40): st
     `- Graph: \`${view.graphFingerprint.slice(0, 16)}\``,
     `- Topics: ${view.totals.topics} (aligned ${view.totals.aligned}, divergent ${view.totals.gaps})`,
     `- Declared records: ${view.totals.declaredRecords}, observed records: ${view.totals.observedRecords}`,
-    `- Implementation coverage: ${(view.totals.implementationCoverage * 100).toFixed(1)}% of declared topics; planned code: ${(view.totals.plannedCodeCoverage * 100).toFixed(1)}%; documented code: ${(view.totals.documentedCodeCoverage * 100).toFixed(1)}%`,
+    `- Implementation coverage: ${(view.totals.implementationCoverage * 100).toFixed(1)}% of declared topics; planned code: ${(view.totals.plannedCodeCoverage * 100).toFixed(1)}%; documented code: ${documentedCoverageLabel(view.totals)}`,
     '',
     `| Topic | ${LANE_ORDER.map((kind) => kind.toUpperCase()).join(' | ')} | Status |`,
     `|---|${LANE_ORDER.map(() => '--:').join('|')}|---|`,

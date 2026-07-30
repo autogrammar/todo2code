@@ -1,2 +1,2 @@
 /** Public runtime version embedded in generated audit artifacts and protocols. */
-export const T2C_VERSION = '0.5.0';
+export { T2C_VERSION } from './core/version.js';

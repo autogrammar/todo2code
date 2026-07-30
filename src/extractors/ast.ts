@@ -84,6 +84,7 @@ function extractTypeScriptFile(root: string, filePath: string, body: string): In
   const sourceFile = ts.createSourceFile(filePath, body, ts.ScriptTarget.Latest, true, scriptKind(filePath));
   const records: IntentRecord[] = [];
   const scope: string[] = [];
+  const moduleCapabilities = new Set<string>();
 
   function lineRange(node: ts.Node): { start: number; end: number } {
     return {
@@ -103,8 +104,12 @@ function extractTypeScriptFile(root: string, filePath: string, body: string): In
     symbol?: string | null;
     subject?: string | null;
     metadata?: Record<string, JsonValue>;
+    text?: string;
   }): void {
     const symbol = input.symbol ?? null;
+    if (input.kind === 'symbol_fact' || input.kind === 'module_dependency_fact') {
+      moduleCapabilities.add(input.object);
+    }
     records.push(buildRecord({
       kind: input.kind,
       action: input.action,
@@ -115,7 +120,7 @@ function extractTypeScriptFile(root: string, filePath: string, body: string): In
         symbols: symbol ? [symbol] : [],
       },
       modality: 'observed',
-      text: `${input.action} ${input.object}`,
+      text: input.text ?? `${input.action} ${input.object}`,
       lifecycle: 'implemented',
       sourceKind: 'ast',
       sourcePath: relative,
@@ -200,13 +205,15 @@ function extractTypeScriptFile(root: string, filePath: string, body: string): In
     ts.forEachChild(node, visit);
   }
 
+  visit(sourceFile);
+  const capabilities = boundedCapabilities(moduleCapabilities);
   add(sourceFile, {
     kind: 'module_fact',
     action: 'declare',
     object: relative,
-    metadata: { aggregate: 'module', factGranularity: 'file' },
+    text: moduleTopicText(relative, capabilities),
+    metadata: { aggregate: 'module', factGranularity: 'file', capabilities },
   });
-  visit(sourceFile);
   return records;
 }
 
@@ -360,13 +367,16 @@ function moduleRecords(
   return [...byPath.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([filePath, fileFacts]) => {
     const start = Math.min(...fileFacts.map((fact) => fact.lineStart));
     const end = Math.max(...fileFacts.map((fact) => fact.lineEnd));
+    const capabilities = boundedCapabilities(fileFacts
+      .filter((fact) => fact.action === 'declare' || fact.action === 'depend_on')
+      .map((fact) => fact.object));
     return buildRecord({
       kind: 'module_fact',
       action: 'declare',
       object: filePath,
       target: { paths: [filePath], symbols: [] },
       modality: 'observed',
-      text: `declare ${filePath}`,
+      text: moduleTopicText(filePath, capabilities),
       lifecycle: 'implemented',
       sourceKind: 'ast',
       sourcePath: filePath,
@@ -382,7 +392,21 @@ function moduleRecords(
         aggregate: 'module',
         factGranularity: 'file',
         factCount: fileFacts.length,
+        capabilities,
       },
     });
   });
+}
+
+function boundedCapabilities(values: Iterable<string>): string[] {
+  return [...new Set(values)]
+    .filter((value) => value.trim())
+    .sort((left, right) => left.localeCompare(right))
+    .slice(0, 24);
+}
+
+function moduleTopicText(filePath: string, capabilities: string[]): string {
+  return capabilities.length
+    ? `module ${filePath} capabilities ${capabilities.join(' ')}`
+    : `module ${filePath}`;
 }

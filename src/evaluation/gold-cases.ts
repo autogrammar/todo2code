@@ -8,21 +8,61 @@ import { T2C_VERSION } from '../version.js';
 import { compareSets, type Counts } from './gold-metrics.js';
 import {
   GOLD_FIXED_TIME,
+  GOLD_RELATION_CLASSES,
   type GoldDsl2TodoCase,
   type GoldFixtureRecord,
   type GoldLinkingCase,
+  type GoldRelationClass,
 } from './gold-types.js';
 
-export function evaluateLinkingCase(fixture: GoldLinkingCase): { counts: Counts; actual: unknown[] } {
+export interface LinkingCaseResult {
+  counts: Counts;
+  /** The same comparison restricted to each justification class. */
+  byClass: Record<GoldRelationClass, Counts>;
+  /** Forbidden pairs the linker produced anyway. */
+  forbiddenViolations: number;
+  actual: unknown[];
+}
+
+export function evaluateLinkingCase(fixture: GoldLinkingCase): LinkingCaseResult {
   const { records, labels } = buildFixtureRecords(fixture.id, fixture.records);
   const idToLabel = new Map([...labels].map(([label, id]) => [id, label]));
   const graph = linkIntentRecords(records, GOLD_FIXED_TIME);
-  const actual = graph.relations.map((relation) => ({
+  const observed = graph.relations.map((relation) => ({
     from: idToLabel.get(relation.from) ?? relation.from,
     to: idToLabel.get(relation.to) ?? relation.to,
     type: relation.type,
+    relationClass: classifyRelation(relation.basis),
   }));
-  return { counts: compareSets(actual, fixture.expected), actual };
+  const actual = observed.map(({ from, to, type, relationClass }) => ({ from, to, type, relationClass }));
+  const expected = fixture.expected.map((item) => ({ ...item, relationClass: item.relationClass ?? 'exact-target' }));
+
+  const byClass = Object.fromEntries(GOLD_RELATION_CLASSES.map((relationClass) => [
+    relationClass,
+    compareSets(
+      actual.filter((item) => item.relationClass === relationClass),
+      expected.filter((item) => item.relationClass === relationClass),
+    ),
+  ])) as Record<GoldRelationClass, Counts>;
+
+  const forbidden = fixture.forbidden ?? [];
+  const forbiddenViolations = forbidden.filter((pair) => observed.some((relation) =>
+    (relation.from === pair.from && relation.to === pair.to)
+    || (relation.from === pair.to && relation.to === pair.from))).length;
+
+  return { counts: compareSets(actual, expected), byClass, forbiddenViolations, actual };
+}
+
+/**
+ * Reads the justification class off a relation's `basis`.
+ *
+ * `module_topic:<n>` is the only capability heuristic the linker emits; every
+ * other basis rests on a ticket, path or symbol the record states explicitly.
+ */
+function classifyRelation(basis: string[]): GoldRelationClass {
+  const exact = basis.some((item) => item === 'shared_ticket' || item === 'shared_symbol' || item === 'shared_path');
+  if (exact) return 'exact-target';
+  return basis.some((item) => item.startsWith('module_topic:')) ? 'capability-topic' : 'exact-target';
 }
 
 export interface Dsl2TodoCaseResult {
@@ -146,7 +186,7 @@ function buildFixtureRecords(
   const labels = new Map<string, string>();
   const records = fixtures.map((fixture, index) => {
     const record = buildRecord({
-      kind: 'gold_fixture',
+      kind: fixture.statementKind ?? 'gold_fixture',
       action: fixture.action,
       object: fixture.text,
       text: fixture.text,
@@ -161,6 +201,7 @@ function buildFixtureRecords(
       epistemicClass: fixture.sourceKind === 'todo' ? 'plan' : fixture.sourceKind === 'git' ? 'fact' : 'declaration',
       confidence: 1,
       basis: ['versioned_gold_fixture'],
+      ...(fixture.metadata ? { metadata: fixture.metadata as Record<string, never> } : {}),
     });
     if (labels.has(fixture.label)) throw new Error(`Duplicate gold fixture label: ${fixture.label}`);
     labels.set(fixture.label, record.id);
@@ -171,6 +212,8 @@ function buildFixtureRecords(
 
 function deterministicGeneration(): GroundedGenerationMetadata {
   return {
+    generator: 't2c/gold-evaluation',
+    generatorVersion: '1',
     runtimeVersion: T2C_VERSION,
     generatedAt: GOLD_FIXED_TIME,
     requestedMode: 'deterministic',

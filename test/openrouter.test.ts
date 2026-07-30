@@ -167,7 +167,11 @@ test('Documentation extractor converts OpenRouter structured output to bounded L
     assert.equal(record?.epistemic.confidence, 0.85);
     assert.equal(record?.metadata.llmUsed, true);
     assert.equal(record?.metadata.runtimeVersion, T2C_VERSION);
-    assert.equal((record?.metadata.generation as { used?: string }).used, 'llm');
+    assert.deepEqual(record?.metadata.generation, {
+      generator: 't2c/document-openrouter', generatorVersion: '1', runtimeVersion: T2C_VERSION,
+      requested: 'llm', used: 'llm', degraded: false, fallbackReason: null,
+      provider: 'DocProvider', model: 'qwen/doc-resolved', responseId: 'gen-doc-1',
+    });
     assert.equal(result.audit.status, 'succeeded');
     assert.equal(result.audit.effectiveMode, 'llm');
     assert.equal(result.audit.model, config.openRouter.documentModel);
@@ -436,10 +440,11 @@ test('LLM summarizer prioritizes documentation over the AST payload budget', asy
     sourceKind: 'document',
     sourcePath: 'docs/contract.md',
     sourceLines: { start: 1, end: 1 },
-    extractor: 'test',
+    extractor: 'test/llm@1',
     epistemicClass: 'llm_inference',
     confidence: 0.8,
     basis: ['test'],
+    generation: { requested: 'llm', used: 'llm', provider: 'fixture', model: 'fixture/model' },
   });
   const graph = linkIntentRecords([...ast, document], '2026-07-29T00:00:00.000Z');
   const diagnostics = {

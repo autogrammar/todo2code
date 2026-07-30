@@ -81,6 +81,12 @@ class IntentRecord:
     def confidence(self) -> float:
         return float(self.epistemic.get("confidence", 0.0))
 
+    @property
+    def generation(self) -> Mapping[str, Any]:
+        """Runtime-owned converter/model and todo2code version provenance."""
+        value = self.metadata.get("generation")
+        return value if isinstance(value, Mapping) else {}
+
 
 @dataclass(frozen=True)
 class ExtractionResult:

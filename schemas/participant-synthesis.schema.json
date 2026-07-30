@@ -19,8 +19,10 @@
     "generation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["runtimeVersion", "generatedAt", "requestedMode", "effectiveMode", "degraded", "model", "provider", "responseId", "configurationFingerprint", "reason"],
+      "required": ["generator", "generatorVersion", "runtimeVersion", "generatedAt", "requestedMode", "effectiveMode", "degraded", "model", "provider", "responseId", "configurationFingerprint", "reason"],
       "properties": {
+        "generator": { "type": "string", "minLength": 1 },
+        "generatorVersion": { "type": "string", "minLength": 1 },
         "runtimeVersion": { "type": "string" },
         "generatedAt": { "type": "string", "format": "date-time" },
         "requestedMode": { "enum": ["deterministic", "prefer-llm", "require-llm"] },

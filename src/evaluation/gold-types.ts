@@ -61,12 +61,47 @@ export interface GoldFixtureRecord {
   lifecycle: LifecycleStatus;
   target?: { paths?: string[]; symbols?: string[]; tickets?: string[]; versions?: string[] };
   polarity?: Polarity;
+  /**
+   * `statement.kind`, defaulting to `gold_fixture`. Set it to `module_fact` to
+   * build a module aggregate: the capability-topic heuristic only fires when
+   * one side of the pair is a module aggregate.
+   */
+  statementKind?: string;
+  /** Extra record metadata, e.g. the `capabilities` list carried by aggregates. */
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * How a linking relation is supposed to be justified.
+ *
+ * `exact-target` covers a shared ticket, path or symbol — an identifier match
+ * the linker can prove. `capability-topic` covers the `module_topic` heuristic
+ * that matches prose declarations against module aggregates. They have very
+ * different failure modes, so a single blended precision/recall number hides
+ * exactly the risk worth watching.
+ */
+export type GoldRelationClass = 'exact-target' | 'capability-topic';
+
+export const GOLD_RELATION_CLASSES: GoldRelationClass[] = ['exact-target', 'capability-topic'];
+
+export interface GoldExpectedRelation {
+  from: string;
+  to: string;
+  type: string;
+  /** Defaults to `exact-target` for datasets written before the split. */
+  relationClass?: GoldRelationClass;
 }
 
 export interface GoldLinkingCase {
   id: string;
   records: GoldFixtureRecord[];
-  expected: Array<{ from: string; to: string; type: string }>;
+  expected: GoldExpectedRelation[];
+  /**
+   * Pairs that must stay unlinked. Without hard negatives, lowering the
+   * capability-topic floor looks free: recall rises and nothing reports the
+   * spurious relations it creates.
+   */
+  forbidden?: Array<{ from: string; to: string }>;
 }
 
 export interface GoldProposalFixture {
@@ -107,7 +142,12 @@ export interface GoldEvaluationReport {
   schemaVersion: 't2c.gold-report/v1';
   dataset: { schemaVersion: string; name: string; fingerprint: string };
   extraction: { overall: BinaryMetric; byChannel: Record<GoldExtractionChannel, BinaryMetric> };
-  linking: BinaryMetric;
+  linking: BinaryMetric & {
+    /** Same metric split by how the relation is justified. */
+    byClass: Record<GoldRelationClass, BinaryMetric>;
+    /** Forbidden pairs the linker created anyway. */
+    forbiddenViolations: number;
+  };
   dsl2todo: {
     citationCompleteness: { cited: number; required: number; rate: number };
     deduplication: BinaryMetric & { classifiedDuplicates: number; proposals: number; rate: number };

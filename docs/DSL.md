@@ -43,7 +43,18 @@
   "metadata": {
     "checked": false,
     "llmUsed": true,
-    "generation": { "requested": "llm", "used": "llm", "degraded": false, "runtimeVersion": "0.5.0", "model": "qwen/qwen3.7-plus" }
+    "generation": {
+      "generator": "t2c/markdown-todo-openrouter",
+      "generatorVersion": "1",
+      "runtimeVersion": "0.5.0",
+      "requested": "llm",
+      "used": "llm",
+      "degraded": false,
+      "fallbackReason": null,
+      "provider": "openrouter",
+      "model": "qwen/qwen3.7-plus",
+      "responseId": "gen-..."
+    }
   }
 }
 ```
@@ -64,6 +75,19 @@
 
 ## Reguły provenance
 
+- Każdy rekord bez wyjątku ma obowiązkowe `metadata.generation`. Runtime i JSON
+  Schema odrzucają rekord, który nie wskazuje generatora, jego wersji i wersji
+  todo2code.
+- `generator` identyfikuje konwerter bez sufiksu wersji, a
+  `generatorVersion` przechowuje jego wersję. Przykład deterministyczny:
+  `t2c/typescript-ast` + `1`; `provider`, `model` i `responseId` są wtedy
+  obowiązkowo `null`.
+- Dla `used=llm` pola `provider` i `model` są obowiązkowe, a `responseId`
+  wskazuje odpowiedź, jeśli provider go zwrócił. Model pochodzi z odpowiedzi
+  providera, z modelem skonfigurowanym jako kontrolowany fallback.
+- `runtimeVersion` jest wersją todo2code, która materializowała rekord.
+- Fallback zachowuje deterministyczny generator, ustawia `requested=llm`,
+  `used=deterministic`, `degraded=true` oraz obowiązkowy `fallbackReason`.
 - LLM nie może zmienić `source.path`, `source.lines`, `source.extractor` ani `epistemic.class` ustawianych przez runtime.
 - `fact` jest zarezerwowany dla obserwacji deterministycznych.
 - Commit message i changelog są `claim`, nawet gdy brzmią jak zakończona praca.
@@ -81,7 +105,8 @@
   Im mniej struktury w źródle, tym niższy sufit.
 - Rekord NL z LLM nie może przekroczyć confidence `0.9`, a runtime wymusza lifecycle `proposed` niezależnie od odpowiedzi modelu.
 - W TODO/CHANGELOG LLM nie może zmienić checkboxa, lifecycle, modality, wersji, daty, kategorii, source ani klasy `plan`/`claim`; confidence wzbogacenia nie przekracza `0.94`.
-- `metadata.generation` wskazuje `requested`, faktycznie `used`, `degraded`, `fallbackReason`, wersję runtime i — dla LLM — model.
+- `metadata.generation` jest polem runtime-owned; dane zwrócone przez model nie
+  mogą go nadpisać.
 - Brak pola pozostaje brakiem; system nie tworzy ukrytego faktu.
 
 Runtime nie ufa samemu typowaniu TypeScript. Przed zbudowaniem grafu i na
@@ -112,6 +137,8 @@ swobodnym tekstem raportu. Minimalny poprawny obiekt wygląda tak:
   "recordIds": ["INT-TODO-0123456789abcdefabcd"],
   "confidence": 0.94,
   "generation": {
+    "generator": "t2c/grounded-summary",
+    "generatorVersion": "1",
     "runtimeVersion": "0.5.0",
     "generatedAt": "2026-07-29T12:00:00.000Z",
     "requestedMode": "require-llm",
@@ -164,6 +191,8 @@ rekordu intencji. `dependencies` zawiera stabilne ID innych propozycji:
   "recordIds": ["INT-TODO-0123456789abcdefabcd"],
   "confidence": 0.9,
   "generation": {
+    "generator": "t2c/task-synthesis",
+    "generatorVersion": "1",
     "runtimeVersion": "0.5.0",
     "generatedAt": "2026-07-29T12:00:00.000Z",
     "requestedMode": "prefer-llm",
@@ -181,7 +210,9 @@ rekordu intencji. `dependencies` zawiera stabilne ID innych propozycji:
 Fallback nie może udawać wyniku semantycznej syntezy. Dla
 `requestedMode=prefer-llm` wynik deterministyczny musi mieć `degraded=true` i
 niepusty `reason`; `require-llm` nigdy nie dopuszcza wyniku deterministycznego.
-Dla rzeczywistego wyniku LLM wymagane są `model` i `provider`. Opublikowane
+Dla każdego wyniku wymagane są `generator` i `generatorVersion`; dla
+rzeczywistego wyniku LLM wymagane są dodatkowo `model` i `provider`.
+Opublikowane
 schematy to `schemas/conclusion.schema.json` i
 `schemas/todo-proposal.schema.json`; walidacja kontekstowa i stabilne ID są w
 `src/core/schema.ts` oraz `src/core/id.ts`.

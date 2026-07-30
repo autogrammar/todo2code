@@ -41,7 +41,7 @@ Intent vs Reality, komunikację i automatyczną kontrolę wszystkich przykładó
 opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 
 ## Reality vs Intent
-![reality.svg](.intent/runs/20260729T123956Z-2c6601ec/reality.svg)
+![reality.svg](.intent/runs/20260730T132242Z-188bd9a6/reality.svg)
 
 ## GUI
 ![history-ui.png](.intent/history-ui.png)
@@ -69,6 +69,10 @@ Java z `T2C_REQUIRE_JAVA_TEST=1`, co zamienia brak runtime w błąd zamiast skip
 Wersjonowany benchmark semantyczny uruchamia `npm run evaluate:gold`; mierzy on
 precision/recall ekstrakcji i linkowania, kompletność cytowań DSL2TODO,
 deduplikację oraz stabilność dwóch identycznych przebiegów offline.
+Rzeczywiste kontrakty NL → DSL oraz graf → wnioski można sprawdzić osobno przez
+`npm run live:check`. Kontrola jest opt-in, używa `require-llm`, zapisuje tylko
+zredagowany audyt latencji/tokenów/kosztu i bez klucza kończy się jako `SKIPPED`;
+wymagane testy offline nigdy nie zależą od dostępności providera.
 
 ## Szybki start
 
@@ -122,7 +126,7 @@ console.log({ records: graph.records.length, relations: graph.relations.length, 
 NODE
 ```
 
-Weryfikowany wynik dla `0.5.0` ma 207 rekordów, w tym 5 wersjonowanych rekordów
+Weryfikowany wynik dla `0.5.0` ma 217 rekordów, w tym 5 wersjonowanych rekordów
 komunikacji. Liczba relacji zależy również od
 ostatnich 10 commitów Git, dlatego po każdym commicie może się prawidłowo
 zmienić i należy odczytać ją z bieżącego grafu:
@@ -133,8 +137,8 @@ naturalLanguageExtraction: succeeded / deterministic
 markdownExtraction:        succeeded / deterministic
 documentationExtraction:   skipped / none
 summary:                   skipped / deterministic / LLM_DISABLED
-records: 207, relations: <zależne od ostatnich 10 commitów>
-bySource: ast=180, changelog=2, git=10, nl=7, todo=3
+records: 217, relations: <zależne od ostatnich 10 commitów>
+bySource: agent_log=5, ast=190, changelog=2, git=10, nl=7, todo=3
 ```
 
 Demo jawnie wyłącza LLM dokumentacji i podsumowania, więc nie korzysta z
@@ -304,6 +308,13 @@ Etap dokumentacji ma osobne limity fragmentu, liczby fragmentów, rekordów,
 współbieżności i timeoutu (`T2C_DOC_*`). Najpierw analizuje fragmenty pasujące
 do ścieżek, symboli, ticketów i wersji wykrytych w pozostałych źródłach; obcięcie
 budżetu zapisuje ostrzeżenie `DOC_CHUNK_BUDGET`.
+
+Każdy rekord `t2c.intent/v1` zawsze zawiera runtime-owned
+`metadata.generation`: generator i jego wersję, wersję todo2code, tryb żądany i
+użyty oraz stan fallbacku. Rekord LLM dodatkowo wymaga providera, rozstrzygniętego
+modelu i response ID; rekord deterministyczny ma te trzy pola jawnie równe
+`null`. Brak lub niespójna provenance jest błędem kontraktu, a nie opcjonalną
+metadaną. Pełny kształt opisuje [`docs/DSL.md`](docs/DSL.md).
 
 ## Origin vs bieżący workspace
 

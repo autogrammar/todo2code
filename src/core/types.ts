@@ -100,6 +100,31 @@ export interface IntentLifecycle {
   status: LifecycleStatus;
 }
 
+export type IntentGenerationMode = 'deterministic' | 'llm';
+
+/**
+ * Runtime-owned provenance of the conversion that materialized one DSL record.
+ * This is required even for deterministic records: `source` identifies the
+ * evidence, while `generation` identifies the software or model that converted
+ * that evidence to Intent DSL.
+ */
+export interface IntentGenerationMetadata extends Record<string, JsonValue> {
+  generator: string;
+  generatorVersion: string;
+  runtimeVersion: string;
+  requested: IntentGenerationMode;
+  used: IntentGenerationMode;
+  degraded: boolean;
+  fallbackReason: string | null;
+  provider: string | null;
+  model: string | null;
+  responseId: string | null;
+}
+
+export interface IntentRecordMetadata extends Record<string, JsonValue> {
+  generation: IntentGenerationMetadata;
+}
+
 export interface IntentRecord {
   schemaVersion: 't2c.intent/v1';
   id: string;
@@ -108,7 +133,7 @@ export interface IntentRecord {
   source: IntentSource;
   epistemic: IntentEpistemic;
   observedAt: string | null;
-  metadata: Record<string, JsonValue>;
+  metadata: IntentRecordMetadata;
 }
 
 export type RelationType =
@@ -231,6 +256,8 @@ export type ConclusionKind = 'finding' | 'risk' | 'decision' | 'recommendation';
 export type TodoPriority = 'P0' | 'P1' | 'P2' | 'P3';
 
 export interface GroundedGenerationMetadata {
+  generator: string;
+  generatorVersion: string;
   runtimeVersion: string;
   generatedAt: string;
   requestedMode: 'deterministic' | 'prefer-llm' | 'require-llm';

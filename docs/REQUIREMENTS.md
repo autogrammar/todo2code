@@ -7,6 +7,7 @@
 | Aktualne AST → DSL | `src/extractors/ast.ts`, helpery `python/`, `golang/`, `java/`, `rust-ast/` | `ast.test.ts`, `ast-languages.test.ts` |
 | TODO + CHANGELOG → DSL, struktura + LLM | osobne `src/extractors/todo.ts`, `changelog.ts`, kompozycja `markdown.ts`, audyt `markdown-llm.ts` | `markdown.test.ts`: oba konwertery, sukces LLM, zachowanie pól strukturalnych, fallback i `require-llm`; live `qwen/qwen3.7-plus` |
 | Dokumentacja → DSL przez LLM | `src/extractors/docs-llm.ts`, `src/llm/openrouter.ts` | `openrouter.test.ts`: structured output, target hints, współbieżność, budżet chunków, runtime/config audit |
+| Obowiązkowa provenance każdego rekordu DSL | `src/core/record.ts`, `src/core/schema.ts`, `schemas/intent-record.schema.json` | `schema-validation.test.ts`: generator i wersje dla deterministycznego rekordu, model/provider dla LLM, odrzucenie braków i fałszywych deklaracji LLM |
 | Ludzie/agenci w `project/<ticket>/` → DSL i analiza rozbieżności | `src/extractors/communication.ts`, `src/communication/analyzer.ts`, główny pipeline, CLI/MCP/A2A, historia/UI/watch | `communication.test.ts`, `pipeline.test.ts`, `sdk.test.ts`, `watch.test.ts`: osobne role/uczestnicy, konflikt, praca poza requestem, claim z Git, brak tożsamości, artefakty/filtry/coalescing |
 | Konsolidacja DSL → `t2c.conclusion/v1` → NL | `src/summary/summarizer.ts`, `t2c summarize --mode deterministic|prefer-llm|require-llm` | `openrouter.test.ts`: structured output i ugruntowane cytowania; `cli-summary.test.ts`: trzy tryby i błędna wartość; pipeline testuje fallback |
 | Strukturalne wnioski `t2c.conclusion/v1` | typy i stabilne ID w `src/core/types.ts`, `src/core/id.ts`; JSON Schema i walidacja w `schemas/`/`src/core/schema.ts`; synteza w `src/synthesis/tasks-llm.ts` | `grounded-contracts.test.ts`, `task-synthesis.test.ts`: kształt, cytowania, fingerprint, ID, metadane i odpowiedź LLM |
@@ -17,7 +18,7 @@
 | Audyt runtime/LLM | `src/llm/audit.ts`, `src/pipeline/run.ts`, `t2c.run/v1` | testy NL/Markdown/docs: standalone runtime/config; `pipeline.test.ts`: fingerprint, odpowiedzi i failed-run dla wymaganego LLM oraz nieoczekiwanej awarii |
 | Pełna walidacja DSL w runtime | `src/core/schema.ts`, granice graf/diff/reality/summary oraz kontrakty conclusion/proposal | `schema-validation.test.ts`, `grounded-contracts.test.ts`: kompletność, enumy, nadmiarowe pola, relacje, statystyki i ugruntowane cytowania |
 | Modularność | `scripts/verify-module-boundaries.mjs` | `npm run verify:modules`: brak cykli i niezależny `src/core` |
-| Kontrakt środowiska | `.env.example`, `src/config/env.ts`, Docker/Compose i SDK | `npm run verify:env`: kompletność lokalnego `.env`, 56 udokumentowanych nazw i brak duplikatów |
+| Kontrakt środowiska | `.env.example`, `src/config/env.ts`, Docker/Compose, skrypty live i SDK | `npm run verify:env`: kompletność lokalnego `.env`, 63 udokumentowane nazwy i brak duplikatów |
 | TypeScript runtime | cały katalog `src/` | `npm run build` |
 | SDK i przykłady użycia | `sdk/{typescript,python,go,rust,php}` | każdy SDK ma convenience NL/docs i propose/render/apply; pięć przykładów testuje offline NL + Markdown, graf/reality/diff i wspólną klasyfikację/fingerprint patcha; opcjonalny workspace |
 | MCP | `src/interfaces/mcp.ts` | `scripts/mcp-request.sh` |

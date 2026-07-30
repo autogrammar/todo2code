@@ -24,7 +24,8 @@ test('Qualified AST symbols align with short plan and documentation targets', ()
   const document = buildRecord({
     kind: 'documented_requirement', action: 'validate', object: 'contract', target: { symbols: ['Runtime.validateContract'] },
     text: 'Runtime validates the contract', lifecycle: 'planned', sourceKind: 'document', sourcePath: 'docs/runtime.md',
-    extractor: 'test', epistemicClass: 'llm_inference', confidence: 0.8, basis: ['test'],
+    extractor: 'test/llm@1', epistemicClass: 'llm_inference', confidence: 0.8, basis: ['test'],
+    generation: { requested: 'llm', used: 'llm', provider: 'fixture', model: 'fixture/model' },
   });
   const fact = buildRecord({
     kind: 'symbol_fact', action: 'declare', object: 'Runtime.validateContract',
@@ -39,4 +40,5 @@ test('Qualified AST symbols align with short plan and documentation targets', ()
   assert.equal(reality.totals.topics, 1);
   assert.equal(reality.totals.implementationCoverage, 1);
   assert.equal(reality.totals.documentedCodeCoverage, 1);
+  assert.equal(reality.totals.documentationMeasured, true);
 });

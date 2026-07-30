@@ -10,12 +10,12 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrola | Wynik |
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
-| Transitive no-LLM import boundary | PASS — 9 entrypointów, 18 modułów |
-| Granice modułów | PASS — 47 modułów, 247 importów wewnętrznych, brak cykli, niezależny `src/core` |
-| Kontrakt środowiska | PASS — 56 zmiennych kodu/Dockera, 56 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
+| Transitive no-LLM import boundary | PASS — 9 entrypointów, 22 moduły |
+| Granice modułów | PASS — 71 modułów, 333 importy wewnętrzne, brak cykli, niezależny `src/core` |
+| Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 157 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 207 rekordów, w tym 5 `agent_log`; liczba relacji zależy od ostatnich 10 commitów; NL, Markdown, komunikacja i summary deterministyczne, dokumentacja pominięta, bez sieci i fallbacku |
+| Testy Node | PASS — 171 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 217 rekordów i 99 relacji, w tym 5 `agent_log`; NL, Markdown, komunikacja i summary deterministyczne, dokumentacja pominięta, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
@@ -26,6 +26,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | OpenRouter invalid-model discovery | PASS — lista modeli po błędnym identyfikatorze |
 | Dokumentacja → DSL przez mock OpenRouter | PASS — structured output, target hints, limity rekordów/chunków, timeout i współbieżność |
 | Graf → NL przez mock OpenRouter | PASS — uziemione cytowania i budżet AST |
+| Scheduled live OpenRouter | PASS/SKIP — osobny opt-in job sprawdza NL i summary w `require-llm`, budżety i redacted audit; bez klucza jawnie pomijany |
 | MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 19 narzędzi, w tym propose/render/apply TODO |
 | MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 19 narzędzi, w tym propose/render/apply TODO |
 | A2A v1 `SendMessage` | PASS — deterministyczny task completed, 1 artifact |
@@ -38,7 +39,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę poza zakresem; wariant `--no-ast` wykrywa claim bez dowodu |
 | Audytowane wzbogacanie komunikacji | PASS — mock structured OpenRouter, syntezy per uczestnik z cytowaniami, zachowane runtime-owned identity/role/ticket/source/epistemic class, jawny fallback i `require-llm` |
 | `t2c.participant-registry/v1` | PASS — exact stable IDs, mapowanie Git/A2A/human aliases, wykrywanie duplikatów i konfliktów; brak dopasowania po display name |
-| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `488ffe359297e1bf` oraz patcha `907d4fd79ef9f754` |
+| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `da0f200c2eacded3` oraz patcha `252df1d273c95fee` |
 | Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
 | CLI `doctor`, `--help`, `--version` | PASS |
 | `npm audit` rdzenia | PASS — 0 podatności przy zwykłym `npm install` |
@@ -49,8 +50,8 @@ nadpisują lokalne ustawienia wersji/LLM, dlatego kontrola offline nie zależy o
 zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
-offline oraz build i health smoke Dockera; nie wykonywała live OpenRouter.
-Wynik: 158 testów, 157 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
+Wynik: 172 testy, 171 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
@@ -64,7 +65,7 @@ Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 
 Wszystkie przykłady przeszły ścieżkę NL → AST → Markdown → graf → diagnostyka →
 Intent vs Reality → Git diff i uzyskały ten sam fingerprint
-`488ffe359297e1bf…`; każdy potwierdził audyt NL i Markdown o statusie
+`da0f200c2eacded3…`; każdy potwierdził audyt NL i Markdown o statusie
 `succeeded` i trybie `deterministic`. Opcjonalny przykład TypeScript uruchomił także
 `compare_workspace` i zwrócił `unchanged` dla niezmienionego
 `examples/backend`. Porównanie nie wywołało summary LLM; oba manifesty oznaczają

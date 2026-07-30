@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { createIntentId, sha256, stableStringify } from '../core/id.js';
 import { pathExists } from '../core/io.js';
-import { buildRecord } from '../core/record.js';
+import { buildRecord, withRecordGeneration } from '../core/record.js';
 import type {
   GroundedGenerationMetadata,
   IntentAction,
@@ -315,14 +315,15 @@ function enrichRecord(
     confidence: Math.min(0.85, Math.max(0.05, enrichment.confidence)),
     basis: [...record.epistemic.basis, 'openrouter_communication_enrichment', ...enrichment.basis],
     observedAt: record.observedAt,
+    generation: {
+      requested: 'llm', used: 'llm', provider: response.provider ?? 'openrouter',
+      model: response.model ?? config.openRouter.communicationModel, responseId: response.responseId,
+    },
     metadata: {
       ...record.metadata,
       llmUsed: true,
       topics: sortedUnique(enrichment.topics),
-      generation: {
-        requested: 'llm', used: 'llm', degraded: false, fallbackReason: null,
-        runtimeVersion: T2C_VERSION, model: config.openRouter.communicationModel, response,
-      },
+      response,
     },
   });
 }
@@ -364,21 +365,17 @@ function synthesis(input: Omit<ParticipantCommunicationSynthesis, 'schemaVersion
 }
 
 function markDeterministic(records: IntentRecord[], degraded: boolean, fallbackReason: string | null): IntentRecord[] {
-  return records.map((record) => ({
-    ...record,
-    metadata: {
-      ...record.metadata,
-      llmUsed: false,
-      generation: {
-        requested: degraded ? 'llm' : 'deterministic', used: 'deterministic', degraded, fallbackReason,
-        runtimeVersion: T2C_VERSION,
-      },
-    },
-  }));
+  return records.map((record) => {
+    const marked = withRecordGeneration(record, {
+      requested: degraded ? 'llm' : 'deterministic', used: 'deterministic', degraded, fallbackReason,
+    });
+    return { ...marked, metadata: { ...marked.metadata, llmUsed: false } };
+  });
 }
 
 function deterministicGeneration(): GroundedGenerationMetadata {
   return {
+    generator: 't2c/participant-synthesis', generatorVersion: '1',
     runtimeVersion: T2C_VERSION, generatedAt: new Date().toISOString(),
     requestedMode: 'deterministic', effectiveMode: 'deterministic', degraded: false,
     model: null, provider: null, responseId: null,
@@ -388,6 +385,7 @@ function deterministicGeneration(): GroundedGenerationMetadata {
 
 function fallbackGeneration(reason: string): GroundedGenerationMetadata {
   return {
+    generator: 't2c/participant-synthesis', generatorVersion: '1',
     runtimeVersion: T2C_VERSION, generatedAt: new Date().toISOString(),
     requestedMode: 'prefer-llm', effectiveMode: 'deterministic', degraded: true,
     model: null, provider: null, responseId: null,
@@ -397,6 +395,7 @@ function fallbackGeneration(reason: string): GroundedGenerationMetadata {
 
 function llmGeneration(config: T2CConfig, mode: LlmExtractionMode, response: LlmResponseMetadata): GroundedGenerationMetadata {
   return {
+    generator: 't2c/participant-synthesis', generatorVersion: '1',
     runtimeVersion: T2C_VERSION, generatedAt: new Date().toISOString(),
     requestedMode: mode, effectiveMode: 'llm', degraded: false,
     model: response.model ?? config.openRouter.communicationModel,

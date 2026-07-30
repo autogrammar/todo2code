@@ -42,6 +42,8 @@ export interface CoverageSnapshot {
   implementationCoverage: number;
   plannedCodeCoverage: number;
   documentedCodeCoverage: number;
+  /** False when neither side ran documentation extraction; see `IntentRealityView`. */
+  documentationMeasured: boolean;
   byStatus: Record<string, number>;
   diagnostics: DiagnosticReport['counts'];
 }
@@ -299,9 +301,22 @@ function renderTrendMarkdown(result: WorkspaceComparison): string {
     + `- Alignment: ${percent(result.base.coverage.alignmentRate)} → ${percent(result.workspace.coverage.alignmentRate)} (${percent(result.trend.alignmentRateDelta)})\n`
     + `- Declared intent implemented: ${percent(result.base.coverage.implementationCoverage)} → ${percent(result.workspace.coverage.implementationCoverage)} (${percent(result.trend.implementationCoverageDelta)})\n`
     + `- Code with a plan: ${percent(result.base.coverage.plannedCodeCoverage)} → ${percent(result.workspace.coverage.plannedCodeCoverage)} (${percent(result.trend.plannedCodeCoverageDelta)})\n`
-    + `- Code with documentation: ${percent(result.base.coverage.documentedCodeCoverage)} → ${percent(result.workspace.coverage.documentedCodeCoverage)} (${percent(result.trend.documentedCodeCoverageDelta)})\n`
+    + `- Code with documentation: ${documentationLine(result, percent)}\n`
     + `- Gaps: ${result.base.coverage.gaps} → ${result.workspace.coverage.gaps} (${result.trend.gapsDelta >= 0 ? '+' : ''}${result.trend.gapsDelta})\n`
     + `- Intent records: +${result.diff.summary.recordsAdded} / -${result.diff.summary.recordsRemoved} / ~${result.diff.summary.recordsChanged}\n`;
+}
+
+/**
+ * Documentation coverage is only comparable when at least one side actually
+ * extracted documentation. Both sides run the same configuration, so an
+ * offline comparison would otherwise report a confident "0.0% → 0.0%".
+ */
+function documentationLine(result: WorkspaceComparison, percent: (value: number) => string): string {
+  if (!result.base.coverage.documentationMeasured && !result.workspace.coverage.documentationMeasured) {
+    return 'not measured (documentation extraction did not run on either side)';
+  }
+  return `${percent(result.base.coverage.documentedCodeCoverage)} → ${percent(result.workspace.coverage.documentedCodeCoverage)}`
+    + ` (${percent(result.trend.documentedCodeCoverageDelta)})`;
 }
 
 async function git(cwd: string, args: string[]): Promise<string> {

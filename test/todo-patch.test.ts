@@ -70,6 +70,7 @@ function fixture(): Fixture {
 
 function generation(): GroundedGenerationMetadata {
   return {
+    generator: 't2c/test-fixture', generatorVersion: '1',
     runtimeVersion: '0.4.0', generatedAt: NOW, requestedMode: 'require-llm', effectiveMode: 'llm',
     degraded: false, model: 'test/model', provider: 'test', responseId: 'response-1',
     configurationFingerprint: 'a'.repeat(64), reason: null,

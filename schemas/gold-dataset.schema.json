@@ -4,49 +4,171 @@
   "title": "todo2code versioned gold dataset",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "name", "description", "extraction", "linking", "dsl2todo"],
+  "required": [
+    "schemaVersion",
+    "name",
+    "description",
+    "extraction",
+    "linking",
+    "dsl2todo"
+  ],
   "properties": {
-    "schemaVersion": { "const": "t2c.gold-dataset/v1" },
-    "name": { "type": "string", "minLength": 1 },
-    "description": { "type": "string", "minLength": 1 },
-    "extraction": { "type": "array", "minItems": 3, "items": { "$ref": "#/$defs/extractionCase" } },
-    "linking": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/linkingCase" } },
-    "dsl2todo": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/dsl2todoCase" } }
+    "schemaVersion": {
+      "const": "t2c.gold-dataset/v1"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "extraction": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "$ref": "#/$defs/extractionCase"
+      }
+    },
+    "linking": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/linkingCase"
+      }
+    },
+    "dsl2todo": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/dsl2todoCase"
+      }
+    }
   },
   "$defs": {
     "target": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "paths": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "symbols": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "tickets": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "versions": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "symbols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "tickets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
       }
     },
     "projection": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["sourceKind", "action", "text", "lifecycle", "modality", "polarity", "paths", "symbols", "tickets", "versions", "lines"],
+      "required": [
+        "sourceKind",
+        "action",
+        "text",
+        "lifecycle",
+        "modality",
+        "polarity",
+        "paths",
+        "symbols",
+        "tickets",
+        "versions",
+        "lines"
+      ],
       "properties": {
-        "sourceKind": { "type": "string" },
-        "action": { "type": "string" },
-        "text": { "type": "string" },
-        "lifecycle": { "type": "string" },
-        "modality": { "type": "string" },
-        "polarity": { "enum": ["positive", "negative"] },
-        "paths": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "symbols": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "tickets": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "versions": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "sourceKind": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "type": "string"
+        },
+        "modality": {
+          "type": "string"
+        },
+        "polarity": {
+          "enum": [
+            "positive",
+            "negative"
+          ]
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "symbols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "tickets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
         "lines": {
           "oneOf": [
-            { "type": "null" },
+            {
+              "type": "null"
+            },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["start", "end"],
-              "properties": { "start": { "type": "integer", "minimum": 1 }, "end": { "type": "integer", "minimum": 1 } }
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "start": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "end": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
             }
           ]
         }
@@ -54,47 +176,170 @@
     },
     "extractionCase": {
       "type": "object",
-      "required": ["id", "channel", "expected"],
+      "required": [
+        "id",
+        "channel",
+        "expected"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "channel": { "enum": ["nl", "documentation", "markdown"] },
-        "sourcePath": { "type": "string" },
-        "text": { "type": "string" },
-        "files": { "type": "object", "additionalProperties": { "type": "string" } },
-        "todoPath": { "type": ["string", "null"] },
-        "changelogPath": { "type": ["string", "null"] },
-        "documentResponse": { "type": "object" },
-        "expected": { "type": "array", "items": { "$ref": "#/$defs/projection" } }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "channel": {
+          "enum": [
+            "nl",
+            "documentation",
+            "markdown"
+          ]
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "todoPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "changelogPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "documentResponse": {
+          "type": "object"
+        },
+        "expected": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/projection"
+          }
+        }
       }
     },
     "fixtureRecord": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["label", "sourceKind", "action", "text", "lifecycle"],
+      "required": [
+        "label",
+        "sourceKind",
+        "action",
+        "text",
+        "lifecycle"
+      ],
       "properties": {
-        "label": { "type": "string", "minLength": 1 },
-        "sourceKind": { "type": "string" },
-        "action": { "type": "string" },
-        "text": { "type": "string", "minLength": 1 },
-        "lifecycle": { "type": "string" },
-        "target": { "$ref": "#/$defs/target" },
-        "polarity": { "enum": ["positive", "negative"] }
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceKind": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lifecycle": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "polarity": {
+          "enum": [
+            "positive",
+            "negative"
+          ]
+        },
+        "statementKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metadata": {
+          "type": "object"
+        }
       }
     },
     "linkingCase": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "records", "expected"],
+      "required": [
+        "id",
+        "records",
+        "expected"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "records": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/fixtureRecord" } },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "records": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/fixtureRecord"
+          }
+        },
         "expected": {
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["from", "to", "type"],
-            "properties": { "from": { "type": "string" }, "to": { "type": "string" }, "type": { "type": "string" } }
+            "required": [
+              "from",
+              "to",
+              "type"
+            ],
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "relationClass": {
+                "enum": [
+                  "exact-target",
+                  "capability-topic"
+                ]
+              }
+            }
+          }
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to"
+            ],
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            }
           }
         }
       }
@@ -102,26 +347,88 @@
     "proposal": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["label", "title", "description", "priority", "target", "acceptanceCriteria", "requiredRecordLabels", "expectedDuplicate"],
+      "required": [
+        "label",
+        "title",
+        "description",
+        "priority",
+        "target",
+        "acceptanceCriteria",
+        "requiredRecordLabels",
+        "expectedDuplicate"
+      ],
       "properties": {
-        "label": { "type": "string", "minLength": 1 },
-        "title": { "type": "string", "minLength": 1 },
-        "description": { "type": "string", "minLength": 1 },
-        "priority": { "enum": ["P0", "P1", "P2", "P3"] },
-        "target": { "$ref": "#/$defs/target" },
-        "acceptanceCriteria": { "type": "array", "minItems": 1, "items": { "type": "string" }, "uniqueItems": true },
-        "requiredRecordLabels": { "type": "array", "minItems": 1, "items": { "type": "string" }, "uniqueItems": true },
-        "expectedDuplicate": { "type": "boolean" }
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "priority": {
+          "enum": [
+            "P0",
+            "P1",
+            "P2",
+            "P3"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "requiredRecordLabels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "expectedDuplicate": {
+          "type": "boolean"
+        }
       }
     },
     "dsl2todoCase": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "records", "proposals"],
+      "required": [
+        "id",
+        "records",
+        "proposals"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "records": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/fixtureRecord" } },
-        "proposals": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/proposal" } }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "records": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/fixtureRecord"
+          }
+        },
+        "proposals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/proposal"
+          }
+        }
       }
     }
   }

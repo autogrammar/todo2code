@@ -110,6 +110,58 @@ export function assertIntentRecord(value: unknown): asserts value is IntentRecor
 
   const metadata = objectValue(record.metadata, `Intent ${record.id}: metadata`);
   if (!isJsonValue(metadata)) throw new Error(`Intent ${record.id}: metadata must contain JSON values only`);
+  assertIntentGenerationMetadata(metadata.generation, `Intent ${record.id}: metadata.generation`);
+  assertGenerationMatchesExtractor(metadata.generation, source.extractor as string, `Intent ${record.id}: metadata.generation`);
+  if (epistemic.class === 'llm_inference'
+    && (metadata.generation as { used: unknown }).used !== 'llm') {
+    throw new Error(`Intent ${record.id}: llm_inference requires metadata.generation.used=llm`);
+  }
+}
+
+function assertGenerationMatchesExtractor(value: unknown, extractor: string, name: string): void {
+  const generation = value as { generator: string; generatorVersion: string };
+  const separator = extractor.lastIndexOf('@');
+  const expectedGenerator = separator > 0 ? extractor.slice(0, separator) : extractor;
+  if (generation.generator !== expectedGenerator) {
+    throw new Error(`${name}.generator must match source.extractor (${expectedGenerator})`);
+  }
+  if (separator > 0 && generation.generatorVersion !== extractor.slice(separator + 1)) {
+    throw new Error(`${name}.generatorVersion must match source.extractor (${extractor.slice(separator + 1)})`);
+  }
+}
+
+function assertIntentGenerationMetadata(value: unknown, name: string): void {
+  const generation = objectValue(value, name);
+  exactKeys(generation, [
+    'generator', 'generatorVersion', 'runtimeVersion', 'requested', 'used', 'degraded',
+    'fallbackReason', 'provider', 'model', 'responseId',
+  ], name);
+  nonBlankString(generation.generator, `${name}.generator`);
+  nonBlankString(generation.generatorVersion, `${name}.generatorVersion`);
+  if (typeof generation.runtimeVersion !== 'string' || !RUNTIME_VERSION.test(generation.runtimeVersion)) {
+    throw new Error(`${name}.runtimeVersion must be a semantic version`);
+  }
+  enumValue(generation.requested, GENERATION_EFFECTIVE_MODES, `${name}.requested`);
+  enumValue(generation.used, GENERATION_EFFECTIVE_MODES, `${name}.used`);
+  if (typeof generation.degraded !== 'boolean') throw new Error(`${name}.degraded must be a boolean`);
+  nullableString(generation.fallbackReason, `${name}.fallbackReason`);
+  nullableString(generation.provider, `${name}.provider`);
+  nullableString(generation.model, `${name}.model`);
+  nullableString(generation.responseId, `${name}.responseId`);
+  if (generation.used === 'llm') {
+    nonBlankString(generation.provider, `${name}.provider`);
+    nonBlankString(generation.model, `${name}.model`);
+  } else if (generation.provider !== null || generation.model !== null || generation.responseId !== null) {
+    throw new Error(`${name}: deterministic generation cannot claim an LLM provider, model or responseId`);
+  }
+  if (generation.degraded) {
+    if (generation.requested !== 'llm' || generation.used !== 'deterministic') {
+      throw new Error(`${name}: degraded generation must be an LLM request using deterministic fallback`);
+    }
+    nonBlankString(generation.fallbackReason, `${name}.fallbackReason`);
+  } else if (generation.fallbackReason !== null) {
+    throw new Error(`${name}.fallbackReason must be null when generation is not degraded`);
+  }
 }
 
 export function assertIntentRecords(values: unknown): asserts values is IntentRecord[] {
@@ -319,9 +371,11 @@ function assertTodoProposalValue(
 function assertGroundedGenerationMetadata(value: unknown, name: string): asserts value is GroundedGenerationMetadata {
   const generation = objectValue(value, name);
   exactKeys(generation, [
-    'runtimeVersion', 'generatedAt', 'requestedMode', 'effectiveMode', 'degraded', 'model', 'provider',
-    'responseId', 'configurationFingerprint', 'reason',
+    'generator', 'generatorVersion', 'runtimeVersion', 'generatedAt', 'requestedMode', 'effectiveMode',
+    'degraded', 'model', 'provider', 'responseId', 'configurationFingerprint', 'reason',
   ], name);
+  nonBlankString(generation.generator, `${name}.generator`);
+  nonBlankString(generation.generatorVersion, `${name}.generatorVersion`);
   if (typeof generation.runtimeVersion !== 'string' || !RUNTIME_VERSION.test(generation.runtimeVersion)) {
     throw new Error(`${name}.runtimeVersion must be a semantic version`);
   }

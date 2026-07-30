@@ -29,7 +29,8 @@
     "diff": "node dist/src/cli.js diff",
     "demo": "node dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --nl-mode deterministic --markdown-mode deterministic --communication-mode deterministic --no-docs-llm --no-summary-llm --out .intent-demo && node dist/src/cli.js communication examples --project-dir project --ticket DEMO-101 --communication-mode deterministic --out examples/.intent-communication/analysis.json --md examples/.intent-communication/analysis.md --graph examples/.intent-communication/graph.json",
     "examples:check": "npm run build && bash scripts/examples-check.sh",
-    "evaluate:gold": "npm run build && node dist/src/evaluation/gold-cli.js evaluation/gold/v1/dataset.json --require-perfect"
+    "evaluate:gold": "npm run build && node dist/src/evaluation/gold-cli.js evaluation/gold/v1/dataset.json --require-perfect",
+    "live:check": "npm run build && node scripts/live-contract-check.mjs"
   },
   "dependencies": {
     "typescript": ">=5.8.3 <7"

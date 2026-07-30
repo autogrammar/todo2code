@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildRecord } from '../src/core/record.js';
 import type { IntentRecord } from '../src/core/types.js';
-import { buildRealityView, renderRealitySvg } from '../src/diff/reality.js';
+import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from '../src/diff/reality.js';
 import {
   diffText,
   renderTextDiffHtml,
@@ -181,6 +181,8 @@ test('A topic holding declared and observed records is never reported as planned
   assert.equal(view.totals.implementationCoverage, 1);
   assert.equal(view.totals.plannedCodeCoverage, 1);
   assert.equal(view.totals.documentedCodeCoverage, 0);
+  assert.equal(view.totals.documentationMeasured, false);
+  assert.match(renderRealityMarkdown(view), /documented code: not measured/);
   assert.equal(row?.status, 'aligned');
   assert.ok(row?.diagnosticCodes.includes('IMPLEMENTED_NOT_DOCUMENTED'));
 });

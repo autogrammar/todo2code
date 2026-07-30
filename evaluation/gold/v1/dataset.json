@@ -16,11 +16,20 @@
           "lifecycle": "proposed",
           "modality": "required",
           "polarity": "positive",
-          "paths": ["src/contracts.ts"],
-          "symbols": ["validateContract"],
-          "tickets": ["T2C-101"],
+          "paths": [
+            "src/contracts.ts"
+          ],
+          "symbols": [
+            "validateContract"
+          ],
+          "tickets": [
+            "T2C-101"
+          ],
           "versions": [],
-          "lines": { "start": 1, "end": 1 }
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
         }
       ]
     },
@@ -37,11 +46,20 @@
           "lifecycle": "proposed",
           "modality": "recommended",
           "polarity": "positive",
-          "paths": ["src/legacy.ts"],
-          "symbols": ["legacyCheckout"],
-          "tickets": ["T2C-102"],
+          "paths": [
+            "src/legacy.ts"
+          ],
+          "symbols": [
+            "legacyCheckout"
+          ],
+          "tickets": [
+            "T2C-102"
+          ],
           "versions": [],
-          "lines": { "start": 1, "end": 1 }
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
         }
       ]
     },
@@ -63,9 +81,19 @@
             "polarity": "positive",
             "lifecycle": "proposed",
             "confidence": 0.8,
-            "basis": ["captured_gold_response"],
-            "target": { "paths": [], "symbols": [], "tickets": [], "versions": [] },
-            "sourceLines": { "start": 1, "end": 1 },
+            "basis": [
+              "captured_gold_response"
+            ],
+            "target": {
+              "paths": [],
+              "symbols": [],
+              "tickets": [],
+              "versions": []
+            },
+            "sourceLines": {
+              "start": 1,
+              "end": 1
+            },
             "text": "The runtime must validate `checkoutOrder` in `src/checkout.ts` for T2C-103."
           },
           {
@@ -78,9 +106,19 @@
             "polarity": "positive",
             "lifecycle": "proposed",
             "confidence": 0.8,
-            "basis": ["captured_gold_response"],
-            "target": { "paths": [], "symbols": [], "tickets": [], "versions": [] },
-            "sourceLines": { "start": 1, "end": 1 },
+            "basis": [
+              "captured_gold_response"
+            ],
+            "target": {
+              "paths": [],
+              "symbols": [],
+              "tickets": [],
+              "versions": []
+            },
+            "sourceLines": {
+              "start": 1,
+              "end": 1
+            },
             "text": "The service should preserve backwards compatibility."
           }
         ]
@@ -93,11 +131,20 @@
           "lifecycle": "proposed",
           "modality": "required",
           "polarity": "positive",
-          "paths": ["src/checkout.ts"],
-          "symbols": ["checkoutOrder"],
-          "tickets": ["T2C-103"],
+          "paths": [
+            "src/checkout.ts"
+          ],
+          "symbols": [
+            "checkoutOrder"
+          ],
+          "tickets": [
+            "T2C-103"
+          ],
           "versions": [],
-          "lines": { "start": 3, "end": 3 }
+          "lines": {
+            "start": 3,
+            "end": 3
+          }
         },
         {
           "sourceKind": "document",
@@ -110,7 +157,10 @@
           "symbols": [],
           "tickets": [],
           "versions": [],
-          "lines": { "start": 4, "end": 4 }
+          "lines": {
+            "start": 4,
+            "end": 4
+          }
         }
       ]
     },
@@ -131,11 +181,20 @@
           "lifecycle": "planned",
           "modality": "required",
           "polarity": "positive",
-          "paths": ["src/checkout.ts"],
-          "symbols": ["checkoutOrder"],
-          "tickets": ["T2C-103"],
+          "paths": [
+            "src/checkout.ts"
+          ],
+          "symbols": [
+            "checkoutOrder"
+          ],
+          "tickets": [
+            "T2C-103"
+          ],
           "versions": [],
-          "lines": { "start": 3, "end": 3 }
+          "lines": {
+            "start": 3,
+            "end": 3
+          }
         },
         {
           "sourceKind": "todo",
@@ -145,10 +204,17 @@
           "modality": "required",
           "polarity": "positive",
           "paths": [],
-          "symbols": ["checkoutOrder"],
-          "tickets": ["T2C-103"],
+          "symbols": [
+            "checkoutOrder"
+          ],
+          "tickets": [
+            "T2C-103"
+          ],
           "versions": [],
-          "lines": { "start": 4, "end": 4 }
+          "lines": {
+            "start": 4,
+            "end": 4
+          }
         },
         {
           "sourceKind": "changelog",
@@ -157,11 +223,22 @@
           "lifecycle": "released",
           "modality": "claimed",
           "polarity": "positive",
-          "paths": ["src/checkout.ts"],
-          "symbols": ["checkoutOrder"],
-          "tickets": ["T2C-103"],
-          "versions": ["1.4.0"],
-          "lines": { "start": 7, "end": 7 }
+          "paths": [
+            "src/checkout.ts"
+          ],
+          "symbols": [
+            "checkoutOrder"
+          ],
+          "tickets": [
+            "T2C-103"
+          ],
+          "versions": [
+            "1.4.0"
+          ],
+          "lines": {
+            "start": 7,
+            "end": 7
+          }
         }
       ]
     }
@@ -170,33 +247,196 @@
     {
       "id": "link-git-implements-nl",
       "records": [
-        { "label": "request", "sourceKind": "nl", "action": "add", "text": "Implement checkout validation T2C-201", "lifecycle": "proposed", "target": { "tickets": ["T2C-201"] } },
-        { "label": "commit", "sourceKind": "git", "action": "add", "text": "Implement checkout validation T2C-201", "lifecycle": "implemented", "target": { "tickets": ["T2C-201"] } }
+        {
+          "label": "request",
+          "sourceKind": "nl",
+          "action": "add",
+          "text": "Implement checkout validation T2C-201",
+          "lifecycle": "proposed",
+          "target": {
+            "tickets": [
+              "T2C-201"
+            ]
+          }
+        },
+        {
+          "label": "commit",
+          "sourceKind": "git",
+          "action": "add",
+          "text": "Implement checkout validation T2C-201",
+          "lifecycle": "implemented",
+          "target": {
+            "tickets": [
+              "T2C-201"
+            ]
+          }
+        }
       ],
-      "expected": [{ "from": "commit", "to": "request", "type": "implements" }]
+      "expected": [
+        {
+          "from": "commit",
+          "to": "request",
+          "type": "implements"
+        }
+      ]
     },
     {
       "id": "link-todo-plans-document",
       "records": [
-        { "label": "plan", "sourceKind": "todo", "action": "validate", "text": "Validate order schema T2C-202", "lifecycle": "planned", "target": { "tickets": ["T2C-202"] } },
-        { "label": "docs", "sourceKind": "document", "action": "validate", "text": "Validate order schema T2C-202", "lifecycle": "proposed", "target": { "tickets": ["T2C-202"] } }
+        {
+          "label": "plan",
+          "sourceKind": "todo",
+          "action": "validate",
+          "text": "Validate order schema T2C-202",
+          "lifecycle": "planned",
+          "target": {
+            "tickets": [
+              "T2C-202"
+            ]
+          }
+        },
+        {
+          "label": "docs",
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "Validate order schema T2C-202",
+          "lifecycle": "proposed",
+          "target": {
+            "tickets": [
+              "T2C-202"
+            ]
+          }
+        }
       ],
-      "expected": [{ "from": "plan", "to": "docs", "type": "plans" }]
+      "expected": [
+        {
+          "from": "plan",
+          "to": "docs",
+          "type": "plans"
+        }
+      ]
     },
     {
       "id": "link-same-source-duplicates",
       "records": [
-        { "label": "first", "sourceKind": "todo", "action": "test", "text": "Test checkout audit T2C-203", "lifecycle": "planned", "target": { "tickets": ["T2C-203"] } },
-        { "label": "second", "sourceKind": "todo", "action": "test", "text": "Test checkout audit T2C-203", "lifecycle": "planned", "target": { "tickets": ["T2C-203"] } }
+        {
+          "label": "first",
+          "sourceKind": "todo",
+          "action": "test",
+          "text": "Test checkout audit T2C-203",
+          "lifecycle": "planned",
+          "target": {
+            "tickets": [
+              "T2C-203"
+            ]
+          }
+        },
+        {
+          "label": "second",
+          "sourceKind": "todo",
+          "action": "test",
+          "text": "Test checkout audit T2C-203",
+          "lifecycle": "planned",
+          "target": {
+            "tickets": [
+              "T2C-203"
+            ]
+          }
+        }
       ],
-      "expected": [{ "from": "first", "to": "second", "type": "duplicates" }]
+      "expected": [
+        {
+          "from": "first",
+          "to": "second",
+          "type": "duplicates"
+        }
+      ]
+    },
+    {
+      "id": "link-prose-to-module-capability",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Documentation extraction must validate every emitted record",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/extractors/documentation-validator.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/extractors/documentation-validator.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ]
+    },
+    {
+      "id": "link-prose-to-module-below-floor",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Source extraction must stay deterministic",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/extractors/source-scanner.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/extractors/source-scanner.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "module"
+        }
+      ]
     }
   ],
   "dsl2todo": [
     {
       "id": "dsl2todo-grounding-and-deduplication",
       "records": [
-        { "label": "existing-plan", "sourceKind": "todo", "action": "add", "text": "Implement audited export for T2C-301", "lifecycle": "planned", "target": { "paths": ["src/export.ts"], "tickets": ["T2C-301"] } }
+        {
+          "label": "existing-plan",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Implement audited export for T2C-301",
+          "lifecycle": "planned",
+          "target": {
+            "paths": [
+              "src/export.ts"
+            ],
+            "tickets": [
+              "T2C-301"
+            ]
+          }
+        }
       ],
       "proposals": [
         {
@@ -204,9 +444,22 @@
           "title": "Implement audited export",
           "description": "Implement audited export for T2C-301",
           "priority": "P1",
-          "target": { "paths": ["src/export.ts"], "symbols": [], "tickets": ["T2C-301"], "versions": [] },
-          "acceptanceCriteria": ["The audited export passes focused tests."],
-          "requiredRecordLabels": ["existing-plan"],
+          "target": {
+            "paths": [
+              "src/export.ts"
+            ],
+            "symbols": [],
+            "tickets": [
+              "T2C-301"
+            ],
+            "versions": []
+          },
+          "acceptanceCriteria": [
+            "The audited export passes focused tests."
+          ],
+          "requiredRecordLabels": [
+            "existing-plan"
+          ],
           "expectedDuplicate": true
         },
         {
@@ -214,9 +467,22 @@
           "title": "Add export metrics",
           "description": "Add latency counters for the export worker.",
           "priority": "P2",
-          "target": { "paths": ["src/metrics.ts"], "symbols": [], "tickets": ["T2C-301"], "versions": [] },
-          "acceptanceCriteria": ["Focused tests observe the new latency counters."],
-          "requiredRecordLabels": ["existing-plan"],
+          "target": {
+            "paths": [
+              "src/metrics.ts"
+            ],
+            "symbols": [],
+            "tickets": [
+              "T2C-301"
+            ],
+            "versions": []
+          },
+          "acceptanceCriteria": [
+            "Focused tests observe the new latency counters."
+          ],
+          "requiredRecordLabels": [
+            "existing-plan"
+          ],
           "expectedDuplicate": false
         }
       ]

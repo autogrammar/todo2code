@@ -1,6 +1,6 @@
 import { createRelationId, graphFingerprint } from '../core/id.js';
 import { assertIntentRecords } from '../core/schema.js';
-import { keywords } from '../core/text.js';
+import { keywords, topicKeywords } from '../core/text.js';
 import { pathAliases, symbolAliases } from '../core/target.js';
 import type { IntentGraph, IntentRecord, IntentRelation, RelationType, SourceKind } from '../core/types.js';
 
@@ -20,6 +20,7 @@ interface PairEvidence {
 interface RecordKeywords {
   object: Set<string>;
   text: Set<string>;
+  topics: Set<string>;
 }
 
 interface DirectedRelation {
@@ -52,6 +53,7 @@ function indexKeywords(records: IntentRecord[]): Map<string, RecordKeywords> {
   return new Map(records.map((record) => [record.id, {
     object: new Set(keywords(record.statement.object)),
     text: new Set(keywords(record.statement.text)),
+    topics: new Set(topicKeywords(`${record.statement.object} ${record.statement.text}`)),
   }]));
 }
 
@@ -141,8 +143,18 @@ function collectCandidatePairs(
     }
     indexTargetBuckets(buckets, record);
     indexKeywordBuckets(buckets, record.id, keywordIndex.get(record.id)?.object);
+    if (isModuleTopicSource(record)) {
+      indexTopicBuckets(buckets, record.id, keywordIndex.get(record.id)?.topics);
+    }
   }
   return pairsFromBuckets(buckets, astIds, moduleAstIds, declarationAstIds);
+}
+
+function isModuleTopicSource(record: IntentRecord): boolean {
+  return record.statement.kind === 'module_fact'
+    || record.source.kind === 'nl'
+    || record.source.kind === 'todo'
+    || record.source.kind === 'document';
 }
 
 function indexTargetBuckets(buckets: Map<string, string[]>, record: IntentRecord): void {
@@ -174,6 +186,16 @@ function indexKeywordBuckets(
   // materialized values keeps the same five-token candidate limit.
   for (const token of [...(objectKeywords ?? [])].slice(0, 5)) {
     addToBucket(buckets, `token:${token}`, recordId);
+  }
+}
+
+function indexTopicBuckets(
+  buckets: Map<string, string[]>,
+  recordId: string,
+  topics: Set<string> | undefined,
+): void {
+  for (const topic of [...(topics ?? [])].slice(0, 12)) {
+    addToBucket(buckets, `topic:${topic}`, recordId);
   }
 }
 
@@ -269,8 +291,25 @@ function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, R
     score += objectSimilarity * 0.48;
     basis.push(`text_similarity:${objectSimilarity.toFixed(3)}`);
   }
+  if (isModuleEvidencePair(left, right) && leftKeywords && rightKeywords) {
+    const sharedTopics = intersectionSize(leftKeywords.topics, rightKeywords.topics);
+    // Two generic words still connected one declaration to dozens of modules
+    // in the measured repository. Three independently normalised topics keeps
+    // prose-only matching useful while retaining a precision-oriented floor.
+    if (sharedTopics >= 3) {
+      score += Math.min(0.64, 0.32 + sharedTopics * 0.08);
+      basis.push(`module_topic:${sharedTopics}`);
+    }
+  }
   if (left.source.kind === right.source.kind) score -= 0.08;
   return { score: Math.max(0, score), basis: [...new Set(basis)].sort(), textScore: objectSimilarity };
+}
+
+function intersectionSize(left: Set<string>, right: Set<string>): number {
+  const [small, large] = left.size <= right.size ? [left, right] : [right, left];
+  let size = 0;
+  for (const value of small) if (large.has(value)) size += 1;
+  return size;
 }
 
 function isModuleEvidencePair(left: IntentRecord, right: IntentRecord): boolean {

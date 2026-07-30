@@ -94,7 +94,15 @@ dlatego model nie może podmienić provenance.
 Każdy standalone wynik NL/Markdown/komunikacji/dokumentacji zawiera `audit.runtimeVersion`
 i bezpieczne `audit.configuration` (model, URL, timeout, token budget,
 temperatura i tryb structured output), bez klucza API. Dokumentacyjne rekordy
-LLM mają ten sam `metadata.generation` co NL i Markdown.
+LLM mają ten sam obowiązkowy `metadata.generation` co NL i Markdown. Każdy
+rekord — także Git, AST i parser Markdown — zapisuje generator, wersję
+generatora i todo2code; rekord LLM dodatkowo zapisuje providera, rozstrzygnięty
+model i identyfikator odpowiedzi.
+
+Ta sama zasada dotyczy wynikowych kontraktów semantycznych. Wnioski,
+propozycje TODO i syntezy uczestników mają `generation.generator`,
+`generatorVersion`, `runtimeVersion` oraz — gdy wynik powstał przez LLM —
+provider, model i response ID. Runtime, nie model, materializuje tę kopertę.
 
 ### `src/extractors/communication.ts`, `src/communication/llm.ts` i `src/communication/analyzer.ts`
 

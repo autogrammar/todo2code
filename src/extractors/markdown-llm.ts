@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists } from '../core/io.js';
-import { buildRecord } from '../core/record.js';
+import { buildRecord, withRecordGeneration } from '../core/record.js';
 import type {
   ExtractionResult,
   IntentAction,
@@ -216,31 +216,26 @@ function enrichRecord(record: IntentRecord, enrichment: MarkdownEnrichment, conf
     confidence: Math.min(0.94, Math.max(0.05, enrichment.confidence)),
     basis: [...record.epistemic.basis, 'openrouter_markdown_enrichment', ...enrichment.basis],
     observedAt: record.observedAt,
+    generation: {
+      requested: 'llm', used: 'llm', provider: response.provider ?? 'openrouter',
+      model: response.model ?? config.openRouter.markdownModel, responseId: response.responseId,
+    },
     metadata: {
       ...record.metadata,
       llmUsed: true,
       acceptanceEvidence: enrichment.acceptanceEvidence,
-      generation: {
-        requested: 'llm', used: 'llm', degraded: false, fallbackReason: null,
-        runtimeVersion: T2C_VERSION, model: config.openRouter.markdownModel,
-        response,
-      },
+      response,
     },
   });
 }
 
 function markDeterministic(records: IntentRecord[], degraded: boolean, fallbackReason: string | null): IntentRecord[] {
-  return records.map((record) => ({
-    ...record,
-    metadata: {
-      ...record.metadata,
-      llmUsed: false,
-      generation: {
-        requested: degraded ? 'llm' : 'deterministic', used: 'deterministic', degraded, fallbackReason,
-        runtimeVersion: T2C_VERSION,
-      },
-    },
-  }));
+  return records.map((record) => {
+    const marked = withRecordGeneration(record, {
+      requested: degraded ? 'llm' : 'deterministic', used: 'deterministic', degraded, fallbackReason,
+    });
+    return { ...marked, metadata: { ...marked.metadata, llmUsed: false } };
+  });
 }
 
 function stageAudit(

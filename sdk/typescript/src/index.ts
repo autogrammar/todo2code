@@ -35,6 +35,19 @@ export interface IntentStatement {
   text: string;
 }
 
+export interface IntentGenerationMetadata {
+  generator: string;
+  generatorVersion: string;
+  runtimeVersion: string;
+  requested: 'deterministic' | 'llm';
+  used: 'deterministic' | 'llm';
+  degraded: boolean;
+  fallbackReason: string | null;
+  provider: string | null;
+  model: string | null;
+  responseId: string | null;
+}
+
 export interface IntentRecord {
   schemaVersion: 't2c.intent/v1';
   id: string;
@@ -53,7 +66,7 @@ export interface IntentRecord {
   };
   epistemic: { class: EpistemicClass; confidence: number; basis: string[] };
   observedAt: string | null;
-  metadata: Record<string, unknown>;
+  metadata: Record<string, unknown> & { generation: IntentGenerationMetadata };
 }
 
 export interface IntentGraph {

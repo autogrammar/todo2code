@@ -5,6 +5,7 @@ import { assertIntentGraph, assertIntentRecord } from '../src/core/schema.js';
 import type { IntentRecord } from '../src/core/types.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
 import { executeAction } from '../src/services/actions.js';
+import { T2C_VERSION } from '../src/version.js';
 import { makeConfig } from './helpers.js';
 
 function validRecord(): IntentRecord {
@@ -18,6 +19,11 @@ function validRecord(): IntentRecord {
 test('Runtime validator enforces the complete Intent DSL enum and object contract', () => {
   const valid = validRecord();
   assert.doesNotThrow(() => assertIntentRecord(valid));
+  assert.deepEqual(valid.metadata.generation, {
+    generator: 'test/schema', generatorVersion: T2C_VERSION, runtimeVersion: T2C_VERSION,
+    requested: 'deterministic', used: 'deterministic', degraded: false, fallbackReason: null,
+    provider: null, model: null, responseId: null,
+  });
 
   const invalidAction = structuredClone(valid) as IntentRecord;
   invalidAction.statement.action = 'not-in-dsl' as IntentRecord['statement']['action'];
@@ -34,6 +40,23 @@ test('Runtime validator enforces the complete Intent DSL enum and object contrac
   const extraField = structuredClone(valid) as IntentRecord & { injected?: boolean };
   extraField.injected = true;
   assert.throws(() => assertIntentRecord(extraField), /unsupported fields: injected/);
+
+  const missingGeneration = structuredClone(valid) as IntentRecord;
+  delete (missingGeneration.metadata as Partial<IntentRecord['metadata']>).generation;
+  assert.throws(() => assertIntentRecord(missingGeneration), /metadata\.generation must be an object/);
+
+  const anonymousLlm = structuredClone(valid);
+  anonymousLlm.metadata.generation.used = 'llm';
+  anonymousLlm.metadata.generation.requested = 'llm';
+  assert.throws(() => assertIntentRecord(anonymousLlm), /metadata\.generation\.provider must be a non-blank string/);
+
+  const falseLlmClaim = structuredClone(valid);
+  falseLlmClaim.metadata.generation.model = 'qwen/example';
+  assert.throws(() => assertIntentRecord(falseLlmClaim), /deterministic generation cannot claim an LLM/);
+
+  const mismatchedGenerator = structuredClone(valid);
+  mismatchedGenerator.metadata.generation.generator = 'different/converter';
+  assert.throws(() => assertIntentRecord(mismatchedGenerator), /generator must match source\.extractor/);
 });
 
 test('Linker and remote action boundary reject malformed records before graph construction', async () => {

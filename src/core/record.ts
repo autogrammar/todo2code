@@ -2,6 +2,8 @@ import { createIntentId, sha256 } from './id.js';
 import type {
   EpistemicClass,
   IntentAction,
+  IntentGenerationMetadata,
+  IntentGenerationMode,
   IntentRecord,
   IntentTarget,
   JsonValue,
@@ -12,6 +14,17 @@ import type {
   SourceLineRange,
 } from './types.js';
 import { normalizeTarget } from './target.js';
+import { T2C_VERSION } from './version.js';
+
+export interface BuildRecordGenerationInput {
+  requested?: IntentGenerationMode;
+  used: IntentGenerationMode;
+  degraded?: boolean;
+  fallbackReason?: string | null;
+  provider?: string | null;
+  model?: string | null;
+  responseId?: string | null;
+}
 
 export interface BuildRecordInput {
   prefix?: string;
@@ -38,6 +51,7 @@ export interface BuildRecordInput {
   basis: string[];
   observedAt?: string | null;
   metadata?: Record<string, JsonValue>;
+  generation?: BuildRecordGenerationInput;
 }
 
 export function buildRecord(input: BuildRecordInput): IntentRecord {
@@ -87,8 +101,55 @@ export function buildRecord(input: BuildRecordInput): IntentRecord {
       basis: [...new Set(input.basis)].sort(),
     },
     observedAt: input.observedAt ?? null,
-    metadata: input.metadata ?? {},
+    metadata: {
+      ...(input.metadata ?? {}),
+      generation: generationMetadata(input.extractor, input.generation),
+    },
   };
+}
+
+/** Updates runtime-owned mode/fallback provenance without losing generator identity. */
+export function withRecordGeneration(
+  record: IntentRecord,
+  overrides: Pick<IntentGenerationMetadata, 'requested' | 'used' | 'degraded' | 'fallbackReason'>,
+): IntentRecord {
+  return {
+    ...record,
+    metadata: {
+      ...record.metadata,
+      generation: { ...record.metadata.generation, ...overrides },
+    },
+  };
+}
+
+function generationMetadata(
+  extractor: string,
+  input: BuildRecordGenerationInput | undefined,
+): IntentGenerationMetadata {
+  const { generator, generatorVersion } = extractorIdentity(extractor);
+  const used = input?.used ?? 'deterministic';
+  return {
+    generator,
+    generatorVersion,
+    runtimeVersion: T2C_VERSION,
+    requested: input?.requested ?? used,
+    used,
+    degraded: input?.degraded ?? false,
+    fallbackReason: input?.fallbackReason ?? null,
+    provider: input?.provider ?? null,
+    model: input?.model ?? null,
+    responseId: input?.responseId ?? null,
+  };
+}
+
+function extractorIdentity(extractor: string): { generator: string; generatorVersion: string } {
+  const separator = extractor.lastIndexOf('@');
+  if (separator > 0 && separator < extractor.length - 1) {
+    return { generator: extractor.slice(0, separator), generatorVersion: extractor.slice(separator + 1) };
+  }
+  // External/test builders that still supply an unversioned name are tied to
+  // the runtime implementation that materialized the record.
+  return { generator: extractor, generatorVersion: T2C_VERSION };
 }
 
 function clamp(value: number): number {

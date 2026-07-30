@@ -51,8 +51,10 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Audytowane wzbogacanie komunikacji | działa opt-in | structured OpenRouter + synteza per uczestnik z cytowaniami; identity/role/ticket/source/epistemic class należą do runtime; deterministic/prefer/require mają jawny audyt |
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
+| Provenance rekordów DSL | działa | każdy rekord wymaga generatora i jego wersji, wersji todo2code oraz — dla LLM — providera, rozstrzygniętego modelu i response ID; niespójne rekordy są odrzucane |
 | Diagnostyka i Intent vs Reality | działa | agregaty modułów ograniczają szum AST; `aligned` wymaga deklaracji i implementacji, a pokrycie dokumentacji jest osobną metryką |
-| Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; surowa odpowiedź jest walidowana przed wyliczeniem ID, a zweryfikowany przebieg OpenRouter `require-llm` utworzył 4 uziemione wnioski bez fallbacku |
+| Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; surowa odpowiedź jest walidowana przed wyliczeniem ID, zweryfikowane przebiegi OpenRouter `require-llm` tworzą uziemione wnioski bez fallbacku w 3 z 4 prób, a jedyna porażka to `HTTP 429`, nie naruszenie kontraktu |
+| Zaplanowana kontrola live OpenRouter | działa opt-in | osobny job sprawdza NL i summary w `require-llm`, egzekwuje budżet latencji/kosztu i publikuje tylko zredagowany audyt; wymagane CI pozostaje offline |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
 | Zadania DSL → `TODO.patch` | działa we wszystkich interfejsach | stabilny renderer i JSON audit, jawna zgoda hasha, ochrona stale/tampering, atomowe/idempotentne apply z receiptem i rejestracją w run history |
@@ -61,15 +63,15 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 166 testów: 165 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 70 modułów i 331 importów wewnętrznych: brak cykli, niezależny `src/core`;
-- 9 deterministycznych entrypointów i 21 modułów bez tranzytywnego importu LLM;
-- 59 zmiennych używanych przez kod/Docker i 59 odpowiadających kluczy
+- 172 testy: 171 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 71 modułów i 333 importy wewnętrzne: brak cykli, niezależny `src/core`;
+- 9 deterministycznych entrypointów i 22 moduły bez tranzytywnego importu LLM;
+- 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
   `.env.example`, bez duplikatów;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 217 rekordów i 104 relacje. Liczba
+Przebieg offline na `examples/` utworzył 217 rekordów i 99 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -78,19 +80,21 @@ ostatnich 10 commitów:
 | AST | 190 |
 | Git | 10 |
 | NL | 7 |
+| agent_log | 5 |
 | TODO | 3 |
 | CHANGELOG | 2 |
 
 Diagnostyka zawierała 3 blokady komunikacyjne, 7 pozycji `review_required`,
-59 ostrzeżeń i 41 informacji. Bieżące `make demo` jawnie wyłącza LLM dokumentacji i
+61 ostrzeżeń i 42 informacje. Bieżące `make demo` jawnie wyłącza LLM dokumentacji i
 podsumowania, dzięki czemu stan runu jest `succeeded` i nie zależy od sieci ani
 prywatnego `.env`. Nie jest to jednak dowód jakości semantycznej LLM.
 
 Wersjonowany `t2c.gold-dataset/v1` mierzy jakość semantyczną offline na
 niezależnych oczekiwaniach dla NL, zapisanej odpowiedzi modelu dokumentacji,
-TODO/CHANGELOG, linkowania i DSL2TODO. Pierwsza wersja obejmuje 7 oczekiwanych
-rekordów DSL, 3 relacje oraz 2 propozycje TODO. Bieżący wynik to 100% precision/recall
-dla ekstrakcji i linkowania, 100% kompletności cytowań, 100% precision/recall
+TODO/CHANGELOG, linkowania i DSL2TODO. Zbiór obejmuje 7 oczekiwanych rekordów
+DSL, 4 relacje (3 exact-target i 1 capability-topic), hard negative oraz 2
+propozycje TODO. Bieżący wynik to 100% precision/recall dla ekstrakcji i obu
+klas linkowania bez naruszenia hard-negative, 100% kompletności cytowań, 100% precision/recall
 klasyfikacji duplikatów, 50% propozycji sklasyfikowanych jako duplikaty oraz
 100% stabilności między dwoma przebiegami. Snapshot dokumentacyjny sprawdza
 runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego modelu.
@@ -100,15 +104,17 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
 1. Pipeline tworzy patch do review, ale celowo nie może go sam zatwierdzić;
    approval pozostaje osobną operacją człowieka lub uprawnionego klienta.
 2. Agregaty modułów ograniczają relacje i prezentację niskopoziomowych faktów
-   AST, ale mapowanie intencji produktowych na możliwości przekrojowe nadal
-   zależy od nazwanych ścieżek lub symboli.
+   AST, a deklaracje mogą łączyć się z nimi przez trzy wspólne, znormalizowane
+   tematy możliwości. Jakość tej heurystyki wymaga jeszcze szerszego gold
+   datasetu z trudnymi przypadkami negatywnymi.
 3. Wzbogacanie całego TODO/CHANGELOG jednym dużym żądaniem może przekroczyć
    timeout providera.
 4. Adaptery językowe są orkiestratorowane przez duży `src/extractors/ast.ts`;
    podział per język uprości niezależne wersjonowanie i testowanie.
-5. Porównania historyczne wykonane bez dokumentacyjnego DSL raportują 0%
-   pokrycia dokumentacją jako brak dowodu w grafie, a nie dowód braku
-   dokumentacji w repozytorium.
+5. Przebiegi bez dokumentacyjnego DSL raportują pokrycie jako `not measured`,
+   ale nadal nie istnieje deterministyczny konwerter dokumentacji. PHP,
+   konfiguracja JSON/YAML/TOML, Dockerfile i workflow CI również nie mają
+   własnych adapterów semantycznych.
 6. Starsze repozytoria bez `project/participants.json` działają w trybie
    legacy; dopiero dodanie rejestru wymusza stabilne `participant-id` i wyłącza
    traktowanie nazwy wyświetlanej jako rozstrzygniętej tożsamości.

@@ -22,6 +22,10 @@ test('AST extractor reads TypeScript and Python facts', async () => {
   assert.equal(result.records.filter((record) => record.statement.kind === 'module_fact').length, 2);
   assert.ok(result.records.some((record) => record.statement.kind === 'module_fact'
     && record.source.path === 'runtime.ts' && record.metadata.factGranularity === 'file'));
+  const runtimeModule = result.records.find((record) => record.statement.kind === 'module_fact'
+    && record.source.path === 'runtime.ts');
+  assert.deepEqual(runtimeModule?.metadata.capabilities, ['execute', 'validateContract']);
+  assert.match(runtimeModule?.statement.text ?? '', /validateContract/);
   assert.ok(!result.records.some((record) => record.source.path === 'generated/ignored.ts'));
   assert.ok(!result.records.some((record) => record.source.path === 'venv/bundled.js'));
   assert.ok(result.records.every((record) => record.epistemic.class === 'fact'));

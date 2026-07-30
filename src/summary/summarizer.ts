@@ -424,6 +424,8 @@ function generationMetadata(
     mode === 'deterministic' ? null : config.openRouter.summaryModel,
   );
   return {
+    generator: 't2c/grounded-summary',
+    generatorVersion: '1',
     runtimeVersion: T2C_VERSION,
     generatedAt: new Date().toISOString(),
     requestedMode: mode,

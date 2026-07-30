@@ -215,11 +215,24 @@ classDiagram
     class Lifecycle {
         +status
     }
+    class Generation {
+        +generator
+        +generatorVersion
+        +runtimeVersion
+        +requested
+        +used
+        +degraded
+        +fallbackReason
+        +provider
+        +model
+        +responseId
+    }
 
     IntentRecord *-- Statement
     IntentRecord *-- Source
     IntentRecord *-- Epistemic
     IntentRecord *-- Lifecycle
+    IntentRecord *-- Generation : metadata.generation
     Statement *-- Target
 ```
 

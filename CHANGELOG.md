@@ -4,6 +4,10 @@
 
 ### Added
 
+- Added an opt-in scheduled OpenRouter contract check for live NL extraction
+  and grounded summary generation. It runs both paths in `require-llm`, writes
+  a redacted latency/token/cost audit, enforces configurable budgets and stays
+  isolated from the required offline CI jobs.
 - Added module-level AST facts for every supported language and made them the
   file-level linking/summarization boundary. Low-level calls no longer form a
   quadratic AST-to-AST subgraph merely because they share a source file.
@@ -41,6 +45,23 @@
   `npm run evaluate:gold` quality gate for NL, captured documentation responses,
   Markdown, linking and DSL2TODO. It reports precision, recall, citation
   completeness, duplicate classification/rate and repeated-run stability.
+- Added normalized module-capability topic matching between AST aggregates and
+  NL/TODO/document declarations. A three-shared-topic floor keeps the matching
+  precision-oriented; the repository audit raised AST↔NL relations from 0 to
+  10 and AST↔TODO from 1 to 71 while AST↔AST stayed at 617.
+- Every `t2c.intent/v1` record now carries mandatory runtime-owned
+  `metadata.generation`: converter name/version and todo2code runtime version
+  for deterministic records, plus provider, resolved model and response ID for
+  LLM records. Explicit requested/used/degraded/fallback fields make fallback
+  provenance auditable. Runtime validation and JSON Schema reject missing or
+  internally inconsistent generation envelopes.
+- Grounded conclusions, TODO proposals and participant syntheses now identify
+  their todo2code generator and generator version alongside the existing
+  runtime, mode and optional OpenRouter response provenance.
+- Gold linking quality is now reported separately for exact-target and
+  capability-topic relations. The dataset includes a positive prose-to-module
+  case and a hard negative below the three-topic floor; both classes currently
+  achieve 100% precision/recall with zero forbidden-pair violations.
 
 ### Fixed
 
@@ -87,6 +108,16 @@
   action-like inline-code identifiers such as `validateContract` from
   overriding the explicit prose verb. Validation verb forms are recognized
   without misclassifying the noun "validation" as an action.
+- File-path extraction now accepts recognized repository extensions instead of
+  every dotted token. Intent DSL fields such as `statement.object`,
+  `epistemic.basis` and `metadata.generation` remain symbol references, while
+  real JSON/YAML/source paths are preserved.
+- Intent-vs-Reality and workspace trend reports now label documentation
+  coverage as not measured when a run contains no `document` records instead
+  of presenting a misleading, confident 0.0%.
+- Relicensed the project, all published SDK manifests and bundled license files
+  from MIT to Apache License 2.0; README and container/package metadata now use
+  the same SPDX identity.
 
 ## [0.5.0] - 2026-07-30
 

@@ -49,6 +49,8 @@ test('CLI watch reads TASK.md by default, disables summary LLM and reacts to a l
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   let stderr = '';
+  // Drain stdout so repeated JSON run reports cannot backpressure the watcher.
+  child.stdout.on('data', () => {});
   child.stderr.on('data', (chunk) => { stderr += String(chunk); });
 
   try {
@@ -77,7 +79,9 @@ async function waitForLatest(
   previousRunId: string | null,
 ): Promise<{ runId: string; runDirectory: string }> {
   const latestPath = path.join(root, '.intent-watch', 'latest.json');
-  const deadline = Date.now() + 20_000;
+  // The complete test suite starts compiler-backed adapters in parallel. Give
+  // the integration process enough headroom without weakening its assertions.
+  const deadline = Date.now() + 45_000;
   while (Date.now() < deadline) {
     try {
       const latest = JSON.parse(await fs.readFile(latestPath, 'utf8')) as { runId: string; runDirectory: string };

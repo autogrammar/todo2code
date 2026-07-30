@@ -237,6 +237,8 @@ function generationMetadata(
 ): GroundedGenerationMetadata {
   const configuration = openRouterAuditConfiguration(config, config.openRouter.taskModel);
   return {
+    generator: 't2c/task-synthesis',
+    generatorVersion: '1',
     runtimeVersion: T2C_VERSION,
     generatedAt: new Date().toISOString(),
     requestedMode: mode,

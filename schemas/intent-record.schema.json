@@ -84,6 +84,49 @@
       }
     },
     "observedAt": { "type": ["string", "null"], "format": "date-time" },
-    "metadata": { "type": "object" }
+    "metadata": {
+      "type": "object",
+      "required": ["generation"],
+      "properties": {
+        "generation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["generator", "generatorVersion", "runtimeVersion", "requested", "used", "degraded", "fallbackReason", "provider", "model", "responseId"],
+          "properties": {
+            "generator": { "type": "string", "minLength": 1 },
+            "generatorVersion": { "type": "string", "minLength": 1 },
+            "runtimeVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$" },
+            "requested": { "enum": ["deterministic", "llm"] },
+            "used": { "enum": ["deterministic", "llm"] },
+            "degraded": { "type": "boolean" },
+            "fallbackReason": { "type": ["string", "null"] },
+            "provider": { "type": ["string", "null"] },
+            "model": { "type": ["string", "null"] },
+            "responseId": { "type": ["string", "null"] }
+          },
+          "allOf": [
+            {
+              "if": { "properties": { "used": { "const": "llm" } }, "required": ["used"] },
+              "then": {
+                "properties": {
+                  "provider": { "type": "string", "minLength": 1 },
+                  "model": { "type": "string", "minLength": 1 }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "used": { "const": "deterministic" } }, "required": ["used"] },
+              "then": {
+                "properties": {
+                  "provider": { "type": "null" },
+                  "model": { "type": "null" },
+                  "responseId": { "type": "null" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
   }
 }

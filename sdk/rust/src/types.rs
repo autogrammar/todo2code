@@ -63,6 +63,24 @@ pub struct IntentLifecycle {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IntentGenerationMetadata {
+    pub generator: String,
+    #[serde(rename = "generatorVersion")]
+    pub generator_version: String,
+    #[serde(rename = "runtimeVersion")]
+    pub runtime_version: String,
+    pub requested: String,
+    pub used: String,
+    pub degraded: bool,
+    #[serde(rename = "fallbackReason")]
+    pub fallback_reason: Option<String>,
+    pub provider: Option<String>,
+    pub model: Option<String>,
+    #[serde(rename = "responseId")]
+    pub response_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IntentRecord {
     #[serde(rename = "schemaVersion")]
     pub schema_version: String,
@@ -75,6 +93,13 @@ pub struct IntentRecord {
     pub observed_at: Option<String>,
     #[serde(default)]
     pub metadata: Value,
+}
+
+impl IntentRecord {
+    /// Decodes the mandatory runtime-owned `metadata.generation` envelope.
+    pub fn generation(&self) -> Option<IntentGenerationMetadata> {
+        serde_json::from_value(self.metadata.get("generation")?.clone()).ok()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

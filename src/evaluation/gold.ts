@@ -12,6 +12,7 @@ import {
 } from './gold-metrics.js';
 import {
   assertGoldDataset,
+  GOLD_RELATION_CLASSES,
   type BinaryMetric,
   type GoldDataset,
   type GoldDsl2TodoCase,
@@ -25,7 +26,7 @@ export type * from './gold-types.js';
 
 interface EvaluationCore {
   extraction: GoldEvaluationReport['extraction'];
-  linking: BinaryMetric;
+  linking: GoldEvaluationReport['linking'];
   dsl2todo: GoldEvaluationReport['dsl2todo'];
 }
 
@@ -68,6 +69,7 @@ export function goldReportIsPerfect(report: GoldEvaluationReport): boolean {
     && report.extraction.overall.recall === 1
     && report.linking.precision === 1
     && report.linking.recall === 1
+    && report.linking.forbiddenViolations === 0
     && report.dsl2todo.citationCompleteness.rate === 1
     && report.dsl2todo.deduplication.precision === 1
     && report.dsl2todo.deduplication.recall === 1
@@ -92,7 +94,9 @@ export function renderGoldReportMarkdown(report: GoldEvaluationReport): string {
     '|---|---:|---:|---:|',
     ...rows,
     `| Extraction: overall | ${percent(report.extraction.overall.precision)} | ${percent(report.extraction.overall.recall)} | ${support(report.extraction.overall)} |`,
-    `| Linking | ${percent(report.linking.precision)} | ${percent(report.linking.recall)} | ${support(report.linking)} |`,
+    `| Linking: overall | ${percent(report.linking.precision)} | ${percent(report.linking.recall)} | ${support(report.linking)} |`,
+    `| Linking: exact target | ${percent(report.linking.byClass['exact-target'].precision)} | ${percent(report.linking.byClass['exact-target'].recall)} | ${support(report.linking.byClass['exact-target'])} |`,
+    `| Linking: capability topic | ${percent(report.linking.byClass['capability-topic'].precision)} | ${percent(report.linking.byClass['capability-topic'].recall)} | ${support(report.linking.byClass['capability-topic'])} |`,
     `| DSL2TODO deduplication | ${percent(report.dsl2todo.deduplication.precision)} | ${percent(report.dsl2todo.deduplication.recall)} | ${support(report.dsl2todo.deduplication)} |`,
     '',
     `Citation completeness: **${percent(report.dsl2todo.citationCompleteness.rate)}** (${report.dsl2todo.citationCompleteness.cited}/${report.dsl2todo.citationCompleteness.required}).`,
@@ -148,14 +152,28 @@ async function evaluateExtraction(
   };
 }
 
-function evaluateLinking(fixtures: GoldLinkingCase[]): EvaluationResult<BinaryMetric> {
+function evaluateLinking(fixtures: GoldLinkingCase[]): EvaluationResult<GoldEvaluationReport['linking']> {
   const counts = emptyCounts();
+  const byClass = Object.fromEntries(GOLD_RELATION_CLASSES.map((name) => [name, emptyCounts()]));
+  let forbiddenViolations = 0;
   const snapshots = fixtures.map((fixture) => {
     const result = evaluateLinkingCase(fixture);
     addCounts(counts, result.counts);
+    for (const name of GOLD_RELATION_CLASSES) addCounts(byClass[name]!, result.byClass[name]);
+    forbiddenViolations += result.forbiddenViolations;
     return { scope: 'linking', caseId: fixture.id, actual: result.actual };
   });
-  return { metric: metric(counts), snapshots };
+  return {
+    metric: {
+      ...metric(counts),
+      byClass: {
+        'exact-target': metric(byClass['exact-target']!),
+        'capability-topic': metric(byClass['capability-topic']!),
+      },
+      forbiddenViolations,
+    },
+    snapshots,
+  };
 }
 
 function evaluateDsl2Todo(

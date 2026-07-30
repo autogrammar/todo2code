@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { extractPaths } from '../src/core/text.js';
+import { extractPaths, topicKeywords } from '../src/core/text.js';
 import { extractNlIntent } from '../src/extractors/nl.js';
 import { extractNlIntentAudited, NlLlmRequiredError } from '../src/extractors/nl-llm.js';
 import { makeConfig } from './helpers.js';
@@ -39,6 +39,20 @@ test('path extraction rejects lowercase prose alternations without losing reposi
   assert.deepEqual(paths, ['docs/api', 'packages/sdk/runtime', 'src/core', 'src/runtime.ts']);
 });
 
+test('path extraction rejects dotted DSL fields but keeps known file extensions', () => {
+  const paths = extractPaths(
+    'Compare `metadata.generation`, `statement.object` and `epistemic.basis` with `manifest.json`, `changelog.ts` and `config/app.yaml`.',
+  );
+  assert.deepEqual(paths, ['changelog.ts', 'config/app.yaml', 'manifest.json']);
+});
+
+test('topic keywords normalize paths, camelCase and documentation word forms', () => {
+  assert.deepEqual(
+    topicKeywords('src/extractors/docs-record.ts extractDocumentationIntent validation tests'),
+    ['document', 'extract', 'test', 'validate'],
+  );
+});
+
 test('NL LLM extraction emits audited provenance and bounded DSL records', async () => {
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
@@ -74,8 +88,11 @@ test('NL LLM extraction emits audited provenance and bounded DSL records', async
     assert.equal(result.records[0]?.epistemic.confidence, 0.9);
     assert.deepEqual(result.records[0]?.source.lines, { start: 1, end: 2 });
     assert.equal(result.records[0]?.metadata.llmUsed, true);
-    assert.equal((result.records[0]?.metadata.generation as { runtimeVersion?: string }).runtimeVersion, T2C_VERSION);
-    assert.equal(((result.records[0]?.metadata.generation as { response?: { provider?: string } }).response?.provider), 'NlProvider');
+    assert.deepEqual(result.records[0]?.metadata.generation, {
+      generator: 't2c/nl-openrouter', generatorVersion: '1', runtimeVersion: T2C_VERSION,
+      requested: 'llm', used: 'llm', degraded: false, fallbackReason: null,
+      provider: 'NlProvider', model: 'qwen/nl-resolved', responseId: 'gen-nl-1',
+    });
     assert.equal(result.records[0]?.lifecycle.status, 'proposed');
   } finally {
     globalThis.fetch = originalFetch;

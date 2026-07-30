@@ -52,6 +52,20 @@ type IntentEpistemic struct {
 	Basis      []string `json:"basis"`
 }
 
+// IntentGenerationMetadata identifies the converter or LLM that materialized a DSL record.
+type IntentGenerationMetadata struct {
+	Generator        string  `json:"generator"`
+	GeneratorVersion string  `json:"generatorVersion"`
+	RuntimeVersion   string  `json:"runtimeVersion"`
+	Requested        string  `json:"requested"`
+	Used             string  `json:"used"`
+	Degraded         bool    `json:"degraded"`
+	FallbackReason   *string `json:"fallbackReason"`
+	Provider         *string `json:"provider"`
+	Model            *string `json:"model"`
+	ResponseID       *string `json:"responseId"`
+}
+
 // IntentRecord is a single t2c.intent/v1 record.
 type IntentRecord struct {
 	SchemaVersion string          `json:"schemaVersion"`
@@ -64,6 +78,23 @@ type IntentRecord struct {
 	Epistemic  IntentEpistemic `json:"epistemic"`
 	ObservedAt *string         `json:"observedAt"`
 	Metadata   map[string]any  `json:"metadata"`
+}
+
+// Generation decodes the mandatory metadata.generation provenance envelope.
+func (record IntentRecord) Generation() (IntentGenerationMetadata, error) {
+	var generation IntentGenerationMetadata
+	value, ok := record.Metadata["generation"]
+	if !ok {
+		return generation, fmt.Errorf("intent record %s has no metadata.generation", record.ID)
+	}
+	body, err := json.Marshal(value)
+	if err != nil {
+		return generation, fmt.Errorf("encode intent generation: %w", err)
+	}
+	if err := json.Unmarshal(body, &generation); err != nil {
+		return generation, fmt.Errorf("decode intent generation: %w", err)
+	}
+	return generation, nil
 }
 
 // IntentRelation links two records with typed, scored evidence.

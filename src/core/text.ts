@@ -70,6 +70,42 @@ export function keywords(value: string): string[] {
   return [...new Set(normalizeToken(value).split(' ').filter((token) => token.length > 1 && !STOP_WORDS.has(token)))].sort();
 }
 
+const TOPIC_ALIASES: Record<string, string> = {
+  config: 'configure', configured: 'configure', configuration: 'configure',
+  docs: 'document', documentation: 'document', documented: 'document',
+  diagnose: 'diagnostic', diagnostics: 'diagnostic',
+  extraction: 'extract', extractor: 'extract', extractors: 'extract', extracted: 'extract',
+  linker: 'link', linking: 'link', linked: 'link',
+  summarizer: 'summary', summarize: 'summary', summaries: 'summary',
+  tests: 'test', tested: 'test', testing: 'test',
+  validation: 'validate', validator: 'validate', validators: 'validate', verified: 'validate', verify: 'validate',
+};
+
+const GENERIC_TOPICS = new Set([
+  'action', 'actions', 'basic', 'capabilities', 'index', 'input', 'intent', 'module',
+  'output', 'record', 'records', 'result', 'runtime', 'sdk', 'src', 'type', 'types',
+  'value', 'values',
+]);
+
+/**
+ * Produces bounded semantic topic tokens for module-to-intent matching.
+ *
+ * Unlike `keywords`, this deliberately splits paths, qualified symbols and
+ * camelCase identifiers, then folds common implementation/documentation word
+ * forms. It is used only for module aggregates and declared sources; applying
+ * it to every low-level AST call would recreate the quadratic graph noise the
+ * module boundary is intended to prevent.
+ */
+export function topicKeywords(value: string): string[] {
+  const separated = value
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[\/._#:-]+/g, ' ');
+  return [...new Set(keywords(separated)
+    .map((token) => TOPIC_ALIASES[token] ?? token)
+    .filter((token) => token.length >= 3 && !GENERIC_TOPICS.has(token)))]
+    .sort();
+}
+
 export function similarity(a: string, b: string): number {
   const left = new Set(keywords(a));
   const right = new Set(keywords(b));
@@ -102,8 +138,38 @@ export function extractPaths(text: string): string[] {
 const NOT_A_PATH = /[\s<>=(),;"'|?]/;
 /** Contract identifiers such as `t2c.conclusion/v1` are versions, not files. */
 const CONTRACT_ID = /^[a-z0-9]+(?:[.-][a-z0-9-]+)+\/v\d+$/i;
-/** A conventional file extension: lowercase, short, at the very end. */
-const FILE_EXTENSION = /\.[a-z0-9]{1,8}$/;
+/**
+ * Extensions that actually occur in the repositories t2c analyses.
+ *
+ * A generic `\.[a-z0-9]{1,8}$` rule cannot tell `latest.json` from
+ * `statement.object`: documentation refers to DSL fields in dotted form all the
+ * time, and `.object`, `.basis` or `.detail` satisfy any shape-based test.
+ * Those references are already captured by `extractSymbols`, so restricting
+ * paths to known extensions moves them to the right field instead of losing
+ * them.
+ */
+const FILE_EXTENSIONS = new Set([
+  'ts', 'tsx', 'mts', 'cts', 'js', 'jsx', 'mjs', 'cjs', 'json', 'jsonl',
+  'md', 'markdown', 'txt', 'rst', 'adoc',
+  'py', 'pyi', 'go', 'rs', 'java', 'kt', 'php', 'rb', 'cs', 'c', 'h', 'cpp', 'hpp',
+  'yml', 'yaml', 'toml', 'ini', 'cfg', 'conf', 'env', 'properties',
+  'sh', 'bash', 'zsh', 'ps1', 'bat', 'mk',
+  'html', 'htm', 'css', 'scss', 'svg', 'png', 'jpg', 'gif', 'ico',
+  'sql', 'xml', 'csv', 'lock', 'patch', 'diff', 'log', 'zip', 'whl', 'gradle',
+]);
+
+/**
+ * True when the candidate ends in a recognised file extension.
+ *
+ * The last segment must actually contain a dot: without that check a bare
+ * `NL/Markdown` reports "markdown" as its extension and prose passes as a path.
+ */
+function hasFileExtension(value: string): boolean {
+  const last = value.split('/').pop() ?? '';
+  const dot = last.lastIndexOf('.');
+  if (dot <= 0 || dot === last.length - 1) return false;
+  return FILE_EXTENSIONS.has(last.slice(dot + 1).toLowerCase());
+}
 const PATH_ROOTS = new Set([
   'app', 'apps', 'bin', 'config', 'docs', 'examples', 'infra', 'lib', 'packages',
   'project', 'public', 'scripts', 'sdk', 'src', 'test', 'tests', 'tools',
@@ -128,15 +194,18 @@ function isPathLike(value: string): boolean {
   if (CONTRACT_ID.test(value)) return false;
 
   const segments = value.split('/');
-  if (FILE_EXTENSION.test(value)) return true;
-  if (segments.length > 1 && segments[0] && !PATH_ROOTS.has(segments[0].toLowerCase())
+  if (hasFileExtension(value)) return true;
+  // A dotted candidate without a slash and without a known extension is a DSL
+  // field reference (`statement.object`, `epistemic.basis`) or a qualified
+  // symbol, not a file. `extractSymbols` already records it.
+  if (segments.length === 1) return false;
+  if (segments[0] && !PATH_ROOTS.has(segments[0].toLowerCase())
     && !value.startsWith('./') && !value.startsWith('../')) {
     return false;
   }
-  // Without an extension, an all-capitalised alternation (`Git/AST`,
-  // `Entry.Describe`) is prose or a symbol, never a path in this repository.
-  const words = segments.length > 1 ? segments : value.split('.');
-  return !(words.length > 1 && words.every((word) => /^[A-Z]/.test(word)));
+  // Without an extension, an all-capitalised alternation (`Git/AST`) is prose
+  // or a symbol, never a path in this repository.
+  return !segments.every((word) => /^[A-Z]/.test(word));
 }
 
 export function extractSymbols(text: string): string[] {
