@@ -586,16 +586,19 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
 });
 
 test('Published code-change JSON schemas require provenance, risk and rollback', async () => {
-  const [plan, planSet, acceptance, review, closeResult] = await Promise.all([
+  const [plan, planSet, acceptance, review, closeResult, sourceReceipt] = await Promise.all([
     fs.readFile(path.resolve('schemas/code-change-plan.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-plan-set.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-acceptance.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-review.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-close-result.schema.json'), 'utf8'),
+    fs.readFile(path.resolve('schemas/code-change-source-apply-receipt.schema.json'), 'utf8'),
   ]).then((values) => values.map((value) => JSON.parse(value) as { required: string[] }));
   assert.ok(['risk', 'rollback', 'generation'].every((field) => plan!.required.includes(field)));
   assert.ok(planSet!.required.includes('generation'));
   assert.ok(acceptance!.required.includes('generation'));
   assert.ok(['renderedPatchHash', 'planIds', 'generation'].every((field) => review!.required.includes(field)));
   assert.ok(['acceptances', 'evaluatedAt', 'generation'].every((field) => closeResult!.required.includes(field)));
+  assert.ok(['patchHash', 'approvedBy', 'fileHashesAfter', 'generation']
+    .every((field) => sourceReceipt!.required.includes(field)));
 });
