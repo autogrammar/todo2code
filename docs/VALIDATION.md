@@ -11,10 +11,10 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 30 modułów |
-| Granice modułów | PASS — 91 modułów, 420 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Granice modułów | PASS — 91 modułów, 422 importy wewnętrzne, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 215 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Testy Node | PASS — 219 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
 | Pipeline `examples/` | PASS — 227 rekordów i 84 relacje, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
@@ -30,8 +30,8 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Konfiguracja/infrastruktura → DSL | PASS — JSON, TOML, Dockerfile i workflow CI, jeden deterministyczny agregat na plik, explicit-path linking bez szumu tematów oraz publiczne interfejsy |
 | Graf → NL przez mock OpenRouter | PASS — uziemione cytowania i budżet AST |
 | Scheduled live OpenRouter | PASS/SKIP — osobny opt-in job sprawdza NL i summary w `require-llm`, budżety i redacted audit; bez klucza jawnie pomijany |
-| MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 25 narzędzi, w tym TODO propose/render/apply oraz code-change propose/render/source-patch/evaluate/close |
-| MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 25 narzędzi, w tym TODO propose/render/apply oraz code-change propose/render/source-patch/evaluate/close |
+| MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 26 narzędzi, w tym TODO propose/render/apply oraz code-change propose/render/source-patch/approved-apply/evaluate/close |
+| MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 26 narzędzi, w tym TODO propose/render/apply oraz code-change propose/render/source-patch/approved-apply/evaluate/close |
 | A2A v1 `SendMessage` | PASS — deterministyczny task completed, 1 artifact |
 | A2A versioning, pagination, ownership, Bearer i persistent store | PASS |
 | Watch + ignore rules | PASS — rate limit, agregacja, brak pętli, błędy reportera |
@@ -42,7 +42,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę poza zakresem; wariant `--no-ast` wykrywa claim bez dowodu |
 | Audytowane wzbogacanie komunikacji | PASS — mock structured OpenRouter, syntezy per uczestnik z cytowaniami, zachowane runtime-owned identity/role/ticket/source/epistemic class, jawny fallback i `require-llm` |
 | `t2c.participant-registry/v1` | PASS — exact stable IDs, mapowanie Git/A2A/human aliases, wykrywanie duplikatów i konfliktów; brak dopasowania po display name |
-| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `da0f200c2eacded3` oraz patcha `252df1d273c95fee` |
+| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `2a1e0353460e6704` oraz patcha `b279b1531823b0e9` |
 | Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
 | CLI `doctor`, `--help`, `--version` | PASS |
 | `npm audit` rdzenia | PASS — 0 podatności przy zwykłym `npm install` |
@@ -54,7 +54,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 216 testów, 215 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 220 testów, 219 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
@@ -68,7 +68,7 @@ Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 
 Wszystkie przykłady przeszły ścieżkę NL → AST → Markdown → graf → diagnostyka →
 Intent vs Reality → Git diff i uzyskały ten sam fingerprint
-`da0f200c2eacded3…`; każdy potwierdził audyt NL i Markdown o statusie
+`2a1e0353460e6704…`; każdy potwierdził audyt NL i Markdown o statusie
 `succeeded` i trybie `deterministic`. Opcjonalny przykład TypeScript uruchomił także
 `compare_workspace` i zwrócił `unchanged` dla niezmienionego
 `examples/backend`. Porównanie nie wywołało summary LLM; oba manifesty oznaczają
@@ -82,34 +82,33 @@ Końcowy przebieg:
 T2C_NL_MODE=deterministic T2C_MARKDOWN_MODE=deterministic OPENROUTER_API_KEY= \
 node dist/src/cli.js compare-workspace . \
   --base origin/main \
-  --task TASK.md \
+  --task none \
   --markdown-mode deterministic \
-  --out .intent
+  --communication-mode deterministic \
+  --out .intent-workspace-current
 ```
 
 Artefakty znajdują się w
-`.intent/comparisons/20260729T173712Z-acb9ce2f/`. Stan przed analizą obejmował
-56 zmienionych lub nowych plików, `HEAD` był równy `origin/main` (`ahead=0`,
-`behind=0`).
+`.intent-workspace-current/comparisons/20260730T181851Z-769520b7/`. Był to
+pre-commit audit opisanych tu zmian: `HEAD` był równy `origin/main`
+(`ahead=0`, `behind=0`), a analizator widział 13 zmienionych lub nowych plików.
+Jeden z nich, niezwiązany `nlp2uri.yaml`, pozostaje plikiem użytkownika i nie
+wchodzi do commita.
 
 | Metryka | `origin/main` | filesystem | Zmiana |
 |---|--:|--:|--:|
-| Zadeklarowane rekordy | 12 | 13 | +1 |
-| Zaobserwowane tematy kodu | 98 | 102 | +4 |
-| Deklarowana intencja z implementacją | 0,0% | 0,0% | bez zmiany |
-| Kod posiadający plan | 0,0% | 0,0% | bez zmiany |
-| Kod posiadający dokumentację w grafie | 0,0% | 0,0% | bez zmiany |
-| Pełne wyrównanie plan + kod + dokumentacja | 0,0% | 0,0% | bez zmiany |
-| Tematy rozbieżne | 148 | 156 | +8 |
-| Diagnostyka blocking | 0 | 0 | bez zmiany |
+| Tematy | 497 | 497 | 0 |
+| Wyrównane tematy | 83 | 83 | 0 |
+| Tematy rozbieżne | 414 | 414 | 0 |
+| Pokrycie implementacji | 22,31% | 22,31% | 0 p.p. |
+| Kod posiadający plan | 42,78% | 42,78% | 0 p.p. |
+| Kod posiadający dokumentację | 42,78% | 42,78% | 0 p.p. |
+| Diagnostyka blocking | 4 | 4 | 0 |
 
-Trend jest **regressed** według obecnej heurystyki wyłącznie dlatego, że osiem
-nowych tematów AST/CHANGELOG zwiększyło licznik gaps; żaden wskaźnik pokrycia
-nie spadł i nie pojawiła się diagnostyka blocking. Diff zawiera 1839 dodanych,
-1464 usunięte, 418 zmienionych i 5598 niezmienionych rekordów. Duża liczba zmian
-wynika z tożsamości źródeł/wierszy AST i nie jest równoznaczna z liczbą funkcji
-biznesowych. Porównanie celowo wyłączyło LLM dokumentacji, dlatego 0% w kolumnie
-dokumentacji oznacza brak załadowanego dowodu, a nie dowód braku dokumentacji.
+Trend jest **unchanged**. Zmiany dodały pięć obserwowanych rekordów netto, ale
+nie pogorszyły żadnej metryki semantycznej ani ciężkich diagnostyk. Duży diff
+rekordów i relacji pozostaje metryką pomocniczą: zawiera line/source churn AST,
+a nie liczbę funkcji biznesowych.
 
 ## Live OpenRouter
 

@@ -33,7 +33,8 @@ test('MCP 2026 profile is stateless and exposes discovery plus complete results'
 
   const tools = await handleMcpRequest(modernRequest('2', 'tools/list'), config) as Record<string, unknown>;
   assert.equal(tools.resultType, 'complete');
-  const toolNames = (tools.tools as Array<{ name?: string }>).map((tool) => tool.name);
+  const listedTools = tools.tools as Array<{ name?: string; annotations?: { destructiveHint?: boolean } }>;
+  const toolNames = listedTools.map((tool) => tool.name);
   assert.equal(toolNames.length, 26);
   assert.ok(toolNames.includes('extract_config'));
   assert.ok([
@@ -42,6 +43,7 @@ test('MCP 2026 profile is stateless and exposes discovery plus complete results'
     'propose_code_change', 'render_code_change', 'propose_source_patch', 'apply_source_patch',
     'evaluate_code_change', 'close_code_change',
   ].every((name) => toolNames.includes(name)));
+  assert.equal(listedTools.find((tool) => tool.name === 'apply_source_patch')?.annotations?.destructiveHint, true);
   assert.equal(tools.cacheScope, 'public');
   assert.ok(tools._meta);
 });

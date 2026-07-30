@@ -38,8 +38,9 @@
 - Added `t2c.code-change-source-patch/v1` structured edit proposals with
   path-bound instructions, optional validated unified diffs, secret heuristic
   rejection and CLI `propose-source-patch` (MCP/A2A/SDK).
-- Added `apply-source-patch` with explicit actor + patchHash approval, atomic
-  multi-file apply/rollback, symlink rejection and idempotent receipt
+- Added `apply-source-patch` with explicit actor + patchHash approval, complete
+  multi-file preflight, atomic per-file writes with rollback, symlink rejection
+  and an idempotent receipt
   (`t2c.code-change-source-apply-receipt/v1`). Instruction-only edits refuse apply.
 - Added `propose-code-change` and `evaluate-code-change` CLI workflows with
   root-confined JSON artifacts and an end-to-end persisted-file test.

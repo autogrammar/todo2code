@@ -1011,6 +1011,9 @@ export async function applyCodeChangeSourcePatch(
     for (const edit of options.patch.edits) {
       const relative = edit.path.replace(/\\/g, '/');
       const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
+      if (absolute === receiptPath) {
+        throw new Error(`Source patch target collides with its receipt path: ${relative}`);
+      }
       const exists = await pathExists(absolute);
       if (exists && (await fs.lstat(absolute)).isSymbolicLink()) {
         throw new Error(`Refusing to apply through a symlink: ${relative}`);
@@ -1037,6 +1040,27 @@ export async function applyCodeChangeSourcePatch(
         else await atomicWriteRaw(edit.absolute, edit.after);
         changed.push(edit);
       }
+      const now = (options.now ?? new Date()).toISOString();
+      const fileHashesAfter = Object.fromEntries(prepared
+        .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
+        .sort(([left], [right]) => left.localeCompare(right)));
+      const receipt: CodeChangeSourceApplyReceipt = {
+        schemaVersion: 't2c.code-change-source-apply-receipt/v1',
+        patchId: options.patch.id,
+        patchHash: options.patch.patchHash,
+        planId: options.patch.planId,
+        approvedBy: options.approval.actor.trim(),
+        approvedAt: now,
+        appliedAt: now,
+        appliedPaths: prepared.map((edit) => edit.relative).sort(),
+        fileHashesAfter,
+        generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
+      };
+      assertSourceApplyReceipt(receipt, options.patch);
+      // The receipt is part of the transaction: without it a retry could apply
+      // the same approved patch again. Roll files back if persisting it fails.
+      await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+      return { applied: true, idempotent: false, receipt };
     } catch (error) {
       const rollbackErrors: string[] = [];
       for (const edit of [...changed].reverse()) {
@@ -1054,26 +1078,6 @@ export async function applyCodeChangeSourcePatch(
       }
       throw error;
     }
-
-    const now = (options.now ?? new Date()).toISOString();
-    const fileHashesAfter = Object.fromEntries(prepared
-      .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
-      .sort(([left], [right]) => left.localeCompare(right)));
-    const receipt: CodeChangeSourceApplyReceipt = {
-      schemaVersion: 't2c.code-change-source-apply-receipt/v1',
-      patchId: options.patch.id,
-      patchHash: options.patch.patchHash,
-      planId: options.patch.planId,
-      approvedBy: options.approval.actor.trim(),
-      approvedAt: now,
-      appliedAt: now,
-      appliedPaths: prepared.map((edit) => edit.relative).sort(),
-      fileHashesAfter,
-      generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
-    };
-    assertSourceApplyReceipt(receipt, options.patch);
-    await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-    return { applied: true, idempotent: false, receipt };
   } finally {
     await lock.close();
     await fs.unlink(lockPath).catch(() => undefined);

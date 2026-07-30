@@ -25,8 +25,9 @@ modyfikuje `TODO.md`.
 
 Otwarte diagnostyki implementacyjne można przekształcić w ugruntowany plan
 zmiany kodu, hash-bound review i strukturalną propozycję source patch, a po
-zewnętrznej implementacji ocenić przez ponowną analizę grafu. Ten przepływ
-celowo nie stosuje patcha do worktree; diagram i polecenia zawiera
+implementacji ocenić przez ponowną analizę grafu. Pipeline nigdy nie stosuje
+patcha automatycznie; osobne `apply-source-patch` wymaga kompletnego diffu,
+tożsamości zatwierdzającego i dokładnego `patchHash`. Diagram i polecenia zawiera
 [`docs/CODE_CHANGE_PLANS.md`](docs/CODE_CHANGE_PLANS.md).
 
 Aktualna macierz komponentów, wyniki walidacji, znane ograniczenia i projekt
@@ -342,6 +343,8 @@ t2c summarize intent.graph.json --diagnostics diagnostics.json --mode prefer-llm
 t2c watch [root] [--interval 60] [--scan-interval 2] [--task TASK.md|none] [--no-summary-llm] [--no-initial-report]
 t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]
 t2c propose-code-change intent.graph.json --diagnostics diagnostics.json --out plans.json
+t2c propose-source-patch plan.json --out source-patch.json
+t2c apply-source-patch source-patch.json --actor reviewer --approval-hash <patchHash>
 t2c evaluate-code-change plan.json --before-graph before.json --after-graph after.json --out acceptance.json
 t2c close-code-change plans.json --before-graph before.json --after-graph after.json --out close.json
 t2c pipeline [root] --task TASK.md --todo TODO.md --changelog CHANGELOG.md

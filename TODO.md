@@ -124,9 +124,9 @@
   A documented behaviour whose only evidence is a config key is weaker than one
   backed by AST, yet both now yield `aligned`. Consider grading alignment by
   evidence kind instead of treating all observed records as equal.
-- [ ] `detectPolarity` treats the preposition "without" as sentence negation, so
-  "Document X without inventing files" is recorded as negative intent. Scoping
-  negation to the governing verb needs more than a keyword list.
+- [x] Scope `detectPolarity` so "without / bez + dopełnienie" does not negate
+  the governing intent (for example "Document X without inventing files");
+  covered by the offline gold set and a focused unit test.
 - [ ] Add A2A streaming/push notifications and a shared transactional
   task-store backend beyond the current atomic filesystem snapshot.
 - [x] Validate public extraction options before they reach `path.resolve`.
@@ -191,10 +191,13 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   hostnames jako fałszywych symboli (gold + unit).
 - [x] Structured source patch `t2c.code-change-source-patch/v1`: instrukcje
   per path, opcjonalny unified diff z walidacją path/sekretów, content-bound
-  hash; CLI `propose-source-patch`, MCP/A2A/SDK, zapis w pipeline; **bez apply**.
+  hash; CLI `propose-source-patch`, MCP/A2A/SDK i zapis w pipeline; propozycja
+  sama nigdy nie wykonuje apply.
 - [x] Apply source patch po hash approval (`apply-source-patch` / MCP): tylko
   gdy każdy edit ma `unifiedDiff`; instruction-only jest odrzucany; receipt
-  idempotentny. LLM wypełniający diff — nadal opcjonalna przyszła gałąź.
+  idempotentny, ma runtime provenance i weryfikuje stan plików przy powtórzeniu;
+  pełny preflight, ochrona symlink/root i rollback chronią przed częściowym
+  zapisem. LLM wypełniający diff — nadal opcjonalna przyszła gałąź.
 - [x] `detectPolarity` nie traktuje „without / bez + dopełnienie” jako
   negacji całego zdania (gold + unit).
 - [x] Orkiestracja acceptance: `t2c close-code-change` (plan lub plan-set +

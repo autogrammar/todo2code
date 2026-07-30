@@ -392,6 +392,13 @@ test('applyCodeChangeSourcePatch requires approval and is idempotent', async () 
   await assert.rejects(() => applyCodeChangeSourcePatch({
     root,
     patch,
+    approval: { actor: 'reviewer', patchHash: patch.patchHash },
+    receiptPath: path.join(root, 'src/contracts.ts'),
+  }), /collides with its receipt path/);
+
+  await assert.rejects(() => applyCodeChangeSourcePatch({
+    root,
+    patch,
     approval: { actor: 'reviewer', patchHash: '0'.repeat(64) },
     receiptPath: path.join(root, 'receipt.json'),
   }), /approval hash does not match/);

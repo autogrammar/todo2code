@@ -14,9 +14,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 216 testów: 215 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 220 testów: 219 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
-| Moduły | `npm run verify:modules` | PASS — 91 modułów, 420 importów, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 91 modułów, 422 importy, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
@@ -113,8 +113,8 @@ Końcowy przebieg `examples:check`:
 demo: 227 records, 84 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
-SDK examples: 5 languages, shared fingerprint da0f200c2eacded3
-SDK DSL2TODO: shared proposal IDs, duplicates and patch fingerprint 252df1d273c95fee
+SDK examples: 5 languages, shared fingerprint 2a1e0353460e6704
+SDK DSL2TODO: shared proposal IDs, duplicates and patch fingerprint b279b1531823b0e9
 examples check: PASS
 ```
 
@@ -173,13 +173,14 @@ rollback i provenance. `t2c.code-change-acceptance/v1` porównuje grafy przed i
 po implementacji: wszystkie targeted diagnostics muszą zniknąć i nie może
 pojawić się nowa blokada. Pozytywny wynik nadal nie ustawia `DONE`.
 
-Dwanaście testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
+Piętnaście testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
 tampering, brak provenance, niespójny verdict, hash-bound review i source patch,
 walidację path/akcji/sekretów, JSON Schema oraz pełny przebieg CLI wraz z
-`close-code-change`. MCP publikuje 25 narzędzi, A2A umiejętność
+`close-code-change` oraz zatwierdzone `apply-source-patch` z preflightem,
+ochroną symlinków, kontrolą stanu receipt i rollbackiem. MCP publikuje 26 narzędzi, A2A umiejętność
 `review_code_changes`, a SDK TypeScript udostępnia propose, render,
-source-patch, evaluate i close. Source patch nie wykonuje apply, a close nie
-oznacza automatycznie DONE.
+source-patch, jawne apply, evaluate i close. Pipeline nie wykonuje auto-apply,
+a close nie oznacza automatycznie DONE.
 
 ### Watch
 

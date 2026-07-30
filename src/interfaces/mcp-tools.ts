@@ -284,7 +284,7 @@ function tool(
     inputSchema: { type: 'object', additionalProperties: false, properties, required },
     annotations: {
       readOnlyHint: !writes.has(name),
-      destructiveHint: name === 'apply_todo',
+      destructiveHint: name === 'apply_todo' || name === 'apply_source_patch',
       idempotentHint: name !== 'pipeline' && name !== 'propose_todo',
     },
   };

@@ -99,8 +99,8 @@ pliku do tree.
 Te same operacje są dostępne jako `propose_code_change`, `render_code_change`,
 `propose_source_patch`, `evaluate_code_change` i `close_code_change`. Wszystkie ścieżki plikowe przechodzą przez granicę
 `T2C_ROOT`; dane można też przekazać inline. Karta A2A publikuje umiejętność
-`review_code_changes`. Żaden z tych interfejsów nie wykonuje zapisu do plików
-źródłowych.
+`review_code_changes`. Tylko jawne `apply_source_patch` zapisuje pliki źródłowe;
+pozostałe operacje są propozycją, renderingiem albo analizą.
 
 ## 5. Structured source patch (`t2c.code-change-source-patch/v1`)
 
@@ -136,7 +136,10 @@ t2c apply-source-patch source-patch.json \
 ```
 
 Bez approval hash apply jest odrzucany. Instruction-only edits (null diff)
-nie są stosowane. Receipt jest idempotentny przy ponownym wywołaniu.
+nie są stosowane. Przed zapisem wszystkie hunki przechodzą preflight, ścieżki i
+symlinki pozostają wewnątrz root, a błąd zapisu uruchamia rollback. Receipt ma
+proweniencję runtime i jest idempotentny tylko wtedy, gdy stan plików nadal
+zgadza się z zapisanymi hashami.
 
 ## 6. Zamknięcie pętli (`close-code-change`)
 
