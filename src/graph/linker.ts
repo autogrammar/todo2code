@@ -2,7 +2,7 @@ import { createRelationId, graphFingerprint } from '../core/id.js';
 import { assertIntentRecords } from '../core/schema.js';
 import { keywords } from '../core/text.js';
 import { pathAliases, symbolAliases } from '../core/target.js';
-import type { IntentGraph, IntentRecord, IntentRelation, RelationType } from '../core/types.js';
+import type { IntentGraph, IntentRecord, IntentRelation, RelationType, SourceKind } from '../core/types.js';
 
 interface PairEvidence {
   score: number;
@@ -21,6 +21,32 @@ interface RecordKeywords {
   object: Set<string>;
   text: Set<string>;
 }
+
+interface DirectedRelation {
+  from: IntentRecord;
+  to: IntentRecord;
+  type: RelationType;
+}
+
+interface SourceRelationRule {
+  anchor: SourceKind;
+  others: ReadonlySet<SourceKind>;
+  type: RelationType;
+  anchorPosition: 'from' | 'to';
+}
+
+const SOURCE_RELATION_RULES: SourceRelationRule[] = [
+  { anchor: 'git', others: new Set(['todo', 'nl', 'document']), type: 'implements', anchorPosition: 'from' },
+  {
+    anchor: 'ast',
+    others: new Set<SourceKind>(['nl', 'git', 'todo', 'changelog', 'document', 'agent_log', 'test', 'system']),
+    type: 'evidenced_by',
+    anchorPosition: 'to',
+  },
+  { anchor: 'changelog', others: new Set(['git', 'ast']), type: 'releases', anchorPosition: 'from' },
+  { anchor: 'todo', others: new Set(['nl', 'document']), type: 'plans', anchorPosition: 'from' },
+  { anchor: 'document', others: new Set(['nl']), type: 'documents', anchorPosition: 'from' },
+];
 
 function indexKeywords(records: IntentRecord[]): Map<string, RecordKeywords> {
   return new Map(records.map((record) => [record.id, {
@@ -103,37 +129,58 @@ function collectCandidatePairs(
 ): Array<[string, string]> {
   const buckets = new Map<string, string[]>();
   const astIds = new Set<string>();
-  const add = (key: string, id: string): void => {
-    const values = buckets.get(key);
-    if (values) values.push(id);
-    else buckets.set(key, [id]);
-  };
-
   for (const record of records) {
     if (record.source.kind === 'ast') astIds.add(record.id);
-    for (const ticket of record.statement.target.tickets) add(`ticket:${ticket.toLowerCase()}`, record.id);
-    for (const symbol of record.statement.target.symbols) {
-      for (const alias of symbolAliases(symbol)) add(`symbol:${alias}`, record.id);
-    }
-    for (const filePath of record.statement.target.paths) {
-      for (const alias of pathAliases(filePath)) add(`path:${alias}`, record.id);
-    }
-    // Keyword sets are already indexed; a Set preserves the sorted insertion
-    // order of `keywords()`, so the first five entries are the same tokens.
-    const objectKeywords = keywordIndex.get(record.id)?.object;
-    if (objectKeywords) {
-      let taken = 0;
-      for (const token of objectKeywords) {
-        if (taken >= 5) break;
-        add(`token:${token}`, record.id);
-        taken += 1;
-      }
-    }
+    indexTargetBuckets(buckets, record);
+    indexKeywordBuckets(buckets, record.id, keywordIndex.get(record.id)?.object);
   }
+  return pairsFromBuckets(buckets, astIds);
+}
 
+function indexTargetBuckets(buckets: Map<string, string[]>, record: IntentRecord): void {
+  for (const ticket of record.statement.target.tickets) {
+    addToBucket(buckets, `ticket:${ticket.toLowerCase()}`, record.id);
+  }
+  indexAliases(buckets, 'symbol', record.id, record.statement.target.symbols, symbolAliases);
+  indexAliases(buckets, 'path', record.id, record.statement.target.paths, pathAliases);
+}
+
+function indexAliases(
+  buckets: Map<string, string[]>,
+  prefix: string,
+  recordId: string,
+  values: string[],
+  aliases: (value: string) => string[],
+): void {
+  for (const value of values) {
+    for (const alias of aliases(value)) addToBucket(buckets, `${prefix}:${alias}`, recordId);
+  }
+}
+
+function indexKeywordBuckets(
+  buckets: Map<string, string[]>,
+  recordId: string,
+  objectKeywords: Set<string> | undefined,
+): void {
+  // A Set preserves the sorted insertion order of `keywords()`, so slicing the
+  // materialized values keeps the same five-token candidate limit.
+  for (const token of [...(objectKeywords ?? [])].slice(0, 5)) {
+    addToBucket(buckets, `token:${token}`, recordId);
+  }
+}
+
+function addToBucket(buckets: Map<string, string[]>, key: string, recordId: string): void {
+  const values = buckets.get(key);
+  if (values) values.push(recordId);
+  else buckets.set(key, [recordId]);
+}
+
+function pairsFromBuckets(
+  buckets: Map<string, string[]>,
+  astIds: Set<string>,
+): Array<[string, string]> {
   const output = new Map<string, [string, string]>();
   for (const [bucketKey, ids] of buckets) {
-    const isPathBucket = bucketKey.startsWith('path:');
     const limited = [...new Set(ids)].sort().slice(0, 300);
     for (let left = 0; left < limited.length; left += 1) {
       for (let right = left + 1; right < limited.length; right += 1) {
@@ -145,7 +192,7 @@ function collectCandidatePairs(
         // produced ~80% of all candidate pairs and filled the graph with
         // `related_to` noise between unrelated functions. Such a pair still
         // enters the graph when the symbol or keyword bucket also connects it.
-        if (isPathBucket && astIds.has(leftId) && astIds.has(rightId)) continue;
+        if (isSuppressedAstPathPair(bucketKey, leftId, rightId, astIds)) continue;
         output.set(`${leftId}|${rightId}`, [leftId, rightId]);
       }
     }
@@ -154,6 +201,15 @@ function collectCandidatePairs(
   return [...output.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([, pair]) => pair);
+}
+
+function isSuppressedAstPathPair(
+  bucketKey: string,
+  leftId: string,
+  rightId: string,
+  astIds: Set<string>,
+): boolean {
+  return bucketKey.startsWith('path:') && astIds.has(leftId) && astIds.has(rightId);
 }
 
 function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, RecordKeywords>): PairEvidence {
@@ -191,7 +247,7 @@ function scorePair(left: IntentRecord, right: IntentRecord, index: Map<string, R
   return { score: Math.max(0, score), basis: [...new Set(basis)].sort(), textScore: objectSimilarity };
 }
 
-function determineRelation(left: IntentRecord, right: IntentRecord, evidence: PairEvidence): { from: IntentRecord; to: IntentRecord; type: RelationType } {
+function determineRelation(left: IntentRecord, right: IntentRecord, evidence: PairEvidence): DirectedRelation {
   // `scorePair` already computed this over the same two strings.
   const textScore = evidence.textScore;
   if (left.statement.polarity !== right.statement.polarity && textScore >= 0.45) {
@@ -200,20 +256,42 @@ function determineRelation(left: IntentRecord, right: IntentRecord, evidence: Pa
   if (left.source.kind === right.source.kind && textScore >= 0.82) {
     return { from: left, to: right, type: 'duplicates' };
   }
-
-  const pair = `${left.source.kind}:${right.source.kind}`;
-  if (pair === 'git:todo' || pair === 'git:nl' || pair === 'git:document') return { from: left, to: right, type: 'implements' };
-  if (pair === 'todo:git' || pair === 'nl:git' || pair === 'document:git') return { from: right, to: left, type: 'implements' };
-  if (left.source.kind === 'ast' && right.source.kind !== 'ast') return { from: right, to: left, type: 'evidenced_by' };
-  if (right.source.kind === 'ast' && left.source.kind !== 'ast') return { from: left, to: right, type: 'evidenced_by' };
-  if (left.source.kind === 'changelog' && ['git', 'ast'].includes(right.source.kind)) return { from: left, to: right, type: 'releases' };
-  if (right.source.kind === 'changelog' && ['git', 'ast'].includes(left.source.kind)) return { from: right, to: left, type: 'releases' };
-  if (left.source.kind === 'todo' && ['nl', 'document'].includes(right.source.kind)) return { from: left, to: right, type: 'plans' };
-  if (right.source.kind === 'todo' && ['nl', 'document'].includes(left.source.kind)) return { from: right, to: left, type: 'plans' };
-  if (left.source.kind === 'document' && right.source.kind === 'nl') return { from: left, to: right, type: 'documents' };
-  if (right.source.kind === 'document' && left.source.kind === 'nl') return { from: right, to: left, type: 'documents' };
+  const sourceRelation = relationForSourceKinds(left, right);
+  if (sourceRelation) return sourceRelation;
   if (evidence.score >= 0.8) return { from: left, to: right, type: 'same_as' };
   return { from: left, to: right, type: 'related_to' };
+}
+
+function relationForSourceKinds(left: IntentRecord, right: IntentRecord): DirectedRelation | null {
+  for (const rule of SOURCE_RELATION_RULES) {
+    const relation = matchSourceRule(left, right, rule);
+    if (relation) return relation;
+  }
+  return null;
+}
+
+function matchSourceRule(
+  left: IntentRecord,
+  right: IntentRecord,
+  rule: SourceRelationRule,
+): DirectedRelation | null {
+  if (left.source.kind === rule.anchor && rule.others.has(right.source.kind)) {
+    return orientRelation(left, right, rule);
+  }
+  if (right.source.kind === rule.anchor && rule.others.has(left.source.kind)) {
+    return orientRelation(right, left, rule);
+  }
+  return null;
+}
+
+function orientRelation(
+  anchor: IntentRecord,
+  other: IntentRecord,
+  rule: SourceRelationRule,
+): DirectedRelation {
+  return rule.anchorPosition === 'from'
+    ? { from: anchor, to: other, type: rule.type }
+    : { from: other, to: anchor, type: rule.type };
 }
 
 function intersects(left: string[], right: string[]): boolean {

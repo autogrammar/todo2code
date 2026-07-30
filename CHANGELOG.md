@@ -56,6 +56,9 @@
 - Split the versioned gold evaluator into dataset validation, extraction
   fixtures, case evaluation, metrics and report orchestration while preserving
   the perfect benchmark result and repeated-run stability.
+- Decomposed graph-link candidate indexing and source-direction rules into
+  focused helpers while preserving deterministic relation ordering and graph
+  fingerprints.
 - Stopped treating ticket prefixes such as `T2C` as code symbols and stopped
   action-like inline-code identifiers such as `validateContract` from
   overriding the explicit prose verb. Validation verb forms are recognized
