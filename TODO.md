@@ -91,11 +91,11 @@
 - [x] Extend the corrective retry to the summary stage, which rejected
   fabricated citations the same way but had no second attempt. Both attempts
   stay in the audit and a second fabrication still fails the run.
-- [ ] Bound the task-synthesis payload consistently: `compactSynthesisPayload`
-  collects record IDs from diagnostics and then truncates records to 500, so a
-  large repository can ship a diagnostic citing a record the model cannot see.
-  Not reproduced on `examples/` (49 of 49 records included), but the ordering
-  invites exactly the fabrication the retry now absorbs.
+- [x] Bound the task-synthesis payload consistently. `compactSynthesisPayload`
+  collected record IDs from diagnostics and then truncated records to 500, so a
+  large repository could ship a diagnostic citing a record the model never saw.
+  Diagnostics whose evidence did not survive the record budget are now dropped
+  from the payload instead of inviting a fabricated citation.
 - [x] Run a clean-room deterministic pipeline against the external
   `subactor/platform` repository (144 Markdown files, 43 configs, `.mjs`
   sources) and fix what it exposed: an absolute host path aborted code-change
