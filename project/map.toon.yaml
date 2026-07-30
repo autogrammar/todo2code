@@ -1,41 +1,43 @@
-# todo2code | 222f 33757L | md:53,yml:1,json:22,shell:6,toml:3,rust:7,typescript:99,python:12,javascript:6,java:1,go:6,txt:1,php:3 | 2026-07-30
-# generated in 0.18s
+# todo2code | 232f 36133L | json:29,yml:1,md:50,typescript:102,python:13,toml:2,rust:7,php:3,go:6,javascript:10,shell:5,txt:1,java:1 | 2026-07-30
+# generated in 0.03s
 # producer: code2llm | artifact: map.toon.yaml | schema: 1
-# stats: 2491 func | 0 cls | 222 mod | CC̄=3.8 | critical:81 | cycles:0
-# alerts[5]: CC assertOperationPlan=84; CC extractCommunicationIntent=64; CC identityRegistry=60; CC main=60; CC parseCommand=57
-# hotspots[5]: executeAction fan=54; root fan=53; runPipeline fan=50; extractTypeScriptFile fan=44; main fan=42
-# evolution: CC̄ 3.7→3.8 (regressed +0.1)
+# stats: 2821 func | 0 cls | 232 mod | CC̄=3.9 | critical:99 | cycles:0
+# alerts[5]: CC main=94; CC assertOperationPlan=84; CC executeAction=83; CC root=83; CC extractCommunicationIntent=68
+# hotspots[5]: executeAction fan=64; root fan=63; runPipeline fan=53; extractTypeScriptFile fan=44; main fan=43
+# evolution: baseline
 # Keys: M=modules, D=details, i=imports, e=exports, c=classes, f=functions, m=methods
-M[222]:
-  CHANGELOG.md,378
+M[232]:
+  CHANGELOG.md,485
   CONTRIBUTION.md,37
   Dockerfile,45
-  Makefile,110
-  README.md,767
+  Makefile,114
+  README.md,830
   TASK.md,15
-  TODO.md,82
+  TODO.md,242
   adapters/tensorflow/package.json,10
   docker-compose.yml,18
   docs/ARCHITECTURE.md,198
-  docs/CLI_GUIDE.md,267
-  docs/DSL.md,369
+  docs/CLI_GUIDE.md,297
+  docs/CODE_CHANGE_PLANS.md,173
+  docs/DEMOLLM.md,175
+  docs/DSL.md,399
+  docs/GROK-PLAN.md,266
   docs/OPTIMIZATION.md,230
   docs/PIPELINE_DSL_NL.md,462
-  docs/PROJECT_STATUS.md,153
   docs/PROTOCOLS.md,124
-  docs/README.md,2694
-  docs/REQUIREMENTS.md,38
+  docs/READINESS.md,158
+  docs/REQUIREMENTS.md,39
   docs/SECURITY.md,49
   docs/SUBACTOR_OPERATION_DSL.md,33
   docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md,872
-  docs/TEAM_COMMUNICATION.md,169
-  docs/TEST_REPORT.md,315
-  docs/VALIDATION.md,161
+  docs/TEAM_COMMUNICATION.md,180
+  docs/TEST_REPORT.md,499
+  docs/VALIDATION.md,162
   docs/intent-guard-diagrams/ALL_DIAGRAMS.md,410
   docs/intent-guard-diagrams/README.md,22
   docs/reference/original-monitoring-design.md,872
   evaluation/gold/README.md,44
-  evaluation/gold/v1/dataset.json,491
+  evaluation/gold/v1/dataset.json,761
   examples/CHANGELOG.md,11
   examples/TODO.md,7
   examples/backend/CHANGELOG.md,11
@@ -55,12 +57,6 @@ M[222]:
   examples/frontend/src/render.ts,64
   examples/frontend/task.md,17
   examples/frontend/tsconfig.json,15
-  examples/project/DEMO-101/agent.codex.plan.001.md,11
-  examples/project/DEMO-101/agent.codex.report.002.md,10
-  examples/project/DEMO-101/agent.rogue.plan.001.md,8
-  examples/project/DEMO-101/human.product-owner.request.001.md,10
-  examples/project/DEMO-101/human.security.decision.001.md,10
-  examples/project/participants.json,37
   examples/sdk/python.py,23
   examples/sdk/typescript.mjs,16
   examples/src/helper.py,9
@@ -68,18 +64,25 @@ M[222]:
   examples/task.md,9
   golang/ast_extract.go,368
   java/JavaAstExtract.java,260
-  package.json,42
-  project.sh,49
+  package.json,43
   prompts/communication-to-intent.system.md,7
   prompts/docs-to-intent.system.md,23
   prompts/markdown-to-intent.system.md,5
   prompts/nl-to-intent.system.md,15
   prompts/summarize.system.md,51
-  prompts/tasks-from-dsl.system.md,11
-  python/ast_extract.py,150
+  prompts/tasks-from-dsl.system.md,52
+  python/ast_extract.py,166
   python/requirements.txt,1
   rust-ast/Cargo.toml,12
   rust-ast/src/main.rs,322
+  schemas/code-change-acceptance.schema.json,53
+  schemas/code-change-close-result.schema.json,26
+  schemas/code-change-plan-set.schema.json,22
+  schemas/code-change-plan.schema.json,98
+  schemas/code-change-review.schema.json,27
+  schemas/code-change-source-apply-receipt.schema.json,31
+  schemas/code-change-source-patch-set.schema.json,18
+  schemas/code-change-source-patch.schema.json,63
   schemas/conclusion.schema.json,51
   schemas/document-extraction-response.schema.json,52
   schemas/gold-dataset.schema.json,435
@@ -93,13 +96,18 @@ M[222]:
   schemas/todo-proposal.schema.json,61
   schemas/variable-contract.schema.json,38
   scripts/a2a-request.sh,23
+  scripts/assert-demollm-run.mjs,45
   scripts/docker-smoke.sh,36
   scripts/examples-check.sh,210
   scripts/live-contract-check.mjs,193
   scripts/mcp-request.sh,11
+  scripts/normalize-generated-analysis-roots.mjs,34
   scripts/package.py,25
   scripts/smoke.sh,53
+  scripts/sync-generated-readme-metadata.mjs,66
+  scripts/vallm-compatible.py,25
   scripts/verify-env-contract.mjs,103
+  scripts/verify-generated-analysis.mjs,55
   scripts/verify-module-boundaries.mjs,87
   scripts/verify-no-llm-imports.mjs,78
   scripts/verify-workflow-yaml.mjs,43
@@ -120,7 +128,6 @@ M[222]:
   sdk/python/README.md,68
   sdk/python/examples/basic.py,95
   sdk/python/examples/local_runtime.py,36
-  sdk/python/pyproject.toml,17
   sdk/python/todo2code/__init__.py,33
   sdk/python/todo2code/client.py,469
   sdk/python/todo2code/runtime.py,225
@@ -136,32 +143,33 @@ M[222]:
   sdk/typescript/README.md,23
   sdk/typescript/examples/basic.ts,84
   sdk/typescript/package.json,28
-  sdk/typescript/src/index.ts,394
+  sdk/typescript/src/index.ts,420
   sdk/typescript/tsconfig.json,20
-  src/index.ts,46
-  src/cli.ts,705
+  src/index.ts,52
+  src/cli.ts,819
   src/communication/analyzer.ts,374
   src/communication/identity.ts,100
   src/communication/llm.ts,492
   src/comparison/workspace.ts,327
   src/config/env.ts,216
-  src/core/id.ts,84
+  src/core/grounding.ts,24
+  src/core/id.ts,167
   src/core/ignore.ts,200
   src/core/io.ts,177
   src/core/record.ts,172
-  src/core/schema.ts,610
+  src/core/schema.ts,922
   src/core/security.ts,55
   src/core/target.ts,57
-  src/core/text.ts,282
-  src/core/types.ts,497
+  src/core/text.ts,346
+  src/core/types.ts,657
   src/core/version.ts,2
   src/diff/git.ts,161
-  src/diff/reality.ts,486
+  src/diff/reality.ts,494
   src/diff/svg.ts,104
-  src/diff/text.ts,233
+  src/diff/text.ts,239
   src/diff/text-render.ts,251
   src/diff/text-types.ts,39
-  src/evaluation/gold.ts,209
+  src/evaluation/gold.ts,227
   src/evaluation/gold-cases.ts,228
   src/evaluation/gold-cli.ts,44
   src/evaluation/gold-extraction.ts,104
@@ -171,15 +179,15 @@ M[222]:
   src/extractors/ast/external.ts,48
   src/extractors/ast/go.ts,20
   src/extractors/ast/java.ts,20
-  src/extractors/ast/python.ts,20
+  src/extractors/ast/python.ts,39
   src/extractors/ast/records.ts,91
   src/extractors/ast/rust.ts,20
   src/extractors/ast/types.ts,20
   src/extractors/ast/typescript.ts,165
   src/extractors/ast/unsupported.ts,26
   src/extractors/changelog.ts,89
-  src/extractors/communication.ts,260
-  src/extractors/configuration.ts,157
+  src/extractors/communication.ts,273
+  src/extractors/configuration.ts,208
   src/extractors/docs-chunks.ts,147
   src/extractors/docs-deterministic.ts,270
   src/extractors/docs-llm.ts,196
@@ -191,21 +199,21 @@ M[222]:
   src/extractors/markdown-block.ts,67
   src/extractors/markdown-llm.ts,304
   src/extractors/nl.ts,107
-  src/extractors/nl-llm.ts,258
+  src/extractors/nl-llm.ts,266
   src/extractors/todo.ts,85
-  src/graph/diagnostics.ts,235
+  src/graph/diagnostics.ts,263
   src/graph/diff.ts,235
-  src/graph/linker.ts,384
+  src/graph/linker.ts,487
   src/interfaces/a2a.ts,320
-  src/interfaces/a2a-card.ts,157
+  src/interfaces/a2a-card.ts,169
   src/interfaces/a2a-history.ts,226
   src/interfaces/a2a-message.ts,184
   src/interfaces/a2a-task-store.ts,513
-  src/interfaces/a2a-types.ts,158
+  src/interfaces/a2a-types.ts,160
   src/interfaces/mcp.ts,261
   src/interfaces/mcp-errors.ts,10
   src/interfaces/mcp-resources.ts,88
-  src/interfaces/mcp-tools.ts,234
+  src/interfaces/mcp-tools.ts,307
   src/llm/audit.ts,19
   src/llm/failure.ts,15
   src/llm/openrouter.ts,302
@@ -215,13 +223,15 @@ M[222]:
   src/operations/subactor.ts,122
   src/operations/types.ts,155
   src/operations/validation.ts,281
-  src/pipeline/run.ts,535
-  src/sdk/typescript.ts,148
-  src/services/actions.ts,483
+  src/pipeline/run.ts,598
+  src/sdk/typescript.ts,172
+  src/services/actions.ts,698
   src/summary/payload.ts,65
   src/summary/render.ts,61
-  src/summary/summarizer.ts,347
-  src/synthesis/tasks-llm.ts,436
+  src/summary/summarizer.ts,412
+  src/synthesis/code-change-path.ts,200
+  src/synthesis/code-change-plan.ts,1243
+  src/synthesis/tasks-llm.ts,617
   src/synthesis/todo-patch.ts,372
   src/synthesis/validation.ts,113
   src/tf/classifier.ts,96
@@ -230,118 +240,9 @@ M[222]:
   src/web/diff-ui.ts,48
   tsconfig.json,23
 D:
-  src/operations/validation.ts:
-    i: ../core/id.js,../core/types.js,./types.js
-    e: VALUE_TYPES,CLASSIFICATIONS,SOURCE_KINDS,RISK_CLASSES,objectValue,exactKeys,actual,nonBlank,dateString,uniqueStrings,assertPrincipalList,principals,isJsonValue,assertVariableContract,contract,source,access,readers,writers,assertGeneration,generation,assertAcyclic,ids,visiting,visited,byId,visit,assertOperationPlan,plan,evidence,variables,variableById,steps,stepIds,founderDecisionRequired,step,parameters,reference,variable,rollback,coveredSteps,expectationIds,expectation,verifiedBy,decision,verification,expectedHash
-    VALUE_TYPES()
-    CLASSIFICATIONS()
-    SOURCE_KINDS()
-    RISK_CLASSES()
-    objectValue()
-    exactKeys()
-    actual()
-    nonBlank()
-    dateString()
-    uniqueStrings()
-    assertPrincipalList()
-    principals()
-    isJsonValue()
-    assertVariableContract()
-    contract()
-    source()
-    access()
-    readers()
-    writers()
-    assertGeneration()
-    generation()
-    assertAcyclic()
-    ids()
-    visiting()
-    visited()
-    byId()
-    visit()
-    assertOperationPlan()
-    plan()
-    evidence()
-    variables()
-    variableById()
-    steps()
-    stepIds()
-    founderDecisionRequired()
-    step()
-    parameters()
-    reference()
-    variable()
-    rollback()
-    coveredSteps()
-    expectationIds()
-    expectation()
-    verifiedBy()
-    decision()
-    verification()
-    expectedHash()
-  src/extractors/communication.ts:
-    i: ../communication/identity.js,../config/env.js,../core/io.js,../core/record.js,../core/security.js,../core/types.js,../tf/classifier.js,node:path
-    e: CommunicationExtractionOptions,CommunicationEnvelope,extractCommunicationIntent,root,projectRoot,files,identityRegistry,relativeToProject,parts,pathTicket,envelope,inferred,declaredParticipant,declaredRole,declaredParticipantId,identity,participant,role,displayName,messageType,ticket,recipient,timestamp,declaredGitAuthors,gitAuthors,declaredA2aAgentId,explicitPaths,explicitSymbols,semantics,classified,action,line,resolveIdentity,sameStrings,normalize,parseEnvelope,lines,end,match,inferIdentity,parts,fileParts,nestedRoleIndex,nestedRole,nestedParticipant,normalizeRole,normalizeType,normalized,isCommunicationType,semanticsFor,first,listValue,stripped,unquote,validTimestamp,parsed
-    CommunicationExtractionOptions:
-    CommunicationEnvelope:
-    extractCommunicationIntent()
-    root()
-    projectRoot()
-    files()
-    identityRegistry()
-    relativeToProject()
-    parts()
-    pathTicket()
-    envelope()
-    inferred()
-    declaredParticipant()
-    declaredRole()
-    declaredParticipantId()
-    identity()
-    participant()
-    role()
-    displayName()
-    messageType()
-    ticket()
-    recipient()
-    timestamp()
-    declaredGitAuthors()
-    gitAuthors()
-    declaredA2aAgentId()
-    explicitPaths()
-    explicitSymbols()
-    semantics()
-    classified()
-    action()
-    line()
-    resolveIdentity()
-    sameStrings()
-    normalize()
-    parseEnvelope()
-    lines()
-    end()
-    match()
-    inferIdentity()
-    parts()
-    fileParts()
-    nestedRoleIndex()
-    nestedRole()
-    nestedParticipant()
-    normalizeRole()
-    normalizeType()
-    normalized()
-    isCommunicationType()
-    semanticsFor()
-    first()
-    listValue()
-    stripped()
-    unquote()
-    validTimestamp()
-    parsed()
   src/cli.ts:
     i: ./communication/analyzer.js,./communication/llm.js,./comparison/workspace.js,./config/env.js,./core/io.js,./core/types.js,./diff/git.js,./diff/reality.js,./extractors/ast.js,./extractors/configuration.js,./extractors/docs-llm.js,./extractors/git.js,./extractors/markdown-llm.js,./extractors/nl-llm.js,./graph/diagnostics.js,./graph/diff.js,./graph/linker.js,./interfaces/a2a.js,./interfaces/mcp.js,./pipeline/run.js,./services/actions.js,./summary/summarizer.js,./version.js,./watch/watcher.js,node:child_process,node:fs,node:path,node:url,node:util
-    e: ParsedArgs,execFileAsync,main,parsed,command,config,files,records,graph,graphFile,graph,graphFile,graph,diagnosticsPath,diagnostics,result,out,graphPath,diagnosticsPath,output,result,synthesisPath,graphPath,diagnosticsPath,patch,audit,result,patch,audit,receipt,actor,approvalHash,result,root,result,root,result,handleWatch,root,taskFile,controller,stop,formatWatchEvent,stamp,handleDiff,mode,out,svg,html,beforeFile,afterFile,diff,context,maxRows,beforeFile,afterFile,root,result,handleReality,graphFile,graph,diagnosticsPath,diagnostics,view,out,svg,markdown,handleExtract,extractor,root,out,file,inline,result,result,result,result,result,result,result,handleCommunication,root,graph,analysis,out,markdown,graphOut,emitExtraction,emitJson,initProject,moduleRoot,sourceEnv,targetEnv,task,sourceIgnore,targetIgnore,doctor,result,parseArgs,options,value,next,name,next,optionString,value,optionNullableString,value,optionBoolean,value,optionNumber,value,number,optionList,value,optionNlMode,optionLlmMode,value,optionTaskMode,value,optionSummaryMode,optionPipelineTaskMode,value,reportPipelineDegradation,printHelp,invokedPath
+    e: ParsedArgs,execFileAsync,main,parsed,command,config,files,records,graph,graphFile,graph,graphFile,graph,diagnosticsPath,diagnostics,result,out,graphPath,diagnosticsPath,output,result,synthesisPath,graphPath,diagnosticsPath,patch,audit,result,patch,audit,receipt,actor,approvalHash,result,graphPath,diagnosticsPath,output,result,plansPath,patch,audit,result,inputPath,output,isPlanSet,result,patchPath,actor,approvalHash,receipt,result,planPath,beforeGraphPath,afterGraphPath,output,result,inputPath,beforeGraphPath,afterGraphPath,output,result,root,result,root,result,handleWatch,root,taskFile,controller,stop,formatWatchEvent,stamp,handleDiff,mode,out,svg,html,beforeFile,afterFile,diff,context,maxRows,beforeFile,afterFile,root,result,handleReality,graphFile,graph,diagnosticsPath,diagnostics,view,out,svg,markdown,handleExtract,extractor,root,out,file,inline,result,result,result,result,result,result,result,handleCommunication,root,graph,analysis,out,markdown,graphOut,emitExtraction,emitJson,initProject,moduleRoot,sourceEnv,targetEnv,task,sourceIgnore,targetIgnore,doctor,result,parseArgs,options,value,next,name,next,optionString,value,optionNullableString,value,optionBoolean,value,optionNumber,value,number,optionList,value,optionNlMode,optionLlmMode,value,optionTaskMode,value,optionSummaryMode,optionPipelineTaskMode,value,reportPipelineDegradation,printHelp,invokedPath
     ParsedArgs:
     execFileAsync()
     main()
@@ -374,6 +275,33 @@ D:
     receipt()
     actor()
     approvalHash()
+    result()
+    graphPath()
+    diagnosticsPath()
+    output()
+    result()
+    plansPath()
+    patch()
+    audit()
+    result()
+    inputPath()
+    output()
+    isPlanSet()
+    result()
+    patchPath()
+    actor()
+    approvalHash()
+    receipt()
+    result()
+    planPath()
+    beforeGraphPath()
+    afterGraphPath()
+    output()
+    result()
+    inputPath()
+    beforeGraphPath()
+    afterGraphPath()
+    output()
     result()
     root()
     result()
@@ -468,6 +396,234 @@ D:
     reportPipelineDegradation()
     printHelp()
     invokedPath()
+  src/operations/validation.ts:
+    i: ../core/id.js,../core/types.js,./types.js
+    e: VALUE_TYPES,CLASSIFICATIONS,SOURCE_KINDS,RISK_CLASSES,objectValue,exactKeys,actual,nonBlank,dateString,uniqueStrings,assertPrincipalList,principals,isJsonValue,assertVariableContract,contract,source,access,readers,writers,assertGeneration,generation,assertAcyclic,ids,visiting,visited,byId,visit,assertOperationPlan,plan,evidence,variables,variableById,steps,stepIds,founderDecisionRequired,step,parameters,reference,variable,rollback,coveredSteps,expectationIds,expectation,verifiedBy,decision,verification,expectedHash
+    VALUE_TYPES()
+    CLASSIFICATIONS()
+    SOURCE_KINDS()
+    RISK_CLASSES()
+    objectValue()
+    exactKeys()
+    actual()
+    nonBlank()
+    dateString()
+    uniqueStrings()
+    assertPrincipalList()
+    principals()
+    isJsonValue()
+    assertVariableContract()
+    contract()
+    source()
+    access()
+    readers()
+    writers()
+    assertGeneration()
+    generation()
+    assertAcyclic()
+    ids()
+    visiting()
+    visited()
+    byId()
+    visit()
+    assertOperationPlan()
+    plan()
+    evidence()
+    variables()
+    variableById()
+    steps()
+    stepIds()
+    founderDecisionRequired()
+    step()
+    parameters()
+    reference()
+    variable()
+    rollback()
+    coveredSteps()
+    expectationIds()
+    expectation()
+    verifiedBy()
+    decision()
+    verification()
+    expectedHash()
+  src/services/actions.ts:
+    i: ../communication/analyzer.js,../communication/llm.js,../comparison/workspace.js,../config/env.js,../core/io.js,../core/security.js,../core/types.js,../core/types.js,../diff/git.js,../diff/reality.js,../extractors/ast.js,../extractors/configuration.js,../extractors/docs-llm.js,../extractors/git.js,../extractors/markdown-llm.js,../extractors/nl-llm.js,../graph/diagnostics.js,../graph/diff.js,../graph/linker.js,../pipeline/run.js,../summary/summarizer.js,../synthesis/tasks-llm.js,../synthesis/todo-patch.js,node:path
+    e: executeAction,root,file,text,analysis,records,graph,graph,diagnostics,graph,diagnostics,result,output,graph,diagnostics,synthesis,todoPath,patchPath,auditPath,todoContent,rendered,todoPath,patchPath,auditPath,receiptPath,result,graph,diagnostics,conclusions,proposals,result,output,planSet,review,patchPath,auditPath,plan,unifiedDiffs,patch,output,planSet,result,output,patch,receiptPath,result,plan,beforeGraph,beforeDiagnostics,afterGraph,afterDiagnostics,result,output,beforeGraph,beforeDiagnostics,afterGraph,afterDiagnostics,value,planSet,result,output,beforeInput,afterInput,before,after,diff,svg,beforePath,afterPath,diff,result,graph,diagnostics,view,filterCommunicationGraph,participant,role,ticket,communicationOnly,records,isCommunication,nlModeValue,llmModeValue,taskSynthesisMode,summaryModeValue,pipelineTaskMode,withTextDiffViews,title,readGraphInput,safePath,readActionObject,safePath,resolveRoot,requested,scopedPath,selected,nullableScopedPath,selected,readRecords,files,safeFile,stringValue,nullableString,stringList,numberValue,number,hasInputValue,objectMapOfStrings,booleanValue,objectValue,registerRunArtifacts,manifestPath,manifest
+    executeAction()
+    root()
+    file()
+    text()
+    analysis()
+    records()
+    graph()
+    graph()
+    diagnostics()
+    graph()
+    diagnostics()
+    result()
+    output()
+    graph()
+    diagnostics()
+    synthesis()
+    todoPath()
+    patchPath()
+    auditPath()
+    todoContent()
+    rendered()
+    todoPath()
+    patchPath()
+    auditPath()
+    receiptPath()
+    result()
+    graph()
+    diagnostics()
+    conclusions()
+    proposals()
+    result()
+    output()
+    planSet()
+    review()
+    patchPath()
+    auditPath()
+    plan()
+    unifiedDiffs()
+    patch()
+    output()
+    planSet()
+    result()
+    output()
+    patch()
+    receiptPath()
+    result()
+    plan()
+    beforeGraph()
+    beforeDiagnostics()
+    afterGraph()
+    afterDiagnostics()
+    result()
+    output()
+    beforeGraph()
+    beforeDiagnostics()
+    afterGraph()
+    afterDiagnostics()
+    value()
+    planSet()
+    result()
+    output()
+    beforeInput()
+    afterInput()
+    before()
+    after()
+    diff()
+    svg()
+    beforePath()
+    afterPath()
+    diff()
+    result()
+    graph()
+    diagnostics()
+    view()
+    filterCommunicationGraph()
+    participant()
+    role()
+    ticket()
+    communicationOnly()
+    records()
+    isCommunication()
+    nlModeValue()
+    llmModeValue()
+    taskSynthesisMode()
+    summaryModeValue()
+    pipelineTaskMode()
+    withTextDiffViews()
+    title()
+    readGraphInput()
+    safePath()
+    readActionObject()
+    safePath()
+    resolveRoot()
+    requested()
+    scopedPath()
+    selected()
+    nullableScopedPath()
+    selected()
+    readRecords()
+    files()
+    safeFile()
+    stringValue()
+    nullableString()
+    stringList()
+    numberValue()
+    number()
+    hasInputValue()
+    objectMapOfStrings()
+    booleanValue()
+    objectValue()
+    registerRunArtifacts()
+    manifestPath()
+    manifest()
+  src/extractors/communication.ts:
+    i: ../communication/identity.js,../config/env.js,../core/io.js,../core/record.js,../core/security.js,../core/types.js,../tf/classifier.js,node:path
+    e: CommunicationExtractionOptions,CommunicationEnvelope,extractCommunicationIntent,root,projectRoot,files,identityRegistry,communicationFiles,relativeToProject,parts,pathTicket,envelope,inferred,explicitEnvelope,declaredParticipant,declaredRole,declaredParticipantId,identity,participant,role,displayName,messageType,ticket,recipient,timestamp,declaredGitAuthors,gitAuthors,declaredA2aAgentId,explicitPaths,explicitSymbols,semantics,classified,action,line,resolveIdentity,sameStrings,normalize,parseEnvelope,lines,end,match,inferIdentity,parts,fileParts,nestedRoleIndex,nestedRole,nestedParticipant,looksLikeTicket,normalizeRole,normalizeType,normalized,isCommunicationType,semanticsFor,first,listValue,stripped,unquote,validTimestamp,parsed
+    CommunicationExtractionOptions:
+    CommunicationEnvelope:
+    extractCommunicationIntent()
+    root()
+    projectRoot()
+    files()
+    identityRegistry()
+    communicationFiles()
+    relativeToProject()
+    parts()
+    pathTicket()
+    envelope()
+    inferred()
+    explicitEnvelope()
+    declaredParticipant()
+    declaredRole()
+    declaredParticipantId()
+    identity()
+    participant()
+    role()
+    displayName()
+    messageType()
+    ticket()
+    recipient()
+    timestamp()
+    declaredGitAuthors()
+    gitAuthors()
+    declaredA2aAgentId()
+    explicitPaths()
+    explicitSymbols()
+    semantics()
+    classified()
+    action()
+    line()
+    resolveIdentity()
+    sameStrings()
+    normalize()
+    parseEnvelope()
+    lines()
+    end()
+    match()
+    inferIdentity()
+    parts()
+    fileParts()
+    nestedRoleIndex()
+    nestedRole()
+    nestedParticipant()
+    looksLikeTicket()
+    normalizeRole()
+    normalizeType()
+    normalized()
+    isCommunicationType()
+    semanticsFor()
+    first()
+    listValue()
+    stripped()
+    unquote()
+    validTimestamp()
+    parsed()
   src/interfaces/a2a-message.ts:
     i: ../services/actions.js
     e: parseSendConfiguration,validateOutputModes,supported,parseCommand,objectData,text,first,commandFromData,action,nested,parseKeyValues,key,raw,stringValue,parseScalar,parseMessage,messageId,contextId,taskId,referenceTaskIds,extensions,metadata,parsePart,output,parsePartContent,content,qualifier,ensureSupportedMessageContent,supported,normalizeAction,normalized,action,cloneMessage,clonePart,normalizeUserMessage
@@ -506,20 +662,9 @@ D:
     cloneMessage()
     clonePart()
     normalizeUserMessage()
-  src/web/diff-ui.ts:
-    e: diffUiHtml,byId,requestHeaders,formatBytes,selectedRun,updateMeta,fillSelect,loadRuns,compareGraphs
-    diffUiHtml()
-    byId()
-    requestHeaders()
-    formatBytes()
-    selectedRun()
-    updateMeta()
-    fillSelect()
-    loadRuns()
-    compareGraphs()
   src/pipeline/run.ts:
     i: ../communication/analyzer.js,../communication/llm.js,../config/env.js,../config/env.js,../core/id.js,../core/io.js,../extractors/ast.js,../extractors/configuration.js,../extractors/docs-deterministic.js,../extractors/docs-llm.js,../extractors/git.js,../extractors/markdown-llm.js,../extractors/nl-llm.js,../graph/diagnostics.js,../graph/linker.js,../llm/audit.js,../summary/summarizer.js,../synthesis/tasks-llm.js,../synthesis/todo-patch.js,../version.js,node:path
-    e: PipelineResult,runPipeline,root,runId,baseOutput,runDirectory,naturalLanguageAudit,result,git,ast,markdown,deterministicDocumentFiles,documentationStartedAt,deterministicDocs,docs,configurationExtraction,includeCommunication,communicationStartedAt,communicationAudit,communicationInputPresent,communication,missingDirectory,allRecords,generatedAt,graph,communicationAnalysis,diagnostics,taskSynthesisMode,taskSynthesisAudit,todoContent,summaryStartedAt,includeSummaryLlm,summary,filePath,graphPath,diagnosticsPath,summaryPath,summaryConclusionsPath,taskSynthesisPath,todoValidationPath,todoPatchPath,todoPatchAuditPath,communicationAnalysisPath,communicationMarkdownPath,configuration,manifestConfiguration,collectTargetHints,values,persistFailedRun,aborted,message,knownAudit,failedAudit,stageValue,reason,failureCode,skippedAudit,appendLlmNotConfigured
+    e: PipelineResult,runPipeline,root,runId,baseOutput,runDirectory,naturalLanguageAudit,result,git,ast,markdown,deterministicDocumentFiles,documentationStartedAt,deterministicDocs,docs,configurationExtraction,includeCommunication,communicationStartedAt,communicationAudit,communicationInputPresent,communication,missingDirectory,allRecords,generatedAt,graph,communicationAnalysis,diagnostics,taskSynthesisMode,taskSynthesisAudit,todoContent,codeChangePlans,codeChangeReview,codeChangeSourcePatches,summaryStartedAt,includeSummaryLlm,summary,filePath,graphPath,diagnosticsPath,summaryPath,summaryConclusionsPath,taskSynthesisPath,todoValidationPath,todoPatchPath,todoPatchAuditPath,codeChangePlansPath,codeChangeReviewPath,codeChangeReviewAuditPath,codeChangeSourcePatchesPath,communicationAnalysisPath,communicationMarkdownPath,configuration,manifestConfiguration,collectTargetHints,values,persistFailedRun,aborted,message,knownAudit,failedAudit,stageValue,reason,failureCode,skippedAudit,appendLlmNotConfigured
     PipelineResult:
     runPipeline()
     root()
@@ -550,6 +695,9 @@ D:
     taskSynthesisMode()
     taskSynthesisAudit()
     todoContent()
+    codeChangePlans()
+    codeChangeReview()
+    codeChangeSourcePatches()
     summaryStartedAt()
     includeSummaryLlm()
     summary()
@@ -562,6 +710,10 @@ D:
     todoValidationPath()
     todoPatchPath()
     todoPatchAuditPath()
+    codeChangePlansPath()
+    codeChangeReviewPath()
+    codeChangeReviewAuditPath()
+    codeChangeSourcePatchesPath()
     communicationAnalysisPath()
     communicationMarkdownPath()
     configuration()
@@ -578,6 +730,169 @@ D:
     failureCode()
     skippedAudit()
     appendLlmNotConfigured()
+  src/web/diff-ui.ts:
+    e: diffUiHtml,byId,requestHeaders,formatBytes,selectedRun,updateMeta,fillSelect,loadRuns,compareGraphs
+    diffUiHtml()
+    byId()
+    requestHeaders()
+    formatBytes()
+    selectedRun()
+    updateMeta()
+    fillSelect()
+    loadRuns()
+    compareGraphs()
+  src/synthesis/code-change-plan.ts:
+    i: ../core/io.js,../core/security.js,../core/target.js,../graph/diagnostics.js,../version.js,./code-change-path.js,node:crypto,node:fs,node:path
+    e: ProposeCodeChangePlansOptions,ProposeCodeChangePlansResult,EvaluateCodeChangeAcceptanceOptions,CloseCodeChangesOptions,CreateCodeChangeReviewOptions,CreatedCodeChangeReview,CreateCodeChangeSourcePatchOptions,ApplyCodeChangeSourcePatchOptions,ApplyCodeChangeSourcePatchResult,PreparedSourceEdit,IMPLEMENTATION_DIAGNOSTIC_CODES,proposeCodeChangePlans,generatedAt,maxPlans,conclusions,proposals,recordsById,proposalsByDiagnostic,conclusionsByDiagnostic,candidates,relatedRecords,matchingProposals,matchingConclusions,target,changes,generation,planHash,evaluateCodeChangeAcceptance,afterDiagnostics,beforeIds,afterById,targeted,clearedDiagnosticIds,remainingDiagnosticIds,newBlockingDiagnosticIds,accepted,evaluatedAt,closeCodeChanges,evaluatedAt,afterDiagnostics,planIds,acceptances,acceptedCount,indexProposalsByDiagnostic,index,list,indexConclusionsByDiagnostic,index,list,collectTarget,paths,symbols,tickets,versions,buildChanges,symbols,rationale,titleFor,object,descriptionFor,acceptanceCriteriaFor,priorityFor,confidenceFor,riskFor,level,rollbackFor,deterministicGeneration,uniqueSorted,createCodeChangeReviewPatch,createdAt,markdown,renderCodeChangeReviewMarkdown,symbols,assertCodeChangeReviewPatch,artifact,generation,priorityRank,inline,renderIds,createCodeChangeSourcePatch,plan,graphFingerprint,createdAt,allowed,diffs,normalized,path,rawDiff,unifiedDiff,patchHash,createCodeChangeSourcePatchSet,generatedAt,assertCodeChangeSourcePatch,patch,paths,path,expectedHash,allowed,expectedChanges,editPath,assertCodeChangeSourcePatchSet,set,plansById,patchIds,exactSourcePatchKeys,actual,assertSourcePatchIds,assertSourcePatchStrings,exactSourcePatchSet,instructionFor,symbols,criteria,normalizeUnifiedDiff,normalized,path,bare,stripped,applyCodeChangeSourcePatch,root,receiptPath,existing,relative,absolute,exists,before,after,now,fileHashesAfter,assertExistingSourceReceipt,relative,absolute,exists,current,assertSourceApplyReceipt,expectedPaths,hashPaths,atomicWriteRaw,applyUnifiedDiffToText,normalizedDiff,baseLines,diffLines,cursor,oldIndex,oldCount,newCount,mark,body,splitKeep,lines
+    ProposeCodeChangePlansOptions:
+    ProposeCodeChangePlansResult:
+    EvaluateCodeChangeAcceptanceOptions:
+    CloseCodeChangesOptions:
+    CreateCodeChangeReviewOptions:
+    CreatedCodeChangeReview:
+    CreateCodeChangeSourcePatchOptions:
+    ApplyCodeChangeSourcePatchOptions:
+    ApplyCodeChangeSourcePatchResult:
+    PreparedSourceEdit:
+    IMPLEMENTATION_DIAGNOSTIC_CODES()
+    proposeCodeChangePlans()
+    generatedAt()
+    maxPlans()
+    conclusions()
+    proposals()
+    recordsById()
+    proposalsByDiagnostic()
+    conclusionsByDiagnostic()
+    candidates()
+    relatedRecords()
+    matchingProposals()
+    matchingConclusions()
+    target()
+    changes()
+    generation()
+    planHash()
+    evaluateCodeChangeAcceptance()
+    afterDiagnostics()
+    beforeIds()
+    afterById()
+    targeted()
+    clearedDiagnosticIds()
+    remainingDiagnosticIds()
+    newBlockingDiagnosticIds()
+    accepted()
+    evaluatedAt()
+    closeCodeChanges()
+    evaluatedAt()
+    afterDiagnostics()
+    planIds()
+    acceptances()
+    acceptedCount()
+    indexProposalsByDiagnostic()
+    index()
+    list()
+    indexConclusionsByDiagnostic()
+    index()
+    list()
+    collectTarget()
+    paths()
+    symbols()
+    tickets()
+    versions()
+    buildChanges()
+    symbols()
+    rationale()
+    titleFor()
+    object()
+    descriptionFor()
+    acceptanceCriteriaFor()
+    priorityFor()
+    confidenceFor()
+    riskFor()
+    level()
+    rollbackFor()
+    deterministicGeneration()
+    uniqueSorted()
+    createCodeChangeReviewPatch()
+    createdAt()
+    markdown()
+    renderCodeChangeReviewMarkdown()
+    symbols()
+    assertCodeChangeReviewPatch()
+    artifact()
+    generation()
+    priorityRank()
+    inline()
+    renderIds()
+    createCodeChangeSourcePatch()
+    plan()
+    graphFingerprint()
+    createdAt()
+    allowed()
+    diffs()
+    normalized()
+    path()
+    rawDiff()
+    unifiedDiff()
+    patchHash()
+    createCodeChangeSourcePatchSet()
+    generatedAt()
+    assertCodeChangeSourcePatch()
+    patch()
+    paths()
+    path()
+    expectedHash()
+    allowed()
+    expectedChanges()
+    editPath()
+    assertCodeChangeSourcePatchSet()
+    set()
+    plansById()
+    patchIds()
+    exactSourcePatchKeys()
+    actual()
+    assertSourcePatchIds()
+    assertSourcePatchStrings()
+    exactSourcePatchSet()
+    instructionFor()
+    symbols()
+    criteria()
+    normalizeUnifiedDiff()
+    normalized()
+    path()
+    bare()
+    stripped()
+    applyCodeChangeSourcePatch()
+    root()
+    receiptPath()
+    existing()
+    relative()
+    absolute()
+    exists()
+    before()
+    after()
+    now()
+    fileHashesAfter()
+    assertExistingSourceReceipt()
+    relative()
+    absolute()
+    exists()
+    current()
+    assertSourceApplyReceipt()
+    expectedPaths()
+    hashPaths()
+    atomicWriteRaw()
+    applyUnifiedDiffToText()
+    normalizedDiff()
+    baseLines()
+    diffLines()
+    cursor()
+    oldIndex()
+    oldCount()
+    newCount()
+    mark()
+    body()
+    splitKeep()
+    lines()
   src/extractors/ast/typescript.ts:
     i: ../../core/io.js,../../core/record.js,../../core/types.js,./records.js,node:path,typescript
     e: extractTypeScriptFile,relative,sourceFile,moduleCapabilities,lineRange,excerpt,add,symbol,nameOf,modifiers,visit,symbol,symbolModifiers,declarationIsCallable,callee,capabilities,isTopLevel,scriptKind,extension,languageName,extension
@@ -660,95 +975,35 @@ D:
     severityRank()
     escapeCell()
     escapeRegex()
-  src/services/actions.ts:
-    i: ../communication/analyzer.js,../communication/llm.js,../comparison/workspace.js,../config/env.js,../core/io.js,../core/security.js,../core/types.js,../diff/git.js,../diff/reality.js,../extractors/ast.js,../extractors/configuration.js,../extractors/docs-llm.js,../extractors/git.js,../extractors/markdown-llm.js,../extractors/nl-llm.js,../graph/diagnostics.js,../graph/diff.js,../graph/linker.js,../pipeline/run.js,../summary/summarizer.js,../synthesis/tasks-llm.js,../synthesis/todo-patch.js,node:path
-    e: executeAction,root,file,text,analysis,records,graph,graph,diagnostics,graph,diagnostics,result,output,graph,diagnostics,synthesis,todoPath,patchPath,auditPath,todoContent,rendered,todoPath,patchPath,auditPath,receiptPath,result,beforeInput,afterInput,before,after,diff,svg,beforePath,afterPath,diff,result,graph,diagnostics,view,filterCommunicationGraph,participant,role,ticket,communicationOnly,records,isCommunication,nlModeValue,llmModeValue,taskSynthesisMode,summaryModeValue,pipelineTaskMode,withTextDiffViews,title,readGraphInput,safePath,readActionObject,safePath,resolveRoot,requested,scopedPath,selected,nullableScopedPath,selected,readRecords,files,safeFile,stringValue,nullableString,stringList,numberValue,number,booleanValue,objectValue,registerRunArtifacts,manifestPath,manifest
-    executeAction()
-    root()
-    file()
-    text()
-    analysis()
-    records()
-    graph()
-    graph()
-    diagnostics()
-    graph()
-    diagnostics()
-    result()
-    output()
-    graph()
-    diagnostics()
-    synthesis()
-    todoPath()
-    patchPath()
-    auditPath()
-    todoContent()
-    rendered()
-    todoPath()
-    patchPath()
-    auditPath()
-    receiptPath()
-    result()
-    beforeInput()
-    afterInput()
-    before()
-    after()
-    diff()
-    svg()
-    beforePath()
-    afterPath()
-    diff()
-    result()
-    graph()
-    diagnostics()
-    view()
-    filterCommunicationGraph()
-    participant()
-    role()
-    ticket()
-    communicationOnly()
-    records()
-    isCommunication()
-    nlModeValue()
-    llmModeValue()
-    taskSynthesisMode()
-    summaryModeValue()
-    pipelineTaskMode()
-    withTextDiffViews()
-    title()
-    readGraphInput()
-    safePath()
-    readActionObject()
-    safePath()
-    resolveRoot()
-    requested()
-    scopedPath()
-    selected()
-    nullableScopedPath()
-    selected()
-    readRecords()
-    files()
-    safeFile()
-    stringValue()
-    nullableString()
-    stringList()
-    numberValue()
-    number()
-    booleanValue()
-    objectValue()
-    registerRunArtifacts()
-    manifestPath()
-    manifest()
+  src/synthesis/code-change-path.ts:
+    e: NON_SOURCE_DIR_SEGMENTS,BINARY_EXTENSIONS,GENERATED_ANALYSIS_BASENAMES,T2C_ARTIFACT_BASENAMES,EXTENSIONLESS_SOURCE_BASENAMES,isPlannablePath,normalized,segments,lowerSegments,basename,lowerBasename,dot,ext,isUsefulCodeChangePath
+    NON_SOURCE_DIR_SEGMENTS()
+    BINARY_EXTENSIONS()
+    GENERATED_ANALYSIS_BASENAMES()
+    T2C_ARTIFACT_BASENAMES()
+    EXTENSIONLESS_SOURCE_BASENAMES()
+    isPlannablePath()
+    normalized()
+    segments()
+    lowerSegments()
+    basename()
+    lowerBasename()
+    dot()
+    ext()
+    isUsefulCodeChangePath()
   src/core/text.ts:
     i: ./types.js
-    e: STOP_WORDS,classifyActionHeuristically,conventional,prose,searchable,detectModality,detectPolarity,normalizeToken,keywords,GENERIC_TOPICS,topicKeywords,separated,similarity,left,right,intersection,extractBacktickValues,value,extractPaths,FILE_EXTENSIONS,hasFileExtension,last,dot,PATH_ROOTS,isPathLike,segments,extractSymbols,backticks,camel,ticketPrefixes,extractTickets,values,extractVersions,inferObject,normalized,result,splitIntentLines,lines,raw,cleaned,pieces,value
+    e: STOP_WORDS,classifyActionHeuristically,conventional,prose,searchable,detectModality,prose,detectPolarity,prose,stripped,normalizeToken,keywords,GENERIC_TOPICS,topicKeywords,separated,similarity,left,right,intersection,extractBacktickValues,value,extractPaths,FILE_EXTENSIONS,hasFileExtension,last,dot,PATH_ROOTS,isPathLike,segments,HOST_TLDS,isHostname,parts,tld,extractSymbols,backticks,camel,ticketPrefixes,extractTickets,values,extractVersions,inferObject,normalized,result,splitIntentLines,lines,raw,cleaned,pieces,value
     STOP_WORDS()
     classifyActionHeuristically()
     conventional()
     prose()
     searchable()
     detectModality()
+    prose()
     detectPolarity()
+    prose()
+    stripped()
     normalizeToken()
     keywords()
     GENERIC_TOPICS()
@@ -768,6 +1023,10 @@ D:
     PATH_ROOTS()
     isPathLike()
     segments()
+    HOST_TLDS()
+    isHostname()
+    parts()
+    tld()
     extractSymbols()
     backticks()
     camel()
@@ -786,11 +1045,12 @@ D:
     value()
   src/graph/diagnostics.ts:
     i: ../core/id.js,../core/schema.js,../core/target.js
-    e: diagnoseGraph,neighbors,recordsById,implementedPaths,related,evidenced,missingFields,buildNeighbors,map,appendNeighbor,values,indexImplementedPaths,paths,hasImplementedTarget,isPlan,isImplementationEvidence,isPublicImplementation,symbol,isReleaseCandidate,isImportantRecord,makeDiagnostic,severityRank
+    e: diagnoseGraph,neighbors,recordsById,implementedPaths,documentedPaths,related,evidenced,missingFields,buildNeighbors,map,appendNeighbor,values,indexImplementedPaths,paths,indexDocumentedPaths,paths,hasImplementedTarget,hasDocumentedTarget,isPlan,isImplementationEvidence,isPublicImplementation,symbol,isReleaseCandidate,isImportantRecord,makeDiagnostic,severityRank
     diagnoseGraph()
     neighbors()
     recordsById()
     implementedPaths()
+    documentedPaths()
     related()
     evidenced()
     missingFields()
@@ -800,7 +1060,10 @@ D:
     values()
     indexImplementedPaths()
     paths()
+    indexDocumentedPaths()
+    paths()
     hasImplementedTarget()
+    hasDocumentedTarget()
     isPlan()
     isImplementationEvidence()
     isPublicImplementation()
@@ -868,10 +1131,11 @@ D:
     OpenRouterModelError: super(-1)
     OpenRouterClient: isConfigured(-1),listAvailableModels(-1),controller(-1),timeout(-1),response(-1),text(-1),clearTimeout(-1),chatText(-1),chatTextWithMetadata(-1),response(-1),content(-1),chatJson(-1),chatJsonWithMetadata(-1),response(-1),fallback(-1),request(-1),apiKey(-1),controller(-1),timeout(-1),response(-1),text(-1),message(-1),error(-1),model(-1),availableModels(-1),formatInvalidModelError(-1),clearTimeout(-1),responseMetadata(-1),usage(-1),stringOrNull(-1),finiteOrNull(-1),shouldRetryWithoutJsonSchema(-1),isInvalidModelError(-1),formatInvalidModelError(-1),removeUndefined(-1),extractContent(-1),content(-1),parseJsonContent(-1),trimmed(-1),start(-1),end(-1),sleep(-1)
   src/core/schema.ts:
-    i: ./id.js
-    e: GroundedValidationContext,TodoProposalValidationContext,ACTIONS,MODALITIES,POLARITIES,LIFECYCLES,SOURCE_KINDS,EPISTEMIC_CLASSES,RELATION_TYPES,CONCLUSION_KINDS,DIAGNOSTIC_SEVERITIES,TODO_PRIORITIES,GENERATION_REQUESTED_MODES,GENERATION_EFFECTIVE_MODES,assertIntentRecord,record,statement,target,lifecycle,source,lines,epistemic,metadata,assertGenerationMatchesExtractor,generation,separator,expectedGenerator,assertIntentGenerationMetadata,generation,assertIntentRecords,assertIntentGraph,graph,recordIds,relationIds,stats,records,expectedFingerprint,assertIntentGraphDiff,diff,records,change,relations,summary,assertConclusion,known,assertConclusions,known,ids,id,assertTodoProposal,known,assertTodoProposals,known,proposalIds,id,assertConclusionValue,conclusion,expectedId,assertTodoProposalValue,proposal,target,expectedId,assertGroundedGenerationMetadata,generation,validateGroundedContext,report,diagnosticIds,diagnostic,validateTodoProposalContext,known,assertRelation,relation,objectValue,exactKeys,expectedSet,missing,extra,nonEmptyString,nonBlankString,nullableString,enumValue,stringArray,nonEmptyUniqueStringArray,uniqueIdArray,nonEmptyUniqueIdArray,knownReferences,unknown,confidence,assertAcyclicProposalDependencies,byId,visiting,visited,visit,start,dateString,nullableDate,fingerprint,nonNegativeInteger,countMap,map,countRecords,key,exactCounts,actual,isJsonValue
+    e: GroundedValidationContext,TodoProposalValidationContext,CodeChangePlanValidationContext,CodeChangeAcceptanceValidationContext,ACTIONS,MODALITIES,POLARITIES,LIFECYCLES,SOURCE_KINDS,EPISTEMIC_CLASSES,RELATION_TYPES,CONCLUSION_KINDS,DIAGNOSTIC_SEVERITIES,TODO_PRIORITIES,GENERATION_REQUESTED_MODES,GENERATION_EFFECTIVE_MODES,CODE_CHANGE_ACTIONS,CODE_CHANGE_RISK_LEVELS,assertIntentRecord,record,statement,target,lifecycle,source,lines,epistemic,metadata,assertGenerationMatchesExtractor,generation,separator,expectedGenerator,assertIntentGenerationMetadata,generation,assertIntentRecords,assertIntentGraph,graph,recordIds,relationIds,stats,records,expectedFingerprint,assertIntentGraphDiff,diff,records,change,relations,summary,assertConclusion,known,assertConclusions,known,ids,id,assertTodoProposal,known,assertTodoProposals,known,proposalIds,id,assertCodeChangePlan,known,assertCodeChangePlans,known,ids,id,assertCodeChangePlansForReview,ids,plan,evidence,id,assertCodeChangePlanForAcceptance,known,plan,evidence,assertPlanGraphFingerprint,assertCodeChangeAcceptance,beforeKnown,afterKnown,acceptance,expectedCleared,expectedRemaining,expectedBlocking,expectedAccepted,assertConclusionValue,conclusion,expectedId,assertTodoProposalValue,proposal,target,expectedId,assertGroundedGenerationMetadata,generation,validateGroundedContext,report,diagnosticIds,diagnostic,validateTodoProposalContext,known,validateCodeChangePlanContext,known,conclusions,proposals,referencedConclusionIds,proposal,proposalIds,assertCodeChangePlanValue,plan,target,targetPaths,changePaths,change,normalizedPath,risk,evidence,semantic,expectedHash,expectedId,assertRelation,relation,objectValue,exactKeys,expectedSet,missing,extra,nonEmptyString,nonBlankString,nullableString,enumValue,stringArray,nonEmptyUniqueStringArray,repositoryPath,normalized,exactStringSet,uniqueIdArray,nonEmptyUniqueIdArray,knownReferences,unknown,confidence,assertAcyclicProposalDependencies,byId,visiting,visited,visit,start,dateString,nullableDate,fingerprint,nonNegativeInteger,countMap,map,countRecords,key,exactCounts,actual,isJsonValue
     GroundedValidationContext:
     TodoProposalValidationContext:
+    CodeChangePlanValidationContext:
+    CodeChangeAcceptanceValidationContext:
     ACTIONS()
     MODALITIES()
     POLARITIES()
@@ -884,6 +1148,8 @@ D:
     TODO_PRIORITIES()
     GENERATION_REQUESTED_MODES()
     GENERATION_EFFECTIVE_MODES()
+    CODE_CHANGE_ACTIONS()
+    CODE_CHANGE_RISK_LEVELS()
     assertIntentRecord()
     record()
     statement()
@@ -925,6 +1191,30 @@ D:
     known()
     proposalIds()
     id()
+    assertCodeChangePlan()
+    known()
+    assertCodeChangePlans()
+    known()
+    ids()
+    id()
+    assertCodeChangePlansForReview()
+    ids()
+    plan()
+    evidence()
+    id()
+    assertCodeChangePlanForAcceptance()
+    known()
+    plan()
+    evidence()
+    assertPlanGraphFingerprint()
+    assertCodeChangeAcceptance()
+    beforeKnown()
+    afterKnown()
+    acceptance()
+    expectedCleared()
+    expectedRemaining()
+    expectedBlocking()
+    expectedAccepted()
     assertConclusionValue()
     conclusion()
     expectedId()
@@ -940,6 +1230,25 @@ D:
     diagnostic()
     validateTodoProposalContext()
     known()
+    validateCodeChangePlanContext()
+    known()
+    conclusions()
+    proposals()
+    referencedConclusionIds()
+    proposal()
+    proposalIds()
+    assertCodeChangePlanValue()
+    plan()
+    target()
+    targetPaths()
+    changePaths()
+    change()
+    normalizedPath()
+    risk()
+    evidence()
+    semantic()
+    expectedHash()
+    expectedId()
     assertRelation()
     relation()
     objectValue()
@@ -953,6 +1262,9 @@ D:
     enumValue()
     stringArray()
     nonEmptyUniqueStringArray()
+    repositoryPath()
+    normalized()
+    exactStringSet()
     uniqueIdArray()
     nonEmptyUniqueIdArray()
     knownReferences()
@@ -1080,6 +1392,51 @@ D:
     main()
     run()
     joined_ids()
+  src/watch/watcher.ts:
+    i: ../config/env.js,../core/ignore.js,../core/types.js,../pipeline/run.js,node:fs,node:path
+    e: SnapshotDelta,ScanOptions,ReportResult,WatchOptions,scanTree,maxFiles,absoluteRoot,visit,absolute,relative,stat,diffSnapshots,previous,describeDelta,shown,rest,DEFAULT_MIN_INTERVAL_MS,DEFAULT_SCAN_INTERVAL_MS,watchRepository,root,minIntervalMs,scanIntervalMs,emit,now,sleep,signal,matcher,runReport,result,snapshot,lastReportStartedAt,pending,current,delta,waitMs,generate,startedAt,result,defaultSleep,timer,onAbort,finish
+    SnapshotDelta:
+    ScanOptions:
+    ReportResult:
+    WatchOptions:
+    scanTree()
+    maxFiles()
+    absoluteRoot()
+    visit()
+    absolute()
+    relative()
+    stat()
+    diffSnapshots()
+    previous()
+    describeDelta()
+    shown()
+    rest()
+    DEFAULT_MIN_INTERVAL_MS()
+    DEFAULT_SCAN_INTERVAL_MS()
+    watchRepository()
+    root()
+    minIntervalMs()
+    scanIntervalMs()
+    emit()
+    now()
+    sleep()
+    signal()
+    matcher()
+    runReport()
+    result()
+    snapshot()
+    lastReportStartedAt()
+    pending()
+    current()
+    delta()
+    waitMs()
+    generate()
+    startedAt()
+    result()
+    defaultSleep()
+    timer()
+    onAbort()
+    finish()
   src/diff/text.ts:
     i: ./text-types.js
     e: RawOp,DEFAULT_CONTEXT,DEFAULT_MAX_COMPARE_LINES,splitLines,normalized,lines,diffText,diffLineArrays,context,maxCompareLines,beforePath,afterPath,summarizeLines,computeLineDiff,prefix,suffix,lines,middleBefore,middleAfter,truncated,middleOps,sharedPrefixLength,prefix,sharedSuffixLength,suffix,prefixLines,suffixLines,beforeIndex,afterIndex,blockReplace,myers,n,m,max,offset,v,y,backtrack,x,y,v,k,previousK,previousX,previousY,buildHunks,changeIndexes,start,end,last,hunkFromRange,slice,beforeNumbers,afterNumbers
@@ -1137,58 +1494,57 @@ D:
     slice()
     beforeNumbers()
     afterNumbers()
-  src/watch/watcher.ts:
-    i: ../config/env.js,../core/ignore.js,../core/types.js,../pipeline/run.js,node:fs,node:path
-    e: SnapshotDelta,ScanOptions,ReportResult,WatchOptions,scanTree,maxFiles,absoluteRoot,visit,absolute,relative,stat,diffSnapshots,previous,describeDelta,shown,rest,DEFAULT_MIN_INTERVAL_MS,DEFAULT_SCAN_INTERVAL_MS,watchRepository,root,minIntervalMs,scanIntervalMs,emit,now,sleep,signal,matcher,runReport,result,snapshot,lastReportStartedAt,pending,current,delta,waitMs,generate,startedAt,result,defaultSleep,timer,onAbort,finish
-    SnapshotDelta:
-    ScanOptions:
-    ReportResult:
-    WatchOptions:
-    scanTree()
-    maxFiles()
-    absoluteRoot()
-    visit()
+  src/interfaces/a2a-history.ts:
+    i: ../config/env.js,../core/security.js,./a2a-types.js,node:fs,node:path
+    e: IntentRunListItem,CommunicationRunSummary,RunHistoryFilters,listIntentRuns,runsDirectory,entries,items,readRunEntries,readRun,runDirectory,graphPath,manifestPath,manifest,safeRunPath,runListItem,files,llm,runtime,warnings,validTimestamp,validStatus,llmSummary,readCommunicationSummary,relative,filePath,stat,value,participants,issues,participantSummary,matchesRunFilters,participant,role,ticket,severity,normalized,stringArray,safeManifestFiles,absolute,relative,relativeApiPath
+    IntentRunListItem:
+    CommunicationRunSummary:
+    RunHistoryFilters:
+    listIntentRuns()
+    runsDirectory()
+    entries()
+    items()
+    readRunEntries()
+    readRun()
+    runDirectory()
+    graphPath()
+    manifestPath()
+    manifest()
+    safeRunPath()
+    runListItem()
+    files()
+    llm()
+    runtime()
+    warnings()
+    validTimestamp()
+    validStatus()
+    llmSummary()
+    readCommunicationSummary()
+    relative()
+    filePath()
+    stat()
+    value()
+    participants()
+    issues()
+    participantSummary()
+    matchesRunFilters()
+    participant()
+    role()
+    ticket()
+    severity()
+    normalized()
+    stringArray()
+    safeManifestFiles()
     absolute()
     relative()
-    stat()
-    diffSnapshots()
-    previous()
-    describeDelta()
-    shown()
-    rest()
-    DEFAULT_MIN_INTERVAL_MS()
-    DEFAULT_SCAN_INTERVAL_MS()
-    watchRepository()
-    root()
-    minIntervalMs()
-    scanIntervalMs()
-    emit()
-    now()
-    sleep()
-    signal()
-    matcher()
-    runReport()
-    result()
-    snapshot()
-    lastReportStartedAt()
-    pending()
-    current()
-    delta()
-    waitMs()
-    generate()
-    startedAt()
-    result()
-    defaultSleep()
-    timer()
-    onAbort()
-    finish()
+    relativeApiPath()
   src/extractors/nl-llm.ts:
     i: ../config/env.js,../core/io.js,../core/record.js,../llm/audit.js,../llm/failure.js,../llm/openrouter.js,../version.js,./nl.js,node:fs,node:path,node:url
     e: RawNlRecord,NlResponse,AuditedNlExtractionResult,NlLlmRequiredError
     RawNlRecord:
     NlResponse:
     AuditedNlExtractionResult:
-    NlLlmRequiredError: super(-1),extractNlIntentAudited(-1),assertNlExtractionOptions(-1),startedAt(-1),result(-1),client(-1),absolute(-1),body(-1),sourcePath(-1),maxLine(-1),prompt(-1),completion(-1),records(-1),fallbackOrThrow(-1),failedAudit(-1),deterministic(-1),markDeterministic(-1),toIntentRecord(-1),start(-1),end(-1),lines(-1),excerpt(-1),action(-1),OBJECT_PLACEHOLDERS(-1),isPlaceholder(-1),resolveObject(-1),fallback(-1),audit(-1),clampLine(-1),allowedAction(-1),allowedModality(-1),readPrompt(-1),promptPath(-1),nlResponseSchema(-1)
+    NlLlmRequiredError: super(-1),extractNlIntentAudited(-1),assertNlExtractionOptions(-1),startedAt(-1),result(-1),client(-1),absolute(-1),body(-1),sourcePath(-1),maxLine(-1),prompt(-1),completion(-1),records(-1),fallbackOrThrow(-1),failedAudit(-1),deterministic(-1),markDeterministic(-1),toIntentRecord(-1),start(-1),end(-1),lines(-1),excerpt(-1),action(-1),normalizedText(-1),statementText(-1),OBJECT_PLACEHOLDERS(-1),nonEmptyText(-1),isPlaceholder(-1),text(-1),resolveObject(-1),fallback(-1),audit(-1),clampLine(-1),allowedAction(-1),allowedModality(-1),readPrompt(-1),promptPath(-1),nlResponseSchema(-1)
   src/extractors/docs-deterministic.ts:
     i: ../config/env.js,../core/io.js,../core/record.js,../core/types.js,./markdown-block.js,node:path
     e: DeterministicDocumentationOptions,MAX_HEADING_LEVEL,MIN_STATEMENT_CHARS,extractDocumentationBaseline,root,body,convertDocument,relative,lines,raw,fenceMatch,marker,language,record,heading,level,title,bullet,block,record,paragraph,record,readParagraph,cursor,line,qualifyingStatement,target,hasCodeSpanIdentifier,statementRecord,action,codeBlockRecord,targetsOf
@@ -1238,50 +1594,6 @@ D:
     separator()
     clamp()
     sourcePrefix()
-  src/interfaces/a2a-history.ts:
-    i: ../config/env.js,../core/security.js,./a2a-types.js,node:fs,node:path
-    e: IntentRunListItem,CommunicationRunSummary,RunHistoryFilters,listIntentRuns,runsDirectory,entries,items,readRunEntries,readRun,runDirectory,graphPath,manifestPath,manifest,safeRunPath,runListItem,files,llm,runtime,warnings,validTimestamp,validStatus,llmSummary,readCommunicationSummary,relative,filePath,stat,value,participants,issues,participantSummary,matchesRunFilters,participant,role,ticket,severity,normalized,stringArray,safeManifestFiles,absolute,relative,relativeApiPath
-    IntentRunListItem:
-    CommunicationRunSummary:
-    RunHistoryFilters:
-    listIntentRuns()
-    runsDirectory()
-    entries()
-    items()
-    readRunEntries()
-    readRun()
-    runDirectory()
-    graphPath()
-    manifestPath()
-    manifest()
-    safeRunPath()
-    runListItem()
-    files()
-    llm()
-    runtime()
-    warnings()
-    validTimestamp()
-    validStatus()
-    llmSummary()
-    readCommunicationSummary()
-    relative()
-    filePath()
-    stat()
-    value()
-    participants()
-    issues()
-    participantSummary()
-    matchesRunFilters()
-    participant()
-    role()
-    ticket()
-    severity()
-    normalized()
-    stringArray()
-    safeManifestFiles()
-    absolute()
-    relative()
-    relativeApiPath()
   src/communication/llm.ts:
     i: ../config/env.js,../core/id.js,../core/io.js,../core/record.js,../llm/audit.js,../llm/failure.js,../llm/openrouter.js,../version.js,node:fs,node:path,node:url
     e: RawCommunicationEnrichment,RawParticipantSynthesis,RawCommunicationResponse,ParticipantCommunicationSynthesis,AuditedCommunicationExtractionResult,CommunicationLlmRequiredError,ParticipantGroup,ACTION_SET
@@ -1297,15 +1609,6 @@ D:
     i: crate::,serde_json::,std::io::,std::net::,std::sync::atomic::,std::time::,super::
     e: Client
     Client:
-  src/extractors/markdown-llm.ts:
-    i: ../config/env.js,../core/io.js,../core/record.js,../llm/audit.js,../llm/failure.js,../llm/openrouter.js,../version.js,./markdown.js,node:fs,node:path,node:url
-    e: MarkdownEnrichment,MarkdownResponse,AuditedMarkdownExtractionResult,MarkdownLlmRequiredError,MARKDOWN_ACTION_SET,MARKDOWN_LLM_BATCH_RECORDS
-    MarkdownEnrichment:
-    MarkdownResponse:
-    AuditedMarkdownExtractionResult:
-    MarkdownLlmRequiredError: super(-1),extractMarkdownIntentAudited(-1),startedAt(-1),deterministic(-1),client(-1),prompt(-1),enrichments(-1),responseByRecord(-1),batch(-1),completion(-1),batchEnrichments(-1),fallbackOrThrow(-1),failed(-1),promptRecord(-1),validateEnrichments(-1),expected(-1),output(-1),isMarkdownEnrichment(-1),item(-1),isTarget(-1),target(-1),isStringArray(-1),enrichRecord(-1),markDeterministic(-1),marked(-1),stageAudit(-1),readPrompt(-1),promptPath(-1),responseSchema(-1)
-    MARKDOWN_ACTION_SET()
-    MARKDOWN_LLM_BATCH_RECORDS()
   src/tf/classifier.ts:
     i: ../config/env.js,../core/text.js,../core/types.js,node:fs,node:path,node:url
     e: TfTensor,TfModel,TfModule,ModelAssets,dynamicImport,importer,loadAssets,directory,vocabularyPath,labels,loadClassifier,modelPath,modulePath,moduleValue,absolute,model,assets,vectorize,values,index,classifyAction,fallback,loaded,vector,input,predictionValue,prediction,probabilities,bestIndex,action,confidence
@@ -1340,6 +1643,15 @@ D:
     bestIndex()
     action()
     confidence()
+  src/extractors/markdown-llm.ts:
+    i: ../config/env.js,../core/io.js,../core/record.js,../llm/audit.js,../llm/failure.js,../llm/openrouter.js,../version.js,./markdown.js,node:fs,node:path,node:url
+    e: MarkdownEnrichment,MarkdownResponse,AuditedMarkdownExtractionResult,MarkdownLlmRequiredError,MARKDOWN_ACTION_SET,MARKDOWN_LLM_BATCH_RECORDS
+    MarkdownEnrichment:
+    MarkdownResponse:
+    AuditedMarkdownExtractionResult:
+    MarkdownLlmRequiredError: super(-1),extractMarkdownIntentAudited(-1),startedAt(-1),deterministic(-1),client(-1),prompt(-1),enrichments(-1),responseByRecord(-1),batch(-1),completion(-1),batchEnrichments(-1),fallbackOrThrow(-1),failed(-1),promptRecord(-1),validateEnrichments(-1),expected(-1),output(-1),isMarkdownEnrichment(-1),item(-1),isTarget(-1),target(-1),isStringArray(-1),enrichRecord(-1),markDeterministic(-1),marked(-1),stageAudit(-1),readPrompt(-1),promptPath(-1),responseSchema(-1)
+    MARKDOWN_ACTION_SET()
+    MARKDOWN_LLM_BATCH_RECORDS()
   sdk/typescript/examples/basic.ts:
     i: ../src/index.js
     e: baseUrl,token,root,main,client,health,card,nl,ast,markdown,graph,diagnostics,synthesis,validation,rendered,artifact,reality,gitDiff,comparison
@@ -1362,6 +1674,93 @@ D:
     reality()
     gitDiff()
     comparison()
+  src/graph/linker.ts:
+    i: ../core/id.js,../core/schema.js,../core/target.js,../core/text.js,../core/types.js
+    e: PairEvidence,RecordKeywords,DirectedRelation,SourceRelationRule,indexKeywords,jaccard,intersection,linkIntentRecords,records,byId,keywordIndex,candidatePairs,resolvableBasenames,left,right,evidence,directed,deduplicateRecords,byId,existing,collectCandidatePairs,buckets,astIds,moduleAstIds,declarationAstIds,configurationIds,isModuleTopicSource,indexTargetBuckets,indexAliases,indexKeywordBuckets,indexTopicBuckets,addToBucket,values,isSuppressedConfigurationPair,pairsFromBuckets,output,leftId,rightId,isSuppressedAstPair,leftAst,rightAst,astId,indexResolvableBasenames,owners,normalized,basename,paths,pathsIntersect,expand,output,aliases,full,leftSet,scorePair,score,leftKeywords,rightKeywords,objectSimilarity,sharedTopics,intersectionSize,size,isFileAggregate,isFileAggregateEvidencePair,isModuleTopicEvidencePair,determineRelation,textScore,sourceRelation,relationForSourceKinds,relation,matchSourceRule,orientRelation,intersects,set,intersectsAliases,set,countBy,key
+    PairEvidence:
+    RecordKeywords:
+    DirectedRelation:
+    SourceRelationRule:
+    indexKeywords()
+    jaccard()
+    intersection()
+    linkIntentRecords()
+    records()
+    byId()
+    keywordIndex()
+    candidatePairs()
+    resolvableBasenames()
+    left()
+    right()
+    evidence()
+    directed()
+    deduplicateRecords()
+    byId()
+    existing()
+    collectCandidatePairs()
+    buckets()
+    astIds()
+    moduleAstIds()
+    declarationAstIds()
+    configurationIds()
+    isModuleTopicSource()
+    indexTargetBuckets()
+    indexAliases()
+    indexKeywordBuckets()
+    indexTopicBuckets()
+    addToBucket()
+    values()
+    isSuppressedConfigurationPair()
+    pairsFromBuckets()
+    output()
+    leftId()
+    rightId()
+    isSuppressedAstPair()
+    leftAst()
+    rightAst()
+    astId()
+    indexResolvableBasenames()
+    owners()
+    normalized()
+    basename()
+    paths()
+    pathsIntersect()
+    expand()
+    output()
+    aliases()
+    full()
+    leftSet()
+    scorePair()
+    score()
+    leftKeywords()
+    rightKeywords()
+    objectSimilarity()
+    sharedTopics()
+    intersectionSize()
+    size()
+    isFileAggregate()
+    isFileAggregateEvidencePair()
+    isModuleTopicEvidencePair()
+    determineRelation()
+    textScore()
+    sourceRelation()
+    relationForSourceKinds()
+    relation()
+    matchSourceRule()
+    orientRelation()
+    intersects()
+    set()
+    intersectsAliases()
+    set()
+    countBy()
+    key()
+  python/ast_extract.py:
+    e: FactVisitor,source_hash,dotted_name,iter_python_files,main
+    FactVisitor(ast.NodeVisitor): __init__(2),excerpt(1),add(6),visit_Import(1),visit_ImportFrom(1),visit_FunctionDef(1),visit_AsyncFunctionDef(1),visit_ClassDef(1),visit_Call(1)
+    source_hash(value)
+    dotted_name(node)
+    iter_python_files(root;files_from)
+    main()
   examples/backend/src/server.ts:
     i: ./store.js,./validation.js,node:http
     e: BackendOptions,MAX_BODY_BYTES,createBackend,store,server,handleRequest,url,body,validation,event,offset,limit,readBody,size,buffer,sendJson,body,startBackend,port,host
@@ -1385,70 +1784,6 @@ D:
     startBackend()
     port()
     host()
-  src/graph/linker.ts:
-    i: ../core/id.js,../core/schema.js,../core/target.js,../core/text.js,../core/types.js
-    e: PairEvidence,RecordKeywords,DirectedRelation,SourceRelationRule,indexKeywords,jaccard,intersection,linkIntentRecords,records,byId,keywordIndex,candidatePairs,left,right,evidence,directed,deduplicateRecords,byId,existing,collectCandidatePairs,buckets,astIds,moduleAstIds,declarationAstIds,isModuleTopicSource,indexTargetBuckets,indexAliases,indexKeywordBuckets,indexTopicBuckets,addToBucket,values,pairsFromBuckets,output,leftId,rightId,isSuppressedAstPair,leftAst,rightAst,astId,scorePair,score,leftKeywords,rightKeywords,objectSimilarity,sharedTopics,intersectionSize,size,isModuleEvidencePair,determineRelation,textScore,sourceRelation,relationForSourceKinds,relation,matchSourceRule,orientRelation,intersects,set,intersectsAliases,set,countBy,key
-    PairEvidence:
-    RecordKeywords:
-    DirectedRelation:
-    SourceRelationRule:
-    indexKeywords()
-    jaccard()
-    intersection()
-    linkIntentRecords()
-    records()
-    byId()
-    keywordIndex()
-    candidatePairs()
-    left()
-    right()
-    evidence()
-    directed()
-    deduplicateRecords()
-    byId()
-    existing()
-    collectCandidatePairs()
-    buckets()
-    astIds()
-    moduleAstIds()
-    declarationAstIds()
-    isModuleTopicSource()
-    indexTargetBuckets()
-    indexAliases()
-    indexKeywordBuckets()
-    indexTopicBuckets()
-    addToBucket()
-    values()
-    pairsFromBuckets()
-    output()
-    leftId()
-    rightId()
-    isSuppressedAstPair()
-    leftAst()
-    rightAst()
-    astId()
-    scorePair()
-    score()
-    leftKeywords()
-    rightKeywords()
-    objectSimilarity()
-    sharedTopics()
-    intersectionSize()
-    size()
-    isModuleEvidencePair()
-    determineRelation()
-    textScore()
-    sourceRelation()
-    relationForSourceKinds()
-    relation()
-    matchSourceRule()
-    orientRelation()
-    intersects()
-    set()
-    intersectsAliases()
-    set()
-    countBy()
-    key()
   src/core/io.ts:
     i: ./types.js,node:fs,node:path
     e: WalkOptions,DEFAULT_IGNORED_DIRS,ensureDir,readText,stat,pathExists,writeJson,writeText,writeJsonl,readJsonl,body,readJson,walkFiles,ignored,extensions,maxFiles,matcher,base,visit,entries,absolute,relative,extension,escapeRegex,globToRegExp,normalized,char,next,after,matchesAnyGlob,normalized,resolveGlobs,files,absolute,relative,relative,relativePosix
@@ -1557,6 +1892,20 @@ D:
     declaredTypeKind()
     strPtr()
     toSlash()
+  src/operations/subactor.ts:
+    i: ../core/types.js,./validation.js
+    e: CompileSubactorEnvelopeOptions,valueMatchesType,assertBinding,ageSeconds,compileSubactorProcessEnvelope,variableById,referenced,variable,binding,humanApproval,binding
+    CompileSubactorEnvelopeOptions:
+    valueMatchesType()
+    assertBinding()
+    ageSeconds()
+    compileSubactorProcessEnvelope()
+    variableById()
+    referenced()
+    variable()
+    binding()
+    humanApproval()
+    binding()
   src/extractors/git.ts:
     i: ../config/env.js,../core/record.js,../core/text.js,../core/types.js,../tf/classifier.js,node:child_process,node:path,node:util
     e: GitCommit,ChangedFile,GitExtractionOptions,execFileAsync,extractGitIntent,root,count,inside,message,commit,changedFiles,stats,diff,classified,inferredSymbols,docOnly,runGit,result,readCommits,output,readChangedFiles,output,parts,status,readStats,output,additions,deletions,extractChangedSymbols,output,symbol,isDocumentationPath
@@ -1592,36 +1941,6 @@ D:
     output()
     symbol()
     isDocumentationPath()
-  src/config/env.ts:
-    i: ../core/io.js,../core/types.js,../version.js,node:fs,node:path
-    e: T2CConfig,loadEnvFile,explicit,candidates,content,trimmed,separator,key,value,envString,value,envOptional,value,envNumber,raw,value,envBoolean,raw,envList,raw,envLlmMode,value,getConfig,model,root,configForDisplay,hasOpenRouter
-    T2CConfig:
-    loadEnvFile()
-    explicit()
-    candidates()
-    content()
-    trimmed()
-    separator()
-    key()
-    value()
-    envString()
-    value()
-    envOptional()
-    value()
-    envNumber()
-    raw()
-    value()
-    envBoolean()
-    raw()
-    envList()
-    raw()
-    envLlmMode()
-    value()
-    getConfig()
-    model()
-    root()
-    configForDisplay()
-    hasOpenRouter()
   src/diff/text-render.ts:
     i: ./text-types.js
     e: TextDiffSvgOptions,SideBySideRow,renderUnifiedDiff,marker,toSideBySideRows,index,line,pairs,renderTextDiffSvg,theme,maxRows,maxColumns,title,charWidth,rowHeight,gutterWidth,columnWidth,width,totals,y,rendered,skipped,summarizeDiffs,diffHeading,svgBody,sideBySideRowMarkup,changed,number,renderTextDiffHtml,title,sections,renderHtmlSection,hunks,rows,htmlCell,cssClass,number
@@ -1662,20 +1981,36 @@ D:
     htmlCell()
     cssClass()
     number()
-  src/operations/subactor.ts:
-    i: ../core/types.js,./validation.js
-    e: CompileSubactorEnvelopeOptions,valueMatchesType,assertBinding,ageSeconds,compileSubactorProcessEnvelope,variableById,referenced,variable,binding,humanApproval,binding
-    CompileSubactorEnvelopeOptions:
-    valueMatchesType()
-    assertBinding()
-    ageSeconds()
-    compileSubactorProcessEnvelope()
-    variableById()
-    referenced()
-    variable()
-    binding()
-    humanApproval()
-    binding()
+  src/config/env.ts:
+    i: ../core/io.js,../core/types.js,../version.js,node:fs,node:path
+    e: T2CConfig,loadEnvFile,explicit,candidates,content,trimmed,separator,key,value,envString,value,envOptional,value,envNumber,raw,value,envBoolean,raw,envList,raw,envLlmMode,value,getConfig,model,root,configForDisplay,hasOpenRouter
+    T2CConfig:
+    loadEnvFile()
+    explicit()
+    candidates()
+    content()
+    trimmed()
+    separator()
+    key()
+    value()
+    envString()
+    value()
+    envOptional()
+    value()
+    envNumber()
+    raw()
+    value()
+    envBoolean()
+    raw()
+    envList()
+    raw()
+    envLlmMode()
+    value()
+    getConfig()
+    model()
+    root()
+    configForDisplay()
+    hasOpenRouter()
   src/synthesis/todo-patch.ts:
     i: ../core/id.js,../core/io.js,./validation.js,node:crypto,node:fs,node:path
     e: CreateTodoPatchOptions,CreatedTodoPatch,WriteTodoPatchOptions,WrittenTodoPatch,ApplyTodoPatchOptions,diagnosticReportFingerprint,createTodoPatch,expectedValidation,proposalById,selected,proposal,orderedSelected,markdown,renderTodoPatchMarkdown,writeTodoPatchArtifacts,created,patchPath,auditPath,applyTodoPatch,current,receipt,now,currentHash,result,applied,recovered,assertTodoPatchArtifact,artifact,sourceTodo,selected,duplicates,classified,duplicate,assertApproval,assertReceipt,atomicWrite,temporary,existing,handle,appendPatch,separator,wasAlreadyAppended,renderTargets,rendered,renderIds,inline,normalizePath,sameArray,object,exactKeys,expected,missing,extra,nonBlank,hash,isoDate,uniqueIds,uniqueStrings
@@ -1737,6 +2072,30 @@ D:
     isoDate()
     uniqueIds()
     uniqueStrings()
+  src/summary/payload.ts:
+    i: ../core/types.js
+    e: compactSummaryPayload,referenced,nonAst,moduleAst,relevantAst,ids,selectedRelations,compactRecord
+    compactSummaryPayload()
+    referenced()
+    nonAst()
+    moduleAst()
+    relevantAst()
+    ids()
+    selectedRelations()
+    compactRecord()
+  src/evaluation/gold-cli.ts:
+    i: node:fs,node:path
+    e: main,args,arg,json,requirePerfect,outIndex,outPath,dataset,report,rendered
+    main()
+    args()
+    arg()
+    json()
+    requirePerfect()
+    outIndex()
+    outPath()
+    dataset()
+    report()
+    rendered()
   src/comparison/workspace.ts:
     i: ../config/env.js,../core/id.js,../core/io.js,../core/security.js,../core/types.js,../diff/reality.js,../graph/diff.js,../pipeline/run.js,node:child_process,node:fs,node:os,node:path,node:util
     e: WorkspaceComparisonOptions,CoverageSnapshot,WorkspaceComparison,execFileAsync,compareWorkspaceIntent,root,repositoryRoot,relativeAnalysisRoot,outputDir,baseRef,baseCommit,headCommit,status,changedFiles,temporaryParent,baseWorktree,baseRoot,pipelineOptions,baseOptions,currentOptions,baseRun,currentRun,baseReality,currentReality,diff,baseCoverage,currentCoverage,alignmentRateDelta,implementationCoverageDelta,plannedCodeCoverageDelta,documentedCodeCoverageDelta,gapsDelta,diagnosticsDelta,comparisonId,comparisonDirectory,artifacts,scopedOutputDirectory,absolute,commonPipelineOptions,optionsForRoot,existingFile,relative,coverage,diagnosticDelta,classifyWorkspaceTrend,severeDelta,improved,regressed,parseAheadBehind,defaultBaseRef,rounded,artifactPaths,relative,renderTrendMarkdown,percent,documentationLine,git,result
@@ -1798,90 +2157,6 @@ D:
     documentationLine()
     git()
     result()
-  src/evaluation/gold-cli.ts:
-    i: node:fs,node:path
-    e: main,args,arg,json,requirePerfect,outIndex,outPath,dataset,report,rendered
-    main()
-    args()
-    arg()
-    json()
-    requirePerfect()
-    outIndex()
-    outPath()
-    dataset()
-    report()
-    rendered()
-  src/summary/payload.ts:
-    i: ../core/types.js
-    e: compactSummaryPayload,referenced,nonAst,moduleAst,relevantAst,ids,selectedRelations,compactRecord
-    compactSummaryPayload()
-    referenced()
-    nonAst()
-    moduleAst()
-    relevantAst()
-    ids()
-    selectedRelations()
-    compactRecord()
-  src/extractors/changelog.ts:
-    i: ../config/env.js,../core/io.js,../core/record.js,../core/types.js,./markdown-block.js,node:path
-    e: extractChangelog,absolute,body,relative,lines,raw,versionHeading,categoryHeading,bullet,block,text,action,changelogAction,normalized,lower
-    extractChangelog()
-    absolute()
-    body()
-    relative()
-    lines()
-    raw()
-    versionHeading()
-    categoryHeading()
-    bullet()
-    block()
-    text()
-    action()
-    changelogAction()
-    normalized()
-    lower()
-  src/graph/diff.ts:
-    i: ../core/id.js,../core/schema.js
-    e: DiffSvgOptions,diffIntentGraphs,beforeById,afterById,unchangedRecords,beforeGroups,afterGroups,left,right,paired,beforeRecord,afterRecord,beforeRelations,afterRelations,fingerprint,renderGraphDiffSvg,maxItems,title,visibleRows,width,height,y,assertGraph,groupRecords,groups,identity,values,recordIdentity,normalizeRecord,changedFieldPaths,isObject,relationKey,compareRecords,compareRelations,recordLabel,changeLabel,metricCard,escapeXml,truncate
-    DiffSvgOptions:
-    diffIntentGraphs()
-    beforeById()
-    afterById()
-    unchangedRecords()
-    beforeGroups()
-    afterGroups()
-    left()
-    right()
-    paired()
-    beforeRecord()
-    afterRecord()
-    beforeRelations()
-    afterRelations()
-    fingerprint()
-    renderGraphDiffSvg()
-    maxItems()
-    title()
-    visibleRows()
-    width()
-    height()
-    y()
-    assertGraph()
-    groupRecords()
-    groups()
-    identity()
-    values()
-    recordIdentity()
-    normalizeRecord()
-    changedFieldPaths()
-    isObject()
-    relationKey()
-    compareRecords()
-    compareRelations()
-    recordLabel()
-    changeLabel()
-    metricCard()
-    escapeXml()
-    truncate()
   src/synthesis/validation.ts:
     i: ../core/schema.js,../core/types.js
     e: TodoProposalDuplicate,TodoProposalValidationResult,validateAndClassifyTodoProposals,existing,duplicates,orderedProposalIds,duplicateProposalIds,duplicateIds,duplicateEvidence,proposalWords,target,sharedTicket,sharedSymbol,sharedPath,similarity,dependencyFirstPriorityOrder,byId,remainingDependencies,dependents,values,compare,left,right,ready,id,remaining,words,jaccard,common,intersects,values
@@ -2014,6 +2289,72 @@ D:
     task()
     messageKey()
     errorMessage()
+  src/graph/diff.ts:
+    i: ../core/id.js,../core/schema.js
+    e: DiffSvgOptions,diffIntentGraphs,beforeById,afterById,unchangedRecords,beforeGroups,afterGroups,left,right,paired,beforeRecord,afterRecord,beforeRelations,afterRelations,fingerprint,renderGraphDiffSvg,maxItems,title,visibleRows,width,height,y,assertGraph,groupRecords,groups,identity,values,recordIdentity,normalizeRecord,changedFieldPaths,isObject,relationKey,compareRecords,compareRelations,recordLabel,changeLabel,metricCard,escapeXml,truncate
+    DiffSvgOptions:
+    diffIntentGraphs()
+    beforeById()
+    afterById()
+    unchangedRecords()
+    beforeGroups()
+    afterGroups()
+    left()
+    right()
+    paired()
+    beforeRecord()
+    afterRecord()
+    beforeRelations()
+    afterRelations()
+    fingerprint()
+    renderGraphDiffSvg()
+    maxItems()
+    title()
+    visibleRows()
+    width()
+    height()
+    y()
+    assertGraph()
+    groupRecords()
+    groups()
+    identity()
+    values()
+    recordIdentity()
+    normalizeRecord()
+    changedFieldPaths()
+    isObject()
+    relationKey()
+    compareRecords()
+    compareRelations()
+    recordLabel()
+    changeLabel()
+    metricCard()
+    escapeXml()
+    truncate()
+  src/extractors/changelog.ts:
+    i: ../config/env.js,../core/io.js,../core/record.js,../core/types.js,./markdown-block.js,node:path
+    e: extractChangelog,absolute,body,relative,lines,raw,versionHeading,categoryHeading,bullet,block,text,action,changelogAction,normalized,lower
+    extractChangelog()
+    absolute()
+    body()
+    relative()
+    lines()
+    raw()
+    versionHeading()
+    categoryHeading()
+    bullet()
+    block()
+    text()
+    action()
+    changelogAction()
+    normalized()
+    lower()
+  sdk/python/examples/basic.py:
+    e: main
+    main()
+  sdk/php/src/Client.php:
+    e: Client
+    Client:
   scripts/verify-workflow-yaml.mjs:
     i: node:fs,node:path
     e: explicit,files,body,seen,match,key,previous,workflowFiles,directory
@@ -2026,26 +2367,65 @@ D:
     previous()
     workflowFiles()
     directory()
-  sdk/php/src/Client.php:
-    e: Client
-    Client:
-  sdk/python/examples/basic.py:
-    e: main
+  src/summary/summarizer.ts:
+    i: ../config/env.js,../core/grounding.js,../core/id.js,../core/io.js,../core/schema.js,../llm/audit.js,../llm/openrouter.js,../version.js,./payload.js,./render.js,node:fs,node:path,node:url
+    e: SummaryResult,SummaryOptions,RawConclusion,RawSummaryResponse,SummaryAttemptError,summarizeGraph,mode,conclusions,client,conclusions,systemPrompt,payload,failure,responses,conclusions
+    SummaryResult:
+    SummaryOptions:
+    RawConclusion:
+    RawSummaryResponse:
+    SummaryAttemptError: super(-1),assertRawSummaryShape(-1),candidate(-1),keys(-1),assertRawConclusion(-1),candidate(-1),requireText(-1),requireText(-1),requireIdArray(-1),requireIdArray(-1),requireText(-1),requireIdArray(-1),bad(-1),describe(-1),summarizeWithCorrection(-1),conclusions(-1),generationMetadata(-1),message(-1),materializeConclusions(-1),assertRawSummaryShape(-1),conclusions(-1),assertRawConclusion(-1),diagnosticIds(-1),assertConclusions(-1),deterministicConclusions(-1),conclusions(-1),assertConclusions(-1),generationMetadata(-1),effectiveMode(-1),degraded(-1),configuration(-1),summaryMode(-1),sortedUnique(-1),responseSchema(-1),idArray(-1),readPrompt(-1),promptPath(-1)
+    summarizeGraph()
+    mode()
+    conclusions()
+    client()
+    conclusions()
+    systemPrompt()
+    payload()
+    failure()
+    responses()
+    conclusions()
+  src/summary/render.ts:
+    i: ../core/types.js
+    e: renderSummaryMarkdown,plans,git,moduleFacts,facts,releases,communication,actions,compareConclusions,renderRecords,confidence,renderConclusion,confidence,recordCitations
+    renderSummaryMarkdown()
+    plans()
+    git()
+    moduleFacts()
+    facts()
+    releases()
+    communication()
+    actions()
+    compareConclusions()
+    renderRecords()
+    confidence()
+    renderConclusion()
+    confidence()
+    recordCitations()
+  src/operations/compile-cli.ts:
+    i: ./artifact.js
+    e: argumentsByName,key,value,allowed,unknown,main,args
+    argumentsByName()
+    key()
+    value()
+    allowed()
+    unknown()
     main()
-  examples/backend/src/validation.ts:
-    e: ValidationResult,ALLOWED_ACTIONS,validateEventPayload,invalid,record,agent,action,object
-    ValidationResult:
-    ALLOWED_ACTIONS()
-    validateEventPayload()
-    invalid()
-    record()
-    agent()
-    action()
-    object()
-  java/JavaAstExtract.java:
-    i: com.sun.source.util.JavacTask,com.sun.source.util.SourcePositions,com.sun.source.util.TreePathScanner,com.sun.source.util.Trees,java.io.IOException,java.nio.charset.StandardCharsets,java.nio.file.Files,java.nio.file.Path,java.nio.file.Paths
-    e: JavaAstExtract
-    JavaAstExtract: main(-1),emit(-1),parseFile(-1),emit(-1),collect(-1),try(-1),containsIgnored(-1),try(-1),Collector(-1),add(-1),map(-1),add(-1),map(-1),add(-1),add(-1),add(-1),add(-1),map(-1),add(-1),map(-1),emit(-1),json(-1),json(-1),escape(-1),slash(-1)
+    args()
+  src/interfaces/a2a-types.ts:
+    i: ../services/actions.js
+    e: JsonRpcRequest,A2APart,A2AMessage,A2AArtifact,A2ATask,StoredTask,SendConfiguration,A2ARequestError,BodyTooLargeError,TERMINAL_TASK_STATES,TASK_STATES
+    JsonRpcRequest:
+    A2APart:
+    A2AMessage:
+    A2AArtifact:
+    A2ATask:
+    StoredTask:
+    SendConfiguration:
+    A2ARequestError: super(-1)
+    BodyTooLargeError: stringParam(-1),optionalString(-1),optionalStringArray(-1),optionalInteger(-1),parsed(-1),optionalBoolean(-1),optionalTimestamp(-1),timestamp(-1),optionalTaskState(-1),recordParam(-1),isRecord(-1)
+    TERMINAL_TASK_STATES()
+    TASK_STATES()
   src/extractors/nl.ts:
     i: ../config/env.js,../core/io.js,../core/record.js,../core/types.js,../tf/classifier.js,node:path
     e: NlExtractionOptions,assertNlExtractionOptions,extractNlIntent,absolute,body,sourcePath,classified,action,object,missing,confidence,inferActor,detectMissingFields
@@ -2062,9 +2442,15 @@ D:
     confidence()
     inferActor()
     detectMissingFields()
+  src/extractors/markdown-block.ts:
+    e: MarkdownListBlock,readListBlock,cursor,line
+    MarkdownListBlock:
+    readListBlock()
+    cursor()
+    line()
   src/extractors/configuration.ts:
     i: ../config/env.js,../core/ignore.js,../core/io.js,../core/record.js,../core/types.js,node:path
-    e: ConfigurationEntry,MAX_ENTRIES_PER_FILE,extractConfigurationIntent,root,matcher,discovered,files,relative,body,isConfigurationPath,base,configurationRecords,base,entries,jsonEntries,parsed,lines,tomlEntries,line,heading,pair,yamlOrAssignmentEntries,yaml,assignment,key,dockerEntries,match,instruction,detail,entry,uniqueEntries,seen,findKeyLine,pattern,index
+    e: ConfigurationEntry,MAX_ENTRIES_PER_FILE,extractConfigurationIntent,root,matcher,discovered,files,relative,body,isConfigurationPath,base,configurationRecords,base,entries,bounded,fileAggregate,format,lastLine,configurationFormat,base,jsonEntries,parsed,lines,tomlEntries,line,heading,pair,yamlOrAssignmentEntries,yaml,assignment,key,dockerEntries,match,instruction,detail,entry,uniqueEntries,seen,findKeyLine,pattern,index
     ConfigurationEntry:
     MAX_ENTRIES_PER_FILE()
     extractConfigurationIntent()
@@ -2079,6 +2465,12 @@ D:
     configurationRecords()
     base()
     entries()
+    bounded()
+    fileAggregate()
+    format()
+    lastLine()
+    configurationFormat()
+    base()
     jsonEntries()
     parsed()
     lines()
@@ -2100,12 +2492,6 @@ D:
     findKeyLine()
     pattern()
     index()
-  src/extractors/markdown-block.ts:
-    e: MarkdownListBlock,readListBlock,cursor,line
-    MarkdownListBlock:
-    readListBlock()
-    cursor()
-    line()
   src/core/ignore.ts:
     i: node:fs,node:path
     e: IgnoreRule,IgnoreMatcher,LoadIgnoreOptions,compileIgnorePattern,pattern,negated,directoryOnly,anchored,body,prefix,translateGlob,char,next,close,body,escapeLiteral,parseIgnoreFile,createIgnoreMatcher,normalize,decide,target,segments,ancestor,loadIgnoreMatcher,files,absolute,rule
@@ -2136,129 +2522,30 @@ D:
     files()
     absolute()
     rule()
-  src/interfaces/a2a-types.ts:
-    i: ../services/actions.js
-    e: JsonRpcRequest,A2APart,A2AMessage,A2AArtifact,A2ATask,StoredTask,SendConfiguration,A2ARequestError,BodyTooLargeError,TERMINAL_TASK_STATES,TASK_STATES
-    JsonRpcRequest:
-    A2APart:
-    A2AMessage:
-    A2AArtifact:
-    A2ATask:
-    StoredTask:
-    SendConfiguration:
-    A2ARequestError: super(-1)
-    BodyTooLargeError: stringParam(-1),optionalString(-1),optionalStringArray(-1),optionalInteger(-1),parsed(-1),optionalBoolean(-1),optionalTimestamp(-1),timestamp(-1),optionalTaskState(-1),recordParam(-1),isRecord(-1)
-    TERMINAL_TASK_STATES()
-    TASK_STATES()
-  src/summary/render.ts:
-    i: ../core/types.js
-    e: renderSummaryMarkdown,plans,git,moduleFacts,facts,releases,communication,actions,compareConclusions,renderRecords,confidence,renderConclusion,confidence,recordCitations
-    renderSummaryMarkdown()
-    plans()
-    git()
-    moduleFacts()
-    facts()
-    releases()
-    communication()
-    actions()
-    compareConclusions()
-    renderRecords()
-    confidence()
-    renderConclusion()
-    confidence()
-    recordCitations()
-  src/operations/compile-cli.ts:
-    i: ./artifact.js
-    e: argumentsByName,key,value,allowed,unknown,main,args
-    argumentsByName()
-    key()
-    value()
-    allowed()
-    unknown()
-    main()
-    args()
-  src/summary/summarizer.ts:
-    i: ../config/env.js,../core/id.js,../core/io.js,../core/schema.js,../llm/audit.js,../llm/openrouter.js,../version.js,./payload.js,./render.js,node:fs,node:path,node:url
-    e: SummaryResult,SummaryOptions,RawConclusion,RawSummaryResponse,summarizeGraph,mode,conclusions,client,conclusions,systemPrompt,payload,completion,conclusions,assertRawSummaryShape,candidate,keys,assertRawConclusion,candidate,requireText,requireIdArray,bad,describe,materializeConclusions,conclusions,deterministicConclusions,conclusions,generationMetadata,effectiveMode,degraded,configuration,summaryMode,sortedUnique,responseSchema,idArray,readPrompt,promptPath
-    SummaryResult:
-    SummaryOptions:
+  java/JavaAstExtract.java:
+    i: com.sun.source.util.JavacTask,com.sun.source.util.SourcePositions,com.sun.source.util.TreePathScanner,com.sun.source.util.Trees,java.io.IOException,java.nio.charset.StandardCharsets,java.nio.file.Files,java.nio.file.Path,java.nio.file.Paths
+    e: JavaAstExtract
+    JavaAstExtract: main(-1),emit(-1),parseFile(-1),emit(-1),collect(-1),try(-1),containsIgnored(-1),try(-1),Collector(-1),add(-1),map(-1),add(-1),map(-1),add(-1),add(-1),add(-1),add(-1),map(-1),add(-1),map(-1),emit(-1),json(-1),json(-1),escape(-1),slash(-1)
+  examples/backend/src/validation.ts:
+    e: ValidationResult,ALLOWED_ACTIONS,validateEventPayload,invalid,record,agent,action,object
+    ValidationResult:
+    ALLOWED_ACTIONS()
+    validateEventPayload()
+    invalid()
+    record()
+    agent()
+    action()
+    object()
+  src/synthesis/tasks-llm.ts:
+    i: ../config/env.js,../core/grounding.js,../core/id.js,../core/io.js,../core/schema.js,../core/target.js,../llm/audit.js,../llm/failure.js,../llm/openrouter.js,../version.js,node:fs,node:path,node:url
+    e: RawDiagnosticAction,AuditedTaskSynthesisResult,TaskSynthesisRequiredError,TaskSynthesisAttemptError,RawConclusion,RawProposal,RawTaskSynthesisResponse
+    RawDiagnosticAction:
+    AuditedTaskSynthesisResult:
+    TaskSynthesisRequiredError: super(-1)
+    TaskSynthesisAttemptError: super(-1),synthesizeTodoProposals(-1),startedAt(-1),assertConclusions(-1),client(-1),prompt(-1),payload(-1),failure(-1),responses(-1),synthesizeWithCorrection(-1),generation(-1),message(-1),wrapped(-1),materializeResponse(-1),keys(-1),conclusionKeys(-1),proposalKeys(-1),conclusions(-1),diagnosticIds(-1),conclusionIdByKey(-1),conclusionByKey(-1),proposalDrafts(-1),conclusionKeys(-1),citedConclusions(-1),conclusion(-1),proposalIdByKey(-1),proposals(-1),assertConclusions(-1),assertTodoProposals(-1),assertProposalEvidenceMatchesConclusions(-1),fallbackOrThrow(-1),failedAudit(-1),rawDiagnosticActions(-1),generationMetadata(-1),configuration(-1),synthesisAudit(-1),compactSynthesisPayload(-1),recordIds(-1),todoRecords(-1),records(-1),includedIds(-1),groundedDiagnostics(-1),compactRecord(-1),compareDiagnostics(-1),normalizeLocalKeys(-1),explicit(-1),reserved(-1),keys(-1),hasBlankKey(-1),key(-1),suffix(-1),rawStringArray(-1),values(-1),mapKeys(-1),keys(-1),id(-1),sortedUnique(-1),normalizeStringArray(-1),values(-1),normalizeRawTarget(-1),target(-1),normalizeAcceptanceCriteria(-1),criteria(-1),source(-1),normalizeConfidence(-1),text(-1),numeric(-1),normalizeConclusionKind(-1),normalized(-1),normalizeSeverity(-1),normalized(-1),normalizePriority(-1),normalized(-1),assertProposalEvidenceMatchesConclusions(-1),byId(-1),cited(-1),diagnostics(-1),records(-1),readPrompt(-1),promptPath(-1),responseSchema(-1),stringArray(-1),idArray(-1)
     RawConclusion:
-    RawSummaryResponse:
-    summarizeGraph()
-    mode()
-    conclusions()
-    client()
-    conclusions()
-    systemPrompt()
-    payload()
-    completion()
-    conclusions()
-    assertRawSummaryShape()
-    candidate()
-    keys()
-    assertRawConclusion()
-    candidate()
-    requireText()
-    requireIdArray()
-    bad()
-    describe()
-    materializeConclusions()
-    conclusions()
-    deterministicConclusions()
-    conclusions()
-    generationMetadata()
-    effectiveMode()
-    degraded()
-    configuration()
-    summaryMode()
-    sortedUnique()
-    responseSchema()
-    idArray()
-    readPrompt()
-    promptPath()
-  rust-ast/src/main.rs:
-    i: proc_macro2::Span,quote::ToTokens,serde::Serialize,serde_json::,std::collections::BTreeSet,std::env,std::fs,std::path::,syn::spanned::Spanned,syn::visit::
-    e: Fact,Output,Collector,main,arguments,collect_files,new,qualified,add,excerpt,modifiers,visit_item_mod,visit_item_use,visit_item_struct,visit_item_enum,visit_item_trait,visit_item_type,visit_item_const,visit_item_static,visit_item_fn,visit_item_impl,visit_impl_item_fn,visit_expr_call,visit_expr_method_call
-    Fact:
-    Output:
-    Collector:
-    main()
-    arguments()
-    collect_files()
-    new()
-    qualified()
-    add()
-    excerpt()
-    modifiers()
-    visit_item_mod()
-    visit_item_use()
-    visit_item_struct()
-    visit_item_enum()
-    visit_item_trait()
-    visit_item_type()
-    visit_item_const()
-    visit_item_static()
-    visit_item_fn()
-    visit_item_impl()
-    visit_impl_item_fn()
-    visit_expr_call()
-    visit_expr_method_call()
-  src/core/target.ts:
-    i: ./types.js
-    e: GENERIC_SYMBOLS,GENERIC_FILES,normalizeTarget,normalizePath,normalizeSymbol,symbolAliases,normalized,parts,leaf,pathAliases,normalized,basename,unique
-    GENERIC_SYMBOLS()
-    GENERIC_FILES()
-    normalizeTarget()
-    normalizePath()
-    normalizeSymbol()
-    symbolAliases()
-    normalized()
-    parts()
-    leaf()
-    pathAliases()
-    normalized()
-    basename()
-    unique()
+    RawProposal:
+    RawTaskSynthesisResponse:
   src/interfaces/mcp.ts:
     i: ../config/env.js,./mcp-errors.js,./mcp-resources.js,./mcp-tools.js,node:path,node:readline,node:url
     e: JsonRpcRequest,McpConnectionState,DISCOVERY_TTL_MS,LIST_TTL_MS,RESOURCE_TTL_MS,createMcpConnectionState,startMcpServer,resolvedConfig,state,input,parsed,request,result,handleMcpRequest,initializeLegacy,params,requested,protocolVersion,handleModernRequest,params,responseMeta,handleLegacyRequest,params,validateModernRequest,params,meta,validateModernMetadata,requested,capabilities,hasModernMetadata,meta,parseRequestLine,completePublic,serverInfo,serverMeta,serverInstructions,isLegacyProtocol,isJsonRpcRequest,candidate,requestId,id,rpcError,sendError,send,invokedPath
@@ -2356,6 +2643,50 @@ D:
     handleUnexpectedError()
     errorMessage()
     invokedPath()
+  src/extractors/ast/external.ts:
+    i: ../../core/io.js,../../core/types.js,./records.js,./types.js,node:child_process,node:util
+    e: ExternalAdapterOptions,execFileAsync,runExternalAstAdapter,files,result,parsed
+    ExternalAdapterOptions:
+    execFileAsync()
+    runExternalAstAdapter()
+    files()
+    result()
+    parsed()
+  src/evaluation/gold.ts:
+    i: ../core/id.js,./gold-cases.js,./gold-extraction.js,node:fs
+    e: EvaluationCore,EvaluationRun,EvaluationResult,loadGoldDataset,parsed,evaluateGoldDataset,first,second,stable,goldReportIsPerfect,renderGoldReportMarkdown,percent,support,rows,value,evaluateOnce,extraction,linking,dsl2todo,evaluateExtraction,actual,overall,evaluateLinking,counts,byClass,forbiddenViolations,snapshots,result,evaluateDsl2Todo,duplicateCounts,snapshots,result
+    EvaluationCore:
+    EvaluationRun:
+    EvaluationResult:
+    loadGoldDataset()
+    parsed()
+    evaluateGoldDataset()
+    first()
+    second()
+    stable()
+    goldReportIsPerfect()
+    renderGoldReportMarkdown()
+    percent()
+    support()
+    rows()
+    value()
+    evaluateOnce()
+    extraction()
+    linking()
+    dsl2todo()
+    evaluateExtraction()
+    actual()
+    overall()
+    evaluateLinking()
+    counts()
+    byClass()
+    forbiddenViolations()
+    snapshots()
+    result()
+    evaluateDsl2Todo()
+    duplicateCounts()
+    snapshots()
+    result()
   src/evaluation/gold-cases.ts:
     i: ../core/id.js,../core/record.js,../core/types.js,../graph/diagnostics.js,../graph/linker.js,../synthesis/validation.js,../version.js,./gold-metrics.js
     e: LinkingCaseResult,Dsl2TodoCaseResult,evaluateLinkingCase,idToLabel,graph,observed,actual,expected,byClass,forbidden,forbiddenViolations,classifyRelation,exact,evaluateDsl2TodoCase,graph,diagnostics,diagnosticIds,conclusion,proposals,validation,duplicateIds,actual,expected,citations,buildConclusion,buildProposal,recordIds,id,countCitations,citationRequired,citationCited,buildFixtureRecords,labels,records,record,deterministicGeneration
@@ -2395,41 +2726,45 @@ D:
     records()
     record()
     deterministicGeneration()
-  src/evaluation/gold.ts:
-    i: ../core/id.js,./gold-cases.js,./gold-extraction.js,node:fs
-    e: EvaluationCore,EvaluationRun,EvaluationResult,loadGoldDataset,parsed,evaluateGoldDataset,first,second,stable,goldReportIsPerfect,renderGoldReportMarkdown,percent,support,rows,value,evaluateOnce,extraction,linking,dsl2todo,evaluateExtraction,actual,overall,evaluateLinking,counts,byClass,forbiddenViolations,snapshots,result,evaluateDsl2Todo,duplicateCounts,snapshots,result
-    EvaluationCore:
-    EvaluationRun:
-    EvaluationResult:
-    loadGoldDataset()
-    parsed()
-    evaluateGoldDataset()
-    first()
-    second()
-    stable()
-    goldReportIsPerfect()
-    renderGoldReportMarkdown()
-    percent()
-    support()
-    rows()
-    value()
-    evaluateOnce()
-    extraction()
-    linking()
-    dsl2todo()
-    evaluateExtraction()
-    actual()
-    overall()
-    evaluateLinking()
-    counts()
-    byClass()
-    forbiddenViolations()
-    snapshots()
-    result()
-    evaluateDsl2Todo()
-    duplicateCounts()
-    snapshots()
-    result()
+  src/core/target.ts:
+    i: ./types.js
+    e: GENERIC_SYMBOLS,GENERIC_FILES,normalizeTarget,normalizePath,normalizeSymbol,symbolAliases,normalized,parts,leaf,pathAliases,normalized,basename,unique
+    GENERIC_SYMBOLS()
+    GENERIC_FILES()
+    normalizeTarget()
+    normalizePath()
+    normalizeSymbol()
+    symbolAliases()
+    normalized()
+    parts()
+    leaf()
+    pathAliases()
+    normalized()
+    basename()
+    unique()
+  sdk/python/todo2code/runtime.py:
+    e: TypeScriptRuntimeError,RuntimeResult,TypeScriptRuntime,_resolve_cli,_parse_mapping,_load_mapping
+    TypeScriptRuntimeError(RuntimeError):  # Raised when the local Node/TypeScript runtime cannot be exec...
+    RuntimeResult:  # Raw result of a local TypeScript CLI invocation...
+    TypeScriptRuntime: __init__(1),invoke(1),version(0),pipeline(0),diagnose(1),diff_graphs(2),reality(1)  # Execute the canonical TypeScript runtime from a Python proce...
+    _resolve_cli(value)
+    _parse_mapping(content;label)
+    _load_mapping(path;label)
+  sdk/go/client.go:
+    e: Client,rpcRequest,rpcResponse,New,nextID,setHeaders,RPC,Send,unwrapTask,Call,Health,AgentCard,getJSON
+    Client:
+    rpcRequest:
+    rpcResponse:
+    New()
+    nextID()
+    setHeaders()
+    RPC()
+    Send()
+    unwrapTask()
+    Call()
+    Health()
+    AgentCard()
+    getJSON()
   scripts/live-contract-check.mjs:
     i: node:fs,node:path,node:url
     e: REPO_ROOT,envNumber,value,main,config,stages,audit,runStages,runDirectory,graph,diagnostics,nl,summary,latestDemoRun,runsRoot,latest,timeStage,startedAt,result,responses,redactedError,message,buildAudit,measured,usage,cost,totalTokens,overLatency,totalCostUsd,overCost,failures,sum,numbers,writeAudit,target,report,status,cost,total
@@ -2472,38 +2807,47 @@ D:
     status()
     cost()
     total()
-  sdk/go/client.go:
-    e: Client,rpcRequest,rpcResponse,New,nextID,setHeaders,RPC,Send,unwrapTask,Call,Health,AgentCard,getJSON
-    Client:
-    rpcRequest:
-    rpcResponse:
-    New()
-    nextID()
-    setHeaders()
-    RPC()
-    Send()
-    unwrapTask()
-    Call()
-    Health()
-    AgentCard()
-    getJSON()
-  sdk/python/todo2code/runtime.py:
-    e: TypeScriptRuntimeError,RuntimeResult,TypeScriptRuntime,_resolve_cli,_parse_mapping,_load_mapping
-    TypeScriptRuntimeError(RuntimeError):  # Raised when the local Node/TypeScript runtime cannot be exec...
-    RuntimeResult:  # Raw result of a local TypeScript CLI invocation...
-    TypeScriptRuntime: __init__(1),invoke(1),version(0),pipeline(0),diagnose(1),diff_graphs(2),reality(1)  # Execute the canonical TypeScript runtime from a Python proce...
-    _resolve_cli(value)
-    _parse_mapping(content;label)
-    _load_mapping(path;label)
-  src/extractors/ast/external.ts:
-    i: ../../core/io.js,../../core/types.js,./records.js,./types.js,node:child_process,node:util
-    e: ExternalAdapterOptions,execFileAsync,runExternalAstAdapter,files,result,parsed
-    ExternalAdapterOptions:
-    execFileAsync()
-    runExternalAstAdapter()
-    files()
+  rust-ast/src/main.rs:
+    i: proc_macro2::Span,quote::ToTokens,serde::Serialize,serde_json::,std::collections::BTreeSet,std::env,std::fs,std::path::,syn::spanned::Spanned,syn::visit::
+    e: Fact,Output,Collector,main,arguments,collect_files,new,qualified,add,excerpt,modifiers,visit_item_mod,visit_item_use,visit_item_struct,visit_item_enum,visit_item_trait,visit_item_type,visit_item_const,visit_item_static,visit_item_fn,visit_item_impl,visit_impl_item_fn,visit_expr_call,visit_expr_method_call
+    Fact:
+    Output:
+    Collector:
+    main()
+    arguments()
+    collect_files()
+    new()
+    qualified()
+    add()
+    excerpt()
+    modifiers()
+    visit_item_mod()
+    visit_item_use()
+    visit_item_struct()
+    visit_item_enum()
+    visit_item_trait()
+    visit_item_type()
+    visit_item_const()
+    visit_item_static()
+    visit_item_fn()
+    visit_item_impl()
+    visit_impl_item_fn()
+    visit_expr_call()
+    visit_expr_method_call()
+  src/interfaces/mcp-tools.ts:
+    i: ../config/env.js,../services/actions.js,./mcp-errors.js
+    e: McpTool,callMcpTool,name,args,result,tool,writes,stringProp,nullableStringProp,stringArrayProp,numberProp
+    McpTool:
+    callMcpTool()
+    name()
+    args()
     result()
-    parsed()
+    tool()
+    writes()
+    stringProp()
+    nullableStringProp()
+    stringArrayProp()
+    numberProp()
   src/extractors/docs-chunks.ts:
     i: ./docs-types.js
     e: prioritizeDocumentChunks,needles,chunkPriority,matches,mapConcurrent,results,nextIndex,worker,index,item,workerCount,chunkMarkdown,lines,sections,currentStart,currentEnd,flush,sectionLines,sectionText,candidateSize,markdownSections,sectionStart,splitLongSection,batchStart,batch,takeLineBatch,size,offset,line
@@ -2536,20 +2880,6 @@ D:
     size()
     offset()
     line()
-  src/interfaces/mcp-tools.ts:
-    i: ../config/env.js,../services/actions.js,./mcp-errors.js
-    e: McpTool,callMcpTool,name,args,result,tool,writes,stringProp,nullableStringProp,stringArrayProp,numberProp
-    McpTool:
-    callMcpTool()
-    name()
-    args()
-    result()
-    tool()
-    writes()
-    stringProp()
-    nullableStringProp()
-    stringArrayProp()
-    numberProp()
   sdk/typescript/src/index.ts:
     e: IntentTarget,IntentStatement,IntentGenerationMetadata,IntentRecord,IntentGraph,DiagnosticReport,ExtractionAudit,ExtractionResult,A2APart,A2AMessage,A2ATask,T2CError,ClientOptions,T2CClient,unwrapTask
     IntentTarget:
@@ -2565,31 +2895,19 @@ D:
     A2ATask:
     T2CError: super(-1)
     ClientOptions:
-    T2CClient: health(-1),agentCard(-1),send(-1),result(-1),call(-1),task(-1),detail(-1),part(-1),getTask(-1),cancelTask(-1),listTasks(-1),extractNl(-1),extractGit(-1),extractAst(-1),extractConfig(-1),link(-1),diagnose(-1),summarize(-1),compareWorkspace(-1),diffGraphs(-1),response(-1),body(-1),message(-1),diffFiles(-1),diffGit(-1),reality(-1),pipeline(-1),proposeTodo(-1),renderTodo(-1),applyTodo(-1),rpc(-1),body(-1),response(-1),payload(-1),getJson(-1),response(-1),request(-1),controller(-1),timer(-1),clearTimeout(-1)
+    T2CClient: health(-1),agentCard(-1),send(-1),result(-1),call(-1),task(-1),detail(-1),part(-1),getTask(-1),cancelTask(-1),listTasks(-1),extractNl(-1),extractGit(-1),extractAst(-1),extractConfig(-1),link(-1),diagnose(-1),summarize(-1),compareWorkspace(-1),diffGraphs(-1),response(-1),body(-1),message(-1),diffFiles(-1),diffGit(-1),reality(-1),pipeline(-1),proposeTodo(-1),renderTodo(-1),applyTodo(-1),proposeCodeChange(-1),renderCodeChange(-1),proposeSourcePatch(-1),applySourcePatch(-1),evaluateCodeChange(-1),closeCodeChange(-1),rpc(-1),body(-1),response(-1),payload(-1),getJson(-1),response(-1),request(-1),controller(-1),timer(-1),clearTimeout(-1)
     unwrapTask()
-  src/core/security.ts:
-    i: node:fs,node:path
-    e: assertPathWithinRoot,rootAbsolute,candidateAbsolute,existingAncestor,ancestorReal,assertDescendant,relative,nearestExistingPath,current,code,parent
-    assertPathWithinRoot()
-    rootAbsolute()
-    candidateAbsolute()
-    existingAncestor()
-    ancestorReal()
-    assertDescendant()
-    relative()
-    nearestExistingPath()
-    current()
-    code()
-    parent()
-  src/synthesis/tasks-llm.ts:
-    i: ../config/env.js,../core/id.js,../core/io.js,../core/schema.js,../core/target.js,../llm/audit.js,../llm/failure.js,../llm/openrouter.js,../version.js,node:fs,node:path,node:url
-    e: RawDiagnosticAction,AuditedTaskSynthesisResult,TaskSynthesisRequiredError,RawConclusion,RawProposal,RawTaskSynthesisResponse
-    RawDiagnosticAction:
-    AuditedTaskSynthesisResult:
-    TaskSynthesisRequiredError: super(-1),synthesizeTodoProposals(-1),startedAt(-1),assertConclusions(-1),client(-1),prompt(-1),completion(-1),generation(-1),materializeResponse(-1),conclusionKeys(-1),proposalKeys(-1),conclusions(-1),conclusionIdByKey(-1),proposalDrafts(-1),proposalIdByKey(-1),proposals(-1),assertConclusions(-1),assertTodoProposals(-1),assertProposalEvidenceMatchesConclusions(-1),fallbackOrThrow(-1),failedAudit(-1),rawDiagnosticActions(-1),generationMetadata(-1),configuration(-1),synthesisAudit(-1),compactSynthesisPayload(-1),recordIds(-1),todoRecords(-1),records(-1),includedIds(-1),compactRecord(-1),compareDiagnostics(-1),uniqueKeys(-1),keys(-1),mapKeys(-1),id(-1),sortedUnique(-1),assertProposalEvidenceMatchesConclusions(-1),byId(-1),cited(-1),diagnostics(-1),records(-1),readPrompt(-1),promptPath(-1),responseSchema(-1),stringArray(-1),idArray(-1)
-    RawConclusion:
-    RawProposal:
-    RawTaskSynthesisResponse:
+  src/extractors/ast.ts:
+    i: ../config/env.js,../core/ignore.js,../core/io.js,../core/types.js,./ast/go.js,./ast/java.js,./ast/python.js,./ast/rust.js,./ast/typescript.js,./ast/unsupported.js,node:path
+    e: AstExtractionOptions,extractAstIntent,root,matcher,files,body,result,unsupported
+    AstExtractionOptions:
+    extractAstIntent()
+    root()
+    matcher()
+    files()
+    body()
+    result()
+    unsupported()
   src/evaluation/gold-types.ts:
     e: GoldRecordProjection,GoldDocumentModelRecord,GoldExtractionCase,GoldFixtureRecord,GoldExpectedRelation,GoldLinkingCase,GoldProposalFixture,GoldDsl2TodoCase,GoldDataset,BinaryMetric,GoldEvaluationReport,assertGoldDataset,dataset,assertDatasetObject,assertDatasetMetadata,assertDatasetCollections,assertUniqueCaseIds,assertExtractionCoverage,channels
     GoldRecordProjection:
@@ -2611,6 +2929,36 @@ D:
     assertUniqueCaseIds()
     assertExtractionCoverage()
     channels()
+  src/core/security.ts:
+    i: node:fs,node:path
+    e: assertPathWithinRoot,rootAbsolute,candidateAbsolute,existingAncestor,ancestorReal,assertDescendant,relative,nearestExistingPath,current,code,parent
+    assertPathWithinRoot()
+    rootAbsolute()
+    candidateAbsolute()
+    existingAncestor()
+    ancestorReal()
+    assertDescendant()
+    relative()
+    nearestExistingPath()
+    current()
+    code()
+    parent()
+  sdk/python/todo2code/client.py:
+    e: T2CError,IntentRecord,ExtractionResult,Diagnostic,DiagnosticReport,IntentGraph,T2CClient,_unwrap_task,_as_dict,_graph_dict,_report_dict
+    T2CError(RuntimeError): __init__(3)  # Raised for JSON-RPC errors, transport failures and non-compl...
+    IntentRecord: from_dict(1)  # A single t2c.intent/v1 record...
+    ExtractionResult: from_dict(1)  # Records, warnings and the optional audited LLM stage result...
+    Diagnostic: from_dict(1)
+    DiagnosticReport: from_dict(1),blocking(0)
+    IntentGraph: from_dict(1)
+    T2CClient: __init__(3),_headers(1),_open(1),_rpc(2),_get(1),health(0),agent_card(0),send(2),call(2),compare_workspace(0),propose_todo(1),render_todo(1),apply_todo(1),get_task(1),cancel_task(1),list_tasks(0),extract_nl(3),extract_nl_result(3),extract_git(2),extract_ast(1),extract_config(1),extract_markdown(4),extract_markdown_result(4),extract_docs(3),extract_docs_result(3),link(1),diagnose(1),summarize(3),diff_graphs(3),diff_graphs_rest(0),diff_files(2),diff_git(0),reality(2),pipeline(0)  # Client for the todo2code A2A endpoint.
+
+Example:
+    >>> cli...
+    _unwrap_task(result)
+    _as_dict(value)
+    _graph_dict(value)
+    _report_dict(value)
   scripts/verify-module-boundaries.mjs:
     i: node:fs,node:path
     e: sourceRoot,files,graph,body,target,relative,targetRelative,visiting,visited,visit,start,collect,absolute,resolveSource,raw,relative,slash
@@ -2631,45 +2979,32 @@ D:
     raw()
     relative()
     slash()
-  python/ast_extract.py:
-    e: FactVisitor,source_hash,dotted_name,iter_python_files,main
-    FactVisitor(ast.NodeVisitor): __init__(2),excerpt(1),add(6),visit_Import(1),visit_ImportFrom(1),visit_FunctionDef(1),visit_AsyncFunctionDef(1),visit_ClassDef(1),visit_Call(1)
-    source_hash(value)
-    dotted_name(node)
-    iter_python_files(root)
-    main()
-  sdk/python/todo2code/client.py:
-    e: T2CError,IntentRecord,ExtractionResult,Diagnostic,DiagnosticReport,IntentGraph,T2CClient,_unwrap_task,_as_dict,_graph_dict,_report_dict
-    T2CError(RuntimeError): __init__(3)  # Raised for JSON-RPC errors, transport failures and non-compl...
-    IntentRecord: from_dict(1)  # A single t2c.intent/v1 record...
-    ExtractionResult: from_dict(1)  # Records, warnings and the optional audited LLM stage result...
-    Diagnostic: from_dict(1)
-    DiagnosticReport: from_dict(1),blocking(0)
-    IntentGraph: from_dict(1)
-    T2CClient: __init__(3),_headers(1),_open(1),_rpc(2),_get(1),health(0),agent_card(0),send(2),call(2),compare_workspace(0),propose_todo(1),render_todo(1),apply_todo(1),get_task(1),cancel_task(1),list_tasks(0),extract_nl(3),extract_nl_result(3),extract_git(2),extract_ast(1),extract_config(1),extract_markdown(4),extract_markdown_result(4),extract_docs(3),extract_docs_result(3),link(1),diagnose(1),summarize(3),diff_graphs(3),diff_graphs_rest(0),diff_files(2),diff_git(0),reality(2),pipeline(0)  # Client for the todo2code A2A endpoint.
-
-Example:
-    >>> cli...
-    _unwrap_task(result)
-    _as_dict(value)
-    _graph_dict(value)
-    _report_dict(value)
-  src/extractors/ast.ts:
-    i: ../config/env.js,../core/ignore.js,../core/io.js,../core/types.js,./ast/go.js,./ast/java.js,./ast/python.js,./ast/rust.js,./ast/typescript.js,./ast/unsupported.js,node:path
-    e: AstExtractionOptions,extractAstIntent,root,matcher,files,body,result,unsupported
-    AstExtractionOptions:
-    extractAstIntent()
+  scripts/verify-generated-analysis.mjs:
+    i: node:child_process,node:fs,node:path,node:util
+    e: execFileAsync,root,projectDirectory,textExtensions,untracked,relative,content,normalizePath
+    execFileAsync()
     root()
-    matcher()
-    files()
-    body()
-    result()
-    unsupported()
-  examples/frontend/src/api.ts:
-    e: IntentEvent,EventPage,ApiError
-    IntentEvent:
-    EventPage:
-    ApiError: super(-1),fetchEvents(-1),url(-1),response(-1),payload(-1),publishEvent(-1),response(-1),payload(-1)
+    projectDirectory()
+    textExtensions()
+    untracked()
+    relative()
+    content()
+    normalizePath()
+  src/operations/artifact.ts:
+    i: ../core/id.js,./subactor.js,./types.js,node:fs,node:path
+    e: CompileOperationPlanArtifactOptions,OperationPlanCompilationReceipt,readJson,writeExclusive,target,directory,temporary,existing,compileOperationPlanArtifact,plan,bindings,envelope
+    CompileOperationPlanArtifactOptions:
+    OperationPlanCompilationReceipt:
+    readJson()
+    writeExclusive()
+    target()
+    directory()
+    temporary()
+    existing()
+    compileOperationPlanArtifact()
+    plan()
+    bindings()
+    envelope()
   src/llm/failure.ts:
     i: ./openrouter.js
     e: LlmFailureReason,classifyLlmFailure,message
@@ -2692,21 +3027,11 @@ Example:
     relative()
     isInvalidResourceError()
     resource()
-  src/operations/artifact.ts:
-    i: ../core/id.js,./subactor.js,./types.js,node:fs,node:path
-    e: CompileOperationPlanArtifactOptions,OperationPlanCompilationReceipt,readJson,writeExclusive,target,directory,temporary,existing,compileOperationPlanArtifact,plan,bindings,envelope
-    CompileOperationPlanArtifactOptions:
-    OperationPlanCompilationReceipt:
-    readJson()
-    writeExclusive()
-    target()
-    directory()
-    temporary()
-    existing()
-    compileOperationPlanArtifact()
-    plan()
-    bindings()
-    envelope()
+  examples/frontend/src/api.ts:
+    e: IntentEvent,EventPage,ApiError
+    IntentEvent:
+    EventPage:
+    ApiError: super(-1),fetchEvents(-1),url(-1),response(-1),payload(-1),publishEvent(-1),response(-1),payload(-1)
   src/extractors/todo.ts:
     i: ../config/env.js,../core/io.js,../core/record.js,../core/types.js,../tf/classifier.js,./markdown-block.js,node:path
     e: extractTodo,absolute,body,relative,lines,raw,heading,level,task,checked,block,text,classified,action,inferOwner,match,extractExplicitId
@@ -2727,9 +3052,16 @@ Example:
     inferOwner()
     match()
     extractExplicitId()
+  src/extractors/ast/unsupported.ts:
+    i: ../../core/ignore.js,../../core/io.js,node:path
+    e: unsupportedSourceWarning,files,counts,extension
+    unsupportedSourceWarning()
+    files()
+    counts()
+    extension()
   src/core/id.ts:
-    i: ./types.js,node:crypto
-    e: stableStringify,sortValue,sha256,shortHash,createIntentId,createRelationId,createConclusionId,createTodoProposalId,graphFingerprint,newRunId,stamp,asJsonValue
+    i: node:crypto
+    e: stableStringify,sortValue,sha256,shortHash,createIntentId,createRelationId,createConclusionId,createTodoProposalId,createCodeChangePlanHash,createCodeChangePlanId,createCodeChangeSourcePatchHash,createCodeChangeSourcePatchId,graphFingerprint,newRunId,stamp,asJsonValue
     stableStringify()
     sortValue()
     sha256()
@@ -2738,17 +3070,122 @@ Example:
     createRelationId()
     createConclusionId()
     createTodoProposalId()
+    createCodeChangePlanHash()
+    createCodeChangePlanId()
+    createCodeChangeSourcePatchHash()
+    createCodeChangeSourcePatchId()
     graphFingerprint()
     newRunId()
     stamp()
     asJsonValue()
-  src/extractors/ast/unsupported.ts:
-    i: ../../core/ignore.js,../../core/io.js,node:path
-    e: unsupportedSourceWarning,files,counts,extension
-    unsupportedSourceWarning()
-    files()
+  src/core/grounding.ts:
+    i: ./types.js
+    e: groundRecordIdsByDiagnostics,diagnosticById,allowed,suppliedGrounded,sortedUnique
+    groundRecordIdsByDiagnostics()
+    diagnosticById()
+    allowed()
+    suppliedGrounded()
+    sortedUnique()
+  src/extractors/docs-llm.ts:
+    i: ../config/env.js,../core/io.js,../core/types.js,../llm/audit.js,../llm/openrouter.js,../version.js,./docs-chunks.js,./docs-record.js,./docs-schema.js,node:fs,node:path,node:url
+    e: DocumentationLlmRequiredError
+    DocumentationLlmRequiredError: super(-1),extractDocumentationIntent(-1),startedAt(-1),client(-1),requireConfiguredClient(-1),chunks(-1),selectedChunks(-1),systemPrompt(-1),results(-1),requireConfiguredClient(-1),loadDocumentChunks(-1),files(-1),body(-1),selectWithinBudget(-1),prioritized(-1),selected(-1),extractChunk(-1),completion(-1),records(-1),buildAudit(-1),status(-1),readPrompt(-1),promptPath(-1),errorMessage(-1)
+  src/extractors/ast/records.ts:
+    i: ../../core/record.js,../../core/types.js,./types.js
+    e: adapterRecords,detailRecords,moduleRecords,byPath,bucket,start,end,capabilities,boundedCapabilities,moduleTopicText
+    adapterRecords()
+    detailRecords()
+    moduleRecords()
+    byPath()
+    bucket()
+    start()
+    end()
+    capabilities()
+    boundedCapabilities()
+    moduleTopicText()
+  src/evaluation/gold-metrics.ts:
+    i: ../core/id.js,./gold-types.js
+    e: Counts,emptyCounts,addCounts,compareSets,actualCounts,expectedCounts,counts,actualCount,expectedCount,frequency,counts,metric,ratio
+    Counts:
+    emptyCounts()
+    addCounts()
+    compareSets()
+    actualCounts()
+    expectedCounts()
     counts()
-    extension()
+    actualCount()
+    expectedCount()
+    frequency()
+    counts()
+    metric()
+    ratio()
+  src/evaluation/gold-extraction.ts:
+    i: ../config/env.js,../core/security.js,../core/types.js,../extractors/docs-llm.js,../extractors/markdown.js,../extractors/nl.js,./gold-types.js,node:fs,node:os,node:path
+    e: runExtractionCase,root,config,writeFixtureFiles,destination,extractNlCase,extractMarkdownCase,extractDocumentationCase,originalFetch,benchmarkConfig,config,projectRecord
+    runExtractionCase()
+    root()
+    config()
+    writeFixtureFiles()
+    destination()
+    extractNlCase()
+    extractMarkdownCase()
+    extractDocumentationCase()
+    originalFetch()
+    benchmarkConfig()
+    config()
+    projectRecord()
+  sdk/rust/src/actions.rs:
+    i: crate::,serde_json::
+  sdk/go/types.go:
+    e: SourceLineRange,IntentTarget,IntentStatement,IntentSource,IntentEpistemic,IntentGenerationMetadata,IntentRecord,IntentRelation,IntentGraph,Diagnostic,DiagnosticReport,ExtractionResult,Part,Message,Artifact,Task,RealityResult,DiffResult,Error,Generation,Error
+    SourceLineRange:
+    IntentTarget:
+    IntentStatement:
+    IntentSource:
+    IntentEpistemic:
+    IntentGenerationMetadata:
+    IntentRecord:
+    IntentRelation:
+    IntentGraph:
+    Diagnostic:
+    DiagnosticReport:
+    ExtractionResult:
+    Part:
+    Message:
+    Artifact:
+    Task:
+    RealityResult:
+    DiffResult:
+    Error:
+    Generation()
+    Error()
+  scripts/sync-generated-readme-metadata.mjs:
+    i: node:fs,node:path
+    e: root,readmePath,relativeReadme,packagePath,packageJson,version,license,nodeVersion,original,synchronized,licenseTarget,requiredString,replaceRequired,badgeValue
+    root()
+    readmePath()
+    relativeReadme()
+    packagePath()
+    packageJson()
+    version()
+    license()
+    nodeVersion()
+    original()
+    synchronized()
+    licenseTarget()
+    requiredString()
+    replaceRequired()
+    badgeValue()
+  scripts/normalize-generated-analysis-roots.mjs:
+    i: node:fs,node:path
+    e: root,sourceRoot,textExtensions,projectDirectory,changed,original,normalized
+    root()
+    sourceRoot()
+    textExtensions()
+    projectDirectory()
+    changed()
+    original()
+    normalized()
   examples/frontend/src/render.ts:
     i: ./api.js
     e: PanelRow,classifyEvent,toRows,renderTable,table,head,body,tr,cell,renderError,banner,headerRow,tr,th
@@ -2777,86 +3214,9 @@ Example:
     mountPanel()
     state()
     reload()
-  src/extractors/docs-llm.ts:
-    i: ../config/env.js,../core/io.js,../core/types.js,../llm/audit.js,../llm/openrouter.js,../version.js,./docs-chunks.js,./docs-record.js,./docs-schema.js,node:fs,node:path,node:url
-    e: DocumentationLlmRequiredError
-    DocumentationLlmRequiredError: super(-1),extractDocumentationIntent(-1),startedAt(-1),client(-1),requireConfiguredClient(-1),chunks(-1),selectedChunks(-1),systemPrompt(-1),results(-1),requireConfiguredClient(-1),loadDocumentChunks(-1),files(-1),body(-1),selectWithinBudget(-1),prioritized(-1),selected(-1),extractChunk(-1),completion(-1),records(-1),buildAudit(-1),status(-1),readPrompt(-1),promptPath(-1),errorMessage(-1)
-  src/evaluation/gold-extraction.ts:
-    i: ../config/env.js,../core/security.js,../core/types.js,../extractors/docs-llm.js,../extractors/markdown.js,../extractors/nl.js,./gold-types.js,node:fs,node:os,node:path
-    e: runExtractionCase,root,config,writeFixtureFiles,destination,extractNlCase,extractMarkdownCase,extractDocumentationCase,originalFetch,benchmarkConfig,config,projectRecord
-    runExtractionCase()
-    root()
-    config()
-    writeFixtureFiles()
-    destination()
-    extractNlCase()
-    extractMarkdownCase()
-    extractDocumentationCase()
-    originalFetch()
-    benchmarkConfig()
-    config()
-    projectRecord()
-  src/evaluation/gold-metrics.ts:
-    i: ../core/id.js,./gold-types.js
-    e: Counts,emptyCounts,addCounts,compareSets,actualCounts,expectedCounts,counts,actualCount,expectedCount,frequency,counts,metric,ratio
-    Counts:
-    emptyCounts()
-    addCounts()
-    compareSets()
-    actualCounts()
-    expectedCounts()
-    counts()
-    actualCount()
-    expectedCount()
-    frequency()
-    counts()
-    metric()
-    ratio()
-  sdk/go/types.go:
-    e: SourceLineRange,IntentTarget,IntentStatement,IntentSource,IntentEpistemic,IntentGenerationMetadata,IntentRecord,IntentRelation,IntentGraph,Diagnostic,DiagnosticReport,ExtractionResult,Part,Message,Artifact,Task,RealityResult,DiffResult,Error,Generation,Error
-    SourceLineRange:
-    IntentTarget:
-    IntentStatement:
-    IntentSource:
-    IntentEpistemic:
-    IntentGenerationMetadata:
-    IntentRecord:
-    IntentRelation:
-    IntentGraph:
-    Diagnostic:
-    DiagnosticReport:
-    ExtractionResult:
-    Part:
-    Message:
-    Artifact:
-    Task:
-    RealityResult:
-    DiffResult:
-    Error:
-    Generation()
-    Error()
-  sdk/rust/src/actions.rs:
-    i: crate::,serde_json::
-  src/extractors/ast/records.ts:
-    i: ../../core/record.js,../../core/types.js,./types.js
-    e: adapterRecords,detailRecords,moduleRecords,byPath,bucket,start,end,capabilities,boundedCapabilities,moduleTopicText
-    adapterRecords()
-    detailRecords()
-    moduleRecords()
-    byPath()
-    bucket()
-    start()
-    end()
-    capabilities()
-    boundedCapabilities()
-    moduleTopicText()
-  src/extractors/markdown.ts:
-    i: ../config/env.js,../core/types.js,./changelog.js,./todo.js
-    e: MarkdownExtractionOptions,extractMarkdownIntent,todo,changelog
-    MarkdownExtractionOptions:
-    extractMarkdownIntent()
-    todo()
-    changelog()
+  src/interfaces/mcp-errors.ts:
+    e: McpRequestError
+    McpRequestError: super(-1),normalizeMcpError(-1)
   src/interfaces/a2a-card.ts:
     i: ../config/env.js,../version.js,node:crypto,node:http
     e: sendAgentCard,card,serialized,payload,agentCard,skills,skill
@@ -2867,9 +3227,13 @@ Example:
     agentCard()
     skills()
     skill()
-  src/interfaces/mcp-errors.ts:
-    e: McpRequestError
-    McpRequestError: super(-1),normalizeMcpError(-1)
+  src/extractors/markdown.ts:
+    i: ../config/env.js,../core/types.js,./changelog.js,./todo.js
+    e: MarkdownExtractionOptions,extractMarkdownIntent,todo,changelog
+    MarkdownExtractionOptions:
+    extractMarkdownIntent()
+    todo()
+    changelog()
   sdk/go/actions.go:
     i: context
     e: ExtractAST,ExtractConfig,ExtractNL,ExtractDocs,ExtractMarkdown,ExtractMarkdownWithOptions,ExtractGit,Link,Diagnose,Reality,DiffGit,DiffFiles,CompareWorkspace,Pipeline,ProposeTodo,RenderTodo,ApplyTodo,callMap
@@ -2891,11 +3255,24 @@ Example:
     RenderTodo()
     ApplyTodo()
     callMap()
-  examples/src/runtime.ts:
-    e: Contract,validateContract,executeContract
-    Contract:
-    validateContract()
-    executeContract()
+  src/sdk/typescript.ts:
+    i: ../core/types.js,../diff/reality.js,../diff/text.js,../services/actions.js
+    e: Todo2CodeClientOptions,DiffResult,FileDiffResult,GitDiffResponse,RealityResult,Todo2CodeClient
+    Todo2CodeClientOptions:
+    DiffResult:
+    FileDiffResult:
+    GitDiffResponse:
+    RealityResult:
+    Todo2CodeClient: a2a(-1),health(-1),diffGraphs(-1),diffGraphFiles(-1),compareWorkspace(-1),proposeTodo(-1),renderTodo(-1),applyTodo(-1),proposeCodeChange(-1),renderCodeChange(-1),proposeSourcePatch(-1),applySourcePatch(-1),evaluateCodeChange(-1),closeCodeChange(-1),extractNl(-1),run(-1)
+  src/extractors/ast/python.ts:
+    i: ../../config/env.js,../../core/ignore.js,../../core/io.js,../../core/types.js,./external.js,node:fs,node:os,node:path,node:url
+    e: extractPythonAst,helperPath,matcher,files,temporaryDirectory,filesPath
+    extractPythonAst()
+    helperPath()
+    matcher()
+    files()
+    temporaryDirectory()
+    filesPath()
   src/diff/svg.ts:
     e: SvgTheme,SvgDocumentOptions,escapeXml,truncate,sanitizeSourceLine,metricCard,svgStyles,svgDocument,theme
     SvgTheme:
@@ -2907,17 +3284,6 @@ Example:
     svgStyles()
     svgDocument()
     theme()
-  src/sdk/typescript.ts:
-    i: ../core/types.js,../diff/reality.js,../diff/text.js,../services/actions.js
-    e: Todo2CodeClientOptions,DiffResult,FileDiffResult,GitDiffResponse,RealityResult,Todo2CodeClient
-    Todo2CodeClientOptions:
-    DiffResult:
-    FileDiffResult:
-    GitDiffResponse:
-    RealityResult:
-    Todo2CodeClient: a2a(-1),health(-1),diffGraphs(-1),diffGraphFiles(-1),compareWorkspace(-1),proposeTodo(-1),renderTodo(-1),applyTodo(-1),extractNl(-1),run(-1)
-  sdk/rust/src/error.rs:
-    i: std::fmt
   sdk/rust/src/types.rs:
     i: serde::,serde_json::Value
     e: SourceLineRange,IntentTarget,IntentStatement,IntentSource,IntentEpistemic,IntentLifecycle,IntentGenerationMetadata,IntentRecord,Diagnostic,DiagnosticReport,ExtractionResult
@@ -2932,58 +3298,35 @@ Example:
     Diagnostic:
     DiagnosticReport:
     ExtractionResult:
+  sdk/rust/src/error.rs:
+    i: std::fmt
   sdk/python/todo2code_sdk.py:
     e: Todo2CodeClient,_record_dict
     Todo2CodeClient: __init__(3),health(0),extract_nl(3),extract_docs(3),diff_graphs(3),diff_graph_files(3),diff_text_files(2),diff_git(0),reality(1),run(2)  # Diff-focused client for the todo2code runtime.
 
 Graph compar...
     _record_dict(record)
-  examples/backend/src/store.ts:
-    e: IntentEvent,EventPage,EventStore
-    IntentEvent:
-    EventPage:
-    EventStore: enqueueEvent(-1),listEvents(-1),start(-1),size(-1)
-  examples/src/helper.py:
-    e: load_task,normalize_task
-    load_task(path)
-    normalize_task(value)
-  examples/sdk/typescript.mjs:
-    i: ../../dist/src/sdk/typescript.js,node:fs/promises
-    e: client
-    client()
-  src/extractors/docs-schema.ts:
-    e: documentResponseSchema
-    documentResponseSchema()
-  src/llm/audit.ts:
-    i: ../config/env.js,../core/types.js
-    e: openRouterAuditConfiguration
-    openRouterAuditConfiguration()
-  sdk/php/src/Error.php:
-    e: Error
-    Error:
-  sdk/python/examples/local_runtime.py:
-    e: main
-    main()
-  src/extractors/ast/rust.ts:
-    i: ../../config/env.js,../../core/types.js,./external.js,node:path,node:url
-    e: extractRustAst,helperPath
-    extractRustAst()
-    helperPath()
-  src/extractors/ast/go.ts:
-    i: ../../config/env.js,../../core/types.js,./external.js,node:path,node:url
-    e: extractGoAst,helperPath
-    extractGoAst()
-    helperPath()
-  src/extractors/ast/java.ts:
-    i: ../../config/env.js,../../core/types.js,./external.js,node:path,node:url
-    e: extractJavaAst,helperPath
-    extractJavaAst()
-    helperPath()
-  src/extractors/ast/python.ts:
-    i: ../../config/env.js,../../core/types.js,./external.js,node:path,node:url
-    e: extractPythonAst,helperPath
-    extractPythonAst()
-    helperPath()
+  scripts/vallm-compatible.py:
+    e: detect_file_language_with_parser_id
+    detect_file_language_with_parser_id(file_path)
+  scripts/assert-demollm-run.mjs:
+    i: node:fs/promises,node:path
+    e: root,output,latestPath,latest,manifestPath,manifest,stage,stage,tokens,cost
+    root()
+    output()
+    latestPath()
+    latest()
+    manifestPath()
+    manifest()
+    stage()
+    stage()
+    tokens()
+    cost()
+  examples/src/runtime.ts:
+    e: Contract,validateContract,executeContract
+    Contract:
+    validateContract()
+    executeContract()
   src/operations/contract.ts:
     i: ../core/id.js,./validation.js
     e: variableContractSemanticValue,createVariableContract,normalized,normalizedPlanDraft,operationPlanHashMaterial,createOperationPlan,normalized,planHash
@@ -2995,58 +3338,70 @@ Graph compar...
     createOperationPlan()
     normalized()
     planHash()
-  TASK.md:
-  Makefile:
-  docker-compose.yml:
+  src/llm/audit.ts:
+    i: ../config/env.js,../core/types.js
+    e: openRouterAuditConfiguration
+    openRouterAuditConfiguration()
+  src/extractors/docs-schema.ts:
+    e: documentResponseSchema
+    documentResponseSchema()
+  src/extractors/ast/rust.ts:
+    i: ../../config/env.js,../../core/types.js,./external.js,node:path,node:url
+    e: extractRustAst,helperPath
+    extractRustAst()
+    helperPath()
+  src/extractors/ast/java.ts:
+    i: ../../config/env.js,../../core/types.js,./external.js,node:path,node:url
+    e: extractJavaAst,helperPath
+    extractJavaAst()
+    helperPath()
+  src/extractors/ast/go.ts:
+    i: ../../config/env.js,../../core/types.js,./external.js,node:path,node:url
+    e: extractGoAst,helperPath
+    extractGoAst()
+    helperPath()
+  sdk/python/examples/local_runtime.py:
+    e: main
+    main()
+  sdk/php/src/Error.php:
+    e: Error
+    Error:
+  examples/src/helper.py:
+    e: load_task,normalize_task
+    load_task(path)
+    normalize_task(value)
+  examples/sdk/typescript.mjs:
+    i: ../../dist/src/sdk/typescript.js,node:fs/promises
+    e: client
+    client()
+  examples/backend/src/store.ts:
+    e: IntentEvent,EventPage,EventStore
+    IntentEvent:
+    EventPage:
+    EventStore: enqueueEvent(-1),listEvents(-1),start(-1),size(-1)
   tsconfig.json:
-  CONTRIBUTION.md:
+  package.json:
+  docker-compose.yml:
+  TODO.md:
+  TASK.md:
+  README.md:
+  Makefile:
   Dockerfile:
-  project.sh:
-    e: install_project_package
-    install_project_package()
-  schemas/todo-proposal.schema.json:
-  schemas/conclusion.schema.json:
-  schemas/document-extraction-response.schema.json:
-  schemas/participant-synthesis.schema.json:
-  schemas/intent-graph-diff.schema.json:
-  schemas/intent-graph.schema.json:
-  schemas/intent-record.schema.json:
-  schemas/todo-patch.schema.json:
-  schemas/participant-registry.schema.json:
-  schemas/gold-dataset.schema.json:
-  rust-ast/Cargo.toml:
-  docs/DSL.md:
-  docs/TEAM_COMMUNICATION.md:
-  docs/OPTIMIZATION.md:
-  docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md:
-  docs/ARCHITECTURE.md:
-  docs/SECURITY.md:
-  docs/CLI_GUIDE.md:
-  docs/intent-guard-diagrams/ALL_DIAGRAMS.md:
-  docs/intent-guard-diagrams/README.md:
-  docs/reference/original-monitoring-design.md:
-  examples/task.md:
-  examples/TODO.md:
-  examples/CHANGELOG.md:
-  examples/backend/task.md:
-  examples/backend/tsconfig.json:
-  examples/backend/TODO.md:
-  examples/backend/CHANGELOG.md:
-  examples/backend/README.md:
-  examples/frontend/task.md:
-  examples/frontend/tsconfig.json:
-  examples/frontend/TODO.md:
-  examples/frontend/CHANGELOG.md:
-  examples/frontend/README.md:
-  examples/docs/ARCHITECTURE.md:
-  examples/project/participants.json:
-  examples/project/DEMO-101/human.product-owner.request.001.md:
-  examples/project/DEMO-101/human.security.decision.001.md:
-  examples/project/DEMO-101/agent.rogue.plan.001.md:
-  examples/project/DEMO-101/agent.codex.report.002.md:
-  examples/project/DEMO-101/agent.codex.plan.001.md:
-  examples/sdk/python.py:
+  CONTRIBUTION.md:
+  CHANGELOG.md:
   src/version.ts:
+  src/index.ts:
+  src/operations/types.ts:
+    i: ../core/types.js
+    e: VariableContract,OperationParameterReference,OperationRollback,OperationStep,OperationExpectation,OperationPlan,ResolvedVariableBinding,SubactorProcessEnvelope
+    VariableContract:
+    OperationParameterReference:
+    OperationRollback:
+    OperationStep:
+    OperationExpectation:
+    OperationPlan:
+    ResolvedVariableBinding:
+    SubactorProcessEnvelope:
   src/extractors/docs-types.ts:
     e: RawDocumentRecord,DocumentResponse,DocumentChunk,DocumentationTargetHints,DocumentationExtractionOptions,DocumentationExtractionResult,DocumentChunkResult
     RawDocumentRecord:
@@ -3056,8 +3411,20 @@ Graph compar...
     DocumentationExtractionOptions:
     DocumentationExtractionResult:
     DocumentChunkResult:
+  src/extractors/ast/types.ts:
+    i: ../../core/types.js
+    e: AdapterFact,AdapterOutput
+    AdapterFact:
+    AdapterOutput:
+  src/diff/text-types.ts:
+    e: DiffLine,DiffHunk,FileDiff,DiffTextOptions
+    DiffLine:
+    DiffHunk:
+    FileDiff:
+    DiffTextOptions:
+  src/core/version.ts:
   src/core/types.ts:
-    e: SourceLineRange,IntentTarget,IntentStatement,IntentSource,IntentEpistemic,IntentLifecycle,IntentGenerationMetadata,IntentRecordMetadata,IntentRecord,IntentRelation,IntentGraph,IntentRecordChange,IntentGraphDiff,Diagnostic,DiagnosticReport,GroundedGenerationMetadata,Conclusion,TodoProposal,TodoPatchDuplicateClassification,TodoPatchArtifact,TodoPatchApproval,TodoApplyReceipt,TodoApplyResult,ExtractionResult,LlmResponseMetadata,PipelineStageAudit,PipelineOptions,PipelineManifest
+    e: SourceLineRange,IntentTarget,IntentStatement,IntentSource,IntentEpistemic,IntentLifecycle,IntentGenerationMetadata,IntentRecordMetadata,IntentRecord,IntentRelation,IntentGraph,IntentRecordChange,IntentGraphDiff,Diagnostic,DiagnosticReport,GroundedGenerationMetadata,Conclusion,TodoProposal,CodeChangeFile,CodeChangeRisk,CodeChangePlan,CodeChangeAcceptance,CodeChangeCloseResult,CodeChangeReviewPatch,CodeChangeSourceEdit,CodeChangeSourcePatch,CodeChangeSourcePatchSet,CodeChangeSourcePatchApproval,CodeChangeSourceApplyReceipt,TodoPatchDuplicateClassification,TodoPatchArtifact,TodoPatchApproval,TodoApplyReceipt,TodoApplyResult,ExtractionResult,LlmResponseMetadata,PipelineStageAudit,PipelineOptions,PipelineManifest
     SourceLineRange:
     IntentTarget:
     IntentStatement:
@@ -3076,6 +3443,17 @@ Graph compar...
     GroundedGenerationMetadata:
     Conclusion:
     TodoProposal:
+    CodeChangeFile:
+    CodeChangeRisk:
+    CodeChangePlan:
+    CodeChangeAcceptance:
+    CodeChangeCloseResult:
+    CodeChangeReviewPatch:
+    CodeChangeSourceEdit:
+    CodeChangeSourcePatch:
+    CodeChangeSourcePatchSet:
+    CodeChangeSourcePatchApproval:
+    CodeChangeSourceApplyReceipt:
     TodoPatchDuplicateClassification:
     TodoPatchArtifact:
     TodoPatchApproval:
@@ -3086,81 +3464,98 @@ Graph compar...
     PipelineStageAudit:
     PipelineOptions:
     PipelineManifest:
-  src/core/version.ts:
-  src/diff/text-types.ts:
-    e: DiffLine,DiffHunk,FileDiff,DiffTextOptions
-    DiffLine:
-    DiffHunk:
-    FileDiff:
-    DiffTextOptions:
-  prompts/communication-to-intent.system.md:
-  prompts/summarize.system.md:
-  prompts/docs-to-intent.system.md:
-  prompts/nl-to-intent.system.md:
-  prompts/tasks-from-dsl.system.md:
-  prompts/markdown-to-intent.system.md:
+  sdk/__init__.py:
+  sdk/README.md:
+  sdk/typescript/tsconfig.json:
+  sdk/typescript/package.json:
+  sdk/typescript/README.md:
+  sdk/rust/README.md:
+  sdk/rust/Cargo.toml:
+  sdk/rust/src/lib.rs:
+  sdk/python/__init__.py:
+  sdk/python/README.md:
+  sdk/python/todo2code/__init__.py:
+  sdk/php/composer.json:
+  sdk/php/README.md:
+  sdk/php/examples/basic.php:
+    i: Todo2Code\Client,Todo2Code\Error
+  sdk/go/todo2code.go:
+  sdk/go/README.md:
+  scripts/smoke.sh:
   scripts/package.py:
-  scripts/a2a-request.sh:
   scripts/mcp-request.sh:
-  scripts/docker-smoke.sh:
-    e: cleanup
-    cleanup()
   scripts/examples-check.sh:
     e: cleanup,record_sdk_log,run_sdk
     cleanup()
     record_sdk_log()
     run_sdk()
-  scripts/smoke.sh:
-  adapters/tensorflow/package.json:
+  scripts/docker-smoke.sh:
+    e: cleanup
+    cleanup()
+  scripts/a2a-request.sh:
+  schemas/variable-contract.schema.json:
+  schemas/todo-proposal.schema.json:
+  schemas/todo-patch.schema.json:
+  schemas/participant-synthesis.schema.json:
+  schemas/participant-registry.schema.json:
+  schemas/operation-plan.schema.json:
+  schemas/intent-record.schema.json:
+  schemas/intent-graph.schema.json:
+  schemas/intent-graph-diff.schema.json:
+  schemas/gold-dataset.schema.json:
+  schemas/document-extraction-response.schema.json:
+  schemas/conclusion.schema.json:
+  schemas/code-change-source-patch.schema.json:
+  schemas/code-change-source-patch-set.schema.json:
+  schemas/code-change-source-apply-receipt.schema.json:
+  schemas/code-change-review.schema.json:
+  schemas/code-change-plan.schema.json:
+  schemas/code-change-plan-set.schema.json:
+  schemas/code-change-close-result.schema.json:
+  schemas/code-change-acceptance.schema.json:
+  rust-ast/Cargo.toml:
+  python/requirements.txt:
+  prompts/tasks-from-dsl.system.md:
+  prompts/summarize.system.md:
+  prompts/nl-to-intent.system.md:
+  prompts/markdown-to-intent.system.md:
+  prompts/docs-to-intent.system.md:
+  prompts/communication-to-intent.system.md:
+  examples/task.md:
+  examples/TODO.md:
+  examples/CHANGELOG.md:
+  examples/sdk/python.py:
+  examples/frontend/tsconfig.json:
+  examples/frontend/task.md:
+  examples/frontend/TODO.md:
+  examples/frontend/README.md:
+  examples/frontend/CHANGELOG.md:
+  examples/docs/ARCHITECTURE.md:
+  examples/backend/tsconfig.json:
+  examples/backend/task.md:
+  examples/backend/TODO.md:
+  examples/backend/README.md:
+  examples/backend/CHANGELOG.md:
   evaluation/gold/README.md:
   evaluation/gold/v1/dataset.json:
-  python/requirements.txt:
-  sdk/__init__.py:
-  sdk/go/todo2code.go:
-  sdk/go/README.md:
-  sdk/typescript/tsconfig.json:
-  sdk/typescript/package.json:
-  sdk/typescript/README.md:
-  sdk/rust/Cargo.toml:
-  sdk/rust/README.md:
-  sdk/rust/src/lib.rs:
-  sdk/php/composer.json:
-  sdk/php/README.md:
-  sdk/php/examples/basic.php:
-    i: Todo2Code\Client,Todo2Code\Error
-  sdk/python/__init__.py:
-  sdk/python/pyproject.toml:
-  sdk/python/README.md:
-  sdk/python/todo2code/__init__.py:
-  TODO.md:
-  package.json:
-  docs/PROTOCOLS.md:
-  schemas/variable-contract.schema.json:
-  docs/PIPELINE_DSL_NL.md:
-  schemas/operation-plan.schema.json:
-  CHANGELOG.md:
-  docs/REQUIREMENTS.md:
   docs/VALIDATION.md:
-  docs/PROJECT_STATUS.md:
-  docs/SUBACTOR_OPERATION_DSL.md:
   docs/TEST_REPORT.md:
-  README.md:
-  docs/README.md:
-  src/extractors/ast/types.ts:
-    i: ../../core/types.js
-    e: AdapterFact,AdapterOutput
-    AdapterFact:
-    AdapterOutput:
-  src/index.ts:
-  src/operations/types.ts:
-    i: ../core/types.js
-    e: VariableContract,OperationParameterReference,OperationRollback,OperationStep,OperationExpectation,OperationPlan,ResolvedVariableBinding,SubactorProcessEnvelope
-    VariableContract:
-    OperationParameterReference:
-    OperationRollback:
-    OperationStep:
-    OperationExpectation:
-    OperationPlan:
-    ResolvedVariableBinding:
-    SubactorProcessEnvelope:
-  sdk/README.md:
+  docs/TEAM_COMMUNICATION.md:
+  docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md:
+  docs/SUBACTOR_OPERATION_DSL.md:
+  docs/SECURITY.md:
+  docs/REQUIREMENTS.md:
+  docs/READINESS.md:
+  docs/PROTOCOLS.md:
+  docs/PIPELINE_DSL_NL.md:
+  docs/OPTIMIZATION.md:
+  docs/GROK-PLAN.md:
+  docs/DSL.md:
+  docs/DEMOLLM.md:
+  docs/CODE_CHANGE_PLANS.md:
+  docs/CLI_GUIDE.md:
+  docs/ARCHITECTURE.md:
+  docs/reference/original-monitoring-design.md:
+  docs/intent-guard-diagrams/README.md:
+  docs/intent-guard-diagrams/ALL_DIAGRAMS.md:
+  adapters/tensorflow/package.json:

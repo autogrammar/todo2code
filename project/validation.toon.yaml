@@ -1,658 +1,106 @@
-# vallm batch | 306f | 0✓ 205⚠ 0✗ | 2026-07-30
+# vallm batch | 320f | 190✓ 29⚠ 0✗ | 2026-07-30
 
 SUMMARY:
-  scanned: 306  passed: 0 (0.0%)  warnings: 205  errors: 0  unsupported: 0
+  scanned: 320  passed: 190 (59.4%)  warnings: 29  errors: 0  unsupported: 0
 
-WARNINGS[205]{path,score}:
-  src/operations/validation.ts,0.64
-    issues[5]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+WARNINGS[29]{path,score}:
+  src/operations/validation.ts,0.80
+    issues[4]{rule,severity,message,line}:
       complexity.lizard_cc,warning,assertVariableContract: CC=19 exceeds limit 15,62
       complexity.lizard_cc,warning,assertGeneration: CC=16 exceeds limit 15,110
       complexity.lizard_cc,warning,assertOperationPlan: CC=82 exceeds limit 15,153
       complexity.lizard_length,warning,assertOperationPlan: 129 lines exceeds limit 100,153
-  src/extractors/communication.ts,0.68
-    issues[4]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-      complexity.lizard_cc,warning,extractCommunicationIntent: CC=67 exceeds limit 15,41
-      complexity.lizard_length,warning,extractCommunicationIntent: 126 lines exceeds limit 100,41
-      complexity.lizard_cc,warning,inferIdentity: CC=22 exceeds limit 15,206
-  src/core/ignore.ts,0.71
+  src/extractors/communication.ts,0.85
     issues[3]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+      complexity.lizard_cc,warning,extractCommunicationIntent: CC=71 exceeds limit 15,41
+      complexity.lizard_length,warning,extractCommunicationIntent: 135 lines exceeds limit 100,41
+      complexity.lizard_cc,warning,inferIdentity: CC=22 exceeds limit 15,215
+  src/core/ignore.ts,0.90
+    issues[2]{rule,severity,message,line}:
       complexity.lizard_cc,warning,translateGlob: CC=29 exceeds limit 15,77
       complexity.lizard_length,warning,translateGlob: 107 lines exceeds limit 100,77
-  src/core/schema.ts,0.71
-    issues[3]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-      complexity.lizard_cc,warning,assertIntentRecord: CC=23 exceeds limit 15,52
-      complexity.lizard_cc,warning,assertGroundedGenerationMetadata: CC=22 exceeds limit 15,371
-  src/diff/text.ts,0.71
-    issues[3]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-      complexity.lizard_cc,warning,myers: CC=21 exceeds limit 15,134
-      complexity.lizard_cc,warning,backtrack: CC=25 exceeds limit 15,166
-  src/interfaces/a2a-task-store.ts,0.71
-    issues[3]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/core/schema.ts,0.90
+    issues[2]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,assertIntentRecord: CC=23 exceeds limit 15,74
+      complexity.lizard_cc,warning,assertGroundedGenerationMetadata: CC=22 exceeds limit 15,533
+  src/diff/text.ts,0.90
+    issues[2]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,myers: CC=21 exceeds limit 15,140
+      complexity.lizard_cc,warning,backtrack: CC=25 exceeds limit 15,172
+  src/interfaces/a2a-task-store.ts,0.90
+    issues[2]{rule,severity,message,line}:
       complexity.lizard_cc,warning,listTasks: CC=41 exceeds limit 15,397
       complexity.lizard_length,warning,listTasks: 107 lines exceeds limit 100,397
-  src/pipeline/run.ts,0.71
-    issues[3]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-      complexity.lizard_cc,warning,runPipeline: CC=63 exceeds limit 15,45
-      complexity.lizard_length,warning,runPipeline: 310 lines exceeds limit 100,45
-  src/services/actions.ts,0.71
-    issues[3]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-      complexity.lizard_cc,warning,executeAction: CC=36 exceeds limit 15,54
-      complexity.lizard_length,warning,executeAction: 257 lines exceeds limit 100,54
-  examples/backend/src/server.ts,0.74
+  src/pipeline/run.ts,0.90
     issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+      complexity.lizard_cc,warning,runPipeline: CC=63 exceeds limit 15,54
+      complexity.lizard_length,warning,runPipeline: 357 lines exceeds limit 100,54
+  src/services/actions.ts,0.90
+    issues[2]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,executeAction: CC=82 exceeds limit 15,71
+      complexity.lizard_length,warning,executeAction: 433 lines exceeds limit 100,71
+  examples/backend/src/server.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,handleRequest: CC=18 exceeds limit 15,28
-  sdk/go/examples/basic/main.go,0.74
+  python/ast_extract.py,0.95
     issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse GO: Download error: Language 'GO' not available for download. Available groups: [""all""]",
+      complexity.cyclomatic,warning,iter_python_files has cyclomatic complexity 16 (max: 15),113
+      complexity.lizard_cc,warning,iter_python_files: CC=16 exceeds limit 15,113
+  sdk/go/examples/basic/main.go,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,run: CC=19 exceeds limit 15,29
-  sdk/php/src/Client.php,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PHP: Download error: Language 'PHP' not available for download. Available groups: [""all""]",
+  sdk/php/src/Client.php,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,Client::call: CC=21 exceeds limit 15,106
-  sdk/rust/examples/basic.rs,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse RUST: Download error: Language 'RUST' not available for download. Available groups: [""all""]",
+  sdk/rust/examples/basic.rs,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,run: CC=20 exceeds limit 15,27
-  src/cli.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-      complexity.lizard_cc,warning,handleExtract: CC=20 exceeds limit 15,403
-  src/communication/identity.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/cli.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,handleExtract: CC=20 exceeds limit 15,511
+  src/communication/identity.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,assertParticipantIdentityRegistry: CC=29 exceeds limit 15,51
-  src/comparison/workspace.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/comparison/workspace.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,commonPipelineOptions: CC=19 exceeds limit 15,192
-  src/core/record.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/core/record.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,buildRecord: CC=33 exceeds limit 15,57
-  src/core/text.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-      complexity.lizard_cc,warning,inferObject: CC=31 exceeds limit 15,231
-  src/extractors/ast/typescript.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/core/text.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,inferObject: CC=31 exceeds limit 15,295
+  src/extractors/ast/typescript.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,visit: CC=26 exceeds limit 15,76
-  src/extractors/docs-record.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/extractors/docs-record.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,toDocumentIntentRecord: CC=19 exceeds limit 15,25
-  src/extractors/markdown-llm.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/extractors/markdown-llm.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,isMarkdownEnrichment: CC=17 exceeds limit 15,176
-  src/extractors/nl-llm.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-      complexity.lizard_cc,warning,toIntentRecord: CC=23 exceeds limit 15,127
-  src/interfaces/a2a-message.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/extractors/nl-llm.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,toIntentRecord: CC=24 exceeds limit 15,127
+  src/interfaces/a2a-card.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_length,warning,skills: 103 lines exceeds limit 100,55
+  src/interfaces/a2a-message.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_length,warning,parseKeyValues: 119 lines exceeds limit 100,67
-  src/llm/openrouter.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/llm/openrouter.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,request: CC=24 exceeds limit 15,153
-  src/tf/classifier.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/synthesis/code-change-path.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,isPlannablePath: CC=37 exceeds limit 15,138
+  src/synthesis/code-change-plan.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,proposeCodeChangePlans: CC=21 exceeds limit 15,102
+  src/tf/classifier.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,classifyAction: CC=18 exceeds limit 15,69
-  src/watch/watcher.ts,0.74
-    issues[2]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
+  src/watch/watcher.ts,0.95
+    issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,watchRepository: CC=21 exceeds limit 15,147
-  adapters/tensorflow/package.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  evaluation/gold/v1/dataset.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  examples/backend/src/store.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  examples/backend/src/validation.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  examples/backend/tsconfig.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  examples/frontend/src/api.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  examples/frontend/src/app.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  examples/frontend/src/render.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  examples/frontend/tsconfig.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  examples/project/participants.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  examples/sdk/python.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  examples/src/helper.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  examples/src/runtime.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  golang/ast_extract.go,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse GO: Download error: Language 'GO' not available for download. Available groups: [""all""]",
-  java/JavaAstExtract.java,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JAVA: Download error: Language 'JAVA' not available for download. Available groups: [""all""]",
-  package.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  project.sh,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse BASH: Download error: Language 'BASH' not available for download. Available groups: [""all""]",
-  project/calls.yaml,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse YAML: Download error: Language 'YAML' not available for download. Available groups: [""all""]",
-  project/planfile-tickets.yaml,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse YAML: Download error: Language 'YAML' not available for download. Available groups: [""all""]",
-  python/ast_extract.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  rust-ast/Cargo.toml,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TOML: Download error: Language 'TOML' not available for download. Available groups: [""all""]",
-  rust-ast/src/main.rs,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse RUST: Download error: Language 'RUST' not available for download. Available groups: [""all""]",
-  schemas/conclusion.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/document-extraction-response.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/gold-dataset.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/intent-graph-diff.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/intent-graph.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/intent-record.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/operation-plan.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/participant-registry.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/participant-synthesis.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/todo-patch.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/todo-proposal.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  schemas/variable-contract.schema.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  scripts/a2a-request.sh,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse BASH: Download error: Language 'BASH' not available for download. Available groups: [""all""]",
-  scripts/docker-smoke.sh,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse BASH: Download error: Language 'BASH' not available for download. Available groups: [""all""]",
-  scripts/examples-check.sh,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse BASH: Download error: Language 'BASH' not available for download. Available groups: [""all""]",
-  scripts/mcp-request.sh,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse BASH: Download error: Language 'BASH' not available for download. Available groups: [""all""]",
-  scripts/package.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  scripts/smoke.sh,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse BASH: Download error: Language 'BASH' not available for download. Available groups: [""all""]",
-  sdk/__init__.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  sdk/go/actions.go,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse GO: Download error: Language 'GO' not available for download. Available groups: [""all""]",
-  sdk/go/client.go,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse GO: Download error: Language 'GO' not available for download. Available groups: [""all""]",
-  sdk/go/todo2code.go,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse GO: Download error: Language 'GO' not available for download. Available groups: [""all""]",
-  sdk/go/types.go,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse GO: Download error: Language 'GO' not available for download. Available groups: [""all""]",
-  sdk/php/composer.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  sdk/php/examples/basic.php,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PHP: Download error: Language 'PHP' not available for download. Available groups: [""all""]",
-  sdk/php/src/Error.php,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PHP: Download error: Language 'PHP' not available for download. Available groups: [""all""]",
-  sdk/python/__init__.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  sdk/python/examples/basic.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  sdk/python/examples/local_runtime.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  sdk/python/pyproject.toml,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TOML: Download error: Language 'TOML' not available for download. Available groups: [""all""]",
-  sdk/python/todo2code/__init__.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  sdk/python/todo2code/client.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  sdk/python/todo2code/runtime.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  sdk/python/todo2code_sdk.py,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse PYTHON: Download error: Language 'PYTHON' not available for download. Available groups: [""all""]",
-  sdk/rust/Cargo.toml,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TOML: Download error: Language 'TOML' not available for download. Available groups: [""all""]",
-  sdk/rust/src/actions.rs,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse RUST: Download error: Language 'RUST' not available for download. Available groups: [""all""]",
-  sdk/rust/src/client.rs,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse RUST: Download error: Language 'RUST' not available for download. Available groups: [""all""]",
-  sdk/rust/src/error.rs,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse RUST: Download error: Language 'RUST' not available for download. Available groups: [""all""]",
-  sdk/rust/src/lib.rs,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse RUST: Download error: Language 'RUST' not available for download. Available groups: [""all""]",
-  sdk/rust/src/types.rs,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse RUST: Download error: Language 'RUST' not available for download. Available groups: [""all""]",
-  sdk/typescript/examples/basic.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  sdk/typescript/package.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  sdk/typescript/src/index.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  sdk/typescript/tsconfig.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
-  src/communication/analyzer.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/communication/llm.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/config/env.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/core/id.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/core/io.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/core/security.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/core/target.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/core/types.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/core/version.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/diff/git.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/diff/reality.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/diff/svg.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/diff/text-render.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/diff/text-types.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/evaluation/gold-cases.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/evaluation/gold-cli.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/evaluation/gold-extraction.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/evaluation/gold-metrics.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/evaluation/gold-types.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/evaluation/gold.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast/external.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast/go.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast/java.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast/python.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast/records.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast/rust.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast/types.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/ast/unsupported.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/changelog.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/configuration.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/docs-chunks.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/docs-deterministic.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/docs-llm.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/docs-schema.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/docs-types.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/git.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/markdown-block.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/markdown.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/nl.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/extractors/todo.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/graph/diagnostics.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/graph/diff.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/graph/linker.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/index.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/interfaces/a2a-card.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/interfaces/a2a-history.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/interfaces/a2a-types.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/interfaces/a2a.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/interfaces/mcp-errors.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/interfaces/mcp-resources.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/interfaces/mcp-tools.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/interfaces/mcp.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/llm/audit.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/llm/failure.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/operations/artifact.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/operations/compile-cli.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/operations/contract.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/operations/subactor.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/operations/types.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/sdk/typescript.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/summary/payload.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/summary/render.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/summary/summarizer.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/synthesis/tasks-llm.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/synthesis/todo-patch.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/synthesis/validation.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/version.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  src/web/diff-ui.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/a2a.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/ast-go.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/ast-languages.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/ast.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/cli-summary.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/cli-todo.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/cli-watch.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/communication-identity.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/communication-llm.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/communication.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/configuration.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/diff-engine.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/diff.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/docs-llm-repair.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/docs.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/fixtures/languages/Sample.java,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JAVA: Download error: Language 'JAVA' not available for download. Available groups: [""all""]",
-  test/fixtures/languages/sample.rs,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse RUST: Download error: Language 'RUST' not available for download. Available groups: [""all""]",
-  test/git.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/gold-evaluation.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/graph.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/grounded-contracts.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/helpers.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/ignore.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/io.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/linker-pairing.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/markdown.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/mcp.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/nl-llm.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/nl.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/openrouter.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/operation-plan.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/pipeline.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/proposal-validation.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/python-runtime.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/schema-validation.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/sdk.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/security.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/target.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/task-synthesis.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/tensorflow.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/todo-patch.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/watch.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/workflow-validation.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  test/workspace.test.ts,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse TYPESCRIPT: Download error: Language 'TYPESCRIPT' not available for download. Available groups: [""all""]",
-  tsconfig.json,0.78
-    issues[1]{rule,severity,message,line}:
-      syntax.unsupported,warning,"Could not parse JSON: Download error: Language 'JSON' not available for download. Available groups: [""all""]",
 

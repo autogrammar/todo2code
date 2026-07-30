@@ -1,41 +1,41 @@
-# redup/duplication | 13 groups | 141f 22981L | 2026-07-30
+# redup/duplication | 14 groups | 148f 25790L | 2026-07-30
 
 SUMMARY:
-  files_scanned: 141
-  total_lines:   22981
-  dup_groups:    13
-  actionable:    13
+  files_scanned: 148
+  total_lines:   25790
+  dup_groups:    14
+  actionable:    14
   review:        0
   generated:     0
-  actionable_L:  89
+  actionable_L:  93
   review_L:      0
   generated_L:   0
-  dup_fragments: 33
-  saved_lines:   89
-  scan_ms:       1044
+  dup_fragments: 35
+  saved_lines:   93
+  scan_ms:       1009
 
 HOTSPOTS[7] (files with most duplication):
   src/extractors/markdown-llm.ts  dup=23L  groups=4  frags=4  (0.1%)
   src/communication/llm.ts  dup=23L  groups=4  frags=4  (0.1%)
-  src/extractors/nl-llm.ts  dup=21L  groups=6  frags=6  (0.1%)
-  src/extractors/docs-llm.ts  dup=12L  groups=3  frags=3  (0.1%)
-  src/extractors/docs-record.ts  dup=12L  groups=4  frags=4  (0.1%)
-  src/synthesis/tasks-llm.ts  dup=9L  groups=2  frags=2  (0.0%)
+  src/extractors/nl-llm.ts  dup=18L  groups=5  frags=5  (0.1%)
+  src/synthesis/tasks-llm.ts  dup=13L  groups=3  frags=3  (0.1%)
+  src/extractors/docs-llm.ts  dup=12L  groups=3  frags=3  (0.0%)
+  src/summary/summarizer.ts  dup=9L  groups=2  frags=2  (0.0%)
   scripts/verify-env-contract.mjs  dup=9L  groups=1  frags=1  (0.0%)
 
-DUPLICATES[13] (ranked by impact):
+DUPLICATES[14] (ranked by impact):
   [ff0b7d1fb897f5eb]   EXAC  readPrompt  L=5 N=5 saved=20 sim=1.00
       src/extractors/docs-llm.ts:188-192  (readPrompt)
       src/extractors/markdown-llm.ts:279-283  (readPrompt)
-      src/extractors/nl-llm.ts:227-231  (readPrompt)
-      src/summary/summarizer.ts:343-347  (readPrompt)
-      src/synthesis/tasks-llm.ts:379-383  (readPrompt)
+      src/extractors/nl-llm.ts:235-239  (readPrompt)
+      src/summary/summarizer.ts:408-412  (readPrompt)
+      src/synthesis/tasks-llm.ts:560-564  (readPrompt)
   [09873fe5d7f53db8]   STRU  constructor  L=4 N=5 saved=16 sim=1.00
       src/communication/llm.ts:80-83  (constructor)
       src/extractors/docs-llm.ts:36-39  (constructor)
       src/extractors/markdown-llm.ts:48-51  (constructor)
       src/extractors/nl-llm.ts:46-49  (constructor)
-      src/synthesis/tasks-llm.ts:51-54  (constructor)
+      src/synthesis/tasks-llm.ts:52-55  (constructor)
   [8f9cb44a5788fdd0]   EXAC  collect  L=9 N=2 saved=9 sim=1.00
       scripts/verify-env-contract.mjs:95-103  (collect)
       scripts/verify-module-boundaries.mjs:59-67  (collect)
@@ -53,25 +53,28 @@ DUPLICATES[13] (ranked by impact):
       src/communication/analyzer.ts:321-325  (roleOf)
       src/communication/llm.ts:426-430  (roleOf)
   [5a74faa98e248ba6]   EXAC  objectValue  L=4 N=2 saved=4 sim=1.00
-      src/core/schema.ts:476-479  (objectValue)
+      src/core/schema.ts:771-774  (objectValue)
       src/operations/validation.ts:18-21  (objectValue)
-  [030166b05976a014]   EXAC  isPlaceholder  L=3 N=2 saved=3 sim=1.00
-      src/extractors/docs-record.ts:75-77  (isPlaceholder)
-      src/extractors/nl-llm.ts:178-180  (isPlaceholder)
+  [bd6578d73c14c374]   STRU  constructor  L=4 N=2 saved=4 sim=1.00
+      src/summary/summarizer.ts:143-146  (constructor)
+      src/synthesis/tasks-llm.ts:59-62  (constructor)
   [cf429410d135f725]   EXAC  clampLine  L=3 N=2 saved=3 sim=1.00
       src/extractors/docs-record.ts:179-181  (clampLine)
-      src/extractors/nl-llm.ts:215-217  (clampLine)
+      src/extractors/nl-llm.ts:223-225  (clampLine)
   [85958beabc80c768]   EXAC  allowedAction  L=3 N=2 saved=3 sim=1.00
       src/extractors/docs-record.ts:183-185  (allowedAction)
-      src/extractors/nl-llm.ts:219-221  (allowedAction)
+      src/extractors/nl-llm.ts:227-229  (allowedAction)
   [9b7097c5386e9cfa]   EXAC  allowedModality  L=3 N=2 saved=3 sim=1.00
       src/extractors/docs-record.ts:187-189  (allowedModality)
-      src/extractors/nl-llm.ts:223-225  (allowedModality)
+      src/extractors/nl-llm.ts:231-233  (allowedModality)
   [dabffb80a2fd2146]   EXAC  nonBlank  L=3 N=2 saved=3 sim=1.00
       src/operations/validation.ts:31-33  (nonBlank)
       src/synthesis/todo-patch.ts:346-348  (nonBlank)
+  [21ba1336248390a4]   EXAC  renderIds  L=3 N=2 saved=3 sim=1.00
+      src/synthesis/code-change-plan.ts:613-615  (renderIds)
+      src/synthesis/todo-patch.ts:317-319  (renderIds)
 
-REFACTOR[13] (ranked by priority):
+REFACTOR[14] (ranked by priority):
   [1] ○ extract_function   → src/utils/readPrompt.py
       WHY: 5 occurrences of 5-line block across 5 files — saves 20 lines
       FILES: src/extractors/docs-llm.ts, src/extractors/markdown-llm.ts, src/extractors/nl-llm.ts, src/summary/summarizer.ts, src/synthesis/tasks-llm.ts
@@ -96,9 +99,9 @@ REFACTOR[13] (ranked by priority):
   [8] ○ extract_function   → src/utils/objectValue.py
       WHY: 2 occurrences of 4-line block across 2 files — saves 4 lines
       FILES: src/core/schema.ts, src/operations/validation.ts
-  [9] ○ extract_function   → src/extractors/utils/isPlaceholder.py
-      WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
-      FILES: src/extractors/docs-record.ts, src/extractors/nl-llm.ts
+  [9] ○ extract_function   → src/utils/constructor.py
+      WHY: 2 occurrences of 4-line block across 2 files — saves 4 lines
+      FILES: src/summary/summarizer.ts, src/synthesis/tasks-llm.ts
   [10] ○ extract_function   → src/extractors/utils/clampLine.py
       WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
       FILES: src/extractors/docs-record.ts, src/extractors/nl-llm.ts
@@ -111,6 +114,9 @@ REFACTOR[13] (ranked by priority):
   [13] ○ extract_function   → src/utils/nonBlank.py
       WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
       FILES: src/operations/validation.ts, src/synthesis/todo-patch.ts
+  [14] ○ extract_function   → src/synthesis/utils/renderIds.py
+      WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
+      FILES: src/synthesis/code-change-plan.ts, src/synthesis/todo-patch.ts
 
 QUICK_WINS[6] (low risk, high savings — do first):
   [1] extract_function   saved=20L  → src/utils/readPrompt.py
@@ -126,7 +132,7 @@ QUICK_WINS[6] (low risk, high savings — do first):
   [6] extract_function   saved=6L  → src/utils/errorMessage.py
       FILES: docs-llm.ts, a2a-task-store.ts, a2a.ts
 
-EFFORT_ESTIMATE (total ≈ 3.0h):
+EFFORT_ESTIMATE (total ≈ 3.1h):
   medium readPrompt                          saved=20L  ~40min
   medium constructor                         saved=16L  ~32min
   easy   collect                             saved=9L  ~18min
@@ -135,10 +141,10 @@ EFFORT_ESTIMATE (total ≈ 3.0h):
   easy   errorMessage                        saved=6L  ~12min
   easy   roleOf                              saved=5L  ~10min
   easy   objectValue                         saved=4L  ~8min
-  easy   isPlaceholder                       saved=3L  ~6min
+  easy   constructor                         saved=4L  ~8min
   easy   clampLine                           saved=3L  ~6min
-  ... +3 more (~18min)
+  ... +4 more (~24min)
 
 METRICS-TARGET:
-  dup_groups:  13 → 0
-  saved_lines: 89 lines recoverable
+  dup_groups:  14 → 0
+  saved_lines: 93 lines recoverable

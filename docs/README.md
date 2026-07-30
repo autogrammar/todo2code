@@ -1,11 +1,11 @@
 <!-- code2docs:start --># todo2code
 
-![version](https://img.shields.io/badge/version-0.5.0-blue) ![node](https://img.shields.io/badge/node-%3E%3D20-339933) ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey) ![functions](https://img.shields.io/badge/functions-2491-green)
-> **2491** functions | **271** classes | **222** files | CC̄ = 3.8
+![version](https://img.shields.io/badge/version-0.5.0-blue) ![node](https://img.shields.io/badge/node-%3E%3D20-339933) ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey) ![functions](https://img.shields.io/badge/functions-2824-green)
+> **2824** functions | **296** classes | **244** files | CC̄ = 3.9
 
 > Auto-generated project documentation from source code analysis.
 
-**Author:** Tom Softreck <tom@sapletta.com>  
+**Author:** Tom Softreck <tom@sapletta.com>
 **License:** [Apache-2.0](../LICENSE)
 **Repository:** [https://github.com/semcod/todo2code](https://github.com/semcod/todo2code)
 
@@ -36,17 +36,156 @@ npm start
 
 ```
 todo2code/
-├── TASK
 ├── Makefile
-├── docker-compose
+├── README
 ├── tsconfig
-├── CONTRIBUTION
-├── TODO
 ├── package
+├── TODO
 ├── CHANGELOG
 ├── Dockerfile
+├── CONTRIBUTION
 ├── project
-├── README
+├── docker-compose
+├── src/
+    ├── version
+├── TASK
+        ├── classifier
+        ├── payload
+        ├── watcher
+        ├── diff-ui
+        ├── contract
+        ├── types
+        ├── compile-cli
+        ├── artifact
+        ├── failure
+        ├── audit
+        ├── typescript
+        ├── subactor
+        ├── render
+        ├── validation
+        ├── mcp-tools
+        ├── mcp-errors
+        ├── mcp-resources
+        ├── mcp
+        ├── code-change-path
+        ├── a2a-types
+        ├── openrouter
+        ├── a2a-card
+        ├── validation
+        ├── a2a
+        ├── diff
+        ├── summarizer
+        ├── tasks-llm
+        ├── nl
+        ├── markdown
+        ├── a2a-history
+        ├── markdown-block
+        ├── docs-types
+        ├── a2a-message
+        ├── todo-patch
+        ├── diagnostics
+        ├── docs-schema
+        ├── todo
+        ├── a2a-task-store
+        ├── nl-llm
+        ├── git
+        ├── configuration
+    ├── cli
+        ├── docs-record
+        ├── actions
+        ├── docs-llm
+        ├── changelog
+        ├── docs-deterministic
+        ├── docs-chunks
+            ├── java
+            ├── types
+        ├── ast
+            ├── rust
+            ├── go
+            ├── unsupported
+            ├── records
+            ├── external
+        ├── linker
+        ├── text-types
+            ├── python
+        ├── gold-cli
+            ├── typescript
+        ├── gold-types
+        ├── markdown-llm
+        ├── gold-extraction
+        ├── version
+        ├── svg
+        ├── run
+        ├── communication
+        ├── security
+        ├── gold-metrics
+        ├── record
+        ├── types
+        ├── grounding
+        ├── gold
+        ├── gold-cases
+        ├── target
+        ├── ignore
+    ├── README
+        ├── tsconfig
+        ├── id
+        ├── package
+        ├── README
+        ├── io
+        ├── README
+        ├── Cargo
+        ├── text
+        ├── identity
+        ├── git
+        ├── src
+        ├── env
+            ├── error
+        ├── text
+        ├── pyproject
+            ├── types
+            ├── basic
+        ├── README
+            ├── actions
+            ├── basic
+        ├── src/
+        ├── code-change-plan
+        ├── reality
+        ├── README
+        ├── composer
+            ├── client
+            ├── Error
+        ├── text-render
+            ├── basic
+        ├── types
+        ├── workspace
+        ├── README
+        ├── actions
+    ├── verify-workflow-yaml
+            ├── Client
+                ├── main
+    ├── verify-no-llm-imports
+        ├── analyzer
+    ├── verify-generated-analysis
+    ├── verify-module-boundaries
+    ├── sync-generated-readme-metadata
+    ├── verify-env-contract
+        ├── client
+    ├── mcp-request
+    ├── normalize-generated-analysis-roots
+    ├── examples-check
+    ├── smoke
+    ├── docker-smoke
+    ├── a2a-request
+        ├── llm
+        ├── schema
+    ├── assert-demollm-run
+        ├── schema
+        ├── schema
+        ├── schema
+        ├── schema
+        ├── schema
+        ├── schema
+        ├── schema
         ├── schema
         ├── schema
         ├── schema
@@ -60,203 +199,86 @@ todo2code/
         ├── schema
         ├── schema
     ├── Cargo
+    ├── requirements
+        ├── system
+        ├── system
+        ├── system
+        ├── system
+        ├── system
         ├── main
-    ├── PROTOCOLS
-    ├── DSL
-    ├── TEAM_COMMUNICATION
-    ├── PIPELINE_DSL_NL
-    ├── REQUIREMENTS
-    ├── VALIDATION
-    ├── OPTIMIZATION
-    ├── TEST_REPORT
-    ├── SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW
-    ├── SUBACTOR_OPERATION_DSL
-    ├── ARCHITECTURE
-    ├── SECURITY
-    ├── PROJECT_STATUS
-    ├── CLI_GUIDE
-    ├── README
-        ├── ALL_DIAGRAMS
+    ├── live-contract-check
+        ├── system
+        ├── logs
         ├── README
-        ├── original-monitoring-design
-    ├── task
+        ├── AI-Codex
+        ├── schema
     ├── TODO
+    ├── task
     ├── CHANGELOG
-        ├── task
-        ├── tsconfig
-        ├── TODO
-        ├── CHANGELOG
-        ├── README
-            ├── validation
-            ├── store
-            ├── server
-        ├── task
-        ├── tsconfig
-        ├── TODO
-        ├── CHANGELOG
-        ├── README
-            ├── api
-            ├── render
-            ├── app
-        ├── ARCHITECTURE
-        ├── helper
         ├── runtime
+        ├── typescript
+    ├── ast_extract
         ├── participants
                         ├── 001
                         ├── 001
                         ├── 001
+    ├── JavaAstExtract
                         ├── 002
                         ├── 001
-        ├── python
-        ├── typescript
-    ├── JavaAstExtract
-├── src/
-    ├── cli
-    ├── version
-        ├── nl
-        ├── ast
-        ├── configuration
-        ├── docs-schema
-        ├── nl-llm
-        ├── docs-llm
-        ├── markdown
-        ├── changelog
-        ├── docs-deterministic
-        ├── docs-record
-        ├── todo
-        ├── markdown-block
-        ├── communication
-        ├── git
-        ├── docs-chunks
-        ├── markdown-llm
-        ├── docs-types
-            ├── types
-            ├── rust
-            ├── external
-            ├── python
-            ├── go
-            ├── unsupported
-            ├── records
-            ├── java
-            ├── typescript
-        ├── diff
-        ├── linker
-        ├── diagnostics
-        ├── actions
-        ├── classifier
-        ├── types
-        ├── target
-        ├── text
-        ├── security
-        ├── ignore
-        ├── id
-        ├── version
-        ├── record
-        ├── io
-        ├── schema
-        ├── diff-ui
-        ├── todo-patch
-        ├── validation
-        ├── tasks-llm
-        ├── workspace
-        ├── openrouter
-        ├── failure
-        ├── audit
-        ├── env
-        ├── a2a-card
-        ├── a2a-message
-        ├── mcp-errors
-        ├── mcp
-        ├── a2a
-        ├── a2a-types
-        ├── mcp-tools
-        ├── mcp-resources
-        ├── a2a-task-store
-        ├── a2a-history
-        ├── svg
-        ├── text
-        ├── reality
-        ├── text-types
-        ├── git
-        ├── text-render
-        ├── payload
-        ├── summarizer
-        ├── render
-        ├── run
-        ├── gold-extraction
-        ├── gold-types
-        ├── gold-cases
-        ├── gold-metrics
-        ├── gold
-        ├── gold-cli
-        ├── types
-        ├── artifact
-        ├── subactor
-        ├── validation
-        ├── contract
-        ├── compile-cli
-        ├── watcher
-        ├── typescript
-        ├── llm
-        ├── analyzer
-        ├── identity
-    ├── ast_extract
-        ├── system
-        ├── system
-        ├── system
-        ├── system
-        ├── system
-        ├── system
-    ├── verify-env-contract
-    ├── package
-    ├── a2a-request
-    ├── mcp-request
-    ├── docker-smoke
-    ├── examples-check
-    ├── live-contract-check
-    ├── verify-no-llm-imports
-    ├── verify-workflow-yaml
-    ├── verify-module-boundaries
-    ├── smoke
-        ├── package
-        ├── README
-            ├── dataset
-    ├── requirements
-    ├── ast_extract
-├── sdk/
-    ├── README
-        ├── client
-        ├── todo2code
-        ├── types
-        ├── actions
-        ├── README
-                ├── main
         ├── tsconfig
+        ├── task
+        ├── TODO
+        ├── README
+        ├── CHANGELOG
+            ├── app
+            ├── api
+            ├── render
+        ├── ARCHITECTURE
+        ├── tsconfig
+        ├── TODO
+        ├── task
+        ├── todo2code
+        ├── README
+        ├── CHANGELOG
+            ├── store
+        ├── README
+            ├── server
+            ├── dataset
+    ├── VALIDATION
+    ├── TEST_REPORT
+    ├── TEAM_COMMUNICATION
+    ├── SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW
+    ├── SUBACTOR_OPERATION_DSL
+    ├── SECURITY
+    ├── REQUIREMENTS
+    ├── PROTOCOLS
+    ├── READINESS
+    ├── PIPELINE_DSL_NL
+    ├── PROJECT_STATUS
+            ├── validation
+    ├── OPTIMIZATION
+    ├── GROK-PLAN
+    ├── DSL
+    ├── DEMOLLM
+    ├── CODE_CHANGE_PLANS
+    ├── ARCHITECTURE
+    ├── CLI_GUIDE
+        ├── original-monitoring-design
+        ├── README
+        ├── ALL_DIAGRAMS
         ├── package
-        ├── README
-            ├── basic
-        ├── src/
-        ├── Cargo
-        ├── README
-            ├── basic
-            ├── actions
-            ├── error
-        ├── src
-            ├── types
-            ├── client
-        ├── composer
-        ├── README
-            ├── basic
-            ├── Client
-            ├── Error
-        ├── todo2code_sdk
+        ├── todo2code/
     ├── python/
-        ├── pyproject
-        ├── README
+├── sdk/
+        ├── todo2code_sdk
+    ├── vallm-compatible
+        ├── helper
+            ├── runtime
             ├── basic
             ├── local_runtime
-            ├── runtime
-        ├── todo2code/
+        ├── python
+    ├── package
+    ├── ast_extract
             ├── client
 ```
 
@@ -264,42 +286,73 @@ todo2code/
 
 ### Classes
 
-- **`Fact`** — —
-- **`Output`** — —
-- **`Collector`** — —
-- **`ValidationResult`** — —
-- **`IntentEvent`** — —
-- **`EventPage`** — —
-- **`EventStore`** — —
-- **`BackendOptions`** — —
-- **`IntentEvent`** — —
-- **`EventPage`** — —
-- **`ApiError`** — —
-- **`PanelRow`** — —
-- **`PanelState`** — —
-- **`Contract`** — —
-- **`JavaAstExtract`** — —
-- **`ParsedArgs`** — —
+- **`TfTensor`** — —
+- **`TfModel`** — —
+- **`TfModule`** — —
+- **`ModelAssets`** — —
+- **`SnapshotDelta`** — —
+- **`ScanOptions`** — —
+- **`ReportResult`** — —
+- **`WatchOptions`** — —
+- **`VariableContract`** — —
+- **`OperationParameterReference`** — —
+- **`OperationRollback`** — —
+- **`OperationStep`** — —
+- **`OperationExpectation`** — —
+- **`OperationPlan`** — —
+- **`ResolvedVariableBinding`** — —
+- **`SubactorProcessEnvelope`** — —
+- **`CompileOperationPlanArtifactOptions`** — —
+- **`OperationPlanCompilationReceipt`** — —
+- **`LlmFailureReason`** — —
+- **`Todo2CodeClientOptions`** — —
+- **`DiffResult`** — —
+- **`FileDiffResult`** — —
+- **`GitDiffResponse`** — —
+- **`RealityResult`** — —
+- **`Todo2CodeClient`** — —
+- **`CompileSubactorEnvelopeOptions`** — —
+- **`TodoProposalDuplicate`** — —
+- **`TodoProposalValidationResult`** — —
+- **`McpTool`** — —
+- **`McpRequestError`** — —
+- **`JsonRpcRequest`** — —
+- **`McpConnectionState`** — —
+- **`JsonRpcRequest`** — —
+- **`A2APart`** — —
+- **`A2AMessage`** — —
+- **`A2AArtifact`** — —
+- **`A2ATask`** — —
+- **`StoredTask`** — —
+- **`SendConfiguration`** — —
+- **`A2ARequestError`** — —
+- **`BodyTooLargeError`** — —
+- **`ChatMessage`** — —
+- **`OpenRouterChoice`** — —
+- **`OpenRouterResponse`** — —
+- **`OpenRouterResult`** — —
+- **`OpenRouterModelsResponse`** — —
+- **`OpenRouterModelError`** — —
+- **`OpenRouterClient`** — —
+- **`DiffSvgOptions`** — —
+- **`SummaryResult`** — —
+- **`SummaryOptions`** — —
+- **`RawConclusion`** — —
+- **`RawSummaryResponse`** — —
+- **`SummaryAttemptError`** — —
+- **`RawDiagnosticAction`** — —
+- **`AuditedTaskSynthesisResult`** — —
+- **`TaskSynthesisRequiredError`** — —
+- **`TaskSynthesisAttemptError`** — —
+- **`RawConclusion`** — —
+- **`RawProposal`** — —
+- **`RawTaskSynthesisResponse`** — —
 - **`NlExtractionOptions`** — —
-- **`AstExtractionOptions`** — —
-- **`ConfigurationEntry`** — —
-- **`RawNlRecord`** — —
-- **`NlResponse`** — —
-- **`AuditedNlExtractionResult`** — —
-- **`NlLlmRequiredError`** — —
-- **`DocumentationLlmRequiredError`** — —
 - **`MarkdownExtractionOptions`** — —
-- **`DeterministicDocumentationOptions`** — —
+- **`IntentRunListItem`** — —
+- **`CommunicationRunSummary`** — —
+- **`RunHistoryFilters`** — —
 - **`MarkdownListBlock`** — —
-- **`CommunicationExtractionOptions`** — —
-- **`CommunicationEnvelope`** — —
-- **`GitCommit`** — —
-- **`ChangedFile`** — —
-- **`GitExtractionOptions`** — —
-- **`MarkdownEnrichment`** — —
-- **`MarkdownResponse`** — —
-- **`AuditedMarkdownExtractionResult`** — —
-- **`MarkdownLlmRequiredError`** — —
 - **`RawDocumentRecord`** — —
 - **`DocumentResponse`** — —
 - **`DocumentChunk`** — —
@@ -307,18 +360,60 @@ todo2code/
 - **`DocumentationExtractionOptions`** — —
 - **`DocumentationExtractionResult`** — —
 - **`DocumentChunkResult`** — —
+- **`CreateTodoPatchOptions`** — —
+- **`CreatedTodoPatch`** — —
+- **`WriteTodoPatchOptions`** — —
+- **`WrittenTodoPatch`** — —
+- **`ApplyTodoPatchOptions`** — —
+- **`PreparedTask`** — —
+- **`ListCursor`** — —
+- **`TaskStoreSnapshot`** — —
+- **`RawNlRecord`** — —
+- **`NlResponse`** — —
+- **`AuditedNlExtractionResult`** — —
+- **`NlLlmRequiredError`** — —
+- **`GitCommit`** — —
+- **`ChangedFile`** — —
+- **`GitExtractionOptions`** — —
+- **`ConfigurationEntry`** — —
+- **`ParsedArgs`** — —
+- **`DocumentationLlmRequiredError`** — —
+- **`DeterministicDocumentationOptions`** — —
 - **`AdapterFact`** — —
 - **`AdapterOutput`** — —
+- **`AstExtractionOptions`** — —
 - **`ExternalAdapterOptions`** — —
-- **`DiffSvgOptions`** — —
 - **`PairEvidence`** — —
 - **`RecordKeywords`** — —
 - **`DirectedRelation`** — —
 - **`SourceRelationRule`** — —
-- **`TfTensor`** — —
-- **`TfModel`** — —
-- **`TfModule`** — —
-- **`ModelAssets`** — —
+- **`DiffLine`** — —
+- **`DiffHunk`** — —
+- **`FileDiff`** — —
+- **`DiffTextOptions`** — —
+- **`GoldRecordProjection`** — —
+- **`GoldDocumentModelRecord`** — —
+- **`GoldExtractionCase`** — —
+- **`GoldFixtureRecord`** — —
+- **`GoldExpectedRelation`** — —
+- **`GoldLinkingCase`** — —
+- **`GoldProposalFixture`** — —
+- **`GoldDsl2TodoCase`** — —
+- **`GoldDataset`** — —
+- **`BinaryMetric`** — —
+- **`GoldEvaluationReport`** — —
+- **`MarkdownEnrichment`** — —
+- **`MarkdownResponse`** — —
+- **`AuditedMarkdownExtractionResult`** — —
+- **`MarkdownLlmRequiredError`** — —
+- **`SvgTheme`** — —
+- **`SvgDocumentOptions`** — —
+- **`PipelineResult`** — —
+- **`CommunicationExtractionOptions`** — —
+- **`CommunicationEnvelope`** — —
+- **`Counts`** — —
+- **`BuildRecordGenerationInput`** — —
+- **`BuildRecordInput`** — —
 - **`SourceLineRange`** — —
 - **`IntentTarget`** — —
 - **`IntentStatement`** — —
@@ -337,6 +432,17 @@ todo2code/
 - **`GroundedGenerationMetadata`** — —
 - **`Conclusion`** — —
 - **`TodoProposal`** — —
+- **`CodeChangeFile`** — —
+- **`CodeChangeRisk`** — —
+- **`CodeChangePlan`** — —
+- **`CodeChangeAcceptance`** — —
+- **`CodeChangeCloseResult`** — —
+- **`CodeChangeReviewPatch`** — —
+- **`CodeChangeSourceEdit`** — —
+- **`CodeChangeSourcePatch`** — —
+- **`CodeChangeSourcePatchSet`** — —
+- **`CodeChangeSourcePatchApproval`** — —
+- **`CodeChangeSourceApplyReceipt`** — —
 - **`TodoPatchDuplicateClassification`** — —
 - **`TodoPatchArtifact`** — —
 - **`TodoPatchApproval`** — —
@@ -347,136 +453,65 @@ todo2code/
 - **`PipelineStageAudit`** — —
 - **`PipelineOptions`** — —
 - **`PipelineManifest`** — —
-- **`IgnoreRule`** — —
-- **`IgnoreMatcher`** — —
-- **`LoadIgnoreOptions`** — —
-- **`BuildRecordGenerationInput`** — —
-- **`BuildRecordInput`** — —
-- **`WalkOptions`** — —
-- **`GroundedValidationContext`** — —
-- **`TodoProposalValidationContext`** — —
-- **`CreateTodoPatchOptions`** — —
-- **`CreatedTodoPatch`** — —
-- **`WriteTodoPatchOptions`** — —
-- **`WrittenTodoPatch`** — —
-- **`ApplyTodoPatchOptions`** — —
-- **`TodoProposalDuplicate`** — —
-- **`TodoProposalValidationResult`** — —
-- **`RawDiagnosticAction`** — —
-- **`AuditedTaskSynthesisResult`** — —
-- **`TaskSynthesisRequiredError`** — —
-- **`RawConclusion`** — —
-- **`RawProposal`** — —
-- **`RawTaskSynthesisResponse`** — —
-- **`WorkspaceComparisonOptions`** — —
-- **`CoverageSnapshot`** — —
-- **`WorkspaceComparison`** — —
-- **`ChatMessage`** — —
-- **`OpenRouterChoice`** — —
-- **`OpenRouterResponse`** — —
-- **`OpenRouterResult`** — —
-- **`OpenRouterModelsResponse`** — —
-- **`OpenRouterModelError`** — —
-- **`OpenRouterClient`** — —
-- **`LlmFailureReason`** — —
-- **`T2CConfig`** — —
-- **`McpRequestError`** — —
-- **`JsonRpcRequest`** — —
-- **`McpConnectionState`** — —
-- **`JsonRpcRequest`** — —
-- **`A2APart`** — —
-- **`A2AMessage`** — —
-- **`A2AArtifact`** — —
-- **`A2ATask`** — —
-- **`StoredTask`** — —
-- **`SendConfiguration`** — —
-- **`A2ARequestError`** — —
-- **`BodyTooLargeError`** — —
-- **`McpTool`** — —
-- **`PreparedTask`** — —
-- **`ListCursor`** — —
-- **`TaskStoreSnapshot`** — —
-- **`IntentRunListItem`** — —
-- **`CommunicationRunSummary`** — —
-- **`RunHistoryFilters`** — —
-- **`SvgTheme`** — —
-- **`SvgDocumentOptions`** — —
-- **`RawOp`** — —
-- **`RealityRow`** — —
-- **`IntentRealityView`** — —
-- **`RealitySvgOptions`** — —
-- **`DiffLine`** — —
-- **`DiffHunk`** — —
-- **`FileDiff`** — —
-- **`DiffTextOptions`** — —
-- **`GitDiffOptions`** — —
-- **`GitDiffResult`** — —
-- **`ChangedEntry`** — —
-- **`TextDiffSvgOptions`** — —
-- **`SideBySideRow`** — —
-- **`SummaryResult`** — —
-- **`SummaryOptions`** — —
-- **`RawConclusion`** — —
-- **`RawSummaryResponse`** — —
-- **`PipelineResult`** — —
-- **`GoldRecordProjection`** — —
-- **`GoldDocumentModelRecord`** — —
-- **`GoldExtractionCase`** — —
-- **`GoldFixtureRecord`** — —
-- **`GoldExpectedRelation`** — —
-- **`GoldLinkingCase`** — —
-- **`GoldProposalFixture`** — —
-- **`GoldDsl2TodoCase`** — —
-- **`GoldDataset`** — —
-- **`BinaryMetric`** — —
-- **`GoldEvaluationReport`** — —
-- **`LinkingCaseResult`** — —
-- **`Dsl2TodoCaseResult`** — —
-- **`Counts`** — —
 - **`EvaluationCore`** — —
 - **`EvaluationRun`** — —
 - **`EvaluationResult`** — —
-- **`VariableContract`** — —
-- **`OperationParameterReference`** — —
-- **`OperationRollback`** — —
-- **`OperationStep`** — —
-- **`OperationExpectation`** — —
-- **`OperationPlan`** — —
-- **`ResolvedVariableBinding`** — —
-- **`SubactorProcessEnvelope`** — —
-- **`CompileOperationPlanArtifactOptions`** — —
-- **`OperationPlanCompilationReceipt`** — —
-- **`CompileSubactorEnvelopeOptions`** — —
-- **`SnapshotDelta`** — —
-- **`ScanOptions`** — —
-- **`ReportResult`** — —
-- **`WatchOptions`** — —
-- **`Todo2CodeClientOptions`** — —
-- **`DiffResult`** — —
-- **`FileDiffResult`** — —
-- **`GitDiffResponse`** — —
-- **`RealityResult`** — —
-- **`Todo2CodeClient`** — —
-- **`RawCommunicationEnrichment`** — —
-- **`RawParticipantSynthesis`** — —
-- **`RawCommunicationResponse`** — —
-- **`ParticipantCommunicationSynthesis`** — —
-- **`AuditedCommunicationExtractionResult`** — —
-- **`CommunicationLlmRequiredError`** — —
-- **`ParticipantGroup`** — —
-- **`CommunicationIssue`** — —
-- **`ParticipantCommunicationAnalysis`** — —
-- **`CommunicationAnalysis`** — —
+- **`LinkingCaseResult`** — —
+- **`Dsl2TodoCaseResult`** — —
+- **`IgnoreRule`** — —
+- **`IgnoreMatcher`** — —
+- **`LoadIgnoreOptions`** — —
+- **`WalkOptions`** — —
+- **`RawOp`** — —
 - **`ParticipantIdentityEntry`** — —
 - **`ParticipantIdentityRegistry`** — —
 - **`LoadedParticipantIdentityRegistry`** — —
-- **`Fact`** — —
-- **`output`** — —
-- **`factCollector`** — —
-- **`FactVisitor`** — —
+- **`GitDiffOptions`** — —
+- **`GitDiffResult`** — —
+- **`ChangedEntry`** — —
+- **`T2CConfig`** — —
+- **`SourceLineRange`** — —
+- **`IntentTarget`** — —
+- **`IntentStatement`** — —
+- **`IntentSource`** — —
+- **`IntentEpistemic`** — —
+- **`IntentLifecycle`** — —
+- **`IntentGenerationMetadata`** — —
+- **`IntentRecord`** — —
+- **`Diagnostic`** — —
+- **`DiagnosticReport`** — —
+- **`ExtractionResult`** — —
+- **`IntentTarget`** — —
+- **`IntentStatement`** — —
+- **`IntentGenerationMetadata`** — —
+- **`IntentRecord`** — —
+- **`IntentGraph`** — —
+- **`DiagnosticReport`** — —
+- **`ExtractionAudit`** — —
+- **`ExtractionResult`** — —
+- **`A2APart`** — —
+- **`A2AMessage`** — —
+- **`A2ATask`** — —
+- **`T2CError`** — —
+- **`ClientOptions`** — —
+- **`T2CClient`** — —
+- **`ProposeCodeChangePlansOptions`** — —
+- **`ProposeCodeChangePlansResult`** — —
+- **`EvaluateCodeChangeAcceptanceOptions`** — —
+- **`CloseCodeChangesOptions`** — —
+- **`CreateCodeChangeReviewOptions`** — —
+- **`CreatedCodeChangeReview`** — —
+- **`CreateCodeChangeSourcePatchOptions`** — —
+- **`ApplyCodeChangeSourcePatchOptions`** — —
+- **`ApplyCodeChangeSourcePatchResult`** — —
+- **`PreparedSourceEdit`** — —
+- **`RealityRow`** — —
+- **`IntentRealityView`** — —
+- **`RealitySvgOptions`** — —
 - **`Client`** — —
-- **`rpcRequest`** — —
-- **`rpcResponse`** — —
+- **`Error`** — —
+- **`TextDiffSvgOptions`** — —
+- **`SideBySideRow`** — —
 - **`SourceLineRange`** — —
 - **`IntentTarget`** — —
 - **`IntentStatement`** — —
@@ -496,38 +531,50 @@ todo2code/
 - **`RealityResult`** — —
 - **`DiffResult`** — —
 - **`Error`** — —
-- **`IntentTarget`** — —
-- **`IntentStatement`** — —
-- **`IntentGenerationMetadata`** — —
-- **`IntentRecord`** — —
-- **`IntentGraph`** — —
-- **`DiagnosticReport`** — —
-- **`ExtractionAudit`** — —
-- **`ExtractionResult`** — —
-- **`A2APart`** — —
-- **`A2AMessage`** — —
-- **`A2ATask`** — —
-- **`T2CError`** — —
-- **`ClientOptions`** — —
-- **`T2CClient`** — —
-- **`SourceLineRange`** — —
-- **`IntentTarget`** — —
-- **`IntentStatement`** — —
-- **`IntentSource`** — —
-- **`IntentEpistemic`** — —
-- **`IntentLifecycle`** — —
-- **`IntentGenerationMetadata`** — —
-- **`IntentRecord`** — —
-- **`Diagnostic`** — —
-- **`DiagnosticReport`** — —
-- **`ExtractionResult`** — —
+- **`WorkspaceComparisonOptions`** — —
+- **`CoverageSnapshot`** — —
+- **`WorkspaceComparison`** — —
 - **`Client`** — —
+- **`CommunicationIssue`** — —
+- **`ParticipantCommunicationAnalysis`** — —
+- **`CommunicationAnalysis`** — —
 - **`Client`** — —
-- **`Error`** — —
+- **`rpcRequest`** — —
+- **`rpcResponse`** — —
+- **`RawCommunicationEnrichment`** — —
+- **`RawParticipantSynthesis`** — —
+- **`RawCommunicationResponse`** — —
+- **`ParticipantCommunicationSynthesis`** — —
+- **`AuditedCommunicationExtractionResult`** — —
+- **`CommunicationLlmRequiredError`** — —
+- **`ParticipantGroup`** — —
+- **`Fact`** — —
+- **`Output`** — —
+- **`Collector`** — —
+- **`GroundedValidationContext`** — —
+- **`TodoProposalValidationContext`** — —
+- **`CodeChangePlanValidationContext`** — —
+- **`CodeChangeAcceptanceValidationContext`** — —
+- **`Contract`** — —
+- **`Fact`** — —
+- **`output`** — —
+- **`factCollector`** — —
+- **`JavaAstExtract`** — —
+- **`PanelState`** — —
+- **`IntentEvent`** — —
+- **`EventPage`** — —
+- **`ApiError`** — —
+- **`PanelRow`** — —
+- **`IntentEvent`** — —
+- **`EventPage`** — —
+- **`EventStore`** — —
+- **`BackendOptions`** — —
+- **`ValidationResult`** — —
 - **`Todo2CodeClient`** — Diff-focused client for the todo2code runtime.
 - **`TypeScriptRuntimeError`** — Raised when the local Node/TypeScript runtime cannot be executed.
 - **`RuntimeResult`** — Raw result of a local TypeScript CLI invocation.
 - **`TypeScriptRuntime`** — Execute the canonical TypeScript runtime from a Python process.
+- **`FactVisitor`** — —
 - **`T2CError`** — Raised for JSON-RPC errors, transport failures and non-completed tasks.
 - **`IntentRecord`** — A single t2c.intent/v1 record.
 - **`ExtractionResult`** — Records, warnings and the optional audited LLM stage result.
@@ -539,441 +586,342 @@ todo2code/
 ### Functions
 
 - `install_project_package()` — —
-- `ALLOWED_ACTIONS()` — —
-- `validateEventPayload()` — —
-- `invalid()` — —
-- `record()` — —
-- `agent()` — —
-- `action()` — —
-- `object()` — —
-- `MAX_BODY_BYTES()` — —
-- `createBackend()` — —
-- `store()` — —
-- `server()` — —
-- `handleRequest()` — —
-- `url()` — —
-- `body()` — —
-- `validation()` — —
-- `event()` — —
-- `offset()` — —
-- `limit()` — —
-- `readBody()` — —
-- `size()` — —
-- `buffer()` — —
-- `sendJson()` — —
-- `startBackend()` — —
-- `port()` — —
-- `host()` — —
-- `classifyEvent()` — —
-- `toRows()` — —
-- `renderTable()` — —
-- `table()` — —
-- `head()` — —
-- `body()` — —
-- `tr()` — —
-- `cell()` — —
-- `renderError()` — —
-- `banner()` — —
-- `headerRow()` — —
-- `th()` — —
-- `createState()` — —
-- `refresh()` — —
-- `page()` — —
-- `message()` — —
-- `mountPanel()` — —
-- `state()` — —
-- `reload()` — —
-- `load_task(path)` — —
-- `normalize_task(value)` — —
-- `validateContract()` — —
-- `executeContract()` — —
-- `client()` — —
-- `execFileAsync()` — —
-- `main()` — —
-- `parsed()` — —
-- `command()` — —
-- `config()` — —
-- `files()` — —
-- `records()` — —
-- `graph()` — —
-- `graphFile()` — —
-- `diagnosticsPath()` — —
-- `diagnostics()` — —
-- `result()` — —
-- `out()` — —
-- `graphPath()` — —
-- `output()` — —
-- `synthesisPath()` — —
-- `patch()` — —
-- `audit()` — —
-- `receipt()` — —
-- `actor()` — —
-- `approvalHash()` — —
-- `root()` — —
-- `handleWatch()` — —
-- `taskFile()` — —
-- `controller()` — —
-- `stop()` — —
-- `formatWatchEvent()` — —
-- `stamp()` — —
-- `handleDiff()` — —
-- `mode()` — —
-- `svg()` — —
-- `html()` — —
-- `beforeFile()` — —
-- `afterFile()` — —
-- `diff()` — —
-- `context()` — —
-- `maxRows()` — —
-- `handleReality()` — —
-- `view()` — —
-- `markdown()` — —
-- `handleExtract()` — —
-- `extractor()` — —
-- `file()` — —
-- `inline()` — —
-- `handleCommunication()` — —
-- `analysis()` — —
-- `graphOut()` — —
-- `emitExtraction()` — —
-- `emitJson()` — —
-- `initProject()` — —
-- `moduleRoot()` — —
-- `sourceEnv()` — —
-- `targetEnv()` — —
-- `task()` — —
-- `sourceIgnore()` — —
-- `targetIgnore()` — —
-- `doctor()` — —
-- `parseArgs()` — —
-- `options()` — —
-- `value()` — —
-- `next()` — —
-- `name()` — —
-- `optionString()` — —
-- `optionNullableString()` — —
-- `optionBoolean()` — —
-- `optionNumber()` — —
-- `number()` — —
-- `optionList()` — —
-- `optionNlMode()` — —
-- `optionLlmMode()` — —
-- `optionTaskMode()` — —
-- `optionSummaryMode()` — —
-- `optionPipelineTaskMode()` — —
-- `reportPipelineDegradation()` — —
-- `printHelp()` — —
-- `invokedPath()` — —
-- `assertNlExtractionOptions()` — —
-- `extractNlIntent()` — —
+- `cleanup_analysis_snapshot()` — —
+- `run_analysis_tool()` — —
+- `dynamicImport()` — —
+- `importer()` — —
+- `loadAssets()` — —
+- `directory()` — —
+- `vocabularyPath()` — —
+- `labels()` — —
+- `loadClassifier()` — —
+- `modelPath()` — —
+- `modulePath()` — —
+- `moduleValue()` — —
 - `absolute()` — —
-- `body()` — —
-- `sourcePath()` — —
-- `classified()` — —
-- `action()` — —
-- `object()` — —
-- `missing()` — —
-- `confidence()` — —
-- `inferActor()` — —
-- `detectMissingFields()` — —
-- `extractAstIntent()` — —
-- `root()` — —
-- `matcher()` — —
-- `files()` — —
-- `body()` — —
-- `result()` — —
-- `unsupported()` — —
-- `MAX_ENTRIES_PER_FILE()` — —
-- `extractConfigurationIntent()` — —
-- `root()` — —
-- `matcher()` — —
-- `discovered()` — —
-- `files()` — —
-- `relative()` — —
-- `body()` — —
-- `isConfigurationPath()` — —
-- `base()` — —
-- `configurationRecords()` — —
-- `entries()` — —
-- `jsonEntries()` — —
-- `parsed()` — —
-- `lines()` — —
-- `tomlEntries()` — —
-- `line()` — —
-- `heading()` — —
-- `pair()` — —
-- `yamlOrAssignmentEntries()` — —
-- `yaml()` — —
-- `assignment()` — —
-- `key()` — —
-- `dockerEntries()` — —
-- `match()` — —
-- `instruction()` — —
-- `detail()` — —
-- `entry()` — —
-- `uniqueEntries()` — —
-- `seen()` — —
-- `findKeyLine()` — —
-- `pattern()` — —
+- `model()` — —
+- `assets()` — —
+- `vectorize()` — —
+- `values()` — —
 - `index()` — —
-- `documentResponseSchema()` — —
-- `extractMarkdownIntent()` — —
-- `todo()` — —
-- `changelog()` — —
-- `extractChangelog()` — —
-- `absolute()` — —
-- `body()` — —
-- `relative()` — —
-- `lines()` — —
-- `raw()` — —
-- `versionHeading()` — —
-- `categoryHeading()` — —
-- `bullet()` — —
-- `block()` — —
-- `text()` — —
-- `action()` — —
-- `changelogAction()` — —
-- `normalized()` — —
-- `lower()` — —
-- `MAX_HEADING_LEVEL()` — —
-- `MIN_STATEMENT_CHARS()` — —
-- `extractDocumentationBaseline()` — —
-- `root()` — —
-- `body()` — —
-- `convertDocument()` — —
-- `relative()` — —
-- `lines()` — —
-- `raw()` — —
-- `fenceMatch()` — —
-- `marker()` — —
-- `language()` — —
-- `record()` — —
-- `heading()` — —
-- `level()` — —
-- `title()` — —
-- `bullet()` — —
-- `block()` — —
-- `paragraph()` — —
-- `readParagraph()` — —
-- `cursor()` — —
-- `line()` — —
-- `qualifyingStatement()` — —
-- `target()` — —
-- `hasCodeSpanIdentifier()` — —
-- `statementRecord()` — —
-- `action()` — —
-- `codeBlockRecord()` — —
-- `targetsOf()` — —
-- `OBJECT_PLACEHOLDERS()` — —
-- `toDocumentIntentRecord()` — —
-- `statementText()` — —
-- `target()` — —
-- `action()` — —
-- `modality()` — —
-- `isPlaceholder()` — —
-- `resolveObject()` — —
+- `classifyAction()` — —
 - `fallback()` — —
-- `anchorToSource()` — —
-- `claimedStart()` — —
-- `claimedEnd()` — —
-- `wanted()` — —
-- `lines()` — —
-- `scores()` — —
-- `claimedScore()` — —
-- `bestScore()` — —
+- `loaded()` — —
+- `vector()` — —
+- `input()` — —
+- `predictionValue()` — —
+- `prediction()` — —
+- `probabilities()` — —
 - `bestIndex()` — —
-- `anchored()` — —
-- `keywordOverlap()` — —
-- `present()` — —
-- `shared()` — —
-- `resolveTarget()` — —
-- `hasTarget()` — —
-- `resolveAction()` — —
-- `derived()` — —
-- `resolveModality()` — —
-- `linesFromChunk()` — —
-- `relativeStart()` — —
-- `relativeEnd()` — —
-- `clampLine()` — —
-- `allowedAction()` — —
-- `allowedModality()` — —
-- `allowedLifecycle()` — —
-- `extractTodo()` — —
-- `absolute()` — —
-- `body()` — —
-- `relative()` — —
-- `lines()` — —
-- `raw()` — —
-- `heading()` — —
-- `level()` — —
-- `task()` — —
-- `checked()` — —
-- `block()` — —
-- `text()` — —
-- `classified()` — —
 - `action()` — —
-- `inferOwner()` — —
-- `match()` — —
-- `extractExplicitId()` — —
-- `readListBlock()` — —
-- `cursor()` — —
-- `line()` — —
-- `extractCommunicationIntent()` — —
-- `root()` — —
-- `projectRoot()` — —
-- `files()` — —
-- `identityRegistry()` — —
-- `relativeToProject()` — —
-- `parts()` — —
-- `pathTicket()` — —
-- `envelope()` — —
-- `inferred()` — —
-- `declaredParticipant()` — —
-- `declaredRole()` — —
-- `declaredParticipantId()` — —
-- `identity()` — —
-- `participant()` — —
-- `role()` — —
-- `displayName()` — —
-- `messageType()` — —
-- `ticket()` — —
-- `recipient()` — —
-- `timestamp()` — —
-- `declaredGitAuthors()` — —
-- `gitAuthors()` — —
-- `declaredA2aAgentId()` — —
-- `explicitPaths()` — —
-- `explicitSymbols()` — —
-- `semantics()` — —
-- `classified()` — —
-- `action()` — —
-- `line()` — —
-- `resolveIdentity()` — —
-- `sameStrings()` — —
-- `normalize()` — —
-- `parseEnvelope()` — —
-- `lines()` — —
-- `end()` — —
-- `match()` — —
-- `inferIdentity()` — —
-- `fileParts()` — —
-- `nestedRoleIndex()` — —
-- `nestedRole()` — —
-- `nestedParticipant()` — —
-- `normalizeRole()` — —
-- `normalizeType()` — —
-- `normalized()` — —
-- `isCommunicationType()` — —
-- `semanticsFor()` — —
-- `first()` — —
-- `listValue()` — —
-- `stripped()` — —
-- `unquote()` — —
-- `validTimestamp()` — —
-- `parsed()` — —
-- `execFileAsync()` — —
-- `extractGitIntent()` — —
-- `root()` — —
-- `count()` — —
-- `inside()` — —
-- `message()` — —
-- `commit()` — —
-- `changedFiles()` — —
-- `stats()` — —
-- `diff()` — —
-- `classified()` — —
-- `inferredSymbols()` — —
-- `docOnly()` — —
-- `runGit()` — —
-- `result()` — —
-- `readCommits()` — —
-- `output()` — —
-- `readChangedFiles()` — —
-- `parts()` — —
-- `status()` — —
-- `readStats()` — —
-- `additions()` — —
-- `deletions()` — —
-- `extractChangedSymbols()` — —
-- `symbol()` — —
-- `isDocumentationPath()` — —
-- `prioritizeDocumentChunks()` — —
-- `needles()` — —
-- `chunkPriority()` — —
-- `matches()` — —
-- `mapConcurrent()` — —
-- `results()` — —
-- `nextIndex()` — —
-- `worker()` — —
-- `index()` — —
-- `item()` — —
-- `workerCount()` — —
-- `chunkMarkdown()` — —
-- `lines()` — —
-- `sections()` — —
-- `currentStart()` — —
-- `currentEnd()` — —
-- `flush()` — —
-- `sectionLines()` — —
-- `sectionText()` — —
-- `candidateSize()` — —
-- `markdownSections()` — —
-- `sectionStart()` — —
-- `splitLongSection()` — —
-- `batchStart()` — —
-- `batch()` — —
-- `takeLineBatch()` — —
-- `size()` — —
-- `offset()` — —
-- `line()` — —
-- `MARKDOWN_ACTION_SET()` — —
-- `MARKDOWN_LLM_BATCH_RECORDS()` — —
-- `extractRustAst()` — —
-- `helperPath()` — —
-- `execFileAsync()` — —
-- `runExternalAstAdapter()` — —
-- `files()` — —
-- `result()` — —
-- `parsed()` — —
-- `extractPythonAst()` — —
-- `helperPath()` — —
-- `extractGoAst()` — —
-- `helperPath()` — —
-- `unsupportedSourceWarning()` — —
-- `files()` — —
-- `counts()` — —
-- `extension()` — —
-- `adapterRecords()` — —
-- `detailRecords()` — —
-- `moduleRecords()` — —
-- `byPath()` — —
-- `bucket()` — —
-- `start()` — —
-- `end()` — —
-- `capabilities()` — —
-- `boundedCapabilities()` — —
-- `moduleTopicText()` — —
-- `extractJavaAst()` — —
-- `helperPath()` — —
-- `extractTypeScriptFile()` — —
-- `relative()` — —
-- `sourceFile()` — —
-- `moduleCapabilities()` — —
-- `lineRange()` — —
-- `excerpt()` — —
-- `add()` — —
-- `symbol()` — —
-- `nameOf()` — —
-- `modifiers()` — —
+- `confidence()` — —
+- `compactSummaryPayload()` — —
+- `referenced()` — —
+- `nonAst()` — —
+- `moduleAst()` — —
+- `relevantAst()` — —
+- `ids()` — —
+- `selectedRelations()` — —
+- `compactRecord()` — —
+- `scanTree()` — —
+- `maxFiles()` — —
+- `absoluteRoot()` — —
 - `visit()` — —
-- `symbolModifiers()` — —
-- `declarationIsCallable()` — —
-- `callee()` — —
+- `absolute()` — —
+- `relative()` — —
+- `stat()` — —
+- `diffSnapshots()` — —
+- `previous()` — —
+- `describeDelta()` — —
+- `shown()` — —
+- `rest()` — —
+- `DEFAULT_MIN_INTERVAL_MS()` — —
+- `DEFAULT_SCAN_INTERVAL_MS()` — —
+- `watchRepository()` — —
+- `root()` — —
+- `minIntervalMs()` — —
+- `scanIntervalMs()` — —
+- `emit()` — —
+- `now()` — —
+- `sleep()` — —
+- `signal()` — —
+- `matcher()` — —
+- `runReport()` — —
+- `result()` — —
+- `snapshot()` — —
+- `lastReportStartedAt()` — —
+- `pending()` — —
+- `current()` — —
+- `delta()` — —
+- `waitMs()` — —
+- `generate()` — —
+- `startedAt()` — —
+- `defaultSleep()` — —
+- `timer()` — —
+- `onAbort()` — —
+- `finish()` — —
+- `diffUiHtml()` — —
+- `byId()` — —
+- `requestHeaders()` — —
+- `formatBytes()` — —
+- `selectedRun()` — —
+- `updateMeta()` — —
+- `fillSelect()` — —
+- `loadRuns()` — —
+- `compareGraphs()` — —
+- `variableContractSemanticValue()` — —
+- `createVariableContract()` — —
+- `normalized()` — —
+- `normalizedPlanDraft()` — —
+- `operationPlanHashMaterial()` — —
+- `createOperationPlan()` — —
+- `planHash()` — —
+- `argumentsByName()` — —
+- `key()` — —
+- `value()` — —
+- `allowed()` — —
+- `unknown()` — —
+- `main()` — —
+- `args()` — —
+- `readJson()` — —
+- `writeExclusive()` — —
+- `target()` — —
+- `directory()` — —
+- `temporary()` — —
+- `existing()` — —
+- `compileOperationPlanArtifact()` — —
+- `plan()` — —
+- `bindings()` — —
+- `envelope()` — —
+- `classifyLlmFailure()` — —
+- `message()` — —
+- `openRouterAuditConfiguration()` — —
+- `valueMatchesType()` — —
+- `assertBinding()` — —
+- `ageSeconds()` — —
+- `compileSubactorProcessEnvelope()` — —
+- `variableById()` — —
+- `referenced()` — —
+- `variable()` — —
+- `binding()` — —
+- `humanApproval()` — —
+- `renderSummaryMarkdown()` — —
+- `plans()` — —
+- `git()` — —
+- `moduleFacts()` — —
+- `facts()` — —
+- `releases()` — —
+- `communication()` — —
+- `actions()` — —
+- `compareConclusions()` — —
+- `renderRecords()` — —
+- `confidence()` — —
+- `renderConclusion()` — —
+- `recordCitations()` — —
+- `validateAndClassifyTodoProposals()` — —
+- `existing()` — —
+- `duplicates()` — —
+- `orderedProposalIds()` — —
+- `duplicateProposalIds()` — —
+- `duplicateIds()` — —
+- `duplicateEvidence()` — —
+- `proposalWords()` — —
+- `target()` — —
+- `sharedTicket()` — —
+- `sharedSymbol()` — —
+- `sharedPath()` — —
+- `similarity()` — —
+- `dependencyFirstPriorityOrder()` — —
+- `byId()` — —
+- `remainingDependencies()` — —
+- `dependents()` — —
+- `values()` — —
+- `compare()` — —
+- `left()` — —
+- `right()` — —
+- `ready()` — —
+- `id()` — —
+- `remaining()` — —
+- `words()` — —
+- `jaccard()` — —
+- `common()` — —
+- `intersects()` — —
+- `callMcpTool()` — —
+- `name()` — —
+- `args()` — —
+- `result()` — —
+- `tool()` — —
+- `writes()` — —
+- `stringProp()` — —
+- `nullableStringProp()` — —
+- `stringArrayProp()` — —
+- `numberProp()` — —
+- `listMcpResources()` — —
+- `readRequestedMcpResource()` — —
+- `uri()` — —
+- `readMcpResource()` — —
+- `latestPath()` — —
+- `selected()` — —
+- `latest()` — —
+- `filePath()` — —
+- `latestPointer()` — —
+- `assertInsideRoot()` — —
+- `relative()` — —
+- `isInvalidResourceError()` — —
+- `resource()` — —
+- `DISCOVERY_TTL_MS()` — —
+- `LIST_TTL_MS()` — —
+- `RESOURCE_TTL_MS()` — —
+- `createMcpConnectionState()` — —
+- `startMcpServer()` — —
+- `resolvedConfig()` — —
+- `state()` — —
+- `input()` — —
+- `parsed()` — —
+- `request()` — —
+- `result()` — —
+- `handleMcpRequest()` — —
+- `initializeLegacy()` — —
+- `params()` — —
+- `requested()` — —
+- `protocolVersion()` — —
+- `handleModernRequest()` — —
+- `responseMeta()` — —
+- `handleLegacyRequest()` — —
+- `validateModernRequest()` — —
+- `meta()` — —
+- `validateModernMetadata()` — —
 - `capabilities()` — —
-- `isTopLevel()` — —
-- `scriptKind()` — —
-- `extension()` — —
-- `languageName()` — —
+- `hasModernMetadata()` — —
+- `parseRequestLine()` — —
+- `completePublic()` — —
+- `serverInfo()` — —
+- `serverMeta()` — —
+- `serverInstructions()` — —
+- `isLegacyProtocol()` — —
+- `isJsonRpcRequest()` — —
+- `candidate()` — —
+- `requestId()` — —
+- `id()` — —
+- `rpcError()` — —
+- `sendError()` — —
+- `send()` — —
+- `invokedPath()` — —
+- `NON_SOURCE_DIR_SEGMENTS()` — —
+- `BINARY_EXTENSIONS()` — —
+- `GENERATED_ANALYSIS_BASENAMES()` — —
+- `T2C_ARTIFACT_BASENAMES()` — —
+- `EXTENSIONLESS_SOURCE_BASENAMES()` — —
+- `isPlannablePath()` — —
+- `normalized()` — —
+- `segments()` — —
+- `lowerSegments()` — —
+- `basename()` — —
+- `lowerBasename()` — —
+- `dot()` — —
+- `ext()` — —
+- `isUsefulCodeChangePath()` — —
+- `TERMINAL_TASK_STATES()` — —
+- `TASK_STATES()` — —
+- `sendAgentCard()` — —
+- `card()` — —
+- `serialized()` — —
+- `payload()` — —
+- `agentCard()` — —
+- `skills()` — —
+- `skill()` — —
+- `VALUE_TYPES()` — —
+- `CLASSIFICATIONS()` — —
+- `SOURCE_KINDS()` — —
+- `RISK_CLASSES()` — —
+- `objectValue()` — —
+- `exactKeys()` — —
+- `actual()` — —
+- `nonBlank()` — —
+- `dateString()` — —
+- `uniqueStrings()` — —
+- `assertPrincipalList()` — —
+- `principals()` — —
+- `isJsonValue()` — —
+- `assertVariableContract()` — —
+- `contract()` — —
+- `source()` — —
+- `access()` — —
+- `readers()` — —
+- `writers()` — —
+- `assertGeneration()` — —
+- `generation()` — —
+- `assertAcyclic()` — —
+- `ids()` — —
+- `visiting()` — —
+- `visited()` — —
+- `byId()` — —
+- `visit()` — —
+- `assertOperationPlan()` — —
+- `plan()` — —
+- `evidence()` — —
+- `variables()` — —
+- `variableById()` — —
+- `steps()` — —
+- `stepIds()` — —
+- `founderDecisionRequired()` — —
+- `step()` — —
+- `parameters()` — —
+- `reference()` — —
+- `variable()` — —
+- `rollback()` — —
+- `coveredSteps()` — —
+- `expectationIds()` — —
+- `expectation()` — —
+- `verifiedBy()` — —
+- `decision()` — —
+- `verification()` — —
+- `expectedHash()` — —
+- `startA2aServer()` — —
+- `resolvedConfig()` — —
+- `server()` — —
+- `address()` — —
+- `port()` — —
+- `handleHttp()` — —
+- `url()` — —
+- `handlePublicGet()` — —
+- `handleAuthenticatedApi()` — —
+- `handleDiffApi()` — —
+- `input()` — —
+- `handleJsonRpc()` — —
+- `rpc()` — —
+- `isNotification()` — —
+- `result()` — —
+- `parseRpcRequest()` — —
+- `status()` — —
+- `sendRpcFailure()` — —
+- `code()` — —
+- `metadata()` — —
+- `requireAuthorization()` — —
+- `requireProtocolVersion()` — —
+- `requestedVersion()` — —
+- `a2aVersion()` — —
+- `raw()` — —
+- `headerVersion()` — —
+- `authorized()` — —
+- `header()` — —
+- `received()` — —
+- `expected()` — —
+- `principalForRequest()` — —
+- `readBody()` — —
+- `length()` — —
+- `chunk()` — —
+- `sendJson()` — —
+- `payload()` — —
+- `sendText()` — —
+- `sendNoContent()` — —
+- `rpcError()` — —
+- `reason()` — —
+- `errorInfo()` — —
+- `stringMetadata()` — —
+- `handleUnexpectedError()` — —
+- `errorMessage()` — —
+- `invokedPath()` — —
 - `diffIntentGraphs()` — —
 - `beforeById()` — —
 - `afterById()` — —
@@ -1012,412 +960,102 @@ todo2code/
 - `metricCard()` — —
 - `escapeXml()` — —
 - `truncate()` — —
-- `indexKeywords()` — —
-- `jaccard()` — —
-- `intersection()` — —
-- `linkIntentRecords()` — —
-- `records()` — —
-- `byId()` — —
-- `keywordIndex()` — —
-- `candidatePairs()` — —
-- `left()` — —
-- `right()` — —
-- `evidence()` — —
-- `directed()` — —
-- `deduplicateRecords()` — —
-- `existing()` — —
-- `collectCandidatePairs()` — —
-- `buckets()` — —
-- `astIds()` — —
-- `moduleAstIds()` — —
-- `declarationAstIds()` — —
-- `isModuleTopicSource()` — —
-- `indexTargetBuckets()` — —
-- `indexAliases()` — —
-- `indexKeywordBuckets()` — —
-- `indexTopicBuckets()` — —
-- `addToBucket()` — —
-- `values()` — —
-- `pairsFromBuckets()` — —
-- `output()` — —
-- `leftId()` — —
-- `rightId()` — —
-- `isSuppressedAstPair()` — —
-- `leftAst()` — —
-- `rightAst()` — —
-- `astId()` — —
-- `scorePair()` — —
-- `score()` — —
-- `leftKeywords()` — —
-- `rightKeywords()` — —
-- `objectSimilarity()` — —
-- `sharedTopics()` — —
-- `intersectionSize()` — —
-- `size()` — —
-- `isModuleEvidencePair()` — —
-- `determineRelation()` — —
-- `textScore()` — —
-- `sourceRelation()` — —
-- `relationForSourceKinds()` — —
-- `relation()` — —
-- `matchSourceRule()` — —
-- `orientRelation()` — —
-- `intersects()` — —
-- `set()` — —
-- `intersectsAliases()` — —
-- `countBy()` — —
-- `key()` — —
-- `diagnoseGraph()` — —
-- `neighbors()` — —
-- `recordsById()` — —
-- `implementedPaths()` — —
-- `related()` — —
-- `evidenced()` — —
-- `missingFields()` — —
-- `buildNeighbors()` — —
-- `map()` — —
-- `appendNeighbor()` — —
-- `values()` — —
-- `indexImplementedPaths()` — —
-- `paths()` — —
-- `hasImplementedTarget()` — —
-- `isPlan()` — —
-- `isImplementationEvidence()` — —
-- `isPublicImplementation()` — —
-- `symbol()` — —
-- `isReleaseCandidate()` — —
-- `isImportantRecord()` — —
-- `makeDiagnostic()` — —
-- `severityRank()` — —
-- `executeAction()` — —
-- `root()` — —
-- `file()` — —
-- `text()` — —
-- `analysis()` — —
-- `records()` — —
-- `graph()` — —
-- `diagnostics()` — —
-- `result()` — —
-- `output()` — —
-- `synthesis()` — —
-- `todoPath()` — —
-- `patchPath()` — —
-- `auditPath()` — —
-- `todoContent()` — —
-- `rendered()` — —
-- `receiptPath()` — —
-- `beforeInput()` — —
-- `afterInput()` — —
-- `before()` — —
-- `after()` — —
-- `diff()` — —
-- `svg()` — —
-- `beforePath()` — —
-- `afterPath()` — —
-- `view()` — —
-- `filterCommunicationGraph()` — —
+- `summarizeGraph()` — —
+- `mode()` — —
+- `conclusions()` — —
+- `client()` — —
+- `systemPrompt()` — —
+- `payload()` — —
+- `failure()` — —
+- `responses()` — —
+- `assertNlExtractionOptions()` — —
+- `extractNlIntent()` — —
+- `absolute()` — —
+- `body()` — —
+- `sourcePath()` — —
+- `classified()` — —
+- `action()` — —
+- `object()` — —
+- `missing()` — —
+- `confidence()` — —
+- `inferActor()` — —
+- `detectMissingFields()` — —
+- `extractMarkdownIntent()` — —
+- `todo()` — —
+- `changelog()` — —
+- `listIntentRuns()` — —
+- `runsDirectory()` — —
+- `entries()` — —
+- `items()` — —
+- `readRunEntries()` — —
+- `readRun()` — —
+- `runDirectory()` — —
+- `graphPath()` — —
+- `manifestPath()` — —
+- `manifest()` — —
+- `safeRunPath()` — —
+- `runListItem()` — —
+- `files()` — —
+- `llm()` — —
+- `runtime()` — —
+- `warnings()` — —
+- `validTimestamp()` — —
+- `validStatus()` — —
+- `llmSummary()` — —
+- `readCommunicationSummary()` — —
+- `relative()` — —
+- `filePath()` — —
+- `stat()` — —
+- `value()` — —
+- `participants()` — —
+- `issues()` — —
+- `participantSummary()` — —
+- `matchesRunFilters()` — —
 - `participant()` — —
 - `role()` — —
 - `ticket()` — —
-- `communicationOnly()` — —
-- `isCommunication()` — —
-- `nlModeValue()` — —
-- `llmModeValue()` — —
-- `taskSynthesisMode()` — —
-- `summaryModeValue()` — —
-- `pipelineTaskMode()` — —
-- `withTextDiffViews()` — —
-- `title()` — —
-- `readGraphInput()` — —
-- `safePath()` — —
-- `readActionObject()` — —
-- `resolveRoot()` — —
-- `requested()` — —
-- `scopedPath()` — —
-- `selected()` — —
-- `nullableScopedPath()` — —
-- `readRecords()` — —
-- `files()` — —
-- `safeFile()` — —
-- `stringValue()` — —
-- `nullableString()` — —
-- `stringList()` — —
-- `numberValue()` — —
-- `number()` — —
-- `booleanValue()` — —
-- `objectValue()` — —
-- `registerRunArtifacts()` — —
-- `manifestPath()` — —
-- `manifest()` — —
-- `dynamicImport()` — —
-- `importer()` — —
-- `loadAssets()` — —
-- `directory()` — —
-- `vocabularyPath()` — —
-- `labels()` — —
-- `loadClassifier()` — —
-- `modelPath()` — —
-- `modulePath()` — —
-- `moduleValue()` — —
-- `absolute()` — —
-- `model()` — —
-- `assets()` — —
-- `vectorize()` — —
-- `values()` — —
-- `index()` — —
-- `classifyAction()` — —
-- `fallback()` — —
-- `loaded()` — —
-- `vector()` — —
-- `input()` — —
-- `predictionValue()` — —
-- `prediction()` — —
-- `probabilities()` — —
-- `bestIndex()` — —
-- `action()` — —
-- `confidence()` — —
-- `GENERIC_SYMBOLS()` — —
-- `GENERIC_FILES()` — —
-- `normalizeTarget()` — —
-- `normalizePath()` — —
-- `normalizeSymbol()` — —
-- `symbolAliases()` — —
+- `severity()` — —
 - `normalized()` — —
-- `parts()` — —
-- `leaf()` — —
-- `pathAliases()` — —
-- `basename()` — —
-- `unique()` — —
-- `STOP_WORDS()` — —
-- `classifyActionHeuristically()` — —
-- `conventional()` — —
-- `prose()` — —
-- `searchable()` — —
-- `detectModality()` — —
-- `detectPolarity()` — —
-- `normalizeToken()` — —
-- `keywords()` — —
-- `GENERIC_TOPICS()` — —
-- `topicKeywords()` — —
-- `separated()` — —
-- `similarity()` — —
-- `left()` — —
-- `right()` — —
-- `intersection()` — —
-- `extractBacktickValues()` — —
-- `value()` — —
-- `extractPaths()` — —
-- `FILE_EXTENSIONS()` — —
-- `hasFileExtension()` — —
-- `last()` — —
-- `dot()` — —
-- `PATH_ROOTS()` — —
-- `isPathLike()` — —
-- `segments()` — —
-- `extractSymbols()` — —
-- `backticks()` — —
-- `camel()` — —
-- `ticketPrefixes()` — —
-- `extractTickets()` — —
-- `values()` — —
-- `extractVersions()` — —
-- `inferObject()` — —
-- `normalized()` — —
-- `result()` — —
-- `splitIntentLines()` — —
-- `lines()` — —
-- `raw()` — —
-- `cleaned()` — —
-- `pieces()` — —
-- `assertPathWithinRoot()` — —
-- `rootAbsolute()` — —
-- `candidateAbsolute()` — —
-- `existingAncestor()` — —
-- `ancestorReal()` — —
-- `assertDescendant()` — —
-- `relative()` — —
-- `nearestExistingPath()` — —
-- `current()` — —
-- `code()` — —
-- `parent()` — —
-- `compileIgnorePattern()` — —
-- `pattern()` — —
-- `negated()` — —
-- `directoryOnly()` — —
-- `anchored()` — —
-- `body()` — —
-- `prefix()` — —
-- `translateGlob()` — —
-- `char()` — —
-- `next()` — —
-- `close()` — —
-- `escapeLiteral()` — —
-- `parseIgnoreFile()` — —
-- `createIgnoreMatcher()` — —
-- `normalize()` — —
-- `decide()` — —
-- `target()` — —
-- `segments()` — —
-- `ancestor()` — —
-- `loadIgnoreMatcher()` — —
-- `files()` — —
-- `absolute()` — —
-- `rule()` — —
-- `stableStringify()` — —
-- `sortValue()` — —
-- `sha256()` — —
-- `shortHash()` — —
-- `createIntentId()` — —
-- `createRelationId()` — —
-- `createConclusionId()` — —
-- `createTodoProposalId()` — —
-- `graphFingerprint()` — —
-- `newRunId()` — —
-- `stamp()` — —
-- `asJsonValue()` — —
-- `buildRecord()` — —
-- `rawExcerpt()` — —
-- `withRecordGeneration()` — —
-- `generationMetadata()` — —
-- `used()` — —
-- `extractorIdentity()` — —
-- `separator()` — —
-- `clamp()` — —
-- `sourcePrefix()` — —
-- `DEFAULT_IGNORED_DIRS()` — —
-- `ensureDir()` — —
-- `readText()` — —
-- `stat()` — —
-- `pathExists()` — —
-- `writeJson()` — —
-- `writeText()` — —
-- `writeJsonl()` — —
-- `readJsonl()` — —
-- `body()` — —
-- `readJson()` — —
-- `walkFiles()` — —
-- `ignored()` — —
-- `extensions()` — —
-- `maxFiles()` — —
-- `matcher()` — —
-- `base()` — —
-- `visit()` — —
-- `entries()` — —
-- `absolute()` — —
-- `relative()` — —
-- `extension()` — —
-- `escapeRegex()` — —
-- `globToRegExp()` — —
-- `normalized()` — —
-- `char()` — —
-- `next()` — —
-- `after()` — —
-- `matchesAnyGlob()` — —
-- `resolveGlobs()` — —
-- `files()` — —
-- `relativePosix()` — —
-- `ACTIONS()` — —
-- `MODALITIES()` — —
-- `POLARITIES()` — —
-- `LIFECYCLES()` — —
-- `SOURCE_KINDS()` — —
-- `EPISTEMIC_CLASSES()` — —
-- `RELATION_TYPES()` — —
-- `CONCLUSION_KINDS()` — —
-- `DIAGNOSTIC_SEVERITIES()` — —
-- `TODO_PRIORITIES()` — —
-- `GENERATION_REQUESTED_MODES()` — —
-- `GENERATION_EFFECTIVE_MODES()` — —
-- `assertIntentRecord()` — —
-- `record()` — —
-- `statement()` — —
-- `target()` — —
-- `lifecycle()` — —
-- `source()` — —
-- `lines()` — —
-- `epistemic()` — —
-- `metadata()` — —
-- `assertGenerationMatchesExtractor()` — —
-- `generation()` — —
-- `separator()` — —
-- `expectedGenerator()` — —
-- `assertIntentGenerationMetadata()` — —
-- `assertIntentRecords()` — —
-- `assertIntentGraph()` — —
-- `graph()` — —
-- `recordIds()` — —
-- `relationIds()` — —
-- `stats()` — —
-- `records()` — —
-- `expectedFingerprint()` — —
-- `assertIntentGraphDiff()` — —
-- `diff()` — —
-- `change()` — —
-- `relations()` — —
-- `summary()` — —
-- `assertConclusion()` — —
-- `known()` — —
-- `assertConclusions()` — —
-- `ids()` — —
-- `id()` — —
-- `assertTodoProposal()` — —
-- `assertTodoProposals()` — —
-- `proposalIds()` — —
-- `assertConclusionValue()` — —
-- `conclusion()` — —
-- `expectedId()` — —
-- `assertTodoProposalValue()` — —
-- `proposal()` — —
-- `assertGroundedGenerationMetadata()` — —
-- `validateGroundedContext()` — —
-- `report()` — —
-- `diagnosticIds()` — —
-- `diagnostic()` — —
-- `validateTodoProposalContext()` — —
-- `assertRelation()` — —
-- `relation()` — —
-- `objectValue()` — —
-- `exactKeys()` — —
-- `expectedSet()` — —
-- `missing()` — —
-- `extra()` — —
-- `nonEmptyString()` — —
-- `nonBlankString()` — —
-- `nullableString()` — —
-- `enumValue()` — —
 - `stringArray()` — —
-- `nonEmptyUniqueStringArray()` — —
-- `uniqueIdArray()` — —
-- `nonEmptyUniqueIdArray()` — —
-- `knownReferences()` — —
-- `unknown()` — —
-- `confidence()` — —
-- `assertAcyclicProposalDependencies()` — —
-- `byId()` — —
-- `visiting()` — —
-- `visited()` — —
-- `visit()` — —
-- `start()` — —
-- `dateString()` — —
-- `nullableDate()` — —
-- `fingerprint()` — —
-- `nonNegativeInteger()` — —
-- `countMap()` — —
-- `map()` — —
-- `countRecords()` — —
+- `safeManifestFiles()` — —
+- `absolute()` — —
+- `relativeApiPath()` — —
+- `readListBlock()` — —
+- `cursor()` — —
+- `line()` — —
+- `parseSendConfiguration()` — —
+- `validateOutputModes()` — —
+- `supported()` — —
+- `parseCommand()` — —
+- `objectData()` — —
+- `text()` — —
+- `first()` — —
+- `commandFromData()` — —
+- `action()` — —
+- `nested()` — —
+- `parseKeyValues()` — —
 - `key()` — —
-- `exactCounts()` — —
-- `actual()` — —
-- `isJsonValue()` — —
-- `diffUiHtml()` — —
-- `byId()` — —
-- `requestHeaders()` — —
-- `formatBytes()` — —
-- `selectedRun()` — —
-- `updateMeta()` — —
-- `fillSelect()` — —
-- `loadRuns()` — —
-- `compareGraphs()` — —
+- `raw()` — —
+- `stringValue()` — —
+- `parseScalar()` — —
+- `parseMessage()` — —
+- `messageId()` — —
+- `contextId()` — —
+- `taskId()` — —
+- `referenceTaskIds()` — —
+- `extensions()` — —
+- `metadata()` — —
+- `parsePart()` — —
+- `output()` — —
+- `parsePartContent()` — —
+- `content()` — —
+- `qualifier()` — —
+- `ensureSupportedMessageContent()` — —
+- `normalizeAction()` — —
+- `normalized()` — —
+- `cloneMessage()` — —
+- `clonePart()` — —
+- `normalizeUserMessage()` — —
 - `diagnosticReportFingerprint()` — —
 - `createTodoPatch()` — —
 - `expectedValidation()` — —
@@ -1470,259 +1108,49 @@ todo2code/
 - `isoDate()` — —
 - `uniqueIds()` — —
 - `uniqueStrings()` — —
-- `validateAndClassifyTodoProposals()` — —
-- `existing()` — —
-- `duplicates()` — —
-- `orderedProposalIds()` — —
-- `duplicateProposalIds()` — —
-- `duplicateIds()` — —
-- `duplicateEvidence()` — —
-- `proposalWords()` — —
-- `target()` — —
-- `sharedTicket()` — —
-- `sharedSymbol()` — —
-- `sharedPath()` — —
-- `similarity()` — —
-- `dependencyFirstPriorityOrder()` — —
-- `byId()` — —
-- `remainingDependencies()` — —
-- `dependents()` — —
+- `diagnoseGraph()` — —
+- `neighbors()` — —
+- `recordsById()` — —
+- `implementedPaths()` — —
+- `documentedPaths()` — —
+- `related()` — —
+- `evidenced()` — —
+- `missingFields()` — —
+- `buildNeighbors()` — —
+- `map()` — —
+- `appendNeighbor()` — —
 - `values()` — —
-- `compare()` — —
-- `left()` — —
-- `right()` — —
-- `ready()` — —
-- `id()` — —
-- `remaining()` — —
-- `words()` — —
-- `jaccard()` — —
-- `common()` — —
-- `intersects()` — —
-- `execFileAsync()` — —
-- `compareWorkspaceIntent()` — —
-- `root()` — —
-- `repositoryRoot()` — —
-- `relativeAnalysisRoot()` — —
-- `outputDir()` — —
-- `baseRef()` — —
-- `baseCommit()` — —
-- `headCommit()` — —
-- `status()` — —
-- `changedFiles()` — —
-- `temporaryParent()` — —
-- `baseWorktree()` — —
-- `baseRoot()` — —
-- `pipelineOptions()` — —
-- `baseOptions()` — —
-- `currentOptions()` — —
-- `baseRun()` — —
-- `currentRun()` — —
-- `baseReality()` — —
-- `currentReality()` — —
-- `diff()` — —
-- `baseCoverage()` — —
-- `currentCoverage()` — —
-- `alignmentRateDelta()` — —
-- `implementationCoverageDelta()` — —
-- `plannedCodeCoverageDelta()` — —
-- `documentedCodeCoverageDelta()` — —
-- `gapsDelta()` — —
-- `diagnosticsDelta()` — —
-- `comparisonId()` — —
-- `comparisonDirectory()` — —
-- `artifacts()` — —
-- `scopedOutputDirectory()` — —
+- `indexImplementedPaths()` — —
+- `paths()` — —
+- `indexDocumentedPaths()` — —
+- `hasImplementedTarget()` — —
+- `hasDocumentedTarget()` — —
+- `isPlan()` — —
+- `isImplementationEvidence()` — —
+- `isPublicImplementation()` — —
+- `symbol()` — —
+- `isReleaseCandidate()` — —
+- `isImportantRecord()` — —
+- `makeDiagnostic()` — —
+- `severityRank()` — —
+- `documentResponseSchema()` — —
+- `extractTodo()` — —
 - `absolute()` — —
-- `commonPipelineOptions()` — —
-- `optionsForRoot()` — —
-- `existingFile()` — —
+- `body()` — —
 - `relative()` — —
-- `coverage()` — —
-- `diagnosticDelta()` — —
-- `classifyWorkspaceTrend()` — —
-- `severeDelta()` — —
-- `improved()` — —
-- `regressed()` — —
-- `parseAheadBehind()` — —
-- `defaultBaseRef()` — —
-- `rounded()` — —
-- `artifactPaths()` — —
-- `renderTrendMarkdown()` — —
-- `percent()` — —
-- `documentationLine()` — —
-- `git()` — —
-- `result()` — —
-- `classifyLlmFailure()` — —
-- `message()` — —
-- `openRouterAuditConfiguration()` — —
-- `loadEnvFile()` — —
-- `explicit()` — —
-- `candidates()` — —
-- `content()` — —
-- `trimmed()` — —
-- `separator()` — —
-- `key()` — —
-- `value()` — —
-- `envString()` — —
-- `envOptional()` — —
-- `envNumber()` — —
+- `lines()` — —
 - `raw()` — —
-- `envBoolean()` — —
-- `envList()` — —
-- `envLlmMode()` — —
-- `getConfig()` — —
-- `model()` — —
-- `root()` — —
-- `configForDisplay()` — —
-- `hasOpenRouter()` — —
-- `sendAgentCard()` — —
-- `card()` — —
-- `serialized()` — —
-- `payload()` — —
-- `agentCard()` — —
-- `skills()` — —
-- `skill()` — —
-- `parseSendConfiguration()` — —
-- `validateOutputModes()` — —
-- `supported()` — —
-- `parseCommand()` — —
-- `objectData()` — —
+- `heading()` — —
+- `level()` — —
+- `task()` — —
+- `checked()` — —
+- `block()` — —
 - `text()` — —
-- `first()` — —
-- `commandFromData()` — —
+- `classified()` — —
 - `action()` — —
-- `nested()` — —
-- `parseKeyValues()` — —
-- `key()` — —
-- `raw()` — —
-- `stringValue()` — —
-- `parseScalar()` — —
-- `parseMessage()` — —
-- `messageId()` — —
-- `contextId()` — —
-- `taskId()` — —
-- `referenceTaskIds()` — —
-- `extensions()` — —
-- `metadata()` — —
-- `parsePart()` — —
-- `output()` — —
-- `parsePartContent()` — —
-- `content()` — —
-- `qualifier()` — —
-- `ensureSupportedMessageContent()` — —
-- `normalizeAction()` — —
-- `normalized()` — —
-- `cloneMessage()` — —
-- `clonePart()` — —
-- `normalizeUserMessage()` — —
-- `DISCOVERY_TTL_MS()` — —
-- `LIST_TTL_MS()` — —
-- `RESOURCE_TTL_MS()` — —
-- `createMcpConnectionState()` — —
-- `startMcpServer()` — —
-- `resolvedConfig()` — —
-- `state()` — —
-- `input()` — —
-- `parsed()` — —
-- `request()` — —
-- `result()` — —
-- `handleMcpRequest()` — —
-- `initializeLegacy()` — —
-- `params()` — —
-- `requested()` — —
-- `protocolVersion()` — —
-- `handleModernRequest()` — —
-- `responseMeta()` — —
-- `handleLegacyRequest()` — —
-- `validateModernRequest()` — —
-- `meta()` — —
-- `validateModernMetadata()` — —
-- `capabilities()` — —
-- `hasModernMetadata()` — —
-- `parseRequestLine()` — —
-- `completePublic()` — —
-- `serverInfo()` — —
-- `serverMeta()` — —
-- `serverInstructions()` — —
-- `isLegacyProtocol()` — —
-- `isJsonRpcRequest()` — —
-- `candidate()` — —
-- `requestId()` — —
-- `id()` — —
-- `rpcError()` — —
-- `sendError()` — —
-- `send()` — —
-- `invokedPath()` — —
-- `startA2aServer()` — —
-- `resolvedConfig()` — —
-- `server()` — —
-- `address()` — —
-- `port()` — —
-- `handleHttp()` — —
-- `url()` — —
-- `handlePublicGet()` — —
-- `handleAuthenticatedApi()` — —
-- `handleDiffApi()` — —
-- `input()` — —
-- `handleJsonRpc()` — —
-- `rpc()` — —
-- `isNotification()` — —
-- `result()` — —
-- `parseRpcRequest()` — —
-- `status()` — —
-- `sendRpcFailure()` — —
-- `code()` — —
-- `metadata()` — —
-- `requireAuthorization()` — —
-- `requireProtocolVersion()` — —
-- `requestedVersion()` — —
-- `a2aVersion()` — —
-- `raw()` — —
-- `headerVersion()` — —
-- `authorized()` — —
-- `header()` — —
-- `received()` — —
-- `expected()` — —
-- `principalForRequest()` — —
-- `readBody()` — —
-- `length()` — —
-- `chunk()` — —
-- `sendJson()` — —
-- `payload()` — —
-- `sendText()` — —
-- `sendNoContent()` — —
-- `rpcError()` — —
-- `reason()` — —
-- `errorInfo()` — —
-- `stringMetadata()` — —
-- `handleUnexpectedError()` — —
-- `errorMessage()` — —
-- `invokedPath()` — —
-- `TERMINAL_TASK_STATES()` — —
-- `TASK_STATES()` — —
-- `callMcpTool()` — —
-- `name()` — —
-- `args()` — —
-- `result()` — —
-- `tool()` — —
-- `writes()` — —
-- `stringProp()` — —
-- `nullableStringProp()` — —
-- `stringArrayProp()` — —
-- `numberProp()` — —
-- `listMcpResources()` — —
-- `readRequestedMcpResource()` — —
-- `uri()` — —
-- `readMcpResource()` — —
-- `latestPath()` — —
-- `selected()` — —
-- `latest()` — —
-- `filePath()` — —
-- `latestPointer()` — —
-- `assertInsideRoot()` — —
-- `relative()` — —
-- `isInvalidResourceError()` — —
-- `resource()` — —
+- `inferOwner()` — —
+- `match()` — —
+- `extractExplicitId()` — —
 - `tasks()` — —
 - `messageTaskIndex()` — —
 - `clearA2aTaskStoreForTests()` — —
@@ -1804,43 +1232,492 @@ todo2code/
 - `ownedTask()` — —
 - `messageKey()` — —
 - `errorMessage()` — —
-- `listIntentRuns()` — —
-- `runsDirectory()` — —
-- `entries()` — —
-- `items()` — —
-- `readRunEntries()` — —
-- `readRun()` — —
-- `runDirectory()` — —
-- `graphPath()` — —
-- `manifestPath()` — —
-- `manifest()` — —
-- `safeRunPath()` — —
-- `runListItem()` — —
+- `execFileAsync()` — —
+- `extractGitIntent()` — —
+- `root()` — —
+- `count()` — —
+- `inside()` — —
+- `message()` — —
+- `commit()` — —
+- `changedFiles()` — —
+- `stats()` — —
+- `diff()` — —
+- `classified()` — —
+- `inferredSymbols()` — —
+- `docOnly()` — —
+- `runGit()` — —
+- `result()` — —
+- `readCommits()` — —
+- `output()` — —
+- `readChangedFiles()` — —
+- `parts()` — —
+- `status()` — —
+- `readStats()` — —
+- `additions()` — —
+- `deletions()` — —
+- `extractChangedSymbols()` — —
+- `symbol()` — —
+- `isDocumentationPath()` — —
+- `MAX_ENTRIES_PER_FILE()` — —
+- `extractConfigurationIntent()` — —
+- `root()` — —
+- `matcher()` — —
+- `discovered()` — —
 - `files()` — —
-- `llm()` — —
-- `runtime()` — —
-- `warnings()` — —
-- `validTimestamp()` — —
-- `validStatus()` — —
-- `llmSummary()` — —
-- `readCommunicationSummary()` — —
 - `relative()` — —
-- `filePath()` — —
-- `stat()` — —
+- `body()` — —
+- `isConfigurationPath()` — —
+- `base()` — —
+- `configurationRecords()` — —
+- `entries()` — —
+- `bounded()` — —
+- `fileAggregate()` — —
+- `format()` — —
+- `lastLine()` — —
+- `configurationFormat()` — —
+- `jsonEntries()` — —
+- `parsed()` — —
+- `lines()` — —
+- `tomlEntries()` — —
+- `line()` — —
+- `heading()` — —
+- `pair()` — —
+- `yamlOrAssignmentEntries()` — —
+- `yaml()` — —
+- `assignment()` — —
+- `key()` — —
+- `dockerEntries()` — —
+- `match()` — —
+- `instruction()` — —
+- `detail()` — —
+- `entry()` — —
+- `uniqueEntries()` — —
+- `seen()` — —
+- `findKeyLine()` — —
+- `pattern()` — —
+- `index()` — —
+- `execFileAsync()` — —
+- `main()` — —
+- `parsed()` — —
+- `command()` — —
+- `config()` — —
+- `files()` — —
+- `records()` — —
+- `graph()` — —
+- `graphFile()` — —
+- `diagnosticsPath()` — —
+- `diagnostics()` — —
+- `result()` — —
+- `out()` — —
+- `graphPath()` — —
+- `output()` — —
+- `synthesisPath()` — —
+- `patch()` — —
+- `audit()` — —
+- `receipt()` — —
+- `actor()` — —
+- `approvalHash()` — —
+- `plansPath()` — —
+- `inputPath()` — —
+- `isPlanSet()` — —
+- `patchPath()` — —
+- `planPath()` — —
+- `beforeGraphPath()` — —
+- `afterGraphPath()` — —
+- `root()` — —
+- `handleWatch()` — —
+- `taskFile()` — —
+- `controller()` — —
+- `stop()` — —
+- `formatWatchEvent()` — —
+- `stamp()` — —
+- `handleDiff()` — —
+- `mode()` — —
+- `svg()` — —
+- `html()` — —
+- `beforeFile()` — —
+- `afterFile()` — —
+- `diff()` — —
+- `context()` — —
+- `maxRows()` — —
+- `handleReality()` — —
+- `view()` — —
+- `markdown()` — —
+- `handleExtract()` — —
+- `extractor()` — —
+- `file()` — —
+- `inline()` — —
+- `handleCommunication()` — —
+- `analysis()` — —
+- `graphOut()` — —
+- `emitExtraction()` — —
+- `emitJson()` — —
+- `initProject()` — —
+- `moduleRoot()` — —
+- `sourceEnv()` — —
+- `targetEnv()` — —
+- `task()` — —
+- `sourceIgnore()` — —
+- `targetIgnore()` — —
+- `doctor()` — —
+- `parseArgs()` — —
+- `options()` — —
 - `value()` — —
-- `participants()` — —
-- `issues()` — —
-- `participantSummary()` — —
-- `matchesRunFilters()` — —
+- `next()` — —
+- `name()` — —
+- `optionString()` — —
+- `optionNullableString()` — —
+- `optionBoolean()` — —
+- `optionNumber()` — —
+- `number()` — —
+- `optionList()` — —
+- `optionNlMode()` — —
+- `optionLlmMode()` — —
+- `optionTaskMode()` — —
+- `optionSummaryMode()` — —
+- `optionPipelineTaskMode()` — —
+- `reportPipelineDegradation()` — —
+- `printHelp()` — —
+- `invokedPath()` — —
+- `OBJECT_PLACEHOLDERS()` — —
+- `toDocumentIntentRecord()` — —
+- `statementText()` — —
+- `target()` — —
+- `action()` — —
+- `modality()` — —
+- `isPlaceholder()` — —
+- `resolveObject()` — —
+- `fallback()` — —
+- `anchorToSource()` — —
+- `claimedStart()` — —
+- `claimedEnd()` — —
+- `wanted()` — —
+- `lines()` — —
+- `scores()` — —
+- `claimedScore()` — —
+- `bestScore()` — —
+- `bestIndex()` — —
+- `anchored()` — —
+- `keywordOverlap()` — —
+- `present()` — —
+- `shared()` — —
+- `resolveTarget()` — —
+- `hasTarget()` — —
+- `resolveAction()` — —
+- `derived()` — —
+- `resolveModality()` — —
+- `linesFromChunk()` — —
+- `relativeStart()` — —
+- `relativeEnd()` — —
+- `clampLine()` — —
+- `allowedAction()` — —
+- `allowedModality()` — —
+- `allowedLifecycle()` — —
+- `executeAction()` — —
+- `root()` — —
+- `file()` — —
+- `text()` — —
+- `analysis()` — —
+- `records()` — —
+- `graph()` — —
+- `diagnostics()` — —
+- `result()` — —
+- `output()` — —
+- `synthesis()` — —
+- `todoPath()` — —
+- `patchPath()` — —
+- `auditPath()` — —
+- `todoContent()` — —
+- `rendered()` — —
+- `receiptPath()` — —
+- `conclusions()` — —
+- `proposals()` — —
+- `planSet()` — —
+- `review()` — —
+- `plan()` — —
+- `unifiedDiffs()` — —
+- `patch()` — —
+- `beforeGraph()` — —
+- `beforeDiagnostics()` — —
+- `afterGraph()` — —
+- `afterDiagnostics()` — —
+- `value()` — —
+- `beforeInput()` — —
+- `afterInput()` — —
+- `before()` — —
+- `after()` — —
+- `diff()` — —
+- `svg()` — —
+- `beforePath()` — —
+- `afterPath()` — —
+- `view()` — —
+- `filterCommunicationGraph()` — —
 - `participant()` — —
 - `role()` — —
 - `ticket()` — —
-- `severity()` — —
-- `normalized()` — —
-- `stringArray()` — —
-- `safeManifestFiles()` — —
+- `communicationOnly()` — —
+- `isCommunication()` — —
+- `nlModeValue()` — —
+- `llmModeValue()` — —
+- `taskSynthesisMode()` — —
+- `summaryModeValue()` — —
+- `pipelineTaskMode()` — —
+- `withTextDiffViews()` — —
+- `title()` — —
+- `readGraphInput()` — —
+- `safePath()` — —
+- `readActionObject()` — —
+- `resolveRoot()` — —
+- `requested()` — —
+- `scopedPath()` — —
+- `selected()` — —
+- `nullableScopedPath()` — —
+- `readRecords()` — —
+- `files()` — —
+- `safeFile()` — —
+- `stringValue()` — —
+- `nullableString()` — —
+- `stringList()` — —
+- `numberValue()` — —
+- `number()` — —
+- `hasInputValue()` — —
+- `objectMapOfStrings()` — —
+- `booleanValue()` — —
+- `objectValue()` — —
+- `registerRunArtifacts()` — —
+- `manifestPath()` — —
+- `manifest()` — —
+- `extractChangelog()` — —
 - `absolute()` — —
-- `relativeApiPath()` — —
+- `body()` — —
+- `relative()` — —
+- `lines()` — —
+- `raw()` — —
+- `versionHeading()` — —
+- `categoryHeading()` — —
+- `bullet()` — —
+- `block()` — —
+- `text()` — —
+- `action()` — —
+- `changelogAction()` — —
+- `normalized()` — —
+- `lower()` — —
+- `MAX_HEADING_LEVEL()` — —
+- `MIN_STATEMENT_CHARS()` — —
+- `extractDocumentationBaseline()` — —
+- `root()` — —
+- `body()` — —
+- `convertDocument()` — —
+- `relative()` — —
+- `lines()` — —
+- `raw()` — —
+- `fenceMatch()` — —
+- `marker()` — —
+- `language()` — —
+- `record()` — —
+- `heading()` — —
+- `level()` — —
+- `title()` — —
+- `bullet()` — —
+- `block()` — —
+- `paragraph()` — —
+- `readParagraph()` — —
+- `cursor()` — —
+- `line()` — —
+- `qualifyingStatement()` — —
+- `target()` — —
+- `hasCodeSpanIdentifier()` — —
+- `statementRecord()` — —
+- `action()` — —
+- `codeBlockRecord()` — —
+- `targetsOf()` — —
+- `prioritizeDocumentChunks()` — —
+- `needles()` — —
+- `chunkPriority()` — —
+- `matches()` — —
+- `mapConcurrent()` — —
+- `results()` — —
+- `nextIndex()` — —
+- `worker()` — —
+- `index()` — —
+- `item()` — —
+- `workerCount()` — —
+- `chunkMarkdown()` — —
+- `lines()` — —
+- `sections()` — —
+- `currentStart()` — —
+- `currentEnd()` — —
+- `flush()` — —
+- `sectionLines()` — —
+- `sectionText()` — —
+- `candidateSize()` — —
+- `markdownSections()` — —
+- `sectionStart()` — —
+- `splitLongSection()` — —
+- `batchStart()` — —
+- `batch()` — —
+- `takeLineBatch()` — —
+- `size()` — —
+- `offset()` — —
+- `line()` — —
+- `extractJavaAst()` — —
+- `helperPath()` — —
+- `extractAstIntent()` — —
+- `root()` — —
+- `matcher()` — —
+- `files()` — —
+- `body()` — —
+- `result()` — —
+- `unsupported()` — —
+- `extractRustAst()` — —
+- `helperPath()` — —
+- `extractGoAst()` — —
+- `helperPath()` — —
+- `unsupportedSourceWarning()` — —
+- `files()` — —
+- `counts()` — —
+- `extension()` — —
+- `adapterRecords()` — —
+- `detailRecords()` — —
+- `moduleRecords()` — —
+- `byPath()` — —
+- `bucket()` — —
+- `start()` — —
+- `end()` — —
+- `capabilities()` — —
+- `boundedCapabilities()` — —
+- `moduleTopicText()` — —
+- `execFileAsync()` — —
+- `runExternalAstAdapter()` — —
+- `files()` — —
+- `result()` — —
+- `parsed()` — —
+- `indexKeywords()` — —
+- `jaccard()` — —
+- `intersection()` — —
+- `linkIntentRecords()` — —
+- `records()` — —
+- `byId()` — —
+- `keywordIndex()` — —
+- `candidatePairs()` — —
+- `resolvableBasenames()` — —
+- `left()` — —
+- `right()` — —
+- `evidence()` — —
+- `directed()` — —
+- `deduplicateRecords()` — —
+- `existing()` — —
+- `collectCandidatePairs()` — —
+- `buckets()` — —
+- `astIds()` — —
+- `moduleAstIds()` — —
+- `declarationAstIds()` — —
+- `configurationIds()` — —
+- `isModuleTopicSource()` — —
+- `indexTargetBuckets()` — —
+- `indexAliases()` — —
+- `indexKeywordBuckets()` — —
+- `indexTopicBuckets()` — —
+- `addToBucket()` — —
+- `values()` — —
+- `isSuppressedConfigurationPair()` — —
+- `pairsFromBuckets()` — —
+- `output()` — —
+- `leftId()` — —
+- `rightId()` — —
+- `isSuppressedAstPair()` — —
+- `leftAst()` — —
+- `rightAst()` — —
+- `astId()` — —
+- `indexResolvableBasenames()` — —
+- `owners()` — —
+- `normalized()` — —
+- `basename()` — —
+- `paths()` — —
+- `pathsIntersect()` — —
+- `expand()` — —
+- `aliases()` — —
+- `full()` — —
+- `leftSet()` — —
+- `scorePair()` — —
+- `score()` — —
+- `leftKeywords()` — —
+- `rightKeywords()` — —
+- `objectSimilarity()` — —
+- `sharedTopics()` — —
+- `intersectionSize()` — —
+- `size()` — —
+- `isFileAggregate()` — —
+- `isFileAggregateEvidencePair()` — —
+- `isModuleTopicEvidencePair()` — —
+- `determineRelation()` — —
+- `textScore()` — —
+- `sourceRelation()` — —
+- `relationForSourceKinds()` — —
+- `relation()` — —
+- `matchSourceRule()` — —
+- `orientRelation()` — —
+- `intersects()` — —
+- `set()` — —
+- `intersectsAliases()` — —
+- `countBy()` — —
+- `key()` — —
+- `extractPythonAst()` — —
+- `helperPath()` — —
+- `matcher()` — —
+- `files()` — —
+- `temporaryDirectory()` — —
+- `filesPath()` — —
+- `main()` — —
+- `args()` — —
+- `arg()` — —
+- `json()` — —
+- `requirePerfect()` — —
+- `outIndex()` — —
+- `outPath()` — —
+- `dataset()` — —
+- `report()` — —
+- `rendered()` — —
+- `extractTypeScriptFile()` — —
+- `relative()` — —
+- `sourceFile()` — —
+- `moduleCapabilities()` — —
+- `lineRange()` — —
+- `excerpt()` — —
+- `add()` — —
+- `symbol()` — —
+- `nameOf()` — —
+- `modifiers()` — —
+- `visit()` — —
+- `symbolModifiers()` — —
+- `declarationIsCallable()` — —
+- `callee()` — —
+- `capabilities()` — —
+- `isTopLevel()` — —
+- `scriptKind()` — —
+- `extension()` — —
+- `languageName()` — —
+- `assertGoldDataset()` — —
+- `dataset()` — —
+- `assertDatasetObject()` — —
+- `assertDatasetMetadata()` — —
+- `assertDatasetCollections()` — —
+- `assertUniqueCaseIds()` — —
+- `assertExtractionCoverage()` — —
+- `channels()` — —
+- `MARKDOWN_ACTION_SET()` — —
+- `MARKDOWN_LLM_BATCH_RECORDS()` — —
+- `runExtractionCase()` — —
+- `root()` — —
+- `config()` — —
+- `writeFixtureFiles()` — —
+- `destination()` — —
+- `extractNlCase()` — —
+- `extractMarkdownCase()` — —
+- `extractDocumentationCase()` — —
+- `originalFetch()` — —
+- `benchmarkConfig()` — —
+- `projectRecord()` — —
 - `escapeXml()` — —
 - `truncate()` — —
 - `sanitizeSourceLine()` — —
@@ -1848,6 +1725,303 @@ todo2code/
 - `svgStyles()` — —
 - `svgDocument()` — —
 - `theme()` — —
+- `runPipeline()` — —
+- `root()` — —
+- `runId()` — —
+- `baseOutput()` — —
+- `runDirectory()` — —
+- `naturalLanguageAudit()` — —
+- `result()` — —
+- `git()` — —
+- `ast()` — —
+- `markdown()` — —
+- `deterministicDocumentFiles()` — —
+- `documentationStartedAt()` — —
+- `deterministicDocs()` — —
+- `docs()` — —
+- `configurationExtraction()` — —
+- `includeCommunication()` — —
+- `communicationStartedAt()` — —
+- `communicationAudit()` — —
+- `communicationInputPresent()` — —
+- `communication()` — —
+- `missingDirectory()` — —
+- `allRecords()` — —
+- `generatedAt()` — —
+- `graph()` — —
+- `communicationAnalysis()` — —
+- `diagnostics()` — —
+- `taskSynthesisMode()` — —
+- `taskSynthesisAudit()` — —
+- `todoContent()` — —
+- `codeChangePlans()` — —
+- `codeChangeReview()` — —
+- `codeChangeSourcePatches()` — —
+- `summaryStartedAt()` — —
+- `includeSummaryLlm()` — —
+- `summary()` — —
+- `filePath()` — —
+- `graphPath()` — —
+- `diagnosticsPath()` — —
+- `summaryPath()` — —
+- `summaryConclusionsPath()` — —
+- `taskSynthesisPath()` — —
+- `todoValidationPath()` — —
+- `todoPatchPath()` — —
+- `todoPatchAuditPath()` — —
+- `codeChangePlansPath()` — —
+- `codeChangeReviewPath()` — —
+- `codeChangeReviewAuditPath()` — —
+- `codeChangeSourcePatchesPath()` — —
+- `communicationAnalysisPath()` — —
+- `communicationMarkdownPath()` — —
+- `configuration()` — —
+- `manifestConfiguration()` — —
+- `collectTargetHints()` — —
+- `values()` — —
+- `persistFailedRun()` — —
+- `aborted()` — —
+- `message()` — —
+- `knownAudit()` — —
+- `failedAudit()` — —
+- `stageValue()` — —
+- `reason()` — —
+- `failureCode()` — —
+- `skippedAudit()` — —
+- `appendLlmNotConfigured()` — —
+- `extractCommunicationIntent()` — —
+- `root()` — —
+- `projectRoot()` — —
+- `files()` — —
+- `identityRegistry()` — —
+- `communicationFiles()` — —
+- `relativeToProject()` — —
+- `parts()` — —
+- `pathTicket()` — —
+- `envelope()` — —
+- `inferred()` — —
+- `explicitEnvelope()` — —
+- `declaredParticipant()` — —
+- `declaredRole()` — —
+- `declaredParticipantId()` — —
+- `identity()` — —
+- `participant()` — —
+- `role()` — —
+- `displayName()` — —
+- `messageType()` — —
+- `ticket()` — —
+- `recipient()` — —
+- `timestamp()` — —
+- `declaredGitAuthors()` — —
+- `gitAuthors()` — —
+- `declaredA2aAgentId()` — —
+- `explicitPaths()` — —
+- `explicitSymbols()` — —
+- `semantics()` — —
+- `classified()` — —
+- `action()` — —
+- `line()` — —
+- `resolveIdentity()` — —
+- `sameStrings()` — —
+- `normalize()` — —
+- `parseEnvelope()` — —
+- `lines()` — —
+- `end()` — —
+- `match()` — —
+- `inferIdentity()` — —
+- `fileParts()` — —
+- `nestedRoleIndex()` — —
+- `nestedRole()` — —
+- `nestedParticipant()` — —
+- `looksLikeTicket()` — —
+- `normalizeRole()` — —
+- `normalizeType()` — —
+- `normalized()` — —
+- `isCommunicationType()` — —
+- `semanticsFor()` — —
+- `first()` — —
+- `listValue()` — —
+- `stripped()` — —
+- `unquote()` — —
+- `validTimestamp()` — —
+- `parsed()` — —
+- `assertPathWithinRoot()` — —
+- `rootAbsolute()` — —
+- `candidateAbsolute()` — —
+- `existingAncestor()` — —
+- `ancestorReal()` — —
+- `assertDescendant()` — —
+- `relative()` — —
+- `nearestExistingPath()` — —
+- `current()` — —
+- `code()` — —
+- `parent()` — —
+- `emptyCounts()` — —
+- `addCounts()` — —
+- `compareSets()` — —
+- `actualCounts()` — —
+- `expectedCounts()` — —
+- `counts()` — —
+- `actualCount()` — —
+- `expectedCount()` — —
+- `frequency()` — —
+- `metric()` — —
+- `ratio()` — —
+- `buildRecord()` — —
+- `rawExcerpt()` — —
+- `withRecordGeneration()` — —
+- `generationMetadata()` — —
+- `used()` — —
+- `extractorIdentity()` — —
+- `separator()` — —
+- `clamp()` — —
+- `sourcePrefix()` — —
+- `groundRecordIdsByDiagnostics()` — —
+- `diagnosticById()` — —
+- `allowed()` — —
+- `suppliedGrounded()` — —
+- `sortedUnique()` — —
+- `loadGoldDataset()` — —
+- `parsed()` — —
+- `evaluateGoldDataset()` — —
+- `first()` — —
+- `second()` — —
+- `stable()` — —
+- `goldReportIsPerfect()` — —
+- `renderGoldReportMarkdown()` — —
+- `percent()` — —
+- `support()` — —
+- `rows()` — —
+- `value()` — —
+- `evaluateOnce()` — —
+- `extraction()` — —
+- `linking()` — —
+- `dsl2todo()` — —
+- `evaluateExtraction()` — —
+- `actual()` — —
+- `overall()` — —
+- `evaluateLinking()` — —
+- `counts()` — —
+- `byClass()` — —
+- `forbiddenViolations()` — —
+- `snapshots()` — —
+- `result()` — —
+- `evaluateDsl2Todo()` — —
+- `duplicateCounts()` — —
+- `evaluateLinkingCase()` — —
+- `idToLabel()` — —
+- `graph()` — —
+- `observed()` — —
+- `actual()` — —
+- `expected()` — —
+- `byClass()` — —
+- `forbidden()` — —
+- `forbiddenViolations()` — —
+- `classifyRelation()` — —
+- `exact()` — —
+- `evaluateDsl2TodoCase()` — —
+- `diagnostics()` — —
+- `diagnosticIds()` — —
+- `conclusion()` — —
+- `proposals()` — —
+- `validation()` — —
+- `duplicateIds()` — —
+- `citations()` — —
+- `buildConclusion()` — —
+- `buildProposal()` — —
+- `recordIds()` — —
+- `id()` — —
+- `countCitations()` — —
+- `citationRequired()` — —
+- `citationCited()` — —
+- `buildFixtureRecords()` — —
+- `labels()` — —
+- `records()` — —
+- `record()` — —
+- `deterministicGeneration()` — —
+- `GENERIC_SYMBOLS()` — —
+- `GENERIC_FILES()` — —
+- `normalizeTarget()` — —
+- `normalizePath()` — —
+- `normalizeSymbol()` — —
+- `symbolAliases()` — —
+- `normalized()` — —
+- `parts()` — —
+- `leaf()` — —
+- `pathAliases()` — —
+- `basename()` — —
+- `unique()` — —
+- `compileIgnorePattern()` — —
+- `pattern()` — —
+- `negated()` — —
+- `directoryOnly()` — —
+- `anchored()` — —
+- `body()` — —
+- `prefix()` — —
+- `translateGlob()` — —
+- `char()` — —
+- `next()` — —
+- `close()` — —
+- `escapeLiteral()` — —
+- `parseIgnoreFile()` — —
+- `createIgnoreMatcher()` — —
+- `normalize()` — —
+- `decide()` — —
+- `target()` — —
+- `segments()` — —
+- `ancestor()` — —
+- `loadIgnoreMatcher()` — —
+- `files()` — —
+- `absolute()` — —
+- `rule()` — —
+- `stableStringify()` — —
+- `sortValue()` — —
+- `sha256()` — —
+- `shortHash()` — —
+- `createIntentId()` — —
+- `createRelationId()` — —
+- `createConclusionId()` — —
+- `createTodoProposalId()` — —
+- `createCodeChangePlanHash()` — —
+- `createCodeChangePlanId()` — —
+- `createCodeChangeSourcePatchHash()` — —
+- `createCodeChangeSourcePatchId()` — —
+- `graphFingerprint()` — —
+- `newRunId()` — —
+- `stamp()` — —
+- `asJsonValue()` — —
+- `DEFAULT_IGNORED_DIRS()` — —
+- `ensureDir()` — —
+- `readText()` — —
+- `stat()` — —
+- `pathExists()` — —
+- `writeJson()` — —
+- `writeText()` — —
+- `writeJsonl()` — —
+- `readJsonl()` — —
+- `body()` — —
+- `readJson()` — —
+- `walkFiles()` — —
+- `ignored()` — —
+- `extensions()` — —
+- `maxFiles()` — —
+- `matcher()` — —
+- `base()` — —
+- `visit()` — —
+- `entries()` — —
+- `absolute()` — —
+- `relative()` — —
+- `extension()` — —
+- `escapeRegex()` — —
+- `globToRegExp()` — —
+- `normalized()` — —
+- `char()` — —
+- `next()` — —
+- `after()` — —
+- `matchesAnyGlob()` — —
+- `resolveGlobs()` — —
+- `files()` — —
+- `relativePosix()` — —
 - `DEFAULT_CONTEXT()` — —
 - `DEFAULT_MAX_COMPARE_LINES()` — —
 - `splitLines()` — —
@@ -1896,6 +2070,248 @@ todo2code/
 - `slice()` — —
 - `beforeNumbers()` — —
 - `afterNumbers()` — —
+- `loadParticipantIdentityRegistry()` — —
+- `registryPath()` — —
+- `assertParticipantIdentityRegistry()` — —
+- `registry()` — —
+- `ids()` — —
+- `external()` — —
+- `entry()` — —
+- `values()` — —
+- `normalized()` — —
+- `owner()` — —
+- `exactKeys()` — —
+- `allowed()` — —
+- `missing()` — —
+- `extra()` — —
+- `execFileAsync()` — —
+- `BINARY_EXTENSIONS()` — —
+- `collectGitDiff()` — —
+- `root()` — —
+- `revision()` — —
+- `staged()` — —
+- `maxFiles()` — —
+- `inside()` — —
+- `beforePath()` — —
+- `before()` — —
+- `after()` — —
+- `diff()` — —
+- `parseNameStatus()` — —
+- `parts()` — —
+- `status()` — —
+- `isProbablyBinary()` — —
+- `readBlob()` — —
+- `readStagedBlob()` — —
+- `readWorkingFile()` — —
+- `runGit()` — —
+- `result()` — —
+- `loadEnvFile()` — —
+- `explicit()` — —
+- `candidates()` — —
+- `content()` — —
+- `trimmed()` — —
+- `separator()` — —
+- `key()` — —
+- `value()` — —
+- `envString()` — —
+- `envOptional()` — —
+- `envNumber()` — —
+- `raw()` — —
+- `envBoolean()` — —
+- `envList()` — —
+- `envLlmMode()` — —
+- `getConfig()` — —
+- `model()` — —
+- `root()` — —
+- `configForDisplay()` — —
+- `hasOpenRouter()` — —
+- `STOP_WORDS()` — —
+- `classifyActionHeuristically()` — —
+- `conventional()` — —
+- `prose()` — —
+- `searchable()` — —
+- `detectModality()` — —
+- `detectPolarity()` — —
+- `stripped()` — —
+- `normalizeToken()` — —
+- `keywords()` — —
+- `GENERIC_TOPICS()` — —
+- `topicKeywords()` — —
+- `separated()` — —
+- `similarity()` — —
+- `left()` — —
+- `right()` — —
+- `intersection()` — —
+- `extractBacktickValues()` — —
+- `value()` — —
+- `extractPaths()` — —
+- `FILE_EXTENSIONS()` — —
+- `hasFileExtension()` — —
+- `last()` — —
+- `dot()` — —
+- `PATH_ROOTS()` — —
+- `isPathLike()` — —
+- `segments()` — —
+- `HOST_TLDS()` — —
+- `isHostname()` — —
+- `parts()` — —
+- `tld()` — —
+- `extractSymbols()` — —
+- `backticks()` — —
+- `camel()` — —
+- `ticketPrefixes()` — —
+- `extractTickets()` — —
+- `values()` — —
+- `extractVersions()` — —
+- `inferObject()` — —
+- `normalized()` — —
+- `result()` — —
+- `splitIntentLines()` — —
+- `lines()` — —
+- `raw()` — —
+- `cleaned()` — —
+- `pieces()` — —
+- `baseUrl()` — —
+- `token()` — —
+- `root()` — —
+- `main()` — —
+- `client()` — —
+- `health()` — —
+- `card()` — —
+- `nl()` — —
+- `ast()` — —
+- `markdown()` — —
+- `graph()` — —
+- `diagnostics()` — —
+- `synthesis()` — —
+- `validation()` — —
+- `rendered()` — —
+- `artifact()` — —
+- `reality()` — —
+- `gitDiff()` — —
+- `comparison()` — —
+- `unwrapTask()` — —
+- `IMPLEMENTATION_DIAGNOSTIC_CODES()` — —
+- `proposeCodeChangePlans()` — —
+- `generatedAt()` — —
+- `maxPlans()` — —
+- `conclusions()` — —
+- `proposals()` — —
+- `recordsById()` — —
+- `proposalsByDiagnostic()` — —
+- `conclusionsByDiagnostic()` — —
+- `candidates()` — —
+- `relatedRecords()` — —
+- `matchingProposals()` — —
+- `matchingConclusions()` — —
+- `target()` — —
+- `changes()` — —
+- `generation()` — —
+- `planHash()` — —
+- `evaluateCodeChangeAcceptance()` — —
+- `afterDiagnostics()` — —
+- `beforeIds()` — —
+- `afterById()` — —
+- `targeted()` — —
+- `clearedDiagnosticIds()` — —
+- `remainingDiagnosticIds()` — —
+- `newBlockingDiagnosticIds()` — —
+- `accepted()` — —
+- `evaluatedAt()` — —
+- `closeCodeChanges()` — —
+- `planIds()` — —
+- `acceptances()` — —
+- `acceptedCount()` — —
+- `indexProposalsByDiagnostic()` — —
+- `index()` — —
+- `list()` — —
+- `indexConclusionsByDiagnostic()` — —
+- `collectTarget()` — —
+- `paths()` — —
+- `symbols()` — —
+- `tickets()` — —
+- `versions()` — —
+- `buildChanges()` — —
+- `rationale()` — —
+- `titleFor()` — —
+- `object()` — —
+- `descriptionFor()` — —
+- `acceptanceCriteriaFor()` — —
+- `priorityFor()` — —
+- `confidenceFor()` — —
+- `riskFor()` — —
+- `level()` — —
+- `rollbackFor()` — —
+- `deterministicGeneration()` — —
+- `uniqueSorted()` — —
+- `createCodeChangeReviewPatch()` — —
+- `createdAt()` — —
+- `markdown()` — —
+- `renderCodeChangeReviewMarkdown()` — —
+- `assertCodeChangeReviewPatch()` — —
+- `artifact()` — —
+- `priorityRank()` — —
+- `inline()` — —
+- `renderIds()` — —
+- `createCodeChangeSourcePatch()` — —
+- `plan()` — —
+- `graphFingerprint()` — —
+- `allowed()` — —
+- `diffs()` — —
+- `normalized()` — —
+- `path()` — —
+- `rawDiff()` — —
+- `unifiedDiff()` — —
+- `patchHash()` — —
+- `createCodeChangeSourcePatchSet()` — —
+- `assertCodeChangeSourcePatch()` — —
+- `patch()` — —
+- `expectedHash()` — —
+- `expectedChanges()` — —
+- `editPath()` — —
+- `assertCodeChangeSourcePatchSet()` — —
+- `set()` — —
+- `plansById()` — —
+- `patchIds()` — —
+- `exactSourcePatchKeys()` — —
+- `actual()` — —
+- `assertSourcePatchIds()` — —
+- `assertSourcePatchStrings()` — —
+- `exactSourcePatchSet()` — —
+- `instructionFor()` — —
+- `criteria()` — —
+- `normalizeUnifiedDiff()` — —
+- `bare()` — —
+- `stripped()` — —
+- `applyCodeChangeSourcePatch()` — —
+- `root()` — —
+- `receiptPath()` — —
+- `existing()` — —
+- `relative()` — —
+- `absolute()` — —
+- `exists()` — —
+- `before()` — —
+- `after()` — —
+- `now()` — —
+- `fileHashesAfter()` — —
+- `assertExistingSourceReceipt()` — —
+- `current()` — —
+- `assertSourceApplyReceipt()` — —
+- `expectedPaths()` — —
+- `hashPaths()` — —
+- `atomicWriteRaw()` — —
+- `applyUnifiedDiffToText()` — —
+- `normalizedDiff()` — —
+- `baseLines()` — —
+- `diffLines()` — —
+- `cursor()` — —
+- `oldIndex()` — —
+- `oldCount()` — —
+- `newCount()` — —
+- `mark()` — —
+- `body()` — —
+- `splitKeep()` — —
+- `lines()` — —
 - `buildRealityView()` — —
 - `components()` — —
 - `diagnosticsByRecord()` — —
@@ -1960,27 +2376,6 @@ todo2code/
 - `renderRealityMarkdown()` — —
 - `lanes()` — —
 - `escapeMarkdown()` — —
-- `execFileAsync()` — —
-- `BINARY_EXTENSIONS()` — —
-- `collectGitDiff()` — —
-- `root()` — —
-- `revision()` — —
-- `staged()` — —
-- `maxFiles()` — —
-- `inside()` — —
-- `beforePath()` — —
-- `before()` — —
-- `after()` — —
-- `diff()` — —
-- `parseNameStatus()` — —
-- `parts()` — —
-- `status()` — —
-- `isProbablyBinary()` — —
-- `readBlob()` — —
-- `readStagedBlob()` — —
-- `readWorkingFile()` — —
-- `runGit()` — —
-- `result()` — —
 - `renderUnifiedDiff()` — —
 - `marker()` — —
 - `toSideBySideRows()` — —
@@ -2014,327 +2409,100 @@ todo2code/
 - `rows()` — —
 - `htmlCell()` — —
 - `cssClass()` — —
-- `compactSummaryPayload()` — —
-- `referenced()` — —
-- `nonAst()` — —
-- `moduleAst()` — —
-- `relevantAst()` — —
-- `ids()` — —
-- `selectedRelations()` — —
-- `compactRecord()` — —
-- `summarizeGraph()` — —
-- `mode()` — —
-- `conclusions()` — —
-- `client()` — —
-- `systemPrompt()` — —
-- `payload()` — —
-- `completion()` — —
-- `assertRawSummaryShape()` — —
-- `candidate()` — —
-- `keys()` — —
-- `assertRawConclusion()` — —
-- `requireText()` — —
-- `requireIdArray()` — —
-- `bad()` — —
-- `describe()` — —
-- `materializeConclusions()` — —
-- `deterministicConclusions()` — —
-- `generationMetadata()` — —
-- `effectiveMode()` — —
-- `degraded()` — —
-- `configuration()` — —
-- `summaryMode()` — —
-- `sortedUnique()` — —
-- `responseSchema()` — —
-- `idArray()` — —
-- `readPrompt()` — —
-- `promptPath()` — —
-- `renderSummaryMarkdown()` — —
-- `plans()` — —
-- `git()` — —
-- `moduleFacts()` — —
-- `facts()` — —
-- `releases()` — —
-- `communication()` — —
-- `actions()` — —
-- `compareConclusions()` — —
-- `renderRecords()` — —
-- `confidence()` — —
-- `renderConclusion()` — —
-- `recordCitations()` — —
-- `runPipeline()` — —
+- `Generation()` — —
+- `Error()` — —
+- `execFileAsync()` — —
+- `compareWorkspaceIntent()` — —
 - `root()` — —
-- `runId()` — —
-- `baseOutput()` — —
-- `runDirectory()` — —
-- `naturalLanguageAudit()` — —
-- `result()` — —
-- `git()` — —
-- `ast()` — —
-- `markdown()` — —
-- `deterministicDocumentFiles()` — —
-- `documentationStartedAt()` — —
-- `deterministicDocs()` — —
-- `docs()` — —
-- `configurationExtraction()` — —
-- `includeCommunication()` — —
-- `communicationStartedAt()` — —
-- `communicationAudit()` — —
-- `communicationInputPresent()` — —
-- `communication()` — —
-- `missingDirectory()` — —
-- `allRecords()` — —
-- `generatedAt()` — —
-- `graph()` — —
-- `communicationAnalysis()` — —
-- `diagnostics()` — —
-- `taskSynthesisMode()` — —
-- `taskSynthesisAudit()` — —
-- `todoContent()` — —
-- `summaryStartedAt()` — —
-- `includeSummaryLlm()` — —
-- `summary()` — —
-- `filePath()` — —
-- `graphPath()` — —
-- `diagnosticsPath()` — —
-- `summaryPath()` — —
-- `summaryConclusionsPath()` — —
-- `taskSynthesisPath()` — —
-- `todoValidationPath()` — —
-- `todoPatchPath()` — —
-- `todoPatchAuditPath()` — —
-- `communicationAnalysisPath()` — —
-- `communicationMarkdownPath()` — —
-- `configuration()` — —
-- `manifestConfiguration()` — —
-- `collectTargetHints()` — —
-- `values()` — —
-- `persistFailedRun()` — —
-- `aborted()` — —
-- `message()` — —
-- `knownAudit()` — —
-- `failedAudit()` — —
-- `stageValue()` — —
-- `reason()` — —
-- `failureCode()` — —
-- `skippedAudit()` — —
-- `appendLlmNotConfigured()` — —
-- `runExtractionCase()` — —
-- `root()` — —
-- `config()` — —
-- `writeFixtureFiles()` — —
-- `destination()` — —
-- `extractNlCase()` — —
-- `extractMarkdownCase()` — —
-- `extractDocumentationCase()` — —
-- `originalFetch()` — —
-- `benchmarkConfig()` — —
-- `projectRecord()` — —
-- `assertGoldDataset()` — —
-- `dataset()` — —
-- `assertDatasetObject()` — —
-- `assertDatasetMetadata()` — —
-- `assertDatasetCollections()` — —
-- `assertUniqueCaseIds()` — —
-- `assertExtractionCoverage()` — —
-- `channels()` — —
-- `evaluateLinkingCase()` — —
-- `idToLabel()` — —
-- `graph()` — —
-- `observed()` — —
-- `actual()` — —
-- `expected()` — —
-- `byClass()` — —
-- `forbidden()` — —
-- `forbiddenViolations()` — —
-- `classifyRelation()` — —
-- `exact()` — —
-- `evaluateDsl2TodoCase()` — —
-- `diagnostics()` — —
-- `diagnosticIds()` — —
-- `conclusion()` — —
-- `proposals()` — —
-- `validation()` — —
-- `duplicateIds()` — —
-- `citations()` — —
-- `buildConclusion()` — —
-- `buildProposal()` — —
-- `recordIds()` — —
-- `id()` — —
-- `countCitations()` — —
-- `citationRequired()` — —
-- `citationCited()` — —
-- `buildFixtureRecords()` — —
-- `labels()` — —
-- `records()` — —
-- `record()` — —
-- `deterministicGeneration()` — —
-- `emptyCounts()` — —
-- `addCounts()` — —
-- `compareSets()` — —
-- `actualCounts()` — —
-- `expectedCounts()` — —
-- `counts()` — —
-- `actualCount()` — —
-- `expectedCount()` — —
-- `frequency()` — —
-- `metric()` — —
-- `ratio()` — —
-- `loadGoldDataset()` — —
-- `parsed()` — —
-- `evaluateGoldDataset()` — —
-- `first()` — —
-- `second()` — —
-- `stable()` — —
-- `goldReportIsPerfect()` — —
-- `renderGoldReportMarkdown()` — —
-- `percent()` — —
-- `support()` — —
-- `rows()` — —
-- `value()` — —
-- `evaluateOnce()` — —
-- `extraction()` — —
-- `linking()` — —
-- `dsl2todo()` — —
-- `evaluateExtraction()` — —
-- `actual()` — —
-- `overall()` — —
-- `evaluateLinking()` — —
-- `counts()` — —
-- `byClass()` — —
-- `forbiddenViolations()` — —
-- `snapshots()` — —
-- `result()` — —
-- `evaluateDsl2Todo()` — —
-- `duplicateCounts()` — —
-- `main()` — —
-- `args()` — —
-- `arg()` — —
-- `json()` — —
-- `requirePerfect()` — —
-- `outIndex()` — —
-- `outPath()` — —
-- `dataset()` — —
-- `report()` — —
-- `rendered()` — —
-- `readJson()` — —
-- `writeExclusive()` — —
-- `target()` — —
-- `directory()` — —
-- `temporary()` — —
-- `existing()` — —
-- `compileOperationPlanArtifact()` — —
-- `plan()` — —
-- `bindings()` — —
-- `envelope()` — —
-- `valueMatchesType()` — —
-- `assertBinding()` — —
-- `ageSeconds()` — —
-- `compileSubactorProcessEnvelope()` — —
-- `variableById()` — —
-- `referenced()` — —
-- `variable()` — —
-- `binding()` — —
-- `humanApproval()` — —
-- `VALUE_TYPES()` — —
-- `CLASSIFICATIONS()` — —
-- `SOURCE_KINDS()` — —
-- `RISK_CLASSES()` — —
-- `objectValue()` — —
-- `exactKeys()` — —
-- `actual()` — —
-- `nonBlank()` — —
-- `dateString()` — —
-- `uniqueStrings()` — —
-- `assertPrincipalList()` — —
-- `principals()` — —
-- `isJsonValue()` — —
-- `assertVariableContract()` — —
-- `contract()` — —
-- `source()` — —
-- `access()` — —
-- `readers()` — —
-- `writers()` — —
-- `assertGeneration()` — —
-- `generation()` — —
-- `assertAcyclic()` — —
-- `ids()` — —
-- `visiting()` — —
-- `visited()` — —
-- `byId()` — —
-- `visit()` — —
-- `assertOperationPlan()` — —
-- `plan()` — —
-- `evidence()` — —
-- `variables()` — —
-- `variableById()` — —
-- `steps()` — —
-- `stepIds()` — —
-- `founderDecisionRequired()` — —
-- `step()` — —
-- `parameters()` — —
-- `reference()` — —
-- `variable()` — —
-- `rollback()` — —
-- `coveredSteps()` — —
-- `expectationIds()` — —
-- `expectation()` — —
-- `verifiedBy()` — —
-- `decision()` — —
-- `verification()` — —
-- `expectedHash()` — —
-- `variableContractSemanticValue()` — —
-- `createVariableContract()` — —
-- `normalized()` — —
-- `normalizedPlanDraft()` — —
-- `operationPlanHashMaterial()` — —
-- `createOperationPlan()` — —
-- `planHash()` — —
-- `argumentsByName()` — —
-- `key()` — —
-- `value()` — —
-- `allowed()` — —
-- `unknown()` — —
-- `main()` — —
-- `args()` — —
-- `scanTree()` — —
-- `maxFiles()` — —
-- `absoluteRoot()` — —
-- `visit()` — —
+- `repositoryRoot()` — —
+- `relativeAnalysisRoot()` — —
+- `outputDir()` — —
+- `baseRef()` — —
+- `baseCommit()` — —
+- `headCommit()` — —
+- `status()` — —
+- `changedFiles()` — —
+- `temporaryParent()` — —
+- `baseWorktree()` — —
+- `baseRoot()` — —
+- `pipelineOptions()` — —
+- `baseOptions()` — —
+- `currentOptions()` — —
+- `baseRun()` — —
+- `currentRun()` — —
+- `baseReality()` — —
+- `currentReality()` — —
+- `diff()` — —
+- `baseCoverage()` — —
+- `currentCoverage()` — —
+- `alignmentRateDelta()` — —
+- `implementationCoverageDelta()` — —
+- `plannedCodeCoverageDelta()` — —
+- `documentedCodeCoverageDelta()` — —
+- `gapsDelta()` — —
+- `diagnosticsDelta()` — —
+- `comparisonId()` — —
+- `comparisonDirectory()` — —
+- `artifacts()` — —
+- `scopedOutputDirectory()` — —
 - `absolute()` — —
+- `commonPipelineOptions()` — —
+- `optionsForRoot()` — —
+- `existingFile()` — —
 - `relative()` — —
-- `stat()` — —
-- `diffSnapshots()` — —
-- `previous()` — —
-- `describeDelta()` — —
-- `shown()` — —
-- `rest()` — —
-- `DEFAULT_MIN_INTERVAL_MS()` — —
-- `DEFAULT_SCAN_INTERVAL_MS()` — —
-- `watchRepository()` — —
-- `root()` — —
-- `minIntervalMs()` — —
-- `scanIntervalMs()` — —
-- `emit()` — —
-- `now()` — —
-- `sleep()` — —
-- `signal()` — —
-- `matcher()` — —
-- `runReport()` — —
+- `coverage()` — —
+- `diagnosticDelta()` — —
+- `classifyWorkspaceTrend()` — —
+- `severeDelta()` — —
+- `improved()` — —
+- `regressed()` — —
+- `parseAheadBehind()` — —
+- `defaultBaseRef()` — —
+- `rounded()` — —
+- `artifactPaths()` — —
+- `renderTrendMarkdown()` — —
+- `percent()` — —
+- `documentationLine()` — —
+- `git()` — —
 - `result()` — —
-- `snapshot()` — —
-- `lastReportStartedAt()` — —
-- `pending()` — —
-- `current()` — —
-- `delta()` — —
-- `waitMs()` — —
-- `generate()` — —
-- `startedAt()` — —
-- `defaultSleep()` — —
-- `timer()` — —
-- `onAbort()` — —
-- `finish()` — —
-- `ACTION_SET()` — —
+- `ExtractAST()` — —
+- `ExtractConfig()` — —
+- `ExtractNL()` — —
+- `ExtractDocs()` — —
+- `ExtractMarkdown()` — —
+- `ExtractMarkdownWithOptions()` — —
+- `ExtractGit()` — —
+- `Link()` — —
+- `Diagnose()` — —
+- `Reality()` — —
+- `DiffGit()` — —
+- `DiffFiles()` — —
+- `CompareWorkspace()` — —
+- `Pipeline()` — —
+- `ProposeTodo()` — —
+- `RenderTodo()` — —
+- `ApplyTodo()` — —
+- `callMap()` — —
+- `explicit()` — —
+- `files()` — —
+- `body()` — —
+- `seen()` — —
+- `match()` — —
+- `key()` — —
+- `previous()` — —
+- `workflowFiles()` — —
+- `directory()` — —
+- `main()` — —
+- `run()` — —
+- `envOr()` — —
+- `truncate()` — —
+- `joinedIDs()` — —
+- `visited()` — —
+- `visit()` — —
+- `body()` — —
+- `resolved()` — —
+- `resolveSource()` — —
+- `raw()` — —
 - `analyzeCommunication()` — —
 - `communication()` — —
 - `evidenceByRecord()` — —
@@ -2382,35 +2550,44 @@ todo2code/
 - `severityRank()` — —
 - `escapeCell()` — —
 - `escapeRegex()` — —
-- `loadParticipantIdentityRegistry()` — —
-- `registryPath()` — —
-- `assertParticipantIdentityRegistry()` — —
-- `registry()` — —
-- `ids()` — —
-- `external()` — —
-- `entry()` — —
-- `values()` — —
-- `normalized()` — —
-- `owner()` — —
-- `exactKeys()` — —
-- `allowed()` — —
-- `missing()` — —
-- `extra()` — —
-- `main()` — —
-- `emit()` — —
-- `collectGoFiles()` — —
-- `parseFile()` — —
-- `position()` — —
-- `excerpt()` — —
-- `add()` — —
-- `visitDecl()` — —
-- `visitFunc()` — —
-- `visitGenDecl()` — —
-- `visitCalls()` — —
-- `typeName()` — —
-- `declaredTypeKind()` — —
-- `strPtr()` — —
-- `toSlash()` — —
+- `execFileAsync()` — —
+- `root()` — —
+- `projectDirectory()` — —
+- `textExtensions()` — —
+- `untracked()` — —
+- `relative()` — —
+- `content()` — —
+- `normalizePath()` — —
+- `sourceRoot()` — —
+- `files()` — —
+- `graph()` — —
+- `body()` — —
+- `target()` — —
+- `relative()` — —
+- `targetRelative()` — —
+- `visiting()` — —
+- `visited()` — —
+- `visit()` — —
+- `start()` — —
+- `collect()` — —
+- `absolute()` — —
+- `resolveSource()` — —
+- `raw()` — —
+- `slash()` — —
+- `root()` — —
+- `readmePath()` — —
+- `relativeReadme()` — —
+- `packagePath()` — —
+- `packageJson()` — —
+- `version()` — —
+- `license()` — —
+- `nodeVersion()` — —
+- `original()` — —
+- `synchronized()` — —
+- `licenseTarget()` — —
+- `requiredString()` — —
+- `replaceRequired()` — —
+- `badgeValue()` — —
 - `root()` — —
 - `examplePath()` — —
 - `example()` — —
@@ -2426,10 +2603,37 @@ todo2code/
 - `collectExisting()` — —
 - `absolute()` — —
 - `collect()` — —
-- `cleanup()` — —
+- `New()` — —
+- `nextID()` — —
+- `setHeaders()` — —
+- `RPC()` — —
+- `Send()` — —
+- `unwrapTask()` — —
+- `Call()` — —
+- `Health()` — —
+- `AgentCard()` — —
+- `getJSON()` — —
+- `root()` — —
+- `sourceRoot()` — —
+- `textExtensions()` — —
+- `projectDirectory()` — —
+- `changed()` — —
+- `original()` — —
+- `normalized()` — —
 - `cleanup()` — —
 - `record_sdk_log()` — —
 - `run_sdk()` — —
+- `cleanup()` — —
+- `ACTION_SET()` — —
+- `root()` — —
+- `output()` — —
+- `latestPath()` — —
+- `latest()` — —
+- `manifestPath()` — —
+- `manifest()` — —
+- `stage()` — —
+- `tokens()` — —
+- `cost()` — —
 - `REPO_ROOT()` — —
 - `envNumber()` — —
 - `value()` — —
@@ -2468,97 +2672,200 @@ todo2code/
 - `report()` — —
 - `status()` — —
 - `total()` — —
-- `visited()` — —
-- `visit()` — —
-- `body()` — —
-- `resolved()` — —
-- `resolveSource()` — —
-- `raw()` — —
-- `explicit()` — —
-- `files()` — —
-- `body()` — —
-- `seen()` — —
-- `match()` — —
-- `key()` — —
-- `previous()` — —
-- `workflowFiles()` — —
-- `directory()` — —
-- `sourceRoot()` — —
-- `files()` — —
-- `graph()` — —
-- `body()` — —
+- `ACTIONS()` — —
+- `MODALITIES()` — —
+- `POLARITIES()` — —
+- `LIFECYCLES()` — —
+- `SOURCE_KINDS()` — —
+- `EPISTEMIC_CLASSES()` — —
+- `RELATION_TYPES()` — —
+- `CONCLUSION_KINDS()` — —
+- `DIAGNOSTIC_SEVERITIES()` — —
+- `TODO_PRIORITIES()` — —
+- `GENERATION_REQUESTED_MODES()` — —
+- `GENERATION_EFFECTIVE_MODES()` — —
+- `CODE_CHANGE_ACTIONS()` — —
+- `CODE_CHANGE_RISK_LEVELS()` — —
+- `assertIntentRecord()` — —
+- `record()` — —
+- `statement()` — —
 - `target()` — —
-- `relative()` — —
-- `targetRelative()` — —
+- `lifecycle()` — —
+- `source()` — —
+- `lines()` — —
+- `epistemic()` — —
+- `metadata()` — —
+- `assertGenerationMatchesExtractor()` — —
+- `generation()` — —
+- `separator()` — —
+- `expectedGenerator()` — —
+- `assertIntentGenerationMetadata()` — —
+- `assertIntentRecords()` — —
+- `assertIntentGraph()` — —
+- `graph()` — —
+- `recordIds()` — —
+- `relationIds()` — —
+- `stats()` — —
+- `records()` — —
+- `expectedFingerprint()` — —
+- `assertIntentGraphDiff()` — —
+- `diff()` — —
+- `change()` — —
+- `relations()` — —
+- `summary()` — —
+- `assertConclusion()` — —
+- `known()` — —
+- `assertConclusions()` — —
+- `ids()` — —
+- `id()` — —
+- `assertTodoProposal()` — —
+- `assertTodoProposals()` — —
+- `proposalIds()` — —
+- `assertCodeChangePlan()` — —
+- `assertCodeChangePlans()` — —
+- `assertCodeChangePlansForReview()` — —
+- `plan()` — —
+- `evidence()` — —
+- `assertCodeChangePlanForAcceptance()` — —
+- `assertPlanGraphFingerprint()` — —
+- `assertCodeChangeAcceptance()` — —
+- `beforeKnown()` — —
+- `afterKnown()` — —
+- `acceptance()` — —
+- `expectedCleared()` — —
+- `expectedRemaining()` — —
+- `expectedBlocking()` — —
+- `expectedAccepted()` — —
+- `assertConclusionValue()` — —
+- `conclusion()` — —
+- `expectedId()` — —
+- `assertTodoProposalValue()` — —
+- `proposal()` — —
+- `assertGroundedGenerationMetadata()` — —
+- `validateGroundedContext()` — —
+- `report()` — —
+- `diagnosticIds()` — —
+- `diagnostic()` — —
+- `validateTodoProposalContext()` — —
+- `validateCodeChangePlanContext()` — —
+- `conclusions()` — —
+- `proposals()` — —
+- `referencedConclusionIds()` — —
+- `assertCodeChangePlanValue()` — —
+- `targetPaths()` — —
+- `changePaths()` — —
+- `normalizedPath()` — —
+- `risk()` — —
+- `semantic()` — —
+- `expectedHash()` — —
+- `assertRelation()` — —
+- `relation()` — —
+- `objectValue()` — —
+- `exactKeys()` — —
+- `expectedSet()` — —
+- `missing()` — —
+- `extra()` — —
+- `nonEmptyString()` — —
+- `nonBlankString()` — —
+- `nullableString()` — —
+- `enumValue()` — —
+- `stringArray()` — —
+- `nonEmptyUniqueStringArray()` — —
+- `repositoryPath()` — —
+- `normalized()` — —
+- `exactStringSet()` — —
+- `uniqueIdArray()` — —
+- `nonEmptyUniqueIdArray()` — —
+- `knownReferences()` — —
+- `unknown()` — —
+- `confidence()` — —
+- `assertAcyclicProposalDependencies()` — —
+- `byId()` — —
 - `visiting()` — —
 - `visited()` — —
 - `visit()` — —
 - `start()` — —
-- `collect()` — —
-- `absolute()` — —
-- `resolveSource()` — —
-- `raw()` — —
-- `slash()` — —
+- `dateString()` — —
+- `nullableDate()` — —
+- `fingerprint()` — —
+- `nonNegativeInteger()` — —
+- `countMap()` — —
+- `map()` — —
+- `countRecords()` — —
+- `key()` — —
+- `exactCounts()` — —
+- `actual()` — —
+- `isJsonValue()` — —
+- `validateContract()` — —
+- `executeContract()` — —
+- `client()` — —
+- `main()` — —
+- `emit()` — —
+- `collectGoFiles()` — —
+- `parseFile()` — —
+- `position()` — —
+- `excerpt()` — —
+- `add()` — —
+- `visitDecl()` — —
+- `visitFunc()` — —
+- `visitGenDecl()` — —
+- `visitCalls()` — —
+- `typeName()` — —
+- `declaredTypeKind()` — —
+- `strPtr()` — —
+- `toSlash()` — —
+- `createState()` — —
+- `refresh()` — —
+- `page()` — —
+- `message()` — —
+- `mountPanel()` — —
+- `state()` — —
+- `reload()` — —
+- `classifyEvent()` — —
+- `toRows()` — —
+- `renderTable()` — —
+- `table()` — —
+- `head()` — —
+- `body()` — —
+- `tr()` — —
+- `cell()` — —
+- `renderError()` — —
+- `banner()` — —
+- `headerRow()` — —
+- `th()` — —
+- `MAX_BODY_BYTES()` — —
+- `createBackend()` — —
+- `store()` — —
+- `server()` — —
+- `handleRequest()` — —
+- `url()` — —
+- `body()` — —
+- `validation()` — —
+- `event()` — —
+- `offset()` — —
+- `limit()` — —
+- `readBody()` — —
+- `size()` — —
+- `buffer()` — —
+- `sendJson()` — —
+- `startBackend()` — —
+- `port()` — —
+- `host()` — —
+- `ALLOWED_ACTIONS()` — —
+- `validateEventPayload()` — —
+- `invalid()` — —
+- `record()` — —
+- `agent()` — —
+- `action()` — —
+- `object()` — —
+- `detect_file_language_with_parser_id(file_path)` — Expose the lowercase tree-sitter ID through the legacy `.name` field.
+- `load_task(path)` — —
+- `normalize_task(value)` — —
+- `main()` — —
+- `main()` — —
 - `source_hash(value)` — —
 - `dotted_name(node)` — —
-- `iter_python_files(root)` — —
-- `main()` — —
-- `New()` — —
-- `nextID()` — —
-- `setHeaders()` — —
-- `RPC()` — —
-- `Send()` — —
-- `unwrapTask()` — —
-- `Call()` — —
-- `Health()` — —
-- `AgentCard()` — —
-- `getJSON()` — —
-- `Generation()` — —
-- `Error()` — —
-- `ExtractAST()` — —
-- `ExtractConfig()` — —
-- `ExtractNL()` — —
-- `ExtractDocs()` — —
-- `ExtractMarkdown()` — —
-- `ExtractMarkdownWithOptions()` — —
-- `ExtractGit()` — —
-- `Link()` — —
-- `Diagnose()` — —
-- `Reality()` — —
-- `DiffGit()` — —
-- `DiffFiles()` — —
-- `CompareWorkspace()` — —
-- `Pipeline()` — —
-- `ProposeTodo()` — —
-- `RenderTodo()` — —
-- `ApplyTodo()` — —
-- `callMap()` — —
-- `main()` — —
-- `run()` — —
-- `envOr()` — —
-- `truncate()` — —
-- `joinedIDs()` — —
-- `baseUrl()` — —
-- `token()` — —
-- `root()` — —
-- `main()` — —
-- `client()` — —
-- `health()` — —
-- `card()` — —
-- `nl()` — —
-- `ast()` — —
-- `markdown()` — —
-- `graph()` — —
-- `diagnostics()` — —
-- `synthesis()` — —
-- `validation()` — —
-- `rendered()` — —
-- `artifact()` — —
-- `reality()` — —
-- `gitDiff()` — —
-- `comparison()` — —
-- `unwrapTask()` — —
-- `main()` — —
+- `iter_python_files(root, files_from)` — —
 - `main()` — —
 
 
@@ -2575,12 +2882,15 @@ todo2code/
 📄 `docker-compose`
 📄 `docs.ARCHITECTURE`
 📄 `docs.CLI_GUIDE`
+📄 `docs.CODE_CHANGE_PLANS`
+📄 `docs.DEMOLLM`
 📄 `docs.DSL`
+📄 `docs.GROK-PLAN`
 📄 `docs.OPTIMIZATION`
 📄 `docs.PIPELINE_DSL_NL`
 📄 `docs.PROJECT_STATUS`
 📄 `docs.PROTOCOLS`
-📄 `docs.README`
+📄 `docs.READINESS`
 📄 `docs.REQUIREMENTS`
 📄 `docs.SECURITY`
 📄 `docs.SUBACTOR_OPERATION_DSL`
@@ -2626,7 +2936,10 @@ todo2code/
 📄 `golang.ast_extract` (15 functions, 3 classes)
 📄 `java.JavaAstExtract` (25 functions, 1 classes)
 📄 `package`
-📄 `project` (1 functions)
+📄 `project` (3 functions)
+📄 `project.ticket-001.AI-Codex`
+📄 `project.ticket-001.README`
+📄 `project.ticket-001.logs`
 📄 `prompts.communication-to-intent.system`
 📄 `prompts.docs-to-intent.system`
 📄 `prompts.markdown-to-intent.system`
@@ -2637,6 +2950,14 @@ todo2code/
 📄 `python.requirements`
 📄 `rust-ast.Cargo`
 📄 `rust-ast.src.main` (23 functions, 3 classes)
+📄 `schemas.code-change-acceptance.schema`
+📄 `schemas.code-change-close-result.schema`
+📄 `schemas.code-change-plan-set.schema`
+📄 `schemas.code-change-plan.schema`
+📄 `schemas.code-change-review.schema`
+📄 `schemas.code-change-source-apply-receipt.schema`
+📄 `schemas.code-change-source-patch-set.schema`
+📄 `schemas.code-change-source-patch.schema`
 📄 `schemas.conclusion.schema`
 📄 `schemas.document-extraction-response.schema`
 📄 `schemas.gold-dataset.schema`
@@ -2650,13 +2971,18 @@ todo2code/
 📄 `schemas.todo-proposal.schema`
 📄 `schemas.variable-contract.schema`
 📄 `scripts.a2a-request`
+📄 `scripts.assert-demollm-run` (10 functions)
 📄 `scripts.docker-smoke` (1 functions)
 📄 `scripts.examples-check` (3 functions)
 📄 `scripts.live-contract-check` (39 functions)
 📄 `scripts.mcp-request`
+📄 `scripts.normalize-generated-analysis-roots` (7 functions)
 📄 `scripts.package`
 📄 `scripts.smoke`
+📄 `scripts.sync-generated-readme-metadata` (14 functions)
+📄 `scripts.vallm-compatible` (1 functions)
 📄 `scripts.verify-env-contract` (18 functions)
+📄 `scripts.verify-generated-analysis` (8 functions)
 📄 `scripts.verify-module-boundaries` (17 functions)
 📄 `scripts.verify-no-llm-imports` (6 functions)
 📄 `scripts.verify-workflow-yaml` (9 functions)
@@ -2693,24 +3019,25 @@ todo2code/
 📄 `sdk.typescript.README`
 📄 `sdk.typescript.examples.basic` (19 functions)
 📄 `sdk.typescript.package`
-📦 `sdk.typescript.src` (42 functions, 14 classes)
+📦 `sdk.typescript.src` (48 functions, 14 classes)
 📄 `sdk.typescript.tsconfig`
 📦 `src`
-📄 `src.cli` (125 functions, 1 classes)
+📄 `src.cli` (152 functions, 1 classes)
 📄 `src.communication.analyzer` (52 functions, 3 classes)
 📄 `src.communication.identity` (14 functions, 3 classes)
 📄 `src.communication.llm` (53 functions, 7 classes)
 📄 `src.comparison.workspace` (55 functions, 3 classes)
 📄 `src.config.env` (26 functions, 1 classes)
-📄 `src.core.id` (12 functions)
+📄 `src.core.grounding` (5 functions)
+📄 `src.core.id` (16 functions)
 📄 `src.core.ignore` (24 functions, 3 classes)
 📄 `src.core.io` (36 functions, 1 classes)
 📄 `src.core.record` (9 functions, 2 classes)
-📄 `src.core.schema` (103 functions, 2 classes)
+📄 `src.core.schema` (151 functions, 4 classes)
 📄 `src.core.security` (11 functions)
 📄 `src.core.target` (13 functions)
-📄 `src.core.text` (42 functions)
-📄 `src.core.types` (28 classes)
+📄 `src.core.text` (49 functions)
+📄 `src.core.types` (39 classes)
 📄 `src.core.version`
 📄 `src.diff.git` (21 functions, 3 classes)
 📄 `src.diff.reality` (66 functions, 3 classes)
@@ -2728,15 +3055,15 @@ todo2code/
 📄 `src.extractors.ast.external` (5 functions, 1 classes)
 📄 `src.extractors.ast.go` (2 functions)
 📄 `src.extractors.ast.java` (2 functions)
-📄 `src.extractors.ast.python` (2 functions)
+📄 `src.extractors.ast.python` (6 functions)
 📄 `src.extractors.ast.records` (10 functions)
 📄 `src.extractors.ast.rust` (2 functions)
 📄 `src.extractors.ast.types` (2 classes)
 📄 `src.extractors.ast.typescript` (21 functions)
 📄 `src.extractors.ast.unsupported` (4 functions)
 📄 `src.extractors.changelog` (15 functions)
-📄 `src.extractors.communication` (54 functions, 2 classes)
-📄 `src.extractors.configuration` (34 functions, 1 classes)
+📄 `src.extractors.communication` (57 functions, 2 classes)
+📄 `src.extractors.configuration` (40 functions, 1 classes)
 📄 `src.extractors.docs-chunks` (29 functions)
 📄 `src.extractors.docs-deterministic` (31 functions, 1 classes)
 📄 `src.extractors.docs-llm` (24 functions, 1 classes)
@@ -2748,11 +3075,11 @@ todo2code/
 📄 `src.extractors.markdown-block` (3 functions, 1 classes)
 📄 `src.extractors.markdown-llm` (31 functions, 4 classes)
 📄 `src.extractors.nl` (12 functions, 1 classes)
-📄 `src.extractors.nl-llm` (34 functions, 4 classes)
+📄 `src.extractors.nl-llm` (38 functions, 4 classes)
 📄 `src.extractors.todo` (17 functions)
-📄 `src.graph.diagnostics` (22 functions)
+📄 `src.graph.diagnostics` (26 functions)
 📄 `src.graph.diff` (38 functions, 1 classes)
-📄 `src.graph.linker` (57 functions, 4 classes)
+📄 `src.graph.linker` (73 functions, 4 classes)
 📄 `src.interfaces.a2a` (46 functions)
 📄 `src.interfaces.a2a-card` (7 functions)
 📄 `src.interfaces.a2a-history` (38 functions, 3 classes)
@@ -2772,13 +3099,15 @@ todo2code/
 📄 `src.operations.subactor` (10 functions, 1 classes)
 📄 `src.operations.types` (8 classes)
 📄 `src.operations.validation` (47 functions)
-📄 `src.pipeline.run` (57 functions, 1 classes)
-📄 `src.sdk.typescript` (10 functions, 6 classes)
-📄 `src.services.actions` (76 functions)
+📄 `src.pipeline.run` (64 functions, 1 classes)
+📄 `src.sdk.typescript` (16 functions, 6 classes)
+📄 `src.services.actions` (113 functions)
 📄 `src.summary.payload` (8 functions)
 📄 `src.summary.render` (14 functions)
-📄 `src.summary.summarizer` (32 functions, 4 classes)
-📄 `src.synthesis.tasks-llm` (47 functions, 6 classes)
+📄 `src.summary.summarizer` (47 functions, 5 classes)
+📄 `src.synthesis.code-change-path` (14 functions)
+📄 `src.synthesis.code-change-plan` (139 functions, 10 classes)
+📄 `src.synthesis.tasks-llm` (84 functions, 7 classes)
 📄 `src.synthesis.todo-patch` (53 functions, 5 classes)
 📄 `src.synthesis.validation` (29 functions, 2 classes)
 📄 `src.tf.classifier` (27 functions, 4 classes)

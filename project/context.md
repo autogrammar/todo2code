@@ -3,60 +3,70 @@
 
 ## Overview
 
-- **Project**: /home/tom/github/semcod/todo2code
+- **Project**: <PROJECT_ROOT>
 - **Primary Language**: typescript
-- **Languages**: typescript: 99, md: 53, json: 22, python: 12, rust: 7
+- **Languages**: typescript: 102, md: 50, json: 29, python: 13, javascript: 10
 - **Analysis Mode**: static
-- **Total Functions**: 2491
-- **Total Classes**: 271
-- **Modules**: 222
-- **Entry Points**: 1725
+- **Total Functions**: 2821
+- **Total Classes**: 296
+- **Modules**: 232
+- **Entry Points**: 1980
 
 ## Architecture by Module
 
 ### src.cli
-- **Functions**: 125
+- **Functions**: 152
 - **Classes**: 1
 - **File**: `cli.ts`
 
 ### src.core.schema
-- **Functions**: 103
-- **Classes**: 2
+- **Functions**: 151
+- **Classes**: 4
 - **File**: `schema.ts`
+
+### src.synthesis.code-change-plan
+- **Functions**: 139
+- **Classes**: 10
+- **File**: `code-change-plan.ts`
+
+### src.services.actions
+- **Functions**: 113
+- **File**: `actions.ts`
 
 ### src.interfaces.a2a-task-store
 - **Functions**: 92
 - **Classes**: 3
 - **File**: `a2a-task-store.ts`
 
-### src.services.actions
-- **Functions**: 76
-- **File**: `actions.ts`
+### src.synthesis.tasks-llm
+- **Functions**: 84
+- **Classes**: 7
+- **File**: `tasks-llm.ts`
+
+### src.graph.linker
+- **Functions**: 73
+- **Classes**: 4
+- **File**: `linker.ts`
 
 ### src.diff.reality
 - **Functions**: 66
 - **Classes**: 3
 - **File**: `reality.ts`
 
-### src.graph.linker
-- **Functions**: 57
-- **Classes**: 4
-- **File**: `linker.ts`
-
 ### src.pipeline.run
-- **Functions**: 57
+- **Functions**: 64
 - **Classes**: 1
 - **File**: `run.ts`
+
+### src.extractors.communication
+- **Functions**: 57
+- **Classes**: 2
+- **File**: `communication.ts`
 
 ### src.comparison.workspace
 - **Functions**: 55
 - **Classes**: 3
 - **File**: `workspace.ts`
-
-### src.extractors.communication
-- **Functions**: 54
-- **Classes**: 2
-- **File**: `communication.ts`
 
 ### src.synthesis.todo-patch
 - **Functions**: 53
@@ -78,10 +88,19 @@
 - **Classes**: 3
 - **File**: `analyzer.ts`
 
-### src.synthesis.tasks-llm
+### src.core.text
+- **Functions**: 49
+- **File**: `text.ts`
+
+### sdk.typescript.src
+- **Functions**: 48
+- **Classes**: 14
+- **File**: `index.ts`
+
+### src.summary.summarizer
 - **Functions**: 47
-- **Classes**: 6
-- **File**: `tasks-llm.ts`
+- **Classes**: 5
+- **File**: `summarizer.ts`
 
 ### src.operations.validation
 - **Functions**: 47
@@ -91,37 +110,18 @@
 - **Functions**: 46
 - **File**: `a2a.ts`
 
-### sdk.python.todo2code.client
-- **Functions**: 45
-- **Classes**: 7
-- **File**: `client.py`
-
-### src.llm.openrouter
-- **Functions**: 43
-- **Classes**: 7
-- **File**: `openrouter.ts`
-
-### src.interfaces.mcp
-- **Functions**: 43
-- **Classes**: 2
-- **File**: `mcp.ts`
-
-### src.core.text
-- **Functions**: 42
-- **File**: `text.ts`
-
 ## Key Entry Points
 
 Main execution flows into the system:
-
-### sdk.python.examples.basic.main
-- **Calls**: os.environ.get, os.environ.get, os.environ.get, T2CClient, print, client.agent_card, print, client.extract_nl_result
 
 ### src.services.actions.executeAction
 - **Calls**: src.services.actions.resolveRoot, src.services.actions.scopedPath, src.services.actions.extractNlIntentAudited, src.services.actions.nlModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.extractAstIntent, src.services.actions.extractConfigurationIntent
 
 ### src.services.actions.root
 - **Calls**: src.services.actions.scopedPath, src.services.actions.extractNlIntentAudited, src.services.actions.nlModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.extractAstIntent, src.services.actions.extractConfigurationIntent, src.services.actions.extractMarkdownIntentAudited
+
+### sdk.python.examples.basic.main
+- **Calls**: os.environ.get, os.environ.get, os.environ.get, T2CClient, print, client.agent_card, print, client.extract_nl_result
 
 ### src.pipeline.run.runPipeline
 - **Calls**: src.pipeline.run.resolve, src.pipeline.run.pathExists, src.pipeline.run.Error, src.pipeline.run.newRunId, src.pipeline.run.join, src.pipeline.run.ensureDir, src.pipeline.run.skippedAudit, src.pipeline.run.extractNlIntentAudited
@@ -133,19 +133,28 @@ Main execution flows into the system:
 - **Calls**: src.web.diff-ui.gradient, src.web.diff-ui.min, src.web.diff-ui.clamp, src.web.diff-ui.not, src.web.diff-ui.media, src.web.diff-ui.token, src.web.diff-ui.getElementById, src.web.diff-ui.byId
 
 ### src.extractors.communication.extractCommunicationIntent
-- **Calls**: src.extractors.communication.resolve, src.extractors.communication.assertPathWithinRoot, src.extractors.communication.pathExists, src.extractors.communication.relativePosix, src.extractors.communication.walkFiles, src.extractors.communication.loadParticipantIdentityRegistry, src.extractors.communication.split, src.extractors.communication.test
+- **Calls**: src.extractors.communication.resolve, src.extractors.communication.assertPathWithinRoot, src.extractors.communication.pathExists, src.extractors.communication.relativePosix, src.extractors.communication.walkFiles, src.extractors.communication.loadParticipantIdentityRegistry, src.extractors.communication.split, src.extractors.communication.toLowerCase
 
 ### src.comparison.workspace.compareWorkspaceIntent
 - **Calls**: src.comparison.workspace.resolve, src.comparison.workspace.git, src.comparison.workspace.trim, src.comparison.workspace.relative, src.comparison.workspace.startsWith, src.comparison.workspace.isAbsolute, src.comparison.workspace.Error, src.comparison.workspace.scopedOutputDirectory
 
-### src.extractors.communication.identityRegistry
-- **Calls**: src.extractors.communication.relativePosix, src.extractors.communication.split, src.extractors.communication.test, src.extractors.communication.basename, src.extractors.communication.push, src.extractors.communication.toLowerCase, src.extractors.communication.readText, src.extractors.communication.String
+### src.synthesis.code-change-plan.applyCodeChangeSourcePatch
+- **Calls**: src.synthesis.code-change-plan.assertCodeChangeSourcePatch, src.synthesis.code-change-plan.trim, src.synthesis.code-change-plan.Error, src.synthesis.code-change-plan.resolve, src.synthesis.code-change-plan.assertPathWithinRoot, src.synthesis.code-change-plan.ensureDir, src.synthesis.code-change-plan.dirname, src.synthesis.code-change-plan.open
 
-### src.core.text.inferObject
-- **Calls**: src.core.text.replace, src.core.text.trim, src.core.text.b, src.core.text.utworzy, src.core.text.doda, src.core.text.zaimplementowa, src.core.text.stworzy, src.core.text.zbudowa
+### src.extractors.communication.identityRegistry
+- **Calls**: src.extractors.communication.relativePosix, src.extractors.communication.split, src.extractors.communication.toLowerCase, src.extractors.communication.readText, src.extractors.communication.push, src.extractors.communication.String, src.extractors.communication.parseEnvelope, src.extractors.communication.inferIdentity
+
+### src.extractors.communication.communicationFiles
+- **Calls**: src.extractors.communication.relativePosix, src.extractors.communication.split, src.extractors.communication.toLowerCase, src.extractors.communication.readText, src.extractors.communication.push, src.extractors.communication.String, src.extractors.communication.parseEnvelope, src.extractors.communication.inferIdentity
+
+### src.synthesis.code-change-plan.proposeCodeChangePlans
+- **Calls**: src.synthesis.code-change-plan.assertIntentGraph, src.synthesis.code-change-plan.assertConclusions, src.synthesis.code-change-plan.Date, src.synthesis.code-change-plan.toISOString, src.synthesis.code-change-plan.isNaN, src.synthesis.code-change-plan.parse, src.synthesis.code-change-plan.Error, src.synthesis.code-change-plan.isInteger
 
 ### src.interfaces.a2a-message.parseCommand
 - **Calls**: src.interfaces.a2a-message.find, src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.commandFromData, src.interfaces.a2a-message.map, src.interfaces.a2a-message.join, src.interfaces.a2a-message.trim, src.interfaces.a2a-message.startsWith, src.interfaces.a2a-message.parse
+
+### src.core.text.inferObject
+- **Calls**: src.core.text.replace, src.core.text.trim, src.core.text.b, src.core.text.utworzy, src.core.text.doda, src.core.text.zaimplementowa, src.core.text.stworzy, src.core.text.zbudowa
 
 ### src.communication.analyzer.analyzeCommunication
 - **Calls**: src.communication.analyzer.assertIntentGraph, src.communication.analyzer.filter, src.communication.analyzer.validateSyntheses, src.communication.analyzer.evidenceNeighbors, src.communication.analyzer.participantOf, src.communication.analyzer.get, src.communication.analyzer.push, src.communication.analyzer.set
@@ -156,6 +165,9 @@ Main execution flows into the system:
 ### src.operations.validation.assertOperationPlan
 - **Calls**: src.operations.validation.objectValue, src.operations.validation.exactKeys, src.operations.validation.Error, src.operations.validation.test, src.operations.validation.dateString, src.operations.validation.nonBlank, src.operations.validation.uniqueStrings, src.operations.validation.assertGeneration
 
+### src.graph.diagnostics.diagnoseGraph
+- **Calls**: src.graph.diagnostics.Date, src.graph.diagnostics.toISOString, src.graph.diagnostics.assertIntentGraph, src.graph.diagnostics.buildNeighbors, src.graph.diagnostics.Map, src.graph.diagnostics.map, src.graph.diagnostics.indexImplementedPaths, src.graph.diagnostics.indexDocumentedPaths
+
 ### src.comparison.workspace.temporaryParent
 - **Calls**: src.comparison.workspace.git, src.comparison.workspace.join, src.comparison.workspace.commonPipelineOptions, src.comparison.workspace.optionsForRoot, src.comparison.workspace.runPipeline, src.comparison.workspace.all, src.comparison.workspace.buildRealityView, src.comparison.workspace.diffIntentGraphs
 
@@ -165,20 +177,17 @@ Main execution flows into the system:
 ### src.extractors.todo.extractTodo
 - **Calls**: src.extractors.todo.resolve, src.extractors.todo.pathExists, src.extractors.todo.readText, src.extractors.todo.relativePosix, src.extractors.todo.split, src.extractors.todo.match, src.extractors.todo.splice, src.extractors.todo.trim
 
-### src.graph.diagnostics.diagnoseGraph
-- **Calls**: src.graph.diagnostics.Date, src.graph.diagnostics.toISOString, src.graph.diagnostics.assertIntentGraph, src.graph.diagnostics.buildNeighbors, src.graph.diagnostics.Map, src.graph.diagnostics.map, src.graph.diagnostics.indexImplementedPaths, src.graph.diagnostics.get
-
 ### scripts.verify-env-contract.makefile
 - **Calls**: scripts.verify-env-contract.readFile, scripts.verify-env-contract.join, scripts.verify-env-contract.matchAll, scripts.verify-env-contract.add, scripts.verify-env-contract.b, scripts.verify-env-contract.filter, scripts.verify-env-contract.has, scripts.verify-env-contract.sort
 
 ### python.ast_extract.main
-- **Calls**: argparse.ArgumentParser, parser.add_argument, parser.add_argument, parser.parse_args, None.resolve, python.ast_extract.iter_python_files, print, json.dumps
+- **Calls**: argparse.ArgumentParser, parser.add_argument, parser.add_argument, parser.add_argument, parser.parse_args, None.resolve, python.ast_extract.iter_python_files, print
 
 ### src.communication.llm.CommunicationLlmRequiredError.extractCommunicationIntentAudited
 - **Calls**: src.communication.llm.now, src.communication.llm.extractCommunicationIntent, src.communication.llm.CommunicationLlmRequiredError.audit, src.communication.llm.CommunicationLlmRequiredError.markDeterministic, src.communication.llm.CommunicationLlmRequiredError.deterministicSyntheses, src.communication.llm.CommunicationLlmRequiredError.deterministicGeneration, src.communication.llm.OpenRouterClient, src.communication.llm.isConfigured
 
-### rust-ast.src.main.main
-- **Calls**: rust-ast.src.main.let, rust-ast.src.main.arguments, rust-ast.src.main.collect_files, rust-ast.src.main.sort, rust-ast.src.main.slash, rust-ast.src.main.strip_prefix, rust-ast.src.main.unwrap_or, rust-ast.src.main.metadata
+### src.graph.linker.linkIntentRecords
+- **Calls**: src.graph.linker.Date, src.graph.linker.toISOString, src.graph.linker.assertIntentRecords, src.graph.linker.deduplicateRecords, src.graph.linker.sort, src.graph.linker.localeCompare, src.graph.linker.Map, src.graph.linker.map
 
 ### src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
 - **Calls**: src.extractors.nl-llm.NlLlmRequiredError.assertNlExtractionOptions, src.extractors.nl-llm.now, src.extractors.nl-llm.extractNlIntent, src.extractors.nl-llm.NlLlmRequiredError.markDeterministic, src.extractors.nl-llm.NlLlmRequiredError.audit, src.extractors.nl-llm.OpenRouterClient, src.extractors.nl-llm.isConfigured, src.extractors.nl-llm.NlLlmRequiredError.fallbackOrThrow
@@ -195,25 +204,11 @@ Main execution flows into the system:
 ### sdk.typescript.examples.basic.root
 - **Calls**: sdk.typescript.examples.basic.T2CClient, sdk.typescript.examples.basic.health, sdk.typescript.examples.basic.log, sdk.typescript.examples.basic.agentCard, sdk.typescript.examples.basic.map, sdk.typescript.examples.basic.join, sdk.typescript.examples.basic.extractNl, sdk.typescript.examples.basic.Error
 
-### sdk.typescript.examples.basic.main
-- **Calls**: sdk.typescript.examples.basic.T2CClient, sdk.typescript.examples.basic.health, sdk.typescript.examples.basic.log, sdk.typescript.examples.basic.agentCard, sdk.typescript.examples.basic.map, sdk.typescript.examples.basic.join, sdk.typescript.examples.basic.extractNl, sdk.typescript.examples.basic.Error
-
-### sdk.python.todo2code.runtime.TypeScriptRuntime.reality
-- **Calls**: tempfile.TemporaryDirectory, self.invoke, Path, Path, Path, str, str, str
-
-### src.extractors.nl.extractNlIntent
-- **Calls**: src.extractors.nl.assertNlExtractionOptions, src.extractors.nl.resolve, src.extractors.nl.readText, src.extractors.nl.isAbsolute, src.extractors.nl.relativePosix, src.extractors.nl.replace, src.extractors.nl.splitIntentLines, src.extractors.nl.classifyAction
-
 ## Process Flows
 
 Key execution flows identified:
 
-### Flow 1: main
-```
-main [sdk.python.examples.basic]
-```
-
-### Flow 2: executeAction
+### Flow 1: executeAction
 ```
 executeAction [src.services.actions]
   └─> resolveRoot
@@ -221,11 +216,16 @@ executeAction [src.services.actions]
       └─> stringValue
 ```
 
-### Flow 3: root
+### Flow 2: root
 ```
 root [src.services.actions]
   └─> scopedPath
       └─> stringValue
+```
+
+### Flow 3: main
+```
+main [sdk.python.examples.basic]
 ```
 
 ### Flow 4: runPipeline
@@ -255,37 +255,42 @@ compareWorkspaceIntent [src.comparison.workspace]
       └─> execFileAsync
 ```
 
-### Flow 9: identityRegistry
+### Flow 9: applyCodeChangeSourcePatch
+```
+applyCodeChangeSourcePatch [src.synthesis.code-change-plan]
+  └─> assertCodeChangeSourcePatch
+```
+
+### Flow 10: identityRegistry
 ```
 identityRegistry [src.extractors.communication]
 ```
 
-### Flow 10: inferObject
-```
-inferObject [src.core.text]
-```
-
 ## Key Classes
+
+### src.synthesis.tasks-llm.TaskSynthesisAttemptError
+- **Methods**: 83
+- **Key Methods**: src.synthesis.tasks-llm.TaskSynthesisAttemptError.super, src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeTodoProposals, src.synthesis.tasks-llm.TaskSynthesisAttemptError.startedAt, src.synthesis.tasks-llm.TaskSynthesisAttemptError.assertConclusions, src.synthesis.tasks-llm.TaskSynthesisAttemptError.client, src.synthesis.tasks-llm.TaskSynthesisAttemptError.prompt, src.synthesis.tasks-llm.TaskSynthesisAttemptError.payload, src.synthesis.tasks-llm.TaskSynthesisAttemptError.failure, src.synthesis.tasks-llm.TaskSynthesisAttemptError.responses, src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeWithCorrection
 
 ### src.communication.llm.CommunicationLlmRequiredError
 - **Methods**: 52
 - **Key Methods**: src.communication.llm.CommunicationLlmRequiredError.super, src.communication.llm.CommunicationLlmRequiredError.extractCommunicationIntentAudited, src.communication.llm.CommunicationLlmRequiredError.startedAt, src.communication.llm.CommunicationLlmRequiredError.deterministic, src.communication.llm.CommunicationLlmRequiredError.records, src.communication.llm.CommunicationLlmRequiredError.client, src.communication.llm.CommunicationLlmRequiredError.groups, src.communication.llm.CommunicationLlmRequiredError.completion, src.communication.llm.CommunicationLlmRequiredError.enrichments, src.communication.llm.CommunicationLlmRequiredError.enrichedByOriginal
 
-### src.synthesis.tasks-llm.TaskSynthesisRequiredError
-- **Methods**: 47
-- **Key Methods**: src.synthesis.tasks-llm.TaskSynthesisRequiredError.super, src.synthesis.tasks-llm.TaskSynthesisRequiredError.synthesizeTodoProposals, src.synthesis.tasks-llm.TaskSynthesisRequiredError.startedAt, src.synthesis.tasks-llm.TaskSynthesisRequiredError.assertConclusions, src.synthesis.tasks-llm.TaskSynthesisRequiredError.client, src.synthesis.tasks-llm.TaskSynthesisRequiredError.prompt, src.synthesis.tasks-llm.TaskSynthesisRequiredError.completion, src.synthesis.tasks-llm.TaskSynthesisRequiredError.generation, src.synthesis.tasks-llm.TaskSynthesisRequiredError.materializeResponse, src.synthesis.tasks-llm.TaskSynthesisRequiredError.conclusionKeys
+### sdk.typescript.src.T2CClient
+- **Methods**: 46
+- **Key Methods**: sdk.typescript.src.T2CClient.health, sdk.typescript.src.T2CClient.agentCard, sdk.typescript.src.T2CClient.send, sdk.typescript.src.T2CClient.result, sdk.typescript.src.T2CClient.call, sdk.typescript.src.T2CClient.task, sdk.typescript.src.T2CClient.detail, sdk.typescript.src.T2CClient.part, sdk.typescript.src.T2CClient.getTask, sdk.typescript.src.T2CClient.cancelTask
 
 ### src.llm.openrouter.OpenRouterClient
 - **Methods**: 42
 - **Key Methods**: src.llm.openrouter.OpenRouterClient.isConfigured, src.llm.openrouter.OpenRouterClient.listAvailableModels, src.llm.openrouter.OpenRouterClient.controller, src.llm.openrouter.OpenRouterClient.timeout, src.llm.openrouter.OpenRouterClient.response, src.llm.openrouter.OpenRouterClient.text, src.llm.openrouter.OpenRouterClient.clearTimeout, src.llm.openrouter.OpenRouterClient.chatText, src.llm.openrouter.OpenRouterClient.chatTextWithMetadata, src.llm.openrouter.OpenRouterClient.response
 
-### sdk.typescript.src.T2CClient
-- **Methods**: 40
-- **Key Methods**: sdk.typescript.src.T2CClient.health, sdk.typescript.src.T2CClient.agentCard, sdk.typescript.src.T2CClient.send, sdk.typescript.src.T2CClient.result, sdk.typescript.src.T2CClient.call, sdk.typescript.src.T2CClient.task, sdk.typescript.src.T2CClient.detail, sdk.typescript.src.T2CClient.part, sdk.typescript.src.T2CClient.getTask, sdk.typescript.src.T2CClient.cancelTask
-
 ### src.extractors.nl-llm.NlLlmRequiredError
-- **Methods**: 34
+- **Methods**: 38
 - **Key Methods**: src.extractors.nl-llm.NlLlmRequiredError.super, src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited, src.extractors.nl-llm.NlLlmRequiredError.assertNlExtractionOptions, src.extractors.nl-llm.NlLlmRequiredError.startedAt, src.extractors.nl-llm.NlLlmRequiredError.result, src.extractors.nl-llm.NlLlmRequiredError.client, src.extractors.nl-llm.NlLlmRequiredError.absolute, src.extractors.nl-llm.NlLlmRequiredError.body, src.extractors.nl-llm.NlLlmRequiredError.sourcePath, src.extractors.nl-llm.NlLlmRequiredError.maxLine
+
+### src.summary.summarizer.SummaryAttemptError
+- **Methods**: 37
+- **Key Methods**: src.summary.summarizer.SummaryAttemptError.super, src.summary.summarizer.SummaryAttemptError.assertRawSummaryShape, src.summary.summarizer.SummaryAttemptError.candidate, src.summary.summarizer.SummaryAttemptError.keys, src.summary.summarizer.SummaryAttemptError.assertRawConclusion, src.summary.summarizer.SummaryAttemptError.candidate, src.summary.summarizer.SummaryAttemptError.requireText, src.summary.summarizer.SummaryAttemptError.requireText, src.summary.summarizer.SummaryAttemptError.requireIdArray, src.summary.summarizer.SummaryAttemptError.requireIdArray
 
 ### sdk.python.todo2code.client.T2CClient
 > Client for the todo2code A2A endpoint.
@@ -311,6 +316,10 @@ Example:
 - **Methods**: 24
 - **Key Methods**: src.extractors.docs-llm.DocumentationLlmRequiredError.super, src.extractors.docs-llm.DocumentationLlmRequiredError.extractDocumentationIntent, src.extractors.docs-llm.DocumentationLlmRequiredError.startedAt, src.extractors.docs-llm.DocumentationLlmRequiredError.client, src.extractors.docs-llm.DocumentationLlmRequiredError.requireConfiguredClient, src.extractors.docs-llm.DocumentationLlmRequiredError.chunks, src.extractors.docs-llm.DocumentationLlmRequiredError.selectedChunks, src.extractors.docs-llm.DocumentationLlmRequiredError.systemPrompt, src.extractors.docs-llm.DocumentationLlmRequiredError.results, src.extractors.docs-llm.DocumentationLlmRequiredError.requireConfiguredClient
 
+### src.sdk.typescript.Todo2CodeClient
+- **Methods**: 16
+- **Key Methods**: src.sdk.typescript.Todo2CodeClient.a2a, src.sdk.typescript.Todo2CodeClient.health, src.sdk.typescript.Todo2CodeClient.diffGraphs, src.sdk.typescript.Todo2CodeClient.diffGraphFiles, src.sdk.typescript.Todo2CodeClient.compareWorkspace, src.sdk.typescript.Todo2CodeClient.proposeTodo, src.sdk.typescript.Todo2CodeClient.renderTodo, src.sdk.typescript.Todo2CodeClient.applyTodo, src.sdk.typescript.Todo2CodeClient.proposeCodeChange, src.sdk.typescript.Todo2CodeClient.renderCodeChange
+
 ### src.interfaces.a2a-types.BodyTooLargeError
 - **Methods**: 11
 - **Key Methods**: src.interfaces.a2a-types.BodyTooLargeError.stringParam, src.interfaces.a2a-types.BodyTooLargeError.optionalString, src.interfaces.a2a-types.BodyTooLargeError.optionalStringArray, src.interfaces.a2a-types.BodyTooLargeError.optionalInteger, src.interfaces.a2a-types.BodyTooLargeError.parsed, src.interfaces.a2a-types.BodyTooLargeError.optionalBoolean, src.interfaces.a2a-types.BodyTooLargeError.optionalTimestamp, src.interfaces.a2a-types.BodyTooLargeError.timestamp, src.interfaces.a2a-types.BodyTooLargeError.optionalTaskState, src.interfaces.a2a-types.BodyTooLargeError.recordParam
@@ -321,10 +330,6 @@ Example:
 Graph comparisons use the REST fast path (``POST /ap
 - **Methods**: 11
 - **Key Methods**: sdk.python.todo2code_sdk.Todo2CodeClient.__init__, sdk.python.todo2code_sdk.Todo2CodeClient.base_url, sdk.python.todo2code_sdk.Todo2CodeClient.health, sdk.python.todo2code_sdk.Todo2CodeClient.extract_nl, sdk.python.todo2code_sdk.Todo2CodeClient.extract_docs, sdk.python.todo2code_sdk.Todo2CodeClient.diff_graphs, sdk.python.todo2code_sdk.Todo2CodeClient.diff_graph_files, sdk.python.todo2code_sdk.Todo2CodeClient.diff_text_files, sdk.python.todo2code_sdk.Todo2CodeClient.diff_git, sdk.python.todo2code_sdk.Todo2CodeClient.reality
-
-### src.sdk.typescript.Todo2CodeClient
-- **Methods**: 10
-- **Key Methods**: src.sdk.typescript.Todo2CodeClient.a2a, src.sdk.typescript.Todo2CodeClient.health, src.sdk.typescript.Todo2CodeClient.diffGraphs, src.sdk.typescript.Todo2CodeClient.diffGraphFiles, src.sdk.typescript.Todo2CodeClient.compareWorkspace, src.sdk.typescript.Todo2CodeClient.proposeTodo, src.sdk.typescript.Todo2CodeClient.renderTodo, src.sdk.typescript.Todo2CodeClient.applyTodo, src.sdk.typescript.Todo2CodeClient.extractNl, src.sdk.typescript.Todo2CodeClient.run
 
 ### python.ast_extract.FactVisitor
 - **Methods**: 9
@@ -355,21 +360,9 @@ Graph comparisons use the REST fast path (``POST /ap
 - **Methods**: 2
 - **Key Methods**: src.interfaces.mcp-errors.McpRequestError.super, src.interfaces.mcp-errors.McpRequestError.normalizeMcpError
 
-### sdk.php.src.Error.Todo2Code.Error
-- **Methods**: 2
-- **Key Methods**: sdk.php.src.Error.Error.__construct, sdk.php.src.Error.Error.data
-
 ## Data Transformation Functions
 
 Key functions that process and transform data:
-
-### examples.backend.src.validation.validateEventPayload
-- **Output to**: examples.backend.src.validation.isArray, examples.backend.src.validation.invalid, examples.backend.src.validation.trim, examples.backend.src.validation.has, examples.backend.src.validation.join
-
-### examples.src.runtime.validateContract
-- **Output to**: examples.src.runtime.Error
-
-### java.JavaAstExtract.JavaAstExtract.parseFile
 
 ### src.cli.parsed
 - **Output to**: src.cli.printHelp
@@ -380,37 +373,14 @@ Key functions that process and transform data:
 ### src.cli.parseArgs
 - **Output to**: src.cli.push, src.cli.slice, src.cli.startsWith, src.cli.split, src.cli.set
 
-### src.extractors.configuration.parsed
-- **Output to**: src.extractors.configuration.keys, src.extractors.configuration.sort, src.extractors.configuration.map, src.extractors.configuration.findKeyLine
-
-### src.extractors.docs-deterministic.convertDocument
-- **Output to**: src.extractors.docs-deterministic.relativePosix, src.extractors.docs-deterministic.split, src.extractors.docs-deterministic.match, src.extractors.docs-deterministic.trim, src.extractors.docs-deterministic.codeBlockRecord
-
-### src.extractors.communication.parseEnvelope
-- **Output to**: src.extractors.communication.split, src.extractors.communication.trim, src.extractors.communication.slice, src.extractors.communication.findIndex, src.extractors.communication.match
-
-### src.extractors.communication.parsed
-
-### src.extractors.markdown-llm.MarkdownLlmRequiredError.validateEnrichments
-- **Output to**: src.extractors.markdown-llm.isArray, src.extractors.markdown-llm.Error, src.extractors.markdown-llm.Set, src.extractors.markdown-llm.map, src.extractors.markdown-llm.MarkdownLlmRequiredError.isMarkdownEnrichment
-
-### src.core.ignore.parseIgnoreFile
-- **Output to**: src.core.ignore.split, src.core.ignore.map, src.core.ignore.compileIgnorePattern, src.core.ignore.filter
-
-### src.core.schema.validateGroundedContext
-- **Output to**: src.core.schema.assertIntentGraph, src.core.schema.objectValue, src.core.schema.Error, src.core.schema.isArray, src.core.schema.test
-
-### src.core.schema.validateTodoProposalContext
-- **Output to**: src.core.schema.validateGroundedContext, src.core.schema.assertConclusions, src.core.schema.Set, src.core.schema.map
-
 ### src.web.diff-ui.formatBytes
 - **Output to**: src.web.diff-ui.selectedRun, src.web.diff-ui.byId
 
 ### src.synthesis.validation.validateAndClassifyTodoProposals
 - **Output to**: src.synthesis.validation.assertTodoProposals, src.synthesis.validation.filter, src.synthesis.validation.map, src.synthesis.validation.duplicateEvidence, src.synthesis.validation.Boolean
 
-### src.comparison.workspace.parseAheadBehind
-- **Output to**: src.comparison.workspace.trim, src.comparison.workspace.split, src.comparison.workspace.Number
+### src.operations.subactor.compileSubactorProcessEnvelope
+- **Output to**: src.operations.subactor.assertOperationPlan, src.operations.subactor.trim, src.operations.subactor.Error, src.operations.subactor.Map, src.operations.subactor.map
 
 ### src.llm.openrouter.OpenRouterClient.formatInvalidModelError
 - **Output to**: src.llm.openrouter.models, src.llm.openrouter.n, src.llm.openrouter.map, src.llm.openrouter.join
@@ -418,8 +388,31 @@ Key functions that process and transform data:
 ### src.llm.openrouter.OpenRouterClient.parseJsonContent
 - **Output to**: src.llm.openrouter.trim, src.llm.openrouter.replace, src.llm.openrouter.parse, src.llm.openrouter.indexOf, src.llm.openrouter.lastIndexOf
 
-### src.interfaces.a2a-card.serialized
-- **Output to**: src.interfaces.a2a-card.createHash, src.interfaces.a2a-card.update, src.interfaces.a2a-card.digest
+### src.interfaces.mcp.parsed
+- **Output to**: src.interfaces.mcp.send
+
+### src.interfaces.mcp.validateModernRequest
+- **Output to**: src.interfaces.mcp.McpRequestError, src.interfaces.mcp.isArray, src.interfaces.mcp.validateModernMetadata
+
+### src.interfaces.mcp.validateModernMetadata
+- **Output to**: src.interfaces.mcp.McpRequestError, src.interfaces.mcp.isArray
+
+### src.interfaces.mcp.parseRequestLine
+
+### src.interfaces.a2a.parseRpcRequest
+- **Output to**: src.interfaces.a2a.parse, src.interfaces.a2a.readBody, src.interfaces.a2a.sendJson, src.interfaces.a2a.rpcError, src.interfaces.a2a.errorMessage
+
+### src.interfaces.a2a-types.BodyTooLargeError.parsed
+- **Output to**: src.interfaces.a2a-types.isInteger, src.interfaces.a2a-types.A2ARequestError
+
+### src.interfaces.a2a-task-store.encodeCursor
+- **Output to**: src.interfaces.a2a-task-store.from, src.interfaces.a2a-task-store.stringify, src.interfaces.a2a-task-store.toString
+
+### src.interfaces.a2a-task-store.decodeCursor
+- **Output to**: src.interfaces.a2a-task-store.parse, src.interfaces.a2a-task-store.from, src.interfaces.a2a-task-store.toString, src.interfaces.a2a-task-store.isFinite, src.interfaces.a2a-task-store.Error
+
+### src.interfaces.a2a-task-store.decoded
+- **Output to**: src.interfaces.a2a-task-store.isFinite, src.interfaces.a2a-task-store.parse, src.interfaces.a2a-task-store.Error
 
 ### src.interfaces.a2a-message.parseSendConfiguration
 - **Output to**: src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.A2ARequestError, src.interfaces.a2a-message.validateOutputModes, src.interfaces.a2a-message.optionalBoolean, src.interfaces.a2a-message.optionalInteger
@@ -436,6 +429,15 @@ Key functions that process and transform data:
 ### src.interfaces.a2a-message.parseScalar
 - **Output to**: src.interfaces.a2a-message.test, src.interfaces.a2a-message.Number
 
+### src.interfaces.a2a-message.parseMessage
+- **Output to**: src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.A2ARequestError, src.interfaces.a2a-message.stringParam, src.interfaces.a2a-message.isArray, src.interfaces.a2a-message.optionalString
+
+### src.interfaces.a2a-message.parsePart
+- **Output to**: src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.A2ARequestError, src.interfaces.a2a-message.filter, src.interfaces.a2a-message.call, src.interfaces.a2a-message.parsePartContent
+
+### src.interfaces.a2a-message.parsePartContent
+- **Output to**: src.interfaces.a2a-message.A2ARequestError
+
 ## Behavioral Patterns
 
 ### recursion_dotted_name
@@ -447,33 +449,38 @@ Key functions that process and transform data:
 
 Functions exposed as public API (no underscore prefix):
 
+- `src.services.actions.executeAction` - 64 calls
+- `src.services.actions.root` - 63 calls
 - `sdk.python.examples.basic.main` - 62 calls
-- `src.services.actions.executeAction` - 54 calls
-- `src.services.actions.root` - 53 calls
-- `src.pipeline.run.runPipeline` - 50 calls
+- `src.pipeline.run.runPipeline` - 53 calls
 - `src.extractors.ast.typescript.extractTypeScriptFile` - 44 calls
-- `src.cli.main` - 42 calls
+- `src.cli.main` - 43 calls
 - `src.web.diff-ui.diffUiHtml` - 42 calls
 - `src.extractors.communication.extractCommunicationIntent` - 41 calls
 - `src.comparison.workspace.compareWorkspaceIntent` - 40 calls
 - `sdk.rust.src.client.parse_http_response` - 37 calls
+- `src.synthesis.code-change-plan.applyCodeChangeSourcePatch` - 35 calls
 - `src.extractors.communication.identityRegistry` - 35 calls
+- `src.extractors.communication.communicationFiles` - 35 calls
+- `src.synthesis.code-change-plan.proposeCodeChangePlans` - 33 calls
 - `sdk.rust.examples.basic.run` - 33 calls
-- `src.core.text.inferObject` - 31 calls
 - `src.interfaces.a2a-message.parseCommand` - 31 calls
+- `src.core.text.inferObject` - 31 calls
 - `src.communication.analyzer.analyzeCommunication` - 30 calls
 - `src.core.text.normalized` - 29 calls
 - `src.operations.validation.assertOperationPlan` - 28 calls
+- `src.synthesis.tasks-llm.TaskSynthesisAttemptError.materializeResponse` - 26 calls
+- `src.synthesis.code-change-plan.assertCodeChangeSourcePatch` - 26 calls
+- `src.graph.diagnostics.diagnoseGraph` - 26 calls
 - `src.extractors.ast.typescript.visit` - 26 calls
 - `src.comparison.workspace.temporaryParent` - 25 calls
 - `src.comparison.workspace.baseWorktree` - 25 calls
 - `sdk.go.examples.basic.main.run` - 25 calls
 - `src.extractors.todo.extractTodo` - 24 calls
-- `src.graph.diagnostics.diagnoseGraph` - 24 calls
 - `scripts.verify-env-contract.makefile` - 24 calls
-- `python.ast_extract.main` - 23 calls
+- `python.ast_extract.main` - 24 calls
 - `src.communication.llm.CommunicationLlmRequiredError.extractCommunicationIntentAudited` - 22 calls
-- `rust-ast.src.main.main` - 21 calls
+- `src.graph.linker.linkIntentRecords` - 21 calls
 - `src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited` - 21 calls
 - `src.extractors.git.extractGitIntent` - 21 calls
 - `sdk.typescript.examples.basic.baseUrl` - 21 calls
@@ -481,12 +488,7 @@ Functions exposed as public API (no underscore prefix):
 - `sdk.typescript.examples.basic.root` - 21 calls
 - `sdk.typescript.examples.basic.main` - 21 calls
 - `sdk.python.todo2code.runtime.TypeScriptRuntime.reality` - 21 calls
-- `rust-ast.src.main.collect_files` - 20 calls
-- `src.extractors.nl.extractNlIntent` - 20 calls
-- `src.graph.linker.linkIntentRecords` - 20 calls
-- `src.core.io.walkFiles` - 20 calls
-- `src.synthesis.todo-patch.createTodoPatch` - 20 calls
-- `src.synthesis.todo-patch.applyTodoPatch` - 20 calls
+- `rust-ast.src.main.main` - 21 calls
 
 ## System Interactions
 
@@ -494,9 +496,6 @@ How components interact:
 
 ```mermaid
 graph TD
-    main --> get
-    main --> T2CClient
-    main --> print
     executeAction --> resolveRoot
     executeAction --> scopedPath
     executeAction --> extractNlIntentAudit
@@ -507,6 +506,9 @@ graph TD
     root --> nlModeValue
     root --> extractGitIntent
     root --> numberValue
+    main --> get
+    main --> T2CClient
+    main --> print
     runPipeline --> resolve
     runPipeline --> pathExists
     runPipeline --> Error
