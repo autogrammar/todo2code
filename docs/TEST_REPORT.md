@@ -1,7 +1,7 @@
 # Raport z testów i poprawek
 
 Data wykonania: **2026-07-30**. Runtime: **0.5.0**. Baza robocza:
-`main` na `9fc045f` plus poprawki opisane w tym raporcie. Środowisko: Linux,
+zweryfikowany `main` na `667eed2`. Środowisko: Linux,
 Node.js 20.19.5, Python 3.13.12, Go 1.24.4, Rust 1.93.0 i Docker 29.1.3.
 Lokalnie nie ma JDK; adapter Java jest wymagany w osobnym jobie CI z Temurin
 17.
@@ -35,7 +35,7 @@ lub regresja adaptera nie mogą tam zostać pominięte.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 217 records, 104 relations; communication: 3 blocking, 1 warning
+demo: 217 records, 113 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint 2347bea85da3d537
@@ -98,7 +98,7 @@ Pomiar pełnego repozytorium po poprawce:
 | Rekordy | 10 902 | 10 210 |
 | Relacje AST↔TODO | 0 | 1 |
 
-W demo liczba rekordów wynosi 217, a relacji spadła z 591 do 104; istnieją 3
+W demo liczba rekordów wynosi 217, a relacji spadła z 591 do 113; istnieją 3
 relacje AST↔TODO. Zmiana usuwa ponad 99,9% wcześniejszych relacji AST↔AST w
 pełnym repozytorium bez usuwania niskopoziomowych faktów dowodowych.
 

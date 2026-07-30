@@ -1,0 +1,392 @@
+# code2llm call graph | /home/tom/github/semcod/todo2code
+# generated in 0.20s
+# nodes: 435 | edges: 500 | modules: 31
+# CC̄=3.7
+
+HUBS[20]:
+  src.services.actions.executeAction
+    CC=36  in:0  out:53  total:53
+  src.services.actions.root
+    CC=36  in:0  out:52  total:52
+  src.cli.main
+    CC=60  in:1  out:42  total:43
+  src.extractors.ast.extractTypeScriptFile
+    CC=39  in:1  out:42  total:43
+  src.extractors.communication.identityRegistry
+    CC=60  in:0  out:35  total:35
+  src.extractors.ast.visit
+    CC=25  in:1  out:26  total:27
+  src.extractors.todo.extractTodo
+    CC=5  in:0  out:24  total:24
+  src.graph.diagnostics.diagnoseGraph
+    CC=30  in:0  out:24  total:24
+  src.core.schema.objectValue
+    CC=4  in:21  out:2  total:23
+  src.cli.optionNumber
+    CC=5  in:17  out:5  total:22
+  src.core.io.walkFiles
+    CC=15  in:2  out:20  total:22
+  src.core.io.visit
+    CC=11  in:6  out:15  total:21
+  src.extractors.git.extractGitIntent
+    CC=13  in:0  out:21  total:21
+  rust-ast.src.main.collect_files
+    CC=9  in:1  out:20  total:21
+  rust-ast.src.main.main
+    CC=6  in:0  out:21  total:21
+  src.services.actions.numberValue
+    CC=6  in:16  out:4  total:20
+  src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
+    CC=9  in:0  out:20  total:20
+  src.cli.handleDiff
+    CC=24  in:1  out:19  total:20
+  src.extractors.todo.relative
+    CC=5  in:0  out:19  total:19
+  src.cli.handleCommunication
+    CC=11  in:1  out:18  total:19
+
+MODULES:
+  examples.backend.src.server  [12 funcs]
+    createBackend  CC=4  out:5
+    event  CC=1  out:1
+    handleRequest  CC=16  out:12
+    limit  CC=1  out:1
+    offset  CC=1  out:1
+    readBody  CC=3  out:5
+    sendJson  CC=1  out:4
+    server  CC=3  out:4
+    size  CC=3  out:3
+    startBackend  CC=3  out:3
+  examples.backend.src.validation  [7 funcs]
+    ALLOWED_ACTIONS  CC=10  out:5
+    action  CC=2  out:3
+    agent  CC=2  out:3
+    invalid  CC=1  out:0
+    object  CC=2  out:3
+    record  CC=2  out:3
+    validateEventPayload  CC=10  out:5
+  examples.frontend.src.app  [5 funcs]
+    createState  CC=1  out:0
+    mountPanel  CC=1  out:4
+    refresh  CC=4  out:6
+    reload  CC=1  out:1
+    state  CC=1  out:1
+  examples.frontend.src.render  [4 funcs]
+    classifyEvent  CC=4  out:0
+    headerRow  CC=2  out:2
+    renderTable  CC=3  out:4
+    toRows  CC=1  out:2
+  examples.src.runtime  [2 funcs]
+    executeContract  CC=1  out:1
+    validateContract  CC=2  out:1
+  java.JavaAstExtract  [10 funcs]
+    add  CC=1  out:0
+    collect  CC=1  out:11
+    containsIgnored  CC=3  out:2
+    emit  CC=1  out:3
+    escape  CC=9  out:6
+    json  CC=1  out:1
+    main  CC=10  out:16
+    map  CC=1  out:0
+    slash  CC=1  out:1
+    try  CC=3  out:13
+  rust-ast.src.main  [21 funcs]
+    add  CC=1  out:10
+    arguments  CC=5  out:9
+    collect_files  CC=9  out:20
+    excerpt  CC=1  out:7
+    main  CC=6  out:21
+    modifiers  CC=3  out:4
+    qualified  CC=2  out:3
+    slash  CC=1  out:2
+    type_item  CC=1  out:8
+    visit_expr_call  CC=1  out:9
+  src.cli  [43 funcs]
+    command  CC=4  out:1
+    config  CC=4  out:1
+    context  CC=9  out:10
+    controller  CC=1  out:5
+    diagnostics  CC=2  out:5
+    diagnosticsPath  CC=2  out:5
+    diff  CC=2  out:4
+    doctor  CC=6  out:7
+    emitExtraction  CC=4  out:4
+    execFileAsync  CC=2  out:2
+  src.core.id  [9 funcs]
+    createConclusionId  CC=1  out:5
+    createIntentId  CC=1  out:2
+    createRelationId  CC=1  out:2
+    createTodoProposalId  CC=1  out:6
+    graphFingerprint  CC=1  out:5
+    sha256  CC=1  out:3
+    shortHash  CC=1  out:2
+    sortValue  CC=5  out:4
+    stableStringify  CC=1  out:2
+  src.core.ignore  [13 funcs]
+    char  CC=3  out:1
+    compileIgnorePattern  CC=4  out:8
+    createIgnoreMatcher  CC=8  out:8
+    decide  CC=5  out:1
+    escapeLiteral  CC=2  out:1
+    files  CC=3  out:4
+    loadIgnoreMatcher  CC=7  out:6
+    next  CC=2  out:1
+    normalize  CC=5  out:1
+    parseIgnoreFile  CC=2  out:4
+  src.core.io  [25 funcs]
+    absolute  CC=3  out:3
+    base  CC=11  out:16
+    char  CC=8  out:1
+    ensureDir  CC=1  out:1
+    escapeRegex  CC=2  out:1
+    extensions  CC=11  out:16
+    files  CC=1  out:1
+    globToRegExp  CC=11  out:3
+    ignored  CC=11  out:16
+    matcher  CC=11  out:16
+  src.core.record  [3 funcs]
+    buildRecord  CC=18  out:7
+    clamp  CC=1  out:3
+    sourcePrefix  CC=1  out:0
+  src.core.schema  [15 funcs]
+    assertIntentRecord  CC=21  out:12
+    enumValue  CC=3  out:3
+    epistemic  CC=1  out:1
+    exactKeys  CC=3  out:6
+    lifecycle  CC=1  out:1
+    lines  CC=1  out:1
+    metadata  CC=1  out:1
+    nonEmptyString  CC=3  out:1
+    nullableString  CC=3  out:1
+    objectValue  CC=4  out:2
+  src.core.security  [4 funcs]
+    assertDescendant  CC=3  out:4
+    assertPathWithinRoot  CC=3  out:5
+    nearestExistingPath  CC=7  out:3
+    relative  CC=3  out:3
+  src.core.target  [8 funcs]
+    GENERIC_FILES  CC=9  out:4
+    GENERIC_SYMBOLS  CC=9  out:4
+    normalizePath  CC=1  out:2
+    normalizeSymbol  CC=1  out:2
+    normalizeTarget  CC=9  out:4
+    pathAliases  CC=5  out:8
+    symbolAliases  CC=6  out:10
+    unique  CC=1  out:5
+  src.core.text  [9 funcs]
+    STOP_WORDS  CC=17  out:5
+    classifyActionHeuristically  CC=17  out:5
+    extractBacktickValues  CC=4  out:4
+    extractPaths  CC=4  out:7
+    extractSymbols  CC=6  out:11
+    extractTickets  CC=2  out:7
+    keywords  CC=2  out:6
+    normalizeToken  CC=1  out:4
+    similarity  CC=5  out:3
+  src.extractors.ast  [20 funcs]
+    adapterRecords  CC=2  out:2
+    add  CC=10  out:7
+    callee  CC=2  out:2
+    declarationIsCallable  CC=4  out:2
+    excerpt  CC=1  out:2
+    execFileAsync  CC=1  out:0
+    extractAstIntent  CC=8  out:12
+    extractGoAst  CC=7  out:9
+    extractJavaAst  CC=7  out:9
+    extractPythonAst  CC=6  out:8
+  src.extractors.changelog  [5 funcs]
+    body  CC=7  out:14
+    changelogAction  CC=11  out:3
+    extractChangelog  CC=10  out:19
+    lines  CC=7  out:14
+    relative  CC=7  out:14
+  src.extractors.communication  [15 funcs]
+    fileParts  CC=5  out:2
+    identityRegistry  CC=60  out:35
+    inferIdentity  CC=9  out:7
+    isCommunicationType  CC=1  out:2
+    listValue  CC=2  out:8
+    match  CC=1  out:2
+    nestedParticipant  CC=5  out:2
+    nestedRole  CC=5  out:2
+    nestedRoleIndex  CC=5  out:2
+    normalize  CC=1  out:0
+  src.extractors.docs-chunks  [15 funcs]
+    chunkMarkdown  CC=8  out:9
+    chunkPriority  CC=3  out:4
+    flush  CC=2  out:2
+    index  CC=1  out:3
+    item  CC=1  out:3
+    mapConcurrent  CC=3  out:7
+    markdownSections  CC=4  out:2
+    needles  CC=1  out:2
+    prioritizeDocumentChunks  CC=3  out:6
+    sectionLines  CC=2  out:3
+  src.extractors.docs-llm  [9 funcs]
+    buildAudit  CC=4  out:3
+    errorMessage  CC=2  out:1
+    extractChunk  CC=4  out:6
+    extractDocumentationIntent  CC=2  out:10
+    files  CC=3  out:5
+    loadDocumentChunks  CC=4  out:6
+    readPrompt  CC=2  out:6
+    requireConfiguredClient  CC=3  out:4
+    selectWithinBudget  CC=2  out:3
+  src.extractors.docs-record  [20 funcs]
+    OBJECT_PLACEHOLDERS  CC=12  out:13
+    action  CC=9  out:7
+    allowedAction  CC=1  out:1
+    allowedLifecycle  CC=1  out:1
+    allowedModality  CC=1  out:1
+    anchorToSource  CC=7  out:10
+    clampLine  CC=1  out:3
+    fallback  CC=2  out:1
+    hasTarget  CC=4  out:1
+    isPlaceholder  CC=3  out:3
+  src.extractors.git  [10 funcs]
+    count  CC=3  out:2
+    execFileAsync  CC=1  out:0
+    extractChangedSymbols  CC=9  out:3
+    extractGitIntent  CC=13  out:21
+    readChangedFiles  CC=6  out:5
+    readCommits  CC=1  out:7
+    readStats  CC=6  out:4
+    result  CC=1  out:1
+    root  CC=3  out:2
+    runGit  CC=1  out:1
+  src.extractors.markdown-llm  [17 funcs]
+    client  CC=2  out:2
+    deterministic  CC=4  out:2
+    enrichRecord  CC=12  out:4
+    enrichments  CC=1  out:3
+    expected  CC=5  out:4
+    extractMarkdownIntentAudited  CC=7  out:15
+    failed  CC=1  out:2
+    fallbackOrThrow  CC=2  out:5
+    isMarkdownEnrichment  CC=17  out:4
+    isStringArray  CC=2  out:2
+  src.extractors.nl  [11 funcs]
+    absolute  CC=2  out:14
+    action  CC=1  out:9
+    body  CC=2  out:14
+    classified  CC=1  out:9
+    confidence  CC=1  out:9
+    detectMissingFields  CC=10  out:5
+    extractNlIntent  CC=5  out:19
+    inferActor  CC=5  out:2
+    missing  CC=1  out:9
+    object  CC=1  out:9
+  src.extractors.nl-llm  [21 funcs]
+    action  CC=1  out:1
+    allowedAction  CC=1  out:1
+    allowedModality  CC=1  out:1
+    audit  CC=1  out:1
+    clampLine  CC=1  out:3
+    client  CC=2  out:2
+    deterministic  CC=1  out:1
+    end  CC=1  out:1
+    excerpt  CC=1  out:1
+    extractNlIntentAudited  CC=9  out:20
+  src.extractors.todo  [15 funcs]
+    action  CC=2  out:13
+    block  CC=2  out:13
+    body  CC=5  out:19
+    checked  CC=2  out:13
+    classified  CC=2  out:13
+    extractExplicitId  CC=5  out:3
+    extractTodo  CC=5  out:24
+    heading  CC=1  out:1
+    inferOwner  CC=4  out:1
+    lines  CC=5  out:19
+  src.graph.diagnostics  [19 funcs]
+    appendNeighbor  CC=2  out:3
+    buildNeighbors  CC=2  out:1
+    diagnoseGraph  CC=30  out:24
+    evidenced  CC=5  out:3
+    hasImplementedTarget  CC=1  out:3
+    implementedPaths  CC=25  out:14
+    indexImplementedPaths  CC=7  out:3
+    isImplementationEvidence  CC=1  out:1
+    isImportantRecord  CC=2  out:2
+    isPlan  CC=2  out:1
+  src.graph.diff  [26 funcs]
+    afterGroups  CC=7  out:6
+    afterRecord  CC=1  out:3
+    assertGraph  CC=3  out:3
+    beforeGroups  CC=7  out:6
+    beforeRecord  CC=1  out:3
+    changedFieldPaths  CC=6  out:6
+    compareRelations  CC=1  out:2
+    diffIntentGraphs  CC=11  out:19
+    escapeXml  CC=2  out:1
+    groupRecords  CC=4  out:6
+  src.services.actions  [36 funcs]
+    after  CC=2  out:2
+    afterInput  CC=2  out:2
+    afterPath  CC=1  out:4
+    analysis  CC=2  out:4
+    auditPath  CC=1  out:2
+    before  CC=2  out:2
+    beforeInput  CC=2  out:2
+    beforePath  CC=1  out:4
+    booleanValue  CC=3  out:2
+    diagnostics  CC=2  out:4
+  src.tf.classifier  [6 funcs]
+    classifyAction  CC=17  out:12
+    dynamicImport  CC=1  out:3
+    importer  CC=1  out:0
+    loadAssets  CC=2  out:6
+    loadClassifier  CC=6  out:5
+    vectorize  CC=6  out:5
+
+EDGES:
+  rust-ast.src.main.main → rust-ast.src.main.arguments
+  rust-ast.src.main.main → rust-ast.src.main.collect_files
+  rust-ast.src.main.main → rust-ast.src.main.slash
+  rust-ast.src.main.collect_files → rust-ast.src.main.slash
+  rust-ast.src.main.add → rust-ast.src.main.excerpt
+  rust-ast.src.main.visit_item_mod → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_mod → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_use → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_struct → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_enum → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_trait → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_type → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.modifiers
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.modifiers
+  rust-ast.src.main.visit_item_fn → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_fn → rust-ast.src.main.add
+  rust-ast.src.main.visit_impl_item_fn → rust-ast.src.main.add
+  rust-ast.src.main.visit_expr_call → rust-ast.src.main.add
+  rust-ast.src.main.visit_expr_method_call → rust-ast.src.main.add
+  rust-ast.src.main.type_item → rust-ast.src.main.qualified
+  rust-ast.src.main.type_item → rust-ast.src.main.add
+  rust-ast.src.main.type_item → rust-ast.src.main.modifiers
+  examples.backend.src.validation.ALLOWED_ACTIONS → examples.backend.src.validation.invalid
+  examples.backend.src.validation.validateEventPayload → examples.backend.src.validation.invalid
+  examples.backend.src.validation.record → examples.backend.src.validation.invalid
+  examples.backend.src.validation.agent → examples.backend.src.validation.invalid
+  examples.backend.src.validation.action → examples.backend.src.validation.invalid
+  examples.backend.src.validation.object → examples.backend.src.validation.invalid
+  examples.backend.src.server.createBackend → examples.backend.src.server.handleRequest
+  examples.backend.src.server.createBackend → examples.backend.src.server.sendJson
+  examples.backend.src.server.store → examples.backend.src.server.handleRequest
+  examples.backend.src.server.store → examples.backend.src.server.sendJson
+  examples.backend.src.server.server → examples.backend.src.server.handleRequest
+  examples.backend.src.server.server → examples.backend.src.server.sendJson
+  examples.backend.src.server.handleRequest → examples.backend.src.server.sendJson
+  examples.backend.src.server.handleRequest → examples.backend.src.server.size
+  examples.backend.src.server.handleRequest → examples.backend.src.server.readBody
+  examples.backend.src.server.validation → examples.backend.src.server.sendJson
+  examples.backend.src.server.event → examples.backend.src.server.sendJson
+  examples.backend.src.server.offset → examples.backend.src.server.sendJson
+  examples.backend.src.server.limit → examples.backend.src.server.sendJson
+  examples.backend.src.server.startBackend → examples.backend.src.server.createBackend
+  examples.frontend.src.render.toRows → examples.frontend.src.render.classifyEvent
+  examples.frontend.src.render.renderTable → examples.frontend.src.render.headerRow
+  examples.frontend.src.app.mountPanel → examples.frontend.src.app.createState
+  examples.frontend.src.app.mountPanel → examples.frontend.src.app.refresh

@@ -1,0 +1,83 @@
+# code2llm/evolution | 2097 func | 82f | 2026-07-30
+# generated in 0.01s
+
+NEXT[10] (ranked by impact):
+  [1] !! SPLIT-FUNC      extractCommunicationIntent  CC=64  fan=41
+      WHY: CC=64 exceeds 15
+      EFFORT: ~1h  IMPACT: 2624
+
+  [2] !! SPLIT-FUNC      main  CC=60  fan=42
+      WHY: CC=60 exceeds 15
+      EFFORT: ~1h  IMPACT: 2520
+
+  [3] !! SPLIT-FUNC      diffUiHtml  CC=52  fan=42
+      WHY: CC=52 exceeds 15
+      EFFORT: ~1h  IMPACT: 2184
+
+  [4] !! SPLIT-FUNC      runPipeline  CC=46  fan=46
+      WHY: CC=46 exceeds 15
+      EFFORT: ~1h  IMPACT: 2116
+
+  [5] !! SPLIT-FUNC      identityRegistry  CC=60  fan=35
+      WHY: CC=60 exceeds 15
+      EFFORT: ~1h  IMPACT: 2100
+
+  [6] !! SPLIT-FUNC      executeAction  CC=36  fan=53
+      WHY: CC=36 exceeds 15
+      EFFORT: ~1h  IMPACT: 1908
+
+  [7] !! SPLIT-FUNC      root  CC=36  fan=52
+      WHY: CC=36 exceeds 15
+      EFFORT: ~1h  IMPACT: 1872
+
+  [8] !! SPLIT-FUNC      parseCommand  CC=57  fan=31
+      WHY: CC=57 exceeds 15
+      EFFORT: ~1h  IMPACT: 1767
+
+  [9] !! SPLIT-FUNC      extractTypeScriptFile  CC=39  fan=42
+      WHY: CC=39 exceeds 15
+      EFFORT: ~1h  IMPACT: 1638
+
+  [10] !! SPLIT-FUNC      analyzeCommunication  CC=40  fan=30
+      WHY: CC=40 exceeds 15
+      EFFORT: ~1h  IMPACT: 1200
+
+
+RISKS[3]:
+  ⚠ Splitting docs/README.md may break 0 import paths
+  ⚠ Splitting docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md may break 0 import paths
+  ⚠ Splitting docs/reference/original-monitoring-design.md may break 0 import paths
+
+METRICS-TARGET:
+  CC̄:          3.7 → ≤2.6
+  max-CC:      64 → ≤20
+  god-modules: 7 → 0
+  high-CC(≥15): 58 → ≤29
+  hub-types:   0 → ≤0
+
+PATTERNS (language parser shared logic):
+  _extract_declarations() in base.py — unified extraction for:
+    - TypeScript: interfaces, types, classes, functions, arrow funcs
+    - PHP: namespaces, traits, classes, functions, includes
+    - Ruby: modules, classes, methods, requires
+    - C++: classes, structs, functions, #includes
+    - C#: classes, interfaces, methods, usings
+    - Java: classes, interfaces, methods, imports
+    - Go: packages, functions, structs
+    - Rust: modules, functions, traits, use statements
+
+  Shared regex patterns per language:
+    - import: language-specific import/require/using patterns
+    - class: class/struct/trait declarations with inheritance
+    - function: function/method signatures with visibility
+    - brace_tracking: for C-family languages ({ })
+    - end_keyword_tracking: for Ruby (module/class/def...end)
+
+  Benefits:
+    - Consistent extraction logic across all languages
+    - Reduced code duplication (~70% reduction in parser LOC)
+    - Easier maintenance: fix once, apply everywhere
+    - Standardized FunctionInfo/ClassInfo models
+
+HISTORY:
+  prev CC̄=3.8 → now CC̄=3.7

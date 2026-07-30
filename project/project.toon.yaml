@@ -1,0 +1,52 @@
+# todo2code | 2225 func | 100f | 30186L | typescript | 2026-07-30
+# generated in 0.00s
+
+HEALTH:
+  CC̄=3.7  critical=155 (limit:10)  dup=27  cycles=0
+
+ALERTS[20]:
+  !!! cc_exceeded      extractCommunicationIntent = 64 (limit:15)
+  !!! cc_exceeded      main = 60 (limit:15)
+  !!! cc_exceeded      identityRegistry = 60 (limit:15)
+  !!! cc_exceeded      parseCommand = 57 (limit:15)
+  !!! high_fan_out     executeAction = 53 (limit:10)
+  !!! cc_exceeded      diffUiHtml = 52 (limit:15)
+  !!! high_fan_out     root = 52 (limit:10)
+  !!! cc_exceeded      runPipeline = 46 (limit:15)
+  !!! high_fan_out     runPipeline = 46 (limit:10)
+  !!! high_fan_out     main = 42 (limit:10)
+
+MODULES[196] (top by size):
+  M[docs/README.md] 2407L C:0 F:0 CC↑0 D:0 (md)
+  M[docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md] 872L C:0 F:0 CC↑0 D:0 (md)
+  M[docs/reference/original-monitoring-design.md] 872L C:0 F:0 CC↑0 D:0 (md)
+  M[README.md] 742L C:0 F:0 CC↑0 D:0 (md)
+  M[src/cli.ts] 695L C:1 F:75 CC↑60 D:0 (typescript)
+  M[src/core/schema.ts] 556L C:2 F:89 CC↑23 D:0 (typescript)
+  M[src/interfaces/a2a-task-store.ts] 513L C:3 F:81 CC↑11 D:0 (typescript)
+  M[src/communication/llm.ts] 493L C:7 F:50 CC↑18 D:0 (typescript)
+  M[src/summary/summarizer.ts] 493L C:4 F:48 CC↑10 D:0 (typescript)
+  M[src/pipeline/run.ts] 490L C:1 F:54 CC↑46 D:0 (typescript)
+  M[src/services/actions.ts] 479L C:0 F:60 CC↑36 D:0 (typescript)
+  M[src/diff/reality.ts] 469L C:3 F:63 CC↑22 D:0 (typescript)
+  M[src/core/types.ts] 469L C:26 F:0 CC↑0 D:0 (typescript)
+  M[sdk/python/todo2code/client.py] 458L C:7 F:44 CC↑7 D:0 (python)
+  M[docs/PIPELINE_DSL_NL.md] 443L C:0 F:0 CC↑0 D:0 (md)
+  LANGS: typescript:79/md:52/json:20/python:12/rust:7/go:6/shell:5/javascript:4/php:3/toml:3/other:2/java:1/yml:1/txt:1
+
+HOTSPOTS[10]:
+  ★ executeAction fan=53  // Orchestrates 53 calls
+  ★ root fan=52  // Orchestrates 52 calls
+  ★ runPipeline fan=46  // Orchestrates 46 calls
+  ★ main fan=42  // Orchestrates 42 calls
+  ★ extractTypeScriptFile fan=42  // Orchestrates 42 calls
+
+REFACTOR[15]:
+  [1] H/L Split main (CC=60)
+  [2] H/L Split extractTypeScriptFile (CC=39)
+  [3] H/L Split visit (CC=25)
+  [4] H/L Split extractCommunicationIntent (CC=64)
+  [5] H/L Split identityRegistry (CC=60)
+
+EVOLUTION:
+  2026-07-30 CC̄=3.7 crit=155 30186L // Automated analysis

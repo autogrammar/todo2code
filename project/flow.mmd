@@ -1,0 +1,45 @@
+flowchart TD
+%% generated in 0.03s
+
+    %% Entry points (blue)
+    classDef entry fill:#4dabf7,stroke:#1971c2,color:#fff
+
+    subgraph CLI
+        src__cli__execFileAsync["execFileAsync"]
+        src__cli__main["main"]
+        src__cli__parsed["parsed"]
+        src__cli__command["command"]
+        src__cli__config["config"]
+        src__cli__files["files"]
+        src__cli__records["records"]
+        src__cli__graph["graph"]
+        src__cli__graphFile["graphFile"]
+        src__cli__diagnosticsPath["diagnosticsPath"]
+        src__cli__diagnostics["diagnostics"]
+        src__cli__result["result"]
+        src__cli__out["out"]
+        src__cli__graphPath["graphPath"]
+        src__cli__output["output"]
+        ...["+60 more"]
+    end
+
+    subgraph Core
+        project__install_project_package["install_project_package"]
+        rust_ast__src__main__main["main"]
+        rust_ast__src__main__new["new"]
+        rust_ast__src__main__visit_item_mod["visit_item_mod"]
+        rust_ast__src__main__visit_item_use["visit_item_use"]
+        rust_ast__src__main__visit_item_struct["visit_item_struct"]
+        rust_ast__src__main__visit_item_enum["visit_item_enum"]
+        rust_ast__src__main__visit_item_trait["visit_item_trait"]
+        rust_ast__src__main__visit_item_type["visit_item_type"]
+        rust_ast__src__main__visit_item_const["visit_item_const"]
+        rust_ast__src__main__visit_item_static["visit_item_static"]
+        rust_ast__src__main__visit_item_fn["visit_item_fn"]
+        rust_ast__src__main__visit_item_impl["visit_item_impl"]
+        rust_ast__src__main__visit_impl_item_fn["visit_impl_item_fn"]
+        rust_ast__src__main__visit_expr_call["visit_expr_call"]
+        ...["+1452 more"]
+    end
+
+    class project__install_project_package,rust_ast__src__main__main,rust_ast__src__main__new,rust_ast__src__main__visit_item_mod,rust_ast__src__main__visit_item_use,rust_ast__src__main__visit_item_struct,rust_ast__src__main__visit_item_enum,rust_ast__src__main__visit_item_trait,rust_ast__src__main__visit_item_type,rust_ast__src__main__visit_item_const entry
