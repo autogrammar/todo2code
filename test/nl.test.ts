@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { detectModality, extractPaths, extractSymbols, topicKeywords } from '../src/core/text.js';
+import { detectModality, detectPolarity, extractPaths, extractSymbols, topicKeywords } from '../src/core/text.js';
 import { extractNlIntent } from '../src/extractors/nl.js';
 import { extractNlIntentAudited, NlLlmRequiredError } from '../src/extractors/nl-llm.js';
 import { makeConfig } from './helpers.js';
@@ -72,6 +72,13 @@ test('detectModality ignores parenthetical labels and bare adjectives', () => {
   assert.equal(detectModality('Required secrets'), 'unknown');
   assert.equal(detectModality('Development setup (recommended)'), 'unknown');
   assert.equal(detectModality('Gherkin (Recommended for LLM)'), 'unknown');
+});
+
+test('detectPolarity does not treat without-complements as sentence negation', () => {
+  assert.equal(detectPolarity('Document routes without inventing repository files.'), 'positive');
+  assert.equal(detectPolarity('Do not invent repository files.'), 'negative');
+  assert.equal(detectPolarity('Never skip validation.'), 'negative');
+  assert.equal(detectPolarity('Zachowaj kontrakt bez zgadywania ścieżek.'), 'positive');
 });
 
 test('path extraction rejects HTTP routes, host paths and parent traversal', () => {

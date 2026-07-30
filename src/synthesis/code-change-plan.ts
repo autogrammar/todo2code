@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import {
   createCodeChangePlanHash,
   createCodeChangePlanId,
@@ -6,6 +9,8 @@ import {
   sha256,
   stableStringify,
 } from '../core/id.js';
+import { ensureDir, pathExists, readJson, readText } from '../core/io.js';
+import { assertPathWithinRoot } from '../core/security.js';
 import {
   assertCodeChangeAcceptance,
   assertCodeChangePlanForAcceptance,
@@ -17,11 +22,15 @@ import {
 } from '../core/schema.js';
 import type {
   CodeChangeAcceptance,
+  CodeChangeCloseResult,
   CodeChangeFile,
+  CodeChangeFileAction,
   CodeChangePlan,
   CodeChangeReviewPatch,
+  CodeChangeSourceApplyReceipt,
   CodeChangeSourceEdit,
   CodeChangeSourcePatch,
+  CodeChangeSourcePatchApproval,
   CodeChangeSourcePatchSet,
   Conclusion,
   Diagnostic,
@@ -68,6 +77,14 @@ export interface EvaluateCodeChangeAcceptanceOptions {
   /** Graph after an attempted implementation (re-extracted and re-linked). */
   afterGraph: IntentGraph;
   /** Optional precomputed after diagnostics; derived when omitted. */
+  afterDiagnostics?: DiagnosticReport;
+  evaluatedAt?: string;
+}
+
+export interface CloseCodeChangesOptions {
+  plans: CodeChangePlan[];
+  before: { graph: IntentGraph; diagnostics: DiagnosticReport };
+  afterGraph: IntentGraph;
   afterDiagnostics?: DiagnosticReport;
   evaluatedAt?: string;
 }
@@ -240,6 +257,40 @@ export function evaluateCodeChangeAcceptance(
     after: { graph: options.afterGraph, diagnostics: afterDiagnostics },
   });
   return acceptance;
+}
+
+/** Evaluate a plan set under one timestamp without applying changes or marking DONE. */
+export function closeCodeChanges(options: CloseCodeChangesOptions): CodeChangeCloseResult {
+  const evaluatedAt = options.evaluatedAt ?? new Date().toISOString();
+  if (Number.isNaN(Date.parse(evaluatedAt))) throw new Error('evaluatedAt must be an ISO date-time');
+  assertIntentGraph(options.before.graph);
+  assertIntentGraph(options.afterGraph);
+  assertConclusions([], options.before);
+  const afterDiagnostics = options.afterDiagnostics ?? diagnoseGraph(options.afterGraph, evaluatedAt);
+  assertConclusions([], { graph: options.afterGraph, diagnostics: afterDiagnostics });
+  const planIds = options.plans.map((plan) => plan.id);
+  if (new Set(planIds).size !== planIds.length) throw new Error('Code change close plans must have unique ids');
+
+  const acceptances = options.plans.map((plan) => evaluateCodeChangeAcceptance({
+    plan,
+    before: options.before,
+    afterGraph: options.afterGraph,
+    afterDiagnostics,
+    evaluatedAt,
+  }));
+  const acceptedCount = acceptances.filter((item) => item.accepted).length;
+  return {
+    schemaVersion: 't2c.code-change-close-result/v1',
+    evaluatedAt,
+    graphFingerprintBefore: options.before.graph.fingerprint,
+    graphFingerprintAfter: options.afterGraph.fingerprint,
+    planCount: options.plans.length,
+    acceptedCount,
+    rejectedCount: options.plans.length - acceptedCount,
+    allAccepted: options.plans.length > 0 && acceptedCount === options.plans.length,
+    acceptances,
+    generation: deterministicGeneration(evaluatedAt, 't2c/code-change-close-result'),
+  };
 }
 
 function indexProposalsByDiagnostic(proposals: TodoProposal[]): Map<string, TodoProposal[]> {
@@ -898,4 +949,274 @@ function normalizeUnifiedDiff(diff: string, expectedPath: string): string {
     }
   }
   return normalized;
+}
+
+export interface ApplyCodeChangeSourcePatchOptions {
+  root: string;
+  patch: CodeChangeSourcePatch;
+  approval: CodeChangeSourcePatchApproval;
+  receiptPath: string;
+  now?: Date;
+}
+
+export interface ApplyCodeChangeSourcePatchResult {
+  applied: boolean;
+  idempotent: boolean;
+  receipt: CodeChangeSourceApplyReceipt;
+}
+
+/**
+ * Apply a fully-diffed source patch after explicit hash approval.
+ *
+ * Instruction-only edits (null unifiedDiff) are rejected. Paths must stay
+ * relative and inside `root`. Re-applying with an existing matching receipt is
+ * idempotent.
+ */
+export async function applyCodeChangeSourcePatch(
+  options: ApplyCodeChangeSourcePatchOptions,
+): Promise<ApplyCodeChangeSourcePatchResult> {
+  assertCodeChangeSourcePatch(options.patch);
+  if (!options.approval?.actor?.trim()) throw new Error('Explicit source patch approval actor is required');
+  if (options.approval.patchHash !== options.patch.patchHash) {
+    throw new Error('Source patch approval hash does not match the patch');
+  }
+  for (const edit of options.patch.edits) {
+    if (edit.unifiedDiff === null) {
+      throw new Error(`Source patch edit ${edit.path} has no unifiedDiff and cannot be applied`);
+    }
+  }
+
+  const root = path.resolve(options.root);
+  const receiptPath = await assertPathWithinRoot(root, path.resolve(options.receiptPath));
+  const lockPath = `${receiptPath}.t2c-apply.lock`;
+  await ensureDir(path.dirname(receiptPath));
+  let lock: Awaited<ReturnType<typeof fs.open>> | null = null;
+  try {
+    lock = await fs.open(lockPath, 'wx');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+      throw new Error('Another source patch apply operation is in progress');
+    }
+    throw error;
+  }
+
+  try {
+    if (await pathExists(receiptPath)) {
+      const existing = await readJson<CodeChangeSourceApplyReceipt>(receiptPath, 1024 * 1024);
+      await assertExistingSourceReceipt(existing, options.patch, root);
+      return { applied: false, idempotent: true, receipt: existing };
+    }
+
+    const prepared: PreparedSourceEdit[] = [];
+    for (const edit of options.patch.edits) {
+      const relative = edit.path.replace(/\\/g, '/');
+      const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
+      const exists = await pathExists(absolute);
+      if (exists && (await fs.lstat(absolute)).isSymbolicLink()) {
+        throw new Error(`Refusing to apply through a symlink: ${relative}`);
+      }
+      if (edit.action === 'create' && exists) throw new Error(`Source patch create target already exists: ${relative}`);
+      if (edit.action === 'delete' && !exists) throw new Error(`Source patch delete target does not exist: ${relative}`);
+      if (edit.action === 'modify' && !exists) {
+        const fromEmpty = /(?:^|\n)---\s+\/dev\/null(?:\n|$)/.test(edit.unifiedDiff!)
+          || /(?:^|\n)@@\s+-0(?:,0)?\s+\+/.test(edit.unifiedDiff!);
+        if (!fromEmpty) throw new Error(`Source patch modify target does not exist: ${relative}`);
+      }
+      const before = exists ? await readText(absolute, 16 * 1024 * 1024) : '';
+      const after = applyUnifiedDiffToText(before, edit.unifiedDiff!, relative);
+      if (edit.action === 'delete' && after !== '') {
+        throw new Error(`Source patch delete diff must remove the complete file: ${relative}`);
+      }
+      prepared.push({ relative, absolute, action: edit.action, before, after, existed: exists });
+    }
+
+    const changed: PreparedSourceEdit[] = [];
+    try {
+      for (const edit of prepared) {
+        if (edit.action === 'delete') await fs.unlink(edit.absolute);
+        else await atomicWriteRaw(edit.absolute, edit.after);
+        changed.push(edit);
+      }
+    } catch (error) {
+      const rollbackErrors: string[] = [];
+      for (const edit of [...changed].reverse()) {
+        try {
+          if (edit.existed) await atomicWriteRaw(edit.absolute, edit.before);
+          else await fs.unlink(edit.absolute).catch((failure: NodeJS.ErrnoException) => {
+            if (failure.code !== 'ENOENT') throw failure;
+          });
+        } catch (rollbackError) {
+          rollbackErrors.push(`${edit.relative}: ${String(rollbackError)}`);
+        }
+      }
+      if (rollbackErrors.length) {
+        throw new Error(`Source patch apply failed (${String(error)}); rollback also failed: ${rollbackErrors.join('; ')}`);
+      }
+      throw error;
+    }
+
+    const now = (options.now ?? new Date()).toISOString();
+    const fileHashesAfter = Object.fromEntries(prepared
+      .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
+      .sort(([left], [right]) => left.localeCompare(right)));
+    const receipt: CodeChangeSourceApplyReceipt = {
+      schemaVersion: 't2c.code-change-source-apply-receipt/v1',
+      patchId: options.patch.id,
+      patchHash: options.patch.patchHash,
+      planId: options.patch.planId,
+      approvedBy: options.approval.actor.trim(),
+      approvedAt: now,
+      appliedAt: now,
+      appliedPaths: prepared.map((edit) => edit.relative).sort(),
+      fileHashesAfter,
+      generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
+    };
+    await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+    return { applied: true, idempotent: false, receipt };
+  } finally {
+    await lock.close();
+    await fs.unlink(lockPath).catch(() => undefined);
+  }
+}
+
+interface PreparedSourceEdit {
+  relative: string;
+  absolute: string;
+  action: CodeChangeFileAction;
+  before: string;
+  after: string;
+  existed: boolean;
+}
+
+async function assertExistingSourceReceipt(
+  receipt: CodeChangeSourceApplyReceipt,
+  patch: CodeChangeSourcePatch,
+  root: string,
+): Promise<void> {
+  if (receipt.schemaVersion !== 't2c.code-change-source-apply-receipt/v1'
+    || receipt.patchHash !== patch.patchHash || receipt.patchId !== patch.id || receipt.planId !== patch.planId) {
+    throw new Error('A different or invalid source patch receipt already exists at the receipt path');
+  }
+  assertGroundedGenerationMetadata(receipt.generation, 'Code change source apply receipt generation');
+  for (const edit of patch.edits) {
+    const relative = edit.path.replace(/\\/g, '/');
+    const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
+    const exists = await pathExists(absolute);
+    if (edit.action === 'delete') {
+      if (exists) throw new Error(`Applied source patch state changed after receipt: ${relative}`);
+      continue;
+    }
+    if (!exists || (await fs.lstat(absolute)).isSymbolicLink()) {
+      throw new Error(`Applied source patch state changed after receipt: ${relative}`);
+    }
+    const current = await readText(absolute, 16 * 1024 * 1024);
+    if (receipt.fileHashesAfter[relative] !== sha256(current)) {
+      throw new Error(`Applied source patch state changed after receipt: ${relative}`);
+    }
+  }
+}
+
+async function atomicWriteRaw(target: string, content: string): Promise<void> {
+  await ensureDir(path.dirname(target));
+  const temporary = `${target}.tmp-${process.pid}-${randomUUID()}`;
+  try {
+    await fs.writeFile(temporary, content, 'utf8');
+    await fs.rename(temporary, target);
+  } finally {
+    await fs.unlink(temporary).catch(() => undefined);
+  }
+}
+
+/**
+ * Apply a single-file unified diff to a text buffer.
+ * Supports standard hunks with space/+/− prefixes. Throws on context mismatch.
+ */
+export function applyUnifiedDiffToText(base: string, diff: string, expectedPath: string): string {
+  const normalizedDiff = normalizeUnifiedDiff(diff, expectedPath);
+  const baseLines = splitKeep(base);
+  const diffLines = normalizedDiff.split('\n');
+  // Drop trailing empty element only if the original split introduced it
+  // without a final newline — normalize by working on lines as split.
+  const hunks: Array<{ oldStart: number; oldCount: number; newCount: number; lines: string[] }> = [];
+  let current: { oldStart: number; oldCount: number; newCount: number; lines: string[] } | null = null;
+  for (const line of diffLines) {
+    if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff ') || line.startsWith('index ')) {
+      continue;
+    }
+    const header = /^@@\s+-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?\s+@@/.exec(line);
+    if (header) {
+      if (current) hunks.push(current);
+      current = {
+        oldStart: Number(header[1]),
+        oldCount: header[2] === undefined ? 1 : Number(header[2]),
+        newCount: header[4] === undefined ? 1 : Number(header[4]),
+        lines: [],
+      };
+      continue;
+    }
+    if (!current) {
+      if (line === '') continue;
+      throw new Error(`Unified diff for ${expectedPath} has content outside hunks`);
+    }
+    // Blank lines without a unified-diff prefix separate hunks in some emitters.
+    if (line === '') continue;
+    current.lines.push(line);
+  }
+  if (current) hunks.push(current);
+  if (!hunks.length) throw new Error(`Unified diff for ${expectedPath} contains no hunks`);
+
+  let cursor = 0;
+  const output: string[] = [];
+  for (const hunk of hunks) {
+    const oldIndex = Math.max(0, hunk.oldStart - 1);
+    if (oldIndex < cursor) throw new Error(`Unified diff for ${expectedPath} has overlapping or unordered hunks`);
+    const oldCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('-')).length;
+    const newCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('+')).length;
+    if (oldCount !== hunk.oldCount || newCount !== hunk.newCount) {
+      throw new Error(`Unified diff hunk counts do not match its header for ${expectedPath}`);
+    }
+    while (cursor < oldIndex) {
+      if (cursor >= baseLines.length) throw new Error(`Unified diff for ${expectedPath} ran past end of file`);
+      output.push(baseLines[cursor]!);
+      cursor += 1;
+    }
+    for (const line of hunk.lines) {
+      if (line.startsWith('\\')) continue; // "\ No newline at end of file"
+      const mark = line[0];
+      const body = line.slice(1);
+      if (mark === ' ') {
+        if (baseLines[cursor] !== body) {
+          throw new Error(`Unified diff context mismatch for ${expectedPath} at line ${cursor + 1}`);
+        }
+        output.push(baseLines[cursor]!);
+        cursor += 1;
+      } else if (mark === '-') {
+        if (baseLines[cursor] !== body) {
+          throw new Error(`Unified diff deletion mismatch for ${expectedPath} at line ${cursor + 1}`);
+        }
+        cursor += 1;
+      } else if (mark === '+') {
+        output.push(body);
+      } else if (line === '') {
+        // empty line inside hunk without prefix is invalid in strict unified diffs
+        throw new Error(`Unified diff for ${expectedPath} has an unprefixed hunk line`);
+      } else {
+        throw new Error(`Unified diff for ${expectedPath} has unsupported hunk line`);
+      }
+    }
+  }
+  while (cursor < baseLines.length) {
+    output.push(baseLines[cursor]!);
+    cursor += 1;
+  }
+  // Reconstruct text. Files without a trailing newline end without an empty last segment.
+  if (base.endsWith('\n') || output.length === 0) return `${output.join('\n')}${output.length ? '\n' : ''}`;
+  return output.join('\n');
+}
+
+function splitKeep(text: string): string[] {
+  if (text === '') return [];
+  const lines = text.split('\n');
+  if (text.endsWith('\n')) lines.pop();
+  return lines;
 }

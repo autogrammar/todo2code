@@ -96,8 +96,8 @@ pliku do tree.
 
 ## 4. MCP, A2A i SDK
 
-Te same operacje są dostępne jako `propose_code_change`, `render_code_change`
-i `evaluate_code_change`. Wszystkie ścieżki plikowe przechodzą przez granicę
+Te same operacje są dostępne jako `propose_code_change`, `render_code_change`,
+`propose_source_patch`, `evaluate_code_change` i `close_code_change`. Wszystkie ścieżki plikowe przechodzą przez granicę
 `T2C_ROOT`; dane można też przekazać inline. Karta A2A publikuje umiejętność
 `review_code_changes`. Żaden z tych interfejsów nie wykonuje zapisu do plików
 źródłowych.
@@ -123,7 +123,20 @@ Pipeline zapisuje automatycznie `code-change-source-patches.json`. Każdy patch:
 - ma zawsze `status: proposed`.
 
 LLM może w przyszłości wypełniać `unifiedDiff`, ale runtime nadal wymusza
-granice planów. Apply do worktree **nie istnieje** w tej paczce.
+granice planów.
+
+Apply jest **opcjonalny i jawny** — tylko gdy każdy edit ma `unifiedDiff` i
+człowiek podaje dokładny `patchHash`:
+
+```bash
+t2c apply-source-patch source-patch.json \
+  --actor reviewer@example.com \
+  --approval-hash <patchHash> \
+  --receipt CODE_CHANGE.source.receipt.json
+```
+
+Bez approval hash apply jest odrzucany. Instruction-only edits (null diff)
+nie są stosowane. Receipt jest idempotentny przy ponownym wywołaniu.
 
 ## 6. Zamknięcie pętli (`close-code-change`)
 
@@ -139,7 +152,9 @@ t2c close-code-change .intent/runs/<before>/code-change-plans.json \
 ```
 
 Wynik `t2c.code-change-close-result/v1` zawiera `acceptances[]`, liczniki
-accepted/rejected oraz `allAccepted`. Nadal **nie** oznacza DONE.
+accepted/rejected, `allAccepted` oraz deterministyczną proweniencję generatora,
+wersji runtime i trybu. Kształt publikuje
+`schemas/code-change-close-result.schema.json`. Nadal **nie** oznacza DONE.
 
 ## 7. Co nie jest w zakresie
 

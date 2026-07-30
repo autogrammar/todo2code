@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 214 testów: 213 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 216 testów: 215 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
 | Moduły | `npm run verify:modules` | PASS — 91 modułów, 420 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
@@ -175,9 +175,11 @@ pojawić się nowa blokada. Pozytywny wynik nadal nie ustawia `DONE`.
 
 Dwanaście testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
 tampering, brak provenance, niespójny verdict, hash-bound review i source patch,
-walidację path/akcji/sekretów, JSON Schema oraz pełny przebieg CLI. MCP publikuje
-24 narzędzia, A2A umiejętność `review_code_changes`, a SDK TypeScript udostępnia
-propose, render, source-patch i evaluate. Source patch nie wykonuje apply.
+walidację path/akcji/sekretów, JSON Schema oraz pełny przebieg CLI wraz z
+`close-code-change`. MCP publikuje 25 narzędzi, A2A umiejętność
+`review_code_changes`, a SDK TypeScript udostępnia propose, render,
+source-patch, evaluate i close. Source patch nie wykonuje apply, a close nie
+oznacza automatycznie DONE.
 
 ### Watch
 

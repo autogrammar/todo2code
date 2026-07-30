@@ -106,7 +106,7 @@
           "text": "Document `/api/plans/propose` and `logo.example.com` without inventing repository files.",
           "lifecycle": "proposed",
           "modality": "unknown",
-          "polarity": "negative",
+          "polarity": "positive",
           "paths": [],
           "symbols": [],
           "tickets": [],

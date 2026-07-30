@@ -15,8 +15,9 @@ Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 Wersja `0.5.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
 diagnostyka/Intent vs Reality → raport oraz zamknięty, reviewowalny przepływ
 `DSL2TODO`. Kontrakty `t2c.conclusion/v1`, `t2c.todo-proposal/v1`,
-`t2c.todo-patch/v1`, `t2c.code-change-plan/v1` i
-`t2c.code-change-acceptance/v1` są walidowane w runtime. CLI, MCP, A2A i pięć SDK
+`t2c.todo-patch/v1`, `t2c.code-change-plan/v1`,
+`t2c.code-change-acceptance/v1` i `t2c.code-change-close-result/v1` mają jawne
+kontrakty oraz proweniencję. CLI, MCP, A2A i pięć SDK
 potrafią syntetyzować zadania, klasyfikować duplikaty, renderować audytowany
 `TODO.patch` i zastosować go wyłącznie po jawnej akceptacji jego hasha. Główny
 pipeline może zapisać artefakty review przez `--task-mode`, lecz nigdy sam nie
@@ -72,7 +73,7 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
 | Propozycje → patch → approved apply | deterministyczna walidacja, renderer i atomowy zapis | nie |
-| Diagnostyka → code-change plan → acceptance | deterministyczny plan i bramka po re-analizie; bez auto-apply | nie |
+| Diagnostyka → code-change plan → acceptance/close | deterministyczny plan i bramka plan-set po re-analizie; bez auto-apply i auto-DONE | nie |
 | Graf DSL → `t2c.conclusion/v1` → raport NL | OpenRouter structured output; runtime waliduje cytowania przed deterministycznym renderingiem Markdown | **tak** |
 
 Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
@@ -141,7 +142,7 @@ console.log({ records: graph.records.length, relations: graph.relations.length, 
 NODE
 ```
 
-Weryfikowany wynik dla `0.5.0` ma 225 rekordów, w tym 5 wersjonowanych rekordów
+Weryfikowany wynik dla `0.5.0` ma 227 rekordów, w tym 5 wersjonowanych rekordów
 komunikacji. Liczba relacji zależy również od
 ostatnich 10 commitów Git, dlatego po każdym commicie może się prawidłowo
 zmienić i należy odczytać ją z bieżącego grafu:
@@ -152,8 +153,8 @@ naturalLanguageExtraction: succeeded / deterministic
 markdownExtraction:        succeeded / deterministic
 documentationExtraction:   succeeded / deterministic
 summary:                   skipped / deterministic / LLM_DISABLED
-records: 225, relations: <zależne od ostatnich 10 commitów>
-bySource: agent_log=5, ast=190, changelog=2, document=4, git=10, nl=7, system=4, todo=3
+records: 227, relations: <zależne od ostatnich 10 commitów>
+bySource: agent_log=5, ast=190, changelog=2, document=4, git=10, nl=7, system=6, todo=3
 ```
 
 Demo jawnie wyłącza LLM dokumentacji i podsumowania, więc nie korzysta z
@@ -342,6 +343,7 @@ t2c watch [root] [--interval 60] [--scan-interval 2] [--task TASK.md|none] [--no
 t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]
 t2c propose-code-change intent.graph.json --diagnostics diagnostics.json --out plans.json
 t2c evaluate-code-change plan.json --before-graph before.json --after-graph after.json --out acceptance.json
+t2c close-code-change plans.json --before-graph before.json --after-graph after.json --out close.json
 t2c pipeline [root] --task TASK.md --todo TODO.md --changelog CHANGELOG.md
 t2c mcp
 t2c a2a

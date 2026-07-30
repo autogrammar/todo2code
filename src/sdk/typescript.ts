@@ -143,6 +143,10 @@ export class Todo2CodeClient {
     return this.run<Record<string, unknown>>('propose_source_patch', input);
   }
 
+  async applySourcePatch(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.run<Record<string, unknown>>('apply_source_patch', input);
+  }
+
   async evaluateCodeChange(input: Record<string, unknown>): Promise<Record<string, unknown>> {
     return this.run<Record<string, unknown>>('evaluate_code_change', input);
   }

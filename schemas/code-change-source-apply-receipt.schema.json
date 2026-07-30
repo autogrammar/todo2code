@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/code-change-source-apply-receipt.schema.json",
+  "title": "todo2code Source Patch Apply Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "patchId", "patchHash", "planId", "approvedBy", "approvedAt",
+    "appliedAt", "appliedPaths", "fileHashesAfter", "idempotent"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "t2c.code-change-source-apply-receipt/v1" },
+    "patchId": { "type": "string", "pattern": "^SPATCH-[a-f0-9]{20}$" },
+    "patchHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "planId": { "type": "string", "pattern": "^CPLAN-[a-f0-9]{20}$" },
+    "approvedBy": { "type": "string", "minLength": 1 },
+    "approvedAt": { "type": "string", "format": "date-time" },
+    "appliedAt": { "type": "string", "format": "date-time" },
+    "appliedPaths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "fileHashesAfter": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    },
+    "generation": { "$ref": "conclusion.schema.json#/$defs/generation" }
+  }
+}

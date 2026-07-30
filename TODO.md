@@ -192,8 +192,11 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [x] Structured source patch `t2c.code-change-source-patch/v1`: instrukcje
   per path, opcjonalny unified diff z walidacją path/sekretów, content-bound
   hash; CLI `propose-source-patch`, MCP/A2A/SDK, zapis w pipeline; **bez apply**.
-- [ ] LLM wypełniający `unifiedDiff` w source patch (require/prefer) +
-  apply po hash approval (jak TODO.patch) — opcjonalna gałąź.
+- [x] Apply source patch po hash approval (`apply-source-patch` / MCP): tylko
+  gdy każdy edit ma `unifiedDiff`; instruction-only jest odrzucany; receipt
+  idempotentny. LLM wypełniający diff — nadal opcjonalna przyszła gałąź.
+- [x] `detectPolarity` nie traktuje „without / bez + dopełnienie” jako
+  negacji całego zdania (gold + unit).
 - [x] Orkiestracja acceptance: `t2c close-code-change` (plan lub plan-set +
   before/after graph) → `t2c.code-change-close-result/v1` bez auto-DONE.
 - [x] `detectModality` nie traktuje nagłówków „(recommended)” / gołych

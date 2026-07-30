@@ -68,8 +68,21 @@ export function detectModality(text: string): Modality {
   return 'unknown';
 }
 
+/**
+ * Classify polarity of an intent sentence.
+ *
+ * "without" / "bez" often introduce a manner complement ("Document X without
+ * inventing files") and must not flip the whole statement to negative. Clause-
+ * level negators (`not`, `never`, bare `nie`, prohibitions) still count.
+ */
 export function detectPolarity(text: string): Polarity {
-  return /\b(no|not|never|without|nie|bez|zakaz|zabronion)\b/i.test(text) ? 'negative' : 'positive';
+  const prose = text.replace(/`[^`]*`/g, ' ');
+  // Drop prepositional complements: "without inventing …", "bez zgadywania …".
+  const stripped = prose
+    .replace(/\bwithout\b\s+(?:[\w'-]+(?:\s+[\w'-]+){0,6})/gi, ' ')
+    .replace(/\bbez\b\s+(?:[\wąćęłńóśźż'-]+(?:\s+[\wąćęłńóśźż'-]+){0,6})/gi, ' ');
+  if (/\b(no|not|never|nie|zakaz|zabronion)\b/i.test(stripped)) return 'negative';
+  return 'positive';
 }
 
 export function normalizeToken(value: string): string {

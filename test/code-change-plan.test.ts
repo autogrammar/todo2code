@@ -17,6 +17,8 @@ import type { IntentGraph } from '../src/core/types.js';
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
 import {
+  applyCodeChangeSourcePatch,
+  applyUnifiedDiffToText,
   assertCodeChangeReviewPatch,
   assertCodeChangeSourcePatch,
   createCodeChangeReviewPatch,
@@ -346,6 +348,119 @@ test('createCodeChangeSourcePatch is deterministic and path-bound', () => {
   assert.throws(() => assertCodeChangeSourcePatch(invalidGeneration, plan), /keys must be exactly/);
 });
 
+test('applyUnifiedDiffToText creates and modifies files from hunks', () => {
+  const created = applyUnifiedDiffToText('', [
+    '--- /dev/null',
+    '+++ b/src/contracts.ts',
+    '@@ -0,0 +1,3 @@',
+    '+export function validateContract() {',
+    '+  return true;',
+    '+}',
+    '',
+  ].join('\n'), 'src/contracts.ts');
+  assert.match(created, /validateContract/);
+
+  const modified = applyUnifiedDiffToText('export {}\n', [
+    '--- a/src/contracts.ts',
+    '+++ b/src/contracts.ts',
+    '@@ -1 +1,2 @@',
+    ' export {}',
+    '+export const ok = true;',
+    '',
+  ].join('\n'), 'src/contracts.ts');
+  assert.equal(modified, 'export {}\nexport const ok = true;\n');
+});
+
+test('applyCodeChangeSourcePatch requires approval and is idempotent', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-source-apply-'));
+  const graph = plannedTodo();
+  const diagnostics = diagnoseGraph(graph, AT);
+  const plan = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT }).plans[0]!;
+  const patch = createCodeChangeSourcePatch({
+    plan,
+    createdAt: AT,
+    unifiedDiffs: {
+      'src/contracts.ts': [
+        '--- /dev/null',
+        '+++ b/src/contracts.ts',
+        '@@ -0,0 +1,1 @@',
+        '+export function validateContract() { return true; }',
+        '',
+      ].join('\n'),
+    },
+  });
+  await assert.rejects(() => applyCodeChangeSourcePatch({
+    root,
+    patch,
+    approval: { actor: 'reviewer', patchHash: '0'.repeat(64) },
+    receiptPath: path.join(root, 'receipt.json'),
+  }), /approval hash does not match/);
+
+  const first = await applyCodeChangeSourcePatch({
+    root,
+    patch,
+    approval: { actor: 'reviewer', patchHash: patch.patchHash },
+    receiptPath: path.join(root, 'receipt.json'),
+  });
+  assert.equal(first.applied, true);
+  assert.equal(first.idempotent, false);
+  assert.equal(first.receipt.generation.generator, 't2c/code-change-source-apply');
+  assert.equal(first.receipt.generation.runtimeVersion, T2C_VERSION);
+  assert.equal(first.receipt.generation.model, null);
+  const body = await fs.readFile(path.join(root, 'src/contracts.ts'), 'utf8');
+  assert.match(body, /validateContract/);
+
+  const second = await applyCodeChangeSourcePatch({
+    root,
+    patch,
+    approval: { actor: 'reviewer', patchHash: patch.patchHash },
+    receiptPath: path.join(root, 'receipt.json'),
+  });
+  assert.equal(second.applied, false);
+  assert.equal(second.idempotent, true);
+
+  await fs.writeFile(path.join(root, 'src/contracts.ts'), 'tampered\n', 'utf8');
+  await assert.rejects(() => applyCodeChangeSourcePatch({
+    root,
+    patch,
+    approval: { actor: 'reviewer', patchHash: patch.patchHash },
+    receiptPath: path.join(root, 'receipt.json'),
+  }), /state changed after receipt/);
+});
+
+test('applyCodeChangeSourcePatch preflights diffs and refuses symlink escapes', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-source-preflight-'));
+  const graph = plannedTodo();
+  const diagnostics = diagnoseGraph(graph, AT);
+  const plan = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT }).plans[0]!;
+  const instructionOnly = createCodeChangeSourcePatch({ plan, createdAt: AT });
+  await assert.rejects(() => applyCodeChangeSourcePatch({
+    root,
+    patch: instructionOnly,
+    approval: { actor: 'reviewer', patchHash: instructionOnly.patchHash },
+    receiptPath: path.join(root, 'receipt.json'),
+  }), /has no unifiedDiff/);
+
+  const outside = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-source-outside-'));
+  await fs.writeFile(path.join(outside, 'contracts.ts'), 'outside\n', 'utf8');
+  await fs.mkdir(path.join(root, 'src'), { recursive: true });
+  await fs.symlink(path.join(outside, 'contracts.ts'), path.join(root, 'src/contracts.ts'));
+  const patch = createCodeChangeSourcePatch({
+    plan,
+    createdAt: AT,
+    unifiedDiffs: {
+      'src/contracts.ts': '--- /dev/null\n+++ b/src/contracts.ts\n@@ -0,0 +1 @@\n+safe\n',
+    },
+  });
+  await assert.rejects(() => applyCodeChangeSourcePatch({
+    root,
+    patch,
+    approval: { actor: 'reviewer', patchHash: patch.patchHash },
+    receiptPath: path.join(root, 'receipt.json'),
+  }), /outside configured T2C_ROOT|symlink/);
+  assert.equal(await fs.readFile(path.join(outside, 'contracts.ts'), 'utf8'), 'outside\n');
+});
+
 test('createCodeChangeSourcePatchSet covers every plan', () => {
   const graph = plannedTodo();
   const diagnostics = diagnoseGraph(graph, AT);
@@ -448,8 +563,9 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
   assert.equal(acceptance.generation.generator, 't2c/code-change-acceptance');
   assert.deepEqual(JSON.parse(await fs.readFile(path.join(root, 'acceptance.json'), 'utf8')), acceptance);
 
+  await fs.copyFile(path.join(root, 'plans.json'), path.join(root, 'change-input.json'));
   const closed = await exec(process.execPath, [
-    cli, 'close-code-change', 'plans.json',
+    cli, 'close-code-change', 'change-input.json',
     '--before-graph', 'before.graph.json', '--before-diagnostics', 'before.diagnostics.json',
     '--after-graph', 'after.graph.json', '--out', 'close.json',
   ], { cwd: root, env: environment });
@@ -458,22 +574,28 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
     allAccepted: boolean;
     acceptedCount: number;
     planCount: number;
+    generation: { generator: string; runtimeVersion: string; model: null };
   };
   assert.equal(closeResult.schemaVersion, 't2c.code-change-close-result/v1');
   assert.equal(closeResult.planCount, 1);
   assert.equal(closeResult.acceptedCount, 1);
   assert.equal(closeResult.allAccepted, true);
+  assert.equal(closeResult.generation.generator, 't2c/code-change-close-result');
+  assert.equal(closeResult.generation.runtimeVersion, '0.5.0');
+  assert.equal(closeResult.generation.model, null);
 });
 
 test('Published code-change JSON schemas require provenance, risk and rollback', async () => {
-  const [plan, planSet, acceptance, review] = await Promise.all([
+  const [plan, planSet, acceptance, review, closeResult] = await Promise.all([
     fs.readFile(path.resolve('schemas/code-change-plan.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-plan-set.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-acceptance.schema.json'), 'utf8'),
     fs.readFile(path.resolve('schemas/code-change-review.schema.json'), 'utf8'),
+    fs.readFile(path.resolve('schemas/code-change-close-result.schema.json'), 'utf8'),
   ]).then((values) => values.map((value) => JSON.parse(value) as { required: string[] }));
   assert.ok(['risk', 'rollback', 'generation'].every((field) => plan!.required.includes(field)));
   assert.ok(planSet!.required.includes('generation'));
   assert.ok(acceptance!.required.includes('generation'));
   assert.ok(['renderedPatchHash', 'planIds', 'generation'].every((field) => review!.required.includes(field)));
+  assert.ok(['acceptances', 'evaluatedAt', 'generation'].every((field) => closeResult!.required.includes(field)));
 });

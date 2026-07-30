@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/code-change-close-result.schema.json",
+  "title": "todo2code Code Change Close Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "evaluatedAt", "graphFingerprintBefore", "graphFingerprintAfter",
+    "planCount", "acceptedCount", "rejectedCount", "allAccepted", "acceptances", "generation"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "t2c.code-change-close-result/v1" },
+    "evaluatedAt": { "type": "string", "format": "date-time" },
+    "graphFingerprintBefore": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "graphFingerprintAfter": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "planCount": { "type": "integer", "minimum": 0 },
+    "acceptedCount": { "type": "integer", "minimum": 0 },
+    "rejectedCount": { "type": "integer", "minimum": 0 },
+    "allAccepted": { "type": "boolean" },
+    "acceptances": {
+      "type": "array",
+      "items": { "$ref": "code-change-acceptance.schema.json" }
+    },
+    "generation": { "$ref": "conclusion.schema.json#/$defs/generation" }
+  }
+}

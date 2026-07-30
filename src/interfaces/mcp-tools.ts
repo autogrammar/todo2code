@@ -179,8 +179,18 @@ export const MCP_TOOLS: McpTool[] = [
     unifiedDiffs: { type: 'object', description: 'Optional path→unifiedDiff map for a single plan.' },
     output: stringProp('Optional JSON output path under root.'),
   }),
+  tool('apply_source_patch', 'Apply a fully-diffed source patch after explicit actor + patchHash approval. Instruction-only edits are rejected.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    patch: { type: 'object', description: 'Inline t2c.code-change-source-patch/v1 object.' },
+    patchPath: stringProp('Source patch JSON path under root.'),
+    actor: stringProp('Human approving actor identity.'),
+    approvalHash: stringProp('Exact patchHash approved by the actor.'),
+    receipt: stringProp('Apply receipt output path, default CODE_CHANGE.source.receipt.json.'),
+  }, ['actor', 'approvalHash']),
   tool('close_code_change', 'Evaluate one plan or a whole plan set against before/after graphs and return aggregate acceptance without marking DONE.', {
     root: stringProp('Repository root under T2C_ROOT.'),
+    input: { type: 'object', description: 'Inline plan or plan-set object; schemaVersion selects the shape.' },
+    inputPath: stringProp('Plan or plan-set JSON path under root; schemaVersion selects the shape.'),
     plan: { type: 'object', description: 'Inline t2c.code-change-plan/v1 object.' },
     planPath: stringProp('Single plan JSON path under root.'),
     plans: { type: 'object', description: 'Inline t2c.code-change-plan-set/v1 object.' },
@@ -265,7 +275,8 @@ function tool(
 ): McpTool {
   const writes = new Set<T2CAction>([
     'pipeline', 'propose_todo', 'render_todo', 'apply_todo',
-    'propose_code_change', 'render_code_change', 'propose_source_patch', 'evaluate_code_change', 'close_code_change',
+    'propose_code_change', 'render_code_change', 'propose_source_patch', 'apply_source_patch',
+    'evaluate_code_change', 'close_code_change',
   ]);
   return {
     name,

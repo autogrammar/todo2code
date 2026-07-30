@@ -35,12 +35,13 @@ przed wydaniem.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | `t2c.intent/v1`, `graph`, `diagnostics`, `conclusion`, `todo-proposal`, `todo-patch`, `code-change-plan`, `code-change-source-patch`; 212 testów, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | `t2c.intent/v1`, `graph`, `diagnostics`, `conclusion`, `todo-proposal`, `todo-patch`, `code-change-plan`, `code-change-source-patch`, `code-change-close-result`; 216 testów, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 30 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
 | Ochrona ścieżek | wyjście poza `T2C_ROOT` odrzucane spójnie w CLI, MCP, A2A i SDK |
 | Przepływ DSL2TODO | propose → render → approved apply, zgodny w pięciu SDK, `TODO.md` zmieniany wyłącznie po akceptacji hasha |
+| Agregaty konfiguracji | jeden `configuration_file_fact` na plik; dokumentacja wiąże się przez jawną ścieżkę, a ogólne klucze nie uruchamiają capability-topic |
 | Interfejsy | CLI, MCP, A2A v1.0, Docker, wheel Pythona |
 | Odporność na obce repo | trzy repozytoria zewnętrzne plus `subactor/platform`; brak awarii, brak wycieku poza root |
 
@@ -89,21 +90,13 @@ podniósł skuteczność, lecz:
 **Warunek zamknięcia:** live check obejmujący wszystkie sześć etapów, z progami
 i historią wyniku, uruchamiany harmonogramem.
 
-### 4. Konfiguracja nie ma agregatu plikowego
-
-Rekordy konfiguracji przestały tworzyć kwadratowy podgraf (28 896 → 0 relacji
-`system~system` na platformie), ale plik konfiguracyjny nadal nie ma jednego
-rekordu reprezentującego całość. Dokumentacja wiąże się z pojedynczymi kluczami,
-nie z plikiem — czyli odwrotnie niż AST, gdzie `module_fact` rozwiązał ten sam
-problem.
-
-### 5. Luki w pokryciu języków i formatów
+### 4. Luki w pokryciu języków i formatów
 
 PHP nie ma adaptera AST. Nierozpoznane pliki są raportowane jawnie, więc
 narzędzie nie udaje pełnego pokrycia, ale repozytorium z istotną częścią kodu
 w PHP dostanie niepełny obraz rzeczywistości.
 
-### 6. Znane defekty semantyczne
+### 5. Znane defekty semantyczne
 
 - `detectPolarity` traktuje przyimek „without" jak negację zdania: „Document X
   without inventing files" zapisuje się jako intencja negatywna.
@@ -111,7 +104,7 @@ w PHP dostanie niepełny obraz rzeczywistości.
   czy `types.ts` pozostają niewiązalne bez katalogu. To świadomy kompromis
   precyzji, nie usterka, ale obniża recall.
 
-### 7. Wydajność na dużych repozytoriach nieprzebadana
+### 6. Wydajność na dużych repozytoriach nieprzebadana
 
 Brak cache'u AST i chunków dokumentacji po content hash. Największy opisany
 tu pomiar gotowości ma 15,9 tys. rekordów, a test przenośności na `domd` około
@@ -133,17 +126,16 @@ Wersję `0.6.0` uznaję za gotową, gdy:
 1. gold v2 publikuje precision/recall osobno dla dopasowania po celu i po
    temacie, na próbie pozwalającej wykryć regresję progu;
 2. live check obejmuje sześć etapów LLM i ma zapisaną historię wyniku;
-3. konfiguracja ma agregat plikowy, a dokumentacja wiąże się z plikiem;
-4. `implementation coverage` na repozytorium innym niż własne przekracza próg
+3. `implementation coverage` na repozytorium innym niż własne przekracza próg
    ustalony po pomiarze z punktu 1 — dziś 2,4% jest zbyt niskie, by narzędzie
    było użyteczne bez ręcznej interpretacji.
 
-Punkty 1 i 4 są warunkami merytorycznymi; 2 i 3 techniczno-operacyjnymi.
+Punkty 1 i 3 są warunkami merytorycznymi, a punkt 2 techniczno-operacyjnym.
 
 ## Reprodukcja
 
 ```bash
-npm run verify          # 212 testów, 91 modułów, kontrakt .env, workflowy
+npm run verify          # 216 testów, 91 modułów, kontrakt .env, workflowy
 npm run evaluate:gold   # precision/recall, cytowania, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 make smoke protocol-smoke docker-smoke

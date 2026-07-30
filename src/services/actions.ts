@@ -26,11 +26,13 @@ import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
 import { linkIntentRecords } from '../graph/linker.js';
 import { runPipeline } from '../pipeline/run.js';
 import { summarizeGraph } from '../summary/summarizer.js';
-import type { CodeChangePlan, Conclusion, TodoProposal } from '../core/types.js';
+import type { CodeChangePlan, CodeChangeSourcePatch, Conclusion, TodoProposal } from '../core/types.js';
 import {
+  applyCodeChangeSourcePatch,
   createCodeChangeReviewPatch,
   createCodeChangeSourcePatch,
   createCodeChangeSourcePatchSet,
+  closeCodeChanges,
   evaluateCodeChangeAcceptance,
   proposeCodeChangePlans,
   type ProposeCodeChangePlansResult,
@@ -62,6 +64,7 @@ export type T2CAction =
   | 'propose_code_change'
   | 'render_code_change'
   | 'propose_source_patch'
+  | 'apply_source_patch'
   | 'evaluate_code_change'
   | 'close_code_change';
 
@@ -293,6 +296,23 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
       }
       return result;
     }
+    case 'apply_source_patch': {
+      const patch = await readActionObject<CodeChangeSourcePatch>(input.patch, input.patchPath, 'patch', root, config);
+      const receiptPath = await scopedPath(input.receipt, 'CODE_CHANGE.source.receipt.json', root, config);
+      const result = await applyCodeChangeSourcePatch({
+        root,
+        patch,
+        approval: {
+          actor: stringValue(input.actor, ''),
+          patchHash: stringValue(input.approvalHash, ''),
+        },
+        receiptPath,
+      });
+      return {
+        ...result,
+        receiptPath: path.relative(root, receiptPath).replace(/\\/g, '/'),
+      };
+    }
     case 'evaluate_code_change': {
       const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);
       const beforeGraph = await readActionObject<IntentGraph>(
@@ -342,8 +362,15 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         )
         : diagnoseGraph(afterGraph);
 
-      let plans: CodeChangePlan[] = [];
-      if (hasInputValue(input.plan) || hasInputValue(input.planPath)) {
+      let plans: CodeChangePlan[];
+      if (hasInputValue(input.input) || hasInputValue(input.inputPath)) {
+        const value = await readActionObject<CodeChangePlan | ProposeCodeChangePlansResult>(
+          input.input, input.inputPath, 'input', root, config,
+        );
+        if (value.schemaVersion === 't2c.code-change-plan/v1') plans = [value];
+        else if (value.schemaVersion === 't2c.code-change-plan-set/v1') plans = value.plans;
+        else throw new Error('close_code_change input must be a code-change plan or plan set');
+      } else if (hasInputValue(input.plan) || hasInputValue(input.planPath)) {
         plans = [await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config)];
       } else {
         const planSet = await readActionObject<ProposeCodeChangePlansResult>(
@@ -355,22 +382,12 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         plans = planSet.plans;
       }
 
-      const acceptances = plans.map((plan) => evaluateCodeChangeAcceptance({
-        plan,
+      const result = closeCodeChanges({
+        plans,
         before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
         afterGraph,
         afterDiagnostics,
-      }));
-      const result = {
-        schemaVersion: 't2c.code-change-close-result/v1' as const,
-        graphFingerprintBefore: beforeGraph.fingerprint,
-        graphFingerprintAfter: afterGraph.fingerprint,
-        planCount: plans.length,
-        acceptedCount: acceptances.filter((item) => item.accepted).length,
-        rejectedCount: acceptances.filter((item) => !item.accepted).length,
-        allAccepted: acceptances.length > 0 && acceptances.every((item) => item.accepted),
-        acceptances,
-      };
+      });
       if (input.output !== undefined) {
         const output = await scopedPath(input.output, '', root, config);
         await writeJson(output, result);

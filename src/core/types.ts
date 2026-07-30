@@ -368,6 +368,20 @@ export interface CodeChangeAcceptance {
   generation: GroundedGenerationMetadata;
 }
 
+/** Aggregate, non-authoritative result for closing one or more code-change plans. */
+export interface CodeChangeCloseResult {
+  schemaVersion: 't2c.code-change-close-result/v1';
+  evaluatedAt: string;
+  graphFingerprintBefore: string;
+  graphFingerprintAfter: string;
+  planCount: number;
+  acceptedCount: number;
+  rejectedCount: number;
+  allAccepted: boolean;
+  acceptances: CodeChangeAcceptance[];
+  generation: GroundedGenerationMetadata;
+}
+
 /**
  * Reviewable, non-executable projection of code-change plans.
  * Carries a content hash of the Markdown so reviewers can detect tampering.
@@ -384,9 +398,9 @@ export interface CodeChangeReviewPatch {
 }
 
 /**
- * Structured, non-executable source-edit proposal bound to one code-change plan.
+ * Structured source-edit proposal bound to one code-change plan.
  * Instructions (and optional unified diffs) may only name paths declared by the
- * plan. The runtime never applies this artifact to the working tree.
+ * plan. Application requires an explicit approval hash and never runs by default.
  */
 export interface CodeChangeSourceEdit {
   path: string;
@@ -396,7 +410,8 @@ export interface CodeChangeSourceEdit {
   /**
    * Optional unified diff body for the single file. Null for instruction-only
    * deterministic proposals. When set, the runtime checks path headers and
-   * rejects parent traversal / absolute host paths.
+   * rejects parent traversal / absolute host paths. Apply requires a non-null
+   * diff for every edit.
    */
   unifiedDiff: string | null;
 }
@@ -422,6 +437,24 @@ export interface CodeChangeSourcePatchSet {
   generatedAt: string;
   graphFingerprint: string;
   patches: CodeChangeSourcePatch[];
+  generation: GroundedGenerationMetadata;
+}
+
+export interface CodeChangeSourcePatchApproval {
+  actor: string;
+  patchHash: string;
+}
+
+export interface CodeChangeSourceApplyReceipt {
+  schemaVersion: 't2c.code-change-source-apply-receipt/v1';
+  patchId: string;
+  patchHash: string;
+  planId: string;
+  approvedBy: string;
+  approvedAt: string;
+  appliedAt: string;
+  appliedPaths: string[];
+  fileHashesAfter: Record<string, string>;
   generation: GroundedGenerationMetadata;
 }
 

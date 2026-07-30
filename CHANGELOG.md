@@ -4,6 +4,10 @@
 
 ### Fixed
 
+- Stop treating parenthetical labels and bare adjectives such as
+  `OpenRouter (recommended)` or `Required secrets` as deontic requirements.
+- Scope `detectPolarity` so "without …" / "bez …" complements are not whole-
+  sentence negation.
 - Restrict configuration file aggregates to explicit path evidence. Reusing
   AST capability-topic matching produced 288 mostly generic cross-source links
   from five config files on `code2llm`; the hardened run retains 2 grounded
@@ -13,6 +17,10 @@
 
 ### Added
 
+- Added `t2c close-code-change` and the `close_code_change` MCP/A2A/TypeScript
+  SDK action for evaluating a single plan or plan set against before/after
+  graphs. `t2c.code-change-close-result/v1` has a published schema and complete
+  deterministic provenance; it never applies changes or marks work DONE.
 - Added one deterministic `configuration_file_fact` per discovered config file,
   including empty files, with bounded key inventory, runtime provenance and
   file-level linking. Configuration is also represented as observed reality.
