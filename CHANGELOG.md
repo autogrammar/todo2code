@@ -4,6 +4,19 @@
 
 ### Added
 
+- `npm run live:models` (`make live-model-comparison`): an opt-in live comparison
+  of models for the batched TODO/CHANGELOG stage, written as
+  `t2c.live-model-comparison/v1`. The stage enriches in bounded 32-record
+  batches, so its cost and latency scale with batch count and a single-call
+  benchmark cannot answer which model it should use. The artifact reports
+  requests, records the stage actually enriched (a rejected response leaves the
+  deterministic record in place and does not change the record count), cost and
+  time per record, and how often two models return the same action, modality,
+  polarity and lifecycle for the same source record. Records are paired by
+  source location rather than record ID: IDs are content-derived, so pairing on
+  them would compare only the records the models already agreed on and report
+  perfect agreement. A model that cannot honour the contract is a comparison
+  result rather than a crash, and never wins the recommendation.
 - The scheduled live provider check covers all six semantic stages instead of
   two (`t2c.live-contract-check/v2`). It measures the manifest of a
   `require-llm` pipeline run rather than calling stages itself, so it cannot

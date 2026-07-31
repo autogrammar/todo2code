@@ -13,7 +13,7 @@ OUT ?= .intent
 PACKAGE ?= todo2code.zip
 PYTHON_WHEEL_DIR ?= .intent-packages/python
 
-.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env smoke doctor mcp-probe a2a-probe protocol-smoke validate live-contract-check demo demollm examples-check pipeline compare-workspace mcp a2a docker-build docker-smoke docker-up docker-down python-wheel package clean
+.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env smoke doctor mcp-probe a2a-probe protocol-smoke validate live-contract-check live-model-comparison demo demollm examples-check pipeline compare-workspace mcp a2a docker-build docker-smoke docker-up docker-down python-wheel package clean
 
 help: ## Pokaż dostępne cele
 	@awk 'BEGIN {FS = ":.*## "; printf "todo2code targets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -67,6 +67,9 @@ validate: verify smoke protocol-smoke doctor docker-smoke ## Pełna walidacja be
 
 live-contract-check: ## Uruchom opt-in audyt prawdziwego kontraktu OpenRouter i budżetów
 	$(NPM) run live:check
+
+live-model-comparison: ## Porównaj modele batcha TODO/CHANGELOG na żywo (opt-in, płatne)
+	$(NPM) run live:models
 
 demo: build ## Przeanalizuj katalog examples bez OpenRouter
 	OPENROUTER_API_KEY= T2C_NL_MODE=deterministic T2C_MARKDOWN_MODE=deterministic T2C_COMMUNICATION_MODE=deterministic $(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --no-summary-llm --out .intent-demo

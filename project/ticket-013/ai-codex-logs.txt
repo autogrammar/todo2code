@@ -1,0 +1,2 @@
+2026-07-31 ticket-013 opened
+2026-07-31 verified all three candidates in the current OpenRouter catalog with structured_outputs

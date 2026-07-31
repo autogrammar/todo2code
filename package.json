@@ -36,7 +36,8 @@
     "examples:check": "npm run build && bash scripts/examples-check.sh",
     "evaluate:gold": "npm run build && node dist/src/evaluation/gold-cli.js evaluation/gold/v2/dataset.json --require-perfect",
     "evaluate:gold:v1": "npm run build && node dist/src/evaluation/gold-cli.js evaluation/gold/v1/dataset.json --require-perfect",
-    "live:check": "npm run build && node scripts/live-contract-check.mjs"
+    "live:check": "npm run build && node scripts/live-contract-check.mjs",
+    "live:models": "npm run build && node scripts/live-model-comparison.mjs"
   },
   "dependencies": {
     "typescript": ">=5.8.3 <7"

@@ -147,6 +147,24 @@ zawiera audyt bieżącego przebiegu, a `.intent-live/contract-check-history.json
 przebiegów zdanych per etap). Historia jest raportowana, ale **nie** decyduje o
 wyniku: jeden wolny dzień providera nie może wywracać buildu.
 
+### Porównanie modeli dla batcha TODO/CHANGELOG
+
+```bash
+T2C_LIVE_COMPARE_MODELS=qwen/qwen3.7-plus,google/gemini-3.6-flash \
+T2C_REQUIRE_LIVE_CHECK=1 npm run live:models
+```
+
+Etap wzbogacania TODO/CHANGELOG dzieli pracę na ograniczone paczki po 32 rekordy,
+więc jego koszt i latencja skalują się liczbą paczek, a nie pojedynczym
+żądaniem — benchmark jednego wywołania nie odpowiada na pytanie, który model ma
+obsługiwać ten etap. Porównanie uruchamia pełny etap dla każdego modelu i zapisuje
+`t2c.live-model-comparison/v1` (`.intent-live/model-comparison.json` oraz wersję
+Markdown). Raportuje liczbę żądań, rekordy faktycznie wzbogacone (odrzucona
+odpowiedź zostawia rekord deterministyczny i nie zmienia liczby rekordów), koszt
+i czas na rekord oraz zgodność werdyktów obu modeli na tych samych rekordach
+źródłowych. Model, który nie dotrzymał kontraktu, jest wynikiem porównania, a nie
+awarią skryptu, i nigdy nie wygrywa rekomendacji.
+
 Nie należy używać live check jako wymaganej kontroli offline — zależy od
 dostępności zewnętrznego providera. `make demo`, `npm run verify` i
 `npm run examples:check` pozostają deterministyczne.
