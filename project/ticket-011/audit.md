@@ -41,6 +41,7 @@ create neither AST evidence nor an ambiguity claim.
 | Gold v2 | PASS — extraction 21/21, linking 18/18 (10 exact-target, 8 capability-topic), diagnostics 11/11 |
 | Gold v1 | PASS — legacy dataset remains 100% |
 | Examples | PASS — 5 SDK, graph fingerprint `1dacf2edc8d603a2` |
+| Publication | implementation `25df74a` on `main`; unrelated `nlp2uri.yaml` excluded |
 
 The examples graph fell from 101 to 91 relations while preserving 227 records.
 The removed edges are the intended effect of abstaining from ambiguous NL↔AST

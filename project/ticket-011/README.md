@@ -2,8 +2,8 @@
 
 - **ID**: ticket-011
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: IN_PROGRESS
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-07-31
 
 ## Goal and scope
@@ -32,7 +32,7 @@ ticket directory contains only governance and evidence.
 - [x] AC-08: Gold v2 includes unique, ambiguous-hard-negative and explicit-path
   symbol cases with separate exact-target accounting.
 - [x] AC-09: Full verification, gold v1/v2 and all SDK examples pass.
-- [ ] AC-10: Documentation is updated and the completed change is pushed to
+- [x] AC-10: Documentation is updated and the completed change is pushed to
   `main` without committing unrelated `nlp2uri.yaml`.
 
 ## Participants
@@ -44,3 +44,10 @@ ticket directory contains only governance and evidence.
 
 - [`audit.md`](audit.md)
 - [`ai-codex-logs.txt`](ai-codex-logs.txt)
+
+## Result
+
+NL↔AST symbol evidence is now limited to a unique observed owner or an
+explicitly selected path. Ambiguous and conflicting symbols abstain and produce
+an actionable diagnostic with candidate paths. The implementation was
+committed and published to `main` as `25df74a`.
