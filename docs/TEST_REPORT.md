@@ -460,6 +460,30 @@ naruszeniach schematu. `google/gemini-3.6-flash` przeszedł **6/6** w 125,486 s,
 ekstraktory mają jedną korektę z pełnym schematem; obie próby są audytowane.
 Live pozostaje opt-in i nie jest zależnością walidacji offline.
 
+Osobny opt-in `npm run live:models` (`t2c.live-model-comparison/v1`) mierzy sam
+etap batcha TODO/CHANGELOG, bo jego koszt i latencja skalują się liczbą paczek,
+a nie pojedynczym żądaniem. Pomiar na 267 rekordach TODO/CHANGELOG tego repo:
+
+| Model | Żądania | Latencja | ms/rekord | Koszt | $/rekord |
+|---|--:|--:|--:|--:|--:|
+| `mistralai/codestral-2508` | 11 | 103,8 s | 389 | $0,04953 | $0,000186 |
+| `google/gemini-3-flash-preview` | 29 | 265,3 s | 994 | $0,428231 | $0,001604 |
+| `qwen/qwen3.7-plus` | 9 | 560,7 s | 2116 | $0,123435 | $0,000466 |
+
+Liczba żądań jest tu właściwym sygnałem: dziewięć paczek pokrywa 267 rekordów,
+więc 29 żądań oznacza, że `gemini-3-flash-preview` wymagał podziału na dwóch
+trzecich z nich. Osobno mierzona jest zgodność werdyktów: oba modele zgadzają
+się co do action/modality/polarity/lifecycle w **169 z 267 rekordów (63,3%)**.
+Tańszy model nie odpowiada tak samo, a porównanie nie rozstrzyga, który ma
+rację — to zadanie dla przypadków gold nad polami wzbogacenia.
+
+Pomiar ujawnił też defekt runtime'u naprawiony przy okazji: kontrakt paczki
+wymagał dokładnie 32 elementów, więc odpowiedź z 27 poprawnymi wzbogaceniami
+przegrywała walidację i wszystkie 27 szło do kosza. Próg to teraz jeden element,
+a pokrycie egzekwuje dzielenie niepokrytej reszty — tak samo przy odpowiedzi
+uciętej, jak przy odpowiedzi, która w ogóle nie jest JSON-em. Rekord
+odpowiedziany przez podział niesie ID swojej odpowiedzi, nie pierwszej próby.
+
 ### 3. Nie wszystkie języki repozytorium mają adapter AST
 
 Kod TypeScript/JavaScript, Python, Go, Java i Rust ma adaptery AST. PHP — mimo

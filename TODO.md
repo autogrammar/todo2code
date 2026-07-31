@@ -300,6 +300,12 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [x] Live latency/cost batch TODO/CHANGELOG: ticket-013 porównał trzy modele,
   wybrał Codestral 2508 i dodał współbieżność 3; `weekly` 218,741→53,362 ms,
   a `nlp2uri` przeszedł 619 rekordów / 20 żądań w 194,750 ms.
+- [ ] Rozstrzygnąć jakość, nie tylko koszt, przy wyborze modelu dla batcha
+  TODO/CHANGELOG. `npm run live:models` na 267 rekordach tego repo pokazał, że
+  `mistralai/codestral-2508` i `google/gemini-3-flash-preview` zgadzają się co
+  do action/modality/polarity/lifecycle tylko w **169 z 267 rekordów (63,3%)** —
+  tańszy model nie odpowiada tak samo, a porównanie nie mówi, który ma rację.
+  Potrzebne są przypadki gold nad polami wzbogacenia, nie kolejny przebieg live.
 - [ ] [`ticket-014`](project/ticket-014/README.md) — nie uznawać nowej
   możliwości za zaimplementowaną wyłącznie dlatego, że wskazany plik istnieje;
   wymagany dodatkowy dowód symbolu/tematu albo jawna abstencja.
