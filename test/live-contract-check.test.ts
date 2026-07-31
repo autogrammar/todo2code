@@ -5,6 +5,8 @@ import {
   LIVE_STAGE_NAMES,
   appendLiveHistory,
   buildLiveAudit,
+  buildRecordedLiveAudit,
+  liveRequestTimeoutMs,
   redactLiveMessage,
   renderLiveReport,
   summarizeLiveHistory,
@@ -125,6 +127,11 @@ test('per-stage and total budgets are enforced separately', () => {
   assert.equal(expensive.passed, false);
 });
 
+test('live request timeout reaches the stage budget without shortening a larger override', () => {
+  assert.equal(liveRequestTimeoutMs(120_000, 300_000), 300_000);
+  assert.equal(liveRequestTimeoutMs(600_000, 300_000), 600_000);
+});
+
 test('a stage reason is recorded with provider text redacted', () => {
   const audit = buildLiveAudit({
     manifest: manifest({
@@ -180,6 +187,29 @@ test('history records the trend without gating on it', () => {
   assert.equal(audit.history.medianTotalLatencyMs, 30_000);
   assert.equal(audit.history.byStage.find((item) => item.stage === 'summary')?.maxLatencyMs, 30_000);
   assert.match(renderLiveReport(audit), /history: 2 run\(s\), 50% passed/);
+});
+
+test('recorded audit history includes the current run exactly once', () => {
+  const recorded = buildRecordedLiveAudit({
+    manifest: manifest(),
+    budget: BUDGET,
+    history: [],
+    generatedAt: '2026-07-31T08:00:00.000Z',
+  });
+
+  assert.equal(recorded.history.length, 1);
+  assert.equal(recorded.audit.history.runs, 1);
+  assert.equal(recorded.audit.history.passRate, 1);
+  assert.match(renderLiveReport(recorded.audit), /history: 1 run\(s\), 100% passed/);
+
+  const rewritten = buildRecordedLiveAudit({
+    manifest: manifest(),
+    budget: BUDGET,
+    history: recorded.history,
+    generatedAt: '2026-07-31T08:00:00.000Z',
+  });
+  assert.equal(rewritten.history.length, 1);
+  assert.equal(rewritten.audit.history.runs, 1);
 });
 
 test('history stays chronological, bounded and free of duplicate runs', () => {

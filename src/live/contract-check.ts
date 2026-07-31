@@ -97,6 +97,11 @@ export interface LiveContractAudit {
 /** Keeps the stored trend bounded without losing the recent shape of it. */
 export const LIVE_HISTORY_LIMIT = 50;
 
+/** A live stage budget cannot be longer than the request it is measuring. */
+export function liveRequestTimeoutMs(currentTimeoutMs: number, maxStageLatencyMs: number): number {
+  return Math.max(currentTimeoutMs, maxStageLatencyMs);
+}
+
 export function measureLiveStages(manifest: PipelineManifest, budget: LiveBudget): LiveStageMeasurement[] {
   return LIVE_STAGE_NAMES
     .filter((stage) => Boolean(manifest.stages?.[stage]))
@@ -179,6 +184,21 @@ export function buildLiveAudit(options: {
       && !overCost
       && !overTotalLatency,
     history: summarizeLiveHistory(options.history),
+  };
+}
+
+/** Build an audit whose trend already includes the run being persisted. */
+export function buildRecordedLiveAudit(options: {
+  manifest: PipelineManifest;
+  budget: LiveBudget;
+  history: LiveHistoryRecord[];
+  generatedAt: string;
+}): { audit: LiveContractAudit; history: LiveHistoryRecord[] } {
+  const initial = buildLiveAudit(options);
+  const history = appendLiveHistory(options.history, toLiveHistoryRecord(initial));
+  return {
+    audit: buildLiveAudit({ ...options, history }),
+    history,
   };
 }
 

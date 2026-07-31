@@ -92,9 +92,11 @@ No ticket is currently active.
 - [x] Split large TODO/CHANGELOG LLM enrichment into bounded 32-record batches
   with a shared audit, per-record response provenance and deterministic
   ordering.
-- [ ] Measure live TODO/CHANGELOG batch latency and cost against
-  `qwen/qwen3.7-plus` and a faster configured model; store the redacted
-  comparison artifact without making offline CI provider-dependent.
+- [x] Measure the complete live pipeline against explicit structured-output
+  models. Qwen failed documentation/communication after correction, GPT-5.4
+  Mini failed NL after correction, and Gemini 3.6 Flash passed all six stages
+  in 125.486 s for $0.412363. The redacted comparison is in ticket-012 and the
+  opt-in live history; offline CI remains provider-independent.
 - [x] Make summary generation structurally validated through
   `t2c.conclusion/v1` before rendering Markdown, rather than accepting free-form
   narrative as the primary result.

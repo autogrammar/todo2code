@@ -11,7 +11,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 34 moduły |
-| Granice modułów | PASS — 101 modułów, 467 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Granice modułów | PASS — 101 modułów, 470 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 67 zmiennych kodu/Dockera/skryptów, 67 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
@@ -60,7 +60,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 277 testów, 276 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 286 testów, 285 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
@@ -117,6 +117,19 @@ rekordów i relacji pozostaje metryką pomocniczą: zawiera line/source churn AS
 a nie liczbę funkcji biznesowych.
 
 ## Live OpenRouter
+
+### Pełny kontrakt 0.5.0
+
+Ticket-012 uruchomił rzeczywisty pipeline `require-llm` dla wszystkich sześciu
+etapów. `qwen/qwen3.7-plus` naruszył schemat dokumentacji i komunikacji także
+po jednej korekcie, a `openai/gpt-5.4-mini` dwukrotnie naruszył schemat NL.
+Jawny domyślny `google/gemini-3.6-flash` przeszedł 6/6 bez fallbacku:
+125 486 ms, 177 953 tokeny, $0.412363. Wynik zapisano w redaktowanym
+`t2c.live-contract-check/v2`; historia obejmuje bieżący run.
+
+To potwierdza ścieżkę runtime, nie stałą jakość zewnętrznego providera. Live
+pozostaje kontrolą opt-in, a druga odpowiedź niezgodna ze schematem nadal
+kończy `require-llm` błędem.
 
 Audytowane NL → DSL działa. W oddzielnym przebiegu live `openrouter/auto-beta`
 przetworzył `TASK.md` do 19 rekordów w 19,0 s. Manifest zapisał

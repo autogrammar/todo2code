@@ -6,7 +6,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { extractNlIntentAudited } from '../src/extractors/nl-llm.js';
+import { extractNlIntentAudited, NlLlmRequiredError } from '../src/extractors/nl-llm.js';
 import { makeConfig } from './helpers.js';
 
 const SOURCE = [
@@ -82,6 +82,40 @@ test('An LLM record is marked as inference and keeps runtime-owned provenance', 
   assert.equal(result.audit.effectiveMode, 'llm');
 });
 
+test('NL extraction corrects one rejected structured response and audits both attempts', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-nl-correction-'));
+  await fs.writeFile(path.join(root, 'TASK.md'), SOURCE, 'utf8');
+  const config = makeConfig(root);
+  config.openRouter.apiKey = 'test-key';
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  let correction = '';
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    const request = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> };
+    correction = request.messages[2]?.content ?? correction;
+    return new Response(JSON.stringify({
+      id: `gen-nl-correction-${calls}`, model: 'test/model', provider: 'TestProvider',
+      usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2, cost: 0 },
+      choices: [{ message: { content: JSON.stringify({
+        records: calls === 1 ? [{ predicate: 'add', sourcePath: 'TASK.md' }] : [rawRecord()],
+      }) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const result = await extractNlIntentAudited({ root, sourcePath: 'TASK.md' }, config, 'require-llm');
+    assert.equal(calls, 2);
+    assert.equal(result.audit.status, 'succeeded');
+    assert.deepEqual(result.audit.responses.map((response) => response.responseId), [
+      'gen-nl-correction-1', 'gen-nl-correction-2',
+    ]);
+    assert.match(correction, /unknown properties: predicate, sourcePath/);
+    assert.match(correction, /Do not add, rename, or omit properties/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('Confidence must satisfy the provider schema instead of being silently clamped', async () => {
   const result = await extract([rawRecord({ confidence: 0.9 })]);
   assert.ok((result.records[0]?.epistemic.confidence ?? 1) <= 0.9);
@@ -131,6 +165,23 @@ test('Both gaps are reported together', async () => {
 test('Out-of-vocabulary enums are rejected instead of changing the provider intent', async () => {
   await assert.rejects(() => extract([rawRecord({ action: 'teleport' })]), /response\.records\[0\]\.action must be one of/);
   await assert.rejects(() => extract([rawRecord({ modality: 'mandatory-ish' })]), /response\.records\[0\]\.modality must be one of/);
+});
+
+test('Rejected NL output keeps provider metadata in the failed audit', async () => {
+  const invalid = rawRecord();
+  delete invalid.text;
+  await assert.rejects(
+    () => extract([invalid]),
+    (error: unknown) => {
+      assert.ok(error instanceof NlLlmRequiredError);
+      assert.equal(error.audit.reason?.code, 'LLM_RESPONSE_INVALID');
+      assert.equal(error.audit.responses[0]?.responseId, 'gen-nl-1');
+      assert.equal(error.audit.responses[0]?.model, 'test/model');
+      assert.equal(error.audit.responses[0]?.provider, 'TestProvider');
+      assert.equal(error.audit.responses[0]?.usage?.totalTokens, 2);
+      return true;
+    },
+  );
 });
 
 test('The documented confidence hierarchy holds across LLM extractors', async () => {

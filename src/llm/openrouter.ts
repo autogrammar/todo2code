@@ -145,7 +145,7 @@ export class OpenRouterClient {
 
     try {
       const response = await this.request(structuredBody);
-      return { value: parseJsonContent<T>(extractContent(response)), metadata: responseMetadata(response) };
+      return parseJsonResponse<T>(response);
     } catch (firstError) {
       if (firstError instanceof OpenRouterModelError) throw firstError;
       if (!this.config.requireStructuredOutput) throw firstError;
@@ -164,7 +164,7 @@ export class OpenRouterClient {
         response_format: { type: 'json_object' },
         plugins: this.config.responseHealing ? [{ id: 'response-healing' }] : undefined,
       });
-      return { value: parseJsonContent<T>(extractContent(fallback)), metadata: responseMetadata(fallback) };
+      return parseJsonResponse<T>(fallback);
     }
   }
 
@@ -312,6 +312,16 @@ function parseJsonContent<T>(content: string): T {
       }
     }
     throw new Error(`OpenRouter JSON parsing failed: ${error instanceof Error ? error.message : String(error)}; response=${trimmed.slice(0, 500)}`);
+  }
+}
+
+function parseJsonResponse<T>(response: OpenRouterResponse): OpenRouterResult<T> {
+  const metadata = responseMetadata(response);
+  try {
+    return { value: parseJsonContent<T>(extractContent(response)), metadata };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new StructuredResponseError(message, metadata);
   }
 }
 

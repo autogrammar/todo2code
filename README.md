@@ -305,12 +305,8 @@ Pełny pipeline z OpenRouter:
 # T2C_NL_MODE=prefer-llm
 # T2C_MARKDOWN_MODE=prefer-llm
 # T2C_COMMUNICATION_MODE=prefer-llm
-# OPENROUTER_NL_MODEL=qwen/qwen3.7-plus
-# OPENROUTER_MARKDOWN_MODEL=qwen/qwen3.7-plus
-# OPENROUTER_COMMUNICATION_MODEL=qwen/qwen3.7-plus
-# OPENROUTER_DOC_MODEL=openrouter/auto-beta
-# OPENROUTER_SUMMARY_MODEL=openrouter/auto-beta
-# OPENROUTER_TASK_MODEL=qwen/qwen3.7-plus
+# OPENROUTER_MODEL=google/gemini-3.6-flash
+# Stage-specific OPENROUTER_*_MODEL variables may override this default.
 
 node dist/src/cli.js pipeline /ścieżka/do/repo \
   --task project/ticket-014/README.md \
@@ -703,12 +699,17 @@ ograniczeniom `T2C_ROOT` co pozostałe operacje runtime'u.
 
 ## OpenRouter
 
-Runtime używa `POST /api/v1/chat/completions`. Ekstraktory NL i dokumentacji
-oraz synteza zadań proszą o `response_format: json_schema`, wymuszają
+Runtime używa `POST /api/v1/chat/completions`. Wszystkie etapy semantyczne
+proszą o `response_format: json_schema`, wymuszają
 `provider.require_parameters`, a przy braku wsparcia endpointu próbują
 kontrolowanego fallbacku `json_object`. Opcjonalny plugin `response-healing`
 jest sterowany przez `.env`. Osobny `OPENROUTER_TASK_MODEL` wybiera model dla
 graf + diagnostyka → zadania i domyślnie dziedziczy `OPENROUTER_MODEL`.
+
+Domyślny `google/gemini-3.6-flash` przeszedł pełną kontrolę live 6/6. Każdy
+bezpośredni ekstraktor wykonuje najwyżej jedną próbę korekcyjną po odrzuceniu
+odpowiedzi i ponownie podaje dokładny JSON Schema; walidacja pozostaje taka
+sama, a obie odpowiedzi zachowują model, providera, tokeny i koszt w audycie.
 
 Wszystkie siedem produkcyjnych granic structured output używa jednego
 kanonicznego kontraktu na etap: z niego powstaje schema wysyłana do providera i

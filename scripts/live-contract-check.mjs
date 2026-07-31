@@ -52,10 +52,9 @@ async function main() {
   }
 
   const {
-    appendLiveHistory,
-    buildLiveAudit,
+    buildRecordedLiveAudit,
+    liveRequestTimeoutMs,
     renderLiveReport,
-    toLiveHistoryRecord,
   } = await import('../dist/src/live/contract-check.js');
 
   const budget = {
@@ -72,17 +71,18 @@ async function main() {
     maxCostUsd: envNumber(process.env.T2C_LIVE_MAX_COST_USD, 'T2C_LIVE_MAX_COST_USD', DEFAULTS.maxCostUsd),
   };
 
-  const manifest = await runLivePipeline();
+  const manifest = await runLivePipeline(budget, liveRequestTimeoutMs);
   const history = await readHistory();
-  const audit = buildLiveAudit({
+  const recorded = buildRecordedLiveAudit({
     manifest,
     budget,
     history,
     generatedAt: new Date().toISOString(),
   });
+  const { audit } = recorded;
 
   await writeJson(auditPath(), audit);
-  await writeJson(historyPath(), appendLiveHistory(history, toLiveHistoryRecord(audit)));
+  await writeJson(historyPath(), recorded.history);
   process.stdout.write(`${renderLiveReport(audit)}\n`);
   process.stdout.write(`audit: ${path.relative(REPO_ROOT, auditPath())}\n`);
   process.stdout.write(`history: ${path.relative(REPO_ROOT, historyPath())}\n`);
@@ -97,13 +97,23 @@ async function main() {
  * the failed run's manifest first. That manifest is the finding, so it is read
  * back and measured: a named stage with its reason beats an opaque exception.
  */
-async function runLivePipeline() {
+async function runLivePipeline(budget, liveRequestTimeoutMs) {
   const { runPipeline } = await import('../dist/src/pipeline/run.js');
   const { getConfig } = await import('../dist/src/config/env.js');
   const root = path.join(REPO_ROOT, 'examples');
   const outputDir = process.env.T2C_LIVE_RUN_OUTPUT ?? DEFAULTS.runOutput;
   const config = getConfig(root);
   config.root = root;
+  // The previous defaults allowed 300 s per stage but killed each provider
+  // request after 120 s, so the advertised stage budget could never be used.
+  config.openRouter.timeoutMs = liveRequestTimeoutMs(
+    config.openRouter.timeoutMs,
+    budget.maxStageLatencyMs,
+  );
+  config.documentTimeoutMs = liveRequestTimeoutMs(
+    config.documentTimeoutMs,
+    budget.maxStageLatencyMs,
+  );
 
   try {
     return await runLivePipelineOnce(runPipeline, root, outputDir, config);

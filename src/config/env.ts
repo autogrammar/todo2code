@@ -135,7 +135,7 @@ function envLlmMode(name: string, fallback: LlmExtractionMode): LlmExtractionMod
 }
 
 export function getConfig(cwd = process.cwd()): T2CConfig {
-  const model = envString('OPENROUTER_MODEL', 'openrouter/auto-beta');
+  const model = envString('OPENROUTER_MODEL', 'google/gemini-3.6-flash');
   const root = path.resolve(cwd, envString('T2C_ROOT', '.'));
   return {
     root,

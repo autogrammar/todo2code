@@ -12,10 +12,10 @@ import type {
   LlmResponseMetadata,
   PipelineStageAudit,
 } from '../core/types.js';
-import { classifyLlmFailure, type LlmFailureReason } from '../llm/failure.js';
+import { classifyLlmFailure, rejectedLlmResponseMetadata, type LlmFailureReason } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
-import { structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
+import { StructuredResponseError, structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import { extractMarkdownIntent, type MarkdownExtractionOptions } from './markdown.js';
 
@@ -81,25 +81,23 @@ export async function extractMarkdownIntentAudited(
     });
   }
 
+  const responses: LlmResponseMetadata[] = [];
   try {
     const prompt = await readPrompt('markdown-to-intent.system.md');
     const enrichments = new Map<string, MarkdownEnrichment>();
     const responseByRecord = new Map<string, LlmResponseMetadata>();
-    const responses: LlmResponseMetadata[] = [];
     for (let offset = 0; offset < deterministic.records.length; offset += MARKDOWN_LLM_BATCH_RECORDS) {
       const batch = deterministic.records.slice(offset, offset + MARKDOWN_LLM_BATCH_RECORDS);
       const contract = markdownResponseContract(batch.length);
-      const completion = await client.chatStructuredWithMetadata([
+      const corrected = await enrichMarkdownBatchWithCorrection(client, [
         { role: 'system', content: prompt },
         { role: 'user', content: JSON.stringify({ records: batch.map(promptRecord) }) },
-      ], 't2c_markdown_intent_enrichment', contract, config.openRouter.markdownModel);
-      const response = completion.value;
-      const batchEnrichments = validateEnrichments(response.enrichments, batch);
+      ], contract, config.openRouter.markdownModel, batch);
       for (const record of batch) {
-        enrichments.set(record.id, batchEnrichments.get(record.id)!);
-        responseByRecord.set(record.id, completion.metadata);
+        enrichments.set(record.id, corrected.enrichments.get(record.id)!);
+        responseByRecord.set(record.id, corrected.metadata);
       }
-      responses.push(completion.metadata);
+      responses.push(...corrected.responses);
     }
     const result: ExtractionResult = {
       records: deterministic.records.map((record) => enrichRecord(
@@ -115,8 +113,74 @@ export async function extractMarkdownIntentAudited(
       audit: stageAudit('succeeded', 'llm', 'llm', false, result, config.openRouter.markdownModel, null, Date.now() - startedAt, responses, config),
     };
   } catch (error) {
-    return fallbackOrThrow(deterministic, config, mode, startedAt, classifyLlmFailure(error));
+    const failure = error instanceof MarkdownAttemptError ? error.failure : error;
+    const failedResponses = error instanceof MarkdownAttemptError
+      ? [...responses, ...error.responses]
+      : [...responses, ...rejectedLlmResponseMetadata(error)];
+    return fallbackOrThrow(
+      deterministic, config, mode, startedAt, classifyLlmFailure(failure), failedResponses,
+    );
   }
+}
+
+class MarkdownAttemptError extends Error {
+  constructor(readonly failure: unknown, readonly responses: LlmResponseMetadata[]) {
+    super(failure instanceof Error ? failure.message : String(failure));
+    this.name = 'MarkdownAttemptError';
+  }
+}
+
+async function enrichMarkdownBatchWithCorrection(
+  client: OpenRouterClient,
+  baseMessages: Array<{ role: 'system' | 'user'; content: string }>,
+  contract: StructuredSchema<MarkdownResponse>,
+  model: string,
+  batch: IntentRecord[],
+): Promise<{
+  enrichments: Map<string, MarkdownEnrichment>;
+  metadata: LlmResponseMetadata;
+  responses: LlmResponseMetadata[];
+}> {
+  const responses: LlmResponseMetadata[] = [];
+  let correction: string | null = null;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const completion = await client.chatStructuredWithMetadata([
+        ...baseMessages,
+        ...(correction ? [{
+          role: 'user' as const,
+          content: `The previous response was rejected: ${correction}\n`
+            + 'Correct exactly that violation and re-emit the full object. Do not add, rename, or omit properties.\n'
+            + `The exact required JSON Schema is: ${JSON.stringify(contract.jsonSchema)}`,
+        }] : []),
+      ], 't2c_markdown_intent_enrichment', contract, model);
+      responses.push(completion.metadata);
+      try {
+        return {
+          enrichments: validateEnrichments(completion.value.enrichments, batch),
+          metadata: completion.metadata,
+          responses,
+        };
+      } catch (error) {
+        if (attempt === 0) {
+          correction = error instanceof Error ? error.message : String(error);
+          continue;
+        }
+        throw new MarkdownAttemptError(error, [...responses]);
+      }
+    } catch (error) {
+      if (error instanceof MarkdownAttemptError) throw error;
+      if (error instanceof StructuredResponseError) {
+        if (error.responseMetadata) responses.push(error.responseMetadata);
+        if (attempt === 0) {
+          correction = error.message;
+          continue;
+        }
+      }
+      throw new MarkdownAttemptError(error, [...responses]);
+    }
+  }
+  throw new MarkdownAttemptError(new Error('Markdown correction retry budget exhausted'), responses);
 }
 
 async function fallbackOrThrow(
@@ -125,8 +189,9 @@ async function fallbackOrThrow(
   mode: LlmExtractionMode,
   startedAt: number,
   reason: LlmFailureReason,
+  responses: LlmResponseMetadata[] = [],
 ): Promise<AuditedMarkdownExtractionResult> {
-  const failed = stageAudit('failed', 'llm', 'none', true, { records: [], warnings: [] }, config.openRouter.markdownModel, reason, Date.now() - startedAt, [], config);
+  const failed = stageAudit('failed', 'llm', 'none', true, { records: [], warnings: [] }, config.openRouter.markdownModel, reason, Date.now() - startedAt, responses, config);
   if (mode === 'require-llm') {
     throw new MarkdownLlmRequiredError(`TODO/CHANGELOG -> DSL requires LLM: ${reason.message}`, failed);
   }
@@ -137,7 +202,7 @@ async function fallbackOrThrow(
   };
   return {
     ...result,
-    audit: stageAudit('fallback', 'llm', 'deterministic', true, result, config.openRouter.markdownModel, reason, Date.now() - startedAt, [], config),
+    audit: stageAudit('fallback', 'llm', 'deterministic', true, result, config.openRouter.markdownModel, reason, Date.now() - startedAt, responses, config),
   };
 }
 

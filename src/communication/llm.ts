@@ -13,10 +13,10 @@ import type {
   LlmResponseMetadata,
   PipelineStageAudit,
 } from '../core/types.js';
-import { classifyLlmFailure, type LlmFailureReason } from '../llm/failure.js';
+import { classifyLlmFailure, rejectedLlmResponseMetadata, type LlmFailureReason } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
-import { OpenRouterClient } from '../llm/openrouter.js';
-import { structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
+import { OpenRouterClient, type OpenRouterResult } from '../llm/openrouter.js';
+import { StructuredResponseError, structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import {
   extractCommunicationIntent,
@@ -120,10 +120,10 @@ export async function extractCommunicationIntentAudited(
   }
   try {
     const groups = participantGroups(deterministic.records);
-    const completion = await client.chatStructuredWithMetadata([
+    const { completion, responses } = await enrichWithCorrection(client, [
       { role: 'system', content: await readPrompt() },
       { role: 'user', content: JSON.stringify(promptPayload(deterministic.records, groups)) },
-    ], 't2c_communication_enrichment', COMMUNICATION_RESPONSE_CONTRACT, config.openRouter.communicationModel);
+    ], config.openRouter.communicationModel);
     const response = completion.value;
     const enrichments = validateEnrichments(response.enrichments, deterministic.records);
     const enrichedByOriginal = new Map<string, IntentRecord>();
@@ -144,13 +144,63 @@ export async function extractCommunicationIntentAudited(
       warnings: deterministic.warnings,
       audit: audit(deterministic.warnings.length ? 'partial' : 'succeeded', 'llm', 'llm', false, deterministic.records.length,
         deterministic.warnings.length, config.openRouter.communicationModel, null,
-        Date.now() - startedAt, [completion.metadata], config, options),
+        Date.now() - startedAt, responses, config, options),
     };
   } catch (error) {
+    const failure = error instanceof CommunicationAttemptError ? error.failure : error;
+    const responses = error instanceof CommunicationAttemptError
+      ? error.responses
+      : rejectedLlmResponseMetadata(error);
     return fallbackOrThrow(
-      deterministic.records, deterministic.warnings, config, options, mode, startedAt, classifyLlmFailure(error),
+      deterministic.records, deterministic.warnings, config, options, mode, startedAt,
+      classifyLlmFailure(failure), responses,
     );
   }
+}
+
+class CommunicationAttemptError extends Error {
+  constructor(readonly failure: unknown, readonly responses: LlmResponseMetadata[]) {
+    super(failure instanceof Error ? failure.message : String(failure));
+    this.name = 'CommunicationAttemptError';
+  }
+}
+
+async function enrichWithCorrection(
+  client: OpenRouterClient,
+  baseMessages: Array<{ role: 'system' | 'user'; content: string }>,
+  model: string,
+): Promise<{ completion: OpenRouterResult<RawCommunicationResponse>; responses: LlmResponseMetadata[] }> {
+  const responses: LlmResponseMetadata[] = [];
+  let correction: string | null = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const completion = await client.chatStructuredWithMetadata([
+        ...baseMessages,
+        ...(correction
+          ? [{
+              role: 'user' as const,
+              content: `The previous response was rejected: ${correction}\n`
+                + 'Correct exactly that violation and re-emit the full object. Do not add, rename, or omit properties.\n'
+                + `The exact required JSON Schema is: ${JSON.stringify(COMMUNICATION_RESPONSE_CONTRACT.jsonSchema)}`,
+            }]
+          : []),
+      ], 't2c_communication_enrichment', COMMUNICATION_RESPONSE_CONTRACT, model);
+      responses.push(completion.metadata);
+      return { completion, responses };
+    } catch (error) {
+      if (error instanceof StructuredResponseError) {
+        if (error.responseMetadata) responses.push(error.responseMetadata);
+        if (attempt === 0) {
+          correction = error.message;
+          continue;
+        }
+      }
+      throw new CommunicationAttemptError(error, [...responses]);
+    }
+  }
+
+  throw new CommunicationAttemptError(new Error('Communication correction retry budget exhausted'), responses);
 }
 
 async function fallbackOrThrow(
@@ -161,9 +211,10 @@ async function fallbackOrThrow(
   mode: LlmExtractionMode,
   startedAt: number,
   reason: LlmFailureReason,
+  responses: LlmResponseMetadata[] = [],
 ): Promise<AuditedCommunicationExtractionResult> {
   const failed = audit('failed', 'llm', 'none', true, 0, warnings.length + 1,
-    config.openRouter.communicationModel, reason, Date.now() - startedAt, [], config, options);
+    config.openRouter.communicationModel, reason, Date.now() - startedAt, responses, config, options);
   if (mode === 'require-llm') {
     throw new CommunicationLlmRequiredError(`Communication enrichment requires LLM: ${reason.message}`, failed);
   }
@@ -175,7 +226,7 @@ async function fallbackOrThrow(
     participants: deterministicSyntheses(marked, fallbackGeneration(reason.code)),
     warnings: [...warnings, warning],
     audit: audit('fallback', 'llm', 'deterministic', true, marked.length, warnings.length + 1,
-      config.openRouter.communicationModel, reason, Date.now() - startedAt, [], config, options),
+      config.openRouter.communicationModel, reason, Date.now() - startedAt, responses, config, options),
   };
 }
 

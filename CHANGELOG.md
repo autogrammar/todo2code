@@ -52,6 +52,14 @@
 
 ### Fixed
 
+- Make the opt-in six-stage live contract check usable with an explicit
+  structured-output default (`google/gemini-3.6-flash`, measured 6/6 in
+  125.486 s for $0.412363). Direct NL, Markdown, documentation and
+  communication extraction now get one schema-preserving corrective attempt;
+  both rejected and accepted responses retain provider/model/token/cost
+  metadata. The live request timeout can no longer be shorter than its stage
+  budget, and rendered history includes the run just recorded.
+
 - Match Polish documentation against English identifiers through a reviewable
   PL→EN domain dictionary, including Polish endings on English loanwords
   (`ticketu`, `foundera`). Polish function words no longer pose as topics

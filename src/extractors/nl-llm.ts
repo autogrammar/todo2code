@@ -14,10 +14,10 @@ import type {
   NlExtractionMode,
   PipelineStageAudit,
 } from '../core/types.js';
-import { classifyLlmFailure } from '../llm/failure.js';
+import { classifyLlmFailure, rejectedLlmResponseMetadata } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
-import { OpenRouterClient } from '../llm/openrouter.js';
-import { structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
+import { OpenRouterClient, type OpenRouterResult } from '../llm/openrouter.js';
+import { StructuredResponseError, structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import { assertNlExtractionOptions, extractNlIntent, type NlExtractionOptions } from './nl.js';
 
@@ -82,10 +82,10 @@ export async function extractNlIntentAudited(
       : options.sourcePath.replace(/\\/g, '/');
     const maxLine = Math.max(1, body.split(/\r?\n/).length);
     const prompt = await readPrompt('nl-to-intent.system.md');
-    const completion = await client.chatStructuredWithMetadata([
+    const { completion, responses } = await extractNlWithCorrection(client, [
       { role: 'system', content: prompt },
       { role: 'user', content: JSON.stringify({ sourcePath, startLine: 1, endLine: maxLine, content: body }) },
-    ], 't2c_natural_language_intent', NL_RESPONSE_CONTRACT, config.openRouter.nlModel);
+    ], config.openRouter.nlModel);
     const response = completion.value;
     const records = response.records.map((raw) => toIntentRecord(raw, sourcePath, body, maxLine, config, completion.metadata));
     const result: ExtractionResult = {
@@ -94,11 +94,56 @@ export async function extractNlIntentAudited(
     };
     return {
       ...result,
-      audit: audit('succeeded', 'llm', 'llm', false, result, config.openRouter.nlModel, null, Date.now() - startedAt, [completion.metadata], config),
+      audit: audit('succeeded', 'llm', 'llm', false, result, config.openRouter.nlModel, null, Date.now() - startedAt, responses, config),
     };
   } catch (error) {
-    return fallbackOrThrow(options, config, mode, startedAt, classifyLlmFailure(error));
+    const failure = error instanceof NlAttemptError ? error.failure : error;
+    const responses = error instanceof NlAttemptError ? error.responses : rejectedLlmResponseMetadata(error);
+    return fallbackOrThrow(
+      options, config, mode, startedAt, classifyLlmFailure(failure), responses,
+    );
   }
+}
+
+class NlAttemptError extends Error {
+  constructor(readonly failure: unknown, readonly responses: LlmResponseMetadata[]) {
+    super(failure instanceof Error ? failure.message : String(failure));
+    this.name = 'NlAttemptError';
+  }
+}
+
+async function extractNlWithCorrection(
+  client: OpenRouterClient,
+  baseMessages: Array<{ role: 'system' | 'user'; content: string }>,
+  model: string,
+): Promise<{ completion: OpenRouterResult<NlResponse>; responses: LlmResponseMetadata[] }> {
+  const responses: LlmResponseMetadata[] = [];
+  let correction: string | null = null;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const completion = await client.chatStructuredWithMetadata([
+        ...baseMessages,
+        ...(correction ? [{
+          role: 'user' as const,
+          content: `The previous response was rejected: ${correction}\n`
+            + 'Correct exactly that violation and re-emit the full object. Do not add, rename, or omit properties.\n'
+            + `The exact required JSON Schema is: ${JSON.stringify(NL_RESPONSE_CONTRACT.jsonSchema)}`,
+        }] : []),
+      ], 't2c_natural_language_intent', NL_RESPONSE_CONTRACT, model);
+      responses.push(completion.metadata);
+      return { completion, responses };
+    } catch (error) {
+      if (error instanceof StructuredResponseError) {
+        if (error.responseMetadata) responses.push(error.responseMetadata);
+        if (attempt === 0) {
+          correction = error.message;
+          continue;
+        }
+      }
+      throw new NlAttemptError(error, [...responses]);
+    }
+  }
+  throw new NlAttemptError(new Error('NL correction retry budget exhausted'), responses);
 }
 
 async function fallbackOrThrow(
@@ -107,8 +152,9 @@ async function fallbackOrThrow(
   mode: NlExtractionMode,
   startedAt: number,
   reason: { code: string; message: string },
+  responses: LlmResponseMetadata[] = [],
 ): Promise<AuditedNlExtractionResult> {
-  const failedAudit = audit('failed', 'llm', 'none', true, { records: [], warnings: [] }, config.openRouter.nlModel, reason, Date.now() - startedAt, [], config);
+  const failedAudit = audit('failed', 'llm', 'none', true, { records: [], warnings: [] }, config.openRouter.nlModel, reason, Date.now() - startedAt, responses, config);
   if (mode === 'require-llm') throw new NlLlmRequiredError(`NL -> DSL requires LLM: ${reason.message}`, failedAudit);
 
   const deterministic = await extractNlIntent(options, config);
@@ -116,7 +162,7 @@ async function fallbackOrThrow(
   const result = { records: markDeterministic(deterministic.records, true, reason.code), warnings: [...deterministic.warnings, warning] };
   return {
     ...result,
-    audit: audit('fallback', 'llm', 'deterministic', true, result, config.openRouter.nlModel, reason, Date.now() - startedAt, [], config),
+    audit: audit('fallback', 'llm', 'deterministic', true, result, config.openRouter.nlModel, reason, Date.now() - startedAt, responses, config),
   };
 }
 

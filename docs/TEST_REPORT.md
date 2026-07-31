@@ -14,9 +14,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 277 testów: 276 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 286 testów: 285 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 34 moduły |
-| Moduły | `npm run verify:modules` | PASS — 101 modułów, 467 importów, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 101 modułów, 470 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 67 zmiennych i 67 kluczy |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
@@ -30,8 +30,8 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Docker | `make docker-smoke` | PASS — build, `/healthz`, `doctor` |
 | Wheel Pythona | `make python-wheel` | PASS |
 | Zależności produkcyjne | `npm audit --omit=dev` | 0 podatności |
-| Live OpenRouter summary | `npm run live:check` | PASS — generator v2, jedna odpowiedź, 22,6 s, 43 426 tokenów, $0.006251, bez fallbacku |
-| Zaplanowany kontrakt live | `npm run live:check` | SKIP bez klucza (kontrolowany); sześć etapów `require-llm`, progi etap/przebieg, zredagowany audyt i historia wyniku. Kontrakt pokryty dziewięcioma testami offline na sfabrykowanych manifestach |
+| Live OpenRouter 6/6 | `npm run live:check` | PASS — Gemini 3.6 Flash, 125,486 s, 177 953 tokeny, $0.412363, bez fallbacku/degradacji |
+| Zaplanowany kontrakt live | `npm run live:check` | SKIP bez klucza (kontrolowany); sześć etapów `require-llm`, progi etap/przebieg, zredagowany audyt i historia obejmująca bieżący wynik |
 | Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
 | Trzy zewnętrzne repozytoria (batch 1) | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty |
 | Trzy zewnętrzne repozytoria (batch 2) | pipeline na `code2logic`, `code2docs`, `redup` | PASS — trzy `succeeded`, code-change stage deterministic, review + source patches |
@@ -446,18 +446,16 @@ w dokumentacyjnym `wellmanifest/new-project`.
 
 Gold benchmark nadal buduje wnioski deterministycznie z fikstur i nie zależy od
 sieci. Osobny job harmonogramu/`workflow_dispatch` uruchamia
-`npm run live:check`: sprawdza NL → Intent DSL i graf → uziemione wnioski w
-`require-llm`, więc fallback nie może ukryć złamanego kontraktu. Artefakt
-`t2c.live-contract-check/v1` zawiera tylko provider/model, tokeny, koszt,
+`npm run live:check`: sprawdza wszystkie sześć etapów w `require-llm`, więc
+fallback nie może ukryć złamanego kontraktu. Artefakt
+`t2c.live-contract-check/v2` zawiera tylko provider/model, tokeny, koszt,
 latencję i zredagowany błąd; limity kosztu i czasu są konfigurowalne. Brak
 sekretu jawnie pomija job live i nigdy nie blokuje wymaganej walidacji offline.
-Historycznie ręczne próby summary osiągnęły **3/4**, a jedyną porażką było
-`HTTP 429`, nie naruszenie struktury.
-
-Porcjowanie TODO/CHANGELOG po 32 rekordy jest wdrożone i pokryte testem, ale
-brakuje opublikowanego, zredagowanego porównania kosztu i latencji
-`qwen/qwen3.7-plus` z szybszym modelem. Wymaga ono działającego providera i nie
-może stać się zależnością wymaganej walidacji offline.
+Porównanie ticket-012 odrzuciło Qwen 3.7 Plus i GPT-5.4 Mini po powtórnych
+naruszeniach schematu. `google/gemini-3.6-flash` przeszedł **6/6** w 125,486 s,
+177 953 tokenach i za $0.412363, bez fallbacku i degradacji. Bezpośrednie
+ekstraktory mają jedną korektę z pełnym schematem; obie próby są audytowane.
+Live pozostaje opt-in i nie jest zależnością walidacji offline.
 
 ### 3. Nie wszystkie języki repozytorium mają adapter AST
 

@@ -84,6 +84,50 @@ test('communication enrichment preserves runtime identity, source, ticket and ep
   }
 });
 
+test('communication enrichment corrects one rejected structured response without weakening validation', async () => {
+  const { root, config } = await fixture();
+  config.openRouter.apiKey = 'test-secret';
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  let correction = '';
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    const request = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> };
+    const payload = JSON.parse(request.messages[1]?.content ?? '{}') as {
+      records: Array<{ recordId: string }>;
+      participants: Array<{ participantKey: string; recordIds: string[] }>;
+    };
+    correction = request.messages[2]?.content ?? correction;
+    const content = calls === 1
+      ? { enrichments: [], participantSyntheses: [{ participantKey: 'participant-1', summary: 'Invalid', commitments: [], risks: [], recordIds: [], confidence: 0.5, topics: [] }] }
+      : {
+          enrichments: payload.records.map((record) => ({
+            recordId: record.recordId, action: 'validate', object: 'checkout', polarity: 'positive',
+            confidence: 0.8, basis: ['explicit'], target: { paths: [], symbols: [], versions: [] }, topics: ['checkout'],
+          })),
+          participantSyntheses: payload.participants.map((participant) => ({
+            participantKey: participant.participantKey, summary: 'Checkout validation.', commitments: [], risks: [],
+            recordIds: participant.recordIds, confidence: 0.8,
+          })),
+        };
+    return new Response(JSON.stringify({
+      id: `comm-response-${calls}`, model: 'qwen/resolved-communication', provider: 'TestProvider',
+      usage: { prompt_tokens: 20, completion_tokens: 10, total_tokens: 30 },
+      choices: [{ message: { content: JSON.stringify(content) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const result = await extractCommunicationIntentAudited({ root }, config, 'require-llm');
+    assert.equal(calls, 2);
+    assert.equal(result.audit.status, 'succeeded');
+    assert.deepEqual(result.audit.responses.map((response) => response.responseId), ['comm-response-1', 'comm-response-2']);
+    assert.match(correction, /unknown properties: topics/);
+    assert.match(correction, /Do not add, rename, or omit properties/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('communication prefer-llm fallback is explicit and require-llm rejects', async () => {
   const { root, config } = await fixture();
   const fallback = await extractCommunicationIntentAudited({ root }, config, 'prefer-llm');

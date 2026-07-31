@@ -7,7 +7,9 @@ import { sha256 } from '../core/id.js';
 import { pathExists, readText, relativePosix, resolveGlobs } from '../core/io.js';
 import type { IntentRecord, LlmResponseMetadata, PipelineStageAudit } from '../core/types.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
+import { rejectedLlmResponseMetadata } from '../llm/failure.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
+import { StructuredResponseError } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import { chunkMarkdown, mapConcurrent, prioritizeDocumentChunks } from './docs-chunks.js';
 import { toDocumentIntentRecord } from './docs-record.js';
@@ -163,33 +165,71 @@ async function extractChunk(
   targetHints: DocumentationTargetHints | undefined,
   config: T2CConfig,
 ): Promise<DocumentChunkResult> {
-  try {
-    const contract = documentResponseContract(config.documentRecordsPerChunk);
-    const completion = await client.chatStructuredWithMetadata([
-      { role: 'system', content: systemPrompt },
-      {
-        role: 'user',
-        content: JSON.stringify({
-          sourcePath: chunk.path,
-          startLine: chunk.startLine,
-          endLine: chunk.endLine,
-          content: chunk.content,
-          targetHints: targetHints ?? EMPTY_HINTS,
-          maxRecords: config.documentRecordsPerChunk,
-        }),
-      },
-    ], 't2c_document_intent', contract, config.openRouter.documentModel);
-    const response = completion.value;
-    const records = response.records
-      .map((raw) => toDocumentIntentRecord(raw, chunk, config.openRouter.documentModel, completion.metadata));
-    return { records, warnings: [], responses: [completion.metadata] };
-  } catch (error) {
-    return {
-      records: [],
-      warnings: [`${chunk.path}:${chunk.startLine}-${chunk.endLine}: ${errorMessage(error)}`],
-      responses: [],
-    };
+  const contract = documentResponseContract(config.documentRecordsPerChunk);
+  const responses: LlmResponseMetadata[] = [];
+  const baseMessages = [
+    { role: 'system' as const, content: systemPrompt },
+    {
+      role: 'user' as const,
+      content: JSON.stringify({
+        sourcePath: chunk.path,
+        startLine: chunk.startLine,
+        endLine: chunk.endLine,
+        content: chunk.content,
+        targetHints: targetHints ?? EMPTY_HINTS,
+        maxRecords: config.documentRecordsPerChunk,
+      }),
+    },
+  ];
+  let correction: string | null = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let completion;
+    try {
+      completion = await client.chatStructuredWithMetadata([
+        ...baseMessages,
+        ...(correction
+          ? [{
+              role: 'user' as const,
+              content: `The previous response was rejected: ${correction}\n`
+                + 'Correct exactly that violation and re-emit the full object. Do not add, rename, or omit properties.\n'
+                + `The exact required JSON Schema is: ${JSON.stringify(contract.jsonSchema)}`,
+            }]
+          : []),
+      ], 't2c_document_intent', contract, config.openRouter.documentModel);
+    } catch (error) {
+      if (error instanceof StructuredResponseError && error.responseMetadata) {
+        responses.push(error.responseMetadata);
+      }
+      if (error instanceof StructuredResponseError && attempt === 0) {
+        correction = errorMessage(error);
+        continue;
+      }
+      return {
+        records: [],
+        warnings: [`${chunk.path}:${chunk.startLine}-${chunk.endLine}: ${errorMessage(error)}`],
+        responses: responses.length > 0 ? responses : rejectedLlmResponseMetadata(error),
+      };
+    }
+    responses.push(completion.metadata);
+    try {
+      const records = completion.value.records
+        .map((raw) => toDocumentIntentRecord(raw, chunk, config.openRouter.documentModel, completion.metadata));
+      return { records, warnings: [], responses };
+    } catch (error) {
+      if (attempt === 0) {
+        correction = errorMessage(error);
+        continue;
+      }
+      return {
+        records: [],
+        warnings: [`${chunk.path}:${chunk.startLine}-${chunk.endLine}: ${errorMessage(error)}`],
+        responses,
+      };
+    }
   }
+
+  return { records: [], warnings: [`${chunk.path}: correction retry budget exhausted`], responses };
 }
 
 function buildAudit(

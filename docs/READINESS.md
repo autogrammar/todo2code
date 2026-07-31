@@ -67,7 +67,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 277 testów, 276 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 286 testów, 285 zaliczonych, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 34 moduły bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
@@ -330,13 +330,26 @@ zysk był mały (**10,1→7,2 ms**, 26/26 hitów), co potwierdza, że granicę
 skalowania całego pipeline'u nadal trzeba mierzyć na większych grafach; cache
 nie przyspiesza linkowania ani syntezy LLM.
 
+### 7. Pełny kontrakt live LLM działa na jawnym modelu
+
+Domyślny `openrouter/auto-beta` ukrywał wybór modelu, a odrzucona odpowiedź
+traciła metadane. Pomiary na identycznym pipeline `require-llm` wykazały, że
+Qwen 3.7 Plus łamał kontrakty dokumentacji i komunikacji również po korekcie,
+a GPT-5.4 Mini dwukrotnie łamał już kontrakt NL. Nie obniżono rygoru parsera.
+
+Jawny `google/gemini-3.6-flash` przeszedł **6/6** etapów bez fallbacku i
+degradacji: 125,486 s, 177 953 tokeny, $0.412363. Każdy bezpośredni ekstraktor
+ma teraz jedną próbę korekcyjną z dokładnym schematem; druga zła odpowiedź
+nadal przerywa run. Audyt zachowuje obie odpowiedzi, a request timeout nie może
+być krótszy niż mierzony budżet etapu. Historia obejmuje bieżący zapis.
+
 ## Ryzyka operacyjne
 
 | Ryzyko | Stan |
 |---|---|
 | Adapter Java weryfikowany wyłącznie w CI | job Temurin 17 z `T2C_REQUIRE_JAVA_TEST=1`; w bieżącym środowisku pominięty z powodu braku JDK |
-| Zależność od dostępności providera | testy offline nigdy nie wołają sieci; live check jest osobnym, opt-in jobem, a jego kontrakt pokrywa dziewięć testów offline na sfabrykowanych manifestach |
-| Koszt LLM | ostatni pełny `make demollm`: ~$0,036 i 99 347 tokenów na małym repo; brak ekstrapolacji dla dużych |
+| Zależność od dostępności providera | testy offline nigdy nie wołają sieci; live check jest osobnym, opt-in jobem; jawny Gemini 3.6 Flash przeszedł 6/6, ale wynik nie gwarantuje przyszłej dostępności |
+| Koszt LLM | ostatni pełny live check: $0.412363 i 177 953 tokeny na małym repo; próg $0,50 jest blisko i brak ekstrapolacji dla dużych |
 | Audyt zależności | `npm audit --omit=dev`: 0 podatności |
 
 ## Kryteria wydania
@@ -348,9 +361,9 @@ Wersję `0.6.0` uznaję za gotową, gdy:
    zamiast 1, 14 par zabronionych, osobny zakres diagnostyk oraz kohort
    cross-language z 6 pozytywami i 6 negatywami. Próba jest nadal mała i
    pozostaje pozycją w TODO;
-2. **zrobione w części technicznej** — live check obejmuje sześć etapów LLM,
-   ma rozdzielone progi etap/przebieg i zapisuje historię wyniku; brakuje
-   przebiegów, żeby trend coś znaczył;
+2. **zrobione operacyjnie** — live check obejmuje sześć etapów LLM, ma
+   rozdzielone progi etap/przebieg, zapisuje historię i przeszedł 6/6 na jawnym
+   modelu; trend nadal wymaga kolejnych planowych przebiegów;
 3. `implementation coverage` na repozytorium innym niż własne przekracza próg
    ustalony po pomiarze z punktu 1 — dziś 10,0% jest zbyt niskie, by narzędzie
    było użyteczne bez ręcznej interpretacji.
@@ -377,7 +390,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 277 testów, 101 modułów, 7/0 structured/raw LLM calls
+npm run verify          # 286 testów, 101 modułów, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

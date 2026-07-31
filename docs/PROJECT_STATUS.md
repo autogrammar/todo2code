@@ -72,8 +72,8 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 277 testów: 276 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 101 modułów i 467 importów wewnętrznych, brak cykli, niezależny `src/core`;
+- 286 testów: 285 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 101 modułów i 470 importów wewnętrznych, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 34 moduły bez tranzytywnego importu LLM;
 - 67 zmiennych używanych przez kod/Docker i 67 odpowiadających kluczy
   `.env.example`, bez duplikatów;
@@ -125,9 +125,10 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
    tematy możliwości. Gold v2 pilnuje tego progu siedmioma pozytywami i pięcioma
    twardymi negatywami, ale próba wystarcza do wykrycia regresji, a nie do
    strojenia progu; dopasowanie ponad barierą językową nadal nie działa.
-3. Wzbogacanie TODO/CHANGELOG jest już porcjowane, ale pomiar live kosztu i
-   latencji dla modelu domyślnego i szybszego wariantu nie został jeszcze
-   wykonany w sposób nadający się do publikacji.
+3. Wzbogacanie TODO/CHANGELOG jest porcjowane, a pełny pomiar live trzech
+   jawnych modeli opublikowano w ticket-012. Gemini 3.6 Flash przeszedł 6/6,
+   lecz koszt $0.412363 na małym repo jest blisko bramki $0,50; nadal potrzeba
+   trendu z planowych przebiegów i pomiaru większych repozytoriów.
 4. Adaptery językowe są rozdzielone na osobne moduły za małym orkiestratorem
    `src/extractors/ast.ts`; nadal nie mają osobnych paczek ani niezależnego
    versioningu release'ów.

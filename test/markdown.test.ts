@@ -125,6 +125,44 @@ test('TODO and CHANGELOG receive audited LLM enrichment without changing structu
   }
 });
 
+test('Markdown enrichment corrects one rejected response and audits both attempts', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-correction-'));
+  await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n\n- [ ] Validate checkout.\n');
+  const config = makeConfig(root);
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  let correction = '';
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    const request = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> };
+    const payload = JSON.parse(request.messages[1]?.content ?? '{}') as { records: Array<{ recordId: string }> };
+    correction = request.messages[2]?.content ?? correction;
+    const enrichments = calls === 1
+      ? [{ recordId: 'wrong', action: 'validate' }]
+      : payload.records.map((record) => ({
+          recordId: record.recordId, actor: null, action: 'validate', object: 'checkout', polarity: 'positive',
+          confidence: 0.8, basis: ['explicit'], target: { paths: [], symbols: [], tickets: [], versions: [] },
+          acceptanceEvidence: [],
+        }));
+    return new Response(JSON.stringify({
+      id: `md-correction-${calls}`, model: 'test/model', provider: 'TestProvider',
+      choices: [{ message: { content: JSON.stringify({ enrichments }) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const result = await extractMarkdownIntentAudited(
+      { root, todoPath: 'TODO.md', changelogPath: null }, config, 'require-llm',
+    );
+    assert.equal(calls, 2);
+    assert.equal(result.audit.status, 'succeeded');
+    assert.deepEqual(result.audit.responses.map((response) => response.responseId), ['md-correction-1', 'md-correction-2']);
+    assert.match(correction, /missing required properties/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('large Markdown enrichment is split into bounded, ordered provider batches', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-batches-'));
   const count = MARKDOWN_LLM_BATCH_RECORDS + 1;
@@ -195,12 +233,16 @@ test('TODO and CHANGELOG reject structurally invalid LLM enrichments', async () 
   config.openRouter.apiKey = 'secret-test-key';
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(JSON.stringify({
+    id: 'gen-markdown-rejected', model: 'deepseek/deepseek-v4-flash', provider: 'TestProvider',
+    usage: { prompt_tokens: 10, completion_tokens: 2, total_tokens: 12, cost: 0.00001 },
     choices: [{ message: { content: JSON.stringify({ enrichments: [{ recordId: 'wrong', action: 'execute-shell' }] }) } }],
   }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   try {
     const result = await extractMarkdownIntentAudited({ root, todoPath: 'TODO.md', changelogPath: null }, config, 'prefer-llm');
     assert.equal(result.audit.status, 'fallback');
     assert.equal(result.audit.reason?.code, 'LLM_RESPONSE_INVALID');
+    assert.equal(result.audit.responses[0]?.responseId, 'gen-markdown-rejected');
+    assert.equal(result.audit.responses[0]?.model, 'deepseek/deepseek-v4-flash');
     assert.equal(result.records[0]?.metadata.llmUsed, false);
   } finally {
     globalThis.fetch = originalFetch;

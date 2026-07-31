@@ -8,6 +8,7 @@ import { DocumentationLlmRequiredError, extractDocumentationIntent } from '../sr
 import { diagnoseGraph } from '../src/graph/diagnostics.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
 import { OpenRouterClient, OpenRouterModelError } from '../src/llm/openrouter.js';
+import { StructuredResponseError, structuredSchema as s } from '../src/llm/structured-schema.js';
 import { summarizeGraph } from '../src/summary/summarizer.js';
 import { T2C_VERSION } from '../src/version.js';
 import { makeConfig } from './helpers.js';
@@ -43,6 +44,38 @@ test('OpenRouter client parses structured JSON without exposing key', async () =
     assert.equal((requestBody.response_format as { type?: string }).type, 'json_schema');
     assert.equal((requestBody.provider as { require_parameters?: boolean }).require_parameters, true);
     assert.ok(!JSON.stringify(requestBody).includes('secret-test-key'));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('OpenRouter client preserves metadata when runtime rejects structured output', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    id: 'gen-rejected-1', model: 'deepseek/deepseek-v4-flash', provider: 'TestProvider',
+    usage: { prompt_tokens: 30, completion_tokens: 5, total_tokens: 35, cost: 0.00001 },
+    choices: [{ message: { content: '{"records":[{}]}' } }],
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  try {
+    const contract = s.object({ records: s.array(s.object({ text: s.string() })) });
+    await assert.rejects(
+      () => new OpenRouterClient(config.openRouter).chatStructuredWithMetadata(
+        [{ role: 'user', content: 'test' }], 'test', contract,
+      ),
+      (error: unknown) => {
+        assert.ok(error instanceof StructuredResponseError);
+        assert.match(error.message, /response\.records\[0\] is missing required properties: text/);
+        assert.deepEqual(error.responseMetadata, {
+          responseId: 'gen-rejected-1',
+          model: 'deepseek/deepseek-v4-flash',
+          provider: 'TestProvider',
+          usage: { promptTokens: 30, completionTokens: 5, totalTokens: 35, cost: 0.00001 },
+        });
+        return true;
+      },
+    );
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -213,6 +246,60 @@ test('Documentation extractor reports and enforces its chunk budget', async () =
     const result = await extractDocumentationIntent({ root, patterns: ['docs/**/*.md'], excludes: [] }, config);
     assert.equal(calls, 1);
     assert.match(result.warnings.join('\n'), /DOC_CHUNK_BUDGET: analyzed 1 of 2/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('Documentation extractor corrects one rejected chunk and audits both responses', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-doc-correction-'));
+  await fs.mkdir(path.join(root, 'docs'));
+  await fs.writeFile(path.join(root, 'docs', 'contract.md'), '# Contract\n\nValidation is required.\n', 'utf8');
+  const config = makeConfig(root);
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  let correction = '';
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    const request = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> };
+    correction = request.messages[2]?.content ?? correction;
+    return new Response(JSON.stringify({
+      id: `doc-correction-${calls}`, model: 'qwen/doc-resolved', provider: 'DocProvider',
+      usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+      choices: [{ message: { content: calls === 1 ? '{"records":[{}]}' : '{"records":[]}' } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    const result = await extractDocumentationIntent({ root, patterns: ['docs/**/*.md'], excludes: [] }, config);
+    assert.equal(calls, 2);
+    assert.equal(result.warnings.length, 0);
+    assert.equal(result.audit.status, 'succeeded');
+    assert.deepEqual(result.responses.map((response) => response.responseId), ['doc-correction-1', 'doc-correction-2']);
+    assert.match(correction, /is missing required properties/);
+    assert.match(correction, /Do not add, rename, or omit properties/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('Documentation extractor does not spend its correction retry on a timeout', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-doc-timeout-'));
+  await fs.mkdir(path.join(root, 'docs'));
+  await fs.writeFile(path.join(root, 'docs', 'contract.md'), '# Contract\n\nValidation is required.\n', 'utf8');
+  const config = makeConfig(root);
+  config.openRouter.apiKey = 'secret-test-key';
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    throw new DOMException('aborted', 'AbortError');
+  };
+  try {
+    const result = await extractDocumentationIntent({ root, patterns: ['docs/**/*.md'], excludes: [] }, config);
+    assert.equal(calls, 1);
+    assert.equal(result.audit.status, 'failed');
+    assert.match(result.warnings.join('\n'), /timed out/);
   } finally {
     globalThis.fetch = originalFetch;
   }

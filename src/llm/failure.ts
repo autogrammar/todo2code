@@ -1,3 +1,4 @@
+import type { LlmResponseMetadata } from '../core/types.js';
 import { OpenRouterModelError } from './openrouter.js';
 import { StructuredResponseError } from './structured-schema.js';
 
@@ -14,4 +15,11 @@ export function classifyLlmFailure(error: unknown): LlmFailureReason {
   if (/HTTP 429/i.test(message)) return { code: 'LLM_RATE_LIMITED', message };
   if (/JSON|response does not contain|structured/i.test(message)) return { code: 'LLM_RESPONSE_INVALID', message };
   return { code: 'LLM_UNAVAILABLE', message };
+}
+
+/** Provider metadata is evidence even when runtime validation rejects output. */
+export function rejectedLlmResponseMetadata(error: unknown): LlmResponseMetadata[] {
+  return error instanceof StructuredResponseError && error.responseMetadata
+    ? [error.responseMetadata]
+    : [];
 }
