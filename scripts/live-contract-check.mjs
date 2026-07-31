@@ -5,13 +5,14 @@
 // scheduled job. Without `OPENROUTER_API_KEY` it reports "skipped" and exits 0;
 // set `T2C_REQUIRE_LIVE_CHECK=1` to turn a missing key into a failure.
 //
-// It answers one question the stubbed contract tests cannot: does the
-// configured model still honour the structured-output contract, within the
-// latency and cost budget we are willing to pay?
+// It runs the full `require-llm` pipeline over `examples/` and measures the
+// manifest it produces. Driving the six stages through the pipeline rather than
+// through bespoke calls is deliberate: the check cannot then drift from what
+// the pipeline actually does, which is how it came to cover two stages of six.
 //
-// The written audit is derived from the runtime's own redacted metadata —
-// model, provider, token counts, cost and latency. Prompts, completions and
-// credentials never reach it.
+// The written audit and history are derived from the runtime's own redacted
+// metadata — model, provider, token counts, cost and duration. Prompts,
+// completions and credentials never reach them.
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -20,9 +21,12 @@ import { fileURLToPath } from 'node:url';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const DEFAULTS = {
-  maxLatencyMs: 120_000,
+  maxStageLatencyMs: 300_000,
+  maxTotalLatencyMs: 900_000,
   maxCostUsd: 0.5,
   outputPath: '.intent-live/contract-check.json',
+  historyPath: '.intent-live/contract-check-history.json',
+  runOutput: '.intent-live-run',
 };
 
 function envNumber(raw, name, fallback) {
@@ -47,147 +51,131 @@ async function main() {
     return;
   }
 
+  const {
+    appendLiveHistory,
+    buildLiveAudit,
+    renderLiveReport,
+    toLiveHistoryRecord,
+  } = await import('../dist/src/live/contract-check.js');
+
   const budget = {
-    maxLatencyMs: envNumber(process.env.T2C_LIVE_MAX_LATENCY_MS, 'T2C_LIVE_MAX_LATENCY_MS', DEFAULTS.maxLatencyMs),
+    maxStageLatencyMs: envNumber(
+      process.env.T2C_LIVE_MAX_STAGE_LATENCY_MS ?? process.env.T2C_LIVE_MAX_LATENCY_MS,
+      'T2C_LIVE_MAX_STAGE_LATENCY_MS',
+      DEFAULTS.maxStageLatencyMs,
+    ),
+    maxTotalLatencyMs: envNumber(
+      process.env.T2C_LIVE_MAX_TOTAL_LATENCY_MS,
+      'T2C_LIVE_MAX_TOTAL_LATENCY_MS',
+      DEFAULTS.maxTotalLatencyMs,
+    ),
     maxCostUsd: envNumber(process.env.T2C_LIVE_MAX_COST_USD, 'T2C_LIVE_MAX_COST_USD', DEFAULTS.maxCostUsd),
   };
 
-  const stages = await runStages(config);
-  const audit = buildAudit(stages, budget);
-  await writeAudit(audit);
-  report(audit);
+  const manifest = await runLivePipeline();
+  const history = await readHistory();
+  const audit = buildLiveAudit({
+    manifest,
+    budget,
+    history,
+    generatedAt: new Date().toISOString(),
+  });
+
+  await writeJson(auditPath(), audit);
+  await writeJson(historyPath(), appendLiveHistory(history, toLiveHistoryRecord(audit)));
+  process.stdout.write(`${renderLiveReport(audit)}\n`);
+  process.stdout.write(`audit: ${path.relative(REPO_ROOT, auditPath())}\n`);
+  process.stdout.write(`history: ${path.relative(REPO_ROOT, historyPath())}\n`);
 
   if (!audit.passed) process.exitCode = 1;
 }
 
 /**
- * Exercises the two critical provider-facing contracts: NL -> Intent DSL and
- * graph/diagnostics -> grounded conclusions. Both run in `require-llm` so a
- * silent deterministic fallback cannot mask a broken contract.
+ * Runs all six semantic stages with no deterministic fallback available.
+ *
+ * `require-llm` throws once a stage cannot honour the contract, but it persists
+ * the failed run's manifest first. That manifest is the finding, so it is read
+ * back and measured: a named stage with its reason beats an opaque exception.
  */
-async function runStages(config) {
-  const { extractNlIntentAudited } = await import('../dist/src/extractors/nl-llm.js');
-  const { summarizeGraph } = await import('../dist/src/summary/summarizer.js');
-  const { readJson } = await import('../dist/src/core/io.js');
+async function runLivePipeline() {
+  const { runPipeline } = await import('../dist/src/pipeline/run.js');
+  const { getConfig } = await import('../dist/src/config/env.js');
+  const root = path.join(REPO_ROOT, 'examples');
+  const outputDir = process.env.T2C_LIVE_RUN_OUTPUT ?? DEFAULTS.runOutput;
+  const config = getConfig(root);
+  config.root = root;
 
-  const runDirectory = await latestDemoRun();
-  const graph = await readJson(path.join(runDirectory, 'intent.graph.json'));
-  const diagnostics = await readJson(path.join(runDirectory, 'diagnostics.json'));
-
-  const nl = await timeStage('extract_nl', () => extractNlIntentAudited(
-    {
-      root: REPO_ROOT,
-      sourcePath: 'TASK.md',
-      text: 'Walidacja kontraktu musi odrzucać niekompletną odpowiedź modelu przed wyliczeniem ID.',
-    },
-    config,
-    'require-llm',
-  ));
-  const summary = await timeStage('summarize', () => summarizeGraph(graph, diagnostics, config, { mode: 'require-llm' }));
-  return [nl, summary];
+  try {
+    return await runLivePipelineOnce(runPipeline, root, outputDir, config);
+  } catch (error) {
+    const failed = await readLatestRunManifest(path.join(root, outputDir));
+    if (!failed) throw error;
+    return failed;
+  }
 }
 
-/** Newest `examples/.intent-demo` run, so the check uses a real graph. */
-async function latestDemoRun() {
-  const runsRoot = path.join(REPO_ROOT, 'examples/.intent-demo/runs');
+async function runLivePipelineOnce(runPipeline, root, outputDir, config) {
+  const result = await runPipeline({
+    root,
+    taskFile: 'task.md',
+    todoFile: 'TODO.md',
+    changelogFile: 'CHANGELOG.md',
+    documentPatterns: ['docs/**/*.md'],
+    includeDocumentationLlm: true,
+    includeSummaryLlm: true,
+    includeCommunication: true,
+    nlMode: 'require-llm',
+    markdownMode: 'require-llm',
+    communicationMode: 'require-llm',
+    taskSynthesisMode: 'require-llm',
+    allowSummaryFallback: false,
+    gitCommitCount: 20,
+    outputDir,
+  }, config);
+
+  return result.manifest;
+}
+
+/** Newest run manifest under an output directory, or null when there is none. */
+async function readLatestRunManifest(outputRoot) {
+  const runsRoot = path.join(outputRoot, 'runs');
   let entries;
   try {
     entries = (await fs.readdir(runsRoot)).sort();
   } catch {
-    throw new Error(`No demo runs found under ${runsRoot}; run "npm run demo" first`);
+    return null;
   }
-  const latest = entries.at(-1);
-  if (!latest) throw new Error(`No demo runs found under ${runsRoot}; run "npm run demo" first`);
-  return path.join(runsRoot, latest);
+  for (const entry of [...entries].reverse()) {
+    try {
+      return JSON.parse(await fs.readFile(path.join(runsRoot, entry, 'manifest.json'), 'utf8'));
+    } catch {
+      continue;
+    }
+  }
+  return null;
 }
 
-async function timeStage(name, run) {
-  const startedAt = Date.now();
+function auditPath() {
+  return path.resolve(REPO_ROOT, process.env.T2C_LIVE_AUDIT_PATH ?? DEFAULTS.outputPath);
+}
+
+function historyPath() {
+  return path.resolve(REPO_ROOT, process.env.T2C_LIVE_HISTORY_PATH ?? DEFAULTS.historyPath);
+}
+
+/** A missing or unreadable history starts empty; the trend is not the gate. */
+async function readHistory() {
   try {
-    const result = await run();
-    // NL extraction reports provider metadata through its audit; the
-    // summarizer returns it directly.
-    const responses = result.responses ?? result.audit?.responses ?? [];
-    return { name, ok: true, latencyMs: Date.now() - startedAt, responses, error: null };
-  } catch (error) {
-    return {
-      name,
-      ok: false,
-      latencyMs: Date.now() - startedAt,
-      responses: [],
-      error: redactedError(error),
-    };
+    const parsed = JSON.parse(await fs.readFile(historyPath(), 'utf8'));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
 }
 
-/** Removes provider bodies, model completions and credential-shaped tokens. */
-function redactedError(error) {
-  const message = error instanceof Error ? error.message : String(error);
-  return message
-    .replace(/response=[\s\S]*/iu, 'response=[redacted]')
-    .replace(/(OpenRouter (?:models )?(?:endpoint )?(?:returned non-JSON )?HTTP \d+:)[\s\S]*/iu, '$1 [redacted]')
-    .replace(/sk-or-v1-[A-Za-z0-9_-]+/gu, '[redacted]')
-    .slice(0, 500);
-}
-
-function buildAudit(stages, budget) {
-  const measured = stages.map((stage) => {
-    const usage = stage.responses.map((response) => response.usage).filter(Boolean);
-    const cost = sum(usage.map((item) => item.cost));
-    const totalTokens = sum(usage.map((item) => item.totalTokens));
-    const overLatency = stage.latencyMs > budget.maxLatencyMs;
-    return {
-      stage: stage.name,
-      ok: stage.ok,
-      latencyMs: stage.latencyMs,
-      overLatency,
-      totalTokens,
-      costUsd: cost,
-      model: stage.responses[0]?.model ?? null,
-      provider: stage.responses[0]?.provider ?? null,
-      error: stage.error,
-    };
-  });
-
-  const totalCostUsd = sum(measured.map((item) => item.costUsd));
-  const overCost = totalCostUsd !== null && totalCostUsd > budget.maxCostUsd;
-  const failures = measured.filter((item) => !item.ok || item.overLatency);
-
-  return {
-    schemaVersion: 't2c.live-contract-check/v1',
-    generatedAt: new Date().toISOString(),
-    budget,
-    stages: measured,
-    totalCostUsd,
-    overCost,
-    passed: failures.length === 0 && !overCost,
-  };
-}
-
-/** Sums values, returning null when the provider reported none of them. */
-function sum(values) {
-  const numbers = values.filter((value) => typeof value === 'number');
-  return numbers.length ? Number(numbers.reduce((total, value) => total + value, 0).toFixed(6)) : null;
-}
-
-async function writeAudit(audit) {
-  const target = path.resolve(REPO_ROOT, process.env.T2C_LIVE_AUDIT_PATH ?? DEFAULTS.outputPath);
+async function writeJson(target, value) {
   await fs.mkdir(path.dirname(target), { recursive: true });
-  await fs.writeFile(target, `${JSON.stringify(audit, null, 2)}\n`, 'utf8');
-  process.stdout.write(`audit: ${path.relative(REPO_ROOT, target)}\n`);
-}
-
-function report(audit) {
-  for (const stage of audit.stages) {
-    const status = stage.ok ? (stage.overLatency ? 'SLOW' : 'ok') : 'FAILED';
-    const cost = stage.costUsd === null ? 'n/a' : `$${stage.costUsd}`;
-    process.stdout.write(
-      `${stage.stage}: ${status} · ${stage.latencyMs} ms · ${stage.totalTokens ?? 'n/a'} tokens · ${cost}`
-      + `${stage.model ? ` · ${stage.model}` : ''}${stage.error ? ` · ${stage.error}` : ''}\n`,
-    );
-  }
-  const total = audit.totalCostUsd === null ? 'n/a' : `$${audit.totalCostUsd}`;
-  process.stdout.write(`live contract check: ${audit.passed ? 'PASS' : 'FAIL'} · total ${total}\n`);
+  await fs.writeFile(target, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
 await main();

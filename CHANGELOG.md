@@ -4,6 +4,18 @@
 
 ### Added
 
+- The scheduled live provider check covers all six semantic stages instead of
+  two (`t2c.live-contract-check/v2`). It measures the manifest of a
+  `require-llm` pipeline run rather than calling stages itself, so it cannot
+  drift from what the pipeline does — which is exactly how it came to cover
+  two. Budgets are split per stage and per run, and a stage that silently fell
+  back to deterministic fails the check even when it reports success.
+- A recorded live-check history (`.intent-live/contract-check-history.json`,
+  newest 50 runs, restored from CI cache and published as an artifact) with
+  median latency and cost per stage. It is reported and never gates: one slow
+  provider day should not fail a build, and a trend nobody stores cannot be
+  read at all.
+
 - Gold benchmark v2 (`t2c.gold-dataset/v2`, `evaluation/gold/v2/dataset.json`),
   now the dataset behind `npm run evaluate:gold`; v1 stays in the tree and
   stays evaluable through `npm run evaluate:gold:v1`. It adds a

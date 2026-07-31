@@ -52,7 +52,8 @@ jobs:
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       T2C_REQUIRE_LIVE_CHECK: '1'
-      T2C_LIVE_MAX_LATENCY_MS: '120000'
+      T2C_LIVE_MAX_STAGE_LATENCY_MS: '300000'
+      T2C_LIVE_MAX_TOTAL_LATENCY_MS: '900000'
       T2C_LIVE_MAX_COST_USD: '0.5'
     steps:
       - uses: actions/checkout@v4
@@ -61,8 +62,16 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --omit=optional
-      - run: npm run demo
-      - name: Check structured contracts and budgets
+      # A trend is only readable if it survives the run that produced it. The
+      # unique key always writes a fresh entry; the prefix restores the newest
+      # previous one, so each scheduled run appends rather than starts over.
+      - name: Restore recorded live-check history
+        uses: actions/cache@v4
+        with:
+          path: .intent-live/contract-check-history.json
+          key: live-contract-history-${{ github.run_id }}
+          restore-keys: live-contract-history-
+      - name: Check six-stage structured contracts and budgets
         if: env.OPENROUTER_API_KEY != ''
         run: npm run live:check
       - name: Explain disabled live check
@@ -72,4 +81,6 @@ jobs:
         if: always() && env.OPENROUTER_API_KEY != ''
         with:
           name: openrouter-contract-audit
-          path: .intent-live/contract-check.json
+          path: |
+            .intent-live/contract-check.json
+            .intent-live/contract-check-history.json

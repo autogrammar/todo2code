@@ -125,14 +125,27 @@ odpowiedzi. Diagram przepływu, sekwencji i opis każdego artefaktu zawiera
 
 Wynik i manifest znajdują się w `examples/.intent-demo-llm`. Target ustawia
 300-sekundowy timeout pojedynczego żądania, ale pozostawia modele wybrane w
-`.env`. Dla samodzielnego, krótszego testu dwóch kontraktów i budżetów nadal
-można użyć:
+`.env`.
+
+Harmonogramowana kontrola live mierzy te same sześć etapów, tylko z budżetami i
+zapisaną historią wyniku:
 
 ```bash
-T2C_LIVE_MAX_LATENCY_MS=120000 \
+T2C_LIVE_MAX_STAGE_LATENCY_MS=300000 \
+T2C_LIVE_MAX_TOTAL_LATENCY_MS=900000 \
 T2C_LIVE_MAX_COST_USD=0.50 \
 T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
 ```
+
+Kontrola uruchamia pipeline `require-llm` i mierzy jego manifest, więc nie może
+rozjechać się z tym, co pipeline naprawdę robi — wcześniej wołała dwa etapy
+własnymi wywołaniami i sześć pozostałych było niewidocznych. Bramką są progi
+absolutne: etap, który zawiódł, zdegradował się do trybu deterministycznego albo
+przekroczył budżet, kończy kontrolę błędem. `.intent-live/contract-check.json`
+zawiera audyt bieżącego przebiegu, a `.intent-live/contract-check-history.json`
+— zredagowany trend ostatnich 50 przebiegów (mediana latencji i kosztu, odsetek
+przebiegów zdanych per etap). Historia jest raportowana, ale **nie** decyduje o
+wyniku: jeden wolny dzień providera nie może wywracać buildu.
 
 Nie należy używać live check jako wymaganej kontroli offline — zależy od
 dostępności zewnętrznego providera. `make demo`, `npm run verify` i
