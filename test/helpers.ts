@@ -7,6 +7,7 @@ export function makeConfig(root: string): T2CConfig {
     cacheEnabled: true,
     gitCommitCount: 10,
     maxFileBytes: 524_288,
+    markdownConcurrency: 3,
     documentConcurrency: 3,
     documentChunkChars: 8000,
     documentMaxChunks: 12,

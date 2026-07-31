@@ -11,6 +11,7 @@ export interface T2CConfig {
   cacheEnabled?: boolean;
   gitCommitCount: number;
   maxFileBytes: number;
+  markdownConcurrency: number;
   documentConcurrency: number;
   documentChunkChars: number;
   documentMaxChunks: number;
@@ -51,6 +52,8 @@ export interface T2CConfig {
     temperature: number;
     requireStructuredOutput: boolean;
     responseHealing: boolean;
+    /** Optional programmatic cancellation shared by all provider requests. */
+    signal?: AbortSignal;
   };
   mcp: {
     serverName: string;
@@ -135,7 +138,7 @@ function envLlmMode(name: string, fallback: LlmExtractionMode): LlmExtractionMod
 }
 
 export function getConfig(cwd = process.cwd()): T2CConfig {
-  const model = envString('OPENROUTER_MODEL', 'google/gemini-3.6-flash');
+  const model = envString('OPENROUTER_MODEL', 'mistralai/codestral-2508');
   const root = path.resolve(cwd, envString('T2C_ROOT', '.'));
   return {
     root,
@@ -143,6 +146,7 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     cacheEnabled: true,
     gitCommitCount: envNumber('T2C_GIT_COMMIT_COUNT', 10, 1, 100),
     maxFileBytes: envNumber('T2C_MAX_FILE_BYTES', 524_288, 1024, 100 * 1024 * 1024),
+    markdownConcurrency: envNumber('T2C_MARKDOWN_CONCURRENCY', 3, 1, 8),
     documentConcurrency: envNumber('T2C_DOC_CONCURRENCY', 3, 1, 16),
     documentChunkChars: envNumber('T2C_DOC_CHUNK_CHARS', 8000, 512, 100_000),
     documentMaxChunks: envNumber('T2C_DOC_MAX_CHUNKS', 12, 1, 1000),

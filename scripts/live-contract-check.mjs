@@ -114,13 +114,19 @@ async function runLivePipeline(budget, liveRequestTimeoutMs) {
     config.documentTimeoutMs,
     budget.maxStageLatencyMs,
   );
+  const deadline = new AbortController();
+  const deadlineTimer = setTimeout(() => deadline.abort(), budget.maxTotalLatencyMs);
+  config.openRouter.signal = deadline.signal;
+  const startedAt = Date.now();
 
   try {
     return await runLivePipelineOnce(runPipeline, root, outputDir, config);
   } catch (error) {
-    const failed = await readLatestRunManifest(path.join(root, outputDir));
+    const failed = await readLatestRunManifest(path.join(root, outputDir), startedAt);
     if (!failed) throw error;
     return failed;
+  } finally {
+    clearTimeout(deadlineTimer);
   }
 }
 
@@ -147,7 +153,7 @@ async function runLivePipelineOnce(runPipeline, root, outputDir, config) {
 }
 
 /** Newest run manifest under an output directory, or null when there is none. */
-async function readLatestRunManifest(outputRoot) {
+async function readLatestRunManifest(outputRoot, notBeforeMs = 0) {
   const runsRoot = path.join(outputRoot, 'runs');
   let entries;
   try {
@@ -157,7 +163,10 @@ async function readLatestRunManifest(outputRoot) {
   }
   for (const entry of [...entries].reverse()) {
     try {
-      return JSON.parse(await fs.readFile(path.join(runsRoot, entry, 'manifest.json'), 'utf8'));
+      const manifestPath = path.join(runsRoot, entry, 'manifest.json');
+      const stat = await fs.stat(manifestPath);
+      if (stat.mtimeMs < notBeforeMs) continue;
+      return JSON.parse(await fs.readFile(manifestPath, 'utf8'));
     } catch {
       continue;
     }

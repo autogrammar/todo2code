@@ -145,6 +145,31 @@ test('OpenRouter JSON timeout is not repeated as a schema fallback request', asy
   }
 });
 
+test('OpenRouter request obeys a shared pipeline deadline without retrying', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'secret-test-key';
+  const deadline = new AbortController();
+  config.openRouter.signal = deadline.signal;
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    return new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true });
+    });
+  };
+  try {
+    const request = new OpenRouterClient(config.openRouter).chatJson(
+      [{ role: 'user', content: 'test' }], 'test', { type: 'object' },
+    );
+    deadline.abort();
+    await assert.rejects(request, /aborted by pipeline deadline/);
+    assert.equal(calls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('Documentation extractor converts OpenRouter structured output to bounded LLM records', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-doc-llm-'));
   await fs.mkdir(path.join(root, 'docs'));

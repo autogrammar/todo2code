@@ -611,6 +611,7 @@ export interface PipelineManifest {
     communicationMode: LlmExtractionMode;
     gitCommitCount: number;
     maxFileBytes: number;
+    markdownConcurrency: number;
     documentConcurrency: number;
     documentChunkChars: number;
     documentMaxChunks: number;

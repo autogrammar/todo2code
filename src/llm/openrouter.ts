@@ -172,6 +172,10 @@ export class OpenRouterClient {
     const apiKey = this.config.apiKey;
     if (!apiKey) throw new Error('OPENROUTER_API_KEY is required for this operation');
     const controller = new AbortController();
+    const externalSignal = this.config.signal;
+    const abortFromExternal = () => controller.abort();
+    externalSignal?.addEventListener('abort', abortFromExternal, { once: true });
+    if (externalSignal?.aborted) controller.abort();
     const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
     try {
       let lastError: Error | null = null;
@@ -226,7 +230,10 @@ export class OpenRouterClient {
           }
           return parsed;
         } catch (error) {
-          if (error instanceof Error && error.name === 'AbortError') throw new Error(`OpenRouter request timed out after ${this.config.timeoutMs} ms`);
+          if (error instanceof Error && error.name === 'AbortError') {
+            if (externalSignal?.aborted) throw new Error('OpenRouter request aborted by pipeline deadline');
+            throw new Error(`OpenRouter request timed out after ${this.config.timeoutMs} ms`);
+          }
           lastError = error instanceof Error ? error : new Error(String(error));
           if (attempt < 2 && /fetch failed|ECONNRESET|ETIMEDOUT/i.test(lastError.message)) {
             await sleep(300 * (2 ** attempt));
@@ -238,6 +245,7 @@ export class OpenRouterClient {
       throw lastError ?? new Error('OpenRouter request failed');
     } finally {
       clearTimeout(timeout);
+      externalSignal?.removeEventListener('abort', abortFromExternal);
     }
   }
 }

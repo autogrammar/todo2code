@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const DEFAULTS = {
-  models: 'qwen/qwen3.7-plus,google/gemini-3.6-flash',
+  models: 'mistralai/codestral-2508,google/gemini-3-flash-preview',
   outputPath: '.intent-live/model-comparison.json',
   markdownPath: '.intent-live/model-comparison.md',
   root: '.',

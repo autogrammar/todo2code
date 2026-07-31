@@ -435,6 +435,7 @@ function manifestConfiguration(options: PipelineOptions, config: T2CConfig): Pip
     communicationMode: options.communicationMode ?? config.communicationMode,
     gitCommitCount: options.gitCommitCount,
     maxFileBytes: config.maxFileBytes,
+    markdownConcurrency: config.markdownConcurrency,
     documentConcurrency: config.documentConcurrency,
     documentChunkChars: config.documentChunkChars,
     documentMaxChunks: config.documentMaxChunks,
