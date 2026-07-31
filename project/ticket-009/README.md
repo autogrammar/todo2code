@@ -2,8 +2,8 @@
 
 - **ID**: ticket-009
 - **Owner**: unresolved:human
-- **Status**: READY_TO_PUBLISH
-- **Workflow state**: VERIFIED
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-07-31
 
 ## Goal and scope
@@ -31,7 +31,7 @@ ticket directory contains only governance and evidence.
   to the stage policy; it is never silently normalized into another intent.
 - [x] AC-07: Full repository verification and gold/example gates pass.
 - [x] AC-08: Documentation records the contract boundary and measured drift.
-- [ ] AC-09: The completed change is committed and pushed to `main`.
+- [x] AC-09: The completed change is committed and pushed to `main`.
 
 ## Participants
 
@@ -48,4 +48,4 @@ ticket directory contains only governance and evidence.
 Seven production OpenRouter boundaries now use `chatStructuredWithMetadata`;
 the repository gate found zero raw JSON calls outside the client. Provider
 schema and runtime parsing share one typed contract, while grounding remains a
-separate evidence check. Publication is the only remaining step.
+separate evidence check. The implementation was published as `d0fc143`.

@@ -28,6 +28,7 @@ must exist in the exact input context.
 | Module boundary | 98 modules, 453 imports, 0 cycles |
 | Gold v2 / v1 | 100% required gates / PASS |
 | Examples | 5 SDK, PASS |
+| Publication | `d0fc143` pushed to `origin/main` |
 
 ## Intent boundary
 

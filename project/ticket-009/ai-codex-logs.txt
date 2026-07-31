@@ -10,3 +10,7 @@
 - evaluate:gold:v1: PASS
 - examples:check: PASS (5 SDK)
 - git diff --check: PASS
+2026-07-31 ticket-009 published
+- implementation commit: d0fc143
+- origin/main push: PASS
+- unrelated staged nlp2uri.yaml: preserved, excluded

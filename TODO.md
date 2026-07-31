@@ -2,11 +2,15 @@
 
 ## Active ticket
 
-- [`ticket-009`](project/ticket-009/README.md) is verified and awaiting
-  publication to `main`.
+No ticket is currently active.
 
 ## Completed tickets
 
+- [x] [`ticket-009`](project/ticket-009/README.md) — canonical structured
+  response contracts. All seven production OpenRouter boundaries now generate
+  their provider schema and runtime parser from one typed source, retain
+  rejected-response metadata and fail closed without semantic coercion.
+  Published as `d0fc143`; current state: `DONE`.
 - [x] [`ticket-008`](project/ticket-008/README.md) — upstream governance
   hardening. `wellmanifest/new-project` 0.6.0 now uses role-typed participant
   templates, explicit unresolved ownership, active-ticket reuse and a separate
