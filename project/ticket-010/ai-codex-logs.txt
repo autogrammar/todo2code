@@ -1,0 +1,5 @@
+2026-07-31 ticket-010 opened
+2026-07-31 mapped AST adapters, Markdown chunking and output boundaries
+2026-07-31 implemented content-addressed fail-open cache outside project/
+2026-07-31 targeted cache and extractor tests passed
+2026-07-31 benchmarked three tracked repository snapshots

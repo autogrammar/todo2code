@@ -7,6 +7,8 @@ import { T2C_VERSION } from '../version.js';
 export interface T2CConfig {
   root: string;
   outputDir: string;
+  /** Programmatic escape hatch; CLI runs keep the transparent cache enabled. */
+  cacheEnabled?: boolean;
   gitCommitCount: number;
   maxFileBytes: number;
   documentConcurrency: number;
@@ -138,6 +140,7 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
   return {
     root,
     outputDir: envString('T2C_OUTPUT_DIR', '.intent'),
+    cacheEnabled: true,
     gitCommitCount: envNumber('T2C_GIT_COMMIT_COUNT', 10, 1, 100),
     maxFileBytes: envNumber('T2C_MAX_FILE_BYTES', 524_288, 1024, 100 * 1024 * 1024),
     documentConcurrency: envNumber('T2C_DOC_CONCURRENCY', 3, 1, 16),

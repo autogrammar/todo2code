@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 256 testów: 255 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 269 testów: 268 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 31 modułów |
 | Moduły | `npm run verify:modules` | PASS — 98 modułów, 453 importy, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
@@ -31,13 +31,14 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Wheel Pythona | `make python-wheel` | PASS |
 | Zależności produkcyjne | `npm audit --omit=dev` | 0 podatności |
 | Live OpenRouter summary | `npm run live:check` | PASS — generator v2, jedna odpowiedź, 22,6 s, 43 426 tokenów, $0.006251, bez fallbacku |
-| Zaplanowany kontrakt live | `npm run live:check` | PASS/SKIP — NL i summary w `require-llm`, redacted audit i budżety; bez klucza kontrolowany skip |
+| Zaplanowany kontrakt live | `npm run live:check` | SKIP bez klucza (kontrolowany); sześć etapów `require-llm`, progi etap/przebieg, zredagowany audyt i historia wyniku. Kontrakt pokryty dziewięcioma testami offline na sfabrykowanych manifestach |
 | Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
 | Trzy zewnętrzne repozytoria (batch 1) | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty |
 | Trzy zewnętrzne repozytoria (batch 2) | pipeline na `code2logic`, `code2docs`, `redup` | PASS — trzy `succeeded`, code-change stage deterministic, review + source patches |
 | Migracja komunikacji innego projektu | historyczne Opus/GPT56Luna z `wellmanifest/new-project` | PASS — jawna ochrona przed beztypowym rename; Opus 0 problemów, GPT 3 wymagające odpowiedzi, bez fałszywego konfliktu plików |
 | Brak właściciela wymaganej odpowiedzi | rzeczywisty `ticket-006` + fixture agent-only/human-only | PASS — 3/3 problemów ticket-006 wskazuje `unresolved:human`; fixture pokrywa też `unresolved:agent`, znane ID pozostają bez zmian |
 | Standard `wellmanifest/new-project` 0.6.0 | izolowany target + bieżący todo2code CLI | PASS — agent `agent:codex`, 0 wymyślonych ludzi, `unresolved:human`; `project/README.md` zachowany, drugi aktywny ticket i traversal odrzucone |
+| Cache AST/chunków | testy jednostkowe + 3 tracked snapshots | PASS — cold/warm, selektywna invalidacja, corruption recovery, bypass i pominięcie drugiego startu adaptera; provider wywołany także przy cache-hit chunku |
 
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
@@ -490,9 +491,10 @@ przed pushem.
 
 ### 6. Pozostały backlog architektoniczny i operacyjny
 
-Otwarte pozostają: cache AST i fragmentów dokumentacji oraz A2A streaming ze
-współdzielonym transakcyjnym task store. Jedno źródło validatorów i schematów
-odpowiedzi LLM zostało wdrożone w ticket-009. Trend workspace, porcjowanie LLM, deterministyczna
+Otwarte pozostają A2A streaming ze współdzielonym transakcyjnym task store oraz
+pomiar granicy całego pipeline'u na większych grafach. Cache AST i fragmentów
+dokumentacji został wdrożony w ticket-010; jedno źródło validatorów i schematów
+odpowiedzi LLM w ticket-009. Trend workspace, porcjowanie LLM, deterministyczna
 dokumentacja i konfiguracja oraz podział adapterów językowych zostały wykonane.
 Pełna lista z kryteriami znajduje się w `TODO.md`.
 

@@ -4,6 +4,7 @@ export function makeConfig(root: string): T2CConfig {
   return {
     root,
     outputDir: '.intent',
+    cacheEnabled: true,
     gitCommitCount: 10,
     maxFileBytes: 524_288,
     documentConcurrency: 3,

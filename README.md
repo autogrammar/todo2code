@@ -378,6 +378,12 @@ współbieżności i timeoutu (`T2C_DOC_*`). Najpierw analizuje fragmenty pasuj�
 do ścieżek, symboli, ticketów i wersji wykrytych w pozostałych źródłach; obcięcie
 budżetu zapisuje ostrzeżenie `DOC_CHUNK_BUDGET`.
 
+Deterministyczny AST i podział dokumentów korzystają z przyrostowego cache'u
+`<outputDir>/cache/v1`, kluczowanego ścieżką, hashem treści oraz wersjonowanymi
+parametrami ekstraktora. Uszkodzony lub niedostępny wpis jest pomijany i
+odtwarzany ze źródła. Cache nie przechowuje odpowiedzi OpenRouter; dokument
+przy cache-hit nadal przechodzi bieżące wywołanie providera.
+
 Każdy rekord `t2c.intent/v1` zawsze zawiera runtime-owned
 `metadata.generation`: generator i jego wersję, wersję todo2code, tryb żądany i
 użyty oraz stan fallbacku. Rekord LLM dodatkowo wymaga providera, rozstrzygniętego

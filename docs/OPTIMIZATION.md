@@ -177,6 +177,25 @@ diagnozy są wybierane od najwyższej ważności. Na grafie 3597 rekordów i
 Artefakty JSON mają osobny limit od plików źródłowych (128 MiB), dzięki czemu
 CLI może ponownie otworzyć wygenerowany graf 49 MiB.
 
+## 6. Przyrostowy cache ekstrakcji — zastosowany
+
+Deterministyczna praca trafia do wersjonowanej przestrzeni
+`<outputDir>/cache/v1`. Klucz TypeScript wiąże ścieżkę, hash treści, wersję
+ekstraktora i TypeScript; adapter zewnętrzny wiąże uporządkowany manifest
+ścieżek/hashów, wybrany executable, limit pliku i runtime. Markdown wiąże
+ścieżkę, hash treści, limit znaków i wersję algorytmu chunkingu.
+
+Wpis ma kopertę `t2c.content-cache/v1`, a zapis używa pliku tymczasowego w tym
+samym katalogu i atomowego rename. Brak, uszkodzenie, zły typ lub błąd I/O
+powoduje zwykłe przeliczenie; cache jest optymalizacją, nie dowodem. Wynik
+zewnętrznego adaptera z ostrzeżeniem nie jest zapisywany, ponieważ instalacja
+toolchainu może naprawić problem bez zmiany źródeł. Odpowiedzi OpenRouter nie
+są cache'owane — hit dotyczy wyłącznie podziału dokumentu.
+
+Pomiar trzech tracked snapshotów: todo2code AST 1398,4→442,1 ms (169/169
+hitów), subactor-improvement 49,2→16,8 ms (11/11), new-project Markdown
+10,1→7,2 ms (26/26). To pojedynczy pomiar kierunkowy, nie bramka wydajności.
+
 ## Metodyka
 
 ```bash

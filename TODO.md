@@ -103,8 +103,10 @@ No ticket is currently active.
   extraction modes.
 - [x] Improve workspace trend metrics so AST line movement and source-identity
   churn do not dominate business-topic coverage changes.
-- [ ] Add incremental AST and documentation-chunk caches keyed by content hash
-  for very large repositories.
+- [x] Add incremental AST and documentation-chunk caches keyed by content hash
+  for very large repositories. TypeScript is cached per file, external adapters
+  per language manifest and Markdown per chunking input; corrupt cache fails
+  open and provider responses are deliberately never cached.
 - [x] Resolve unambiguous bare source filenames such as `markdown.ts` against
   the repository tree before linking, while preserving the current rejection
   of prose fragments and refusing ambiguous basename matches. The linker indexes
@@ -154,6 +156,16 @@ No ticket is currently active.
   required validation matrix.
 - [x] Add scheduled opt-in live OpenRouter contract checks with redacted audit,
   latency/cost thresholds and no dependency of offline CI on provider uptime.
+- [x] Extend the scheduled live check from two stages to all six, with per-stage
+  and per-run budgets and a recorded result history. It now measures the
+  manifest of a `require-llm` pipeline run instead of calling selected stages
+  itself, which is how it drifted to two: a bespoke caller cannot go out of date
+  against a pipeline it does not run. History is reported and never gates —
+  `t2c.live-contract-check/v2`, 50 runs, restored from CI cache and published as
+  an artifact.
+- [ ] Collect enough scheduled live runs for the recorded median latency and
+  cost per stage to describe anything. The contract and storage exist; the
+  trend does not yet.
 - [x] Make `make demollm` execute and verify all six semantic LLM stages
   end-to-end, with no deterministic fallback and a manifest-based PASS gate.
 - [x] Give task synthesis one corrective retry when the runtime rejects a
@@ -274,7 +286,7 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 
 ### Faza 2 — kompletne reality
 
-- [ ] Incremental AST + documentation-chunk cache po content hash (patrz P1).
+- [x] Incremental AST + documentation-chunk cache po content hash (patrz P1).
 - [ ] First-class AST adapters dla PHP i innych języków w analizowanych repo
   (patrz P2).
 - [ ] Opcjonalnie: testy/CI facts jako evidence `implemented` obok AST+Git.

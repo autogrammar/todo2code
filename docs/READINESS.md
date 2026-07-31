@@ -29,6 +29,9 @@ standardu `wellmanifest/new-project` 0.6.0 i oddzielił indeks ticketów od
 generowanego `project/README.md`. Ticket
 [`project/ticket-009`](../project/ticket-009/README.md) rozszerzył jedno źródło
 schematu z rerankera na wszystkie siedem produkcyjnych granic structured LLM.
+Ticket [`project/ticket-010`](../project/ticket-010/README.md) dodał
+przyrostowy cache AST i fragmentów dokumentacji oraz pomiar cold/warm na trzech
+śledzonych snapshotach repozytoriów.
 
 ## Odpowiedź krótka
 
@@ -61,10 +64,11 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 256 testów, 255 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 269 testów, 268 zaliczonych, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 31 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
+| Cache ekstrakcji | content-addressed, wersjonowany i fail-open; TypeScript per plik, zewnętrzny AST per manifest języka, dokumentacja per plik i parametry chunkingu; odpowiedzi LLM nie są cache'owane |
 | Ochrona ścieżek | wyjście poza `T2C_ROOT` odrzucane spójnie w CLI, MCP, A2A i SDK |
 | Przepływ DSL2TODO | propose → render → approved apply, zgodny w pięciu SDK, `TODO.md` zmieniany wyłącznie po akceptacji hasha |
 | Agregaty konfiguracji | jeden `configuration_file_fact` na plik; dokumentacja wiąże się przez jawną ścieżkę, a ogólne klucze nie uruchamiają capability-topic |
@@ -266,14 +270,24 @@ lokalny klucz propozycji. Generator v2 wyprowadza rekordy tylko z cytowanych
 diagnostyk, nadal odrzuca nieznane diagnostyki i nadaje lokalne klucze w
 runtime. Bieżący `live:check` i pełny run przeszły bez retry, lecz:
 
-- nie ma historii pozwalającej wyznaczyć stabilność — pojedyncze uruchomienia
-  nie są statystyką;
 - gold nie uruchamia realnego wywołania, więc regresja promptu lub modelu
   nie zostanie wykryta przez bramkę offline;
-- `npm run live:check` jest opt-in i obejmuje dwa etapy z sześciu.
+- historia dopiero zaczyna się zbierać — kontrakt i przechowywanie są gotowe,
+  ale trend potrzebuje przebiegów, żeby cokolwiek znaczyć.
 
-**Warunek zamknięcia:** live check obejmujący wszystkie sześć etapów, z progami
-i historią wyniku, uruchamiany harmonogramem.
+`npm run live:check` obejmuje teraz **sześć etapów z sześciu**. Kontrola
+uruchamia pipeline `require-llm` nad `examples/` i mierzy jego manifest, zamiast
+wołać wybrane etapy własnymi wywołaniami — dzięki temu nie może rozjechać się z
+tym, co pipeline naprawdę robi, a właśnie tak dryfowała do dwóch etapów. Progi
+są rozdzielone na etap i na cały przebieg (`t2c.live-contract-check/v2`), a
+`.intent-live/contract-check-history.json` przechowuje zredagowany trend
+ostatnich 50 przebiegów; job CI odtwarza go z cache i publikuje jako artefakt.
+Historia jest raportowana, ale nie jest bramką: jeden wolny dzień providera nie
+powinien wywracać buildu, a trend, którego nikt nie zapisuje, i tak jest
+nieczytelny.
+
+**Warunek zamknięcia:** kilka zapisanych przebiegów harmonogramowych, żeby
+mediana latencji i kosztu per etap opisywała cokolwiek.
 
 ### 4. Luki w pokryciu języków i formatów
 
@@ -299,18 +313,25 @@ w PHP dostanie niepełny obraz rzeczywistości.
   hipoteza to jawny cykl życia pozycji roadmapy, nie kolejne wyciszenie tekstu
   changeloga.
 
-### 6. Wydajność na dużych repozytoriach nieprzebadana
+### 6. Cache ogranicza powtarzaną ekstrakcję, ale nie dowodzi pełnej skali
 
-Brak cache'u AST i chunków dokumentacji po content hash. Największy opisany
-tu pomiar gotowości ma 17,1 tys. rekordów, a test przenośności na `domd` około
-23,3 tys.; nie wiadomo jeszcze, gdzie leży granica skalowania.
+Ticket-010 dodał cache pod `<outputDir>/cache/v1`: TypeScript jest zapisywany
+per plik, adaptery zewnętrzne per pełny manifest języka, a Markdown per plik,
+rozmiar fragmentu i wersję algorytmu. Uszkodzenie lub błąd I/O powoduje
+ponowną ekstrakcję; wyniki z ostrzeżeniem toolchainu i odpowiedzi LLM nie są
+utrwalane. Cold/warm na śledzonych snapshotach dał **1398,4→442,1 ms** dla
+15 062 rekordów AST todo2code i **49,2→16,8 ms** dla 751 rekordów
+subactor-improvement, z identycznym wyjściem. Dla dokumentacyjnego new-project
+zysk był mały (**10,1→7,2 ms**, 26/26 hitów), co potwierdza, że granicę
+skalowania całego pipeline'u nadal trzeba mierzyć na większych grafach; cache
+nie przyspiesza linkowania ani syntezy LLM.
 
 ## Ryzyka operacyjne
 
 | Ryzyko | Stan |
 |---|---|
 | Adapter Java weryfikowany wyłącznie w CI | job Temurin 17 z `T2C_REQUIRE_JAVA_TEST=1`; w bieżącym środowisku pominięty z powodu braku JDK |
-| Zależność od dostępności providera | testy offline nigdy nie wołają sieci; live check jest osobnym, opt-in jobem |
+| Zależność od dostępności providera | testy offline nigdy nie wołają sieci; live check jest osobnym, opt-in jobem, a jego kontrakt pokrywa dziewięć testów offline na sfabrykowanych manifestach |
 | Koszt LLM | ostatni pełny `make demollm`: ~$0,036 i 99 347 tokenów na małym repo; brak ekstrapolacji dla dużych |
 | Audyt zależności | `npm audit --omit=dev`: 0 podatności |
 
@@ -323,7 +344,9 @@ Wersję `0.6.0` uznaję za gotową, gdy:
    zamiast 1, 14 par zabronionych, osobny zakres diagnostyk oraz kohort
    cross-language z 6 pozytywami i 6 negatywami. Próba jest nadal mała i
    pozostaje pozycją w TODO;
-2. live check obejmuje sześć etapów LLM i ma zapisaną historię wyniku;
+2. **zrobione w części technicznej** — live check obejmuje sześć etapów LLM,
+   ma rozdzielone progi etap/przebieg i zapisuje historię wyniku; brakuje
+   przebiegów, żeby trend coś znaczył;
 3. `implementation coverage` na repozytorium innym niż własne przekracza próg
    ustalony po pomiarze z punktu 1 — dziś 10,0% jest zbyt niskie, by narzędzie
    było użyteczne bez ręcznej interpretacji.
@@ -350,7 +373,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 256 testów, 98 modułów, 7/0 structured/raw LLM calls
+npm run verify          # 269 testów, 100 modułów, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

@@ -508,6 +508,19 @@ export interface ExtractionResult {
   warnings: string[];
 }
 
+export interface ContentCacheStats {
+  hits: number;
+  misses: number;
+  writes: number;
+  recoveries: number;
+  errors: number;
+  bypassed: number;
+}
+
+export interface CachedExtractionResult extends ExtractionResult {
+  cache: ContentCacheStats;
+}
+
 export type LlmExtractionMode = 'deterministic' | 'prefer-llm' | 'require-llm';
 export type NlExtractionMode = LlmExtractionMode;
 

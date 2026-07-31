@@ -15,7 +15,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 255 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Testy Node | PASS — 268 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
 | Pipeline `examples/` | PASS — 227 rekordów i 101 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
@@ -29,6 +29,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Manifest każdej awarii pipeline | PASS — `require-llm` i nieoczekiwana awaria summary zapisują etap/kod bez publikowania `latest.json` |
 | OpenRouter invalid-model discovery | PASS — lista modeli po błędnym identyfikatorze |
 | Dokumentacja → DSL | PASS — deterministyczny baseline oraz mock OpenRouter: structured output, target hints, limity rekordów/chunków, timeout i współbieżność |
+| Cache AST i chunków | PASS — content hash, cold/warm equivalence, invalidacja po zmianie pliku/parametru, recovery po uszkodzeniu, bypass oraz brak cache odpowiedzi providera |
 | Konfiguracja/infrastruktura → DSL | PASS — JSON, TOML, Dockerfile i workflow CI (także z aktywną regułą `.*/`), jeden deterministyczny agregat na plik, explicit-path linking bez szumu tematów oraz publiczne interfejsy |
 | Graf → NL przez mock OpenRouter | PASS — uziemione cytowania i budżet AST |
 | Scheduled live OpenRouter | PASS/SKIP — osobny opt-in job sprawdza NL i summary w `require-llm`, budżety i redacted audit; bez klucza jawnie pomijany |
@@ -58,7 +59,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 256 testów, 255 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 269 testów, 268 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

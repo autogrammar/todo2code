@@ -46,6 +46,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | CHANGELOG → DSL | działa | osobny parser; zachowuje wersję, datę, kategorię i klasę `claim` |
 | TODO/CHANGELOG + LLM | działa kontraktowo w porcjach | maksymalnie 32 rekordy na żądanie, stabilna kolejność, wspólny audyt i provenance odpowiedzi per rekord; porównanie live kosztu/latencji dwóch modeli pozostaje otwarte |
 | Dokumentacja → DSL | działa offline i opcjonalnie przez LLM | deterministyczny baseline obejmuje nagłówki, bloki kodu i jawne odwołania; chunking, budżet i structured output opcjonalnego wzbogacenia LLM są testowane |
+| Cache AST i dokumentacji | działa fail-open | TypeScript per plik, zewnętrzne adaptery per manifest języka, Markdown per plik/hash/parametry; telemetria nie wchodzi do DSL, a odpowiedzi LLM nie są cache'owane |
 | Konfiguracja i infrastruktura → DSL | działa offline | struktury JSON/YAML/TOML, Dockerfile, Compose i workflow CI są dostępne przez pipeline, CLI, MCP, A2A i pięć SDK; `.github/workflows/` jest jawnie wyłączone z ogólnego ignorowania dot-katalogów; każdy plik ma jeden `configuration_file_fact`, który wiąże się przez jawną ścieżkę bez ogólnych dopasowań tematów |
 | `project/<ticket>/` komunikacja → DSL | działa | zachowuje uczestnika, `human|agent`, typ wypowiedzi, ticket i aliasy Git jako `agent_log`; root-level `project/` pozostaje przestrzenią analizy technicznej i nie jest interpretowany jako rozmowa |
 | Analiza uczestników i rozbieżności komunikacji | działa w pipeline/CLI/MCP/A2A/history/UI/watch | grupuje każdego człowieka/agenta, porównuje request/plan/claim z Git/AST, zapisuje artefakty i wspiera filtry participant/role/ticket/severity |
@@ -71,7 +72,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 240 testów: 239 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 269 testów: 268 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
 - 93 moduły i 426 importów wewnętrznych, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
@@ -136,7 +137,7 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
 6. Starsze repozytoria bez `project/participants.json` działają w trybie
    legacy; dopiero dodanie rejestru wymusza stabilne `participant-id` i wyłącza
    traktowanie nazwy wyświetlanej jako rozstrzygniętej tożsamości.
-7. Nadal otwarte są cache przyrostowe AST/dokumentacji, structured
+7. Cache przyrostowe AST/dokumentacji są wdrożone; nadal otwarte są structured
    codegen/patch z LLM oraz A2A streaming ze współdzielonym transakcyjnym task
    store. Jedno źródło validatorów i schematów odpowiedzi LLM zamknął
    ticket-009. Bare basename i prescriptive docs

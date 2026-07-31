@@ -1,4 +1,5 @@
 import type {
+  CachedExtractionResult,
   ExtractionResult,
   IntentAction,
   IntentRecord,
@@ -55,7 +56,7 @@ export interface DocumentationExtractionOptions {
   targetHints?: DocumentationTargetHints;
 }
 
-export interface DocumentationExtractionResult extends ExtractionResult {
+export interface DocumentationExtractionResult extends CachedExtractionResult {
   responses: LlmResponseMetadata[];
   audit: PipelineStageAudit;
 }

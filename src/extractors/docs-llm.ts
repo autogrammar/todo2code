@@ -2,6 +2,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
+import { ContentCache } from '../core/content-cache.js';
+import { sha256 } from '../core/id.js';
 import { pathExists, readText, relativePosix, resolveGlobs } from '../core/io.js';
 import type { IntentRecord, LlmResponseMetadata, PipelineStageAudit } from '../core/types.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
@@ -47,7 +49,12 @@ export async function extractDocumentationIntent(
   requireConfiguredClient(client, config, startedAt);
 
   const warnings: string[] = [];
-  const chunks = await loadDocumentChunks(options, config, warnings);
+  const cache = new ContentCache({
+    root: options.root,
+    outputDir: config.outputDir,
+    enabled: config.cacheEnabled ?? true,
+  });
+  const chunks = await loadDocumentChunks(options, config, warnings, cache);
   const selectedChunks = selectWithinBudget(chunks, options.targetHints, config.documentMaxChunks, warnings);
   const systemPrompt = await readPrompt('docs-to-intent.system.md');
   const results = await mapConcurrent(
@@ -68,6 +75,7 @@ export async function extractDocumentationIntent(
     records,
     warnings,
     responses,
+    cache: cache.snapshot(),
     audit: buildAudit(config, startedAt, records.length, warnings.length, responses),
   };
 }
@@ -95,18 +103,43 @@ async function loadDocumentChunks(
   options: DocumentationExtractionOptions,
   config: T2CConfig,
   warnings: string[],
+  cache: ContentCache,
 ): Promise<DocumentChunk[]> {
   const files = await resolveGlobs(options.root, options.patterns, options.excludes ?? config.documentExcludes);
   const chunks: DocumentChunk[] = [];
   for (const file of files) {
     try {
       const body = await readText(file, config.maxFileBytes);
-      chunks.push(...chunkMarkdown(relativePosix(options.root, file), body, config.documentChunkChars));
+      const relative = relativePosix(options.root, file);
+      const fileChunks = await cache.getOrCompute({
+        namespace: 'document-chunks-v1',
+        inputs: {
+          path: relative,
+          contentHash: sha256(body),
+          chunkChars: config.documentChunkChars,
+          algorithm: 'markdown-heading-chunks@1',
+          runtimeVersion: T2C_VERSION,
+        },
+        compute: () => chunkMarkdown(relative, body, config.documentChunkChars),
+        validate: isDocumentChunks,
+      });
+      chunks.push(...fileChunks);
     } catch (error) {
       warnings.push(`${relativePosix(options.root, file)}: ${errorMessage(error)}`);
     }
   }
   return chunks;
+}
+
+function isDocumentChunks(value: unknown): value is DocumentChunk[] {
+  return Array.isArray(value) && value.every((chunk) => {
+    if (!chunk || typeof chunk !== 'object') return false;
+    const candidate = chunk as Partial<DocumentChunk>;
+    return typeof candidate.path === 'string'
+      && Number.isInteger(candidate.startLine) && (candidate.startLine ?? 0) >= 1
+      && Number.isInteger(candidate.endLine) && (candidate.endLine ?? 0) >= (candidate.startLine ?? 1)
+      && typeof candidate.content === 'string';
+  });
 }
 
 function selectWithinBudget(

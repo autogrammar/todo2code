@@ -6,6 +6,7 @@ import type { IntentAction, IntentRecord, JsonValue } from '../../core/types.js'
 import { boundedCapabilities, moduleTopicText } from './records.js';
 
 export const JS_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts', '.mjs', '.cjs'];
+export const TYPESCRIPT_AST_CACHE_IDENTITY = `t2c/typescript-ast@1/typescript-${ts.version}`;
 
 export function extractTypeScriptFile(root: string, filePath: string, body: string): IntentRecord[] {
   const relative = relativePosix(root, filePath);
