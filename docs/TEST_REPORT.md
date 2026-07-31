@@ -14,10 +14,10 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 286 testów: 285 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 295 testów: 294 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 34 moduły |
-| Moduły | `npm run verify:modules` | PASS — 101 modułów, 470 importów, 0 cykli |
-| Kontrakt środowiska | `npm run verify:env` | PASS — 67 zmiennych i 67 kluczy |
+| Moduły | `npm run verify:modules` | PASS — 102 moduły, 473 importy, 0 cykli |
+| Kontrakt środowiska | `npm run verify:env` | PASS — 73 zmienne i 73 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Granice structured LLM | `npm run verify:structured-responses` | PASS — 7 wywołań kontraktowych, 0 surowych wywołań JSON w produkcji |
@@ -31,6 +31,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Wheel Pythona | `make python-wheel` | PASS |
 | Zależności produkcyjne | `npm audit --omit=dev` | 0 podatności |
 | Live OpenRouter 6/6 | `npm run live:check` | PASS — Gemini 3.6 Flash, 125,486 s, 177 953 tokeny, $0.412363, bez fallbacku/degradacji |
+| Porównanie Live modeli | ticket-013, identyczny kontrakt 6/6 | Codestral PASS 57,129 s / $0.037994; Gemini 3 Flash Preview PASS 64,064 s / $0.076411; DeepSeek V4 Pro FAIL >900 s |
+| Zewnętrzne repo Live | Codestral na `weekly` i `nlp2uri` | PASS — 161/6 i 619/20 rekordów/żądań, bez fallbacku; współbieżność skróciła `weekly` 218,741→53,362 ms |
+| Koru autonomous control | izolowany todo2code → PLF-002 → Codestral patch → worktree verify | PASS po fail-closed poprawce edit-ticket: commit `1809ea5` na `koru/run-6e596247e153`, pytest PASS, targeted diagnostic usunięty |
 | Zaplanowany kontrakt live | `npm run live:check` | SKIP bez klucza (kontrolowany); sześć etapów `require-llm`, progi etap/przebieg, zredagowany audyt i historia obejmująca bieżący wynik |
 | Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
 | Trzy zewnętrzne repozytoria (batch 1) | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty |

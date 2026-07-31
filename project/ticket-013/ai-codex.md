@@ -14,6 +14,13 @@ ticket: ticket-013
 3. Compare each result with the Gemini 3.6 Flash baseline.
 4. Retain or change the default only on complete measured evidence.
 
+## Outcome
+
+Codestral 2508 is the measured default. Gemini 3 Flash Preview is the fallback
+candidate. DeepSeek V4 Pro is rejected for exceeding the complete-run budget.
+The external-repository run additionally caused bounded Markdown batch
+concurrency; no validation rule or schema was relaxed.
+
 ## Safety
 
 The user explicitly authorized live comparison. Each run keeps the existing

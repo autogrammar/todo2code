@@ -11,8 +11,8 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 34 moduły |
-| Granice modułów | PASS — 101 modułów, 470 importów wewnętrznych, brak cykli, niezależny `src/core` |
-| Kontrakt środowiska | PASS — 67 zmiennych kodu/Dockera/skryptów, 67 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
+| Granice modułów | PASS — 102 moduły, 473 importy wewnętrzne, brak cykli, niezależny `src/core` |
+| Kontrakt środowiska | PASS — 73 zmienne kodu/Dockera/skryptów, 73 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
 | Testy Node | PASS — 276 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
@@ -60,7 +60,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 286 testów, 285 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 295 testów, 294 zaliczone, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
@@ -126,6 +126,17 @@ po jednej korekcie, a `openai/gpt-5.4-mini` dwukrotnie naruszył schemat NL.
 Jawny domyślny `google/gemini-3.6-flash` przeszedł 6/6 bez fallbacku:
 125 486 ms, 177 953 tokeny, $0.412363. Wynik zapisano w redaktowanym
 `t2c.live-contract-check/v2`; historia obejmuje bieżący run.
+
+Ticket-013 dodał porównanie na tym samym kontrakcie. Codestral 2508 przeszedł
+6/6 w 57 129 ms, 118 920 tokenach i za $0.037994; Gemini 3 Flash Preview
+przeszedł 6/6 w 64 064 ms i za $0.076411. DeepSeek V4 Pro nie wytworzył
+manifestu przed twardym limitem 900 s. Codestral został nowym domyślnym
+modelem, a globalny deadline aktywnie przerywa oczekujące żądanie.
+
+Na repozytoriach zewnętrznych Codestral wzbogacił 161 rekordów `weekly` w
+53 362 ms oraz 619 rekordów `nlp2uri` w 194 750 ms po dodaniu ograniczonej
+współbieżności trzech batchy. Oba manifesty miały `succeeded / llm`, bez
+fallbacku i degradacji.
 
 To potwierdza ścieżkę runtime, nie stałą jakość zewnętrznego providera. Live
 pozostaje kontrolą opt-in, a druga odpowiedź niezgodna ze schematem nadal

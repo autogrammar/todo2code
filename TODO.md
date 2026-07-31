@@ -297,7 +297,12 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   konkretne pole i kandydujące ścieżki (ticket-011).
 - [x] Jeden source schematów → TS validators + OpenRouter response schemas
   (patrz też P1).
-- [ ] Live latency/cost batch TODO/CHANGELOG (patrz P1).
+- [x] Live latency/cost batch TODO/CHANGELOG: ticket-013 porównał trzy modele,
+  wybrał Codestral 2508 i dodał współbieżność 3; `weekly` 218,741→53,362 ms,
+  a `nlp2uri` przeszedł 619 rekordów / 20 żądań w 194,750 ms.
+- [ ] [`ticket-014`](project/ticket-014/README.md) — nie uznawać nowej
+  możliwości za zaimplementowaną wyłącznie dlatego, że wskazany plik istnieje;
+  wymagany dodatkowy dowód symbolu/tematu albo jawna abstencja.
 
 ### Faza 2 — kompletne reality
 

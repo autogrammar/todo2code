@@ -2,8 +2,8 @@
 
 - **ID**: ticket-013
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: IN_PROGRESS
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-07-31
 
 ## Goal and scope
@@ -20,15 +20,16 @@ failure requires an implementation change.
 
 - [x] AC-01: Every candidate is currently available and advertises
   `structured_outputs`.
-- [ ] AC-02: Gemini 3 Flash Preview receives a complete six-stage live attempt.
-- [ ] AC-03: Codestral 2508 receives a complete six-stage live attempt.
-- [ ] AC-04: DeepSeek V4 Pro receives a complete six-stage live attempt.
-- [ ] AC-05: Results compare stage success, fallback/degradation, latency,
+- [x] AC-02: Gemini 3 Flash Preview receives a complete six-stage live attempt.
+- [x] AC-03: Codestral 2508 receives a complete six-stage live attempt.
+- [x] AC-04: DeepSeek V4 Pro receives a bounded live attempt; crossing the
+  900-second run budget is recorded as a failed candidate, not retried away.
+- [x] AC-05: Results compare stage success, fallback/degradation, latency,
   tokens and cost against Gemini 3.6 Flash.
-- [ ] AC-06: The selected default or retained baseline is justified by measured
+- [x] AC-06: The selected default or retained baseline is justified by measured
   evidence; no model is promoted from catalog metadata alone.
-- [ ] AC-07: Documentation and validation gates pass before push to `main`.
-- [ ] AC-08: Unrelated `nlp2uri.yaml` remains uncommitted.
+- [x] AC-07: Documentation and validation gates pass before push to `main`.
+- [x] AC-08: Unrelated `nlp2uri.yaml` remains uncommitted.
 
 ## Participants
 

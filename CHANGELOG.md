@@ -4,6 +4,13 @@
 
 ### Added
 
+- Codestral 2508 is the measured OpenRouter default after a 6/6 live contract
+  run at 57,129 ms and $0.037994. Gemini 3 Flash Preview also passed; DeepSeek
+  V4 Pro crossed the 900-second budget. Markdown batches now run with bounded
+  concurrency while preserving record and response audit order; `weekly`
+  improved 218,741→53,362 ms and `nlp2uri` completed 619 records without
+  fallback. The total live budget now actively aborts provider requests.
+
 - Intent-vs-Reality grades aligned topics by evidence kind (`RealityRow.evidence`,
   `totals.alignedByEvidence`, and a line in the Markdown report). Configuration
   alone is weaker evidence than a parsed symbol or a commit, and until now both

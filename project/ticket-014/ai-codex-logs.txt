@@ -1,0 +1,6 @@
+2026-07-31 existing src/retry.py falsely aligned with a new retry/backoff TODO; 0 plans
+2026-07-31 missing src/retry_backoff.py produced 1 grounded plan and Koru PLF-001
+2026-07-31 Koru false-success root cause: todo2code ticket was not classified as edit work
+2026-07-31 Koru runner fixed to treat todo2code/code-change labels as edit work
+2026-07-31 Koru PLF-002 produced verified branch koru/run-6e596247e153 commit 1809ea5
+2026-07-31 independent pytest and todo2code re-analysis passed; targeted planned gap cleared

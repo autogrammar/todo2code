@@ -1,2 +1,9 @@
 2026-07-31 ticket-013 opened
 2026-07-31 verified all three candidates in the current OpenRouter catalog with structured_outputs
+2026-07-31 Gemini 3 Flash Preview PASS 6/6, 64064 ms, 116604 tokens, $0.076411
+2026-07-31 Codestral 2508 PASS 6/6, 57129 ms, 118920 tokens, $0.037994
+2026-07-31 DeepSeek V4 Pro stopped after crossing the 900000 ms run budget; no manifest
+2026-07-31 weekly Codestral: 161 records, 6 requests, 218741 ms sequential
+2026-07-31 weekly Codestral after concurrency=3: 161 records, 6 requests, 53362 ms
+2026-07-31 nlp2uri Codestral after concurrency=3: 619 records, 20 requests, 194750 ms, $0.08588244
+2026-07-31 algitex deterministic full scan PASS: 2643 Markdown records, 9.4 s wall

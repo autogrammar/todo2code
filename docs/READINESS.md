@@ -67,7 +67,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 286 testów, 285 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 295 testów, 294 zaliczone, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 34 moduły bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
@@ -343,13 +343,21 @@ ma teraz jedną próbę korekcyjną z dokładnym schematem; druga zła odpowied�
 nadal przerywa run. Audyt zachowuje obie odpowiedzi, a request timeout nie może
 być krótszy niż mierzony budżet etapu. Historia obejmuje bieżący zapis.
 
+Ticket-013 powtórzył pełny kontrakt na modelach wybranych z poprawnych kohort
+`llm-code-benchmark`. `mistralai/codestral-2508` przeszedł 6/6 w **57,129 s**
+za **$0.037994**, a `google/gemini-3-flash-preview` w 64,064 s za $0.076411.
+`deepseek/deepseek-v4-pro` przekroczył 900-sekundowy budżet i został odrzucony.
+Codestral jest teraz jawnym domyślnym modelem. Na `weekly` współbieżność trzech
+batchy skróciła ten sam etap 218,741→53,362 ms; wcześniej timeoutujący
+`nlp2uri` zakończył 619 rekordów / 20 żądań w 194,750 ms za $0.08588244.
+
 ## Ryzyka operacyjne
 
 | Ryzyko | Stan |
 |---|---|
 | Adapter Java weryfikowany wyłącznie w CI | job Temurin 17 z `T2C_REQUIRE_JAVA_TEST=1`; w bieżącym środowisku pominięty z powodu braku JDK |
-| Zależność od dostępności providera | testy offline nigdy nie wołają sieci; live check jest osobnym, opt-in jobem; jawny Gemini 3.6 Flash przeszedł 6/6, ale wynik nie gwarantuje przyszłej dostępności |
-| Koszt LLM | ostatni pełny live check: $0.412363 i 177 953 tokeny na małym repo; próg $0,50 jest blisko i brak ekstrapolacji dla dużych |
+| Zależność od dostępności providera | testy offline nigdy nie wołają sieci; live check jest osobnym, opt-in jobem; Codestral i Gemini 3 Flash Preview przeszły 6/6, ale wynik nie gwarantuje przyszłej dostępności |
+| Koszt LLM | Codestral: $0.037994 za pełne 6/6 na małym repo i $0.08588244 za 619 rekordów Markdown `nlp2uri`; duże backlogi nadal wymagają limitu kosztu |
 | Audyt zależności | `npm audit --omit=dev`: 0 podatności |
 
 ## Kryteria wydania
@@ -390,7 +398,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 286 testów, 101 modułów, 7/0 structured/raw LLM calls
+npm run verify          # 295 testów, 102 moduły, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

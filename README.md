@@ -305,7 +305,7 @@ Pełny pipeline z OpenRouter:
 # T2C_NL_MODE=prefer-llm
 # T2C_MARKDOWN_MODE=prefer-llm
 # T2C_COMMUNICATION_MODE=prefer-llm
-# OPENROUTER_MODEL=google/gemini-3.6-flash
+# OPENROUTER_MODEL=mistralai/codestral-2508
 # Stage-specific OPENROUTER_*_MODEL variables may override this default.
 
 node dist/src/cli.js pipeline /ścieżka/do/repo \
@@ -706,7 +706,10 @@ kontrolowanego fallbacku `json_object`. Opcjonalny plugin `response-healing`
 jest sterowany przez `.env`. Osobny `OPENROUTER_TASK_MODEL` wybiera model dla
 graf + diagnostyka → zadania i domyślnie dziedziczy `OPENROUTER_MODEL`.
 
-Domyślny `google/gemini-3.6-flash` przeszedł pełną kontrolę live 6/6. Każdy
+Domyślny `mistralai/codestral-2508` przeszedł pełną kontrolę live 6/6: 57,129 s,
+118 920 tokenów i $0.037994, bez fallbacku lub degradacji. Na tym samym
+kontrakcie `google/gemini-3-flash-preview` również przeszedł 6/6, a
+`deepseek/deepseek-v4-pro` przekroczył 900-sekundowy budżet. Każdy
 bezpośredni ekstraktor wykonuje najwyżej jedną próbę korekcyjną po odrzuceniu
 odpowiedzi i ponownie podaje dokładny JSON Schema; walidacja pozostaje taka
 sama, a obie odpowiedzi zachowują model, providera, tokeny i koszt w audycie.

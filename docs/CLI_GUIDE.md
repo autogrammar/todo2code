@@ -150,7 +150,7 @@ wyniku: jeden wolny dzień providera nie może wywracać buildu.
 ### Porównanie modeli dla batcha TODO/CHANGELOG
 
 ```bash
-T2C_LIVE_COMPARE_MODELS=qwen/qwen3.7-plus,google/gemini-3.6-flash \
+T2C_LIVE_COMPARE_MODELS=mistralai/codestral-2508,google/gemini-3-flash-preview \
 T2C_REQUIRE_LIVE_CHECK=1 npm run live:models
 ```
 

@@ -44,7 +44,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Java AST → DSL | działa, wymagane w CI | lokalnie fixture może być pominięty bez JDK; osobny job Temurin 17 ustawia `T2C_REQUIRE_JAVA_TEST=1`, więc brak runtime lub regresja kończy CI błędem |
 | TODO → DSL | działa | osobny parser; checkbox i lifecycle pozostają deterministyczne |
 | CHANGELOG → DSL | działa | osobny parser; zachowuje wersję, datę, kategorię i klasę `claim` |
-| TODO/CHANGELOG + LLM | działa kontraktowo w porcjach | maksymalnie 32 rekordy na żądanie, stabilna kolejność, wspólny audyt i provenance odpowiedzi per rekord; porównanie live kosztu/latencji dwóch modeli pozostaje otwarte |
+| TODO/CHANGELOG + LLM | działa kontraktowo w porcjach | maksymalnie 32 rekordy na żądanie, do 3 żądań równolegle, stabilna kolejność audytu i provenance per rekord; Codestral przeszedł live na `weekly` (161 rekordów) i `nlp2uri` (619) |
 | Dokumentacja → DSL | działa offline i opcjonalnie przez LLM | deterministyczny baseline obejmuje nagłówki, bloki kodu i jawne odwołania; chunking, budżet i structured output opcjonalnego wzbogacenia LLM są testowane |
 | Cache AST i dokumentacji | działa fail-open | TypeScript per plik, zewnętrzne adaptery per manifest języka, Markdown per plik/hash/parametry; telemetria nie wchodzi do DSL, a odpowiedzi LLM nie są cache'owane |
 | Konfiguracja i infrastruktura → DSL | działa offline | struktury JSON/YAML/TOML, Dockerfile, Compose i workflow CI są dostępne przez pipeline, CLI, MCP, A2A i pięć SDK; `.github/workflows/` jest jawnie wyłączone z ogólnego ignorowania dot-katalogów; każdy plik ma jeden `configuration_file_fact`, który wiąże się przez jawną ścieżkę bez ogólnych dopasowań tematów |
@@ -55,11 +55,11 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint; symbol NL jest dowodem AST tylko przy jednym właścicielu lub zgodnej jawnej ścieżce, w przeciwnym razie linker abstenuje |
 | Provenance rekordów DSL | działa | każdy rekord wymaga generatora i jego wersji, wersji todo2code oraz — dla LLM — providera, rozstrzygniętego modelu i response ID; niespójne rekordy są odrzucane |
 | Generowana analiza techniczna | działa fail-closed | `project.sh` domyślnie analizuje wyłącznie detached snapshot śledzonego `HEAD`; standardowa walidacja odrzuca odniesienia do nieśledzonych wejść, ścieżki tymczasowe i niedostępne parsery, a `prefact -a` jest opt-in |
-| Przenośność między repozytoriami | zweryfikowana na 6 projektach | batch 1: `code2llm`, `domd`, `pactfix`; batch 2: `code2logic`, `code2docs`, `redup` — wszystkie `succeeded` offline z plan/review/source-patch stage; plany powstają tylko przy `target.paths` |
+| Przenośność między repozytoriami | zweryfikowana na 9 projektach | sześć wcześniejszych repo offline oraz `weekly` i `nlp2uri` live z Codestralem, `algitex` jako duży skan offline; artefakty nowych pomiarów pozostały poza worktree |
 | Diagnostyka i Intent vs Reality | działa | agregaty modułów i plików konfiguracji ograniczają szum; AST/Git/konfiguracja są obserwowaną rzeczywistością, `aligned` wymaga także deklaracji, a pokrycie dokumentacji jest osobną metryką |
 | Trend workspace | działa stabilnie | nagłówek trendu opiera się na pokryciu deklarowanych tematów, porównywalnej dokumentacji i ciężkich diagnostykach; churn linii i rekordów AST pozostaje metryką pomocniczą |
 | Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; generator v2 ogranicza `recordIds` do dowodów cytowanych diagnostyk, nieznane diagnostyki są odrzucane, a bieżący `live:check` przeszedł bez retry i fallbacku |
-| Zaplanowana kontrola live OpenRouter | działa opt-in | osobny job sprawdza NL i summary w `require-llm`, egzekwuje budżet latencji/kosztu i publikuje tylko zredagowany audyt; wymagane CI pozostaje offline |
+| Zaplanowana kontrola live OpenRouter | działa opt-in | osobny job sprawdza wszystkie 6 etapów w `require-llm`, egzekwuje twardy deadline i budżet kosztu oraz publikuje tylko zredagowany audyt; wymagane CI pozostaje offline |
 | Pełne `make demollm` | działa live, fail-closed | zweryfikowany run `20260730T185205Z-312a0535`: NL, Markdown, dokumentacja, komunikacja, synteza zadań i summary mają `succeeded / llm / degraded=false`; task i summary używają generatora v2, a końcowa bramka odrzuca brak metadanych lub degradację |
 | Kontrakty wniosków i zadań DSL | działa | JSON Schema, typy, stabilne ID, walidacja cytowań względem konkretnego grafu/raportu i jawna provenance LLM/fallback |
 | DSL/diagnostyka → zadania DSL | działa we wszystkich interfejsach | audytowana synteza OpenRouter, walidacja, deduplikacja z TODO, priority i acykliczne zależności; `require-llm` nie fallbackuje |
@@ -72,10 +72,10 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 286 testów: 285 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 101 modułów i 470 importów wewnętrznych, brak cykli, niezależny `src/core`;
+- 295 testów: 294 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 102 moduły i 473 importy wewnętrzne, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 34 moduły bez tranzytywnego importu LLM;
-- 67 zmiennych używanych przez kod/Docker i 67 odpowiadających kluczy
+- 73 zmienne używane przez kod/Docker i 73 odpowiadające klucze
   `.env.example`, bez duplikatów;
 - workflow CI przechodzi kontrolę duplikatów kluczy najwyższego poziomu;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
@@ -125,10 +125,10 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
    tematy możliwości. Gold v2 pilnuje tego progu siedmioma pozytywami i pięcioma
    twardymi negatywami, ale próba wystarcza do wykrycia regresji, a nie do
    strojenia progu; dopasowanie ponad barierą językową nadal nie działa.
-3. Wzbogacanie TODO/CHANGELOG jest porcjowane, a pełny pomiar live trzech
-   jawnych modeli opublikowano w ticket-012. Gemini 3.6 Flash przeszedł 6/6,
-   lecz koszt $0.412363 na małym repo jest blisko bramki $0,50; nadal potrzeba
-   trendu z planowych przebiegów i pomiaru większych repozytoriów.
+3. Ticket-013 porównał trzy jawne modele. Codestral 2508 przeszedł 6/6 za
+   $0.037994 i jest domyślny, Gemini 3 Flash Preview przeszedł 6/6 za $0.076411,
+   a DeepSeek V4 Pro przekroczył 900 s. Współbieżne batchowanie przeszło dwa
+   większe repozytoria, ale jakość semantyczna nadal wymaga gold, nie samego PASS.
 4. Adaptery językowe są rozdzielone na osobne moduły za małym orkiestratorem
    `src/extractors/ast.ts`; nadal nie mają osobnych paczek ani niezależnego
    versioningu release'ów.
