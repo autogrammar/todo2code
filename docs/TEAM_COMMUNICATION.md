@@ -239,11 +239,21 @@ uczestnik z komunikacji zachowuje pierwszeństwo i własne stabilne ID.
 
 ## Wdrożenie w `wellmanifest/new-project`
 
-Aktualny stan tego repozytorium nie zawiera jeszcze `project/<ticket>/`.
-Istniejące `Prompt.txt` są poleceniami człowieka, natomiast pliki w katalogach
-`GPT56Luna/`, `Opus48Medium/`, `SWE17/` i `perplexity/` są wynikami różnych
-agentów. Nie należy zmieniać ich roli na podstawie samego położenia — podczas
-migracji należy utworzyć nowe, jednoznacznie opisane pliki ticketu.
+Standard 0.6.0 (`wellmanifest/new-project@72e5f6c`) został poprawiony na
+podstawie ticketów 005–008. `new-ticket.sh` generuje jawnie typowany
+`ai-{provider}.md`, ale nie tworzy `user-*`; brak człowieka pozostaje
+`unresolved:human`. Aktywny ticket blokuje utworzenie kolejnego bez jawnego
+override, a kod wykonywalny jest zabroniony w katalogu ticketu.
+
+Indeks trafia do `project/TICKETS.md`. Dzięki temu standard nie przejmuje
+`project/README.md`, który w todo2code i innych repozytoriach może być
+artefaktem generatora analizy. Izolowany test wygenerował ticket, zachował taki
+README byte-for-byte, a todo2code odczytał jednego uczestnika
+`agent:codex / agent`, zero ludzi i trasę `unresolved:human`.
+
+Historyczne `Prompt.txt` oraz wyniki w `GPT56Luna/`, `Opus48Medium/`, `SWE17/`
+i `perplexity/` nie są automatycznie przemianowywane. Migracja nadal wymaga
+jawnego właściciela i typu; nazwa albo położenie nie są dowodem tożsamości.
 
 ## Kontrakt przestrzeni nazw `project/`
 

@@ -41,7 +41,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Diff graf/pliki/Git i reality: JSON/SVG/HTML/Markdown | PASS |
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
-| `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `user-*`/`ai-*` zachowują rolę i typ sekcji, dowody ticketu są pomijane, a każdy problem wskazuje `responseRequiredRole` i niepuste `responseRequiredFrom`; brak odbiorcy daje jawny sentinel roli; migracja Opus/GPT wykrywa brak typu i nie myli różnych plików |
+| `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `user-*`/`ai-*` zachowują rolę i typ sekcji, dowody ticketu są pomijane, a każdy problem wskazuje `responseRequiredRole` i niepuste `responseRequiredFrom`; brak odbiorcy daje jawny sentinel roli; migracja Opus/GPT wykrywa brak typu, a standard `wellmanifest/new-project` 0.6.0 przechodzi izolowany test interoperacyjności |
 | Audytowane wzbogacanie komunikacji | PASS — mock structured OpenRouter, syntezy per uczestnik z cytowaniami, zachowane runtime-owned identity/role/ticket/source/epistemic class, jawny fallback i `require-llm` |
 | `t2c.participant-registry/v1` | PASS — exact stable IDs, mapowanie Git/A2A/human aliases, wykrywanie duplikatów i konfliktów; brak dopasowania po display name |
 | `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `438b4742f8149178` oraz patcha `3aa54acb84df28c2` |

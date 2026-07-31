@@ -1,0 +1,17 @@
+# Ticket index (`project/`)
+
+This index follows `wellmanifest/new-project` 0.6.0 without taking ownership
+of `project/README.md`, which remains a generated technical-analysis artifact.
+
+<!-- AUTO:TICKET_INDEX:START -->
+| Ticket ID | Spec | Preprompt | Human input | Agent plans | Agent logs | Changelog |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **ticket-001** | [`README.md`](./ticket-001/README.md) | - | - | [`AI-Codex.md`](./ticket-001/AI-Codex.md) | [`logs.txt`](./ticket-001/logs.txt) | - |
+| **ticket-002** | [`README.md`](./ticket-002/README.md) | - | - | [`ai-codex.md`](./ticket-002/ai-codex.md) | [`ai-codex-logs.txt`](./ticket-002/ai-codex-logs.txt) | [`changelog.md`](./ticket-002/changelog.md) |
+| **ticket-003** | [`README.md`](./ticket-003/README.md) | [`preprompt.md`](./ticket-003/preprompt.md) | [`user-tom-sapletta-com.md`](./ticket-003/user-tom-sapletta-com.md) | [`ai-codex.md`](./ticket-003/ai-codex.md) | [`ai-codex-logs.txt`](./ticket-003/ai-codex-logs.txt) | [`changelog.md`](./ticket-003/changelog.md) |
+| **ticket-004** | [`README.md`](./ticket-004/README.md) | [`preprompt.md`](./ticket-004/preprompt.md) | [`user-tom-sapletta-com.md`](./ticket-004/user-tom-sapletta-com.md) | [`ai-codex.md`](./ticket-004/ai-codex.md) | [`ai-codex-logs.txt`](./ticket-004/ai-codex-logs.txt) | [`changelog.md`](./ticket-004/changelog.md) |
+| **ticket-005** | [`README.md`](./ticket-005/README.md) | [`preprompt.md`](./ticket-005/preprompt.md) | [`user-tom-sapletta-com.md`](./ticket-005/user-tom-sapletta-com.md) | [`ai-codex.md`](./ticket-005/ai-codex.md) | [`ai-codex-logs.txt`](./ticket-005/ai-codex-logs.txt) | [`changelog.md`](./ticket-005/changelog.md) |
+| **ticket-006** | [`README.md`](./ticket-006/README.md) | [`preprompt.md`](./ticket-006/preprompt.md) | - | [`ai-codex.md`](./ticket-006/ai-codex.md) | [`ai-codex-logs.txt`](./ticket-006/ai-codex-logs.txt) | [`changelog.md`](./ticket-006/changelog.md) |
+| **ticket-007** | [`README.md`](./ticket-007/README.md) | [`preprompt.md`](./ticket-007/preprompt.md) | - | [`ai-codex.md`](./ticket-007/ai-codex.md) | [`ai-codex-logs.txt`](./ticket-007/ai-codex-logs.txt) | [`changelog.md`](./ticket-007/changelog.md) |
+| **ticket-008** | [`README.md`](./ticket-008/README.md) | [`preprompt.md`](./ticket-008/preprompt.md) | - | [`ai-codex.md`](./ticket-008/ai-codex.md) | [`ai-codex-logs.txt`](./ticket-008/ai-codex-logs.txt) | [`changelog.md`](./ticket-008/changelog.md) |
+<!-- AUTO:TICKET_INDEX:END -->

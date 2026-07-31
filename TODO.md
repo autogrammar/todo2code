@@ -6,6 +6,11 @@ No ticket is currently active.
 
 ## Completed tickets
 
+- [x] [`ticket-008`](project/ticket-008/README.md) — upstream governance
+  hardening. `wellmanifest/new-project` 0.6.0 now uses role-typed participant
+  templates, explicit unresolved ownership, active-ticket reuse and a separate
+  `project/TICKETS.md` index that cannot overwrite generated analysis. Current
+  state: `DONE`.
 - [x] [`ticket-007`](project/ticket-007/README.md) — explicit unresolved
   response routing. Every communication issue now names a known participant or
   the role sentinel `unresolved:human` / `unresolved:agent`; no participant is

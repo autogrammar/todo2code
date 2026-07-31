@@ -23,7 +23,10 @@ eksperyment rerankera przez kontrolowaną ścieżkę odrzucenia. Ticket
 [`project/ticket-006`](../project/ticket-006/README.md) ujednolicił walidację
 odpowiedzi i potwierdził odrzucenie na drugiej trasie modelowej. Ticket
 [`project/ticket-007`](../project/ticket-007/README.md) domknął pustą trasę
-odpowiedzi bez tworzenia tożsamości za człowieka.
+odpowiedzi bez tworzenia tożsamości za człowieka. Ticket
+[`project/ticket-008`](../project/ticket-008/README.md) przeniósł te granice do
+standardu `wellmanifest/new-project` 0.6.0 i oddzielił indeks ticketów od
+generowanego `project/README.md`.
 
 ## Odpowiedź krótka
 

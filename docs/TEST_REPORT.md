@@ -35,6 +35,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Trzy zewnętrzne repozytoria (batch 2) | pipeline na `code2logic`, `code2docs`, `redup` | PASS — trzy `succeeded`, code-change stage deterministic, review + source patches |
 | Migracja komunikacji innego projektu | historyczne Opus/GPT56Luna z `wellmanifest/new-project` | PASS — jawna ochrona przed beztypowym rename; Opus 0 problemów, GPT 3 wymagające odpowiedzi, bez fałszywego konfliktu plików |
 | Brak właściciela wymaganej odpowiedzi | rzeczywisty `ticket-006` + fixture agent-only/human-only | PASS — 3/3 problemów ticket-006 wskazuje `unresolved:human`; fixture pokrywa też `unresolved:agent`, znane ID pozostają bez zmian |
+| Standard `wellmanifest/new-project` 0.6.0 | izolowany target + bieżący todo2code CLI | PASS — agent `agent:codex`, 0 wymyślonych ludzi, `unresolved:human`; `project/README.md` zachowany, drugi aktywny ticket i traversal odrzucone |
 
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
