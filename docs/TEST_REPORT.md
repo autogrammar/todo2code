@@ -1,6 +1,6 @@
 # Raport z testów i poprawek
 
-Data wykonania: **2026-07-30**. Runtime: **0.5.0**. Baza robocza:
+Data wykonania: **2026-07-31**. Runtime: **0.5.0**. Baza robocza:
 bieżący `main` wraz z opisanymi niżej poprawkami. Środowisko: Linux,
 Node.js 20.19.5, Python 3.13.12, Go 1.24.4, Rust 1.93.0 i Docker 29.1.3.
 Lokalnie nie ma JDK; adapter Java jest wymagany w osobnym jobie CI z Temurin
@@ -14,14 +14,14 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 232 testy: 231 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 238 testów: 237 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
 | Moduły | `npm run verify:modules` | PASS — 93 moduły, 426 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
-| Gold benchmark | `npm run evaluate:gold` | 100% precision/recall i 100% stabilności |
+| Gold benchmark | `npm run evaluate:gold` | gold v2: 100% precision/recall (ekstrakcja, linkowanie po klasach, kody diagnostyk) i 100% stabilności |
 | Przykłady | `npm run examples:check` | PASS — wszystkie 5 SDK |
 | CLI/MCP/A2A | `make smoke && make protocol-smoke` | PASS |
 | Docker | `make docker-smoke` | PASS — build, `/healthz`, `doctor` |
@@ -294,7 +294,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 96 relacji, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 97 relacji, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

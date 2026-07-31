@@ -1,23 +1,53 @@
 # Gold benchmark
 
-`v1/dataset.json` is a reviewable, versioned semantic benchmark with the
-runtime contract `t2c.gold-dataset/v1`. Its JSON Schema is published as
-`schemas/gold-dataset.schema.json`.
+`v2/dataset.json` is the current reviewable, versioned semantic benchmark, with
+the runtime contract `t2c.gold-dataset/v2`. `v1/dataset.json` stays in the tree
+and stays evaluable; it is the smaller sample the thresholds were first tuned
+against. Both are described by `schemas/gold-dataset.schema.json`.
 
 Run the offline quality gate with:
 
 ```bash
-npm run evaluate:gold
+npm run evaluate:gold        # v2
+npm run evaluate:gold:v1     # the v1 sample, unchanged
 ```
 
 The command executes every case twice and reports:
 
-- record-level precision and recall for NL, documentation and Markdown → DSL;
-- relation-level precision and recall for linking;
+- record-level precision and recall per extraction channel — NL, the captured
+  documentation model response, the deterministic documentation baseline and
+  Markdown → DSL;
+- relation-level precision and recall for linking, split into `exact-target`
+  and `capability-topic`;
+- diagnostic-code precision and recall per record, including false DONE claims;
 - citation completeness for conclusions and TODO proposals;
 - duplicate-classification precision, recall and the share of proposals
   suppressed as duplicates;
 - stability from canonical fingerprints of two repeated runs.
+
+## What v2 adds
+
+- **A deterministic documentation channel.** `documentation` runs the audited
+  LLM path against a captured response; `documentation-deterministic` runs the
+  offline Markdown baseline that every run has. They fail differently, so they
+  are measured apart. Prescriptive prose (`must`, `should`, `nie wolno`) and
+  descriptive prose are separate cases, because whether documentation counts as
+  a plan is decided by its modality.
+- **Capability-topic support wide enough to move.** Seven positives and five
+  hard negatives, including a pair two topics apart and one whose only shared
+  vocabulary is generic. With v1's single positive and single negative, moving
+  the three-topic floor could not be distinguished from noise.
+- **A diagnostics scope.** Extraction and linking cannot express "this DONE
+  claim has no implementation behind it": the record extracts cleanly and links
+  to nothing, which is exactly the state under test. `diagnostics` cases name
+  the codes a small graph must raise per record, and `forbidden` names the ones
+  it must not — a DONE task with real evidence must stay quiet.
+- **Known gaps, measured but not gated.** A case marked `knownGap: true` is
+  scored and reported separately, never inside precision and recall. The
+  Polish-prose-to-English-module case is the measured example: encoding it as an
+  ordinary expectation would make the offline gate permanently red, and a gate
+  that is always red stops being read; dropping it would leave the language
+  barrier unmeasured, which is how it survived unquantified.
 
 The documentation cases use a captured structured model response and run it
 through the real runtime repair/provenance path. This deliberately measures the
@@ -29,16 +59,18 @@ For machine-readable output, invoke the built CLI directly:
 
 ```bash
 npm run build
-node dist/src/evaluation/gold-cli.js evaluation/gold/v1/dataset.json --json
+node dist/src/evaluation/gold-cli.js evaluation/gold/v2/dataset.json --json
 ```
 
 Use `--out <path>` to persist either Markdown or JSON. `--require-perfect`
-returns a failing exit status unless extraction/linking precision and recall,
-citation completeness, duplicate-classification precision and recall, and
-repeated-run stability are all 100%. The deduplication rate itself is reported
-but is not a quality threshold because it describes corpus composition.
+returns a failing exit status unless extraction/linking/diagnostic precision and
+recall, citation completeness, duplicate-classification precision and recall,
+and repeated-run stability are all 100%, with no forbidden relation or code
+raised. The deduplication rate and the known-gap ratio are reported but are not
+thresholds: the first describes corpus composition, the second describes work
+that has not been done yet.
 
 When extending a dataset, keep expected records independent from runtime
-output, use unique case/record labels, add both positive and negative linking
-or deduplication examples, and bump the dataset/schema version for a breaking
-format change.
+output, use unique case/record labels, add both positive and negative linking,
+diagnostic or deduplication examples, and bump the dataset/schema version for a
+breaking format change.

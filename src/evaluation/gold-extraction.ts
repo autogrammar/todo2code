@@ -4,6 +4,7 @@ import path from 'node:path';
 import { getConfig, type T2CConfig } from '../config/env.js';
 import { assertPathWithinRoot } from '../core/security.js';
 import type { IntentRecord } from '../core/types.js';
+import { extractDocumentationBaseline } from '../extractors/docs-deterministic.js';
 import { extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractMarkdownIntent } from '../extractors/markdown.js';
 import { extractNlIntent } from '../extractors/nl.js';
@@ -16,6 +17,9 @@ export async function runExtractionCase(fixture: GoldExtractionCase): Promise<In
     const config = benchmarkConfig(root);
     if (fixture.channel === 'nl') return await extractNlCase(fixture, config);
     if (fixture.channel === 'markdown') return await extractMarkdownCase(fixture, config);
+    if (fixture.channel === 'documentation-deterministic') {
+      return await extractDeterministicDocumentationCase(fixture, config, root);
+    }
     return await extractDocumentationCase(fixture, config);
   } finally {
     await fs.rm(root, { recursive: true, force: true });
@@ -44,6 +48,25 @@ async function extractMarkdownCase(fixture: GoldExtractionCase, config: T2CConfi
     todoPath: fixture.todoPath ?? null,
     changelogPath: fixture.changelogPath ?? null,
   }, config)).records;
+}
+
+/**
+ * The offline Markdown baseline, run over the case's own fixture files.
+ *
+ * Paths are resolved inside the temporary root and re-checked, so a fixture
+ * key such as `../../outside.md` fails here exactly as it does when the files
+ * are written.
+ */
+async function extractDeterministicDocumentationCase(
+  fixture: GoldExtractionCase,
+  config: T2CConfig,
+  root: string,
+): Promise<IntentRecord[]> {
+  const files = await Promise.all(Object.keys(fixture.files ?? {}).map((relative) => (
+    assertPathWithinRoot(root, path.resolve(root, relative))
+  )));
+  if (!files.length) throw new Error(`Gold case ${fixture.id} requires documentation files`);
+  return (await extractDocumentationBaseline({ root: config.root, files }, config)).records;
 }
 
 async function extractDocumentationCase(

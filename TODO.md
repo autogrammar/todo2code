@@ -32,6 +32,15 @@
 - [x] Extend the gold linking dataset with prose-to-module positive and hard
   negative cases, then publish precision/recall separately for exact-target
   and capability-topic relations.
+- [x] Read prohibitions and periphrastic obligation as deontic modality. Before
+  this, `nie wolno` scored `unknown`, `nie może` scored `optional` because the
+  permissive rule matched the `może` inside the ban, and `\bmuszą\b` could never
+  match at all: JavaScript's `\b` treats `ą` as a non-word character.
+- [x] Fold regular English plurals in `topicKeywords`, guarded against `ss`/`us`/
+  `is`/`as`/`os` endings. Measured from tracked `HEAD`: relations 24 246 → 24 400
+  here and 10 875 → 11 002 on `subactor/platform`, with `aligned` and
+  implementation coverage unchanged — the fix is real per sentence, but does not
+  move repository-level coverage.
 - [x] Split large TODO/CHANGELOG LLM enrichment into bounded 32-record batches
   with a shared audit, per-record response provenance and deterministic
   ordering.
@@ -170,8 +179,23 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [x] Gold v2 (część): capability hard-negative (2 tematy), partial symbol
   still evidenced; bare basename, multi-clause NL, route/host non-paths,
   ticket exact-target.
-- [ ] Gold v2 (reszta): docs prescriptive vs descriptive w ekstrakcji,
-  false DONE lifecycle cases.
+- [x] Gold v2 (reszta): `evaluation/gold/v2/dataset.json` z kanałem
+  `documentation-deterministic` (prescriptive vs descriptive w ekstrakcji),
+  zakresem `diagnostics` (false DONE bez dowodu vs DONE z dowodem, partial
+  implementation jednego ticketu) oraz siedmioma pozytywami i pięcioma twardymi
+  negatywami `capability-topic` zamiast jednego i dwóch. `npm run evaluate:gold`
+  liczy teraz v2; v1 pozostaje pod `evaluate:gold:v1`.
+- [ ] Powiększyć próbę `capability-topic` na tyle, by zmiana progu trzech
+  tematów dawała mierzalny spadek w obie strony. Siedem pozytywów wykrywa
+  regresję progu, ale nie pozwala go stroić.
+- [ ] Dopasowanie ponad barierą językową (słownik dziedzinowy albo osadzenia).
+  Gold v2 mierzy tę lukę jako `knownGap` 0/1
+  (`link-topic-polish-prose-to-english-module`); jest to główny powód
+  `implementation coverage` 5,9% na `subactor/platform`.
+- [ ] Zmierzyć, czy wpisy changelogu powinny uczestniczyć w dopasowaniu
+  tematycznym. `isModuleTopicSource` obejmuje `module_fact`, `nl`, `todo` i
+  `document`, więc wpis wydania dosięga modułu tylko przez jawny ticket, symbol
+  lub ścieżkę — co bezpośrednio podnosi `CHANGELOG_WITHOUT_IMPLEMENTATION`.
 - [x] Wzmocnić NL→target: odrzucanie absolutnych/HTTP/traversal path i
   hostnames; ticket binding w gold exact-target.
 - [ ] Dalsze NL→target: resolution symboli względem AST, actionable

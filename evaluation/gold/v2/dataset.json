@@ -1,0 +1,1631 @@
+{
+  "schemaVersion": "t2c.gold-dataset/v2",
+  "name": "todo2code core semantic benchmark v2",
+  "description": "Gold cases for deterministic NL and Markdown extraction, the deterministic documentation baseline, a captured documentation-model response, capability-topic and exact-target linking with hard negatives, lifecycle diagnostics including false DONE claims, and DSL2TODO grounding and deduplication.",
+  "extraction": [
+    {
+      "id": "nl-en-required-add",
+      "channel": "nl",
+      "sourcePath": "TASK.md",
+      "text": "System must implement `validateContract` in `src/contracts.ts` for T2C-101.",
+      "expected": [
+        {
+          "sourceKind": "nl",
+          "action": "add",
+          "text": "System must implement `validateContract` in `src/contracts.ts` for T2C-101.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [
+            "src/contracts.ts"
+          ],
+          "symbols": [
+            "validateContract"
+          ],
+          "tickets": [
+            "T2C-101"
+          ],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "nl-pl-recommended-remove",
+      "channel": "nl",
+      "sourcePath": "TASK.md",
+      "text": "Agent powinien usunąć `legacyCheckout` z `src/legacy.ts` dla T2C-102.",
+      "expected": [
+        {
+          "sourceKind": "nl",
+          "action": "remove",
+          "text": "Agent powinien usunąć `legacyCheckout` z `src/legacy.ts` dla T2C-102.",
+          "lifecycle": "proposed",
+          "modality": "recommended",
+          "polarity": "positive",
+          "paths": [
+            "src/legacy.ts"
+          ],
+          "symbols": [
+            "legacyCheckout"
+          ],
+          "tickets": [
+            "T2C-102"
+          ],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "nl-en-multi-clause-with-ticket",
+      "channel": "nl",
+      "sourcePath": "TASK.md",
+      "text": "For T2C-110 the service must add `exportMetrics` in `src/metrics/export.ts` and keep `src/metrics/types.ts` stable.",
+      "expected": [
+        {
+          "sourceKind": "nl",
+          "action": "add",
+          "text": "For T2C-110 the service must add `exportMetrics` in `src/metrics/export.ts` and keep `src/metrics/types.ts` stable.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [
+            "src/metrics/export.ts",
+            "src/metrics/types.ts"
+          ],
+          "symbols": [
+            "exportMetrics"
+          ],
+          "tickets": [
+            "T2C-110"
+          ],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "nl-route-and-host-are-not-repository-paths",
+      "channel": "nl",
+      "sourcePath": "TASK.md",
+      "text": "Document `/api/plans/propose` and `logo.example.com` without inventing repository files.",
+      "expected": [
+        {
+          "sourceKind": "nl",
+          "action": "document",
+          "text": "Document `/api/plans/propose` and `logo.example.com` without inventing repository files.",
+          "lifecycle": "proposed",
+          "modality": "unknown",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "documentation-repair-snapshot",
+      "channel": "documentation",
+      "files": {
+        "docs/CHECKOUT.md": "# Checkout\n\nThe runtime must validate `checkoutOrder` in `src/checkout.ts` for T2C-103.\nThe service should preserve backwards compatibility.\n"
+      },
+      "documentResponse": {
+        "records": [
+          {
+            "kind": "documented_requirement",
+            "actor": "runtime",
+            "action": "unknown",
+            "subject": null,
+            "object": "unknown",
+            "modality": "unknown",
+            "polarity": "positive",
+            "lifecycle": "proposed",
+            "confidence": 0.8,
+            "basis": [
+              "captured_gold_response"
+            ],
+            "target": {
+              "paths": [],
+              "symbols": [],
+              "tickets": [],
+              "versions": []
+            },
+            "sourceLines": {
+              "start": 1,
+              "end": 1
+            },
+            "text": "The runtime must validate `checkoutOrder` in `src/checkout.ts` for T2C-103."
+          },
+          {
+            "kind": "documented_constraint",
+            "actor": "service",
+            "action": "unknown",
+            "subject": null,
+            "object": "unknown",
+            "modality": "unknown",
+            "polarity": "positive",
+            "lifecycle": "proposed",
+            "confidence": 0.8,
+            "basis": [
+              "captured_gold_response"
+            ],
+            "target": {
+              "paths": [],
+              "symbols": [],
+              "tickets": [],
+              "versions": []
+            },
+            "sourceLines": {
+              "start": 1,
+              "end": 1
+            },
+            "text": "The service should preserve backwards compatibility."
+          }
+        ]
+      },
+      "expected": [
+        {
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "The runtime must validate `checkoutOrder` in `src/checkout.ts` for T2C-103.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [
+            "src/checkout.ts"
+          ],
+          "symbols": [
+            "checkoutOrder"
+          ],
+          "tickets": [
+            "T2C-103"
+          ],
+          "versions": [],
+          "lines": {
+            "start": 3,
+            "end": 3
+          }
+        },
+        {
+          "sourceKind": "document",
+          "action": "preserve",
+          "text": "The service should preserve backwards compatibility.",
+          "lifecycle": "proposed",
+          "modality": "recommended",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 4,
+            "end": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "markdown-todo-changelog",
+      "channel": "markdown",
+      "files": {
+        "TODO.md": "# Delivery\n\n- [ ] Add `checkoutOrder` in `src/checkout.ts` for T2C-103.\n- [x] Test `checkoutOrder` for T2C-103.\n",
+        "CHANGELOG.md": "# Changelog\n\n## [1.4.0] - 2026-07-30\n\n### Fixed\n\n- Fixed `checkoutOrder` in `src/checkout.ts` for T2C-103.\n"
+      },
+      "todoPath": "TODO.md",
+      "changelogPath": "CHANGELOG.md",
+      "expected": [
+        {
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Add `checkoutOrder` in `src/checkout.ts` for T2C-103.",
+          "lifecycle": "planned",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [
+            "src/checkout.ts"
+          ],
+          "symbols": [
+            "checkoutOrder"
+          ],
+          "tickets": [
+            "T2C-103"
+          ],
+          "versions": [],
+          "lines": {
+            "start": 3,
+            "end": 3
+          }
+        },
+        {
+          "sourceKind": "todo",
+          "action": "test",
+          "text": "Test `checkoutOrder` for T2C-103.",
+          "lifecycle": "completed",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [
+            "checkoutOrder"
+          ],
+          "tickets": [
+            "T2C-103"
+          ],
+          "versions": [],
+          "lines": {
+            "start": 4,
+            "end": 4
+          }
+        },
+        {
+          "sourceKind": "changelog",
+          "action": "fix",
+          "text": "Fixed `checkoutOrder` in `src/checkout.ts` for T2C-103.",
+          "lifecycle": "released",
+          "modality": "claimed",
+          "polarity": "positive",
+          "paths": [
+            "src/checkout.ts"
+          ],
+          "symbols": [
+            "checkoutOrder"
+          ],
+          "tickets": [
+            "T2C-103"
+          ],
+          "versions": [
+            "1.4.0"
+          ],
+          "lines": {
+            "start": 7,
+            "end": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": "nl-pl-prohibition-multi-sentence",
+      "channel": "nl",
+      "sourcePath": "TASK.md",
+      "text": "Walidacja musi odrzucać rekordy bez prowenienacji. Nie wolno publikować wyniku bez zgody operatora.",
+      "expected": [
+        {
+          "sourceKind": "nl",
+          "action": "unknown",
+          "text": "Walidacja musi odrzucać rekordy bez prowenienacji.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        },
+        {
+          "sourceKind": "nl",
+          "action": "unknown",
+          "text": "Nie wolno publikować wyniku bez zgody operatora.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "negative",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "nl-en-obligation-multi-sentence",
+      "channel": "nl",
+      "sourcePath": "TASK.md",
+      "text": "The reviewer must not approve a plan whose evidence is missing. Every approval has to cite the diagnostic it closes.",
+      "expected": [
+        {
+          "sourceKind": "nl",
+          "action": "approve",
+          "text": "The reviewer must not approve a plan whose evidence is missing.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "negative",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        },
+        {
+          "sourceKind": "nl",
+          "action": "unknown",
+          "text": "Every approval has to cite the diagnostic it closes.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "documentation-deterministic-prescriptive",
+      "channel": "documentation-deterministic",
+      "files": {
+        "docs/approval.md": "# Approval gate\n\nThe runtime must validate every `sourcePatch` before it writes a file, and it has to record the approved hash in the receipt.\n\nOperators should review `docs/READINESS.md` before promoting a release.\n\nNie wolno stosować `applySourcePatch` bez zatwierdzonego hasha.\n"
+      },
+      "expected": [
+        {
+          "sourceKind": "document",
+          "action": "unknown",
+          "text": "Approval gate",
+          "lifecycle": "proposed",
+          "modality": "unknown",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        },
+        {
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "The runtime must validate every `sourcePatch` before it writes a file, and it has to record the approved hash in the receipt.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [
+            "sourcePatch"
+          ],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 3,
+            "end": 3
+          }
+        },
+        {
+          "sourceKind": "document",
+          "action": "unknown",
+          "text": "Operators should review `docs/READINESS.md` before promoting a release.",
+          "lifecycle": "proposed",
+          "modality": "recommended",
+          "polarity": "positive",
+          "paths": [
+            "docs/READINESS.md"
+          ],
+          "symbols": [
+            "READINESS"
+          ],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 5,
+            "end": 5
+          }
+        },
+        {
+          "sourceKind": "document",
+          "action": "unknown",
+          "text": "Nie wolno stosować `applySourcePatch` bez zatwierdzonego hasha.",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "polarity": "negative",
+          "paths": [],
+          "symbols": [
+            "applySourcePatch"
+          ],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 7,
+            "end": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": "documentation-deterministic-descriptive",
+      "channel": "documentation-deterministic",
+      "files": {
+        "docs/linker.md": "# Linker overview\n\nThe linker resolves `pathAliases` for every record and keeps the relation set sparse.\n\n## Configuration (recommended)\n\nThe `documentChunkChars` setting bounds one request to the documentation model.\n"
+      },
+      "expected": [
+        {
+          "sourceKind": "document",
+          "action": "unknown",
+          "text": "Linker overview",
+          "lifecycle": "proposed",
+          "modality": "unknown",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 1,
+            "end": 1
+          }
+        },
+        {
+          "sourceKind": "document",
+          "action": "unknown",
+          "text": "The linker resolves `pathAliases` for every record and keeps the relation set sparse.",
+          "lifecycle": "proposed",
+          "modality": "unknown",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [
+            "pathAliases"
+          ],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 3,
+            "end": 3
+          }
+        },
+        {
+          "sourceKind": "document",
+          "action": "configure",
+          "text": "Configuration (recommended)",
+          "lifecycle": "proposed",
+          "modality": "unknown",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 5,
+            "end": 5
+          }
+        },
+        {
+          "sourceKind": "document",
+          "action": "document",
+          "text": "The `documentChunkChars` setting bounds one request to the documentation model.",
+          "lifecycle": "proposed",
+          "modality": "unknown",
+          "polarity": "positive",
+          "paths": [],
+          "symbols": [
+            "documentChunkChars"
+          ],
+          "tickets": [],
+          "versions": [],
+          "lines": {
+            "start": 7,
+            "end": 7
+          }
+        }
+      ]
+    }
+  ],
+  "linking": [
+    {
+      "id": "link-git-implements-nl",
+      "records": [
+        {
+          "label": "request",
+          "sourceKind": "nl",
+          "action": "add",
+          "text": "Implement checkout validation T2C-201",
+          "lifecycle": "proposed",
+          "target": {
+            "tickets": [
+              "T2C-201"
+            ]
+          }
+        },
+        {
+          "label": "commit",
+          "sourceKind": "git",
+          "action": "add",
+          "text": "Implement checkout validation T2C-201",
+          "lifecycle": "implemented",
+          "target": {
+            "tickets": [
+              "T2C-201"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "commit",
+          "to": "request",
+          "type": "implements"
+        }
+      ]
+    },
+    {
+      "id": "link-todo-plans-document",
+      "records": [
+        {
+          "label": "plan",
+          "sourceKind": "todo",
+          "action": "validate",
+          "text": "Validate order schema T2C-202",
+          "lifecycle": "planned",
+          "target": {
+            "tickets": [
+              "T2C-202"
+            ]
+          }
+        },
+        {
+          "label": "docs",
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "Validate order schema T2C-202",
+          "lifecycle": "proposed",
+          "target": {
+            "tickets": [
+              "T2C-202"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "plan",
+          "to": "docs",
+          "type": "plans"
+        }
+      ]
+    },
+    {
+      "id": "link-same-source-duplicates",
+      "records": [
+        {
+          "label": "first",
+          "sourceKind": "todo",
+          "action": "test",
+          "text": "Test checkout audit T2C-203",
+          "lifecycle": "planned",
+          "target": {
+            "tickets": [
+              "T2C-203"
+            ]
+          }
+        },
+        {
+          "label": "second",
+          "sourceKind": "todo",
+          "action": "test",
+          "text": "Test checkout audit T2C-203",
+          "lifecycle": "planned",
+          "target": {
+            "tickets": [
+              "T2C-203"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "first",
+          "to": "second",
+          "type": "duplicates"
+        }
+      ]
+    },
+    {
+      "id": "link-prose-to-module-capability",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Documentation extraction must validate every emitted record",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/extractors/documentation-validator.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/extractors/documentation-validator.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ]
+    },
+    {
+      "id": "link-prose-to-module-below-floor",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Source extraction must stay deterministic",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/extractors/source-scanner.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/extractors/source-scanner.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "module"
+        }
+      ]
+    },
+    {
+      "id": "link-bare-basename-unique",
+      "records": [
+        {
+          "label": "document",
+          "sourceKind": "document",
+          "action": "document",
+          "text": "See markdown.ts for the converter contract",
+          "lifecycle": "proposed",
+          "target": {
+            "paths": [
+              "markdown.ts"
+            ]
+          }
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/extractors/markdown.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/extractors/markdown.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "document",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "exact-target"
+        }
+      ]
+    },
+    {
+      "id": "link-bare-basename-ambiguous-forbidden",
+      "records": [
+        {
+          "label": "document",
+          "sourceKind": "document",
+          "action": "document",
+          "text": "See validation.ts for shared rules",
+          "lifecycle": "proposed",
+          "target": {
+            "paths": [
+              "validation.ts"
+            ]
+          }
+        },
+        {
+          "label": "module-a",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/synthesis/validation.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/synthesis/validation.ts"
+            ]
+          }
+        },
+        {
+          "label": "module-b",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/operations/validation.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/operations/validation.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "document",
+          "to": "module-a"
+        },
+        {
+          "from": "document",
+          "to": "module-b"
+        }
+      ]
+    },
+    {
+      "id": "link-ticket-exact-target",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "add",
+          "text": "T2C-220 must ship audited export metrics",
+          "lifecycle": "proposed",
+          "target": {
+            "tickets": [
+              "T2C-220"
+            ]
+          }
+        },
+        {
+          "label": "implementation",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/metrics/export.ts for T2C-220",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/metrics/export.ts"
+            ],
+            "tickets": [
+              "T2C-220"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "implementation",
+          "type": "evidenced_by",
+          "relationClass": "exact-target"
+        }
+      ]
+    },
+    {
+      "id": "link-capability-two-topics-hard-negative",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Extraction validation remains important",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/extractors/validation-helper.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/extractors/validation-helper.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "module"
+        }
+      ]
+    },
+    {
+      "id": "link-partial-symbol-still-evidenced",
+      "records": [
+        {
+          "label": "plan",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Add exportMetrics and renderMetrics for T2C-230",
+          "lifecycle": "planned",
+          "target": {
+            "paths": [
+              "src/metrics/export.ts"
+            ],
+            "symbols": [
+              "exportMetrics",
+              "renderMetrics"
+            ],
+            "tickets": [
+              "T2C-230"
+            ]
+          }
+        },
+        {
+          "label": "partial",
+          "sourceKind": "ast",
+          "action": "declare",
+          "text": "declare exportMetrics",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/metrics/export.ts"
+            ],
+            "symbols": [
+              "exportMetrics"
+            ],
+            "tickets": [
+              "T2C-230"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "plan",
+          "to": "partial",
+          "type": "evidenced_by",
+          "relationClass": "exact-target"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-nl-to-summary-validator",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Summary rendering must validate the conclusion payload",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/synthesis/summary-conclusion-validator.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/synthesis/summary-conclusion-validator.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-todo-to-topic-linker",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Link extracted declarations to graph topics",
+          "lifecycle": "planned"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/graph/extract-topic-linker.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/graph/extract-topic-linker.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-document-to-environment-validator",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "document",
+          "text": "Environment configuration must be validated before a run starts",
+          "lifecycle": "proposed",
+          "modality": "required"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/config/environment-configuration-validator.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/config/environment-configuration-validator.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-plural-form-still-matches",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Cache documentation chunks between runs",
+          "lifecycle": "planned"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/pipeline/documentation-chunk-cache.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/pipeline/documentation-chunk-cache.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-document-prescriptive-to-module",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "The participant registry must validate every synthesis before it is stored",
+          "lifecycle": "proposed",
+          "modality": "required"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/communication/participant-synthesis-validation.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/communication/participant-synthesis-validation.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-five-shared-topics",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Documentation extraction must validate the diagnostic summary it links",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/graph/documentation-extract-diagnostic-summary-link-validation.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/graph/documentation-extract-diagnostic-summary-link-validation.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-two-shared-topics-hard-negative",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Conclusion payloads matter for review",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/synthesis/conclusion-payload.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/synthesis/conclusion-payload.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "module"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-generic-vocabulary-hard-negative",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "declare",
+          "text": "Intent records and module types must stay stable",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/core/intent-record-types.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/core/intent-record-types.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "module"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-configuration-aggregate-needs-explicit-path",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "configure",
+          "text": "Docker compose configuration must expose the protocol service ports",
+          "lifecycle": "proposed",
+          "modality": "required"
+        },
+        {
+          "label": "configuration",
+          "sourceKind": "system",
+          "action": "configure",
+          "statementKind": "configuration_file_fact",
+          "text": "declare docker-compose.yml protocol service configuration ports",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "docker-compose.yml"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "configuration"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-requires-a-module-aggregate",
+      "records": [
+        {
+          "label": "left",
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "Documentation extraction must validate every emitted record",
+          "lifecycle": "proposed",
+          "modality": "required"
+        },
+        {
+          "label": "right",
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "Documentation extraction must validate each emitted record",
+          "lifecycle": "proposed",
+          "modality": "required"
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "left",
+          "to": "right"
+        }
+      ]
+    },
+    {
+      "id": "link-topic-polish-prose-to-english-module",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "Rejestr uczestników musi weryfikować tożsamość agenta przed zapisem",
+          "lifecycle": "proposed",
+          "modality": "required"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/communication/participant-identity-registry.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/communication/participant-identity-registry.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ],
+      "knownGap": true
+    }
+  ],
+  "dsl2todo": [
+    {
+      "id": "dsl2todo-grounding-and-deduplication",
+      "records": [
+        {
+          "label": "existing-plan",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Implement audited export for T2C-301",
+          "lifecycle": "planned",
+          "target": {
+            "paths": [
+              "src/export.ts"
+            ],
+            "tickets": [
+              "T2C-301"
+            ]
+          }
+        }
+      ],
+      "proposals": [
+        {
+          "label": "duplicate-export",
+          "title": "Implement audited export",
+          "description": "Implement audited export for T2C-301",
+          "priority": "P1",
+          "target": {
+            "paths": [
+              "src/export.ts"
+            ],
+            "symbols": [],
+            "tickets": [
+              "T2C-301"
+            ],
+            "versions": []
+          },
+          "acceptanceCriteria": [
+            "The audited export passes focused tests."
+          ],
+          "requiredRecordLabels": [
+            "existing-plan"
+          ],
+          "expectedDuplicate": true
+        },
+        {
+          "label": "new-metrics",
+          "title": "Add export metrics",
+          "description": "Add latency counters for the export worker.",
+          "priority": "P2",
+          "target": {
+            "paths": [
+              "src/metrics.ts"
+            ],
+            "symbols": [],
+            "tickets": [
+              "T2C-301"
+            ],
+            "versions": []
+          },
+          "acceptanceCriteria": [
+            "Focused tests observe the new latency counters."
+          ],
+          "requiredRecordLabels": [
+            "existing-plan"
+          ],
+          "expectedDuplicate": false
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "diagnostics-false-done-without-evidence",
+      "records": [
+        {
+          "label": "todo-done",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Ship `applySourcePatch` for T2C-301",
+          "lifecycle": "completed",
+          "target": {
+            "symbols": [
+              "applySourcePatch"
+            ],
+            "tickets": [
+              "T2C-301"
+            ]
+          }
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/reporting/coverage-table.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/reporting/coverage-table.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "record": "todo-done",
+          "code": "PLANNED_NOT_IMPLEMENTED"
+        },
+        {
+          "record": "todo-done",
+          "code": "UNLINKED_RECORD"
+        }
+      ]
+    },
+    {
+      "id": "diagnostics-true-done-with-evidence",
+      "records": [
+        {
+          "label": "todo-done",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Ship `applySourcePatch` in `src/patch/apply.ts` for T2C-302",
+          "lifecycle": "completed",
+          "target": {
+            "paths": [
+              "src/patch/apply.ts"
+            ],
+            "symbols": [
+              "applySourcePatch"
+            ],
+            "tickets": [
+              "T2C-302"
+            ]
+          }
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/patch/apply.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/patch/apply.ts"
+            ],
+            "symbols": [
+              "applySourcePatch"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "record": "graph",
+          "code": "ALIGNED"
+        }
+      ],
+      "forbidden": [
+        {
+          "record": "todo-done",
+          "code": "PLANNED_NOT_IMPLEMENTED"
+        }
+      ]
+    },
+    {
+      "id": "diagnostics-changelog-without-implementation",
+      "records": [
+        {
+          "label": "entry",
+          "sourceKind": "changelog",
+          "action": "add",
+          "text": "Added `exportMetrics` in the 1.9.0 release",
+          "lifecycle": "released",
+          "target": {
+            "symbols": [
+              "exportMetrics"
+            ],
+            "versions": [
+              "1.9.0"
+            ]
+          }
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/reporting/coverage-table.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/reporting/coverage-table.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "record": "entry",
+          "code": "CHANGELOG_WITHOUT_IMPLEMENTATION"
+        },
+        {
+          "record": "entry",
+          "code": "UNLINKED_RECORD"
+        }
+      ]
+    },
+    {
+      "id": "diagnostics-documentation-modality-decides-plan",
+      "records": [
+        {
+          "label": "prescriptive",
+          "sourceKind": "document",
+          "action": "validate",
+          "text": "The runtime must validate `intent.graph.json` before rendering a summary",
+          "lifecycle": "proposed",
+          "modality": "required",
+          "target": {
+            "symbols": [
+              "renderSummary"
+            ]
+          }
+        },
+        {
+          "label": "descriptive",
+          "sourceKind": "document",
+          "action": "document",
+          "text": "The linker keeps the relation set sparse by design",
+          "lifecycle": "proposed",
+          "modality": "unknown"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/reporting/coverage-table.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/reporting/coverage-table.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "record": "descriptive",
+          "code": "UNLINKED_RECORD"
+        },
+        {
+          "record": "graph",
+          "code": "ALIGNED"
+        },
+        {
+          "record": "prescriptive",
+          "code": "PLANNED_NOT_IMPLEMENTED"
+        },
+        {
+          "record": "prescriptive",
+          "code": "UNLINKED_RECORD"
+        }
+      ],
+      "forbidden": [
+        {
+          "record": "descriptive",
+          "code": "PLANNED_NOT_IMPLEMENTED"
+        }
+      ]
+    },
+    {
+      "id": "diagnostics-partial-implementation-of-one-ticket",
+      "records": [
+        {
+          "label": "planned-covered",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Add `collectFacts` in `src/collect/facts.ts` for T2C-303",
+          "lifecycle": "planned",
+          "target": {
+            "paths": [
+              "src/collect/facts.ts"
+            ],
+            "symbols": [
+              "collectFacts"
+            ],
+            "tickets": [
+              "T2C-303"
+            ]
+          }
+        },
+        {
+          "label": "planned-uncovered",
+          "sourceKind": "todo",
+          "action": "test",
+          "text": "Cover `collectFacts` with regression tests in `src/collect/facts.test.ts` for T2C-303",
+          "lifecycle": "planned",
+          "target": {
+            "paths": [
+              "src/collect/facts.test.ts"
+            ],
+            "tickets": [
+              "T2C-303"
+            ]
+          }
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/collect/facts.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/collect/facts.ts"
+            ],
+            "symbols": [
+              "collectFacts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "record": "graph",
+          "code": "ALIGNED"
+        },
+        {
+          "record": "planned-uncovered",
+          "code": "PLANNED_NOT_IMPLEMENTED"
+        }
+      ],
+      "forbidden": [
+        {
+          "record": "planned-covered",
+          "code": "PLANNED_NOT_IMPLEMENTED"
+        }
+      ]
+    }
+  ]
+}

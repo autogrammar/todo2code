@@ -1,6 +1,6 @@
 # Aktualny stan projektu
 
-Stan na **2026-07-30**, wersja runtime `0.5.0`.
+Stan na **2026-07-31**, wersja runtime `0.5.0`.
 
 ## Ocena wykonania przepływu
 
@@ -71,7 +71,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 232 testy: 231 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 238 testów: 237 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
 - 93 moduły i 426 importów wewnętrznych, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
@@ -80,7 +80,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 227 rekordów i 96 relacji. Liczba
+Przebieg offline na `examples/` utworzył 227 rekordów i 97 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -100,14 +100,19 @@ Diagnostyka zawierała 3 blokady komunikacyjne, 7 pozycji `review_required`,
 podsumowania, dzięki czemu stan runu jest `succeeded` i nie zależy od sieci ani
 prywatnego `.env`. Nie jest to jednak dowód jakości semantycznej LLM.
 
-Wersjonowany `t2c.gold-dataset/v1` mierzy jakość semantyczną offline na
+Wersjonowany `t2c.gold-dataset/v2` mierzy jakość semantyczną offline na
 niezależnych oczekiwaniach dla NL, zapisanej odpowiedzi modelu dokumentacji,
-TODO/CHANGELOG, linkowania i DSL2TODO. Zbiór obejmuje 9 oczekiwanych rekordów
-DSL, 7 relacji (6 exact-target i 1 capability-topic), hard negatives oraz 2
-propozycje TODO. Bieżący wynik to 100% precision/recall dla ekstrakcji i obu
-klas linkowania bez naruszenia hard-negative, 100% kompletności cytowań, 100% precision/recall
+deterministycznego baseline'u dokumentacji, TODO/CHANGELOG, linkowania,
+diagnostyk i DSL2TODO. Zbiór obejmuje 21 oczekiwanych rekordów DSL w czterech
+kanałach ekstrakcji, 13 relacji (6 exact-target i 7 capability-topic), 5 twardych
+negatywów, 11 oczekiwanych kodów diagnostycznych w 5 przypadkach cyklu życia
+oraz 2 propozycje TODO. Bieżący wynik to 100% precision/recall dla ekstrakcji,
+obu klas linkowania i kodów diagnostycznych, bez naruszenia hard-negative i bez
+podniesienia kodu zabronionego, 100% kompletności cytowań, 100% precision/recall
 klasyfikacji duplikatów, 50% propozycji sklasyfikowanych jako duplikaty oraz
-100% stabilności między dwoma przebiegami. Snapshot dokumentacyjny sprawdza
+100% stabilności między dwoma przebiegami. Osobno raportowana jest jedna
+udokumentowana luka (`knownGap` 0/1): polska proza nie dosięga angielskiego
+modułu i celowo nie wchodzi do precision/recall. Snapshot dokumentacyjny sprawdza
 runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego modelu.
 
 ## Najważniejsze ograniczenia
@@ -116,8 +121,9 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
    approval pozostaje osobną operacją człowieka lub uprawnionego klienta.
 2. Agregaty modułów ograniczają relacje i prezentację niskopoziomowych faktów
    AST, a deklaracje mogą łączyć się z nimi przez trzy wspólne, znormalizowane
-   tematy możliwości. Jakość tej heurystyki wymaga jeszcze szerszego gold
-   datasetu z trudnymi przypadkami negatywnymi.
+   tematy możliwości. Gold v2 pilnuje tego progu siedmioma pozytywami i pięcioma
+   twardymi negatywami, ale próba wystarcza do wykrycia regresji, a nie do
+   strojenia progu; dopasowanie ponad barierą językową nadal nie działa.
 3. Wzbogacanie TODO/CHANGELOG jest już porcjowane, ale pomiar live kosztu i
    latencji dla modelu domyślnego i szybszego wariantu nie został jeszcze
    wykonany w sposób nadający się do publikacji.

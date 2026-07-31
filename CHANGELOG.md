@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- Gold benchmark v2 (`t2c.gold-dataset/v2`, `evaluation/gold/v2/dataset.json`),
+  now the dataset behind `npm run evaluate:gold`; v1 stays in the tree and
+  stays evaluable through `npm run evaluate:gold:v1`. It adds a
+  `documentation-deterministic` extraction channel for the offline Markdown
+  baseline, prescriptive-versus-descriptive documentation cases, seven
+  `capability-topic` positives and five hard negatives in place of one and two,
+  and a `diagnostics` scope that measures per-record diagnostic codes —
+  including a false DONE claim and the evidenced DONE that must stay quiet.
+- `knownGap` linking cases: a relation the tool ought to find and demonstrably
+  cannot, scored and reported separately and never inside precision/recall.
+  The Polish-prose-to-English-module barrier is the first one, at 0/1.
+
 ### Changed
 
 - Define the backward-compatible `project/` namespace: root-level generated
@@ -16,6 +30,19 @@
 
 ### Fixed
 
+- `detectModality` reads prohibitions (`nie wolno`, `nie może`, `zabronione`,
+  `is not allowed`, `is forbidden`) and periphrastic obligation (`has to`,
+  `ma obowiązek`) as requirements rather than `unknown` — or, for `nie może`,
+  as `optional`, because the permissive rule matched the `może` inside the ban.
+  Polish modals are now matched on the diacritic-folded form as well: `\b` treats
+  `ą` as a non-word character, so `\bmuszą\b` could never match the word it named.
+- `topicKeywords` folds regular English plurals and the missing inflections of
+  existing families (`validated`, `validates`, `links`, `documenting`), guarded
+  against `ss`/`us`/`is`/`as`/`os` endings so `status`, `class` and `analysis`
+  stay intact. Against a floor of three shared topics, one unfolded plural was
+  the difference between finding and missing a module. Measured from tracked
+  `HEAD`: relations 24 246 → 24 400 here and 10 875 → 11 002 on
+  `subactor/platform`, with `aligned` and implementation coverage unchanged.
 - Generate committed analysis and `docs/README.md` from a detached snapshot of
   tracked `HEAD` by default. The new verification gate rejects leaked
   untracked paths, temporary snapshot paths and parser-download failures;

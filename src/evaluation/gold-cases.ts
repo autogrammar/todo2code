@@ -9,6 +9,7 @@ import { compareSets, type Counts } from './gold-metrics.js';
 import {
   GOLD_FIXED_TIME,
   GOLD_RELATION_CLASSES,
+  type GoldDiagnosticsCase,
   type GoldDsl2TodoCase,
   type GoldFixtureRecord,
   type GoldLinkingCase,
@@ -63,6 +64,40 @@ function classifyRelation(basis: string[]): GoldRelationClass {
   const exact = basis.some((item) => item === 'shared_ticket' || item === 'shared_symbol' || item === 'shared_path');
   if (exact) return 'exact-target';
   return basis.some((item) => item.startsWith('module_topic:')) ? 'capability-topic' : 'exact-target';
+}
+
+export interface DiagnosticsCaseResult {
+  counts: Counts;
+  /** Codes the case forbids but the graph raised anyway. */
+  forbiddenViolations: number;
+  actual: unknown[];
+}
+
+/**
+ * Measures which diagnostic codes a small graph raises, per record.
+ *
+ * `ALIGNED` is a report-level statement rather than a record finding, so it is
+ * compared under the reserved label `graph`. Everything else is attributed to
+ * the fixture label of the record it cites; a diagnostic citing several records
+ * appears once per cited label.
+ */
+export function evaluateDiagnosticsCase(fixture: GoldDiagnosticsCase): DiagnosticsCaseResult {
+  const { records, labels } = buildFixtureRecords(fixture.id, fixture.records);
+  const idToLabel = new Map([...labels].map(([label, id]) => [id, label]));
+  const graph = linkIntentRecords(records, GOLD_FIXED_TIME);
+  const report = diagnoseGraph(graph, GOLD_FIXED_TIME);
+  const observed = report.diagnostics.flatMap((diagnostic) => (
+    diagnostic.recordIds.length
+      ? diagnostic.recordIds.map((id) => ({ record: idToLabel.get(id) ?? id, code: diagnostic.code }))
+      : [{ record: 'graph', code: diagnostic.code }]
+  ));
+  const actual = [...new Map(observed.map((item) => [`${item.record}|${item.code}`, item])).values()]
+    .sort((a, b) => a.record.localeCompare(b.record) || a.code.localeCompare(b.code));
+  const forbidden = fixture.forbidden ?? [];
+  const forbiddenViolations = forbidden.filter((item) => (
+    actual.some((observedItem) => observedItem.record === item.record && observedItem.code === item.code)
+  )).length;
+  return { counts: compareSets(actual, fixture.expected), forbiddenViolations, actual };
 }
 
 export interface Dsl2TodoCaseResult {
@@ -192,7 +227,7 @@ function buildFixtureRecords(
       text: fixture.text,
       ...(fixture.target ? { target: fixture.target } : {}),
       polarity: fixture.polarity ?? 'positive',
-      modality: fixture.sourceKind === 'todo' ? 'required' : 'observed',
+      modality: fixture.modality ?? (fixture.sourceKind === 'todo' ? 'required' : 'observed'),
       lifecycle: fixture.lifecycle,
       sourceKind: fixture.sourceKind,
       sourcePath: `evaluation/${caseId}/${fixture.label}-${index + 1}.md`,

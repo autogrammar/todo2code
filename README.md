@@ -82,9 +82,14 @@ Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
 Kompletność i brak duplikatów zmiennych sprawdza `npm run verify:env`.
 Osobny wymagany job CI instaluje Temurin JDK 17 i uruchamia fixture adaptera
 Java z `T2C_REQUIRE_JAVA_TEST=1`, co zamienia brak runtime w błąd zamiast skipu.
-Wersjonowany benchmark semantyczny uruchamia `npm run evaluate:gold`; mierzy on
-precision/recall ekstrakcji i linkowania, kompletność cytowań DSL2TODO,
-deduplikację oraz stabilność dwóch identycznych przebiegów offline.
+Wersjonowany benchmark semantyczny uruchamia `npm run evaluate:gold`
+(`t2c.gold-dataset/v2`; poprzednia próba pozostaje pod `evaluate:gold:v1`).
+Mierzy on precision/recall ekstrakcji w czterech kanałach, linkowania osobno dla
+`exact-target` i `capability-topic`, kodów diagnostycznych (w tym fałszywego
+DONE), kompletność cytowań DSL2TODO, deduplikację oraz stabilność dwóch
+identycznych przebiegów offline. Luki udokumentowane jako `knownGap` — dziś
+polska proza wobec angielskiego modułu — są raportowane osobno i nie wchodzą do
+precision/recall.
 Rzeczywiste kontrakty NL → DSL oraz graf → wnioski można sprawdzić osobno przez
 `npm run live:check`. Kontrola jest opt-in, używa `require-llm`, zapisuje tylko
 zredagowany audyt latencji/tokenów/kosztu i bez klucza kończy się jako `SKIPPED`;

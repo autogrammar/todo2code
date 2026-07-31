@@ -74,6 +74,20 @@ test('detectModality ignores parenthetical labels and bare adjectives', () => {
   assert.equal(detectModality('Gherkin (Recommended for LLM)'), 'unknown');
 });
 
+test('detectModality reads prohibitions and periphrastic obligation as requirements', () => {
+  // "nie może" contains "może": matched in the wrong order an outright ban
+  // reads as a permission, which is how a prohibition became `optional`.
+  assert.equal(detectModality('Nie wolno publikować wyniku bez zgody operatora.'), 'required');
+  assert.equal(detectModality('Runtime nie może nadpisać zatwierdzonego patcha.'), 'required');
+  assert.equal(detectModality('Zapisywanie sekretów jest zabronione.'), 'required');
+  assert.equal(detectModality('The client is not allowed to retry a rejected patch.'), 'required');
+  assert.equal(detectModality('Every approval has to cite the diagnostic it closes.'), 'required');
+  assert.equal(detectModality('Agenci mają obowiązek zapisać prowenienację.'), 'required');
+  // Deliberately not deontic: descriptive inability and plain permission.
+  assert.equal(detectModality('The parser cannot read binary files.'), 'unknown');
+  assert.equal(detectModality('Runtime może użyć cache.'), 'optional');
+});
+
 test('detectPolarity does not treat without-complements as sentence negation', () => {
   assert.equal(detectPolarity('Document routes without inventing repository files.'), 'positive');
   assert.equal(detectPolarity('Do not invent repository files.'), 'negative');

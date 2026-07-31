@@ -44,6 +44,23 @@ export function classifyActionHeuristically(text: string): IntentAction {
 }
 
 /**
+ * Explicit bans. Deliberately narrow: "cannot" and "may not" also appear in
+ * descriptive prose ("the parser cannot read binary files"), where reading a
+ * prohibition would resurrect the false-plan noise the modality rules exist to
+ * suppress.
+ */
+const PROHIBITION = /\bnie\s+wolno\b|\bnie\s+moz[ea]\b|\bnie\s+moga\b|\bzabronion[ey]\b|\bzakazan[ey]\b|\b(?:is|are)\s+not\s+allowed\b|\b(?:is|are)\s+forbidden\b/i;
+
+/** Periphrastic obligation: as binding as `must`, and common in documentation. */
+const OBLIGATION = /\b(?:has|have|had)\s+to\b|\bma(?:ja)?\s+obowiazek\b|\bjest\s+zobowiazan[ya]\b/i;
+
+const REQUIRED_MODALS = /\b(must|shall|musi|musza|nalezy|trzeba|wymaga)\b/i;
+
+const RECOMMENDED_MODALS = /\b(should|ought|powinien|powinna|powinno|powinny|zaleca)\b/i;
+
+const OPTIONAL_MODALS = /\b(may|optional|can|moze|moga|opcjonaln)\b/i;
+
+/**
  * Classify deontic force of a requirement sentence.
  *
  * Parenthetical and bracket labels such as "OpenRouter (recommended)" or
@@ -52,19 +69,34 @@ export function classifyActionHeuristically(text: string): IntentAction {
  * deontic. Only modal verbs and predicative obligation forms count — measured
  * false `PLANNED_NOT_IMPLEMENTED` noise on `code2logic` came almost entirely
  * from headings that merely contained the word "recommended".
+ *
+ * Prohibitions are obligations, not permissions. "Nie wolno publikować wyniku"
+ * and "the client is not allowed to retry" state a requirement whose polarity
+ * is negative; `detectPolarity` carries the negation. Matching them before the
+ * permissive rule matters because "nie może" contains "może": read in the wrong
+ * order, an outright ban is filed as `optional`.
+ *
+ * Polish modals are matched on the diacritic-folded text, as
+ * `classifyActionHeuristically` already does. JavaScript's `\b` treats `ą` as a
+ * non-word character, so `\bmuszą\b` could never match the word it names — the
+ * plural of "must" was silently unreadable.
  */
 export function detectModality(text: string): Modality {
   const prose = text
     .replace(/\([^)]*\)/g, ' ')
     .replace(/\[[^\]]*\]/g, ' ')
     .replace(/`[^`]*`/g, ' ');
-  if (/\b(must|shall|musi|muszą|należy|trzeba|wymaga)\b/i.test(prose)) return 'required';
+  const searchable = normalizeToken(prose);
+  const matches = (pattern: RegExp): boolean => pattern.test(prose) || pattern.test(searchable);
+  if (matches(PROHIBITION)) return 'required';
+  if (matches(REQUIRED_MODALS)) return 'required';
+  if (matches(OBLIGATION)) return 'required';
   if (/\brequired\s+to\b|\bis\s+required\b|\bare\s+required\b|^\s*required\s*:/i.test(prose)) return 'required';
-  if (/\b(should|ought|powinien|powinna|powinno|zaleca)\b/i.test(prose)) return 'recommended';
+  if (matches(RECOMMENDED_MODALS)) return 'recommended';
   if (/\b(?:is|are|was|were|be|being)\s+recommended\b|\brecommended\s+to\b|\brecommend(?:s|ed)?\s+that\b/i.test(prose)) {
     return 'recommended';
   }
-  if (/\b(may|optional|can|może|opcjonaln)\b/i.test(prose)) return 'optional';
+  if (matches(OPTIONAL_MODALS)) return 'optional';
   return 'unknown';
 }
 
@@ -101,15 +133,21 @@ export function keywords(value: string): string[] {
   return [...new Set(normalizeToken(value).split(' ').filter((token) => token.length > 1 && !STOP_WORDS.has(token)))].sort();
 }
 
+// Inflections are folded per family. A missing one is not cosmetic: the
+// capability floor counts three shared topics, so a single unfolded form such
+// as "validated" was enough to drop a genuine prose-to-module pair below it.
 const TOPIC_ALIASES: Record<string, string> = {
-  config: 'configure', configured: 'configure', configuration: 'configure',
-  docs: 'document', documentation: 'document', documented: 'document',
-  diagnose: 'diagnostic', diagnostics: 'diagnostic',
+  config: 'configure', configured: 'configure', configuration: 'configure', configures: 'configure',
+  docs: 'document', documentation: 'document', documented: 'document', documenting: 'document',
+  diagnose: 'diagnostic', diagnostics: 'diagnostic', diagnosed: 'diagnostic',
   extraction: 'extract', extractor: 'extract', extractors: 'extract', extracted: 'extract',
-  linker: 'link', linking: 'link', linked: 'link',
-  summarizer: 'summary', summarize: 'summary', summaries: 'summary',
+  extracts: 'extract', extracting: 'extract',
+  linker: 'link', linking: 'link', linked: 'link', links: 'link',
+  summarizer: 'summary', summarize: 'summary', summaries: 'summary', summarized: 'summary',
   tests: 'test', tested: 'test', testing: 'test',
-  validation: 'validate', validator: 'validate', validators: 'validate', verified: 'validate', verify: 'validate',
+  validation: 'validate', validator: 'validate', validators: 'validate', validated: 'validate',
+  validates: 'validate', validating: 'validate',
+  verified: 'validate', verify: 'validate', verifies: 'validate', verification: 'validate',
 };
 
 const GENERIC_TOPICS = new Set([
@@ -132,9 +170,27 @@ export function topicKeywords(value: string): string[] {
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .replace(/[\/._#:-]+/g, ' ');
   return [...new Set(keywords(separated)
-    .map((token) => TOPIC_ALIASES[token] ?? token)
+    .map(foldTopicToken)
     .filter((token) => token.length >= 3 && !GENERIC_TOPICS.has(token)))]
     .sort();
+}
+
+/**
+ * Folds one token to its topic form: dictionary family first, then a regular
+ * English plural.
+ *
+ * Prose says "documentation chunks", a path says `documentation-chunk-cache`.
+ * Against a floor of three shared topics one unmatched plural is the whole
+ * difference between a found and a missed module, and no dictionary can list
+ * every noun a repository invents. The `ss`/`us`/`is`/`as`/`os` guard keeps
+ * genuine singulars — `status`, `class`, `analysis`, `alias` — intact.
+ */
+function foldTopicToken(token: string): string {
+  const aliased = TOPIC_ALIASES[token];
+  if (aliased) return aliased;
+  if (token.length < 4 || !token.endsWith('s') || /(?:ss|us|is|as|os)$/.test(token)) return token;
+  const singular = token.slice(0, -1);
+  return TOPIC_ALIASES[singular] ?? singular;
 }
 
 export function similarity(a: string, b: string): number {

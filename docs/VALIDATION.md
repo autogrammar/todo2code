@@ -1,6 +1,6 @@
 # Walidacja paczki
 
-Stan walidacji: **2026-07-30**, `todo2code 0.5.0`. Najnowsza lokalna kontrola
+Stan walidacji: **2026-07-31**, `todo2code 0.5.0`. Najnowsza lokalna kontrola
 została wykonana na bieżącym drzewie `main`. Poniższe próby origin/workspace i live
 OpenRouter są zachowanymi pomiarami historycznymi i mają własne identyfikatory
 runów — nie należy interpretować ich jako porównania aktualnego drzewa.
@@ -15,13 +15,13 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 231 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 227 rekordów i 96 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
+| Testy Node | PASS — 237 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 227 rekordów i 97 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
 | Audytowane TODO/CHANGELOG → DSL | PASS — zachowanie struktury, runtime validation, oznaczony fallback i błąd `require-llm` |
-| `npm run evaluate:gold` | PASS — ekstrakcja i linkowanie 100% precision/recall; cytowania 100%; klasyfikacja duplikatów 100% precision/recall; deduplication rate 50%; stabilność 2/2 przebiegów |
+| `npm run evaluate:gold` | PASS — gold v2: ekstrakcja (4 kanały), linkowanie (`exact-target` 6, `capability-topic` 7) i kody diagnostyk 100% precision/recall; cytowania 100%; klasyfikacja duplikatów 100% precision/recall; 0 naruszeń par i kodów zabronionych; deduplication rate 50%; udokumentowana luka `knownGap` 0/1 poza metryką; stabilność 2/2 przebiegów |
 | Pełny kontrakt runtime DSL | PASS — exact keys, enumy, ID/hash/czas/linie, relacje, końce i statystyki grafu |
 | Governed operation-plan DSL | PASS — 9 testów ID/hash, authority, sekretów, ryzyka, rollbacku, fail-closed bindingów i prywatnego atomowego artefaktu bez overwrite/dispatch |
 | Code-change plan, source patch i acceptance | PASS — 17 testów: ugruntowane i użyteczne ścieżki/ID, content hash, risk/rollback, provenance, tampering/sekrety, persisted CLI, zatwierdzone apply z preflightem/rollbackiem oraz re-diagnose pass/fail |
@@ -55,7 +55,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 232 testy, 231 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 238 testów, 237 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

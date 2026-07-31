@@ -14,7 +14,10 @@
   ],
   "properties": {
     "schemaVersion": {
-      "const": "t2c.gold-dataset/v1"
+      "enum": [
+        "t2c.gold-dataset/v1",
+        "t2c.gold-dataset/v2"
+      ]
     },
     "name": {
       "type": "string",
@@ -43,6 +46,13 @@
       "minItems": 1,
       "items": {
         "$ref": "#/$defs/dsl2todoCase"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/diagnosticsCase"
       }
     }
   },
@@ -190,6 +200,7 @@
           "enum": [
             "nl",
             "documentation",
+            "documentation-deterministic",
             "markdown"
           ]
         },
@@ -271,6 +282,10 @@
         },
         "metadata": {
           "type": "object"
+        },
+        "modality": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -341,6 +356,9 @@
               }
             }
           }
+        },
+        "knownGap": {
+          "type": "boolean"
         }
       }
     },
@@ -427,6 +445,58 @@
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/proposal"
+          }
+        }
+      }
+    },
+    "expectedDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record",
+        "code"
+      ],
+      "properties": {
+        "record": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "diagnosticsCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "records",
+        "expected"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "records": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/fixtureRecord"
+          }
+        },
+        "expected": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expectedDiagnostic"
+          }
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expectedDiagnostic"
           }
         }
       }
