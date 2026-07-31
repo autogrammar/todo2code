@@ -17,6 +17,7 @@ import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 import { StructuredResponseError, structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
+import { mapConcurrent } from './docs-chunks.js';
 import { extractMarkdownIntent, type MarkdownExtractionOptions } from './markdown.js';
 
 interface MarkdownEnrichment {
@@ -86,18 +87,36 @@ export async function extractMarkdownIntentAudited(
     const prompt = await readPrompt('markdown-to-intent.system.md');
     const enrichments = new Map<string, MarkdownEnrichment>();
     const responseByRecord = new Map<string, LlmResponseMetadata>();
+    const batches: IntentRecord[][] = [];
     for (let offset = 0; offset < deterministic.records.length; offset += MARKDOWN_LLM_BATCH_RECORDS) {
-      const batch = deterministic.records.slice(offset, offset + MARKDOWN_LLM_BATCH_RECORDS);
-      const contract = markdownResponseContract(batch.length);
-      const corrected = await enrichMarkdownBatchWithCorrection(client, [
-        { role: 'system', content: prompt },
-        { role: 'user', content: JSON.stringify({ records: batch.map(promptRecord) }) },
-      ], contract, config.openRouter.markdownModel, batch);
+      batches.push(deterministic.records.slice(offset, offset + MARKDOWN_LLM_BATCH_RECORDS));
+    }
+    const outcomes = await mapConcurrent(batches, config.markdownConcurrency, async (batch) => {
+      try {
+        const corrected = await enrichBatchCovering(client, prompt, config.openRouter.markdownModel, batch);
+        return { ok: true as const, batch, corrected };
+      } catch (error) {
+        return {
+          ok: false as const,
+          failure: error instanceof MarkdownAttemptError ? error.failure : error,
+          responses: error instanceof MarkdownAttemptError
+            ? error.responses
+            : rejectedLlmResponseMetadata(error),
+        };
+      }
+    });
+    responses.push(...outcomes.flatMap((outcome) => (
+      outcome.ok ? outcome.corrected.responses : outcome.responses
+    )));
+    const failed = outcomes.find((outcome) => !outcome.ok);
+    if (failed && !failed.ok) throw new MarkdownAttemptError(failed.failure, []);
+    for (const outcome of outcomes) {
+      if (!outcome.ok) continue;
+      const { batch, corrected } = outcome;
       for (const record of batch) {
         enrichments.set(record.id, corrected.enrichments.get(record.id)!);
-        responseByRecord.set(record.id, corrected.metadata);
+        responseByRecord.set(record.id, corrected.metadataByRecord.get(record.id)!);
       }
-      responses.push(...corrected.responses);
     }
     const result: ExtractionResult = {
       records: deterministic.records.map((record) => enrichRecord(
@@ -128,6 +147,67 @@ class MarkdownAttemptError extends Error {
     super(failure instanceof Error ? failure.message : String(failure));
     this.name = 'MarkdownAttemptError';
   }
+}
+
+/**
+ * Enriches every record of a batch, splitting the batch when a model truncates.
+ *
+ * Truncation is length-driven, so re-asking the same 32 records the same way
+ * reproduces it; halving the uncovered remainder is what actually converges.
+ * Splitting also keeps `require-llm` honest: partial coverage would otherwise
+ * be a silent per-record deterministic fallback inside a run that promised
+ * none. A single record the model still will not enrich is a real failure.
+ */
+async function enrichBatchCovering(
+  client: OpenRouterClient,
+  prompt: string,
+  model: string,
+  batch: IntentRecord[],
+): Promise<CoveredBatch> {
+  const attempt = await enrichMarkdownBatchWithCorrection(client, [
+    { role: 'system', content: prompt },
+    { role: 'user', content: JSON.stringify({ records: batch.map(promptRecord) }) },
+  ], markdownResponseContract(batch.length), model, batch);
+  // Provenance is per record, not per batch: a record answered by the split
+  // retry must carry that response's ID, or the audit would credit it to a
+  // response that never mentioned it.
+  const metadataByRecord = new Map<string, LlmResponseMetadata>(
+    [...attempt.enrichments.keys()].map((recordId) => [recordId, attempt.metadata]),
+  );
+
+  const uncovered = batch.filter((record) => !attempt.enrichments.has(record.id));
+  if (uncovered.length === 0) {
+    return { enrichments: attempt.enrichments, metadataByRecord, responses: attempt.responses };
+  }
+  if (batch.length === 1) {
+    throw new MarkdownAttemptError(
+      new Error(`Structured response omitted the only requested record: ${batch[0]?.id}`),
+      attempt.responses,
+    );
+  }
+
+  const half = Math.ceil(uncovered.length / 2);
+  const halves = [uncovered.slice(0, half), uncovered.slice(half)].filter((part) => part.length > 0);
+  const parts: CoveredBatch[] = [];
+  for (const part of halves) parts.push(await enrichBatchCovering(client, prompt, model, part));
+
+  return {
+    enrichments: new Map([
+      ...attempt.enrichments,
+      ...parts.flatMap((part) => [...part.enrichments]),
+    ]),
+    metadataByRecord: new Map([
+      ...metadataByRecord,
+      ...parts.flatMap((part) => [...part.metadataByRecord]),
+    ]),
+    responses: [...attempt.responses, ...parts.flatMap((part) => part.responses)],
+  };
+}
+
+interface CoveredBatch {
+  enrichments: Map<string, MarkdownEnrichment>;
+  metadataByRecord: Map<string, LlmResponseMetadata>;
+  responses: LlmResponseMetadata[];
 }
 
 async function enrichMarkdownBatchWithCorrection(
@@ -235,7 +315,8 @@ function validateEnrichments(values: MarkdownEnrichment[] | undefined, records: 
     if (output.has(value.recordId)) throw new Error(`Structured response duplicates recordId: ${value.recordId}`);
     output.set(value.recordId, value);
   }
-  if (output.size !== expected.size) throw new Error(`Structured response returned ${output.size} of ${expected.size} required enrichments`);
+  // Partial coverage is not a violation here; the caller re-asks for exactly
+  // the records the model left out.
   return output;
 }
 
@@ -330,5 +411,12 @@ function markdownResponseContract(batchSize: number): StructuredSchema<MarkdownR
     target: s.object({ paths: strings(), symbols: strings(), tickets: strings(), versions: strings() }),
     acceptanceEvidence: strings(),
   }) satisfies StructuredSchema<MarkdownEnrichment>;
-  return s.object({ enrichments: s.array(enrichment, { minItems: batchSize, maxItems: batchSize }) });
+  // The floor used to equal the batch size, which made an incomplete response
+  // unreadable: a model that emitted 27 of 32 enrichments failed schema
+  // validation, and every enrichment it did produce was discarded with it.
+  // Measured live, both `qwen/qwen3.7-plus` and `google/gemini-3.6-flash`
+  // truncate long batches this way. Each enrichment names its `recordId`, so a
+  // short response is attributable; coverage is enforced by splitting the
+  // uncovered records into a smaller batch instead of by the schema.
+  return s.object({ enrichments: s.array(enrichment, { minItems: 1, maxItems: batchSize }) });
 }

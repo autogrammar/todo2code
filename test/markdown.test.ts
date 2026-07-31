@@ -163,21 +163,35 @@ test('Markdown enrichment corrects one rejected response and audits both attempt
   }
 });
 
-test('large Markdown enrichment is split into bounded, ordered provider batches', async () => {
+test('large Markdown enrichment uses bounded concurrency and keeps provider audits ordered', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-batches-'));
-  const count = MARKDOWN_LLM_BATCH_RECORDS + 1;
+  const count = (MARKDOWN_LLM_BATCH_RECORDS * 2) + 1;
   const tasks = Array.from({ length: count }, (_, index) => `- [ ] Add item ${index} in \`src/item-${index}.ts\`.`);
   await fs.writeFile(path.join(root, 'TODO.md'), `# TODO\n\n${tasks.join('\n')}\n`);
   const config = makeConfig(root);
+  config.markdownConcurrency = 2;
   config.openRouter.apiKey = 'secret-test-key';
   const originalFetch = globalThis.fetch;
   const batchSizes: number[] = [];
+  const batchStarts: number[] = [];
+  const completionOrder: number[] = [];
+  let active = 0;
+  let maxActive = 0;
   let call = 0;
   globalThis.fetch = async (_input, init) => {
     call += 1;
     const request = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> };
-    const payload = JSON.parse(request.messages[1]?.content ?? '{}') as { records: Array<{ recordId: string }> };
+    const payload = JSON.parse(request.messages[1]?.content ?? '{}') as {
+      records: Array<{ recordId: string; sourceLines: { start: number } }>;
+    };
+    const batchStart = payload.records[0]?.sourceLines.start ?? 0;
     batchSizes.push(payload.records.length);
+    batchStarts.push(batchStart);
+    active += 1;
+    maxActive = Math.max(maxActive, active);
+    await new Promise((resolve) => setTimeout(resolve, call === 1 ? 40 : 5));
+    active -= 1;
+    completionOrder.push(batchStart);
     const enrichments = payload.records.map((record) => ({
       recordId: record.recordId,
       actor: null,
@@ -190,7 +204,7 @@ test('large Markdown enrichment is split into bounded, ordered provider batches'
       acceptanceEvidence: [],
     }));
     return new Response(JSON.stringify({
-      id: `batch-${call}`,
+      id: `batch-start-${batchStart}`,
       model: 'test/batched',
       provider: 'test',
       choices: [{ message: { content: JSON.stringify({ enrichments }) } }],
@@ -198,12 +212,15 @@ test('large Markdown enrichment is split into bounded, ordered provider batches'
   };
   try {
     const result = await extractMarkdownIntentAudited({ root, todoPath: 'TODO.md', changelogPath: null }, config, 'require-llm');
-    assert.deepEqual(batchSizes, [MARKDOWN_LLM_BATCH_RECORDS, 1]);
+    assert.deepEqual(batchSizes, [MARKDOWN_LLM_BATCH_RECORDS, MARKDOWN_LLM_BATCH_RECORDS, 1]);
+    assert.equal(maxActive, 2);
+    assert.notDeepEqual(completionOrder, batchStarts);
     assert.equal(result.records.length, count);
-    assert.equal(result.audit.responses.length, 2);
-    assert.deepEqual(result.audit.responses.map((response) => response.responseId), ['batch-1', 'batch-2']);
-    assert.equal(result.records[0]?.metadata.generation.responseId, 'batch-1');
-    assert.equal(result.records.at(-1)?.metadata.generation.responseId, 'batch-2');
+    assert.equal(result.audit.responses.length, 3);
+    assert.deepEqual(result.audit.responses.map((response) => response.responseId),
+      batchStarts.map((start) => `batch-start-${start}`));
+    assert.equal(result.records[0]?.metadata.generation.responseId, `batch-start-${batchStarts[0]}`);
+    assert.equal(result.records.at(-1)?.metadata.generation.responseId, `batch-start-${batchStarts[2]}`);
     assert.deepEqual(result.records.map((record) => record.source.lines?.start),
       [...result.records].map((record) => record.source.lines?.start).sort((a, b) => (a ?? 0) - (b ?? 0)));
   } finally {
@@ -244,6 +261,61 @@ test('TODO and CHANGELOG reject structurally invalid LLM enrichments', async () 
     assert.equal(result.audit.responses[0]?.responseId, 'gen-markdown-rejected');
     assert.equal(result.audit.responses[0]?.model, 'deepseek/deepseek-v4-flash');
     assert.equal(result.records[0]?.metadata.llmUsed, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('a truncated batch is split and every record keeps its own response provenance', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-truncated-'));
+  const items = Array.from({ length: 6 }, (_, index) => `- [ ] Zadanie ${index + 1} dla T2C-${index + 1}.`);
+  await fs.writeFile(path.join(root, 'TODO.md'), `# Plan\n\n${items.join('\n')}\n`);
+  const config = makeConfig(root);
+  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.markdownModel = 'qwen/test-markdown';
+
+  const originalFetch = globalThis.fetch;
+  let call = 0;
+  globalThis.fetch = async (_input, init) => {
+    call += 1;
+    const request = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> };
+    const payload = JSON.parse(request.messages[1]?.content ?? '{}') as { records: Array<{ recordId: string }> };
+    // Measured live on both configured models: a long batch comes back short.
+    // The first answer covers half; the split retries are answered in full.
+    const covered = call === 1 ? payload.records.slice(0, 3) : payload.records;
+    const enrichments = covered.map((record) => ({
+      recordId: record.recordId,
+      actor: null,
+      action: 'validate',
+      object: 'plan item',
+      polarity: 'positive',
+      confidence: 0.9,
+      basis: ['batch coverage fixture'],
+      target: { paths: [], symbols: [], tickets: [], versions: [] },
+      acceptanceEvidence: [],
+    }));
+    return new Response(JSON.stringify({
+      id: `gen-batch-${call}`, model: 'qwen/markdown-resolved', provider: 'MarkdownProvider',
+      usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+      choices: [{ message: { content: JSON.stringify({ enrichments }) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+
+  try {
+    const result = await extractMarkdownIntentAudited({ root, todoPath: 'TODO.md' }, config, 'require-llm');
+
+    // Without splitting, one short response failed the whole batch and threw,
+    // discarding the enrichments the model had already produced.
+    assert.equal(result.audit.status, 'succeeded');
+    assert.equal(result.records.length, 6);
+    assert.ok(result.records.every((record) => record.metadata.llmUsed === true));
+    assert.ok(result.audit.responses.length > 1);
+
+    // Records answered by a split retry must not be credited to the first
+    // response, which never mentioned them.
+    const responseIds = new Set(result.records.map((record) => record.metadata.generation.responseId));
+    assert.ok(responseIds.size > 1, 'split records must carry their own response ID');
+    assert.ok([...responseIds].every((id) => typeof id === 'string' && id.startsWith('gen-batch-')));
   } finally {
     globalThis.fetch = originalFetch;
   }
