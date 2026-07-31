@@ -71,7 +71,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 238 testów: 237 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 240 testów: 239 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
 - 93 moduły i 426 importów wewnętrznych, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
 - 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
@@ -80,7 +80,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 227 rekordów i 97 relacji. Liczba
+Przebieg offline na `examples/` utworzył 227 rekordów i 98 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -104,7 +104,7 @@ Wersjonowany `t2c.gold-dataset/v2` mierzy jakość semantyczną offline na
 niezależnych oczekiwaniach dla NL, zapisanej odpowiedzi modelu dokumentacji,
 deterministycznego baseline'u dokumentacji, TODO/CHANGELOG, linkowania,
 diagnostyk i DSL2TODO. Zbiór obejmuje 21 oczekiwanych rekordów DSL w czterech
-kanałach ekstrakcji, 13 relacji (6 exact-target i 7 capability-topic), 5 twardych
+kanałach ekstrakcji, 14 relacji (6 exact-target i 8 capability-topic), 6 twardych
 negatywów, 11 oczekiwanych kodów diagnostycznych w 5 przypadkach cyklu życia
 oraz 2 propozycje TODO. Bieżący wynik to 100% precision/recall dla ekstrakcji,
 obu klas linkowania i kodów diagnostycznych, bez naruszenia hard-negative i bez

@@ -249,9 +249,10 @@ function widestLabel(labels: string[]): number {
  */
 function groupIntoTopics(graph: IntentGraph): Array<{ key: string; records: IntentRecord[] }> {
   const symbolPaths = indexUnambiguousSymbolPaths(graph.records);
+  const anchors = indexModuleAnchors(graph, symbolPaths);
   const groups = new Map<string, IntentRecord[]>();
   for (const record of graph.records) {
-    const key = primaryTargetKey(record, symbolPaths);
+    const key = primaryTargetKey(record, symbolPaths, anchors);
     const bucket = groups.get(key) ?? [];
     bucket.push(record);
     groups.set(key, bucket);
@@ -259,6 +260,66 @@ function groupIntoTopics(graph: IntentGraph): Array<{ key: string; records: Inte
   return [...groups.entries()]
     .map(([key, records]) => ({ key, records: records.sort((a, b) => a.id.localeCompare(b.id)) }))
     .sort((left, right) => left.key.localeCompare(right.key));
+}
+
+/**
+ * The one module a targetless declaration is directly linked to.
+ *
+ * Without this, a sentence the linker *did* connect to code still counted as
+ * "planned, no code": topics are keyed by each record's own ticket, path or
+ * symbol, so prose that names none of them was filed under the documentation
+ * file it was written in, never under the module it describes. On
+ * `subactor/platform`, where documentation is Polish prose and identifiers are
+ * English, that is most of the corpus.
+ *
+ * The narrowness is the point, and it is why connected components are still
+ * refused above: one hop, only from a declaration whose own target resolves to
+ * no file, and only when every module aggregate it touches names the same one.
+ * An ambiguous declaration keeps its old key rather than picking a winner —
+ * measured on `subactor/platform`, 69 declarations touch several modules and
+ * are deliberately left alone.
+ */
+function indexModuleAnchors(graph: IntentGraph, symbolPaths: Map<string, string>): Map<string, string> {
+  const modulePaths = new Map<string, string>();
+  for (const record of graph.records) {
+    if (record.statement.kind !== 'module_fact' && record.statement.kind !== 'configuration_file_fact') continue;
+    const paths = [...new Set(record.statement.target.paths)];
+    if (paths.length === 1 && paths[0]) modulePaths.set(record.id, paths[0]);
+  }
+
+  const targetless = new Set(graph.records
+    .filter((record) => DECLARED_KINDS.includes(record.source.kind) && !resolvesToFile(record, symbolPaths))
+    .map((record) => record.id));
+  const candidates = new Map<string, Set<string>>();
+  for (const relation of graph.relations) {
+    for (const [left, right] of [[relation.from, relation.to], [relation.to, relation.from]] as const) {
+      const path = modulePaths.get(right);
+      if (!path || !targetless.has(left)) continue;
+      const values = candidates.get(left) ?? new Set<string>();
+      values.add(path);
+      candidates.set(left, values);
+    }
+  }
+  return new Map([...candidates.entries()]
+    .filter(([, paths]) => paths.size === 1)
+    .map(([recordId, paths]) => [recordId, [...paths][0] as string]));
+}
+
+/**
+ * True when the record already names something a reader can open.
+ *
+ * A bare prose symbol does not count. `extractSymbols` returns acronyms such as
+ * `API` or `DSL`, and a topic keyed `symbol:api` groups sentences that share
+ * nothing but a word — a worse anchor than the module the linker proved.
+ */
+function resolvesToFile(record: IntentRecord, symbolPaths: Map<string, string>): boolean {
+  const { tickets, paths, symbols } = record.statement.target;
+  if (tickets.length > 0 || paths.length > 0) return true;
+  const resolved = new Set(symbols
+    .flatMap(symbolAliases)
+    .map((symbol) => symbolPaths.get(symbol))
+    .filter((value): value is string => Boolean(value)));
+  return resolved.size === 1;
 }
 
 function indexUnambiguousSymbolPaths(records: IntentRecord[]): Map<string, string> {
@@ -286,9 +347,14 @@ function indexUnambiguousSymbolPaths(records: IntentRecord[]): Map<string, strin
  * would file every task under TODO.md instead of the code it concerns. When a
  * record has no target path, normalized symbol aliases still align
  * `validateContract`, `Runtime.validateContract` and Rust `::` notation.
- * `source.path` remains the final source-based fallback.
+ * A declaration with no target of its own falls back to the single module it
+ * is linked to, and only then to `source.path`.
  */
-function primaryTargetKey(record: IntentRecord, symbolPaths: Map<string, string>): string {
+function primaryTargetKey(
+  record: IntentRecord,
+  symbolPaths: Map<string, string>,
+  anchors: Map<string, string> = new Map(),
+): string {
   const tickets = [...record.statement.target.tickets].sort();
   if (tickets.length === 1 && tickets[0]) return `ticket:${tickets[0]}`;
 
@@ -301,6 +367,10 @@ function primaryTargetKey(record: IntentRecord, symbolPaths: Map<string, string>
     .sort((left, right) => left.split('.').length - right.split('.').length || left.localeCompare(right));
   const resolvedPaths = [...new Set(symbols.map((symbol) => symbolPaths.get(symbol)).filter((value): value is string => Boolean(value)))];
   if (resolvedPaths.length === 1 && resolvedPaths[0]) return `path:${resolvedPaths[0]}`;
+
+  const anchor = anchors.get(record.id);
+  if (anchor) return `path:${anchor}`;
+
   if (symbols.length && symbols[0]) return `symbol:${symbols[0]}`;
 
   if (record.source.path) return `path:${record.source.path}`;

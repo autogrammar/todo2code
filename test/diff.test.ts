@@ -103,3 +103,72 @@ test('intent-vs-reality builds an explainable SVG and Markdown projection', () =
   assert.match(renderRealitySvg(view), /^<svg /);
   assert.match(renderRealityMarkdown(view), /Intent vs Reality/);
 });
+
+function moduleFact(path: string): IntentRecord {
+  return buildRecord({
+    kind: 'module_fact',
+    action: 'declare',
+    object: `declare ${path}`,
+    text: `declare ${path}`,
+    target: { paths: [path], symbols: [], tickets: [], versions: [] },
+    lifecycle: 'implemented',
+    sourceKind: 'ast',
+    sourcePath: path,
+    sourceLines: { start: 1, end: 1 },
+    extractor: 'test',
+    epistemicClass: 'fact',
+    confidence: 1,
+    basis: ['test'],
+  });
+}
+
+function polishDeclaration(text: string, line: number): IntentRecord {
+  return buildRecord({
+    kind: 'documentation_statement',
+    action: 'validate',
+    object: text,
+    text,
+    modality: 'required',
+    lifecycle: 'proposed',
+    sourceKind: 'document',
+    sourcePath: 'docs/architektura.md',
+    sourceLines: { start: line, end: line },
+    extractor: 'test',
+    epistemicClass: 'declaration',
+    confidence: 1,
+    basis: ['test'],
+  });
+}
+
+test('a targetless declaration is filed under the single module it links to', () => {
+  // Polish prose naming no path used to be filed under the documentation file
+  // it was written in, so a sentence the linker had already connected to code
+  // still counted as "planned, no code".
+  const graph = linkIntentRecords([
+    polishDeclaration('Rejestr uczestników musi weryfikować tożsamość agenta przed zapisem', 3),
+    moduleFact('src/communication/participant-identity-registry.ts'),
+  ], '2026-07-29T00:00:00.000Z');
+  const view = buildRealityView(graph, diagnoseGraph(graph), '2026-07-29T00:01:00.000Z');
+
+  assert.equal(view.totals.topics, 1);
+  assert.equal(view.totals.aligned, 1);
+  assert.equal(view.rows[0]?.key, 'path:src/communication/participant-identity-registry.ts');
+  assert.equal(view.rows[0]?.lanes.document, 1);
+  assert.equal(view.rows[0]?.lanes.ast, 1);
+});
+
+test('a declaration touching several modules keeps its own topic', () => {
+  // Picking a winner among equally linked modules would move the headline
+  // metric on a guess; an ambiguous declaration stays where it was.
+  const graph = linkIntentRecords([
+    polishDeclaration('Walidacja kontraktu i walidacja konfiguracji muszą raportować błędy', 5),
+    moduleFact('src/config/contract-validation.ts'),
+    moduleFact('src/config/configuration-validation-report.ts'),
+  ], '2026-07-29T00:00:00.000Z');
+  const view = buildRealityView(graph, diagnoseGraph(graph), '2026-07-29T00:01:00.000Z');
+  const declarationRow = view.rows.find((row) => (row.lanes.document ?? 0) > 0);
+
+  assert.ok(declarationRow);
+  assert.equal(declarationRow.key, 'path:docs/architektura.md');
+  assert.equal(declarationRow.status, 'planned_not_implemented');
+});

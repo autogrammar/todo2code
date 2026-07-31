@@ -23,17 +23,19 @@ Rozstrzygające liczby, wszystkie z przebiegów opisanych w sekcji „Reprodukcj
 
 | | todo2code | subactor/platform |
 |---|--:|--:|
-| Rekordy | 16 928 | 10 628 |
-| Relacje | 24 400 | 11 002 |
-| Tematy | 478 | 688 |
-| **aligned** | **74 (15,5%)** | **25 (3,6%)** |
-| Implementation coverage | 22,3% | 5,9% |
-| Documented code | 36,0% | 8,9% |
+| Rekordy | 17 064 | 10 628 |
+| Relacje | 26 470 | 11 424 |
+| Tematy | 474 | 678 |
+| **aligned** | **82 (17,3%)** | **43 (6,3%)** |
+| Implementation coverage | 24,4% | 10,0% |
+| Documented code | 39,9% | 15,2% |
 
 Na własnym repozytorium narzędzie wiąże mniej więcej co szósty temat. Na obcym
-— co dwudziesty ósmy. Wynik `subactor/platform` poprawił się względem
-poprzednich 10/687, ale różnica między repozytoriami nadal pokazuje istotny
-brak przenośności semantycznej.
+— co szesnasty. Ta sama treść zmierzona poprzednią wersją narzędzia dawała 74 i
+**25** `aligned` oraz 22,0% i **5,9%** pokrycia; różnica pochodzi ze słownika
+dziedzinowego PL→EN, odfiltrowania polskich słów funkcyjnych i z tego, że temat
+bez własnego celu trafia teraz pod moduł, z którym łączy go relacja. Dystans
+między repozytoriami zmalał, ale nie zniknął.
 
 ## Co jest gotowe
 
@@ -41,7 +43,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change i operation-plan; 238 testów, 237 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change i operation-plan; 240 testów, 239 zaliczonych, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 30 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
@@ -55,26 +57,35 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 Uporządkowane wedle wpływu. Każda pozycja ma pomiar i wskazany plik.
 
-### 1. Pokrycie wiązania intencja↔kod jest niskie i mocno zależne od repozytorium
+### 1. Pokrycie wiązania intencja↔kod nadal zależy od repozytorium
 
-Na `subactor/platform` `implementation coverage` wynosi **5,9%**, a `aligned`
-**25 z 688 tematów**. Dokumentacja jest tam po polsku, a identyfikatory w kodzie
-po angielsku, więc heurystyka `module_topic` — wymagająca trzech wspólnych
-znormalizowanych tematów — nadal trafia rzadko.
+Na `subactor/platform` `implementation coverage` wynosi **10,0%**, a `aligned`
+**43 z 678 tematów** — wobec 5,9% i 25 przed słownikiem dziedzinowym. Na własnym
+repozytorium jest to 24,4%. Różnica zmalała, ale wciąż wynosi ponad dwa razy.
 
-To nie jest usterka do naprawienia jedną zmianą. To granica obecnego podejścia:
-dopasowanie leksykalne nie przechodzi przez barierę językową ani przez
-dokumentację opisującą infrastrukturę zamiast kodu.
+Zamknięto trzy przyczyny, każda zmierzona na tej samej treści:
 
-Gold v2 mierzy tę granicę wprost: przypadek `link-topic-polish-prose-to-english-module`
-jest oznaczony jako `knownGap` — relacja, której narzędzie powinno dowieść, a
-nie potrafi (0/1). Nie wchodzi do precision/recall, bo bramka świecąca zawsze
-na czerwono przestaje być czytana; jest raportowana osobno, żeby luka miała
-liczbę.
+- słownik PL→EN dla słownictwa dziedzinowego obserwowanego w tym korpusie oraz
+  polskich końcówek na angielskich zapożyczeniach (`ticketu`, `foundera`);
+- polskie słowa funkcyjne przestały udawać tematy. `nie` 175, `jest` 110 i
+  `jako` 54 były jednymi z najczęstszych „tematów" korpusu, a bufory tematyczne
+  biorą tylko pierwsze dwanaście tokenów rekordu — czysta gramatyka wypierała
+  prawdziwe słownictwo, zanim dopasowanie się zaczęło;
+- deklaracja, której własny cel nie wskazuje żadnego pliku, trafia pod moduł
+  powiązany z nią relacją. Wcześniej zdanie, które linker *już* połączył z
+  kodem, i tak liczyło się jako „planned, no code", bo tematy grupuje własny
+  ticket/ścieżka/symbol rekordu, a nie graf.
 
-**Warunek zamknięcia:** dopasowanie przechodzące barierę językową — słownik
-dziedzinowy albo osadzenia — podniesione z 0/1 na gold v2 i potwierdzone
-wzrostem `implementation coverage` na `subactor/platform`.
+Co zostaje: dopasowanie działa dla słownictwa w słowniku, nie dla języka. Gold
+v2 mierzy to przypadkiem `link-topic-polish-vocabulary-outside-dictionary`
+(`knownGap`, 0/1): „Kolejka zadań powinna ponawiać nieudane próby z
+opóźnieniem" nie dosięga `src/queue/task-retry-backoff.ts`, bo `kolejka`,
+`ponawiać` i `opóźnienie` nie są w słowniku. Skalowanie słownika ręcznie na
+każdy język i każdą dziedzinę nie jest planem.
+
+**Warunek zamknięcia:** dopasowanie niezależne od ręcznego słownika (osadzenia
+albo tłumaczenie tematów), podniesione z 0/1 na gold v2 i potwierdzone wzrostem
+`implementation coverage` na repozytorium spoza tego korpusu.
 
 ### 2. Gold dataset: rozszerzony w v2, ale próba wciąż jest mała
 
@@ -87,8 +98,8 @@ Stan po rozszerzeniu:
 | Przypadki ekstrakcji / oczekiwane rekordy | 6 / 9 | 10 / 21 |
 | Kanały ekstrakcji | 3 | 4 (doszedł deterministyczny baseline dokumentacji) |
 | Relacje linkowania `exact-target` | 6 | 6 |
-| Relacje linkowania `capability-topic` | 1 | 7 |
-| Twarde negatywy linkowania | 2 | 5 |
+| Relacje linkowania `capability-topic` | 1 | 8 |
+| Twarde negatywy linkowania | 2 | 6 |
 | Przypadki diagnostyk (false DONE, partial) | brak zakresu | 5 / 11 oczekiwań |
 | Udokumentowane luki (`knownGap`) | brak | 1 |
 
@@ -99,7 +110,7 @@ i nie łączy z niczym — czyli dokładnie stan, o który chodzi. Przypadek
 musi milczeć.
 
 **Warunek zamknięcia:** próba na tyle duża, by zmiana progu trzech tematów dała
-mierzalny spadek w którąkolwiek stronę — dziś 7 pozytywów i 5 negatywów to
+mierzalny spadek w którąkolwiek stronę — dziś 8 pozytywów i 6 negatywów to
 minimum, nie komfort.
 
 ### 3. Harmonogramowana kontrola LLM obejmuje tylko część pipeline'u
@@ -142,7 +153,7 @@ w PHP dostanie niepełny obraz rzeczywistości.
 ### 6. Wydajność na dużych repozytoriach nieprzebadana
 
 Brak cache'u AST i chunków dokumentacji po content hash. Największy opisany
-tu pomiar gotowości ma 16,9 tys. rekordów, a test przenośności na `domd` około
+tu pomiar gotowości ma 17,1 tys. rekordów, a test przenośności na `domd` około
 23,3 tys.; nie wiadomo jeszcze, gdzie leży granica skalowania.
 
 ## Ryzyka operacyjne
@@ -169,19 +180,27 @@ Wersję `0.6.0` uznaję za gotową, gdy:
 
 Punkty 1 i 3 są warunkami merytorycznymi, a punkt 2 techniczno-operacyjnym.
 
-Poprawki jakości semantycznej wprowadzone razem z gold v2 — modalność
-prohibicyjna (`nie wolno`, `is not allowed`), obligacja peryfrastyczna
-(`has to`), martwe dopasowanie `muszą` przez `\b` na diakrytyku oraz składanie
-liczby mnogiej w tematach — zmierzono na obu repozytoriach z ich śledzonych
-`HEAD`: liczba relacji wzrosła z 24 246 do 24 400 (todo2code) i z 10 875 do
-11 002 (`subactor/platform`), przy niezmienionych `aligned` 74/478 i 25/688 oraz
-`implementation coverage` 22,3% i 5,9%. Poprawki są zatem realne na poziomie
-zdania i relacji, ale **nie przesuwają pokrycia** — punkt 3 pozostaje otwarty.
+Punkt 3 pozostaje otwarty, ale przesunął się. Pomiar A/B na identycznej treści
+(ta sama treść śledzonego `HEAD`, dwie wersje narzędzia):
+
+| | todo2code przed | po | platform przed | po |
+|---|--:|--:|--:|--:|
+| Relacje | 24 860 | 26 470 | 11 002 | 11 424 |
+| Tematy | 482 | 474 | 688 | 678 |
+| `aligned` | 74 | **82** | 25 | **43** |
+| Implementation coverage | 22,0% | **24,4%** | 5,9% | **10,0%** |
+| Documented code | 36,0% | 39,9% | 8,9% | 15,2% |
+
+Wcześniejsza partia poprawek (modalność prohibicyjna, obligacja peryfrastyczna,
+martwe `muszą` przez `\b` na diakrytyku, składanie liczby mnogiej) dodała
+relacje, ale nie ruszyła pokrycia — bo `aligned` w ogóle nie czytało grafu.
+Dopiero kotwiczenie deklaracji w powiązanym module przełożyło relacje na
+metrykę.
 
 ## Reprodukcja
 
 ```bash
-npm run verify          # 238 testów, 93 moduły, kontrakt .env, workflowy
+npm run verify          # 240 testów, 93 moduły, kontrakt .env, workflowy
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

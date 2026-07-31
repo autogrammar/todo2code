@@ -1251,7 +1251,7 @@
       ]
     },
     {
-      "id": "link-topic-polish-prose-to-english-module",
+      "id": "link-topic-polish-prose-through-domain-dictionary",
       "records": [
         {
           "label": "declaration",
@@ -1282,8 +1282,75 @@
           "type": "evidenced_by",
           "relationClass": "capability-topic"
         }
+      ]
+    },
+    {
+      "id": "link-topic-polish-vocabulary-outside-dictionary",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "validate",
+          "modality": "required",
+          "text": "Kolejka zadań powinna ponawiać nieudane próby z opóźnieniem",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/queue/task-retry-backoff.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/queue/task-retry-backoff.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
       ],
       "knownGap": true
+    },
+    {
+      "id": "link-topic-polish-two-translated-topics-hard-negative",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "document",
+          "modality": "required",
+          "text": "Dokumentacja opisuje rejestr",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/documentation/version-registry-report.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/documentation/version-registry-report.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "module"
+        }
+      ]
     }
   ],
   "dsl2todo": [

@@ -28,8 +28,28 @@
   the policy lives in the dedicated `code-change-path.ts` module instead of
   further growing the code-change planner.
 
+### Changed
+
+- Intent-vs-Reality files a declaration whose own target names no file under the
+  single module aggregate it is linked to. Topics are keyed by each record's own
+  ticket, path or symbol, so prose the linker had already connected to code
+  still counted as "planned, no code" — on a Polish-documented repository, most
+  of the corpus. One hop only, and only when every module the declaration
+  touches names the same file; connected components stay refused, and the 69
+  ambiguous declarations measured on `subactor/platform` keep their old key.
+
 ### Fixed
 
+- Match Polish documentation against English identifiers through a reviewable
+  PL→EN domain dictionary, including Polish endings on English loanwords
+  (`ticketu`, `foundera`). Polish function words no longer pose as topics
+  either: `nie` (175), `jest` (110) and `jako` (54) were among the most frequent
+  "topics" in the measured corpus, and topic buckets keep only twelve tokens per
+  record, so grammar was displacing vocabulary before matching began. The stop
+  list also folds its own diacritics — `się`, `może` and `należy` were written
+  in a form `keywords` could never produce, so they had never filtered anything.
+  A/B on identical content: `aligned` 25 → 43 and implementation coverage
+  5,9% → 10,0% on `subactor/platform`, 74 → 82 and 22,0% → 24,4% here.
 - `detectModality` reads prohibitions (`nie wolno`, `nie może`, `zabronione`,
   `is not allowed`, `is forbidden`) and periphrastic obligation (`has to`,
   `ma obowiązek`) as requirements rather than `unknown` — or, for `nie może`,

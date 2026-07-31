@@ -16,11 +16,26 @@ const ACTION_PATTERNS: Array<[IntentAction, RegExp]> = [
   ['preserve', /\b(preserve|keep|maintain|zachowa(?:ć|c)|utrzyma(?:ć|c))\b/i],
 ];
 
+/**
+ * Function words, folded exactly as `keywords` folds its input.
+ *
+ * The list used to be written with diacritics, which meant `się`, `może` and
+ * `należy` could never match: `keywords` compares against `normalizeToken`
+ * output, where they are already `sie`, `moze` and `nalezy`. Measured on
+ * `subactor/platform` the unfiltered forms were among the most frequent
+ * "topics" in the whole corpus — `nie` 175, `jest` 110, `jako` 54 — and topic
+ * buckets keep only the first twelve tokens per record, so pure grammar was
+ * displacing real vocabulary before matching even began.
+ */
 const STOP_WORDS = new Set([
   'the', 'a', 'an', 'and', 'or', 'to', 'of', 'for', 'in', 'on', 'with', 'from', 'by',
-  'i', 'oraz', 'lub', 'do', 'z', 'ze', 'na', 'w', 'we', 'dla', 'przez', 'się', 'ma',
-  'musi', 'powinien', 'powinna', 'powinno', 'należy', 'trzeba', 'może', 'system', 'agent',
-]);
+  'i', 'oraz', 'lub', 'do', 'z', 'ze', 'na', 'w', 'we', 'dla', 'przez', 'sie', 'ma',
+  'musi', 'musza', 'powinien', 'powinna', 'powinno', 'powinny', 'nalezy', 'trzeba',
+  'moze', 'moga', 'system', 'agent',
+  'nie', 'jest', 'sa', 'jako', 'bez', 'ani', 'albo', 'ale', 'tylko', 'wylacznie',
+  'tego', 'tym', 'tej', 'ten', 'ta', 'to', 'te', 'przy', 'po', 'przed', 'aby', 'gdy',
+  'kazdy', 'kazda', 'kazde', 'juz', 'tez', 'takze', 'byc', 'byl', 'byla', 'bylo',
+].map((value) => normalizeToken(value)));
 
 export function classifyActionHeuristically(text: string): IntentAction {
   const conventional = text.match(/^\s*(feat|fix|refactor|test|docs|chore|build|ci|perf)(?:\([^)]*\))?!?:/i)?.[1]?.toLowerCase();
@@ -150,6 +165,66 @@ const TOPIC_ALIASES: Record<string, string> = {
   verified: 'validate', verify: 'validate', verifies: 'validate', verification: 'validate',
 };
 
+/**
+ * Polish domain vocabulary mapped onto the English words repositories name
+ * their modules with.
+ *
+ * `subactor/platform` documents itself in Polish and writes identifiers in
+ * English, so `module_topic` — three shared normalised topics — almost never
+ * fired: `implementation coverage` 5,9% against 22,3% on an English-documented
+ * repository. Nothing here is inferred; the entries are the inflected forms
+ * actually observed in that corpus, plus Polish endings on English loanwords
+ * (`ticketu`, `foundera`), which no English fold could reach.
+ *
+ * This is deliberately a dictionary and not a similarity model: a wrong entry
+ * is one reviewable line, and the three-topic floor still has to be cleared.
+ */
+const POLISH_TOPIC_ALIASES: Record<string, string> = {
+  walidacja: 'validate', walidacji: 'validate', walidacje: 'validate', waliduje: 'validate',
+  walidowac: 'validate', weryfikacja: 'validate', weryfikacji: 'validate', weryfikowac: 'validate',
+  dokumentacja: 'document', dokumentacji: 'document', dokument: 'document', dokumentu: 'document',
+  dokumentowac: 'document', udokumentowane: 'document',
+  konfiguracja: 'configure', konfiguracji: 'configure', konfiguracje: 'configure',
+  skonfigurowac: 'configure', ustawienie: 'configure', ustawienia: 'configure',
+  ekstrakcja: 'extract', ekstrakcji: 'extract', wyodrebnia: 'extract',
+  diagnostyka: 'diagnostic', diagnostyki: 'diagnostic', diagnostyke: 'diagnostic',
+  podsumowanie: 'summary', podsumowania: 'summary', podsumowuje: 'summary',
+  rejestr: 'registry', rejestru: 'registry', rejestrze: 'registry',
+  uczestnik: 'participant', uczestnika: 'participant', uczestnicy: 'participant',
+  uczestnikow: 'participant', uczestnikach: 'participant',
+  tozsamosc: 'identity', tozsamosci: 'identity',
+  kontrakt: 'contract', kontraktu: 'contract', kontrakty: 'contract', kontraktow: 'contract',
+  plik: 'file', pliku: 'file', pliki: 'file', plikow: 'file', plikach: 'file',
+  sciezka: 'path', sciezki: 'path', sciezke: 'path', sciezek: 'path',
+  katalog: 'directory', katalogu: 'directory', katalogi: 'directory',
+  zadanie: 'task', zadania: 'task', zadan: 'task',
+  wymaganie: 'requirement', wymagania: 'requirement', wymagan: 'requirement',
+  raport: 'report', raportu: 'report', raporty: 'report', raportuje: 'report',
+  raportowac: 'report', raportowanie: 'report',
+  wersja: 'version', wersji: 'version', wersje: 'version',
+  srodowisko: 'environment', srodowiska: 'environment', srodowisku: 'environment',
+  klucz: 'key', klucza: 'key', klucze: 'key', kluczy: 'key',
+  blad: 'error', bledy: 'error', bledow: 'error', bledu: 'error',
+  odpowiedz: 'response', odpowiedzi: 'response',
+  zapytanie: 'query', zapytania: 'query',
+  wpis: 'entry', wpisu: 'entry', wpisy: 'entry', wpisow: 'entry',
+  dowod: 'evidence', dowodu: 'evidence', dowody: 'evidence', dowodow: 'evidence',
+  zmiana: 'change', zmiany: 'change', zmian: 'change',
+  uprawnienie: 'permission', uprawnienia: 'permission', uprawnien: 'permission',
+  bezpieczenstwo: 'security', bezpieczenstwa: 'security',
+  dostep: 'access', dostepu: 'access',
+  uzytkownik: 'user', uzytkownika: 'user', uzytkownicy: 'user',
+  polityka: 'policy', polityki: 'policy',
+  // Polish endings on English loanwords: the identifier is already English.
+  ticketu: 'ticket', ticketem: 'ticket', tickety: 'ticket', ticketow: 'ticket',
+  foundera: 'founder', founderowi: 'founder', founderem: 'founder',
+  tokena: 'token', tokenu: 'token', tokeny: 'token',
+  planu: 'plan', plany: 'plan', planow: 'plan',
+  audytu: 'audit', audyt: 'audit',
+  grafu: 'graph', graf: 'graph', grafie: 'graph',
+  relacja: 'relation', relacje: 'relation', relacji: 'relation',
+};
+
 const GENERIC_TOPICS = new Set([
   'action', 'actions', 'basic', 'capabilities', 'index', 'input', 'intent', 'module',
   'output', 'record', 'records', 'result', 'runtime', 'sdk', 'src', 'type', 'types',
@@ -183,14 +258,19 @@ export function topicKeywords(value: string): string[] {
  * Against a floor of three shared topics one unmatched plural is the whole
  * difference between a found and a missed module, and no dictionary can list
  * every noun a repository invents. The `ss`/`us`/`is`/`as`/`os` guard keeps
- * genuine singulars — `status`, `class`, `analysis`, `alias` — intact.
+ * genuine singulars — `status`, `class`, `analysis`, `alias` — intact, and
+ * `-ies` folds to `-y` so `capabilities` reaches `capability` instead of
+ * stopping at the non-word `capabilitie`, which then escaped the generic-topic
+ * filter entirely.
  */
 function foldTopicToken(token: string): string {
-  const aliased = TOPIC_ALIASES[token];
+  const aliased = TOPIC_ALIASES[token] ?? POLISH_TOPIC_ALIASES[token];
   if (aliased) return aliased;
   if (token.length < 4 || !token.endsWith('s') || /(?:ss|us|is|as|os)$/.test(token)) return token;
-  const singular = token.slice(0, -1);
-  return TOPIC_ALIASES[singular] ?? singular;
+  const singular = token.length >= 5 && token.endsWith('ies')
+    ? `${token.slice(0, -3)}y`
+    : token.slice(0, -1);
+  return TOPIC_ALIASES[singular] ?? POLISH_TOPIC_ALIASES[singular] ?? singular;
 }
 
 export function similarity(a: string, b: string): number {

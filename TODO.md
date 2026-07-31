@@ -1,5 +1,11 @@
 # TODO
 
+## Active tickets
+
+- [ ] [`ticket-002`](project/ticket-002/README.md) — cross-repository semantic
+  benchmark and iterative todo2code quality improvements. Current state:
+  `ANALYSIS`.
+
 ## P1 — improve semantic quality and signal
 
 - [x] Build a versioned gold dataset for NL/docs/Markdown → DSL, linking and
@@ -37,10 +43,9 @@
   permissive rule matched the `może` inside the ban, and `\bmuszą\b` could never
   match at all: JavaScript's `\b` treats `ą` as a non-word character.
 - [x] Fold regular English plurals in `topicKeywords`, guarded against `ss`/`us`/
-  `is`/`as`/`os` endings. Measured from tracked `HEAD`: relations 24 246 → 24 400
-  here and 10 875 → 11 002 on `subactor/platform`, with `aligned` and
-  implementation coverage unchanged — the fix is real per sentence, but does not
-  move repository-level coverage.
+  `is`/`as`/`os` endings and folding `-ies` to `-y`. On its own this added
+  relations without moving coverage, because `aligned` never read the graph;
+  the topic-anchor change below is what converted relations into the metric.
 - [x] Split large TODO/CHANGELOG LLM enrichment into bounded 32-record batches
   with a shared audit, per-record response provenance and deterministic
   ordering.
@@ -188,10 +193,21 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [ ] Powiększyć próbę `capability-topic` na tyle, by zmiana progu trzech
   tematów dawała mierzalny spadek w obie strony. Siedem pozytywów wykrywa
   regresję progu, ale nie pozwala go stroić.
-- [ ] Dopasowanie ponad barierą językową (słownik dziedzinowy albo osadzenia).
-  Gold v2 mierzy tę lukę jako `knownGap` 0/1
-  (`link-topic-polish-prose-to-english-module`); jest to główny powód
-  `implementation coverage` 5,9% na `subactor/platform`.
+- [x] Dopasowanie ponad barierą językową, krok pierwszy: słownik dziedzinowy
+  PL→EN wraz z polskimi końcówkami na angielskich zapożyczeniach (`ticketu`,
+  `foundera`), odfiltrowanie polskich słów funkcyjnych (`nie` 175, `jest` 110 i
+  `jako` 54 były jednymi z najczęstszych „tematów" korpusu platformy) oraz
+  kotwiczenie deklaracji bez własnego celu w powiązanym module. A/B na tej samej
+  treści: `aligned` 25 → 43 i coverage 5,9% → 10,0% na `subactor/platform`,
+  74 → 82 i 22,0% → 24,4% tutaj.
+- [ ] Dopasowanie niezależne od ręcznego słownika (osadzenia albo tłumaczenie
+  tematów). Słownik działa dla słownictwa, które w nim jest, nie dla języka;
+  gold v2 mierzy resztę jako `knownGap` 0/1
+  (`link-topic-polish-vocabulary-outside-dictionary`). Skalowanie słownika
+  ręcznie na każdy język i dziedzinę nie jest planem.
+- [ ] Zbadać 69 deklaracji `subactor/platform`, które dotykają kilku modułów i
+  dlatego celowo nie dostają kotwicy. Rozstrzygnięcie ich wymaga dowodu
+  mocniejszego niż wspólne tematy — bez niego wybór modułu byłby zgadywaniem.
 - [ ] Zmierzyć, czy wpisy changelogu powinny uczestniczyć w dopasowaniu
   tematycznym. `isModuleTopicSource` obejmuje `module_fact`, `nl`, `todo` i
   `document`, więc wpis wydania dosięga modułu tylko przez jawny ticket, symbol
