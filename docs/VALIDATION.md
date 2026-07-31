@@ -10,19 +10,20 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrola | Wynik |
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
-| Transitive no-LLM import boundary | PASS — 9 entrypointów, 34 moduły |
-| Granice modułów | PASS — 102 moduły, 473 importy wewnętrzne, brak cykli, niezależny `src/core` |
+| Transitive no-LLM import boundary | PASS — 9 entrypointów, 35 modułów |
+| Granice modułów | PASS — 103 moduły, 477 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 73 zmienne kodu/Dockera/skryptów, 73 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 276 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 227 rekordów i 91 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
+| Testy Node | PASS — 298 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 227 rekordów i 83 relacje, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
 | Audytowane TODO/CHANGELOG → DSL | PASS — zachowanie struktury, runtime validation, oznaczony fallback i błąd `require-llm` |
 | `npm run evaluate:gold` | PASS — gold v2: ekstrakcja (4 kanały), linkowanie (`exact-target` 10, `capability-topic` 8) i kody diagnostyk 100% precision/recall; cytowania i klasyfikacja duplikatów 100%; linker cross-language 0/6, captured reranker 6/6 z 0/6 naruszeń i 1 abstencją; `knownGap` 0/6 poza metryką; stabilność 2/2 przebiegów |
 | Rozstrzyganie symboli NL względem AST | PASS — 6 testów unique/ambiguous/path/qualified/conflict/missing-fields; niejednoznaczny symbol nie tworzy relacji, a diagnostyka podaje ścieżki kandydatów |
+| Ścieżka vs implementacja funkcji | PASS — gold existing-path negative/positive, reality coverage gate i pure-file control; Koru PLF-003 utworzył zweryfikowany commit `55a8b15`, 6/6 pytest, re-analiza 0 target plans; `weekly`/`nlp2uri`/`algitex` succeeded |
 | Eksperymentalny reranker live | REJECTED/FAIL-CLOSED — czysty tracked snapshot platformy; Plus łamie envelope/typ, Flash dodaje `decisions[0].decision`; 0 relacji i brak eksportu produkcyjnego |
 | Pełny kontrakt runtime DSL | PASS — exact keys, enumy, ID/hash/czas/linie, relacje, końce i statystyki grafu |
 | Governed operation-plan DSL | PASS — 9 testów ID/hash, authority, sekretów, ryzyka, rollbacku, fail-closed bindingów i prywatnego atomowego artefaktu bez overwrite/dispatch |
@@ -48,7 +49,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kanoniczne odpowiedzi LLM | PASS — 7 produkcyjnych wywołań `chatStructuredWithMetadata`, 0 surowych wywołań JSON; schema i parser z jednego kontraktu, dokładne ścieżki błędów, metadata odrzuconej odpowiedzi zachowana |
 | Publikowany schemat dokumentów | PASS — `npm run verify:schemas` porównuje plik JSON z mechanicznie generowanym kontraktem runtime |
 | `t2c.participant-registry/v1` | PASS — exact stable IDs, mapowanie Git/A2A/human aliases, wykrywanie duplikatów i konfliktów; brak dopasowania po display name |
-| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `1dacf2edc8d603a2` oraz patcha `a418783fecf6c0ec` |
+| `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `0e0e4a1f1daeeb95` oraz patcha `1b7fef6a7789866d` |
 | Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
 | CLI `doctor`, `--help`, `--version` | PASS |
 | `npm audit` rdzenia | PASS — 0 podatności przy zwykłym `npm install` |
@@ -60,7 +61,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 295 testów, 294 zaliczone, 0 błędów i 1 lokalny skip JDK.
+Wynik: 299 testów, 298 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

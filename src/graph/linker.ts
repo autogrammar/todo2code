@@ -4,6 +4,7 @@ import { keywords, topicKeywords } from '../core/text.js';
 import { pathAliases, symbolAliases } from '../core/target.js';
 import type { IntentGraph, IntentRecord, IntentRelation, RelationType, SourceKind } from '../core/types.js';
 import { buildSymbolResolutionIndex, hasResolvedNlAstSymbolPair, type SymbolResolutionIndex } from './symbol-resolution.js';
+import { aggregateCapabilityOverlap, isFileAggregate } from './capability-evidence.js';
 
 interface PairEvidence {
   score: number;
@@ -364,6 +365,8 @@ function scorePair(
     if (isFileAggregateEvidencePair(left, right)) {
       score += 0.24;
       basis.push('module_coverage');
+      const capabilityOverlap = aggregateCapabilityOverlap(left, right);
+      if (capabilityOverlap > 0) basis.push(`capability_overlap:${capabilityOverlap}`);
     }
   }
   if (left.statement.action === right.statement.action && left.statement.action !== 'unknown') {
@@ -408,11 +411,6 @@ function intersectionSize(left: Set<string>, right: Set<string>): number {
  * configuration files. Both exist so a declaration can bind to a file instead
  * of to every declaration inside it.
  */
-function isFileAggregate(record: IntentRecord): boolean {
-  return record.statement.kind === 'module_fact'
-    || record.statement.kind === 'configuration_file_fact';
-}
-
 function isFileAggregateEvidencePair(left: IntentRecord, right: IntentRecord): boolean {
   return left.source.kind !== right.source.kind
     && (isFileAggregate(left) || isFileAggregate(right));

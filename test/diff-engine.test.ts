@@ -187,6 +187,30 @@ test('A topic holding declared and observed records is never reported as planned
   assert.ok(row?.diagnosticCodes.includes('IMPLEMENTED_NOT_DOCUMENTED'));
 });
 
+test('Reality coverage stays open when a shared path has unrelated capabilities', () => {
+  const plan = buildRecord({
+    kind: 'todo_item', action: 'add', object: 'bounded exponential retry backoff',
+    target: { paths: ['src/retry.py'] },
+    text: 'Implement bounded exponential retry backoff in `src/retry.py`.',
+    lifecycle: 'planned', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'plan',
+    confidence: 1, basis: ['fixture'],
+  });
+  const unrelatedModule = buildRecord({
+    kind: 'module_fact', action: 'declare', object: 'src/retry.py',
+    target: { paths: ['src/retry.py'] }, text: 'module src/retry.py capabilities enqueue',
+    lifecycle: 'implemented', sourceKind: 'ast', sourcePath: 'src/retry.py',
+    sourceLines: { start: 1, end: 10 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'], metadata: { aggregate: 'module', capabilities: ['enqueue'] },
+  });
+
+  const view = viewOf([plan, unrelatedModule]);
+  const row = view.rows.find((item) => item.key === 'path:src/retry.py');
+  assert.equal(row?.status, 'planned_not_implemented');
+  assert.equal(view.totals.implementationAlignedTopics, 0);
+  assert.equal(view.totals.implementationCoverage, 0);
+});
+
 test('Shared-path relations do not collapse unrelated files into one topic', () => {
   // The linker links every AST symbol in a file via `shared_path`; grouping by
   // connected components collapsed whole repositories into a single row.

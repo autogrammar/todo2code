@@ -8,14 +8,17 @@ import type {
   DiagnosticSeverity,
   IntentGraph,
   IntentRecord,
+  IntentRelation,
 } from '../core/types.js';
 import { buildSymbolResolutionIndex, type NlSymbolResolution } from './symbol-resolution.js';
+import { hasCapabilityClaim, isFileAggregate } from './capability-evidence.js';
 
 export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISOString()): DiagnosticReport {
   assertIntentGraph(graph);
   const diagnostics: Diagnostic[] = [];
   const neighbors = buildNeighbors(graph);
   const recordsById = new Map(graph.records.map((record) => [record.id, record]));
+  const groundedImplementation = indexGroundedImplementationEvidence(graph, recordsById);
   const implementedPaths = indexImplementedPaths(graph);
   const documentedPaths = indexDocumentedPaths(graph);
   const symbolResolutionIndex = buildSymbolResolutionIndex(graph.records);
@@ -24,17 +27,22 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
     const related = (neighbors.get(record.id) ?? [])
       .map((id) => recordsById.get(id))
       .filter((item): item is IntentRecord => Boolean(item));
-    const evidenced = related.some(isImplementationEvidence)
-      || hasImplementedTarget(record, implementedPaths)
+    const evidenced = groundedImplementation.has(record.id)
+      || !hasCapabilityClaim(record) && hasImplementedTarget(record, implementedPaths)
       || record.source.kind === 'changelog' && hasDocumentedTarget(record, documentedPaths);
     if (isPlan(record) && !evidenced) {
+      const hasLocationOnlyEvidence = related.some(isImplementationEvidence);
       diagnostics.push(makeDiagnostic(
         record.lifecycle.status === 'completed' ? 'blocking' : 'warning',
         'PLANNED_NOT_IMPLEMENTED',
         record.lifecycle.status === 'completed' ? 'Zadanie oznaczone jako ukończone bez dowodu implementacji' : 'Zaplanowane zadanie bez dowodu implementacji',
-        `Nie znaleziono powiązanego rekordu Git ani faktu AST dla: ${record.statement.text}`,
+        hasLocationOnlyEvidence
+          ? `Powiązany rekord Git/AST wskazuje lokalizację, ale nie potwierdza wymaganej funkcji: ${record.statement.text}`
+          : `Nie znaleziono powiązanego rekordu Git ani faktu AST dla: ${record.statement.text}`,
         [record.id],
-        'Dodać identyfikator ticketu/symbolu albo dostarczyć implementację i ponownie uruchomić linker.',
+        hasLocationOnlyEvidence
+          ? 'Wykonawca techniczny powinien dostarczyć brakującą funkcję lub wskazać jej symbol; następnie ponownie uruchomić linker.'
+          : 'Dodać identyfikator ticketu/symbolu albo dostarczyć implementację i ponownie uruchomić linker.',
       ));
     }
 
@@ -146,6 +154,54 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
   };
 }
 
+/**
+ * Relations are navigation until their basis proves the requested behaviour.
+ * In particular, `shared_path + module_coverage` says only that a file exists.
+ */
+function indexGroundedImplementationEvidence(
+  graph: IntentGraph,
+  recordsById: Map<string, IntentRecord>,
+): Set<string> {
+  const grounded = new Set<string>();
+  for (const relation of graph.relations) {
+    const left = recordsById.get(relation.from);
+    const right = recordsById.get(relation.to);
+    if (!left || !right) continue;
+    if (isImplementationEvidence(right) && relationSupportsImplementation(left, right, relation)) {
+      grounded.add(left.id);
+    }
+    if (isImplementationEvidence(left) && relationSupportsImplementation(right, left, relation)) {
+      grounded.add(right.id);
+    }
+  }
+  return grounded;
+}
+
+function relationSupportsImplementation(
+  declaration: IntentRecord,
+  evidence: IntentRecord,
+  relation: IntentRelation,
+): boolean {
+  const basis = relation.basis;
+  if (basis.includes('shared_symbol')) return true;
+  if (basis.some((item) => item.startsWith('module_topic:')
+    || item.startsWith('capability_overlap:')
+    || item === 'cross_language_reranker')) return true;
+
+  // Text similarity to a concrete fact/commit may corroborate a capability.
+  // Aggregate text contains its own path, so similarity there would merely
+  // count the location a second time.
+  if (!isFileAggregate(evidence) && basis.some((item) => {
+    const score = item.startsWith('text_similarity:') ? Number(item.slice('text_similarity:'.length)) : 0;
+    return Number.isFinite(score) && score >= 0.2;
+  })) return true;
+
+  // A declaration that says nothing beyond the edit envelope may be fulfilled
+  // by exact target evidence. Capability-bearing declarations cannot.
+  return !hasCapabilityClaim(declaration)
+    && basis.some((item) => item === 'shared_path' || item === 'shared_ticket');
+}
+
 function ambiguityDetail(
   record: IntentRecord,
   missingFields: string[],
@@ -203,12 +259,10 @@ function appendNeighbor(map: Map<string, string[]>, from: string, to: string): v
  *
  * Symbol-level facts cannot be linked to a file-level plan without pairing that
  * plan with every symbol in the module, which the linker deliberately refuses
- * to do (see `test/linker-pairing.test.ts`). The evidence is nevertheless real:
- * a task naming `src/extractors/ast.ts` *is* implemented when facts were
- * extracted from that exact file. Reading it from the graph here keeps the
- * relation set sparse while removing the false "planned, no code" verdict —
- * measured on this repository as 7 blocking findings against tasks whose code
- * and passing tests were present.
+ * to do (see `test/linker-pairing.test.ts`). This index therefore closes only
+ * declarations that carry no behavioural claim beyond their file target.
+ * Capability-bearing declarations require grounded relation evidence and do
+ * not call `hasImplementedTarget` at all.
  */
 function indexImplementedPaths(graph: IntentGraph): Set<string> {
   const paths = new Set<string>();

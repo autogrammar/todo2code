@@ -95,6 +95,9 @@ Cele symboliczne NL są rozstrzygane względem zaobserwowanych deklaracji AST.
 Krótki symbol tworzy dowód tylko wtedy, gdy ma jednego właściciela; przy wielu
 modułach linker abstenuje, a `AMBIGUOUS_REQUIREMENT` podaje kandydatów i prosi
 o `target.path`. Jawna ścieżka lub kwalifikowana nazwa może wybrać jeden moduł.
+Sama ścieżka pozostaje relacją nawigacyjną, lecz nie zamyka deklaracji nowej
+funkcji: wymagany jest symbol, temat obecny w wyekstrahowanych możliwościach,
+uziemiona zgodność z konkretnym faktem/commitem albo zaakceptowany rerank.
 Rzeczywiste kontrakty NL → DSL oraz graf → wnioski można sprawdzić osobno przez
 `npm run live:check`. Kontrola jest opt-in, używa `require-llm`, zapisuje tylko
 zredagowany audyt latencji/tokenów/kosztu i bez klucza kończy się jako `SKIPPED`;

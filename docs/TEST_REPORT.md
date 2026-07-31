@@ -14,9 +14,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 295 testów: 294 pass, 0 fail, 1 Java skip |
-| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 34 moduły |
-| Moduły | `npm run verify:modules` | PASS — 102 moduły, 473 importy, 0 cykli |
+| Testy | `npm test` | 299 testów: 298 pass, 0 fail, 1 Java skip |
+| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 35 modułów |
+| Moduły | `npm run verify:modules` | PASS — 103 moduły, 477 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 73 zmienne i 73 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
@@ -33,7 +33,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Live OpenRouter 6/6 | `npm run live:check` | PASS — Gemini 3.6 Flash, 125,486 s, 177 953 tokeny, $0.412363, bez fallbacku/degradacji |
 | Porównanie Live modeli | ticket-013, identyczny kontrakt 6/6 | Codestral PASS 57,129 s / $0.037994; Gemini 3 Flash Preview PASS 64,064 s / $0.076411; DeepSeek V4 Pro FAIL >900 s |
 | Zewnętrzne repo Live | Codestral na `weekly` i `nlp2uri` | PASS — 161/6 i 619/20 rekordów/żądań, bez fallbacku; współbieżność skróciła `weekly` 218,741→53,362 ms |
-| Koru autonomous control | izolowany todo2code → PLF-002 → Codestral patch → worktree verify | PASS po fail-closed poprawce edit-ticket: commit `1809ea5` na `koru/run-6e596247e153`, pytest PASS, targeted diagnostic usunięty |
+| Koru autonomous control | istniejący plik → PLF-003 → patch-mode → worktree verify | PASS — wcześniejszy path-only false success stał się planem; Qwen utworzył commit `55a8b15` na `koru/run-35477cccef16`, niezależny pytest 6/6, re-analiza 0 target plans |
 | Zaplanowany kontrakt live | `npm run live:check` | SKIP bez klucza (kontrolowany); sześć etapów `require-llm`, progi etap/przebieg, zredagowany audyt i historia obejmująca bieżący wynik |
 | Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
 | Trzy zewnętrzne repozytoria (batch 1) | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty |
@@ -47,6 +47,30 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
 lub regresja adaptera nie mogą tam zostać pominięte.
+
+### Ticket 014 — ścieżka nie jest funkcją
+
+Kontrolowany negatyw wskazywał istniejące `src/retry.py`, które eksportowało
+tylko `enqueue`, i żądał bounded exponential retry backoff. Przed poprawką
+powstawało 0 diagnostyk/planów. Po poprawce relacja
+`shared_path + module_coverage` pozostała w grafie, ale pipeline zwrócił jeden
+`PLANNED_NOT_IMPLEMENTED` i jeden plan. Koru utworzył `PLF-003`, zastosował
+hash-bound unified diff i przepuścił projektową bramkę `pytest`.
+
+Niezależny worktree na commicie `55a8b15` przeszedł 6 testów w 0,02 s.
+Ponowny pipeline dla tej samej intencji zwrócił 0 target diagnostics i 0
+planów; relacje miały `capability_overlap:2` + `module_topic:4` dla kodu i
+`capability_overlap:1` dla testu. Gold v2 ma teraz 7 przypadków diagnostycznych
+i 14/14 oczekiwanych kodów przy 100% precision/recall.
+
+Trzy świeże regresje deterministyczne (artefakty w `/tmp`, bez zmian w
+repozytoriach) zakończyły się `succeeded`:
+
+| Repozytorium | `PLANNED_NOT_IMPLEMENTED` | Wszystkie plany | Capability overlap | Path-only relacje zachowane |
+|---|---:|---:|---:|---:|
+| `weekly` | 1 | 9 | 58 | 40 |
+| `nlp2uri` | 10 | 12 | 152 | 54 |
+| `algitex` | 3 | 5 | 139 | 202 |
 
 ## Walidacja na innych projektach
 
@@ -137,8 +161,8 @@ Końcowy przebieg `examples:check`:
 demo: 227 records, 91 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
-SDK examples: 5 languages, shared fingerprint 1dacf2edc8d603a2
-SDK DSL2TODO: shared proposal IDs, duplicates and patch fingerprint a418783fecf6c0ec
+SDK examples: 5 languages, shared fingerprint 0e0e4a1f1daeeb95
+SDK DSL2TODO: shared proposal IDs, duplicates and patch fingerprint 1b7fef6a7789866d
 examples check: PASS
 ```
 
@@ -317,7 +341,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 91 relacji, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 83 relacje, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

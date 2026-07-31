@@ -69,7 +69,7 @@ export interface RealityRow {
   severity: DiagnosticSeverity;
   recordIds: string[];
   diagnosticCodes: DiagnosticCode[];
-  /** Graded, not gated: this never changes whether a topic counts as aligned. */
+  /** Evidence grade for a topic that survived semantic implementation gating. */
   evidence: RealityEvidence;
 }
 
@@ -207,8 +207,8 @@ export function buildRealityView(
   const aligned = rows.filter((row) => row.status === 'aligned').length;
   const declaredTopics = rows.filter((row) => DECLARED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
   const observedTopics = rows.filter((row) => OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
-  const implementationAlignedTopics = rows.filter((row) =>
-    DECLARED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)
+  const implementationAlignedTopics = rows.filter((row) => row.status === 'aligned'
+    && DECLARED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)
     && OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
   const documentedObservedTopics = rows.filter((row) =>
     (row.lanes.document ?? 0) > 0
@@ -443,6 +443,10 @@ function resolveStatus(codes: Set<DiagnosticCode>, lanes: Record<string, number>
 
   // A contradiction outranks every structural reading of the same topic.
   if (codes.has('CONFLICTING_INTENT')) return 'conflicting';
+
+  // Co-location is not semantic implementation. Diagnostics has inspected the
+  // relation basis and keeps this gap open when both lanes share only a path.
+  if (codes.has('PLANNED_NOT_IMPLEMENTED')) return 'planned_not_implemented';
 
   if (declared === 0 && observed === 0) {
     return changelog > 0 ? 'changelog_without_implementation' : 'unlinked';

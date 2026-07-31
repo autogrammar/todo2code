@@ -2,8 +2,8 @@
 
 - **ID**: ticket-014
 - **Owner**: unresolved:human
-- **Status**: OPEN
-- **Workflow state**: READY
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-07-31
 
 ## Goal and scope
@@ -21,15 +21,15 @@ ticket contract and redacted evidence.
 
 - [x] AC-01: A real fixture reproduces the false alignment: retry/backoff aimed
   at an existing queue file produces no `PLANNED_NOT_IMPLEMENTED` plan.
-- [ ] AC-02: Gold contains the existing-path/unrelated-capability case and a
+- [x] AC-02: Gold contains the existing-path/unrelated-capability case and a
   positive existing-path/implemented-capability control.
-- [ ] AC-03: Path evidence alone cannot close a capability-bearing declaration;
+- [x] AC-03: Path evidence alone cannot close a capability-bearing declaration;
   a symbol or sufficiently specific topic match is also required.
-- [ ] AC-04: Ambiguous evidence abstains and names who must answer; runtime never
+- [x] AC-04: Ambiguous evidence abstains and names who must answer; runtime never
   edits a human-owned `user-*` record to manufacture consent.
-- [ ] AC-05: Koru discovery creates tickets only for remaining grounded gaps,
+- [x] AC-05: Koru discovery creates tickets only for remaining grounded gaps,
   and re-analysis closes the targeted diagnostic after a verified patch.
-- [ ] AC-06: Gold, full verification and cross-repository regression pass.
+- [x] AC-06: Gold, full verification and cross-repository regression pass.
 
 ## Participants
 

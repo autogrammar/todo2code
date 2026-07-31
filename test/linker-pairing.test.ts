@@ -82,6 +82,10 @@ test('A file-level plan links once to the AST module aggregate instead of every 
   assert.equal(planRelations.length, 1);
   assert.ok(planRelations.some((relation) => relation.from === plan.id && relation.to === module.id));
   assert.ok(planRelations[0]?.basis.includes('module_coverage'));
+  const report = diagnoseGraph(graph, AT);
+  assert.ok(!report.diagnostics.some((item) =>
+    item.code === 'PLANNED_NOT_IMPLEMENTED' && item.recordIds.includes(plan.id)),
+    'a pure file-creation declaration has no additional capability to corroborate');
 });
 
 test('A shared path still links a plan to an AST fact', () => {

@@ -35,6 +35,12 @@ przyrostowy cache AST i fragmentów dokumentacji oraz pomiar cold/warm na trzech
 [`project/ticket-011`](../project/ticket-011/README.md) uziemił cele symboliczne
 NL w deklaracjach AST: krótki symbol łączy się tylko przy jednym właścicielu,
 a niejednoznaczność kończy się abstencją i listą ścieżek do wyboru.
+Tickety [`012`](../project/ticket-012/README.md) i
+[`013`](../project/ticket-013/README.md) zmierzyły pełny Live LLM i wybrały
+Codestral 2508 jako domyślny model. Ticket
+[`014`](../project/ticket-014/README.md) oddzielił lokalizację od implementacji:
+sama istniejąca ścieżka nie zamyka już nowej funkcji, a kontrola Koru przeszła
+pełny cykl od diagnostyki do zweryfikowanego patcha i re-analizy.
 
 ## Odpowiedź krótka
 
@@ -67,8 +73,8 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 295 testów, 294 zaliczone, 0 błędów i 1 lokalny skip JDK |
-| Granica LLM | 9 deterministycznych entrypointów, 34 moduły bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 299 testów, 298 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Granica LLM | 9 deterministycznych entrypointów, 35 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
 | Cache ekstrakcji | content-addressed, wersjonowany i fail-open; TypeScript per plik, zewnętrzny AST per manifest języka, dokumentacja per plik i parametry chunkingu; odpowiedzi LLM nie są cache'owane |
@@ -76,6 +82,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 | Przepływ DSL2TODO | propose → render → approved apply, zgodny w pięciu SDK, `TODO.md` zmieniany wyłącznie po akceptacji hasha |
 | Agregaty konfiguracji | jeden `configuration_file_fact` na plik; dokumentacja wiąże się przez jawną ścieżkę, a ogólne klucze nie uruchamiają capability-topic |
 | Rozstrzyganie symboli NL | alias symbolu jest dowodem AST tylko przy jednym właścicielu albo zgodnym `target.path`; wiele modułów daje abstencję, kandydatów i `AMBIGUOUS_REQUIREMENT` |
+| Lokalizacja vs funkcja | `shared_path` pozostaje relacją nawigacyjną, ale capability-bearing deklaracja wymaga symbolu, capability overlap, konkretnego faktu/commita albo zaakceptowanego reranku; reality nie liczy path-only jako pokrycia |
 | Interfejsy | CLI, MCP, A2A v1.0, Docker, wheel Pythona |
 | Odporność na obce repo | sześć repozytoriów zewnętrznych plus `subactor/platform`; brak awarii, brak wycieku poza root |
 | Sygnał changeloga | placeholdery, skróty `... and N more files` i znane artefakty analizy pod `project/` nie udają już braku implementacji; merytoryczne wpisy nadal wymagają dowodu |
@@ -398,7 +405,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 295 testów, 102 moduły, 7/0 structured/raw LLM calls
+npm run verify          # 299 testów, 103 moduły, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

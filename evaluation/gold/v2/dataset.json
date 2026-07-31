@@ -2310,6 +2310,101 @@
           "code": "PLANNED_NOT_IMPLEMENTED"
         }
       ]
+    },
+    {
+      "id": "diagnostics-existing-path-unrelated-capability",
+      "records": [
+        {
+          "label": "retry-plan",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Implement bounded exponential retry backoff in `src/retry.py`",
+          "lifecycle": "planned",
+          "target": {
+            "paths": [
+              "src/retry.py"
+            ]
+          }
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "module src/retry.py capabilities enqueue",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/retry.py"
+            ]
+          },
+          "metadata": {
+            "aggregate": "module",
+            "capabilities": [
+              "enqueue"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "record": "graph",
+          "code": "ALIGNED"
+        },
+        {
+          "record": "retry-plan",
+          "code": "PLANNED_NOT_IMPLEMENTED"
+        }
+      ]
+    },
+    {
+      "id": "diagnostics-existing-path-implemented-capability",
+      "records": [
+        {
+          "label": "retry-plan",
+          "sourceKind": "todo",
+          "action": "add",
+          "text": "Implement bounded exponential retry backoff in `src/retry.py`",
+          "lifecycle": "planned",
+          "target": {
+            "paths": [
+              "src/retry.py"
+            ]
+          }
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "module src/retry.py capabilities enqueue retryWithBackoff",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/retry.py"
+            ]
+          },
+          "metadata": {
+            "aggregate": "module",
+            "capabilities": [
+              "enqueue",
+              "retryWithBackoff"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "record": "graph",
+          "code": "ALIGNED"
+        }
+      ],
+      "forbidden": [
+        {
+          "record": "retry-plan",
+          "code": "PLANNED_NOT_IMPLEMENTED"
+        }
+      ]
     }
   ]
 }

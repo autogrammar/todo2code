@@ -60,6 +60,61 @@ test('Linker does not connect a module on one generic topic alone', () => {
   assert.equal(linkIntentRecords([intent, module]).relations.length, 0);
 });
 
+test('An existing target path does not prove an unrelated capability', () => {
+  const plan = buildRecord({
+    kind: 'todo_item', action: 'add', object: 'bounded exponential retry backoff',
+    target: { paths: ['src/retry.py'] },
+    text: 'Implement bounded exponential retry backoff in `src/retry.py`.',
+    lifecycle: 'planned', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'plan',
+    confidence: 1, basis: ['fixture'],
+  });
+  const module = buildRecord({
+    kind: 'module_fact', action: 'declare', object: 'src/retry.py',
+    target: { paths: ['src/retry.py'] }, text: 'module src/retry.py capabilities enqueue',
+    lifecycle: 'implemented', sourceKind: 'ast', sourcePath: 'src/retry.py',
+    sourceLines: { start: 1, end: 10 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'], metadata: { aggregate: 'module', capabilities: ['enqueue'] },
+  });
+
+  const graph = linkIntentRecords([plan, module], '2026-07-31T00:00:00.000Z');
+  assert.ok(graph.relations.some((relation) => relation.basis.includes('shared_path')),
+    'the path remains useful navigation evidence');
+  const report = diagnoseGraph(graph, '2026-07-31T00:00:00.000Z');
+  const diagnostic = report.diagnostics.find((item) =>
+    item.code === 'PLANNED_NOT_IMPLEMENTED' && item.recordIds.includes(plan.id));
+  assert.ok(diagnostic);
+  assert.match(diagnostic.detail, /wskazuje lokalizację, ale nie potwierdza wymaganej funkcji/);
+  assert.match(diagnostic.suggestedAction, /Wykonawca techniczny/);
+});
+
+test('An existing target path plus an AST capability proves implementation', () => {
+  const plan = buildRecord({
+    kind: 'todo_item', action: 'add', object: 'bounded exponential retry backoff',
+    target: { paths: ['src/retry.py'] },
+    text: 'Implement bounded exponential retry backoff in `src/retry.py`.',
+    lifecycle: 'planned', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test', epistemicClass: 'plan',
+    confidence: 1, basis: ['fixture'],
+  });
+  const module = buildRecord({
+    kind: 'module_fact', action: 'declare', object: 'src/retry.py',
+    target: { paths: ['src/retry.py'] },
+    text: 'module src/retry.py capabilities enqueue retryWithBackoff',
+    lifecycle: 'implemented', sourceKind: 'ast', sourcePath: 'src/retry.py',
+    sourceLines: { start: 1, end: 20 }, extractor: 'test', epistemicClass: 'fact',
+    confidence: 1, basis: ['fixture'],
+    metadata: { aggregate: 'module', capabilities: ['enqueue', 'retryWithBackoff'] },
+  });
+
+  const graph = linkIntentRecords([plan, module], '2026-07-31T00:00:00.000Z');
+  const relation = graph.relations.find((item) => item.from === plan.id && item.to === module.id);
+  assert.ok(relation?.basis.some((item) => item.startsWith('capability_overlap:')));
+  const report = diagnoseGraph(graph, '2026-07-31T00:00:00.000Z');
+  assert.ok(!report.diagnostics.some((item) =>
+    item.code === 'PLANNED_NOT_IMPLEMENTED' && item.recordIds.includes(plan.id)));
+});
+
 test('Diagnostics distinguish descriptive documentation from prescriptive requirements', () => {
   const documentation = (modality: 'observed' | 'unknown' | 'required' | 'recommended') => buildRecord({
     kind: 'documentation_statement', action: 'document', object: 'runtime behavior',

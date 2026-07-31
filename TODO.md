@@ -306,9 +306,10 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   do action/modality/polarity/lifecycle tylko w **169 z 267 rekordów (63,3%)** —
   tańszy model nie odpowiada tak samo, a porównanie nie mówi, który ma rację.
   Potrzebne są przypadki gold nad polami wzbogacenia, nie kolejny przebieg live.
-- [ ] [`ticket-014`](project/ticket-014/README.md) — nie uznawać nowej
+- [x] [`ticket-014`](project/ticket-014/README.md) — nie uznawać nowej
   możliwości za zaimplementowaną wyłącznie dlatego, że wskazany plik istnieje;
-  wymagany dodatkowy dowód symbolu/tematu albo jawna abstencja.
+  wymagany dodatkowy dowód symbolu/tematu albo jawna abstencja. Gold ma parę
+  negatyw/pozytyw, a Koru PLF-003 przeszedł wykrycie, patch, pytest i re-analizę.
 
 ### Faza 2 — kompletne reality
 

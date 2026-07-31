@@ -4,3 +4,7 @@
 2026-07-31 Koru runner fixed to treat todo2code/code-change labels as edit work
 2026-07-31 Koru PLF-002 produced verified branch koru/run-6e596247e153 commit 1809ea5
 2026-07-31 independent pytest and todo2code re-analysis passed; targeted planned gap cleared
+2026-07-31 gold added existing-path negative and implemented-capability positive; 14/14 diagnostic codes
+2026-07-31 Koru replay created PLF-003 for existing src/retry.py; verified commit 55a8b15
+2026-07-31 independent replay: 6 pytest pass, zero target plans, capability_overlap:2
+2026-07-31 weekly/nlp2uri/algitex deterministic regressions succeeded

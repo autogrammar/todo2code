@@ -173,12 +173,12 @@ test('a declaration touching several modules keeps its own topic', () => {
   assert.equal(declarationRow.status, 'planned_not_implemented');
 });
 
-test('aligned topics are graded by evidence without changing what counts as aligned', () => {
+test('semantically aligned configuration topics retain their evidence grade', () => {
   const configured = buildRecord({
     kind: 'configuration_file_fact',
     action: 'configure',
-    object: 'declare config/autonomy.json',
-    text: 'declare config/autonomy.json',
+    object: 'configure config/autonomy.json enabled',
+    text: 'configure config/autonomy.json enabled',
     target: { paths: ['config/autonomy.json'], symbols: [], tickets: [], versions: [] },
     lifecycle: 'implemented',
     sourceKind: 'system',
@@ -188,12 +188,13 @@ test('aligned topics are graded by evidence without changing what counts as alig
     epistemicClass: 'fact',
     confidence: 1,
     basis: ['test'],
+    metadata: { aggregate: 'configuration-file', capabilities: ['enabled'] },
   });
   const declaration = buildRecord({
     kind: 'documentation_statement',
     action: 'configure',
-    object: 'autonomy configuration',
-    text: 'The runtime must read `config/autonomy.json` before granting autonomy',
+    object: 'enabled autonomy configuration',
+    text: 'The autonomy configuration must declare `enabled` in `config/autonomy.json`',
     target: { paths: ['config/autonomy.json'], symbols: [], tickets: [], versions: [] },
     modality: 'required',
     lifecycle: 'proposed',

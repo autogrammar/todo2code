@@ -16,8 +16,9 @@
   alone is weaker evidence than a parsed symbol or a commit, and until now both
   produced an identical `aligned`: measured on tracked `HEAD`, 16 of 46 aligned
   topics on `subactor/platform` rest on configuration against 4 of 89 here. The
-  grade never changes what counts as aligned — a behaviour whose implementation
-  is configuration is implemented.
+  grade itself remains descriptive; the later capability gate can keep a topic
+  open when configuration and a requirement share only a path, while an
+  extracted matching key still proves configuration-backed implementation.
 - `npm run live:models` (`make live-model-comparison`): an opt-in live comparison
   of models for the batched TODO/CHANGELOG stage, written as
   `t2c.live-model-comparison/v1`. The stage enriches in bounded 32-record
@@ -78,6 +79,15 @@
   ambiguous declarations measured on `subactor/platform` keep their old key.
 
 ### Fixed
+
+- A capability-bearing TODO no longer becomes implemented merely because its
+  target file exists. `shared_path + module_coverage` remains in the graph for
+  navigation, while diagnostics and Intent-vs-Reality require a symbol,
+  extracted capability overlap, grounded concrete-fact similarity or accepted
+  semantic rerank. Gold now includes the real retry/backoff negative and its
+  implemented positive control; an autonomous Koru replay created `PLF-003`,
+  verified commit `55a8b15`, and the subsequent analysis produced zero target
+  plans.
 
 - Make the opt-in six-stage live contract check usable with an explicit
   structured-output default (`google/gemini-3.6-flash`, measured 6/6 in

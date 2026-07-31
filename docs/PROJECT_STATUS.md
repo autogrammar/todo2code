@@ -52,11 +52,11 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Analiza uczestników i rozbieżności komunikacji | działa w pipeline/CLI/MCP/A2A/history/UI/watch | grupuje każdego człowieka/agenta, porównuje request/plan/claim z Git/AST, zapisuje artefakty i wspiera filtry participant/role/ticket/severity |
 | Audytowane wzbogacanie komunikacji | działa opt-in | structured OpenRouter + synteza per uczestnik z cytowaniami; identity/role/ticket/source/epistemic class należą do runtime; deterministic/prefer/require mają jawny audyt |
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
-| Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint; symbol NL jest dowodem AST tylko przy jednym właścicielu lub zgodnej jawnej ścieżce, w przeciwnym razie linker abstenuje |
+| Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint; symbol NL jest dowodem AST tylko przy jednym właścicielu lub zgodnej jawnej ścieżce; sama ścieżka nie dowodzi nowej funkcji bez symbolu/capability-topic/grounded rerank |
 | Provenance rekordów DSL | działa | każdy rekord wymaga generatora i jego wersji, wersji todo2code oraz — dla LLM — providera, rozstrzygniętego modelu i response ID; niespójne rekordy są odrzucane |
 | Generowana analiza techniczna | działa fail-closed | `project.sh` domyślnie analizuje wyłącznie detached snapshot śledzonego `HEAD`; standardowa walidacja odrzuca odniesienia do nieśledzonych wejść, ścieżki tymczasowe i niedostępne parsery, a `prefact -a` jest opt-in |
 | Przenośność między repozytoriami | zweryfikowana na 9 projektach | sześć wcześniejszych repo offline oraz `weekly` i `nlp2uri` live z Codestralem, `algitex` jako duży skan offline; artefakty nowych pomiarów pozostały poza worktree |
-| Diagnostyka i Intent vs Reality | działa | agregaty modułów i plików konfiguracji ograniczają szum; AST/Git/konfiguracja są obserwowaną rzeczywistością, `aligned` wymaga także deklaracji, a pokrycie dokumentacji jest osobną metryką |
+| Diagnostyka i Intent vs Reality | działa | agregaty modułów i plików konfiguracji ograniczają szum; path-only relacja pozostaje nawigacją, lecz `PLANNED_NOT_IMPLEMENTED` blokuje fałszywe `aligned` i pokrycie do czasu semantycznego dowodu funkcji |
 | Trend workspace | działa stabilnie | nagłówek trendu opiera się na pokryciu deklarowanych tematów, porównywalnej dokumentacji i ciężkich diagnostykach; churn linii i rekordów AST pozostaje metryką pomocniczą |
 | Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; generator v2 ogranicza `recordIds` do dowodów cytowanych diagnostyk, nieznane diagnostyki są odrzucane, a bieżący `live:check` przeszedł bez retry i fallbacku |
 | Zaplanowana kontrola live OpenRouter | działa opt-in | osobny job sprawdza wszystkie 6 etapów w `require-llm`, egzekwuje twardy deadline i budżet kosztu oraz publikuje tylko zredagowany audyt; wymagane CI pozostaje offline |
@@ -72,16 +72,16 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 295 testów: 294 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 102 moduły i 473 importy wewnętrzne, brak cykli, niezależny `src/core`;
-- 9 deterministycznych entrypointów i 34 moduły bez tranzytywnego importu LLM;
+- 299 testów: 298 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 103 moduły i 477 importów wewnętrznych, brak cykli, niezależny `src/core`;
+- 9 deterministycznych entrypointów i 35 modułów bez tranzytywnego importu LLM;
 - 73 zmienne używane przez kod/Docker i 73 odpowiadające klucze
   `.env.example`, bez duplikatów;
 - workflow CI przechodzi kontrolę duplikatów kluczy najwyższego poziomu;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 227 rekordów i 91 relacji. Liczba
+Przebieg offline na `examples/` utworzył 227 rekordów i 83 relacje. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -106,7 +106,7 @@ niezależnych oczekiwaniach dla NL, zapisanej odpowiedzi modelu dokumentacji,
 deterministycznego baseline'u dokumentacji, TODO/CHANGELOG, linkowania,
 diagnostyk i DSL2TODO. Zbiór obejmuje 21 oczekiwanych rekordów DSL w czterech
 kanałach ekstrakcji, 18 relacji (10 exact-target i 8 capability-topic), twarde
-negatywy, 11 oczekiwanych kodów diagnostycznych w 5 przypadkach cyklu życia
+negatywy, 14 oczekiwanych kodów diagnostycznych w 7 przypadkach cyklu życia
 oraz 2 propozycje TODO. Bieżący wynik to 100% precision/recall dla ekstrakcji,
 obu klas linkowania i kodów diagnostycznych, bez naruszenia hard-negative i bez
 podniesienia kodu zabronionego, 100% kompletności cytowań, 100% precision/recall
