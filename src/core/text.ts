@@ -408,8 +408,14 @@ function isHostname(value: string): boolean {
 }
 
 export function extractSymbols(text: string): string[] {
-  const backticks = extractBacktickValues(text).filter((value) => /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/.test(value));
-  const camel = text.match(/\b[A-Za-z_$][A-Za-z0-9_$]*(?:[A-Z][A-Za-z0-9_$]*)+\b/g) ?? [];
+  const repositoryPaths = new Set(extractPaths(text));
+  const backticks = extractBacktickValues(text)
+    .filter((value) => !repositoryPaths.has(value))
+    .filter((value) => /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/.test(value));
+  // Require a real lower→upper transition. The previous expression accepted
+  // every all-caps prose token (`LLM`, `TODO`, `CHANGELOG`) as a code symbol;
+  // one happened to match an unrelated AST variable and became false evidence.
+  const camel = text.match(/\b(?:[a-z_$][A-Za-z0-9_$]*[A-Z][A-Za-z0-9_$]*|[A-Z][a-z0-9_$]+(?:[A-Z][A-Za-z0-9_$]*)+)\b/g) ?? [];
   // Ticket prefixes such as `T2C` in `T2C-101` satisfy the loose camel-case
   // expression, but they identify work items rather than code symbols.
   const ticketPrefixes = new Set(extractTickets(text)

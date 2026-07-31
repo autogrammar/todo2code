@@ -31,7 +31,10 @@ generowanego `project/README.md`. Ticket
 schematu z rerankera na wszystkie siedem produkcyjnych granic structured LLM.
 Ticket [`project/ticket-010`](../project/ticket-010/README.md) dodał
 przyrostowy cache AST i fragmentów dokumentacji oraz pomiar cold/warm na trzech
-śledzonych snapshotach repozytoriów.
+śledzonych snapshotach repozytoriów. Ticket
+[`project/ticket-011`](../project/ticket-011/README.md) uziemił cele symboliczne
+NL w deklaracjach AST: krótki symbol łączy się tylko przy jednym właścicielu,
+a niejednoznaczność kończy się abstencją i listą ścieżek do wyboru.
 
 ## Odpowiedź krótka
 
@@ -64,14 +67,15 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 270 testów, 269 zaliczonych, 0 błędów i 1 lokalny skip JDK |
-| Granica LLM | 9 deterministycznych entrypointów, 33 moduły bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 277 testów, 276 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Granica LLM | 9 deterministycznych entrypointów, 34 moduły bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
 | Cache ekstrakcji | content-addressed, wersjonowany i fail-open; TypeScript per plik, zewnętrzny AST per manifest języka, dokumentacja per plik i parametry chunkingu; odpowiedzi LLM nie są cache'owane |
 | Ochrona ścieżek | wyjście poza `T2C_ROOT` odrzucane spójnie w CLI, MCP, A2A i SDK |
 | Przepływ DSL2TODO | propose → render → approved apply, zgodny w pięciu SDK, `TODO.md` zmieniany wyłącznie po akceptacji hasha |
 | Agregaty konfiguracji | jeden `configuration_file_fact` na plik; dokumentacja wiąże się przez jawną ścieżkę, a ogólne klucze nie uruchamiają capability-topic |
+| Rozstrzyganie symboli NL | alias symbolu jest dowodem AST tylko przy jednym właścicielu albo zgodnym `target.path`; wiele modułów daje abstencję, kandydatów i `AMBIGUOUS_REQUIREMENT` |
 | Interfejsy | CLI, MCP, A2A v1.0, Docker, wheel Pythona |
 | Odporność na obce repo | sześć repozytoriów zewnętrznych plus `subactor/platform`; brak awarii, brak wycieku poza root |
 | Sygnał changeloga | placeholdery, skróty `... and N more files` i znane artefakty analizy pod `project/` nie udają już braku implementacji; merytoryczne wpisy nadal wymagają dowodu |
@@ -245,7 +249,7 @@ Stan po rozszerzeniu:
 |---|--:|--:|
 | Przypadki ekstrakcji / oczekiwane rekordy | 6 / 9 | 10 / 21 |
 | Kanały ekstrakcji | 3 | 4 (doszedł deterministyczny baseline dokumentacji) |
-| Relacje linkowania `exact-target` | 6 | 6 |
+| Relacje linkowania `exact-target` | 6 | 10 |
 | Relacje linkowania `capability-topic` | 1 | 8 |
 | Zabronione pary linkowania | 2 | 14 |
 | Przypadki diagnostyk (false DONE, partial) | brak zakresu | 5 / 11 oczekiwań |
@@ -373,7 +377,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 270 testów, 100 modułów, 7/0 structured/raw LLM calls
+npm run verify          # 277 testów, 101 modułów, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

@@ -108,6 +108,13 @@ test('symbol extraction rejects hostnames without losing qualified code symbols'
   assert.ok(!symbols.some((value) => value.endsWith('.com') || value.endsWith('.io')));
 });
 
+test('symbol extraction separates repository files and all-caps prose from code identifiers', () => {
+  const symbols = extractSymbols(
+    'LLM updates TODO and CHANGELOG; keep `manifest.json`, `latest.json`, `validateContract`, `Runtime.executeContract` and `statement.object`.',
+  );
+  assert.deepEqual(symbols, ['Runtime.executeContract', 'executeContract', 'statement.object', 'validateContract']);
+});
+
 test('topic keywords normalize paths, camelCase and documentation word forms', () => {
   assert.deepEqual(
     topicKeywords('src/extractors/docs-record.ts extractDocumentationIntent validation tests'),

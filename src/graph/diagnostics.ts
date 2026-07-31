@@ -9,6 +9,7 @@ import type {
   IntentGraph,
   IntentRecord,
 } from '../core/types.js';
+import { buildSymbolResolutionIndex, type NlSymbolResolution } from './symbol-resolution.js';
 
 export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISOString()): DiagnosticReport {
   assertIntentGraph(graph);
@@ -17,6 +18,7 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
   const recordsById = new Map(graph.records.map((record) => [record.id, record]));
   const implementedPaths = indexImplementedPaths(graph);
   const documentedPaths = indexDocumentedPaths(graph);
+  const symbolResolutionIndex = buildSymbolResolutionIndex(graph.records);
 
   for (const record of graph.records) {
     const related = (neighbors.get(record.id) ?? [])
@@ -72,14 +74,17 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
     const missingFields = Array.isArray(record.metadata.missingFields)
       ? record.metadata.missingFields.filter((item): item is string => typeof item === 'string')
       : [];
-    if (missingFields.length > 0) {
+    const symbolIssues = (symbolResolutionIndex.byNlRecord.get(record.id) ?? [])
+      .filter((resolution) => resolution.status === 'ambiguous' || resolution.status === 'conflicting');
+    if (missingFields.length > 0 || symbolIssues.length > 0) {
+      const detail = ambiguityDetail(record, missingFields, symbolIssues);
       diagnostics.push(makeDiagnostic(
         'review_required',
         'AMBIGUOUS_REQUIREMENT',
-        'Niekompletne wymaganie',
-        `Brakujące pola: ${missingFields.join(', ')}. Treść: ${record.statement.text}`,
+        symbolIssues.length > 0 ? 'Niejednoznaczny cel wymagania' : 'Niekompletne wymaganie',
+        detail,
         [record.id],
-        'Uzupełnić wymaganie bez automatycznego dopowiadania brakujących faktów.',
+        ambiguityAction(missingFields, symbolIssues),
       ));
     }
 
@@ -140,6 +145,43 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
     counts,
   };
 }
+
+function ambiguityDetail(
+  record: IntentRecord,
+  missingFields: string[],
+  symbolIssues: NlSymbolResolution[],
+): string {
+  const parts: string[] = [];
+  if (missingFields.length > 0) parts.push(`Brakujące pola: ${missingFields.join(', ')}`);
+  for (const issue of symbolIssues) {
+    const paths = issue.paths.join(', ');
+    parts.push(issue.status === 'conflicting'
+      ? `Symbol "${issue.symbol}" nie występuje we wskazanej ścieżce; deklaracje AST: ${paths}`
+      : `Symbol "${issue.symbol}" wskazuje kilka plików AST: ${paths}`);
+  }
+  parts.push(`Treść: ${record.statement.text}`);
+  return parts.join('. ');
+}
+
+function ambiguityAction(missingFields: string[], symbolIssues: NlSymbolResolution[]): string {
+  const actions = missingFields.map((field) => MISSING_FIELD_ACTIONS[field]
+    ?? `Uzupełnić pole ${field} jawnie w wymaganiu.`);
+  for (const issue of symbolIssues) {
+    actions.push(issue.status === 'conflicting'
+      ? `Poprawić target.path dla symbolu ${issue.symbol}; dostępne ścieżki: ${issue.paths.join(', ')}.`
+      : `Dodać target.path dla symbolu ${issue.symbol}; wybrać jedną z: ${issue.paths.join(', ')}.`);
+  }
+  return [...new Set(actions)].join(' ');
+}
+
+const MISSING_FIELD_ACTIONS: Record<string, string> = {
+  action: 'Dodać jednoznaczny czasownik działania, np. dodać, usunąć albo zweryfikować.',
+  object: 'Nazwać konkretny obiekt lub zachowanie, którego dotyczy zmiana.',
+  text: 'Dodać niepustą treść wymagania.',
+  trigger: 'Wskazać moment lub warunek wykonania, np. przed zapisem albo po błędzie.',
+  failure_behavior: 'Opisać zachowanie przy niepowodzeniu, np. odrzucenie lub zwracany błąd.',
+  acceptance_evidence: 'Dodać mierzalne kryterium akceptacji, test albo oczekiwany wynik.',
+};
 
 function buildNeighbors(graph: IntentGraph): Map<string, string[]> {
   const map = new Map<string, string[]>();

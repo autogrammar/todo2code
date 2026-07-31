@@ -317,7 +317,9 @@ wyniki to:
 - `IMPLEMENTED_NOT_DOCUMENTED` — zmiana bez dokumentacji;
 - `CHANGELOG_WITHOUT_IMPLEMENTATION` — claim wydania bez dowodu;
 - `CONFLICTING_INTENT` — podobny temat z przeciwną polaryzacją;
-- `AMBIGUOUS_REQUIREMENT` — wymaganie z brakującymi polami;
+- `AMBIGUOUS_REQUIREMENT` — wymaganie z brakującymi polami albo symbol NL
+  należący do kilku ścieżek AST; diagnostyka wskazuje pole do uzupełnienia i
+  kandydatów, a linker nie zgaduje modułu;
 - `UNLINKED_RECORD` — ważny rekord bez relacji.
 
 Diagnostyka jest deterministyczna. `ALIGNED` oznacza wyłącznie brak wykrytej

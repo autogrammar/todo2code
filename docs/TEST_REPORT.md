@@ -14,9 +14,9 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 270 testów: 269 pass, 0 fail, 1 Java skip |
-| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 33 moduły |
-| Moduły | `npm run verify:modules` | PASS — 100 modułów, 463 importy, 0 cykli |
+| Testy | `npm test` | 277 testów: 276 pass, 0 fail, 1 Java skip |
+| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 34 moduły |
+| Moduły | `npm run verify:modules` | PASS — 101 modułów, 467 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 67 zmiennych i 67 kluczy |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
@@ -39,6 +39,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Brak właściciela wymaganej odpowiedzi | rzeczywisty `ticket-006` + fixture agent-only/human-only | PASS — 3/3 problemów ticket-006 wskazuje `unresolved:human`; fixture pokrywa też `unresolved:agent`, znane ID pozostają bez zmian |
 | Standard `wellmanifest/new-project` 0.6.0 | izolowany target + bieżący todo2code CLI | PASS — agent `agent:codex`, 0 wymyślonych ludzi, `unresolved:human`; `project/README.md` zachowany, drugi aktywny ticket i traversal odrzucone |
 | Cache AST/chunków | testy jednostkowe + 3 tracked snapshots | PASS — cold/warm, selektywna invalidacja, corruption recovery, bypass i pominięcie drugiego startu adaptera; provider wywołany także przy cache-hit chunku |
+| Symbole NL → AST | testy jednostkowe + gold v2 + census 3 repozytoriów | PASS — unikalny właściciel i jawna ścieżka łączą; wieloznaczność lub konflikt ścieżki abstenują i wskazują kandydatów |
 
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
@@ -130,11 +131,11 @@ jawnych, różnych ścieżek.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 227 records, 102 relations; communication: 3 blocking, 1 warning
+demo: 227 records, 91 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
-SDK examples: 5 languages, shared fingerprint 438b4742f8149178
-SDK DSL2TODO: shared proposal IDs, duplicates and patch fingerprint 3aa54acb84df28c2
+SDK examples: 5 languages, shared fingerprint 1dacf2edc8d603a2
+SDK DSL2TODO: shared proposal IDs, duplicates and patch fingerprint a418783fecf6c0ec
 examples check: PASS
 ```
 
@@ -313,7 +314,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 101 relacji, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 91 relacji, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji
@@ -435,6 +436,12 @@ pozytywny przypadek prose-to-module oraz hard negative poniżej progu. To usuwa
 największą lukę testową, ale jedna para pozytywna nadal nie dowodzi jakości na
 wielu repozytoriach; przed rozszerzaniem aliasów zbiór powinien dalej rosnąć.
 
+Gold v2 rozszerza exact-target do 10/10: obejmuje unikalnego właściciela
+symbolu, wieloznaczny krótki symbol jako hard negative oraz rozstrzygnięcie
+przez jawny `target.path`. Census rzeczywistych AST wykazał 155 wieloznacznych
+aliasów liściowych w todo2code, 2 w `subactor-improvement` i brak rekordów AST
+w dokumentacyjnym `wellmanifest/new-project`.
+
 ### 2. Ścieżka live LLM pozostaje kontrolą opt-in
 
 Gold benchmark nadal buduje wnioski deterministycznie z fikstur i nie zależy od
@@ -494,7 +501,8 @@ przed pushem.
 Otwarte pozostają A2A streaming ze współdzielonym transakcyjnym task store oraz
 pomiar granicy całego pipeline'u na większych grafach. Cache AST i fragmentów
 dokumentacji został wdrożony w ticket-010; jedno źródło validatorów i schematów
-odpowiedzi LLM w ticket-009. Trend workspace, porcjowanie LLM, deterministyczna
+odpowiedzi LLM w ticket-009, a jednoznaczne rozstrzyganie symboli NL w
+ticket-011. Trend workspace, porcjowanie LLM, deterministyczna
 dokumentacja i konfiguracja oraz podział adapterów językowych zostały wykonane.
 Pełna lista z kryteriami znajduje się w `TODO.md`.
 

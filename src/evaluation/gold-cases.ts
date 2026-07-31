@@ -328,9 +328,14 @@ function buildFixtureRecords(
       modality: fixture.modality ?? (fixture.sourceKind === 'todo' ? 'required' : 'observed'),
       lifecycle: fixture.lifecycle,
       sourceKind: fixture.sourceKind,
-      sourcePath: `evaluation/${caseId}/${fixture.label}-${index + 1}.md`,
+      sourcePath: fixture.sourceKind === 'ast' && fixture.target?.paths?.length === 1
+        ? fixture.target.paths[0] as string
+        : `evaluation/${caseId}/${fixture.label}-${index + 1}.md`,
       sourceLines: { start: 1, end: 1 },
       extractor: 't2c/gold-fixture@1',
+      ...(fixture.sourceKind === 'ast' && fixture.target?.symbols?.length === 1
+        ? { symbol: fixture.target.symbols[0] as string }
+        : {}),
       epistemicClass: fixture.sourceKind === 'todo' ? 'plan' : fixture.sourceKind === 'git' ? 'fact' : 'declaration',
       confidence: 1,
       basis: ['versioned_gold_fixture'],

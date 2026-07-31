@@ -1,0 +1,6 @@
+2026-07-31 ticket-011 opened
+2026-07-31 measured 155 ambiguous leaf aliases in todo2code and 2 in subactor-improvement
+2026-07-31 implemented AST-backed NL symbol resolution outside project/
+2026-07-31 focused resolver tests passed; gold v2 extended to 10 exact-target relations
+2026-07-31 full verify passed: 277 tests, 276 pass, 1 JDK skip
+2026-07-31 gold v1/v2 and all five SDK examples passed

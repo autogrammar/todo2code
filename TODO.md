@@ -278,8 +278,9 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   lub ścieżkę — co bezpośrednio podnosi `CHANGELOG_WITHOUT_IMPLEMENTATION`.
 - [x] Wzmocnić NL→target: odrzucanie absolutnych/HTTP/traversal path i
   hostnames; ticket binding w gold exact-target.
-- [ ] Dalsze NL→target: resolution symboli względem AST, actionable
-  `missingFields` / `AMBIGUOUS_REQUIREMENT`.
+- [x] Dalsze NL→target: resolution symboli względem AST bez zgadywania
+  między modułami; `missingFields` / `AMBIGUOUS_REQUIREMENT` wskazują
+  konkretne pole i kandydujące ścieżki (ticket-011).
 - [x] Jeden source schematów → TS validators + OpenRouter response schemas
   (patrz też P1).
 - [ ] Live latency/cost batch TODO/CHANGELOG (patrz P1).

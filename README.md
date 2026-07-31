@@ -90,6 +90,11 @@ DONE), kompletność cytowań DSL2TODO, deduplikację oraz stabilność dwóch
 identycznych przebiegów offline. Luki udokumentowane jako `knownGap` — dziś
 polska proza wobec angielskiego modułu — są raportowane osobno i nie wchodzą do
 precision/recall.
+
+Cele symboliczne NL są rozstrzygane względem zaobserwowanych deklaracji AST.
+Krótki symbol tworzy dowód tylko wtedy, gdy ma jednego właściciela; przy wielu
+modułach linker abstenuje, a `AMBIGUOUS_REQUIREMENT` podaje kandydatów i prosi
+o `target.path`. Jawna ścieżka lub kwalifikowana nazwa może wybrać jeden moduł.
 Rzeczywiste kontrakty NL → DSL oraz graf → wnioski można sprawdzić osobno przez
 `npm run live:check`. Kontrola jest opt-in, używa `require-llm`, zapisuje tylko
 zredagowany audyt latencji/tokenów/kosztu i bez klucza kończy się jako `SKIPPED`;
@@ -824,7 +829,8 @@ Wbudowane klasy obejmują m.in.:
 - `IMPLEMENTED_NOT_DOCUMENTED`;
 - `CHANGELOG_WITHOUT_IMPLEMENTATION`;
 - `CONFLICTING_INTENT`;
-- `AMBIGUOUS_REQUIREMENT`;
+- `AMBIGUOUS_REQUIREMENT` — brakujące pole, wieloznaczny symbol lub konflikt
+  symbolu z `target.path`, wraz z konkretną sugerowaną poprawką;
 - `UNLINKED_RECORD`.
 
 `ALIGNED` oznacza wyłącznie brak wykrytej blokującej rozbieżności w dostępnych źródłach. Nie nadaje automatycznie statusu `DONE` i nie zastępuje decyzji człowieka.

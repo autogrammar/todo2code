@@ -3,6 +3,7 @@ import { assertIntentRecords } from '../core/schema.js';
 import { keywords, topicKeywords } from '../core/text.js';
 import { pathAliases, symbolAliases } from '../core/target.js';
 import type { IntentGraph, IntentRecord, IntentRelation, RelationType, SourceKind } from '../core/types.js';
+import { buildSymbolResolutionIndex, hasResolvedNlAstSymbolPair, type SymbolResolutionIndex } from './symbol-resolution.js';
 
 interface PairEvidence {
   score: number;
@@ -73,6 +74,7 @@ export function linkIntentRecords(inputRecords: IntentRecord[], generatedAt = ne
   const records = deduplicateRecords(inputRecords).sort((a, b) => a.id.localeCompare(b.id));
   const byId = new Map(records.map((record) => [record.id, record]));
   const keywordIndex = indexKeywords(records);
+  const symbolResolutionIndex = buildSymbolResolutionIndex(records);
   const candidatePairs = collectCandidatePairs(records, keywordIndex);
   const resolvableBasenames = indexResolvableBasenames(records);
   const relations: IntentRelation[] = [];
@@ -81,7 +83,7 @@ export function linkIntentRecords(inputRecords: IntentRecord[], generatedAt = ne
     const left = byId.get(leftId);
     const right = byId.get(rightId);
     if (!left || !right) continue;
-    const evidence = scorePair(left, right, keywordIndex, resolvableBasenames);
+    const evidence = scorePair(left, right, keywordIndex, resolvableBasenames, symbolResolutionIndex);
     if (evidence.score < 0.42) continue;
     const directed = determineRelation(left, right, evidence);
     const relationWithoutId = {
@@ -341,6 +343,7 @@ function scorePair(
   right: IntentRecord,
   index: Map<string, RecordKeywords>,
   resolvableBasenames: Set<string>,
+  symbolResolutionIndex: SymbolResolutionIndex,
 ): PairEvidence {
   let score = 0;
   const basis: string[] = [];
@@ -350,7 +353,8 @@ function scorePair(
     score += 0.62;
     basis.push('shared_ticket');
   }
-  if (intersectsAliases(left.statement.target.symbols, right.statement.target.symbols, symbolAliases)) {
+  const resolvedNlAstSymbol = hasResolvedNlAstSymbolPair(left, right, symbolResolutionIndex);
+  if ((resolvedNlAstSymbol ?? intersectsAliases(left.statement.target.symbols, right.statement.target.symbols, symbolAliases))) {
     score += 0.48;
     basis.push('shared_symbol');
   }

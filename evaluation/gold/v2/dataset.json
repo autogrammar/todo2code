@@ -1,7 +1,7 @@
 {
   "schemaVersion": "t2c.gold-dataset/v2",
   "name": "todo2code core semantic benchmark v2",
-  "description": "Gold cases for deterministic NL and Markdown extraction, the deterministic documentation baseline, a captured documentation-model response, capability-topic and exact-target linking with hard negatives, lifecycle diagnostics including false DONE claims, and DSL2TODO grounding and deduplication.",
+  "description": "Gold cases for deterministic NL and Markdown extraction, the deterministic documentation baseline, a captured documentation-model response, capability-topic and exact-target linking with path and symbol ambiguity hard negatives, lifecycle diagnostics including false DONE claims, and DSL2TODO grounding and deduplication.",
   "extraction": [
     {
       "id": "nl-en-required-add",
@@ -428,9 +428,7 @@
           "paths": [
             "docs/READINESS.md"
           ],
-          "symbols": [
-            "READINESS"
-          ],
+          "symbols": [],
           "tickets": [],
           "versions": [],
           "lines": {
@@ -799,6 +797,186 @@
         {
           "from": "document",
           "to": "module-b"
+        }
+      ]
+    },
+    {
+      "id": "link-nl-symbol-unique-owner",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Validate the runtime contract through validateContract",
+          "lifecycle": "proposed",
+          "target": {
+            "symbols": [
+              "validateContract"
+            ]
+          }
+        },
+        {
+          "label": "implementation",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "symbol_fact",
+          "text": "declare Runtime.validateContract",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/runtime.ts"
+            ],
+            "symbols": [
+              "Runtime.validateContract"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "implementation",
+          "type": "evidenced_by",
+          "relationClass": "exact-target"
+        }
+      ]
+    },
+    {
+      "id": "link-nl-symbol-ambiguous-forbidden",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Validate the runtime contract through validateContract",
+          "lifecycle": "proposed",
+          "target": {
+            "symbols": [
+              "validateContract"
+            ]
+          }
+        },
+        {
+          "label": "api",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "symbol_fact",
+          "text": "declare ApiRuntime.validateContract",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/api/runtime.ts"
+            ],
+            "symbols": [
+              "ApiRuntime.validateContract"
+            ]
+          }
+        },
+        {
+          "label": "worker",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "symbol_fact",
+          "text": "declare WorkerRuntime.validateContract",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/worker/runtime.ts"
+            ],
+            "symbols": [
+              "WorkerRuntime.validateContract"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "worker",
+          "to": "api",
+          "type": "related_to",
+          "relationClass": "exact-target"
+        }
+      ],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "api"
+        },
+        {
+          "from": "declaration",
+          "to": "worker"
+        }
+      ]
+    },
+    {
+      "id": "link-nl-symbol-explicit-path",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "nl",
+          "action": "validate",
+          "text": "Validate the runtime contract through validateContract in src/worker/runtime.ts",
+          "lifecycle": "proposed",
+          "target": {
+            "paths": [
+              "src/worker/runtime.ts"
+            ],
+            "symbols": [
+              "validateContract"
+            ]
+          }
+        },
+        {
+          "label": "api",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "symbol_fact",
+          "text": "declare ApiRuntime.validateContract",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/api/runtime.ts"
+            ],
+            "symbols": [
+              "ApiRuntime.validateContract"
+            ]
+          }
+        },
+        {
+          "label": "worker",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "symbol_fact",
+          "text": "declare WorkerRuntime.validateContract",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/worker/runtime.ts"
+            ],
+            "symbols": [
+              "WorkerRuntime.validateContract"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "worker",
+          "type": "evidenced_by",
+          "relationClass": "exact-target"
+        },
+        {
+          "from": "worker",
+          "to": "api",
+          "type": "related_to",
+          "relationClass": "exact-target"
+        }
+      ],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "api"
         }
       ]
     },

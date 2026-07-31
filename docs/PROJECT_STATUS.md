@@ -52,7 +52,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Analiza uczestników i rozbieżności komunikacji | działa w pipeline/CLI/MCP/A2A/history/UI/watch | grupuje każdego człowieka/agenta, porównuje request/plan/claim z Git/AST, zapisuje artefakty i wspiera filtry participant/role/ticket/severity |
 | Audytowane wzbogacanie komunikacji | działa opt-in | structured OpenRouter + synteza per uczestnik z cytowaniami; identity/role/ticket/source/epistemic class należą do runtime; deterministic/prefer/require mają jawny audyt |
 | Rejestr tożsamości uczestników | działa | `t2c.participant-registry/v1` mapuje dokładne stable ID na Git authors, A2A IDs i human aliases; duplikaty/konflikty/nieznane ID są odrzucane bez zgadywania display name |
-| Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint |
+| Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint; symbol NL jest dowodem AST tylko przy jednym właścicielu lub zgodnej jawnej ścieżce, w przeciwnym razie linker abstenuje |
 | Provenance rekordów DSL | działa | każdy rekord wymaga generatora i jego wersji, wersji todo2code oraz — dla LLM — providera, rozstrzygniętego modelu i response ID; niespójne rekordy są odrzucane |
 | Generowana analiza techniczna | działa fail-closed | `project.sh` domyślnie analizuje wyłącznie detached snapshot śledzonego `HEAD`; standardowa walidacja odrzuca odniesienia do nieśledzonych wejść, ścieżki tymczasowe i niedostępne parsery, a `prefact -a` jest opt-in |
 | Przenośność między repozytoriami | zweryfikowana na 6 projektach | batch 1: `code2llm`, `domd`, `pactfix`; batch 2: `code2logic`, `code2docs`, `redup` — wszystkie `succeeded` offline z plan/review/source-patch stage; plany powstają tylko przy `target.paths` |
@@ -72,16 +72,16 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 270 testów: 269 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 100 modułów i 463 importy wewnętrzne, brak cykli, niezależny `src/core`;
-- 9 deterministycznych entrypointów i 33 moduły bez tranzytywnego importu LLM;
+- 277 testów: 276 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 101 modułów i 467 importów wewnętrznych, brak cykli, niezależny `src/core`;
+- 9 deterministycznych entrypointów i 34 moduły bez tranzytywnego importu LLM;
 - 67 zmiennych używanych przez kod/Docker i 67 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - workflow CI przechodzi kontrolę duplikatów kluczy najwyższego poziomu;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 227 rekordów i 98 relacji. Liczba
+Przebieg offline na `examples/` utworzył 227 rekordów i 91 relacji. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -105,8 +105,8 @@ Wersjonowany `t2c.gold-dataset/v2` mierzy jakość semantyczną offline na
 niezależnych oczekiwaniach dla NL, zapisanej odpowiedzi modelu dokumentacji,
 deterministycznego baseline'u dokumentacji, TODO/CHANGELOG, linkowania,
 diagnostyk i DSL2TODO. Zbiór obejmuje 21 oczekiwanych rekordów DSL w czterech
-kanałach ekstrakcji, 14 relacji (6 exact-target i 8 capability-topic), 6 twardych
-negatywów, 11 oczekiwanych kodów diagnostycznych w 5 przypadkach cyklu życia
+kanałach ekstrakcji, 18 relacji (10 exact-target i 8 capability-topic), twarde
+negatywy, 11 oczekiwanych kodów diagnostycznych w 5 przypadkach cyklu życia
 oraz 2 propozycje TODO. Bieżący wynik to 100% precision/recall dla ekstrakcji,
 obu klas linkowania i kodów diagnostycznych, bez naruszenia hard-negative i bez
 podniesienia kodu zabronionego, 100% kompletności cytowań, 100% precision/recall
