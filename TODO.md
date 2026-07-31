@@ -150,8 +150,12 @@ No ticket is currently active.
 - [x] Split language adapters from `src/extractors/ast.ts` into independently
   testable TypeScript/JavaScript, Python, Go, Java and Rust modules behind the
   existing common adapter envelope.
-- [ ] Add first-class AST adapters for PHP and other languages present in
-  analyzed repositories.
+- [x] Add a first-class dependency-free PHP syntax adapter. It uses
+  `token_get_all(..., TOKEN_PARSE)`, preserves the shared fact envelope and
+  fails open when PHP is absent; A/B on `redsl` converted 40 tracked files into
+  2,127 unique records and removed 18 warning diagnostics.
+- [ ] Add first-class syntax adapters for other languages present in analyzed
+  repositories.
 - [x] Report discovered unsupported PHP/Ruby/C#/Kotlin/C/C++ and other source
   files explicitly instead of implying complete code-to-DSL coverage.
 - [x] Add a CI job with JDK 17+ so the Java fixture cannot be skipped in the
@@ -317,8 +321,8 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 ### Faza 2 — kompletne reality
 
 - [x] Incremental AST + documentation-chunk cache po content hash (patrz P1).
-- [ ] First-class AST adapters dla PHP i innych języków w analizowanych repo
-  (patrz P2).
+- [x] First-class PHP syntax adapter (patrz P2 i ticket-016).
+- [ ] First-class adapters dla pozostałych języków w analizowanych repo.
 - [ ] Opcjonalnie: testy/CI facts jako evidence `implemented` obok AST+Git.
 
 ### Faza 3 — DSL → plan zmiany kodu (wdrożenie bieżące)

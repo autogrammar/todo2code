@@ -9,6 +9,7 @@ import type { CachedExtractionResult, ExtractionResult, IntentRecord } from '../
 import { T2C_VERSION } from '../version.js';
 import { extractGoAst } from './ast/go.js';
 import { extractJavaAst } from './ast/java.js';
+import { extractPhpAst } from './ast/php.js';
 import { extractPythonAst } from './ast/python.js';
 import { extractRustAst } from './ast/rust.js';
 import { extractTypeScriptFile, JS_EXTENSIONS, TYPESCRIPT_AST_CACHE_IDENTITY } from './ast/typescript.js';
@@ -67,6 +68,14 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
       extract: () => extractJavaAst(root, config),
     },
     {
+      enabled: config.enablePhpAst,
+      namespace: 'ast-php-v1',
+      extensions: ['.php'],
+      executable: config.phpExecutable,
+      useIgnoreMatcher: true,
+      extract: () => extractPhpAst(root, config),
+    },
+    {
       enabled: config.enableRustAst,
       namespace: 'ast-rust-v1',
       extensions: ['.rs'],
@@ -102,7 +111,7 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     warnings.push(...result.warnings);
   }
 
-  const unsupported = await unsupportedSourceWarning(root, matcher);
+  const unsupported = await unsupportedSourceWarning(root, matcher, config.enablePhpAst ? ['.php'] : []);
   if (unsupported) warnings.push(unsupported);
   return { records, warnings, cache: cache.snapshot() };
 }

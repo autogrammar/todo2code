@@ -21,6 +21,8 @@ export function makeConfig(root: string): T2CConfig {
     enableJavaAst: false,
     cargoExecutable: 'cargo',
     enableRustAst: false,
+    phpExecutable: 'php',
+    enablePhpAst: false,
     allowOutsideRoot: false,
     enableTensorFlow: false,
     tensorflowModelPath: null,

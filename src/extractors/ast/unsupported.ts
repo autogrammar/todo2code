@@ -8,9 +8,13 @@ const UNSUPPORTED_SOURCE_EXTENSIONS = [
   '.r', '.dart', '.ex', '.exs',
 ];
 
-export async function unsupportedSourceWarning(root: string, matcher: IgnoreMatcher): Promise<string | null> {
+export async function unsupportedSourceWarning(
+  root: string,
+  matcher: IgnoreMatcher,
+  supportedExtensions: string[] = [],
+): Promise<string | null> {
   const files = await walkFiles(root, {
-    extensions: UNSUPPORTED_SOURCE_EXTENSIONS,
+    extensions: UNSUPPORTED_SOURCE_EXTENSIONS.filter((extension) => !supportedExtensions.includes(extension)),
     maxFiles: 20_000,
     matcher,
   });

@@ -12,7 +12,7 @@ flowchart LR
     NLO --> NLLM[OpenRouter structured extractor]
     NLO --> NLE[Deterministic fallback]
     GIT[Last N commits] --> GE[Git extractor]
-    CODE[TS JS Python Go Java Rust tree] --> AE[AST extractors]
+    CODE[TS JS Python Go Java Rust PHP tree] --> AE[Syntax extractors]
     TODO[TODO.md] --> TE[TODO converter]
     CHG[CHANGELOG.md] --> CE[CHANGELOG converter]
     TE --> ME[Markdown composition]
@@ -61,7 +61,9 @@ Czyta ostatnie N commitów, autorów, timestampy, message/body, statusy plików,
 
 TypeScript Compiler API dostarcza fakty o importach, eksportach, symbolach i
 wywołaniach. Python używa standardowego `ast`, Go `go/ast`, Java oficjalnego
-JDK Compiler Tree API, a Rust parsera `syn` w izolowanym helperze Cargo. Każdy
+JDK Compiler Tree API, Rust parsera `syn` w izolowanym helperze Cargo, a PHP
+wbudowanego parsera tokenów z `TOKEN_PARSE`. PHP emituje namespace, imports,
+types, functions, methods i calls; nie nazywa tokenów pełnym AST. Każdy
 adapter zwraca tę samą kopertę JSON `{facts, warnings}`, więc rdzeń nie zależy
 od modelu AST konkretnego języka. Adapter nie uruchamia toolchainu, gdy nie ma
 pasujących plików; brak dostępnego toolchainu daje ostrzeżenie, nie błąd całego

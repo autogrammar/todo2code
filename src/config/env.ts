@@ -25,6 +25,8 @@ export interface T2CConfig {
   enableJavaAst: boolean;
   cargoExecutable: string;
   enableRustAst: boolean;
+  phpExecutable: string;
+  enablePhpAst: boolean;
   allowOutsideRoot: boolean;
   enableTensorFlow: boolean;
   tensorflowModelPath: string | null;
@@ -160,6 +162,8 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     enableJavaAst: envBoolean('T2C_ENABLE_JAVA_AST', true),
     cargoExecutable: envString('T2C_CARGO', 'cargo'),
     enableRustAst: envBoolean('T2C_ENABLE_RUST_AST', true),
+    phpExecutable: envString('T2C_PHP', 'php'),
+    enablePhpAst: envBoolean('T2C_ENABLE_PHP_AST', true),
     allowOutsideRoot: envBoolean('T2C_ALLOW_OUTSIDE_ROOT', false),
     enableTensorFlow: envBoolean('T2C_ENABLE_TF', false),
     tensorflowModelPath: envOptional('T2C_TF_MODEL_PATH'),

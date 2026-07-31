@@ -14,10 +14,10 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 300 testów: 299 pass, 0 fail, 1 Java skip |
-| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 35 modułów |
-| Moduły | `npm run verify:modules` | PASS — 103 moduły, 477 importów, 0 cykli |
-| Kontrakt środowiska | `npm run verify:env` | PASS — 73 zmienne i 73 klucze |
+| Testy | `npm test` | 304 testy: 303 pass, 0 fail, 1 Java skip |
+| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 36 modułów |
+| Moduły | `npm run verify:modules` | PASS — 104 moduły, 484 importy, 0 cykli |
+| Kontrakt środowiska | `npm run verify:env` | PASS — 75 zmiennych i 75 kluczy |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Granice structured LLM | `npm run verify:structured-responses` | PASS — 7 wywołań kontraktowych, 0 surowych wywołań JSON w produkcji |
@@ -71,6 +71,16 @@ repozytoriach) zakończyły się `succeeded`:
 | `weekly` | 1 | 9 | 58 | 40 |
 | `nlp2uri` | 10 | 12 | 152 | 54 |
 | `algitex` | 3 | 5 | 139 | 202 |
+
+### Ticket 016 — obserwowalny PHP
+
+Dependency-free adapter PHP 8 używa `token_get_all(..., TOKEN_PARSE)` i
+świadomie raportuje dowód jako syntax tokens, nie pełny AST. Cztery testy
+pokrywają namespace/use/type/function/method/call, deduplikację faktów na tej
+samej linii, brak uruchomienia toolchainu bez źródeł, brak runtime oraz błąd
+składni. A/B na 40 śledzonych plikach `semcod/redsl` dało 2 127 unikalnych
+rekordów, +80 relacji i spadek warning diagnostics 730→712; liczba planów
+pozostała równa 1.
 
 ## Walidacja na innych projektach
 
@@ -342,7 +352,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 79 relacji, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 84 relacje, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

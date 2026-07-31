@@ -629,6 +629,7 @@ export interface PipelineManifest {
       go: { enabled: boolean; executable: string };
       java: { enabled: boolean; executable: string };
       rust: { enabled: boolean; executable: string };
+      php: { enabled: boolean; executable: string };
       tensorflow: {
         enabled: boolean;
         modelPath: string | null;

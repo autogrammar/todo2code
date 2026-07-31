@@ -17,7 +17,9 @@ test('AST extractor reads TypeScript and Python facts', async () => {
   await fs.writeFile(path.join(root, 'generated', 'ignored.ts'), 'export const ignored = true;\n');
   await fs.writeFile(path.join(root, 'generated', 'ignored.py'), 'def ignored_python() -> None:\n    pass\n');
   await fs.writeFile(path.join(root, 'venv', 'bundled.js'), 'export const bundled = true;\n');
-  const result = await extractAstIntent({ root }, makeConfig(root));
+  const config = makeConfig(root);
+  config.enablePhpAst = false;
+  const result = await extractAstIntent({ root }, config);
   assert.ok(result.records.some((record) => record.source.path === 'runtime.ts' && record.source.symbol === 'validateContract'));
   assert.ok(result.records.some((record) => record.statement.kind === 'call_fact' && record.statement.object === 'validateContract'));
   assert.ok(result.records.some((record) => record.source.path === 'helper.py' && record.source.symbol === 'normalize'));

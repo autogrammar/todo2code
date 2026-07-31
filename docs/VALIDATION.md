@@ -10,15 +10,16 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrola | Wynik |
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
-| Transitive no-LLM import boundary | PASS — 9 entrypointów, 35 modułów |
-| Granice modułów | PASS — 103 moduły, 477 importów wewnętrznych, brak cykli, niezależny `src/core` |
-| Kontrakt środowiska | PASS — 73 zmienne kodu/Dockera/skryptów, 73 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
+| Transitive no-LLM import boundary | PASS — 9 entrypointów, 36 modułów |
+| Granice modułów | PASS — 104 moduły, 484 importy wewnętrzne, brak cykli, niezależny `src/core` |
+| Kontrakt środowiska | PASS — 75 zmiennych kodu/Dockera/skryptów, 75 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 299 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 227 rekordów i 79 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
+| Testy Node | PASS — 303 zaliczone, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 227 rekordów i 84 relacje, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
-| TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
+| TypeScript/JavaScript + Python + Go + Java + Rust AST + PHP syntax | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17, Rust fixture i `cargo test`; PHP namespace/use/type/function/method/call, skip oraz fail-open bez runtime |
+| PHP A/B na `semcod/redsl` | PASS — 40 śledzonych plików: 2 127 unikalnych rekordów, +80 relacji, 730→712 warning diagnostics, 0 ostrzeżeń ekstrakcji i bez zmiany 1 planu |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
 | Audytowane TODO/CHANGELOG → DSL | PASS — zachowanie struktury, runtime validation, oznaczony fallback i błąd `require-llm` |
 | `npm run evaluate:gold` | PASS — gold v2: ekstrakcja (4 kanały), linkowanie (`exact-target` 10, `capability-topic` 8) i kody diagnostyk 100% precision/recall; cytowania i klasyfikacja duplikatów 100%; linker cross-language 0/6, captured reranker 6/6 z 0/6 naruszeń i 1 abstencją; `knownGap` 0/6 poza metryką; stabilność 2/2 przebiegów |
@@ -61,7 +62,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 300 testów, 299 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 304 testy, 303 zaliczone, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

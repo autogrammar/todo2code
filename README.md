@@ -6,7 +6,7 @@
 
 Projekt działa na Node.js/TypeScript. Wielojęzykowe fakty kodu dostarczają
 adaptery TypeScript/JavaScript, Python (`ast`), Go (`go/ast`), Java (JDK
-Compiler Tree API) i Rust (`syn`). Toolchainy poza Node są opcjonalne — brak
+Compiler Tree API), Rust (`syn`) i PHP (`token_get_all` z `TOKEN_PARSE`). Toolchainy poza Node są opcjonalne — brak
 narzędzia daje jawne ostrzeżenie tylko wtedy, gdy repo zawiera pasujące źródła.
 Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
@@ -66,7 +66,7 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 |---|---|---:|
 | NL → DSL | OpenRouter structured output; jawny fallback heurystyczny/TensorFlow | **tak, domyślnie preferowany** |
 | 10 commitów Git → DSL | `git log`, diff, heurystyki symboli | nie |
-| TypeScript/JavaScript/Python/Go/Java/Rust AST → DSL | natywne parsery języków; Java Tree API, Rust `syn` | nie |
+| TypeScript/JavaScript/Python/Go/Java/Rust/PHP → DSL | natywne parsery języków; Java Tree API, Rust `syn`, PHP syntax tokens | nie |
 | TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie preferowany** |
 | Dokumentacja → DSL | deterministyczny baseline + opcjonalne OpenRouter structured outputs | **opcjonalnie** |
 | JSON/YAML/TOML, Docker i CI → DSL | deterministyczny konwerter struktury konfiguracji | nie |
@@ -106,7 +106,7 @@ wymagane testy offline nigdy nie zależą od dostępności providera.
 ## Szybki start
 
 Wymagania: Node.js 20+ i Git. Opcjonalne adaptery wymagają odpowiednio Python
-3.10+, Go, JDK 17+ lub Cargo/Rust.
+3.10+, Go, JDK 17+, Cargo/Rust lub PHP 8+.
 
 ```bash
 cp .env.example .env

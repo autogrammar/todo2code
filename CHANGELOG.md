@@ -4,6 +4,14 @@
 
 ### Added
 
+- A dependency-free PHP syntax adapter based on PHP 8
+  `token_get_all(..., TOKEN_PARSE)`. It emits namespace, import, type,
+  function, method and call facts through the common adapter envelope, shares
+  repository ignore scope, caches by the selected source manifest and degrades
+  explicitly when the optional PHP runtime is unavailable. A controlled A/B
+  on 40 tracked `semcod/redsl` PHP files produced 2,127 unique graph records,
+  80 additional relations and 18 fewer warning diagnostics.
+
 - Codestral 2508 is the measured OpenRouter default after a 6/6 live contract
   run at 57,129 ms and $0.037994. Gemini 3 Flash Preview also passed; DeepSeek
   V4 Pro crossed the 900-second budget. Markdown batches now run with bounded

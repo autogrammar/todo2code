@@ -44,6 +44,8 @@ pełny cykl od diagnostyki do zweryfikowanego patcha i re-analizy.
 Ticket [`015`](../project/ticket-015/README.md) zachował pełną treść złożonej
 intencji w tytule zadania Koru, usuwając wariant `Implement Implement ...` bez
 zmiany samego rekordu DSL ani jego celów.
+Ticket [`016`](../project/ticket-016/README.md) dodał obserwowalność PHP i A/B
+na 40 śledzonych plikach `semcod/redsl`.
 
 ## Odpowiedź krótka
 
@@ -76,8 +78,8 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 300 testów, 299 zaliczonych, 0 błędów i 1 lokalny skip JDK |
-| Granica LLM | 9 deterministycznych entrypointów, 35 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 304 testy, 303 zaliczone, 0 błędów i 1 lokalny skip JDK |
+| Granica LLM | 9 deterministycznych entrypointów, 36 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
 | Cache ekstrakcji | content-addressed, wersjonowany i fail-open; TypeScript per plik, zewnętrzny AST per manifest języka, dokumentacja per plik i parametry chunkingu; odpowiedzi LLM nie są cache'owane |
@@ -305,9 +307,12 @@ mediana latencji i kosztu per etap opisywała cokolwiek.
 
 ### 4. Luki w pokryciu języków i formatów
 
-PHP nie ma adaptera AST. Nierozpoznane pliki są raportowane jawnie, więc
-narzędzie nie udaje pełnego pokrycia, ale repozytorium z istotną częścią kodu
-w PHP dostanie niepełny obraz rzeczywistości.
+PHP ma od ticketu 016 dependency-free adapter składniowy oparty o
+`token_get_all(..., TOKEN_PARSE)`. Kontrolowane A/B na `semcod/redsl` zamieniło
+ostrzeżenie o 40 nieobsługiwanych plikach na 2 127 unikalnych rekordów PHP,
+80 nowych relacji i 18 mniej ostrzeżeń diagnostycznych, bez zmiany liczby
+planów. Nadal brakuje parserów Ruby/C#/Kotlin/C/C++ i innych raportowanych
+jawnie języków.
 
 ### 5. Znane ograniczenia semantyczne
 
@@ -408,7 +413,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 300 testów, 103 moduły, 7/0 structured/raw LLM calls
+npm run verify          # 304 testy, 104 moduły, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

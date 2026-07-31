@@ -17,6 +17,7 @@ export * from './extractors/ast/python.js';
 export * from './extractors/ast/go.js';
 export * from './extractors/ast/java.js';
 export * from './extractors/ast/rust.js';
+export * from './extractors/ast/php.js';
 export * from './extractors/markdown.js';
 export * from './extractors/todo.js';
 export * from './extractors/changelog.js';

@@ -34,7 +34,8 @@ Przed użyciem na prywatnym repozytorium należy ustawić restrykcyjne globs i z
 - limit rozmiaru pliku i body A2A;
 - brak wykonywania komend pochodzących z dokumentacji/LLM;
 - Git jest wywoływany przez `execFile`, nie shell;
-- helpery Python/Go/Java/Rust dostają tylko katalog i limit pliku;
+- helpery językowe dostają tylko katalog i limit pliku; Python i PHP dodatkowo
+  otrzymują prywatny manifest ścieżek wybranych przez wspólny ignore matcher;
 - parser OpenRouter przyjmuje JSON i następnie runtime normalizuje krytyczne pola provenance.
 - manifest zapisuje modele i parametry generacji, ale zastępuje obecność klucza wyłącznie booleanem `configured`.
 

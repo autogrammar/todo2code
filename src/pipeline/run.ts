@@ -453,6 +453,7 @@ function manifestConfiguration(options: PipelineOptions, config: T2CConfig): Pip
       go: { enabled: config.enableGoAst, executable: config.goExecutable },
       java: { enabled: config.enableJavaAst, executable: config.javaExecutable },
       rust: { enabled: config.enableRustAst, executable: config.cargoExecutable },
+      php: { enabled: config.enablePhpAst, executable: config.phpExecutable },
       tensorflow: {
         enabled: config.enableTensorFlow,
         modelPath: config.tensorflowModelPath,

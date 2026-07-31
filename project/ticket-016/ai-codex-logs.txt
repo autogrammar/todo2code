@@ -1,0 +1,6 @@
+2026-07-31 PHP 8.4 available; ext-ast unavailable; selected TOKEN_PARSE boundary
+2026-07-31 focused PHP + existing AST suite 5/5 PASS
+2026-07-31 redsl A/B: 40 tracked PHP files, 2127 unique records, +80 relations
+2026-07-31 redsl diagnostics warnings 730 -> 712; plans stayed 1; extraction warnings 0
+2026-07-31 verify PASS: 304 total, 303 pass, 1 JDK skip; 104 modules, 75 env keys
+2026-07-31 gold v2/v1 100%; examples PASS, SDK fingerprints unchanged

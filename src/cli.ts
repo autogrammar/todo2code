@@ -644,6 +644,7 @@ async function doctor(config: ReturnType<typeof getConfig>): Promise<void> {
     ['go', config.goExecutable, ['version']],
     ['java', config.javaExecutable, ['-version']],
     ['cargo', config.cargoExecutable, ['--version']],
+    ['php', config.phpExecutable, ['--version']],
   ] as const) {
     try {
       const result = await execFileAsync(executable, args, { encoding: 'utf8' });

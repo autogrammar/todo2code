@@ -41,6 +41,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Python AST → DSL | działa | helper standard-library `ast` |
 | Go AST → DSL | działa | helper `go/ast` i jawna degradacja bez toolchainu |
 | Rust AST → DSL | działa | helper `syn` i jawna degradacja bez toolchainu |
+| PHP syntax → DSL | działa | dependency-free helper `token_get_all(..., TOKEN_PARSE)`; namespace/use/type/function/method/call, jawna degradacja bez PHP 8+ |
 | Java AST → DSL | działa, wymagane w CI | lokalnie fixture może być pominięty bez JDK; osobny job Temurin 17 ustawia `T2C_REQUIRE_JAVA_TEST=1`, więc brak runtime lub regresja kończy CI błędem |
 | TODO → DSL | działa | osobny parser; checkbox i lifecycle pozostają deterministyczne |
 | CHANGELOG → DSL | działa | osobny parser; zachowuje wersję, datę, kategorię i klasę `claim` |
@@ -55,7 +56,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 | Linker i walidacja grafu | działa | pełna walidacja `t2c.intent/v1` i `t2c.graph/v1`, stabilny fingerprint; symbol NL jest dowodem AST tylko przy jednym właścicielu lub zgodnej jawnej ścieżce; sama ścieżka nie dowodzi nowej funkcji bez symbolu/capability-topic/grounded rerank |
 | Provenance rekordów DSL | działa | każdy rekord wymaga generatora i jego wersji, wersji todo2code oraz — dla LLM — providera, rozstrzygniętego modelu i response ID; niespójne rekordy są odrzucane |
 | Generowana analiza techniczna | działa fail-closed | `project.sh` domyślnie analizuje wyłącznie detached snapshot śledzonego `HEAD`; standardowa walidacja odrzuca odniesienia do nieśledzonych wejść, ścieżki tymczasowe i niedostępne parsery, a `prefact -a` jest opt-in |
-| Przenośność między repozytoriami | zweryfikowana na 9 projektach | sześć wcześniejszych repo offline oraz `weekly` i `nlp2uri` live z Codestralem, `algitex` jako duży skan offline; artefakty nowych pomiarów pozostały poza worktree |
+| Przenośność między repozytoriami | zweryfikowana na 10 projektach | sześć wcześniejszych repo offline, `weekly` i `nlp2uri` live z Codestralem, `algitex` jako duży skan offline oraz PHP A/B na `redsl`; artefakty nowych pomiarów pozostały poza worktree |
 | Diagnostyka i Intent vs Reality | działa | agregaty modułów i plików konfiguracji ograniczają szum; path-only relacja pozostaje nawigacją, lecz `PLANNED_NOT_IMPLEMENTED` blokuje fałszywe `aligned` i pokrycie do czasu semantycznego dowodu funkcji |
 | Trend workspace | działa stabilnie | nagłówek trendu opiera się na pokryciu deklarowanych tematów, porównywalnej dokumentacji i ciężkich diagnostykach; churn linii i rekordów AST pozostaje metryką pomocniczą |
 | Graf → wnioski → raport NL | działa także live | CLI ma jawne `deterministic|prefer-llm|require-llm`; generator v2 ogranicza `recordIds` do dowodów cytowanych diagnostyk, nieznane diagnostyki są odrzucane, a bieżący `live:check` przeszedł bez retry i fallbacku |
@@ -72,16 +73,16 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 300 testów: 299 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 103 moduły i 477 importów wewnętrznych, brak cykli, niezależny `src/core`;
-- 9 deterministycznych entrypointów i 35 modułów bez tranzytywnego importu LLM;
-- 73 zmienne używane przez kod/Docker i 73 odpowiadające klucze
+- 304 testy: 303 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 104 moduły i 484 importy wewnętrzne, brak cykli, niezależny `src/core`;
+- 9 deterministycznych entrypointów i 36 modułów bez tranzytywnego importu LLM;
+- 75 zmiennych używanych przez kod/Docker i 75 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - workflow CI przechodzi kontrolę duplikatów kluczy najwyższego poziomu;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
   powodzeniem.
 
-Przebieg offline na `examples/` utworzył 227 rekordów i 79 relacji. Liczba
+Przebieg offline na `examples/` utworzył 227 rekordów i 84 relacje. Liczba
 relacji jest snapshotem, ponieważ wejście Git obejmuje
 ostatnich 10 commitów:
 
@@ -133,8 +134,8 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
    `src/extractors/ast.ts`; nadal nie mają osobnych paczek ani niezależnego
    versioningu release'ów.
 5. Deterministyczna dokumentacja i konfiguracja mają już własne konwertery.
-   PHP oraz pozostałe języki spoza TypeScript/JavaScript, Python, Go, Java i
-   Rust nadal nie mają adapterów AST; runtime wypisuje ich liczby jawnie.
+   Pozostałe języki spoza TypeScript/JavaScript, Python, Go, Java, Rust i PHP
+   nadal nie mają adapterów składniowych; runtime wypisuje ich liczby jawnie.
 6. Starsze repozytoria bez `project/participants.json` działają w trybie
    legacy; dopiero dodanie rejestru wymusza stabilne `participant-id` i wyłącza
    traktowanie nazwy wyświetlanej jako rozstrzygniętej tożsamości.
