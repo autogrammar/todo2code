@@ -164,10 +164,22 @@ async function enrichBatchCovering(
   model: string,
   batch: IntentRecord[],
 ): Promise<CoveredBatch> {
-  const attempt = await enrichMarkdownBatchWithCorrection(client, [
-    { role: 'system', content: prompt },
-    { role: 'user', content: JSON.stringify({ records: batch.map(promptRecord) }) },
-  ], markdownResponseContract(batch.length), model, batch);
+  let attempt: Awaited<ReturnType<typeof enrichMarkdownBatchWithCorrection>>;
+  try {
+    attempt = await enrichMarkdownBatchWithCorrection(client, [
+      { role: 'system', content: prompt },
+      { role: 'user', content: JSON.stringify({ records: batch.map(promptRecord) }) },
+    ], markdownResponseContract(batch.length), model, batch);
+  } catch (error) {
+    // A malformed response is the same problem as a truncated one, one step
+    // earlier: measured live, `google/gemini-3.6-flash` answers a 32-record
+    // batch of this repository with prose instead of JSON, and the corrective
+    // retry re-asks the same oversized question. Fewer records per request is
+    // the remedy for both, so the failure splits like a short answer does —
+    // except for a single record, where it is simply a failure.
+    if (batch.length === 1) throw error;
+    return await enrichSplitBatch(client, prompt, model, batch, emptyCoverage(error));
+  }
   // Provenance is per record, not per batch: a record answered by the split
   // retry must carry that response's ID, or the audit would credit it to a
   // response that never mentioned it.
@@ -186,6 +198,21 @@ async function enrichBatchCovering(
     );
   }
 
+  return await enrichSplitBatch(client, prompt, model, uncovered, {
+    enrichments: attempt.enrichments,
+    metadataByRecord,
+    responses: attempt.responses,
+  });
+}
+
+/** Re-asks for exactly the uncovered records, in halves, merging what returns. */
+async function enrichSplitBatch(
+  client: OpenRouterClient,
+  prompt: string,
+  model: string,
+  uncovered: IntentRecord[],
+  covered: CoveredBatch,
+): Promise<CoveredBatch> {
   const half = Math.ceil(uncovered.length / 2);
   const halves = [uncovered.slice(0, half), uncovered.slice(half)].filter((part) => part.length > 0);
   const parts: CoveredBatch[] = [];
@@ -193,14 +220,23 @@ async function enrichBatchCovering(
 
   return {
     enrichments: new Map([
-      ...attempt.enrichments,
+      ...covered.enrichments,
       ...parts.flatMap((part) => [...part.enrichments]),
     ]),
     metadataByRecord: new Map([
-      ...metadataByRecord,
+      ...covered.metadataByRecord,
       ...parts.flatMap((part) => [...part.metadataByRecord]),
     ]),
-    responses: [...attempt.responses, ...parts.flatMap((part) => part.responses)],
+    responses: [...covered.responses, ...parts.flatMap((part) => part.responses)],
+  };
+}
+
+/** The responses a failed attempt still produced, with nothing covered. */
+function emptyCoverage(error: unknown): CoveredBatch {
+  return {
+    enrichments: new Map(),
+    metadataByRecord: new Map(),
+    responses: error instanceof MarkdownAttemptError ? error.responses : [],
   };
 }
 

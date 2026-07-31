@@ -320,3 +320,60 @@ test('a truncated batch is split and every record keeps its own response provena
     globalThis.fetch = originalFetch;
   }
 });
+
+test('a malformed batch response splits instead of failing the whole stage', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-malformed-'));
+  const items = Array.from({ length: 4 }, (_, index) => `- [ ] Zadanie ${index + 1} dla T2C-${index + 1}.`);
+  await fs.writeFile(path.join(root, 'TODO.md'), `# Plan\n\n${items.join('\n')}\n`);
+  const config = makeConfig(root);
+  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.markdownModel = 'gemini/test-markdown';
+
+  const originalFetch = globalThis.fetch;
+  let call = 0;
+  globalThis.fetch = async (_input, init) => {
+    call += 1;
+    const request = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> };
+    const payload = JSON.parse(request.messages[1]?.content ?? '{}') as { records?: Array<{ recordId: string }> };
+    const records = payload.records ?? [];
+    // Measured live: a full batch comes back as prose, not JSON. Both the
+    // first attempt and its correction re-ask the same oversized question.
+    if (records.length > 2) {
+      return new Response(JSON.stringify({
+        id: `gen-prose-${call}`, model: 'gemini/resolved', provider: 'MarkdownProvider',
+        usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+        choices: [{ message: { content: 'TypeScript runtime notes, not JSON at all' } }],
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    const enrichments = records.map((record) => ({
+      recordId: record.recordId,
+      actor: null,
+      action: 'validate',
+      object: 'plan item',
+      polarity: 'positive',
+      confidence: 0.9,
+      basis: ['split fixture'],
+      target: { paths: [], symbols: [], tickets: [], versions: [] },
+      acceptanceEvidence: [],
+    }));
+    return new Response(JSON.stringify({
+      id: `gen-split-${call}`, model: 'gemini/resolved', provider: 'MarkdownProvider',
+      usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+      choices: [{ message: { content: JSON.stringify({ enrichments }) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+
+  try {
+    const result = await extractMarkdownIntentAudited({ root, todoPath: 'TODO.md' }, config, 'require-llm');
+
+    assert.equal(result.audit.status, 'succeeded');
+    assert.equal(result.records.length, 4);
+    assert.ok(result.records.every((record) => record.metadata.llmUsed === true));
+    // The rejected prose attempts stay in the audit rather than disappearing
+    // behind the retry that succeeded.
+    assert.ok(result.audit.responses.some((response) => response.responseId?.startsWith('gen-prose-')));
+    assert.ok(result.audit.responses.some((response) => response.responseId?.startsWith('gen-split-')));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
