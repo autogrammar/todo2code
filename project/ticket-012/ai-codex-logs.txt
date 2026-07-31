@@ -8,3 +8,4 @@
 2026-07-31 added one bounded schema-preserving correction to all direct extractors
 2026-07-31 rejected openai/gpt-5.4-mini after two corrected NL runs still violated the schema
 2026-07-31 google/gemini-3.6-flash passed all six live stages in 125486 ms for $0.412363
+2026-07-31 implementation and documentation pushed to main as 11348c0; nlp2uri.yaml excluded

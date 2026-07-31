@@ -30,7 +30,7 @@ Executable implementation belongs under `src/` and `scripts/`; tests under
 - [x] AC-06: Full verify, gold v1/v2 and SDK examples pass.
 - [x] AC-07: A paid six-stage `require-llm` run is attempted with the explicit
   model and its exact outcome is documented.
-- [ ] AC-08: Documentation is updated and changes are pushed to `main` without
+- [x] AC-08: Documentation is updated and changes are pushed to `main` without
   committing unrelated `nlp2uri.yaml`.
 
 ## Participants

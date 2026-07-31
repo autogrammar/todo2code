@@ -57,3 +57,6 @@ Focused structured-output tests: 39/39 PASS. `npm run verify`: 286 tests,
 285 pass, one local JDK skip; 101 modules, 470 internal imports, no cycles;
 7 structured and 0 raw production calls. Gold v1/v2: 100% required metrics.
 Five SDK examples: PASS with shared fingerprint `1dacf2edc8d603a2`.
+
+Implementation and documentation were pushed to `main` in `11348c0`.
+Unrelated staged `nlp2uri.yaml` was explicitly excluded and remains user-owned.
