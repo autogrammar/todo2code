@@ -14,10 +14,10 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 269 testów: 268 pass, 0 fail, 1 Java skip |
-| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 31 modułów |
-| Moduły | `npm run verify:modules` | PASS — 98 modułów, 453 importy, 0 cykli |
-| Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
+| Testy | `npm test` | 270 testów: 269 pass, 0 fail, 1 Java skip |
+| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 33 moduły |
+| Moduły | `npm run verify:modules` | PASS — 100 modułów, 463 importy, 0 cykli |
+| Kontrakt środowiska | `npm run verify:env` | PASS — 67 zmiennych i 67 kluczy |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Granice structured LLM | `npm run verify:structured-responses` | PASS — 7 wywołań kontraktowych, 0 surowych wywołań JSON w produkcji |

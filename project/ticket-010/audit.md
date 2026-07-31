@@ -35,4 +35,12 @@ most for repositories with many AST inputs or repeated documentation analysis.
 
 ## Verification
 
-Pending final repository gates.
+| Gate | Result |
+|---|---|
+| Exact `f1d9334` snapshot | `npm run verify`: 261 tests, 260 pass, 1 JDK skip |
+| Module boundary | 99 modules, 462 imports, 0 cycles |
+| Cache tests | 5/5: cold/warm, invalidation, corruption, bypass, external adapter and provider isolation |
+| Gold v2 / v1 | 100% required gates / PASS |
+| Examples | 5 SDK, PASS |
+| Integrated local `main` | 270 tests, 269 pass, 1 JDK skip; includes the adjacent scheduled-live-check commit |
+| Publication | implementation `f1d9334` on `main` |

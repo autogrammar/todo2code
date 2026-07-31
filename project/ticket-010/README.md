@@ -2,8 +2,8 @@
 
 - **ID**: ticket-010
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: IN_PROGRESS
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-07-31
 
 ## Goal and scope
@@ -31,8 +31,8 @@ ticket directory contains only governance and evidence.
 - [x] AC-07: Cache telemetry is returned outside Intent DSL and does not alter
   graph records or fingerprints.
 - [x] AC-08: Measurements cover todo2code and at least two other repositories.
-- [ ] AC-09: Full repository verification and gold/example gates pass.
-- [ ] AC-10: Documentation is updated and the completed change is pushed to
+- [x] AC-09: Full repository verification and gold/example gates pass.
+- [x] AC-10: Documentation is updated and the completed change is pushed to
   `main` without unrelated worktree changes.
 
 ## Participants
@@ -44,3 +44,10 @@ ticket directory contains only governance and evidence.
 
 - [`audit.md`](audit.md)
 - [`ai-codex-logs.txt`](ai-codex-logs.txt)
+
+## Result
+
+Deterministic extraction now reuses validated content-addressed entries while
+source records remain authoritative. A warm run avoids unchanged TypeScript
+parsing and successful external-toolchain startup; Markdown reuse stops before
+the provider boundary. The implementation was committed as `f1d9334`.

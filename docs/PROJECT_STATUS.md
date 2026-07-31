@@ -72,10 +72,10 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 269 testów: 268 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
-- 93 moduły i 426 importów wewnętrznych, brak cykli, niezależny `src/core`;
-- 9 deterministycznych entrypointów i 30 modułów bez tranzytywnego importu LLM;
-- 63 zmienne używane przez kod/Docker i 63 odpowiadające klucze
+- 270 testów: 269 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 100 modułów i 463 importy wewnętrzne, brak cykli, niezależny `src/core`;
+- 9 deterministycznych entrypointów i 33 moduły bez tranzytywnego importu LLM;
+- 67 zmiennych używanych przez kod/Docker i 67 odpowiadających kluczy
   `.env.example`, bez duplikatów;
 - workflow CI przechodzi kontrolę duplikatów kluczy najwyższego poziomu;
 - kompilacja TypeScript `strict` i pełna walidacja runtime DSL zakończone
