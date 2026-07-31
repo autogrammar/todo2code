@@ -6,6 +6,10 @@ No ticket is currently active.
 
 ## Completed tickets
 
+- [x] [`ticket-007`](project/ticket-007/README.md) — explicit unresolved
+  response routing. Every communication issue now names a known participant or
+  the role sentinel `unresolved:human` / `unresolved:agent`; no participant is
+  guessed or created. Current state: `DONE`.
 - [x] [`ticket-006`](project/ticket-006/README.md) — canonical structured-output
   conformance. Retained exact fail-closed diagnostics and a schema drift gate;
   rejected both tested Qwen routes before graph mutation. Current state:
@@ -38,11 +42,11 @@ No ticket is currently active.
   without ingesting ticket evidence/logs, reject unstructured migration
   silently losing content, and attach the required role plus participant IDs
   to every communication divergence.
-- [ ] Route a required response when the required role has no participant
+- [x] Route a required response when the required role has no participant
   record. Ticket-006 correctly returns `responseRequiredRole=human` but an
   empty `responseRequiredFrom` because the agent refused to fabricate a
-  human-owned `user-*` file. Resolve through a trusted owner/participant
-  registry or an explicit unresolved-human sentinel, never by guessing.
+  human-owned `user-*` file. Ticket-007 now emits the explicit role sentinel
+  `unresolved:human` or `unresolved:agent`, never a guessed identity.
 - [x] Add a participant identity registry mapping stable IDs to Git authors,
   A2A agent IDs and optional human aliases without guessing identity from
   display names.

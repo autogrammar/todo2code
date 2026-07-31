@@ -21,7 +21,9 @@ wielojęzycznego dopasowania i decyzja o odrzuceniu surowych embeddingów są w
 [`project/ticket-005`](../project/ticket-005/README.md); ticket zamknął
 eksperyment rerankera przez kontrolowaną ścieżkę odrzucenia. Ticket
 [`project/ticket-006`](../project/ticket-006/README.md) ujednolicił walidację
-odpowiedzi i potwierdził odrzucenie na drugiej trasie modelowej.
+odpowiedzi i potwierdził odrzucenie na drugiej trasie modelowej. Ticket
+[`project/ticket-007`](../project/ticket-007/README.md) domknął pustą trasę
+odpowiedzi bez tworzenia tożsamości za człowieka.
 
 ## Odpowiedź krótka
 
@@ -54,7 +56,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i eksperymentalnego rerankingu; 252 testy, 251 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i eksperymentalnego rerankingu; 253 testy, 252 zaliczone, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 31 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
@@ -65,7 +67,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 | Odporność na obce repo | sześć repozytoriów zewnętrznych plus `subactor/platform`; brak awarii, brak wycieku poza root |
 | Sygnał changeloga | placeholdery, skróty `... and N more files` i znane artefakty analizy pod `project/` nie udają już braku implementacji; merytoryczne wpisy nadal wymagają dowodu |
 | Izolacja generowanej analizy | nowa referencja do nieśledzonego wejścia nadal blokuje raport; śledzona wzmianka audytowa o jego nazwie nie jest już mylona z odczytem prywatnego pliku |
-| Intencje ludzi i agentów | sekcje `user-*`/`ai-*` zachowują właściciela i typ DSL; dowody ticketu nie udają rozmowy; każda rozbieżność wskazuje rolę i konkretnego respondenta |
+| Intencje ludzi i agentów | sekcje `user-*`/`ai-*` zachowują właściciela i typ DSL; dowody ticketu nie udają rozmowy; każda rozbieżność wskazuje rolę oraz respondenta albo jawny sentinel nierozstrzygniętej roli |
 
 ## Audyt `user-*` / `ai-*` → DSL
 
@@ -91,12 +93,12 @@ Agent nie może zamknąć dwóch ostatnich klas przez edycję `user-*`. To wła�
 oczekiwany podział odpowiedzialności: dowód własnego wykonania uzupełnia agent,
 a ludzką decyzję lub rozszerzenie zakresu zapisuje człowiek.
 
-Pozostaje przypadek brzegowy zmierzony na ticket-006: gdy istnieje wyłącznie
-plik agenta, analiza poprawnie wskazuje `responseRequiredRole=human`, ale
-`responseRequiredFrom=[]`, bo nie ma ludzkiego rekordu, z którego wolno
-wyprowadzić tożsamość. Następna poprawka powinna użyć zaufanego rejestru
-właścicieli albo jawnego sentinela „unresolved human"; nie może zgadywać osoby
-ani pozwalać agentowi stworzyć `user-*` w jej imieniu.
+Przypadek brzegowy z ticket-006 jest zamknięty przez ticket-007. Gdy istnieje
+wyłącznie plik agenta, analiza nadal wskazuje `responseRequiredRole=human`, ale
+zamiast pustego `responseRequiredFrom=[]` emituje
+`responseRequiredFrom=["unresolved:human"]`. Analogiczny brak agenta daje
+`unresolved:agent`. Znany uczestnik nadal zachowuje pierwszeństwo; sentinel nie
+udaje osoby, nie tworzy `user-*` i nie jest adresem zewnętrznej wysyłki.
 
 Test migracyjny użył read-only historycznego commita `2b9e3c9` z
 `wellmanifest/new-project`:
@@ -331,7 +333,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 252 testy, 97 modułów, kontrakt .env, workflowy
+npm run verify          # 253 testy, 97 modułów, kontrakt .env, workflowy
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

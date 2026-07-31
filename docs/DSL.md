@@ -100,6 +100,11 @@ używają podobnego słownictwa. Niesekcyjny plik governance nie jest po cichu
 konwertowany: ekstraktor zwraca ostrzeżenie wskazujące człowieka lub agenta,
 który musi sklasyfikować treść albo dodać jawny `type`.
 
+`responseRequiredFrom` nigdy nie jest pusty. Gdy analiza zna wymaganą rolę,
+ale nie ma zaufanego uczestnika tej roli, zapisuje jawny sentinel
+`unresolved:human` albo `unresolved:agent`. Sentinel oznacza brak rozstrzygniętej
+tożsamości; nie jest uczestnikiem, kontem ani zgodą na zgadywanie odbiorcy.
+
 ## Eksperymentalna decyzja semantyczna
 
 `t2c.semantic-candidate-set/v1` i `t2c.semantic-rerank/v1` są kontraktami

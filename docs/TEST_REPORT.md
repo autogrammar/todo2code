@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 252 testy: 251 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 253 testy: 252 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 31 modułów |
 | Moduły | `npm run verify:modules` | PASS — 97 modułów, 441 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
@@ -34,6 +34,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Trzy zewnętrzne repozytoria (batch 1) | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty |
 | Trzy zewnętrzne repozytoria (batch 2) | pipeline na `code2logic`, `code2docs`, `redup` | PASS — trzy `succeeded`, code-change stage deterministic, review + source patches |
 | Migracja komunikacji innego projektu | historyczne Opus/GPT56Luna z `wellmanifest/new-project` | PASS — jawna ochrona przed beztypowym rename; Opus 0 problemów, GPT 3 wymagające odpowiedzi, bez fałszywego konfliktu plików |
+| Brak właściciela wymaganej odpowiedzi | rzeczywisty `ticket-006` + fixture agent-only/human-only | PASS — 3/3 problemów ticket-006 wskazuje `unresolved:human`; fixture pokrywa też `unresolved:agent`, znane ID pozostają bez zmian |
 
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
@@ -125,7 +126,7 @@ jawnych, różnych ścieżek.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 227 records, 97 relations; communication: 3 blocking, 1 warning
+demo: 227 records, 101 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint 438b4742f8149178
@@ -308,7 +309,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 97 relacji, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 101 relacji, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

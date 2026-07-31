@@ -5,9 +5,14 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
-import { analyzeCommunication, renderCommunicationMarkdown } from '../src/communication/analyzer.js';
+import {
+  addCommunicationIssuesToDiagnostics,
+  analyzeCommunication,
+  renderCommunicationMarkdown,
+} from '../src/communication/analyzer.js';
 import { extractCommunicationIntent } from '../src/extractors/communication.js';
 import { extractGitIntent } from '../src/extractors/git.js';
+import { diagnoseGraph } from '../src/graph/diagnostics.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
 import { executeAction } from '../src/services/actions.js';
 import { makeConfig } from './helpers.js';
@@ -238,6 +243,40 @@ test('opposite wording about different explicit files is not treated as an inten
   const extracted = await extractCommunicationIntent({ root }, makeConfig(root));
   const analysis = analyzeCommunication(linkIntentRecords(extracted.records));
   assert.ok(!analysis.issues.some((item) => item.code === 'HUMAN_AGENT_CONFLICT'));
+});
+
+test('missing response owners use explicit role sentinels without inventing participants', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-communication-routing-'));
+  const agentOnly = path.join(root, 'project', 'ticket-006');
+  const humanOnly = path.join(root, 'project', 'ticket-007');
+  await fs.mkdir(agentOnly, { recursive: true });
+  await fs.mkdir(humanOnly, { recursive: true });
+  await fs.writeFile(path.join(agentOnly, 'ai-codex.md'), [
+    '---', 'participant: codex', 'role: agent', 'type: plan', '---',
+    'Change the deployment policy for ticket-006.', '',
+  ].join('\n'));
+  await fs.writeFile(path.join(humanOnly, 'user-owner.md'), [
+    '---', 'participant: owner', 'role: human', 'type: request', '---',
+    'Document the response routing contract for ticket-007.', '',
+  ].join('\n'));
+
+  const extracted = await extractCommunicationIntent({ root }, makeConfig(root));
+  const graph = linkIntentRecords(extracted.records);
+  const analysis = analyzeCommunication(graph);
+  const humanRoute = analysis.issues.find((item) => item.ticket === 'TICKET-006'
+    && item.code === 'AGENT_WORK_OUTSIDE_REQUEST');
+  const agentRoute = analysis.issues.find((item) => item.ticket === 'TICKET-007'
+    && item.code === 'REQUEST_WITHOUT_AGENT_RESPONSE');
+  assert.equal(humanRoute?.responseRequiredRole, 'human');
+  assert.deepEqual(humanRoute?.responseRequiredFrom, ['unresolved:human']);
+  assert.equal(agentRoute?.responseRequiredRole, 'agent');
+  assert.deepEqual(agentRoute?.responseRequiredFrom, ['unresolved:agent']);
+  assert.ok(analysis.issues.every((item) => item.responseRequiredFrom.length > 0));
+  assert.match(renderCommunicationMarkdown(analysis), /Wymagana odpowiedź: human — unresolved:human/);
+
+  const diagnostics = addCommunicationIssuesToDiagnostics(diagnoseGraph(graph), analysis);
+  assert.ok(diagnostics.diagnostics.some((item) =>
+    item.detail.includes('Required response: human (unresolved:human)')));
 });
 
 test('communication extractor reports unresolved identity instead of inventing an actor', async () => {

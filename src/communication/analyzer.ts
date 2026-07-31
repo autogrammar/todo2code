@@ -499,7 +499,7 @@ function issue(
 ): CommunicationIssue {
   const sortedParticipants = [...new Set(participantIds)].sort();
   const sortedRecords = [...new Set(recordIds)].sort();
-  const sortedRespondents = [...new Set(responseRequiredFrom)].sort();
+  const sortedRespondents = explicitResponseRoute(responseRequiredRole, responseRequiredFrom);
   return {
     id: createIntentId({
       code,
@@ -519,6 +519,14 @@ function issue(
     detail,
     suggestedAction,
   };
+}
+
+function explicitResponseRoute(
+  role: CommunicationRole,
+  participants: string[],
+): string[] {
+  const resolved = [...new Set(participants.map((participant) => participant.trim()).filter(Boolean))].sort();
+  return resolved.length ? resolved : [`unresolved:${role}`];
 }
 
 function severityRank(value: CommunicationIssueSeverity): number {

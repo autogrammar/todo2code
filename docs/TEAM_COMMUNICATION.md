@@ -231,6 +231,12 @@ Przypisanie odpowiedzi jest częścią wyniku, a nie sugestią renderera:
 
 Agent nie może zamknąć ostatniego przypadku, edytując `user-*` za człowieka.
 
+Jeżeli wymagana rola nie ma żadnego zaufanego uczestnika w ticketcie,
+`responseRequiredFrom` zawiera `unresolved:human` albo `unresolved:agent`.
+Lista nie jest już pusta, a sentinel pozostaje jawną informacją o braku
+tożsamości — nie jest domyślnym właścicielem ani adresem do wysyłki. Prawdziwy
+uczestnik z komunikacji zachowuje pierwszeństwo i własne stabilne ID.
+
 ## Wdrożenie w `wellmanifest/new-project`
 
 Aktualny stan tego repozytorium nie zawiera jeszcze `project/<ticket>/`.
