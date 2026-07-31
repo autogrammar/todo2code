@@ -1,0 +1,12 @@
+2026-07-31 ticket-009 started
+- production structured OpenRouter boundaries found: 7
+- manual runtime strategies found: unchecked generic, duplicated validator, coercive normalizer
+- executable files in ticket directory: 0
+2026-07-31 ticket-009 verified
+- npm run verify: PASS (256 total, 255 pass, 1 JDK skip)
+- structured response gate: PASS (7 canonical, 0 raw)
+- generated schema gate: PASS
+- evaluate:gold v2: 100% required gates
+- evaluate:gold:v1: PASS
+- examples:check: PASS (5 SDK)
+- git diff --check: PASS

@@ -1,5 +1,6 @@
 import type { T2CConfig } from '../config/env.js';
 import type { LlmResponseMetadata } from '../core/types.js';
+import { StructuredResponseError, type StructuredSchema } from './structured-schema.js';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -107,6 +108,23 @@ export class OpenRouterClient {
 
   async chatJson<T>(messages: ChatMessage[], schemaName: string, schema: Record<string, unknown>, model = this.config.model): Promise<T> {
     return (await this.chatJsonWithMetadata<T>(messages, schemaName, schema, model)).value;
+  }
+
+  async chatStructuredWithMetadata<T>(
+    messages: ChatMessage[],
+    schemaName: string,
+    contract: StructuredSchema<T>,
+    model = this.config.model,
+  ): Promise<OpenRouterResult<T>> {
+    const result = await this.chatJsonWithMetadata<unknown>(messages, schemaName, contract.jsonSchema, model);
+    try {
+      return { ...result, value: contract.parse(result.value) };
+    } catch (error) {
+      if (error instanceof StructuredResponseError) {
+        throw new StructuredResponseError(error.message, result.metadata);
+      }
+      throw error;
+    }
   }
 
   async chatJsonWithMetadata<T>(messages: ChatMessage[], schemaName: string, schema: Record<string, unknown>, model = this.config.model): Promise<OpenRouterResult<T>> {

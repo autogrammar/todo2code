@@ -18,6 +18,7 @@ import type {
 } from '../core/types.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
+import { StructuredResponseError, structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import { compactSummaryPayload } from './payload.js';
 import { compareConclusions, renderSummaryMarkdown } from './render.js';
@@ -136,79 +137,24 @@ export async function summarizeGraph(
   }
 }
 
-const CONCLUSION_KINDS: ConclusionKind[] = ['finding', 'risk', 'decision', 'recommendation'];
-const CONCLUSION_SEVERITIES: DiagnosticSeverity[] = ['info', 'warning', 'review_required', 'blocking'];
+const SUMMARY_CONCLUSION_CONTRACT = s.object({
+  kind: s.enum(['finding', 'risk', 'decision', 'recommendation']),
+  title: s.string({ minLength: 1, pattern: '.*\\S.*' }),
+  detail: s.string({ minLength: 1, pattern: '.*\\S.*' }),
+  severity: s.enum(['info', 'warning', 'review_required', 'blocking']),
+  diagnosticIds: s.array(s.string({ pattern: '^DIAG-[a-f0-9]{20}$' }), { minItems: 1, uniqueItems: true }),
+  recordIds: s.array(s.string({ pattern: '^INT-[A-Z]+-[a-f0-9]{20}$' }), { minItems: 1, uniqueItems: true }),
+  confidence: s.number({ minimum: 0, maximum: 1 }),
+}) satisfies StructuredSchema<RawConclusion>;
+const SUMMARY_RESPONSE_CONTRACT = s.object({
+  conclusions: s.array(SUMMARY_CONCLUSION_CONTRACT, { maxItems: 100 }),
+}) satisfies StructuredSchema<RawSummaryResponse>;
 
 class SummaryAttemptError extends Error {
   constructor(readonly failure: unknown, readonly responses: LlmResponseMetadata[]) {
     super(failure instanceof Error ? failure.message : String(failure));
     this.name = 'SummaryAttemptError';
   }
-}
-
-/**
- * Checks the envelope before any field is read.
- *
- * A provider that does not honour `response_format.json_schema` returns
- * well-formed JSON of an entirely different shape. Naming the keys it did
- * return turns an unexplained fallback into a one-line diagnosis — measured
- * against `qwen/qwen3.7-flash`, which answered `{conclusion, status}` and made
- * every summary degrade silently.
- */
-function assertRawSummaryShape(response: unknown): asserts response is RawSummaryResponse {
-  if (!response || typeof response !== 'object') {
-    throw new Error(`response must be an object, received ${response === null ? 'null' : typeof response}`);
-  }
-  const candidate = response as Record<string, unknown>;
-  if (!Array.isArray(candidate.conclusions)) {
-    const keys = Object.keys(response).sort();
-    throw new Error(
-      'conclusions must be an array; the model did not honour the t2c_grounded_summary schema'
-      + ` (returned keys: ${keys.length ? keys.join(', ') : 'none'})`,
-    );
-  }
-}
-
-/** Validates one conclusion so a bad field is named instead of throwing a TypeError. */
-function assertRawConclusion(raw: unknown, index: number): asserts raw is RawConclusion {
-  const at = `conclusions[${index}]`;
-  if (!raw || typeof raw !== 'object') throw new Error(`${at} must be an object`);
-  const candidate = raw as Record<string, unknown>;
-  requireText(candidate.title, `${at}.title`);
-  requireText(candidate.detail, `${at}.detail`);
-  if (!CONCLUSION_KINDS.includes(candidate.kind as ConclusionKind)) {
-    throw new Error(`${at}.kind must be one of ${CONCLUSION_KINDS.join(', ')} (received ${describe(candidate.kind)})`);
-  }
-  if (!CONCLUSION_SEVERITIES.includes(candidate.severity as DiagnosticSeverity)) {
-    throw new Error(`${at}.severity must be one of ${CONCLUSION_SEVERITIES.join(', ')} (received ${describe(candidate.severity)})`);
-  }
-  requireIdArray(candidate.diagnosticIds, `${at}.diagnosticIds`);
-  requireIdArray(candidate.recordIds, `${at}.recordIds`);
-  if (typeof candidate.confidence !== 'number' || !Number.isFinite(candidate.confidence)
-    || candidate.confidence < 0 || candidate.confidence > 1) {
-    throw new Error(`${at}.confidence must be a number between 0 and 1 (received ${describe(candidate.confidence)})`);
-  }
-}
-
-function requireText(value: unknown, at: string): void {
-  if (typeof value !== 'string' || !value.trim()) {
-    throw new Error(`${at} must be a non-empty string (received ${describe(value)})`);
-  }
-}
-
-function requireIdArray(value: unknown, at: string): void {
-  if (!Array.isArray(value) || value.length === 0) {
-    throw new Error(`${at} must be a non-empty array (received ${describe(value)})`);
-  }
-  const bad = value.find((item) => typeof item !== 'string' || !item.trim());
-  if (bad !== undefined) throw new Error(`${at} must contain only non-empty strings (received ${describe(bad)})`);
-}
-
-function describe(value: unknown): string {
-  if (value === undefined) return 'undefined';
-  if (value === null) return 'null';
-  if (Array.isArray(value)) return `array(${value.length})`;
-  return typeof value === 'string' ? JSON.stringify(value) : String(value);
 }
 
 /**
@@ -247,10 +193,17 @@ async function summarizeWithCorrection(
     ];
     let completion;
     try {
-      completion = await client.chatJsonWithMetadata<unknown>(
-        messages, 't2c_grounded_summary', responseSchema(), config.openRouter.summaryModel,
+      completion = await client.chatStructuredWithMetadata(
+        messages, 't2c_grounded_summary', SUMMARY_RESPONSE_CONTRACT, config.openRouter.summaryModel,
       );
     } catch (error) {
+      if (error instanceof StructuredResponseError) {
+        if (error.responseMetadata) responses.push(error.responseMetadata);
+        if (attempt === 0) {
+          correction = error.message;
+          continue;
+        }
+      }
       throw new SummaryAttemptError(error, [...responses]);
     }
     responses.push(completion.metadata);
@@ -283,9 +236,8 @@ function materializeConclusions(
   diagnostics: DiagnosticReport,
   generation: GroundedGenerationMetadata,
 ): Conclusion[] {
-  assertRawSummaryShape(response);
-  const conclusions = response.conclusions.map((raw, index): Conclusion => {
-    assertRawConclusion(raw, index);
+  const parsed = SUMMARY_RESPONSE_CONTRACT.parse(response);
+  const conclusions = parsed.conclusions.map((raw): Conclusion => {
     const diagnosticIds = sortedUnique(raw.diagnosticIds);
     const content: Omit<Conclusion, 'id'> = {
       schemaVersion: 't2c.conclusion/v1',
@@ -372,37 +324,6 @@ function summaryMode(options: SummaryOptions): GroundedGenerationMetadata['reque
 function sortedUnique(values: string[]): string[] {
   if (!Array.isArray(values)) throw new Error('Conclusion citations must be arrays');
   return [...new Set(values)].sort((left, right) => left.localeCompare(right));
-}
-
-function responseSchema(): Record<string, unknown> {
-  const idArray = (pattern: string): Record<string, unknown> => ({
-    type: 'array', minItems: 1, uniqueItems: true, items: { type: 'string', pattern },
-  });
-  return {
-    type: 'object',
-    additionalProperties: false,
-    required: ['conclusions'],
-    properties: {
-      conclusions: {
-        type: 'array',
-        maxItems: 100,
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          required: ['kind', 'title', 'detail', 'severity', 'diagnosticIds', 'recordIds', 'confidence'],
-          properties: {
-            kind: { enum: ['finding', 'risk', 'decision', 'recommendation'] },
-            title: { type: 'string', minLength: 1 },
-            detail: { type: 'string', minLength: 1 },
-            severity: { enum: ['info', 'warning', 'review_required', 'blocking'] },
-            diagnosticIds: idArray('^DIAG-[a-f0-9]{20}$'),
-            recordIds: idArray('^INT-[A-Z]+-[a-f0-9]{20}$'),
-            confidence: { type: 'number', minimum: 0, maximum: 1 },
-          },
-        },
-      },
-    },
-  };
 }
 
 async function readPrompt(name: string): Promise<string> {

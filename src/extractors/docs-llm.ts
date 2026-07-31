@@ -9,14 +9,13 @@ import { OpenRouterClient } from '../llm/openrouter.js';
 import { T2C_VERSION } from '../version.js';
 import { chunkMarkdown, mapConcurrent, prioritizeDocumentChunks } from './docs-chunks.js';
 import { toDocumentIntentRecord } from './docs-record.js';
-import { documentResponseSchema } from './docs-schema.js';
+import { documentResponseContract } from './docs-schema.js';
 import type {
   DocumentChunk,
   DocumentChunkResult,
   DocumentationExtractionOptions,
   DocumentationExtractionResult,
   DocumentationTargetHints,
-  DocumentResponse,
 } from './docs-types.js';
 
 export type {
@@ -132,7 +131,8 @@ async function extractChunk(
   config: T2CConfig,
 ): Promise<DocumentChunkResult> {
   try {
-    const completion = await client.chatJsonWithMetadata<DocumentResponse>([
+    const contract = documentResponseContract(config.documentRecordsPerChunk);
+    const completion = await client.chatStructuredWithMetadata([
       { role: 'system', content: systemPrompt },
       {
         role: 'user',
@@ -145,9 +145,9 @@ async function extractChunk(
           maxRecords: config.documentRecordsPerChunk,
         }),
       },
-    ], 't2c_document_intent', documentResponseSchema(config.documentRecordsPerChunk), config.openRouter.documentModel);
-    const records = (completion.value.records ?? [])
-      .slice(0, config.documentRecordsPerChunk)
+    ], 't2c_document_intent', contract, config.openRouter.documentModel);
+    const response = completion.value;
+    const records = response.records
       .map((raw) => toDocumentIntentRecord(raw, chunk, config.openRouter.documentModel, completion.metadata));
     return { records, warnings: [], responses: [completion.metadata] };
   } catch (error) {

@@ -17,6 +17,7 @@ import type {
 import { classifyLlmFailure } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
+import { structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import { assertNlExtractionOptions, extractNlIntent, type NlExtractionOptions } from './nl.js';
 
@@ -81,11 +82,12 @@ export async function extractNlIntentAudited(
       : options.sourcePath.replace(/\\/g, '/');
     const maxLine = Math.max(1, body.split(/\r?\n/).length);
     const prompt = await readPrompt('nl-to-intent.system.md');
-    const completion = await client.chatJsonWithMetadata<NlResponse>([
+    const completion = await client.chatStructuredWithMetadata([
       { role: 'system', content: prompt },
       { role: 'user', content: JSON.stringify({ sourcePath, startLine: 1, endLine: maxLine, content: body }) },
-    ], 't2c_natural_language_intent', nlResponseSchema(), config.openRouter.nlModel);
-    const records = (completion.value.records ?? []).map((raw) => toIntentRecord(raw, sourcePath, body, maxLine, config, completion.metadata));
+    ], 't2c_natural_language_intent', NL_RESPONSE_CONTRACT, config.openRouter.nlModel);
+    const response = completion.value;
+    const records = response.records.map((raw) => toIntentRecord(raw, sourcePath, body, maxLine, config, completion.metadata));
     const result: ExtractionResult = {
       records,
       warnings: records.length ? [] : [`No intent-like statements found in ${sourcePath}`],
@@ -238,29 +240,31 @@ async function readPrompt(name: string): Promise<string> {
   return fs.readFile(promptPath, 'utf8');
 }
 
-function nlResponseSchema(): Record<string, unknown> {
-  return {
-    type: 'object', additionalProperties: false, required: ['records'], properties: {
-      records: { type: 'array', items: {
-        type: 'object', additionalProperties: false,
-        required: ['kind', 'actor', 'action', 'subject', 'object', 'modality', 'polarity', 'lifecycle', 'confidence', 'basis', 'target', 'sourceLines', 'text'],
-        properties: {
-          kind: { type: 'string' }, actor: { type: ['string', 'null'] }, subject: { type: ['string', 'null'] },
-          action: { type: 'string', enum: ['add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'validate', 'call', 'depend_on', 'declare', 'release', 'change', 'preserve', 'block', 'approve', 'unknown'] },
-          object: { type: 'string', minLength: 1, description: 'Concrete thing the statement is about, in the source language. Free text: never the literal word "unknown" — quote the subject matter instead.' }, modality: { type: 'string', enum: ['required', 'recommended', 'optional', 'observed', 'claimed', 'unknown'] },
-          polarity: { type: 'string', enum: ['positive', 'negative'] },
-          lifecycle: { type: 'string', enum: ['proposed', 'planned', 'in_progress', 'implemented', 'verified', 'released', 'completed', 'blocked', 'unknown'] },
-          confidence: { type: 'number', minimum: 0, maximum: 0.9 }, basis: { type: 'array', items: { type: 'string' } },
-          target: { type: 'object', additionalProperties: false, required: ['paths', 'symbols', 'tickets', 'versions'], properties: {
-            paths: { type: 'array', items: { type: 'string' } }, symbols: { type: 'array', items: { type: 'string' } },
-            tickets: { type: 'array', items: { type: 'string' } }, versions: { type: 'array', items: { type: 'string' } },
-          } },
-          sourceLines: { type: 'object', additionalProperties: false, required: ['start', 'end'], properties: {
-            start: { type: 'integer', minimum: 1 }, end: { type: 'integer', minimum: 1 },
-          } },
-          text: { type: 'string' },
-        },
-      } },
-    },
-  };
-}
+const NL_ACTIONS = [
+  'add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'validate',
+  'call', 'depend_on', 'declare', 'release', 'change', 'preserve', 'block', 'approve', 'unknown',
+] as const;
+const NL_MODALITIES = ['required', 'recommended', 'optional', 'observed', 'claimed', 'unknown'] as const;
+const NL_LIFECYCLES = [
+  'proposed', 'planned', 'in_progress', 'implemented', 'verified', 'released', 'completed', 'blocked', 'unknown',
+] as const;
+const nlStrings = () => s.array(s.string());
+const NL_RECORD_CONTRACT = s.object({
+  kind: s.string(),
+  actor: s.nullableString(),
+  action: s.enum(NL_ACTIONS),
+  subject: s.nullableString(),
+  object: s.string({
+    minLength: 1,
+    description: 'Concrete thing the statement is about, in the source language. Free text: never the literal word "unknown" — quote the subject matter instead.',
+  }),
+  modality: s.enum(NL_MODALITIES),
+  polarity: s.enum(['positive', 'negative']),
+  lifecycle: s.enum(NL_LIFECYCLES),
+  confidence: s.number({ minimum: 0, maximum: 0.9 }),
+  basis: nlStrings(),
+  target: s.object({ paths: nlStrings(), symbols: nlStrings(), tickets: nlStrings(), versions: nlStrings() }),
+  sourceLines: s.object({ start: s.integer({ minimum: 1 }), end: s.integer({ minimum: 1 }) }),
+  text: s.string(),
+}) satisfies StructuredSchema<RawNlRecord>;
+const NL_RESPONSE_CONTRACT = s.object({ records: s.array(NL_RECORD_CONTRACT) }) satisfies StructuredSchema<NlResponse>;

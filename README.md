@@ -699,6 +699,14 @@ kontrolowanego fallbacku `json_object`. Opcjonalny plugin `response-healing`
 jest sterowany przez `.env`. Osobny `OPENROUTER_TASK_MODEL` wybiera model dla
 graf + diagnostyka → zadania i domyślnie dziedziczy `OPENROUTER_MODEL`.
 
+Wszystkie siedem produkcyjnych granic structured output używa jednego
+kanonicznego kontraktu na etap: z niego powstaje schema wysyłana do providera i
+parser TypeScript wykonywany przed odczytem odpowiedzi. Runtime odrzuca obce
+pola, brakujące klucze, typy i wartości poza zakresem bez ich semantycznego
+„naprawiania”; uziemienie cytowań jest następną, osobną kontrolą. Polecenia
+`npm run verify:structured-responses` i `npm run verify:schemas` blokują powrót
+driftu oraz nieaktualny publikowany schemat dokumentów.
+
 Klucz nie jest zapisywany do artefaktów, logów ani odpowiedzi MCP/A2A. `doctor` pokazuje jedynie status `configured/not configured`.
 
 Ten sam etap jest dostępny przez CLI i publiczne API TypeScript:

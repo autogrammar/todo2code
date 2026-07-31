@@ -11,11 +11,11 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
 | Transitive no-LLM import boundary | PASS — 9 entrypointów, 31 modułów |
-| Granice modułów | PASS — 97 modułów, 441 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Granice modułów | PASS — 98 modułów, 453 importy wewnętrzne, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 252 zaliczone, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Testy Node | PASS — 255 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
 | Pipeline `examples/` | PASS — 227 rekordów i 101 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
@@ -43,6 +43,8 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
 | `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `user-*`/`ai-*` zachowują rolę i typ sekcji, dowody ticketu są pomijane, a każdy problem wskazuje `responseRequiredRole` i niepuste `responseRequiredFrom`; brak odbiorcy daje jawny sentinel roli; migracja Opus/GPT wykrywa brak typu, a standard `wellmanifest/new-project` 0.6.0 przechodzi izolowany test interoperacyjności |
 | Audytowane wzbogacanie komunikacji | PASS — mock structured OpenRouter, syntezy per uczestnik z cytowaniami, zachowane runtime-owned identity/role/ticket/source/epistemic class, jawny fallback i `require-llm` |
+| Kanoniczne odpowiedzi LLM | PASS — 7 produkcyjnych wywołań `chatStructuredWithMetadata`, 0 surowych wywołań JSON; schema i parser z jednego kontraktu, dokładne ścieżki błędów, metadata odrzuconej odpowiedzi zachowana |
+| Publikowany schemat dokumentów | PASS — `npm run verify:schemas` porównuje plik JSON z mechanicznie generowanym kontraktem runtime |
 | `t2c.participant-registry/v1` | PASS — exact stable IDs, mapowanie Git/A2A/human aliases, wykrywanie duplikatów i konfliktów; brak dopasowania po display name |
 | `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `438b4742f8149178` oraz patcha `3aa54acb84df28c2` |
 | Docker build + health smoke | PASS — obraz `todo2code:local`, A2A `/healthz` zwraca `status=ok` |
@@ -56,7 +58,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 253 testy, 252 zaliczone, 0 błędów i 1 lokalny skip JDK.
+Wynik: 256 testów, 255 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

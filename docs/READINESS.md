@@ -26,7 +26,9 @@ odpowiedzi i potwierdził odrzucenie na drugiej trasie modelowej. Ticket
 odpowiedzi bez tworzenia tożsamości za człowieka. Ticket
 [`project/ticket-008`](../project/ticket-008/README.md) przeniósł te granice do
 standardu `wellmanifest/new-project` 0.6.0 i oddzielił indeks ticketów od
-generowanego `project/README.md`.
+generowanego `project/README.md`. Ticket
+[`project/ticket-009`](../project/ticket-009/README.md) rozszerzył jedno źródło
+schematu z rerankera na wszystkie siedem produkcyjnych granic structured LLM.
 
 ## Odpowiedź krótka
 
@@ -59,7 +61,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i eksperymentalnego rerankingu; 253 testy, 252 zaliczone, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 256 testów, 255 zaliczonych, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 31 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
@@ -212,6 +214,18 @@ niedozwolone `response.decisions[0].decision`. Nowy błąd podał dokładną
 ścieżkę oraz provider/model/response ID bez utrwalania payloadu. Plus i Flash
 zostały więc odrzucone przed zmianą grafu.
 
+Ticket-009 usunął tę samą klasę driftu z pozostałych granic. Mały,
+bezdependencyjny kontrakt TypeScript generuje JSON Schema i parser runtime dla
+NL, dokumentacji, TODO/CHANGELOG, komunikacji, podsumowania, syntezy zadań oraz
+rerankera. `npm run verify:structured-responses` mierzy **7 wywołań
+kontraktowych i 0 surowych wywołań JSON** w kodzie produkcyjnym, a
+`verify:schemas` porównuje publikowany schemat dokumentów z wynikiem generatora.
+Niepoprawny enum, procent zamiast liczby, puste klucze i nadmiarowe pole są
+odrzucane z dokładną ścieżką. Provider/model/response ID pozostają w audycie
+nawet wtedy, gdy parser odrzuci odpowiedź. Kontrole cytowań i własności dowodu
+pozostają osobnym etapem, bo zgodność JSON nie dowodzi istnienia rekordu w
+konkretnym grafie.
+
 **Warunek zamknięcia:** dopasowanie niezależne od ręcznego słownika (osadzenia
 albo tłumaczenie/reranking tematów), stabilny kontrakt live podniesiony z 0/6
 na gold v2 i potwierdzony wzrostem `implementation coverage` na repozytorium
@@ -336,7 +350,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 253 testy, 97 modułów, kontrakt .env, workflowy
+npm run verify          # 256 testów, 98 modułów, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

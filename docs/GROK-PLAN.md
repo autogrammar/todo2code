@@ -64,6 +64,9 @@ Lokalne zmiany (jeszcze nie w commitach) poprawiają jakość analizy:
 
 3. Otwarte pozycje z TODO.md
 
+Aktualizacja 2026-07-31: pozycja 3 została zamknięta przez ticket-009; tabela
+poniżej pozostaje historycznym planem wejściowym.
+
 P1 — jakość semantyki
 
 ┌───┬──────────────────────────────────────────────┬──────────────────────────────────────┐

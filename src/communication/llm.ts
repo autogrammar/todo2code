@@ -16,6 +16,7 @@ import type {
 import { classifyLlmFailure, type LlmFailureReason } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
+import { structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import {
   extractCommunicationIntent,
@@ -23,11 +24,10 @@ import {
   type CommunicationRole,
 } from '../extractors/communication.js';
 
-const ACTIONS: IntentAction[] = [
+const ACTIONS = [
   'add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'validate',
   'call', 'depend_on', 'declare', 'release', 'change', 'preserve', 'block', 'approve', 'unknown',
-];
-const ACTION_SET = new Set<IntentAction>(ACTIONS);
+] as const satisfies readonly IntentAction[];
 
 interface RawCommunicationEnrichment {
   recordId: string;
@@ -120,18 +120,19 @@ export async function extractCommunicationIntentAudited(
   }
   try {
     const groups = participantGroups(deterministic.records);
-    const completion = await client.chatJsonWithMetadata<RawCommunicationResponse>([
+    const completion = await client.chatStructuredWithMetadata([
       { role: 'system', content: await readPrompt() },
       { role: 'user', content: JSON.stringify(promptPayload(deterministic.records, groups)) },
-    ], 't2c_communication_enrichment', responseSchema(), config.openRouter.communicationModel);
-    const enrichments = validateEnrichments(completion.value.enrichments, deterministic.records);
+    ], 't2c_communication_enrichment', COMMUNICATION_RESPONSE_CONTRACT, config.openRouter.communicationModel);
+    const response = completion.value;
+    const enrichments = validateEnrichments(response.enrichments, deterministic.records);
     const enrichedByOriginal = new Map<string, IntentRecord>();
     for (const record of deterministic.records) {
       enrichedByOriginal.set(record.id, enrichRecord(record, enrichments.get(record.id)!, config, completion.metadata));
     }
     const generation = llmGeneration(config, mode, completion.metadata);
     const participants = materializeSyntheses(
-      completion.value.participantSyntheses,
+      response.participantSyntheses,
       groups,
       enrichedByOriginal,
       generation,
@@ -233,7 +234,6 @@ function validateEnrichments(values: RawCommunicationEnrichment[] | undefined, r
   const expected = new Set(records.map((record) => record.id));
   const output = new Map<string, RawCommunicationEnrichment>();
   for (const value of values) {
-    if (!isEnrichment(value)) throw new Error('Structured response contains an invalid communication enrichment');
     if (!expected.has(value.recordId)) throw new Error(`Structured response contains unknown recordId: ${value.recordId}`);
     if (output.has(value.recordId)) throw new Error(`Structured response duplicates recordId: ${value.recordId}`);
     output.set(value.recordId, value);
@@ -252,7 +252,6 @@ function materializeSyntheses(
   const byKey = new Map(groups.map((group) => [group.key, group]));
   const seen = new Set<string>();
   const output = values.map((raw) => {
-    if (!isRawSynthesis(raw)) throw new Error('Structured response contains an invalid participant synthesis');
     const group = byKey.get(raw.participantKey);
     if (!group) throw new Error(`Structured response contains unknown participantKey: ${raw.participantKey}`);
     if (seen.has(raw.participantKey)) throw new Error(`Structured response duplicates participantKey: ${raw.participantKey}`);
@@ -429,30 +428,6 @@ function roleOf(record: IntentRecord | undefined): CommunicationRole {
     : 'unknown';
 }
 
-function isEnrichment(value: unknown): value is RawCommunicationEnrichment {
-  if (!value || typeof value !== 'object') return false;
-  const item = value as Partial<RawCommunicationEnrichment>;
-  return typeof item.recordId === 'string' && typeof item.action === 'string' && ACTION_SET.has(item.action as IntentAction)
-    && typeof item.object === 'string' && (item.polarity === 'positive' || item.polarity === 'negative')
-    && finiteConfidence(item.confidence) && isStrings(item.basis) && isStrings(item.topics)
-    && Boolean(item.target) && isStrings(item.target?.paths) && isStrings(item.target?.symbols) && isStrings(item.target?.versions);
-}
-
-function isRawSynthesis(value: unknown): value is RawParticipantSynthesis {
-  if (!value || typeof value !== 'object') return false;
-  const item = value as Partial<RawParticipantSynthesis>;
-  return typeof item.participantKey === 'string' && typeof item.summary === 'string' && Boolean(item.summary.trim())
-    && isStrings(item.commitments) && isStrings(item.risks) && isStrings(item.recordIds) && finiteConfidence(item.confidence);
-}
-
-function finiteConfidence(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 0.85;
-}
-
-function isStrings(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string');
-}
-
 function sortedUnique(values: string[]): string[] {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort();
 }
@@ -463,30 +438,26 @@ async function readPrompt(): Promise<string> {
   return fs.readFile(promptPath, 'utf8');
 }
 
-function responseSchema(): Record<string, unknown> {
-  const strings = { type: 'array', items: { type: 'string' } };
-  return {
-    type: 'object', additionalProperties: false, required: ['enrichments', 'participantSyntheses'], properties: {
-      enrichments: { type: 'array', items: {
-        type: 'object', additionalProperties: false,
-        required: ['recordId', 'action', 'object', 'polarity', 'confidence', 'basis', 'target', 'topics'],
-        properties: {
-          recordId: { type: 'string' }, action: { type: 'string', enum: ACTIONS }, object: { type: 'string' },
-          polarity: { type: 'string', enum: ['positive', 'negative'] }, confidence: { type: 'number', minimum: 0, maximum: 0.85 },
-          basis: strings, topics: strings,
-          target: { type: 'object', additionalProperties: false, required: ['paths', 'symbols', 'versions'], properties: {
-            paths: strings, symbols: strings, versions: strings,
-          } },
-        },
-      } },
-      participantSyntheses: { type: 'array', items: {
-        type: 'object', additionalProperties: false,
-        required: ['participantKey', 'summary', 'commitments', 'risks', 'recordIds', 'confidence'],
-        properties: {
-          participantKey: { type: 'string' }, summary: { type: 'string' }, commitments: strings,
-          risks: strings, recordIds: strings, confidence: { type: 'number', minimum: 0, maximum: 0.85 },
-        },
-      } },
-    },
-  };
-}
+const communicationStrings = () => s.array(s.string());
+const COMMUNICATION_ENRICHMENT_CONTRACT = s.object({
+  recordId: s.string(),
+  action: s.enum(ACTIONS),
+  object: s.string(),
+  polarity: s.enum(['positive', 'negative']),
+  confidence: s.number({ minimum: 0, maximum: 0.85 }),
+  basis: communicationStrings(),
+  target: s.object({ paths: communicationStrings(), symbols: communicationStrings(), versions: communicationStrings() }),
+  topics: communicationStrings(),
+}) satisfies StructuredSchema<RawCommunicationEnrichment>;
+const PARTICIPANT_SYNTHESIS_CONTRACT = s.object({
+  participantKey: s.string(),
+  summary: s.string({ minLength: 1, pattern: '.*\\S.*' }),
+  commitments: communicationStrings(),
+  risks: communicationStrings(),
+  recordIds: communicationStrings(),
+  confidence: s.number({ minimum: 0, maximum: 0.85 }),
+}) satisfies StructuredSchema<RawParticipantSynthesis>;
+const COMMUNICATION_RESPONSE_CONTRACT = s.object({
+  enrichments: s.array(COMMUNICATION_ENRICHMENT_CONTRACT),
+  participantSyntheses: s.array(PARTICIPANT_SYNTHESIS_CONTRACT),
+}) satisfies StructuredSchema<RawCommunicationResponse>;

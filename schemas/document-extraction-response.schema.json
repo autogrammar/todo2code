@@ -4,49 +4,183 @@
   "title": "OpenRouter documentation extraction response",
   "type": "object",
   "additionalProperties": false,
-  "required": ["records"],
+  "required": [
+    "records"
+  ],
   "properties": {
     "records": {
       "type": "array",
-      "description": "Document-derived statements validated before conversion to t2c.intent/v1.",
+      "maxItems": 200,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["kind", "actor", "action", "subject", "object", "modality", "polarity", "lifecycle", "confidence", "basis", "target", "sourceLines", "text"],
+        "required": [
+          "kind",
+          "actor",
+          "action",
+          "subject",
+          "object",
+          "modality",
+          "polarity",
+          "lifecycle",
+          "confidence",
+          "basis",
+          "target",
+          "sourceLines",
+          "text"
+        ],
         "properties": {
-          "kind": { "type": "string", "minLength": 1 },
-          "actor": { "type": ["string", "null"] },
-          "action": { "enum": ["add", "fix", "remove", "refactor", "test", "document", "configure", "analyze", "validate", "call", "depend_on", "declare", "release", "change", "preserve", "block", "approve", "unknown"] },
-          "subject": { "type": ["string", "null"] },
-          "object": { "type": "string", "minLength": 1 },
-          "modality": { "enum": ["required", "recommended", "optional", "observed", "claimed", "unknown"] },
-          "polarity": { "enum": ["positive", "negative"] },
-          "lifecycle": { "enum": ["proposed", "planned", "in_progress", "implemented", "verified", "released", "completed", "blocked", "unknown"] },
-          "confidence": { "type": "number", "minimum": 0, "maximum": 0.85 },
-          "basis": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "add",
+              "fix",
+              "remove",
+              "refactor",
+              "test",
+              "document",
+              "configure",
+              "analyze",
+              "validate",
+              "call",
+              "depend_on",
+              "declare",
+              "release",
+              "change",
+              "preserve",
+              "block",
+              "approve",
+              "unknown"
+            ]
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "object": {
+            "type": "string",
+            "minLength": 1
+          },
+          "modality": {
+            "type": "string",
+            "enum": [
+              "required",
+              "recommended",
+              "optional",
+              "observed",
+              "claimed",
+              "unknown"
+            ]
+          },
+          "polarity": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative"
+            ]
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": [
+              "proposed",
+              "planned",
+              "in_progress",
+              "implemented",
+              "verified",
+              "released",
+              "completed",
+              "blocked",
+              "unknown"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.85
+          },
+          "basis": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
           "target": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["paths", "symbols", "tickets", "versions"],
+            "required": [
+              "paths",
+              "symbols",
+              "tickets",
+              "versions"
+            ],
             "properties": {
-              "paths": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-              "symbols": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-              "tickets": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-              "versions": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+              "paths": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "symbols": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tickets": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "versions": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           },
           "sourceLines": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["start", "end"],
+            "required": [
+              "start",
+              "end"
+            ],
             "properties": {
-              "start": { "type": "integer", "minimum": 1 },
-              "end": { "type": "integer", "minimum": 1 }
+              "start": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 1
+              }
             }
           },
-          "text": { "type": "string" }
+          "text": {
+            "type": "string"
+          }
         }
-      }
+      },
+      "description": "Document-derived statements validated before conversion to t2c.intent/v1."
     }
   }
 }

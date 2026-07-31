@@ -105,6 +105,22 @@ ale nie ma zaufanego uczestnika tej roli, zapisuje jawny sentinel
 `unresolved:human` albo `unresolved:agent`. Sentinel oznacza brak rozstrzygniętej
 tożsamości; nie jest uczestnikiem, kontem ani zgodą na zgadywanie odbiorcy.
 
+## Kanoniczna granica odpowiedzi LLM
+
+Każda z siedmiu produkcyjnych odpowiedzi structured LLM przechodzi przez
+`StructuredSchema<T>`. Ten sam obiekt dostarcza JSON Schema do OpenRoutera i
+parser TypeScript uruchamiany przed odczytem pól. Parser sprawdza dokładne
+klucze, typy, enumy, zakresy, wzorce, limity tablic i `uniqueItems`; nie
+przelicza `"90%"` na `0.9`, nie mapuje obcego enuma na najbliższy i nie tworzy
+brakującego klucza. Taka naprawa zmieniałaby intencję odpowiedzi modelu.
+
+Po walidacji strukturalnej działają osobne reguły domenowe: record ID,
+diagnostic ID i lokalne klucze muszą należeć do dokładnego wejścia, a cytat do
+wskazanego rekordu. Błąd zachowuje metadata provider/model/response ID i
+uruchamia politykę danego etapu: jedną korektę, widoczny fallback albo jawne
+`require-llm` failure. Bramka repozytorium odrzuca nowe produkcyjne użycie
+surowego `chatJson*` poza klientem.
+
 ## Eksperymentalna decyzja semantyczna
 
 `t2c.semantic-candidate-set/v1` i `t2c.semantic-rerank/v1` są kontraktami

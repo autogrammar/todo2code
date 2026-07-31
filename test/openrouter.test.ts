@@ -139,7 +139,7 @@ test('Documentation extractor converts OpenRouter structured output to bounded L
             modality: 'required',
             polarity: 'positive',
             lifecycle: 'proposed',
-            confidence: 0.99,
+            confidence: 0.85,
             basis: ['document_statement'],
             target: { paths: [], symbols: ['validateContract'], tickets: [], versions: [] },
             sourceLines: { start: 3, end: 3 },
@@ -346,11 +346,11 @@ test('LLM summarizer validates provider fields before creating semantic IDs', as
   try {
     const fallback = await summarizeGraph(graph, diagnostics, config, { mode: 'prefer-llm' });
     assert.equal(fallback.llmUsed, false);
-    assert.match(fallback.warnings.join('\n'), /conclusions\[0\]\.title must be a non-empty string/);
+    assert.match(fallback.warnings.join('\n'), /response\.conclusions\[0\] is missing required properties: title/);
     assert.doesNotMatch(fallback.warnings.join('\n'), /reading 'trim'/);
     await assert.rejects(
       () => summarizeGraph(graph, diagnostics, config, { mode: 'require-llm' }),
-      /conclusions\[0\]\.title must be a non-empty string/,
+      /response\.conclusions\[0\] is missing required properties: title/,
     );
   } finally {
     globalThis.fetch = originalFetch;
@@ -374,7 +374,7 @@ test('LLM summarizer diagnoses a provider that ignores the response envelope', a
   try {
     await assert.rejects(
       () => summarizeGraph(graph, diagnostics, config, { mode: 'require-llm' }),
-      /model did not honour.*returned keys: conclusion, status/,
+      /response contains unknown properties: conclusion, status/,
     );
   } finally {
     globalThis.fetch = originalFetch;

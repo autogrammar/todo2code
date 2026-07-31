@@ -423,7 +423,7 @@ test('provider response validation diagnoses the exact property without coercion
         { recordId: 'INT-AST-0123456789abcdef0123', quote: 'module' },
       ],
     }] }),
-    /response\.decisions\[0\]\.confidence must be a finite JSON number between 0 and 1/,
+    /response\.decisions\[0\]\.confidence must be a finite JSON number/,
   );
   assert.throws(
     () => assertSemanticRerankerResponse({ decisions: [{

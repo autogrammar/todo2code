@@ -24,6 +24,7 @@ import type { T2CConfig } from '../config/env.js';
 import { classifyLlmFailure, type LlmFailureReason } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
+import { StructuredResponseError, structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import {
   validateAndClassifyTodoProposals,
@@ -91,6 +92,37 @@ interface RawTaskSynthesisResponse {
   conclusions: RawConclusion[];
   proposals: RawProposal[];
 }
+
+const taskStrings = (minimum = 0) => s.array(s.string(), { minItems: minimum, uniqueItems: true });
+const taskIds = (pattern: string) => s.array(s.string({ pattern }), { minItems: 1, uniqueItems: true });
+const nonBlank = () => s.string({ minLength: 1, pattern: '.*\\S.*' });
+const RAW_CONCLUSION_CONTRACT = s.object({
+  key: nonBlank(),
+  kind: s.enum(['finding', 'risk', 'decision', 'recommendation']),
+  title: nonBlank(),
+  detail: nonBlank(),
+  severity: s.enum(['info', 'warning', 'review_required', 'blocking']),
+  diagnosticIds: taskIds('^DIAG-[a-f0-9]{20}$'),
+  recordIds: taskIds('^INT-[A-Z]+-[a-f0-9]{20}$'),
+  confidence: s.number({ minimum: 0, maximum: 1 }),
+}) satisfies StructuredSchema<RawConclusion>;
+const RAW_PROPOSAL_CONTRACT = s.object({
+  key: nonBlank(),
+  title: nonBlank(),
+  description: nonBlank(),
+  priority: s.enum(['P0', 'P1', 'P2', 'P3']),
+  target: s.object({ paths: taskStrings(), symbols: taskStrings(), tickets: taskStrings(), versions: taskStrings() }),
+  acceptanceCriteria: taskStrings(1),
+  dependencyKeys: taskStrings(),
+  conclusionKeys: taskStrings(1),
+  diagnosticIds: taskIds('^DIAG-[a-f0-9]{20}$'),
+  recordIds: taskIds('^INT-[A-Z]+-[a-f0-9]{20}$'),
+  confidence: s.number({ minimum: 0, maximum: 1 }),
+}) satisfies StructuredSchema<RawProposal>;
+const TASK_SYNTHESIS_RESPONSE_CONTRACT = s.object({
+  conclusions: s.array(RAW_CONCLUSION_CONTRACT, { maxItems: 100 }),
+  proposals: s.array(RAW_PROPOSAL_CONTRACT, { maxItems: 100 }),
+}) satisfies StructuredSchema<RawTaskSynthesisResponse>;
 
 export async function synthesizeTodoProposals(
   graph: IntentGraph,
@@ -177,10 +209,17 @@ async function synthesizeWithCorrection(
     ];
     let completion;
     try {
-      completion = await client.chatJsonWithMetadata<RawTaskSynthesisResponse>(
-        messages, 't2c_grounded_task_synthesis', responseSchema(), config.openRouter.taskModel,
+      completion = await client.chatStructuredWithMetadata(
+        messages, 't2c_grounded_task_synthesis', TASK_SYNTHESIS_RESPONSE_CONTRACT, config.openRouter.taskModel,
       );
     } catch (error) {
+      if (error instanceof StructuredResponseError) {
+        if (error.responseMetadata) responses.push(error.responseMetadata);
+        if (attempt === 0) {
+          correction = error.message;
+          continue;
+        }
+      }
       throw new TaskSynthesisAttemptError(error, [...responses]);
     }
     responses.push(completion.metadata);
@@ -201,39 +240,33 @@ async function synthesizeWithCorrection(
 }
 
 function materializeResponse(
-  response: RawTaskSynthesisResponse,
+  response: unknown,
   graph: IntentGraph,
   diagnostics: DiagnosticReport,
   generation: GroundedGenerationMetadata,
 ): { conclusions: Conclusion[]; proposals: TodoProposal[] } {
-  if (!Array.isArray(response?.conclusions) || !Array.isArray(response?.proposals)) {
-    const keys = response && typeof response === 'object' ? Object.keys(response).sort() : [];
-    throw new Error(
-      'Invalid structured task synthesis response: conclusions and proposals must be arrays'
-      + ` (returned keys: ${keys.length > 0 ? keys.join(', ') : 'none'})`,
-    );
-  }
+  const parsed = TASK_SYNTHESIS_RESPONSE_CONTRACT.parse(response);
   const conclusionKeys = normalizeLocalKeys(
-    response.conclusions,
+    parsed.conclusions,
     'conclusion',
-    response.proposals.flatMap((proposal) => rawStringArray(proposal.conclusionKeys)),
+    parsed.proposals.flatMap((proposal) => proposal.conclusionKeys),
   );
   const proposalKeys = normalizeLocalKeys(
-    response.proposals,
+    parsed.proposals,
     'proposal',
-    response.proposals.flatMap((proposal) => rawStringArray(proposal.dependencyKeys)),
+    parsed.proposals.flatMap((proposal) => proposal.dependencyKeys),
   );
-  const conclusions = response.conclusions.map((raw): Conclusion => {
+  const conclusions = parsed.conclusions.map((raw): Conclusion => {
     const diagnosticIds = sortedUnique(raw.diagnosticIds);
     const content: Omit<Conclusion, 'id'> = {
       schemaVersion: 't2c.conclusion/v1',
-      kind: normalizeConclusionKind(raw.kind),
+      kind: raw.kind,
       title: raw.title,
       detail: raw.detail,
-      severity: normalizeSeverity(raw.severity),
+      severity: raw.severity,
       diagnosticIds,
       recordIds: groundRecordIdsByDiagnostics(diagnosticIds, normalizeStringArray(raw.recordIds), diagnostics),
-      confidence: normalizeConfidence(raw.confidence),
+      confidence: raw.confidence,
       generation,
     };
     return { ...content, id: createConclusionId(content) };
@@ -241,7 +274,7 @@ function materializeResponse(
   const conclusionIdByKey = new Map(conclusionKeys.map((key, index) => [key, conclusions[index]!.id]));
   const conclusionByKey = new Map(conclusionKeys.map((key, index) => [key, conclusions[index]!]));
 
-  const proposalDrafts = response.proposals.map((raw): TodoProposal => {
+  const proposalDrafts = parsed.proposals.map((raw): TodoProposal => {
     const conclusionKeys = normalizeStringArray(raw.conclusionKeys);
     const citedConclusions = conclusionKeys.map((key) => {
       const conclusion = conclusionByKey.get(key);
@@ -252,7 +285,7 @@ function materializeResponse(
       schemaVersion: 't2c.todo-proposal/v1',
       title: raw.title,
       description: raw.description,
-      priority: normalizePriority(raw.priority),
+      priority: raw.priority,
       status: 'proposed',
       target: normalizeRawTarget(raw.target),
       acceptanceCriteria: normalizeAcceptanceCriteria(raw.acceptanceCriteria, raw.description),
@@ -263,7 +296,7 @@ function materializeResponse(
       // cannot smuggle in a fabricated ID through the redundant fields.
       diagnosticIds: sortedUnique(citedConclusions.flatMap((conclusion) => conclusion.diagnosticIds)),
       recordIds: sortedUnique(citedConclusions.flatMap((conclusion) => conclusion.recordIds)),
-      confidence: normalizeConfidence(raw.confidence),
+      confidence: raw.confidence,
       generation,
     };
     return { ...content, id: createTodoProposalId(content) };
@@ -272,9 +305,9 @@ function materializeResponse(
   const proposals = proposalDrafts.map((proposal, index): TodoProposal => ({
     ...proposal,
     dependencies: mapKeys(
-      response.proposals[index]!.dependencyKeys,
+      parsed.proposals[index]!.dependencyKeys,
       proposalIdByKey,
-      `proposal ${response.proposals[index]!.key} dependencyKeys`,
+      `proposal ${parsed.proposals[index]!.key} dependencyKeys`,
     ),
   }));
 
@@ -461,11 +494,6 @@ function normalizeLocalKeys(
   });
 }
 
-function rawStringArray(value: unknown): string[] {
-  const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
-  return values.filter((item): item is string => typeof item === 'string');
-}
-
 function mapKeys(values: unknown, ids: Map<string, string>, name: string): string[] {
   const keys = normalizeStringArray(values);
   return sortedUnique(keys.map((key) => {
@@ -504,44 +532,6 @@ function normalizeAcceptanceCriteria(value: unknown, description: unknown): stri
   return source ? [`Verify: ${source}`] : [];
 }
 
-/** Providers occasionally return confidence as a percentage despite JSON Schema. */
-function normalizeConfidence(value: unknown): number {
-  const text = typeof value === 'string' ? value.trim().replace(/%$/, '') : value;
-  const numeric = typeof text === 'number' ? text : Number(text);
-  if (!Number.isFinite(numeric)) return 0.5;
-  if (numeric >= 0 && numeric <= 1) return numeric;
-  if (numeric > 1 && numeric <= 100) return numeric / 100;
-  return 0.5;
-}
-
-function normalizeConclusionKind(value: unknown): ConclusionKind {
-  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
-  if (normalized === 'finding' || normalized === 'risk'
-    || normalized === 'decision' || normalized === 'recommendation') return normalized;
-  if (['issue', 'observation', 'fact', 'error', 'problem'].includes(normalized)) return 'finding';
-  if (['action', 'proposal', 'suggestion'].includes(normalized)) return 'recommendation';
-  return 'finding';
-}
-
-function normalizeSeverity(value: unknown): DiagnosticSeverity {
-  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
-  if (normalized === 'info' || normalized === 'warning'
-    || normalized === 'review_required' || normalized === 'blocking') return normalized;
-  if (['error', 'critical', 'blocker', 'fatal', 'high'].includes(normalized)) return 'blocking';
-  if (['review', 'needs_review', 'medium'].includes(normalized)) return 'review_required';
-  if (['warn', 'caution'].includes(normalized)) return 'warning';
-  return 'info';
-}
-
-function normalizePriority(value: unknown): TodoPriority {
-  const normalized = typeof value === 'string' ? value.trim().toUpperCase() : '';
-  if (normalized === 'P0' || normalized === 'P1' || normalized === 'P2' || normalized === 'P3') return normalized;
-  if (['CRITICAL', 'BLOCKING', 'BLOCKER', 'URGENT'].includes(normalized)) return 'P0';
-  if (['HIGH', 'IMPORTANT'].includes(normalized)) return 'P1';
-  if (['MEDIUM', 'NORMAL'].includes(normalized)) return 'P2';
-  return 'P3';
-}
-
 function assertProposalEvidenceMatchesConclusions(proposals: TodoProposal[], conclusions: Conclusion[]): void {
   const byId = new Map(conclusions.map((conclusion) => [conclusion.id, conclusion]));
   for (const proposal of proposals) {
@@ -561,57 +551,4 @@ async function readPrompt(name: string): Promise<string> {
   const promptPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../prompts', name);
   if (!(await pathExists(promptPath))) throw new Error(`Prompt not found: ${promptPath}`);
   return fs.readFile(promptPath, 'utf8');
-}
-
-function responseSchema(): Record<string, unknown> {
-  const target = {
-    type: 'object', additionalProperties: false, required: ['paths', 'symbols', 'tickets', 'versions'], properties: {
-      paths: stringArray(), symbols: stringArray(), tickets: stringArray(), versions: stringArray(),
-    },
-  };
-  return {
-    type: 'object', additionalProperties: false, required: ['conclusions', 'proposals'], properties: {
-      conclusions: {
-        type: 'array', maxItems: 100, items: {
-          type: 'object', additionalProperties: false,
-          required: ['key', 'kind', 'title', 'detail', 'severity', 'diagnosticIds', 'recordIds', 'confidence'],
-          properties: {
-            key: { type: 'string', minLength: 1 },
-            kind: { enum: ['finding', 'risk', 'decision', 'recommendation'] },
-            title: { type: 'string', minLength: 1 }, detail: { type: 'string', minLength: 1 },
-            severity: { enum: ['info', 'warning', 'review_required', 'blocking'] },
-            diagnosticIds: idArray('^DIAG-[a-f0-9]{20}$', true),
-            recordIds: idArray('^INT-[A-Z]+-[a-f0-9]{20}$', true),
-            confidence: { type: 'number', minimum: 0, maximum: 1 },
-          },
-        },
-      },
-      proposals: {
-        type: 'array', maxItems: 100, items: {
-          type: 'object', additionalProperties: false,
-          required: [
-            'key', 'title', 'description', 'priority', 'target', 'acceptanceCriteria', 'dependencyKeys',
-            'conclusionKeys', 'diagnosticIds', 'recordIds', 'confidence',
-          ],
-          properties: {
-            key: { type: 'string', minLength: 1 }, title: { type: 'string', minLength: 1 },
-            description: { type: 'string', minLength: 1 }, priority: { enum: ['P0', 'P1', 'P2', 'P3'] },
-            target, acceptanceCriteria: { ...stringArray(), minItems: 1 }, dependencyKeys: stringArray(),
-            conclusionKeys: { ...stringArray(), minItems: 1 },
-            diagnosticIds: idArray('^DIAG-[a-f0-9]{20}$', true),
-            recordIds: idArray('^INT-[A-Z]+-[a-f0-9]{20}$', true),
-            confidence: { type: 'number', minimum: 0, maximum: 1 },
-          },
-        },
-      },
-    },
-  };
-}
-
-function stringArray(): Record<string, unknown> {
-  return { type: 'array', uniqueItems: true, items: { type: 'string' } };
-}
-
-function idArray(pattern: string, required: boolean): Record<string, unknown> {
-  return { ...stringArray(), minItems: required ? 1 : 0, items: { type: 'string', pattern } };
 }

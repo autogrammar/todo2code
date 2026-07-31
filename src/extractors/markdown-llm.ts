@@ -15,6 +15,7 @@ import type {
 import { classifyLlmFailure, type LlmFailureReason } from '../llm/failure.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
+import { structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import { T2C_VERSION } from '../version.js';
 import { extractMarkdownIntent, type MarkdownExtractionOptions } from './markdown.js';
 
@@ -32,11 +33,10 @@ interface MarkdownEnrichment {
 
 interface MarkdownResponse { enrichments: MarkdownEnrichment[] }
 
-const MARKDOWN_ACTIONS: IntentAction[] = [
+const MARKDOWN_ACTIONS = [
   'add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'validate',
   'call', 'depend_on', 'declare', 'release', 'change', 'preserve', 'block', 'approve', 'unknown',
-];
-const MARKDOWN_ACTION_SET = new Set<IntentAction>(MARKDOWN_ACTIONS);
+] as const satisfies readonly IntentAction[];
 /** Keeps one provider request bounded even for repository-sized backlogs. */
 export const MARKDOWN_LLM_BATCH_RECORDS = 32;
 
@@ -88,11 +88,13 @@ export async function extractMarkdownIntentAudited(
     const responses: LlmResponseMetadata[] = [];
     for (let offset = 0; offset < deterministic.records.length; offset += MARKDOWN_LLM_BATCH_RECORDS) {
       const batch = deterministic.records.slice(offset, offset + MARKDOWN_LLM_BATCH_RECORDS);
-      const completion = await client.chatJsonWithMetadata<MarkdownResponse>([
+      const contract = markdownResponseContract(batch.length);
+      const completion = await client.chatStructuredWithMetadata([
         { role: 'system', content: prompt },
         { role: 'user', content: JSON.stringify({ records: batch.map(promptRecord) }) },
-      ], 't2c_markdown_intent_enrichment', responseSchema(batch.length), config.openRouter.markdownModel);
-      const batchEnrichments = validateEnrichments(completion.value.enrichments, batch);
+      ], 't2c_markdown_intent_enrichment', contract, config.openRouter.markdownModel);
+      const response = completion.value;
+      const batchEnrichments = validateEnrichments(response.enrichments, batch);
       for (const record of batch) {
         enrichments.set(record.id, batchEnrichments.get(record.id)!);
         responseByRecord.set(record.id, completion.metadata);
@@ -164,44 +166,12 @@ function validateEnrichments(values: MarkdownEnrichment[] | undefined, records: 
   const expected = new Set(records.map((record) => record.id));
   const output = new Map<string, MarkdownEnrichment>();
   for (const value of values) {
-    if (!isMarkdownEnrichment(value)) throw new Error('Structured response contains an invalid enrichment');
     if (!expected.has(value.recordId)) throw new Error(`Structured response contains unknown recordId: ${value.recordId}`);
     if (output.has(value.recordId)) throw new Error(`Structured response duplicates recordId: ${value.recordId}`);
     output.set(value.recordId, value);
   }
   if (output.size !== expected.size) throw new Error(`Structured response returned ${output.size} of ${expected.size} required enrichments`);
   return output;
-}
-
-function isMarkdownEnrichment(value: unknown): value is MarkdownEnrichment {
-  if (!value || typeof value !== 'object') return false;
-  const item = value as Partial<MarkdownEnrichment>;
-  return typeof item.recordId === 'string'
-    && (typeof item.actor === 'string' || item.actor === null)
-    && typeof item.action === 'string'
-    && MARKDOWN_ACTION_SET.has(item.action as IntentAction)
-    && typeof item.object === 'string'
-    && (item.polarity === 'positive' || item.polarity === 'negative')
-    && typeof item.confidence === 'number'
-    && Number.isFinite(item.confidence)
-    && item.confidence >= 0
-    && item.confidence <= 0.94
-    && isStringArray(item.basis)
-    && isTarget(item.target)
-    && isStringArray(item.acceptanceEvidence);
-}
-
-function isTarget(value: unknown): value is MarkdownEnrichment['target'] {
-  if (!value || typeof value !== 'object') return false;
-  const target = value as Partial<MarkdownEnrichment['target']>;
-  return isStringArray(target.paths)
-    && isStringArray(target.symbols)
-    && isStringArray(target.tickets)
-    && isStringArray(target.versions);
-}
-
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
 
 function enrichRecord(record: IntentRecord, enrichment: MarkdownEnrichment, config: T2CConfig, response: LlmResponseMetadata): IntentRecord {
@@ -282,23 +252,18 @@ async function readPrompt(name: string): Promise<string> {
   return fs.readFile(promptPath, 'utf8');
 }
 
-function responseSchema(batchSize: number): Record<string, unknown> {
-  return {
-    type: 'object', additionalProperties: false, required: ['enrichments'], properties: {
-      enrichments: { type: 'array', minItems: batchSize, maxItems: batchSize, items: {
-        type: 'object', additionalProperties: false,
-        required: ['recordId', 'actor', 'action', 'object', 'polarity', 'confidence', 'basis', 'target', 'acceptanceEvidence'],
-        properties: {
-          recordId: { type: 'string' }, actor: { type: ['string', 'null'] }, action: { type: 'string', enum: MARKDOWN_ACTIONS },
-          object: { type: 'string' }, polarity: { type: 'string', enum: ['positive', 'negative'] },
-          confidence: { type: 'number', minimum: 0, maximum: 0.94 }, basis: { type: 'array', items: { type: 'string' } },
-          target: { type: 'object', additionalProperties: false, required: ['paths', 'symbols', 'tickets', 'versions'], properties: {
-            paths: { type: 'array', items: { type: 'string' } }, symbols: { type: 'array', items: { type: 'string' } },
-            tickets: { type: 'array', items: { type: 'string' } }, versions: { type: 'array', items: { type: 'string' } },
-          } },
-          acceptanceEvidence: { type: 'array', items: { type: 'string' } },
-        },
-      } },
-    },
-  };
+function markdownResponseContract(batchSize: number): StructuredSchema<MarkdownResponse> {
+  const strings = () => s.array(s.string());
+  const enrichment = s.object({
+    recordId: s.string(),
+    actor: s.nullableString(),
+    action: s.enum(MARKDOWN_ACTIONS),
+    object: s.string(),
+    polarity: s.enum(['positive', 'negative']),
+    confidence: s.number({ minimum: 0, maximum: 0.94 }),
+    basis: strings(),
+    target: s.object({ paths: strings(), symbols: strings(), tickets: strings(), versions: strings() }),
+    acceptanceEvidence: strings(),
+  }) satisfies StructuredSchema<MarkdownEnrichment>;
+  return s.object({ enrichments: s.array(enrichment, { minItems: batchSize, maxItems: batchSize }) });
 }

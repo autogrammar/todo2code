@@ -127,9 +127,9 @@ test('NL LLM extraction emits audited provenance and bounded DSL records', async
     records: [{
       kind: 'declared_intent', actor: 'system', action: 'validate', subject: null,
       object: 'runtime contract', modality: 'required', polarity: 'positive', lifecycle: 'implemented',
-      confidence: 0.99, basis: ['explicit requirement'],
+      confidence: 0.9, basis: ['explicit requirement'],
       target: { paths: ['src/runtime.ts'], symbols: ['validateContract'], tickets: ['T2C-14'], versions: [] },
-      sourceLines: { start: 1, end: 9 }, text: { malformed: 'provider ignored schema' },
+      sourceLines: { start: 1, end: 9 }, text: 'System must validate the runtime contract.',
     }],
   }) } }],
   }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -147,8 +147,8 @@ test('NL LLM extraction emits audited provenance and bounded DSL records', async
     assert.equal(result.audit.responses[0]?.model, 'qwen/nl-resolved');
     assert.equal(result.audit.responses[0]?.usage?.totalTokens, 21);
     assert.equal(result.records[0]?.epistemic.class, 'llm_inference');
-    assert.equal(result.records[0]?.statement.text, 'runtime contract');
-    assert.deepEqual(result.records[0]?.metadata.missingFields, ['text']);
+    assert.equal(result.records[0]?.statement.text, 'System must validate the runtime contract.');
+    assert.deepEqual(result.records[0]?.metadata.missingFields, []);
     assert.equal(result.records[0]?.epistemic.confidence, 0.9);
     assert.deepEqual(result.records[0]?.source.lines, { start: 1, end: 2 });
     assert.equal(result.records[0]?.metadata.llmUsed, true);

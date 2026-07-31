@@ -82,13 +82,11 @@ test('An LLM record is marked as inference and keeps runtime-owned provenance', 
   assert.equal(result.audit.effectiveMode, 'llm');
 });
 
-test('Confidence stays inside the llm_inference ceiling', async () => {
-  // A model claiming certainty must not outrank a deterministic observation.
-  const result = await extract([rawRecord({ confidence: 1 })]);
+test('Confidence must satisfy the provider schema instead of being silently clamped', async () => {
+  const result = await extract([rawRecord({ confidence: 0.9 })]);
   assert.ok((result.records[0]?.epistemic.confidence ?? 1) <= 0.9);
-
-  const floored = await extract([rawRecord({ confidence: -5 })]);
-  assert.ok((floored.records[0]?.epistemic.confidence ?? 0) >= 0.05);
+  await assert.rejects(() => extract([rawRecord({ confidence: 1 })]), /response\.records\[0\]\.confidence must be at most 0\.9/);
+  await assert.rejects(() => extract([rawRecord({ confidence: -5 })]), /response\.records\[0\]\.confidence must be at least 0/);
 });
 
 test('Source lines are clamped to the real file', async () => {
@@ -119,20 +117,20 @@ test('A real object is kept verbatim and reports no missing field', async () => 
   assert.deepEqual(result.records[0]?.metadata.missingFields, []);
 });
 
-test('An unknown action is reported as a missing field', async () => {
-  const result = await extract([rawRecord({ action: 'teleport' })]);
+test('The explicit unknown action is reported as a missing field', async () => {
+  const result = await extract([rawRecord({ action: 'unknown' })]);
   assert.equal(result.records[0]?.statement.action, 'unknown');
   assert.deepEqual(result.records[0]?.metadata.missingFields, ['action']);
 });
 
 test('Both gaps are reported together', async () => {
-  const result = await extract([rawRecord({ action: 'teleport', object: 'unknown' })]);
+  const result = await extract([rawRecord({ action: 'unknown', object: 'unknown' })]);
   assert.deepEqual(result.records[0]?.metadata.missingFields, ['action', 'object']);
 });
 
-test('An out-of-vocabulary modality degrades to unknown', async () => {
-  const result = await extract([rawRecord({ modality: 'mandatory-ish' })]);
-  assert.equal(result.records[0]?.statement.modality, 'unknown');
+test('Out-of-vocabulary enums are rejected instead of changing the provider intent', async () => {
+  await assert.rejects(() => extract([rawRecord({ action: 'teleport' })]), /response\.records\[0\]\.action must be one of/);
+  await assert.rejects(() => extract([rawRecord({ modality: 'mandatory-ish' })]), /response\.records\[0\]\.modality must be one of/);
 });
 
 test('The documented confidence hierarchy holds across LLM extractors', async () => {

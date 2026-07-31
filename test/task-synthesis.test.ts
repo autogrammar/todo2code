@@ -41,31 +41,31 @@ function providerResponse(diagnostic: Diagnostic): Record<string, unknown> {
   return {
     conclusions: [{
       key: 'conclusion-1',
-      kind: 'issue',
+      kind: 'finding',
       title: 'Task has no implementation evidence',
       detail: 'The planned task is not connected to Git or AST evidence.',
-      severity: 'error',
+      severity: 'blocking',
       diagnosticIds: [diagnostic.id],
       recordIds: diagnostic.recordIds,
-      confidence: 93,
+      confidence: 0.93,
     }],
     proposals: [{
       key: 'task-1',
       title: 'Implement audited task synthesis',
       description: 'Create and test the structured LLM synthesis stage.',
-      priority: 'high',
+      priority: 'P1',
       target: {
         paths: ['src/synthesis/tasks-llm.ts'],
         symbols: ['synthesizeTodoProposals'],
         tickets: ['T2C-102'],
         versions: [],
       },
-      acceptanceCriteria: [],
+      acceptanceCriteria: ['Create and test the structured LLM synthesis stage.'],
       dependencyKeys: [],
-      conclusionKeys: 'conclusion-1',
-      diagnosticIds: ['DIAG-provider-invented-this'],
-      recordIds: ['INT-NL-provider-invented-this'],
-      confidence: '90%',
+      conclusionKeys: ['conclusion-1'],
+      diagnosticIds: [diagnostic.id],
+      recordIds: diagnostic.recordIds,
+      confidence: 0.9,
     }],
   };
 }
@@ -101,9 +101,7 @@ test('Structured task synthesis materializes stable, grounded contracts with a c
     assert.equal(result.conclusions[0]!.severity, 'blocking');
     assert.equal(result.proposals[0]!.confidence, 0.9);
     assert.equal(result.proposals[0]!.priority, 'P1');
-    assert.deepEqual(result.proposals[0]!.acceptanceCriteria, [
-      'Verify: Create and test the structured LLM synthesis stage.',
-    ]);
+    assert.deepEqual(result.proposals[0]!.acceptanceCriteria, ['Create and test the structured LLM synthesis stage.']);
     assert.equal(result.proposals[0]!.generation.runtimeVersion, T2C_VERSION);
     assert.equal(result.proposals[0]!.generation.generatorVersion, '2');
     assert.equal(result.proposals[0]!.generation.requestedMode, 'require-llm');
@@ -131,7 +129,7 @@ test('Structured task synthesis materializes stable, grounded contracts with a c
   }
 });
 
-test('blank response-local proposal keys are assigned by the runtime', async () => {
+test('blank response-local proposal keys are rejected instead of invented by the runtime', async () => {
   const { graph, diagnostics, diagnostic } = fixture();
   const config = makeConfig(process.cwd());
   config.openRouter.apiKey = 'secret-test-key';
@@ -150,10 +148,13 @@ test('blank response-local proposal keys are assigned by the runtime', async () 
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
   try {
-    const result = await synthesizeTodoProposals(graph, diagnostics, config, 'require-llm');
-    assert.equal(calls, 1);
-    assert.equal(result.proposals.length, 1);
-    assert.equal(result.audit.responses.length, 1);
+    await assert.rejects(
+      () => synthesizeTodoProposals(graph, diagnostics, config, 'require-llm'),
+      (error: unknown) => error instanceof TaskSynthesisRequiredError
+        && error.audit.responses.length === 2
+        && error.message.includes('response.proposals[0].key'),
+    );
+    assert.equal(calls, 2);
   } finally {
     globalThis.fetch = originalFetch;
   }

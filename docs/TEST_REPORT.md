@@ -14,12 +14,14 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 253 testy: 252 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 256 testów: 255 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 31 modułów |
-| Moduły | `npm run verify:modules` | PASS — 97 modułów, 441 importów, 0 cykli |
+| Moduły | `npm run verify:modules` | PASS — 98 modułów, 453 importy, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
+| Granice structured LLM | `npm run verify:structured-responses` | PASS — 7 wywołań kontraktowych, 0 surowych wywołań JSON w produkcji |
+| Generowany schemat odpowiedzi | `npm run verify:schemas` | PASS — publikowany schemat dokumentów zgodny z kontraktem runtime |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
 | Gold benchmark | `npm run evaluate:gold` | gold v2: 100% precision/recall dla bramek; linker cross-language 0/6, captured reranker 6/6 i 0/6 naruszeń par zabronionych, 1 abstencja; 100% stabilności |
 | Live cross-language reranker | tracked `subactor/platform` | REJECTED/FAIL-CLOSED — Plus naruszył envelope/typ, Flash dodał niedozwolone `decisions[0].decision`; dokładne diagnostyki, 0 utworzonych relacji |
@@ -127,7 +129,7 @@ jawnych, różnych ścieżek.
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 227 records, 101 relations; communication: 3 blocking, 1 warning
+demo: 227 records, 102 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint 438b4742f8149178
@@ -488,9 +490,9 @@ przed pushem.
 
 ### 6. Pozostały backlog architektoniczny i operacyjny
 
-Otwarte pozostają: cache AST i fragmentów dokumentacji, generowanie validatorów
-i schematów z jednego źródła oraz A2A streaming ze współdzielonym
-transakcyjnym task store. Trend workspace, porcjowanie LLM, deterministyczna
+Otwarte pozostają: cache AST i fragmentów dokumentacji oraz A2A streaming ze
+współdzielonym transakcyjnym task store. Jedno źródło validatorów i schematów
+odpowiedzi LLM zostało wdrożone w ticket-009. Trend workspace, porcjowanie LLM, deterministyczna
 dokumentacja i konfiguracja oraz podział adapterów językowych zostały wykonane.
 Pełna lista z kryteriami znajduje się w `TODO.md`.
 

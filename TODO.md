@@ -2,7 +2,8 @@
 
 ## Active ticket
 
-No ticket is currently active.
+- [`ticket-009`](project/ticket-009/README.md) is verified and awaiting
+  publication to `main`.
 
 ## Completed tickets
 
@@ -110,7 +111,7 @@ No ticket is currently active.
   converter emitted `document` records the count went to 579, of which 574 came
   from documentation and 555 had `modality: unknown`. Scoping the rule to
   `required`/`recommended` brought it back to 22.
-- [ ] Generate TypeScript runtime validators and OpenRouter response schemas
+- [x] Generate TypeScript runtime validators and OpenRouter response schemas
   from one canonical schema source to prevent manual contract drift.
 - [x] Add deterministic converters for repository configuration and
   infrastructure inputs (JSON/YAML/TOML, Docker and CI workflows) so their
@@ -161,9 +162,11 @@ No ticket is currently active.
   stay in the audit and a second fabrication still fails the run.
 - [x] Remove the remaining `make demollm` flakiness without accepting invented
   evidence: derive conclusion `recordIds` only from the cited diagnostics,
-  continue to reject unknown `diagnosticIds`, and assign blank response-local
-  proposal keys in the runtime. Live contract and full six-stage run
-  `20260730T185205Z-312a0535` pass with generator version 2.
+  continue to reject unknown `diagnosticIds`. The historical runtime assigned
+  blank response-local proposal keys; ticket-009 now rejects them and relies on
+  the corrective retry because inventing a key changes provider intent. Live
+  contract and full six-stage run `20260730T185205Z-312a0535` passed with
+  generator version 2 before that hardening.
 - [x] Bound the task-synthesis payload consistently. `compactSynthesisPayload`
   collected record IDs from diagnostics and then truncated records to 500, so a
   large repository could ship a diagnostic citing a record the model never saw.
@@ -261,7 +264,7 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   hostnames; ticket binding w gold exact-target.
 - [ ] Dalsze NL→target: resolution symboli względem AST, actionable
   `missingFields` / `AMBIGUOUS_REQUIREMENT`.
-- [ ] Jeden source schematów → TS validators + OpenRouter response schemas
+- [x] Jeden source schematów → TS validators + OpenRouter response schemas
   (patrz też P1).
 - [ ] Live latency/cost batch TODO/CHANGELOG (patrz P1).
 

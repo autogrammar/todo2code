@@ -136,9 +136,10 @@ runtime repair i provenance, ale celowo nie jest pomiarem jakości żywego model
 6. Starsze repozytoria bez `project/participants.json` działają w trybie
    legacy; dopiero dodanie rejestru wymusza stabilne `participant-id` i wyłącza
    traktowanie nazwy wyświetlanej jako rozstrzygniętej tożsamości.
-7. Nadal otwarte są cache przyrostowe AST/dokumentacji, generowanie validatorów
-   z jednego schematu, structured codegen/patch z LLM oraz A2A streaming ze
-   współdzielonym transakcyjnym task store. Bare basename i prescriptive docs
+7. Nadal otwarte są cache przyrostowe AST/dokumentacji, structured
+   codegen/patch z LLM oraz A2A streaming ze współdzielonym transakcyjnym task
+   store. Jedno źródło validatorów i schematów odpowiedzi LLM zamknął
+   ticket-009. Bare basename i prescriptive docs
    są już w linkerze/diagnostyce; plan `t2c.code-change-plan/v1` domyka
    ugruntowany most do review zmian kodu; deterministyczna propozycja pozostaje
    instruction-only, dopóki caller nie dostarczy kompletnego unified diffu.

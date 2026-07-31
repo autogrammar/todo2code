@@ -5,6 +5,7 @@ import type { T2CConfig } from '../config/env.js';
 import { sha256, stableStringify } from '../core/id.js';
 import type { IntentGraph, IntentRecord } from '../core/types.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
+import { StructuredResponseError } from '../llm/structured-schema.js';
 import {
   assertSemanticCandidateSet,
   assertSemanticRerankResult,
@@ -14,8 +15,7 @@ import {
 } from './reranker.js';
 import {
   assertSemanticRerankerResponse,
-  SEMANTIC_RERANK_RESPONSE_SCHEMA,
-  type SemanticRerankerResponse,
+  SEMANTIC_RERANK_RESPONSE_CONTRACT,
 } from './reranker-response.js';
 
 export interface SemanticRerankerOptions {
@@ -100,12 +100,19 @@ export async function rerankSemanticCandidates(
       }),
     },
   ];
-  const response = await client.chatJsonWithMetadata<SemanticRerankerResponse>(
+  const response = await client.chatStructuredWithMetadata(
     messages,
     't2c_cross_language_rerank_v1',
-    SEMANTIC_RERANK_RESPONSE_SCHEMA,
+    SEMANTIC_RERANK_RESPONSE_CONTRACT,
     model,
-  );
+  ).catch((error: unknown) => {
+    const metadata = error instanceof StructuredResponseError ? error.responseMetadata : undefined;
+    const identity = [metadata?.provider, metadata?.model, metadata?.responseId].filter(Boolean).join('/');
+    throw new Error(
+      `Invalid semantic reranker response${identity ? ` from ${identity}` : ''}: `
+      + `${error instanceof Error ? error.message : String(error)}`,
+    );
+  });
   try {
     assertSemanticRerankerResponse(response.value);
   } catch (error) {
