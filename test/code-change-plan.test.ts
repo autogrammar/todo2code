@@ -121,6 +121,30 @@ test('proposeCodeChangePlans materialises grounded plans from PLANNED_NOT_IMPLEM
   assert.ok(plan.acceptanceCriteria.some((item) => item.includes(open.id)));
 });
 
+test('code-change title preserves the leading action of a compound intent', () => {
+  // The deterministic classifier sees `verify` before `implement` in its
+  // precedence table. `inferObject` then removes the secondary verb and leaves
+  // "Implement ... and it", which used to render as "Implement Implement ...".
+  const record = buildRecord({
+    kind: 'todo_item', action: 'validate',
+    object: 'Implement bounded retry backoff in `src/retry.py` and it in `tests/test_retry.py`',
+    target: { paths: ['src/retry.py', 'tests/test_retry.py'] },
+    text: 'Implement bounded retry backoff in `src/retry.py` and verify it in `tests/test_retry.py`.',
+    lifecycle: 'planned', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test/code-change',
+    epistemicClass: 'plan', confidence: 0.9, basis: ['fixture'],
+  });
+  const graph = linkIntentRecords([record], AT);
+  const diagnostics = diagnoseGraph(graph, AT);
+  const result = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT });
+
+  assert.equal(result.plans.length, 1);
+  assert.equal(
+    result.plans[0]?.title,
+    'Implement bounded retry backoff in `src/retry.py` and verify it in `tests/test_retry.py`',
+  );
+});
+
 test('proposeCodeChangePlans is deterministic for the same evidence', () => {
   const graph = plannedTodo();
   const diagnostics = diagnoseGraph(graph, AT);

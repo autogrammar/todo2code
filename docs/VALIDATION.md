@@ -15,8 +15,8 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrakt środowiska | PASS — 73 zmienne kodu/Dockera/skryptów, 73 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 298 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 227 rekordów i 83 relacje, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
+| Testy Node | PASS — 299 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 227 rekordów i 79 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
@@ -27,7 +27,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Eksperymentalny reranker live | REJECTED/FAIL-CLOSED — czysty tracked snapshot platformy; Plus łamie envelope/typ, Flash dodaje `decisions[0].decision`; 0 relacji i brak eksportu produkcyjnego |
 | Pełny kontrakt runtime DSL | PASS — exact keys, enumy, ID/hash/czas/linie, relacje, końce i statystyki grafu |
 | Governed operation-plan DSL | PASS — 9 testów ID/hash, authority, sekretów, ryzyka, rollbacku, fail-closed bindingów i prywatnego atomowego artefaktu bez overwrite/dispatch |
-| Code-change plan, source patch i acceptance | PASS — 17 testów: ugruntowane i użyteczne ścieżki/ID, content hash, risk/rollback, provenance, tampering/sekrety, persisted CLI, zatwierdzone apply z preflightem/rollbackiem oraz re-diagnose pass/fail |
+| Code-change plan, source patch i acceptance | PASS — 18 testów: ugruntowane i użyteczne ścieżki/ID, zachowanie złożonej intencji w tytule, content hash, risk/rollback, provenance, tampering/sekrety, persisted CLI, zatwierdzone apply z preflightem/rollbackiem oraz re-diagnose pass/fail |
 | Manifest każdej awarii pipeline | PASS — `require-llm` i nieoczekiwana awaria summary zapisują etap/kod bez publikowania `latest.json` |
 | OpenRouter invalid-model discovery | PASS — lista modeli po błędnym identyfikatorze |
 | Dokumentacja → DSL | PASS — deterministyczny baseline oraz mock OpenRouter: structured output, target hints, limity rekordów/chunków, timeout i współbieżność |
@@ -61,7 +61,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 299 testów, 298 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 300 testów, 299 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

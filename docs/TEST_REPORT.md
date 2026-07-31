@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 299 testów: 298 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 300 testów: 299 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 35 modułów |
 | Moduły | `npm run verify:modules` | PASS — 103 moduły, 477 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 73 zmienne i 73 klucze |
@@ -259,8 +259,9 @@ rollback i provenance. `t2c.code-change-acceptance/v1` porównuje grafy przed i
 po implementacji: wszystkie targeted diagnostics muszą zniknąć i nie może
 pojawić się nowa blokada. Pozytywny wynik nadal nie ustawia `DONE`.
 
-Siedemnaście testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
-tampering, brak provenance, niespójny verdict, hash-bound review i source patch,
+Osiemnaście testów obejmuje plan, brak zgadywania ścieżki, deterministyczność,
+zachowanie złożonej intencji w tytule, tampering, brak provenance, niespójny
+verdict, hash-bound review i source patch,
 walidację path/akcji/sekretów, JSON Schema oraz pełny przebieg CLI wraz z
 `close-code-change` oraz zatwierdzone `apply-source-patch` z preflightem,
 ochroną symlinków, kontrolą stanu receipt i rollbackiem. MCP publikuje 26 narzędzi, A2A umiejętność
@@ -341,7 +342,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 83 relacje, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 79 relacji, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

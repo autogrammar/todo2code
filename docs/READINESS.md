@@ -41,6 +41,9 @@ Codestral 2508 jako domyślny model. Ticket
 [`014`](../project/ticket-014/README.md) oddzielił lokalizację od implementacji:
 sama istniejąca ścieżka nie zamyka już nowej funkcji, a kontrola Koru przeszła
 pełny cykl od diagnostyki do zweryfikowanego patcha i re-analizy.
+Ticket [`015`](../project/ticket-015/README.md) zachował pełną treść złożonej
+intencji w tytule zadania Koru, usuwając wariant `Implement Implement ...` bez
+zmiany samego rekordu DSL ani jego celów.
 
 ## Odpowiedź krótka
 
@@ -73,7 +76,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 299 testów, 298 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 300 testów, 299 zaliczonych, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 35 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
@@ -405,7 +408,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 299 testów, 103 moduły, 7/0 structured/raw LLM calls
+npm run verify          # 300 testów, 103 moduły, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

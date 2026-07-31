@@ -1,0 +1,5 @@
+2026-07-31 PLF-003 title reproduced as "Implement Implement ... and it ..."
+2026-07-31 focused test failed with the exact malformed title
+2026-07-31 lossless source-title fallback implemented under src/synthesis
+2026-07-31 focused suite 18/18 pass; real fixture title preserves implement + verify
+2026-07-31 verify PASS: 300 total, 299 pass, 1 JDK skip; gold v2/v1 and examples PASS

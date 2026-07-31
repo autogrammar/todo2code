@@ -80,6 +80,10 @@
 
 ### Fixed
 
+- Code-change titles preserve compound source intent when action inference
+  removes a secondary verb. The PLF-003 source now renders as `Implement ...
+  and verify it ...` instead of `Implement Implement ... and it ...`.
+
 - A capability-bearing TODO no longer becomes implemented merely because its
   target file exists. `shared_path + module_coverage` remains in the graph for
   navigation, while diagnostics and Intent-vs-Reality require a symbol,

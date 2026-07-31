@@ -369,9 +369,23 @@ function buildChanges(
 }
 
 function titleFor(diagnostic: Diagnostic, records: IntentRecord[]): string {
-  const object = records[0]?.statement.object?.trim();
+  const record = records[0];
+  const object = record?.statement.object?.trim();
+  // `inferObject` removes the verb selected by the action classifier. In a
+  // compound sentence a later high-precedence verb can win (`verify` before
+  // `implement`), leaving the original leading imperative inside `object` and
+  // a broken fragment after the removed verb. The source statement is the
+  // lossless title whenever that mismatch is visible.
+  if (object && startsWithImperative(object) && record?.statement.text.trim()) {
+    return record.statement.text.trim().replace(/[.!?]+$/, '');
+  }
   if (object) return `Implement ${object}`;
   return diagnostic.title.trim() || `Resolve ${diagnostic.code}`;
+}
+
+function startsWithImperative(value: string): boolean {
+  return /^(?:add|build|change|configure|create|delete|document|fix|implement|preserve|refactor|remove|test|update|validate|verify)\b/i.test(value)
+    || /^(?:dodać|dodac|naprawić|naprawic|przetestować|przetestowac|usunąć|usunac|utworzyć|utworzyc|wdrożyć|wdrozyc|zmienić|zmienic|zweryfikować|zweryfikowac)\b/i.test(value);
 }
 
 function descriptionFor(

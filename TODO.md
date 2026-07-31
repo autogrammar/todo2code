@@ -310,6 +310,9 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   możliwości za zaimplementowaną wyłącznie dlatego, że wskazany plik istnieje;
   wymagany dodatkowy dowód symbolu/tematu albo jawna abstencja. Gold ma parę
   negatyw/pozytyw, a Koru PLF-003 przeszedł wykrycie, patch, pytest i re-analizę.
+- [x] [`ticket-015`](project/ticket-015/README.md) — zachować złożoną intencję
+  `implement ... and verify ...` w tytule code-change; klasyfikacja czasownika
+  pomocniczego nie może tworzyć `Implement Implement ... and it ...`.
 
 ### Faza 2 — kompletne reality
 
