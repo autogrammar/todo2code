@@ -1,8 +1,8 @@
 # Participant: Codex (AI agent)
 
 - **Ticket**: ticket-002
-- **Status**: ACTIVE
-- **Workflow state**: TOOLS
+- **Status**: COMPLETE
+- **Workflow state**: DONE
 
 ## Understanding of the task
 
@@ -89,7 +89,22 @@ Execution may proceed within the recorded scope.
 - Verified Docker availability and the seven candidate repositories.
 - Verified ticket formatting, absence of local absolute paths and compatibility
   with the generated-analysis guard.
+- Ran the normalized deterministic pipeline successfully on all seven detached,
+  tracked-only external worktrees.
+- Preserved the complete baseline in `baseline.json` and its reviewed summary
+  in `baseline.md`.
+- Selected non-actionable changelog mechanics as the first controlled defect:
+  it repeats across the corpus, but can be corrected without pretending that
+  ungrounded release claims have implementation evidence.
+- Added a focused red/green regression and a narrow changelog-signal classifier.
+- Evaluated only this patch on the unchanged external corpus: graph fingerprints
+  remained stable, gold v2 stayed perfect, and false review-required findings
+  fell by 1,024 across five repositories.
+- Added an independent red/green correction for generated-analysis verification:
+  tracked audit quotations no longer masquerade as private input consumption,
+  while newly introduced untracked references remain blocked.
 
 ## Unfinished items and blockers
 
-- No current blocker.
+- No blocker inside ticket scope. Remaining library gaps are listed in
+  `docs/READINESS.md`; they require separate controlled iterations.

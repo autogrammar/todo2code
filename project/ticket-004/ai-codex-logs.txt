@@ -1,0 +1,94 @@
+2026-07-31 ticket initialization
+
+User decision: kontynuuj
+Previous recommendation: replace further dictionary growth with a
+language-independent topic-matching experiment.
+Workflow state: TOOLS
+
+Current known gap:
+Kolejka zadań powinna ponawiać nieudane próby z opóźnieniem
+src/queue/task-retry-backoff.ts
+Result: 0/1 relation because lexical topics do not cross the language boundary.
+
+Constraints:
+offline CI remains provider-independent
+three-topic hard-negative boundary remains in force
+model-derived evidence must be explicit and auditable
+external inputs remain tracked-only snapshots
+
+2026-07-31 local embedding benchmark
+
+MiniLM revision=86741b4e3f5cb7765a600d3a3d55a0f6a6cb443d
+positive_min=0.673289 negative_max=0.732568 separation=-0.059279
+pairwise_correct=5/6
+
+E5 revision=f470c6a1a906014160ece1968c484b275f0396de
+query_prefix=query: passage_prefix=passage:
+positive_min=0.759374 negative_max=0.835202 separation=-0.075828
+pairwise_correct=6/6 minimum_pairwise_margin=0.007190
+
+Decision: no global cosine threshold is safe.
+
+2026-07-31 tracked platform ranking
+
+commit=3e96573d587cb664741849ceba205bf303b9f418
+graph=ae92ead72d35e88e6de754d7af02d074201213c56166eb788a5e152d6a6f695d
+module_aggregates=133 actionable_targetless_declarations=66
+
+forward score>=0.75 margin>=0.01:
+selected=6 new_candidates=2 manually_accepted=0
+
+reciprocal top-1 with forward/reverse margin>=0.01:
+selected=1 new_candidates=0
+
+Decision: reject production embedding matcher; workflow TOOLS -> ANALYSIS.
+
+2026-07-31 gold cohort
+
+cross_language_cases=7
+known_positive_relations=6 satisfied=0
+forbidden_pairs=6 violations=0
+gated exact-target/capability-topic precision=100% recall=100%
+gold v1=PASS gold v2=PASS
+Workflow transition: ANALYSIS -> VERIFY.
+
+2026-07-31 full validation and close
+
+$ npm run verify
+tests=244 pass=243 fail=0 skip=1
+Java skip reason: local JDK unavailable; required CI supplies JDK 17.
+LLM boundary=PASS (9 entrypoints, 31 modules)
+module graph=PASS (94 modules, 429 imports, no cycles)
+environment contract=PASS (63/63)
+workflows=PASS
+generated analysis=PASS (18 files)
+
+$ npm run evaluate:gold && npm run evaluate:gold:v1
+Result: PASS, gated precision/recall 100%, stability PASS.
+Cross-language: expected=0/6, forbidden violations=0/6.
+
+$ npm run examples:check
+Result: PASS, five SDK fingerprints agree.
+
+$ npm audit --omit=dev
+Result: PASS, 0 vulnerabilities.
+
+$ make smoke protocol-smoke
+Result: PASS, CLI, MCP and A2A.
+
+$ make docker-smoke
+Result: PASS.
+
+Result: all acceptance criteria satisfied; workflow VERIFY -> DONE.
+
+2026-07-31 repository layout correction
+
+User review identified executable code under project/ticket-004.
+Moved:
+project/ticket-004/evaluate-embeddings.py
+-> scripts/research/evaluate-embedding-pairs.py
+project/ticket-004/rank-graph-embeddings.py
+-> scripts/research/rank-intent-graph-embeddings.py
+
+Benchmark inputs, captured results, decisions and raw logs remain under the
+ticket. No experiment code remains there.

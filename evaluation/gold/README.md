@@ -19,6 +19,11 @@ The command executes every case twice and reports:
   Markdown → DSL;
 - relation-level precision and recall for linking, split into `exact-target`
   and `capability-topic`;
+- a separate cross-language cohort covering known positive gaps and gated hard
+  negatives without hiding either inside same-language capability quality;
+- separately scored captured reranker decisions for that cohort, including
+  grounded accept/reject/abstain outcomes; these do not change the
+  deterministic linker score;
 - diagnostic-code precision and recall per record, including false DONE claims;
 - citation completeness for conclusions and TODO proposals;
 - duplicate-classification precision, recall and the share of proposals
@@ -44,10 +49,16 @@ The command executes every case twice and reports:
   it must not — a DONE task with real evidence must stay quiet.
 - **Known gaps, measured but not gated.** A case marked `knownGap: true` is
   scored and reported separately, never inside precision and recall. The
-  Polish-prose-to-English-module case is the measured example: encoding it as an
-  ordinary expectation would make the offline gate permanently red, and a gate
-  that is always red stops being read; dropping it would leave the language
-  barrier unmeasured, which is how it survived unquantified.
+  multilingual prose-to-English-module cohort spans Polish, German, Spanish
+  and French. Encoding its positive expectations as ordinary expectations
+  would make the offline gate permanently red, while its nearby wrong modules
+  remain gated forbidden pairs.
+- **Captured reranker decisions.** Each cross-language case carries a bounded
+  retrieval shortlist and reviewed structured result. The runtime validates
+  exact record IDs, quotes, reason codes, one-module acceptance and abstention.
+  Current fixtures reach 6/6 expected pairs, violate 0/6 forbidden pairs and
+  abstain on one pure hard negative. This proves the offline decision contract,
+  not the reliability of a live provider.
 
 The documentation cases use a captured structured model response and run it
 through the real runtime repair/provenance path. This deliberately measures the

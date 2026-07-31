@@ -736,7 +736,8 @@ flowchart TD
         src__core__text__conventional["conventional"]
         src__core__text__prose["prose"]
         src__core__text__searchable["searchable"]
-        src__core__text__detectModality("detectModality CC=8")
+        src__core__text__detectModality("detectModality CC=11")
+        src__core__text__matches["matches"]
         src__core__text__detectPolarity["detectPolarity"]
         src__core__text__stripped["stripped"]
         src__core__text__normalizeToken["normalizeToken"]
@@ -744,6 +745,9 @@ flowchart TD
         src__core__text__GENERIC_TOPICS["GENERIC_TOPICS"]
         src__core__text__topicKeywords["topicKeywords"]
         src__core__text__separated["separated"]
+        src__core__text__foldTopicToken("foldTopicToken CC=11")
+        src__core__text__aliased["aliased"]
+        src__core__text__singular["singular"]
         src__core__text__similarity["similarity"]
         src__core__text__left["left"]
         src__core__text__right["right"]
@@ -787,10 +791,6 @@ flowchart TD
         src__core__target__parts["parts"]
         src__core__target__leaf["leaf"]
         src__core__target__pathAliases["pathAliases"]
-        src__core__target__basename["basename"]
-        src__core__target__unique["unique"]
-        src__core__security__assertPathWithinRoot["assertPathWithinRoot"]
-        src__core__security__rootAbsolute["rootAbsolute"]
     end
     subgraph src__diff
         src__diff__text__DEFAULT_CONTEXT["DEFAULT_CONTEXT"]
@@ -861,7 +861,7 @@ flowchart TD
         src__evaluation__gold__first["first"]
         src__evaluation__gold__second["second"]
         src__evaluation__gold__stable["stable"]
-        src__evaluation__gold__goldReportIsPerfect("goldReportIsPerfect CC=9")
+        src__evaluation__gold__goldReportIsPerfect("goldReportIsPerfect CC=12")
         src__evaluation__gold__renderGoldReportMarkdown["renderGoldReportMarkdown"]
         src__evaluation__gold__percent["percent"]
         src__evaluation__gold__support["support"]
@@ -871,22 +871,25 @@ flowchart TD
         src__evaluation__gold__extraction["extraction"]
         src__evaluation__gold__linking["linking"]
         src__evaluation__gold__dsl2todo["dsl2todo"]
+        src__evaluation__gold__diagnostics["diagnostics"]
         src__evaluation__gold__evaluateExtraction["evaluateExtraction"]
+        src__evaluation__gold__byChannel["byChannel"]
         src__evaluation__gold__actual["actual"]
         src__evaluation__gold__overall["overall"]
-        src__evaluation__gold__evaluateLinking["evaluateLinking"]
+        src__evaluation__gold__evaluateDiagnostics["evaluateDiagnostics"]
         src__evaluation__gold__counts["counts"]
-        src__evaluation__gold__byClass["byClass"]
         src__evaluation__gold__forbiddenViolations["forbiddenViolations"]
         src__evaluation__gold__snapshots["snapshots"]
         src__evaluation__gold__result["result"]
+        src__evaluation__gold__evaluateLinking["evaluateLinking"]
+        src__evaluation__gold__byClass["byClass"]
         src__evaluation__gold__evaluateDsl2Todo["evaluateDsl2Todo"]
         src__evaluation__gold__duplicateCounts["duplicateCounts"]
         src__evaluation__gold_types__assertGoldDataset["assertGoldDataset"]
         src__evaluation__gold_types__dataset["dataset"]
         src__evaluation__gold_types__assertDatasetObject["assertDatasetObject"]
         src__evaluation__gold_types__assertDatasetMetadata["assertDatasetMetadata"]
-        src__evaluation__gold_types__assertDatasetCollections["assertDatasetCollections"]
+        src__evaluation__gold_types__assertDatasetCollections("assertDatasetCollections CC=12")
         src__evaluation__gold_types__assertUniqueCaseIds["assertUniqueCaseIds"]
         src__evaluation__gold_types__assertExtractionCoverage["assertExtractionCoverage"]
         src__evaluation__gold_types__channels["channels"]
@@ -908,13 +911,10 @@ flowchart TD
         src__evaluation__gold_extraction__destination["destination"]
         src__evaluation__gold_extraction__extractNlCase["extractNlCase"]
         src__evaluation__gold_extraction__extractMarkdownCase["extractMarkdownCase"]
+        src__evaluation__gold_extraction__extractDeterministicDocumentationCase["extractDeterministicDocumentationCa"]
+        src__evaluation__gold_extraction__files["files"]
         src__evaluation__gold_extraction__extractDocumentationCase["extractDocumentationCase"]
         src__evaluation__gold_extraction__originalFetch["originalFetch"]
-        src__evaluation__gold_extraction__benchmarkConfig["benchmarkConfig"]
-        src__evaluation__gold_extraction__projectRecord["projectRecord"]
-        src__evaluation__gold_cli__main("main CC=12")
-        src__evaluation__gold_cli__args["args"]
-        src__evaluation__gold_cli__arg["arg"]
     end
     subgraph src__extractors
         src__extractors__todo__extractTodo["extractTodo"]

@@ -100,3 +100,46 @@ test('A changelog entry naming an extracted documentation file has release evide
   const report = diagnoseGraph(linkIntentRecords([changelog, documentation]), '2026-07-30T00:00:00.000Z');
   assert.ok(!report.diagnostics.some((item) => item.code === 'CHANGELOG_WITHOUT_IMPLEMENTATION'));
 });
+
+test('Diagnostics ignore non-actionable changelog mechanics but retain release claims', () => {
+  const changelog = (text: string, paths: string[] = []) => buildRecord({
+    kind: 'changelog_entry', action: 'release', object: text,
+    target: { paths }, text, lifecycle: 'released', sourceKind: 'changelog',
+    sourcePath: 'CHANGELOG.md', sourceLines: { start: 4, end: 4 },
+    extractor: 'test', epistemicClass: 'claim', confidence: 0.95,
+    basis: ['fixture'],
+  });
+  const fixtures = [
+    changelog('Update project/calls.mmd', ['project/calls.mmd']),
+    changelog('Placeholder for changes in upcoming release'),
+    changelog('... and 12 more files'),
+    changelog('Update src/runtime.ts', ['src/runtime.ts']),
+    changelog('Update README.md'),
+    changelog('update debug/.cache/state.pkl', ['debug/.cache/state.pkl']),
+    changelog('Update docs/api.md', ['docs/api.md']),
+    changelog('Update project/custom-runtime.ts', ['project/custom-runtime.ts']),
+  ];
+
+  for (const record of fixtures) {
+    const report = diagnoseGraph(linkIntentRecords([record]), '2026-07-31T00:00:00.000Z');
+    assert.ok(
+      !report.diagnostics.some((item) => item.recordIds.includes(record.id)
+        && ['CHANGELOG_WITHOUT_IMPLEMENTATION', 'UNLINKED_RECORD'].includes(item.code)),
+      `${record.statement.text} is release-note mechanics, not an unsupported implementation claim`,
+    );
+  }
+
+  const substantive = [
+    changelog('Added Jenkinsfile support for deployment pipelines'),
+    changelog('Update src/runtime.ts to reject invalid tokens', ['src/runtime.ts']),
+    changelog('Updated authentication in src/runtime.ts', ['src/runtime.ts']),
+    changelog('Update support for Dockerfile parsing'),
+  ];
+  for (const record of substantive) {
+    const report = diagnoseGraph(linkIntentRecords([record]), '2026-07-31T00:00:00.000Z');
+    assert.ok(report.diagnostics.some((item) =>
+      item.code === 'CHANGELOG_WITHOUT_IMPLEMENTATION' && item.recordIds.includes(record.id)));
+    assert.ok(report.diagnostics.some((item) =>
+      item.code === 'UNLINKED_RECORD' && item.recordIds.includes(record.id)));
+  }
+});

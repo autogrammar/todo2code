@@ -1,0 +1,88 @@
+2026-07-31 ticket initialization
+
+User instruction: kontynuuj, with an explicit correction that executable source
+must not live under project/ticket-*.
+
+Previous measured result:
+cross-language expected=0/6
+cross-language forbidden violations=0/6
+raw E5 new platform candidates=2
+manually accepted raw E5 candidates=0
+
+Workflow state: PLAN
+Implementation status: waiting for P-CORE-008 review
+
+2026-07-31 owner approval and continuation
+
+User approved work on subsequent todo2code tickets and requested an explicit
+audit of:
+user-* / ai-* -> Intent DSL -> divergence -> required respondent.
+
+Workflow transition: PLAN -> TOOLS
+Human participant file remains unchanged.
+
+2026-07-31 communication fidelity validation
+
+Focused regression: 25/25 PASS for communication, identity, pipeline and task
+synthesis after the initial implementation.
+
+External read-only migration (`wellmanifest/new-project`, historical
+2b9e3c9):
+- filename-only rename: 0 records; explicit owner-specific migration warnings,
+- Opus, typed request/message: 9 human + 58 agent records, 0 issues,
+- GPT56Luna, typed request/message: 9 human + 72 agent records, 3 unanswered
+  prompt fragments, 0 false human-agent file conflict.
+
+Full gates after implementation:
+- npm run verify: PASS (247 total, 246 pass, 1 local JDK skip),
+- evaluate:gold v2 and v1: PASS, 100% gated precision/recall,
+- examples:check: PASS (227 records, 97 relations),
+- npm audit --omit=dev: 0 vulnerabilities,
+- CLI, MCP, A2A and Docker smoke: PASS.
+
+2026-07-31 audited reranker evaluation
+
+Offline contracts:
+- candidate set bounded to 1..10 per declaration,
+- retrieval creates no relation,
+- accept/reject/abstain decisions require both record IDs and exact grounded
+  quotes,
+- accepted relations retain retrieval, decision, reranker and citation
+  provenance,
+- captured gold reranker: 6/6 expected, 0/6 forbidden violations, 1 abstention.
+
+Live tracked repository:
+- repository: subactor/platform,
+- commit: 3e96573d587cb664741849ceba205bf303b9f418,
+- graph fingerprint:
+  250df4ff83f456fb371278d4a0c2cf17dd025582b6865a0cb2f01bd469fd1dd0,
+- selected reciprocal E5 shortlist: 6 declarations; top-3=18 candidates,
+  top-1=6 candidates,
+- qwen/qwen3.7-plus attempt 1: missing decisions array,
+- attempt 2: returned judgments instead of decisions,
+- attempt 3: invalid non-numeric/out-of-range confidence,
+- result: fail-closed, 0 materialized relations, no coverage claim.
+
+Final gates:
+- npm run verify: PASS (251 total, 250 pass, 1 local JDK skip),
+- one earlier full-suite CLI-watch timing failure; isolated retry 3/3 PASS and
+  repeated full verify PASS,
+- evaluate:gold v2: deterministic linker 0/6; captured reranker 6/6 expected,
+  0/6 forbidden, accepted 6, abstained 1,
+- evaluate:gold v1: PASS,
+- examples:check: PASS (227 records, 97 relations, five SDKs),
+- npm audit --omit=dev: 0 vulnerabilities,
+- CLI, MCP, A2A and Docker smoke: PASS.
+
+Decision: reject production semantic reranking; do not export it and do not
+change the deterministic linker. Workflow state: DONE.
+
+Final communication re-analysis after closing documentation:
+- participants: codex 51 records, tom-sapletta-com 4 records,
+- 0 blocking, 8 warning, 8 review_required,
+- 7 AGENT_CLAIM_WITHOUT_EVIDENCE -> codex (workspace remains uncommitted),
+- 1 AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED -> tom-sapletta-com,
+- 8 AGENT_WORK_OUTSIDE_REQUEST -> tom-sapletta-com because the detailed latest
+  instruction is present in the conversation but not in the human-owned file.
+
+No human-owned file was modified to suppress these findings.

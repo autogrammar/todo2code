@@ -5,11 +5,102 @@ stats:
   total_edges: 500
   modules_count: 14
 nodes:
-  src.synthesis.code-change-plan.planIds:
-    name: planIds
+  src.synthesis.code-change-plan.deterministicGeneration:
+    name: deterministicGeneration
     module: src.synthesis.code-change-plan
-    line: 274
+    line: 437
     cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 18
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.readPrompt:
+    name: readPrompt
+    module: src.synthesis.tasks-llm
+    line: 560
+    cyclomatic_complexity: 2
+    calls_out: 6
+    calls_in: 1
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeConclusionKind:
+    name: normalizeConclusionKind
+    module: src.synthesis.tasks-llm
+    line: 517
+    cyclomatic_complexity: 8
+    calls_out: 3
+    calls_in: 4
+  src.cli.mode:
+    name: mode
+    module: src.cli
+    line: 422
+    cyclomatic_complexity: 8
+    calls_out: 10
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.proposalIdByKey:
+    name: proposalIdByKey
+    module: src.synthesis.tasks-llm
+    line: 271
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.summary.summarizer.SummaryAttemptError.summarizeWithCorrection:
+    name: summarizeWithCorrection
+    module: src.summary.summarizer
+    line: 223
+    cyclomatic_complexity: 7
+    calls_out: 7
+    calls_in: 3
+  src.synthesis.code-change-plan.splitKeep:
+    name: splitKeep
+    module: src.synthesis.code-change-plan
+    line: 1238
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 1
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.keys:
+    name: keys
+    module: src.synthesis.tasks-llm
+    line: 470
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 1
+  src.pipeline.run.stageValue:
+    name: stageValue
+    module: src.pipeline.run
+    line: 531
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 1
+  src.synthesis.validation.similarity:
+    name: similarity
+    module: src.synthesis.validation
+    line: 47
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.watch.watcher.DEFAULT_SCAN_INTERVAL_MS:
+    name: DEFAULT_SCAN_INTERVAL_MS
+    module: src.watch.watcher
+    line: 145
+    cyclomatic_complexity: 19
+    calls_out: 14
+    calls_in: 0
+  src.synthesis.todo-patch.applied:
+    name: applied
+    module: src.synthesis.todo-patch
+    line: 189
+    cyclomatic_complexity: 5
+    calls_out: 4
+    calls_in: 0
+  src.pipeline.run.collectTargetHints:
+    name: collectTargetHints
+    module: src.pipeline.run
+    line: 481
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 2
+  src.watch.watcher.lastReportStartedAt:
+    name: lastReportStartedAt
+    module: src.watch.watcher
+    line: 168
+    cyclomatic_complexity: 3
     calls_out: 2
     calls_in: 0
   src.synthesis.validation.jaccard:
@@ -19,125 +110,20 @@ nodes:
     cyclomatic_complexity: 5
     calls_out: 1
     calls_in: 6
-  src.pipeline.run.manifestConfiguration:
-    name: manifestConfiguration
-    module: src.pipeline.run
-    line: 431
-    cyclomatic_complexity: 8
-    calls_out: 3
-    calls_in: 2
-  src.synthesis.todo-patch.object:
-    name: object
-    module: src.synthesis.todo-patch
-    line: 333
-    cyclomatic_complexity: 4
+  src.synthesis.code-change-plan.planIds:
+    name: planIds
+    module: src.synthesis.code-change-plan
+    line: 274
+    cyclomatic_complexity: 1
     calls_out: 2
-    calls_in: 6
-  src.summary.render.renderSummaryMarkdown:
-    name: renderSummaryMarkdown
-    module: src.summary.render
-    line: 3
-    cyclomatic_complexity: 10
+    calls_in: 0
+  src.cli.initProject:
+    name: initProject
+    module: src.cli
+    line: 616
+    cyclomatic_complexity: 6
     calls_out: 9
-    calls_in: 0
-  src.watch.watcher.waitMs:
-    name: waitMs
-    module: src.watch.watcher
-    line: 192
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.rawStringArray:
-    name: rawStringArray
-    module: src.synthesis.tasks-llm
-    line: 464
-    cyclomatic_complexity: 3
-    calls_out: 2
     calls_in: 1
-  src.synthesis.validation.words:
-    name: words
-    module: src.synthesis.validation
-    line: 99
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 7
-  src.synthesis.code-change-plan.now:
-    name: now
-    module: src.synthesis.code-change-plan
-    line: 1032
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 0
-  src.tf.classifier.vectorize:
-    name: vectorize
-    module: src.tf.classifier
-    line: 60
-    cyclomatic_complexity: 6
-    calls_out: 5
-    calls_in: 1
-  src.synthesis.todo-patch.nonBlank:
-    name: nonBlank
-    module: src.synthesis.todo-patch
-    line: 346
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 3
-  src.synthesis.code-change-plan.assertSourcePatchIds:
-    name: assertSourcePatchIds
-    module: src.synthesis.code-change-plan
-    line: 878
-    cyclomatic_complexity: 6
-    calls_out: 5
-    calls_in: 1
-  src.watch.watcher.absolute:
-    name: absolute
-    module: src.watch.watcher
-    line: 54
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeRawTarget:
-    name: normalizeRawTarget
-    module: src.synthesis.tasks-llm
-    line: 490
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 4
-  src.cli.stop:
-    name: stop
-    module: src.cli
-    line: 386
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 0
-  src.cli.extractor:
-    name: extractor
-    module: src.cli
-    line: 512
-    cyclomatic_complexity: 6
-    calls_out: 6
-    calls_in: 0
-  src.synthesis.todo-patch.current:
-    name: current
-    module: src.synthesis.todo-patch
-    line: 179
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.pipeline.run.failedAudit:
-    name: failedAudit
-    module: src.pipeline.run
-    line: 515
-    cyclomatic_complexity: 9
-    calls_out: 2
-    calls_in: 2
-  src.synthesis.code-change-plan.changes:
-    name: changes
-    module: src.synthesis.code-change-plan
-    line: 132
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
   src.services.actions.diagnostics:
     name: diagnostics
     module: src.services.actions
@@ -145,19 +131,68 @@ nodes:
     cyclomatic_complexity: 2
     calls_out: 4
     calls_in: 0
-  src.cli.optionNlMode:
-    name: optionNlMode
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeTodoProposals:
+    name: synthesizeTodoProposals
+    module: src.synthesis.tasks-llm
+    line: 95
+    cyclomatic_complexity: 5
+    calls_out: 12
+    calls_in: 0
+  src.cli.file:
+    name: file
     module: src.cli
-    line: 729
+    line: 516
+    cyclomatic_complexity: 3
+    calls_out: 0
+    calls_in: 2
+  src.cli.context:
+    name: context
+    module: src.cli
+    line: 444
+    cyclomatic_complexity: 9
+    calls_out: 10
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.proposalKeys:
+    name: proposalKeys
+    module: src.synthesis.tasks-llm
+    line: 221
     cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 5
-  src.synthesis.todo-patch.rendered:
-    name: rendered
-    module: src.synthesis.todo-patch
-    line: 312
-    cyclomatic_complexity: 1
+    calls_out: 8
+    calls_in: 0
+  src.services.actions.resolveRoot:
+    name: resolveRoot
+    module: src.services.actions
+    line: 596
+    cyclomatic_complexity: 3
     calls_out: 3
+    calls_in: 1
+  src.operations.validation.dateString:
+    name: dateString
+    module: src.operations.validation
+    line: 35
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 2
+  src.synthesis.code-change-plan.renderIds:
+    name: renderIds
+    module: src.synthesis.code-change-plan
+    line: 613
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 1
+  src.synthesis.code-change-plan.matchingProposals:
+    name: matchingProposals
+    module: src.synthesis.code-change-plan
+    line: 129
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.services.actions.before:
+    name: before
+    module: src.services.actions
+    line: 400
+    cyclomatic_complexity: 2
+    calls_out: 2
     calls_in: 0
   src.watch.watcher.onAbort:
     name: onAbort
@@ -166,34 +201,384 @@ nodes:
     cyclomatic_complexity: 1
     calls_out: 2
     calls_in: 0
-  src.cli.formatWatchEvent:
-    name: formatWatchEvent
-    module: src.cli
-    line: 401
-    cyclomatic_complexity: 10
-    calls_out: 7
-    calls_in: 3
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.payload:
-    name: payload
-    module: src.synthesis.tasks-llm
-    line: 115
+  src.summary.summarizer.SummaryAttemptError.candidate:
+    name: candidate
+    module: src.summary.summarizer
+    line: 176
     cyclomatic_complexity: 1
     calls_out: 1
     calls_in: 0
-  src.watch.watcher.maxFiles:
-    name: maxFiles
-    module: src.watch.watcher
-    line: 38
-    cyclomatic_complexity: 11
-    calls_out: 14
+  src.synthesis.code-change-plan.patchIds:
+    name: patchIds
+    module: src.synthesis.code-change-plan
+    line: 851
+    cyclomatic_complexity: 5
+    calls_out: 5
     calls_in: 0
-  src.cli.isPlanSet:
-    name: isPlanSet
+  src.synthesis.validation.sharedTicket:
+    name: sharedTicket
+    module: src.synthesis.validation
+    line: 44
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.code-change-plan.acceptanceCriteriaFor:
+    name: acceptanceCriteriaFor
+    module: src.synthesis.code-change-plan
+    line: 392
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 7
+  src.services.actions.todoPath:
+    name: todoPath
+    module: src.services.actions
+    line: 200
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.cli.execFileAsync:
+    name: execFileAsync
     module: src.cli
+    line: 39
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 2
+  src.synthesis.todo-patch.uniqueIds:
+    name: uniqueIds
+    module: src.synthesis.todo-patch
+    line: 358
+    cyclomatic_complexity: 7
+    calls_out: 5
+    calls_in: 6
+  src.synthesis.todo-patch.sourceTodo:
+    name: sourceTodo
+    module: src.synthesis.todo-patch
+    line: 232
+    cyclomatic_complexity: 6
+    calls_out: 8
+    calls_in: 0
+  src.watch.watcher.now:
+    name: now
+    module: src.watch.watcher
+    line: 152
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 8
+  src.summary.summarizer.SummaryAttemptError.idArray:
+    name: idArray
+    module: src.summary.summarizer
+    line: 378
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  src.cli.handleDiff:
+    name: handleDiff
+    module: src.cli
+    line: 421
+    cyclomatic_complexity: 24
+    calls_out: 19
+    calls_in: 1
+  src.services.actions.patch:
+    name: patch
+    module: src.services.actions
+    line: 300
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.todo-patch.wasAlreadyAppended:
+    name: wasAlreadyAppended
+    module: src.synthesis.todo-patch
+    line: 299
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 6
+  src.summary.render.recordCitations:
+    name: recordCitations
+    module: src.summary.render
+    line: 59
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 4
+  src.cli.optionLlmMode:
+    name: optionLlmMode
+    module: src.cli
+    line: 733
+    cyclomatic_complexity: 6
+    calls_out: 3
+    calls_in: 8
+  src.services.actions.readRecords:
+    name: readRecords
+    module: src.services.actions
+    line: 622
+    cyclomatic_complexity: 4
+    calls_out: 7
+    calls_in: 2
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeStringArray:
+    name: normalizeStringArray
+    module: src.synthesis.tasks-llm
+    line: 482
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 10
+  src.synthesis.todo-patch.assertApproval:
+    name: assertApproval
+    module: src.synthesis.todo-patch
+    line: 256
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 1
+  src.synthesis.code-change-plan.inline:
+    name: inline
+    module: src.synthesis.code-change-plan
+    line: 609
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.startedAt:
+    name: startedAt
+    module: src.synthesis.tasks-llm
+    line: 101
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.services.actions.numberValue:
+    name: numberValue
+    module: src.services.actions
+    line: 649
+    cyclomatic_complexity: 6
+    calls_out: 4
+    calls_in: 18
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.stringArray:
+    name: stringArray
+    module: src.synthesis.tasks-llm
+    line: 611
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 2
+  src.pipeline.run.configurationExtraction:
+    name: configurationExtraction
+    module: src.pipeline.run
+    line: 181
+    cyclomatic_complexity: 10
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizePriority:
+    name: normalizePriority
+    module: src.synthesis.tasks-llm
+    line: 536
+    cyclomatic_complexity: 9
+    calls_out: 3
+    calls_in: 4
+  src.services.actions.nullableString:
+    name: nullableString
+    module: src.services.actions
+    line: 638
+    cyclomatic_complexity: 5
+    calls_out: 1
+    calls_in: 3
+  src.watch.watcher.delta:
+    name: delta
+    module: src.watch.watcher
+    line: 182
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeWithCorrection:
+    name: synthesizeWithCorrection
+    module: src.synthesis.tasks-llm
+    line: 150
+    cyclomatic_complexity: 8
+    calls_out: 8
+    calls_in: 3
+  src.synthesis.code-change-plan.plansById:
+    name: plansById
+    module: src.synthesis.code-change-plan
+    line: 850
+    cyclomatic_complexity: 5
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.code-change-plan.changes:
+    name: changes
+    module: src.synthesis.code-change-plan
+    line: 132
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.todo-patch.duplicates:
+    name: duplicates
+    module: src.synthesis.todo-patch
     line: 239
+    cyclomatic_complexity: 6
+    calls_out: 8
+    calls_in: 0
+  src.synthesis.code-change-plan.index:
+    name: index
+    module: src.synthesis.code-change-plan
+    line: 312
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 0
+  src.services.actions.result:
+    name: result
+    module: src.services.actions
+    line: 440
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 0
+  src.cli.optionString:
+    name: optionString
+    module: src.cli
+    line: 697
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 17
+  src.synthesis.code-change-plan.indexProposalsByDiagnostic:
+    name: indexProposalsByDiagnostic
+    module: src.synthesis.code-change-plan
+    line: 299
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 1
+  src.web.diff-ui.loadRuns:
+    name: loadRuns
+    module: src.web.diff-ui
+    line: 43
+    cyclomatic_complexity: 12
+    calls_out: 14
+    calls_in: 1
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.mapKeys:
+    name: mapKeys
+    module: src.synthesis.tasks-llm
+    line: 469
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 6
+  src.cli.diagnosticsPath:
+    name: diagnosticsPath
+    module: src.cli
+    line: 491
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.todo-patch.recovered:
+    name: recovered
+    module: src.synthesis.todo-patch
+    line: 190
+    cyclomatic_complexity: 5
+    calls_out: 4
+    calls_in: 0
+  src.synthesis.todo-patch.hash:
+    name: hash
+    module: src.synthesis.todo-patch
+    line: 350
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 1
+  src.synthesis.code-change-plan.assertSourcePatchStrings:
+    name: assertSourcePatchStrings
+    module: src.synthesis.code-change-plan
+    line: 886
+    cyclomatic_complexity: 8
+    calls_out: 5
+    calls_in: 2
+  src.synthesis.todo-patch.markdown:
+    name: markdown
+    module: src.synthesis.todo-patch
+    line: 95
+    cyclomatic_complexity: 2
+    calls_out: 9
+    calls_in: 0
+  src.operations.validation.readers:
+    name: readers
+    module: src.operations.validation
+    line: 81
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.synthesis.code-change-plan.paths:
+    name: paths
+    module: src.synthesis.code-change-plan
+    line: 763
+    cyclomatic_complexity: 16
+    calls_out: 12
+    calls_in: 0
+  src.synthesis.todo-patch.applyTodoPatch:
+    name: applyTodoPatch
+    module: src.synthesis.todo-patch
+    line: 160
+    cyclomatic_complexity: 12
+    calls_out: 20
+    calls_in: 0
+  src.web.diff-ui.requestHeaders:
+    name: requestHeaders
+    module: src.web.diff-ui
+    line: 38
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 3
+  src.synthesis.todo-patch.renderIds:
+    name: renderIds
+    module: src.synthesis.todo-patch
+    line: 317
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 1
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.conclusions:
+    name: conclusions
+    module: src.synthesis.tasks-llm
+    line: 226
+    cyclomatic_complexity: 1
+    calls_out: 8
+    calls_in: 0
+  src.synthesis.code-change-plan.indexConclusionsByDiagnostic:
+    name: indexConclusionsByDiagnostic
+    module: src.synthesis.code-change-plan
+    line: 311
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 1
+  src.summary.render.renderConclusion:
+    name: renderConclusion
+    module: src.summary.render
+    line: 54
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 1
+  src.synthesis.todo-patch.artifact:
+    name: artifact
+    module: src.synthesis.todo-patch
+    line: 222
+    cyclomatic_complexity: 6
+    calls_out: 8
+    calls_in: 0
+  src.synthesis.code-change-plan.assertSourcePatchIds:
+    name: assertSourcePatchIds
+    module: src.synthesis.code-change-plan
+    line: 878
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 1
+  src.synthesis.code-change-plan.generatedAt:
+    name: generatedAt
+    module: src.synthesis.code-change-plan
+    line: 702
     cyclomatic_complexity: 3
     calls_out: 2
     calls_in: 0
+  src.cli.optionTaskMode:
+    name: optionTaskMode
+    module: src.cli
+    line: 739
+    cyclomatic_complexity: 5
+    calls_out: 3
+    calls_in: 1
+  src.services.actions.llmModeValue:
+    name: llmModeValue
+    module: src.services.actions
+    line: 530
+    cyclomatic_complexity: 5
+    calls_out: 1
+    calls_in: 4
   src.services.actions.beforeInput:
     name: beforeInput
     module: src.services.actions
@@ -201,12 +586,110 @@ nodes:
     cyclomatic_complexity: 2
     calls_out: 2
     calls_in: 0
-  src.services.actions.executeAction:
-    name: executeAction
-    module: src.services.actions
-    line: 71
-    cyclomatic_complexity: 83
-    calls_out: 64
+  src.synthesis.todo-patch.renderTodoPatchMarkdown:
+    name: renderTodoPatchMarkdown
+    module: src.synthesis.todo-patch
+    line: 119
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 1
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.responseSchema:
+    name: responseSchema
+    module: src.synthesis.tasks-llm
+    line: 566
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.synthesis.code-change-plan.set:
+    name: set
+    module: src.synthesis.code-change-plan
+    line: 836
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 5
+  src.synthesis.code-change-plan.buildChanges:
+    name: buildChanges
+    module: src.synthesis.code-change-plan
+    line: 348
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 7
+  src.operations.validation.contract:
+    name: contract
+    module: src.operations.validation
+    line: 63
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.operations.validation.visited:
+    name: visited
+    module: src.operations.validation
+    line: 137
+    cyclomatic_complexity: 7
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.code-change-plan.fileHashesAfter:
+    name: fileHashesAfter
+    module: src.synthesis.code-change-plan
+    line: 1033
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 0
+  src.synthesis.todo-patch.assertReceipt:
+    name: assertReceipt
+    module: src.synthesis.todo-patch
+    line: 262
+    cyclomatic_complexity: 7
+    calls_out: 4
+    calls_in: 2
+  src.summary.summarizer.summarizeGraph:
+    name: summarizeGraph
+    module: src.summary.summarizer
+    line: 56
+    cyclomatic_complexity: 10
+    calls_out: 13
+    calls_in: 0
+  src.summary.summarizer.SummaryAttemptError.responseSchema:
+    name: responseSchema
+    module: src.summary.summarizer
+    line: 377
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.synthesis.code-change-plan.titleFor:
+    name: titleFor
+    module: src.synthesis.code-change-plan
+    line: 371
+    cyclomatic_complexity: 5
+    calls_out: 1
+    calls_in: 7
+  src.cli.optionPipelineTaskMode:
+    name: optionPipelineTaskMode
+    module: src.cli
+    line: 755
+    cyclomatic_complexity: 6
+    calls_out: 3
+    calls_in: 3
+  src.pipeline.run.reason:
+    name: reason
+    module: src.pipeline.run
+    line: 545
+    cyclomatic_complexity: 3
+    calls_out: 1
+    calls_in: 0
+  src.watch.watcher.generate:
+    name: generate
+    module: src.watch.watcher
+    line: 207
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 5
+  src.synthesis.code-change-plan.matchingConclusions:
+    name: matchingConclusions
+    module: src.synthesis.code-change-plan
+    line: 130
+    cyclomatic_complexity: 1
+    calls_out: 2
     calls_in: 0
   src.cli.result:
     name: result
@@ -215,41 +698,69 @@ nodes:
     cyclomatic_complexity: 1
     calls_out: 1
     calls_in: 0
-  src.web.diff-ui.loadRuns:
-    name: loadRuns
-    module: src.web.diff-ui
-    line: 43
-    cyclomatic_complexity: 12
-    calls_out: 14
-    calls_in: 1
-  src.synthesis.todo-patch.appendPatch:
-    name: appendPatch
-    module: src.synthesis.todo-patch
-    line: 294
-    cyclomatic_complexity: 2
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesisAudit:
+    name: synthesisAudit
+    module: src.synthesis.tasks-llm
+    line: 345
+    cyclomatic_complexity: 1
     calls_out: 1
-    calls_in: 6
-  src.synthesis.todo-patch.applied:
-    name: applied
-    module: src.synthesis.todo-patch
-    line: 189
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 0
-  src.watch.watcher.startedAt:
-    name: startedAt
+    calls_in: 2
+  src.watch.watcher.timer:
+    name: timer
     module: src.watch.watcher
-    line: 209
-    cyclomatic_complexity: 3
-    calls_out: 4
+    line: 232
+    cyclomatic_complexity: 1
+    calls_out: 2
     calls_in: 0
-  src.synthesis.code-change-plan.assertExistingSourceReceipt:
-    name: assertExistingSourceReceipt
-    module: src.synthesis.code-change-plan
-    line: 1085
-    cyclomatic_complexity: 8
-    calls_out: 10
+  src.operations.validation.assertVariableContract:
+    name: assertVariableContract
+    module: src.operations.validation
+    line: 62
+    cyclomatic_complexity: 20
+    calls_out: 14
+    calls_in: 0
+  src.cli.main:
+    name: main
+    module: src.cli
+    line: 53
+    cyclomatic_complexity: 94
+    calls_out: 43
     calls_in: 1
+  src.synthesis.todo-patch.nonBlank:
+    name: nonBlank
+    module: src.synthesis.todo-patch
+    line: 346
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 3
+  src.operations.validation.nonBlank:
+    name: nonBlank
+    module: src.operations.validation
+    line: 31
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 12
+  src.synthesis.todo-patch.atomicWrite:
+    name: atomicWrite
+    module: src.synthesis.todo-patch
+    line: 274
+    cyclomatic_complexity: 5
+    calls_out: 13
+    calls_in: 6
+  src.synthesis.validation.sharedPath:
+    name: sharedPath
+    module: src.synthesis.validation
+    line: 46
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.todo-patch.assertTodoPatchArtifact:
+    name: assertTodoPatchArtifact
+    module: src.synthesis.todo-patch
+    line: 221
+    cyclomatic_complexity: 11
+    calls_out: 16
+    calls_in: 2
   src.services.actions.afterGraph:
     name: afterGraph
     module: src.services.actions
@@ -264,230 +775,27 @@ nodes:
     cyclomatic_complexity: 3
     calls_out: 3
     calls_in: 3
-  src.summary.summarizer.SummaryAttemptError.describe:
-    name: describe
-    module: src.summary.summarizer
-    line: 207
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 3
-  src.watch.watcher.lastReportStartedAt:
-    name: lastReportStartedAt
-    module: src.watch.watcher
-    line: 168
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 0
-  src.pipeline.run.runPipeline:
-    name: runPipeline
-    module: src.pipeline.run
-    line: 54
-    cyclomatic_complexity: 53
-    calls_out: 53
-    calls_in: 0
-  src.summary.summarizer.SummaryAttemptError.idArray:
-    name: idArray
-    module: src.summary.summarizer
-    line: 378
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.sortedUnique:
-    name: sortedUnique
-    module: src.synthesis.tasks-llm
-    line: 478
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 9
-  src.synthesis.todo-patch.sameArray:
-    name: sameArray
-    module: src.synthesis.todo-patch
-    line: 329
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 4
-  src.summary.render.recordCitations:
-    name: recordCitations
-    module: src.summary.render
-    line: 59
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 4
-  src.summary.summarizer.SummaryAttemptError.generationMetadata:
-    name: generationMetadata
-    module: src.summary.summarizer
-    line: 333
-    cyclomatic_complexity: 9
-    calls_out: 5
-    calls_in: 6
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.conclusionIdByKey:
-    name: conclusionIdByKey
-    module: src.synthesis.tasks-llm
-    line: 241
-    cyclomatic_complexity: 2
-    calls_out: 12
-    calls_in: 0
-  src.services.actions.booleanValue:
-    name: booleanValue
+  src.services.actions.beforeGraph:
+    name: beforeGraph
     module: src.services.actions
-    line: 673
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 11
-  src.synthesis.code-change-plan.createCodeChangeSourcePatchSet:
-    name: createCodeChangeSourcePatchSet
-    module: src.synthesis.code-change-plan
-    line: 692
+    line: 348
     cyclomatic_complexity: 8
-    calls_out: 11
-    calls_in: 0
-  src.synthesis.validation.similarity:
-    name: similarity
-    module: src.synthesis.validation
-    line: 47
-    cyclomatic_complexity: 1
     calls_out: 2
     calls_in: 0
-  src.services.actions.graph:
-    name: graph
-    module: src.services.actions
-    line: 450
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.readPrompt:
-    name: readPrompt
-    module: src.synthesis.tasks-llm
-    line: 560
-    cyclomatic_complexity: 2
-    calls_out: 6
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeStringArray:
-    name: normalizeStringArray
-    module: src.synthesis.tasks-llm
-    line: 482
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 10
-  src.synthesis.code-change-plan.index:
-    name: index
-    module: src.synthesis.code-change-plan
-    line: 312
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 0
-  src.watch.watcher.now:
-    name: now
-    module: src.watch.watcher
-    line: 152
-    cyclomatic_complexity: 2
+  src.synthesis.todo-patch.normalizePath:
+    name: normalizePath
+    module: src.synthesis.todo-patch
+    line: 325
+    cyclomatic_complexity: 1
     calls_out: 1
-    calls_in: 8
-  src.pipeline.run.failureCode:
-    name: failureCode
+    calls_in: 2
+  src.pipeline.run.communicationAudit:
+    name: communicationAudit
     module: src.pipeline.run
-    line: 571
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 5
-  src.synthesis.code-change-plan.relatedRecords:
-    name: relatedRecords
-    module: src.synthesis.code-change-plan
-    line: 124
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.todo-patch.exactKeys:
-    name: exactKeys
-    module: src.synthesis.todo-patch
-    line: 338
-    cyclomatic_complexity: 3
-    calls_out: 6
-    calls_in: 6
-  src.synthesis.todo-patch.classified:
-    name: classified
-    module: src.synthesis.todo-patch
-    line: 242
-    cyclomatic_complexity: 6
-    calls_out: 8
-    calls_in: 0
-  src.cli.optionList:
-    name: optionList
-    module: src.cli
-    line: 724
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 4
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.conclusionByKey:
-    name: conclusionByKey
-    module: src.synthesis.tasks-llm
-    line: 242
-    cyclomatic_complexity: 2
-    calls_out: 12
-    calls_in: 0
-  src.synthesis.code-change-plan.markdown:
-    name: markdown
-    module: src.synthesis.code-change-plan
-    line: 491
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 0
-  src.synthesis.code-change-plan.patchIds:
-    name: patchIds
-    module: src.synthesis.code-change-plan
-    line: 851
-    cyclomatic_complexity: 5
+    line: 187
+    cyclomatic_complexity: 10
     calls_out: 5
     calls_in: 0
-  src.cli.printHelp:
-    name: printHelp
-    module: src.cli
-    line: 769
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 4
-  src.cli.optionLlmMode:
-    name: optionLlmMode
-    module: src.cli
-    line: 733
-    cyclomatic_complexity: 6
-    calls_out: 3
-    calls_in: 8
-  src.synthesis.code-change-plan.descriptionFor:
-    name: descriptionFor
-    module: src.synthesis.code-change-plan
-    line: 377
-    cyclomatic_complexity: 5
-    calls_out: 3
-    calls_in: 7
-  src.cli.diagnostics:
-    name: diagnostics
-    module: src.cli
-    line: 492
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 0
-  src.pipeline.run.reason:
-    name: reason
-    module: src.pipeline.run
-    line: 545
-    cyclomatic_complexity: 3
-    calls_out: 1
-    calls_in: 0
-  src.synthesis.todo-patch.uniqueStrings:
-    name: uniqueStrings
-    module: src.synthesis.todo-patch
-    line: 366
-    cyclomatic_complexity: 7
-    calls_out: 5
-    calls_in: 6
-  src.synthesis.code-change-plan.indexProposalsByDiagnostic:
-    name: indexProposalsByDiagnostic
-    module: src.synthesis.code-change-plan
-    line: 299
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 1
   src.summary.summarizer.SummaryAttemptError.deterministicConclusions:
     name: deterministicConclusions
     module: src.summary.summarizer
@@ -495,292 +803,12 @@ nodes:
     cyclomatic_complexity: 4
     calls_out: 7
     calls_in: 5
-  src.services.actions.value:
-    name: value
-    module: src.services.actions
-    line: 367
-    cyclomatic_complexity: 3
-    calls_out: 1
-    calls_in: 0
-  src.cli.doctor:
-    name: doctor
-    module: src.cli
-    line: 637
-    cyclomatic_complexity: 6
-    calls_out: 7
-    calls_in: 1
-  src.pipeline.run.communicationInputPresent:
-    name: communicationInputPresent
-    module: src.pipeline.run
-    line: 188
-    cyclomatic_complexity: 10
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.todo-patch.selected:
-    name: selected
-    module: src.synthesis.todo-patch
-    line: 238
-    cyclomatic_complexity: 6
-    calls_out: 8
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.assertConclusions:
-    name: assertConclusions
-    module: src.synthesis.tasks-llm
-    line: 281
+  src.synthesis.code-change-plan.priorityRank:
+    name: priorityRank
+    module: src.synthesis.code-change-plan
+    line: 605
     cyclomatic_complexity: 1
     calls_out: 0
-    calls_in: 3
-  src.synthesis.todo-patch.recovered:
-    name: recovered
-    module: src.synthesis.todo-patch
-    line: 190
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 0
-  src.summary.summarizer.SummaryAttemptError.candidate:
-    name: candidate
-    module: src.summary.summarizer
-    line: 176
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.summary.summarizer.mode:
-    name: mode
-    module: src.summary.summarizer
-    line: 65
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.generation:
-    name: generation
-    module: src.synthesis.tasks-llm
-    line: 188
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.synthesis.code-change-plan.acceptances:
-    name: acceptances
-    module: src.synthesis.code-change-plan
-    line: 277
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.operations.validation.nonBlank:
-    name: nonBlank
-    module: src.operations.validation
-    line: 31
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 12
-  src.synthesis.code-change-plan.conclusions:
-    name: conclusions
-    module: src.synthesis.code-change-plan
-    line: 111
-    cyclomatic_complexity: 7
-    calls_out: 18
-    calls_in: 0
-  src.synthesis.todo-patch.assertApproval:
-    name: assertApproval
-    module: src.synthesis.todo-patch
-    line: 256
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 1
-  src.services.actions.filterCommunicationGraph:
-    name: filterCommunicationGraph
-    module: src.services.actions
-    line: 509
-    cyclomatic_complexity: 17
-    calls_out: 7
-    calls_in: 2
-  src.cli.emitExtraction:
-    name: emitExtraction
-    module: src.cli
-    line: 601
-    cyclomatic_complexity: 4
-    calls_out: 4
-    calls_in: 2
-  src.services.actions.analysis:
-    name: analysis
-    module: src.services.actions
-    line: 129
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 0
-  src.cli.diff:
-    name: diff
-    module: src.cli
-    line: 437
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 0
-  src.synthesis.code-change-plan.applyUnifiedDiffToText:
-    name: applyUnifiedDiffToText
-    module: src.synthesis.code-change-plan
-    line: 1155
-    cyclomatic_complexity: 47
-    calls_out: 13
-    calls_in: 1
-  src.synthesis.validation.intersects:
-    name: intersects
-    module: src.synthesis.validation
-    line: 110
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 1
-  src.synthesis.code-change-plan.conclusionsByDiagnostic:
-    name: conclusionsByDiagnostic
-    module: src.synthesis.code-change-plan
-    line: 115
-    cyclomatic_complexity: 7
-    calls_out: 18
-    calls_in: 0
-  src.synthesis.todo-patch.markdown:
-    name: markdown
-    module: src.synthesis.todo-patch
-    line: 95
-    cyclomatic_complexity: 2
-    calls_out: 9
-    calls_in: 0
-  src.synthesis.validation.sharedTicket:
-    name: sharedTicket
-    module: src.synthesis.validation
-    line: 44
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.code-change-plan.indexConclusionsByDiagnostic:
-    name: indexConclusionsByDiagnostic
-    module: src.synthesis.code-change-plan
-    line: 311
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 1
-  src.web.diff-ui.formatBytes:
-    name: formatBytes
-    module: src.web.diff-ui
-    line: 39
-    cyclomatic_complexity: 7
-    calls_out: 2
-    calls_in: 3
-  src.summary.render.renderRecords:
-    name: renderRecords
-    module: src.summary.render
-    line: 46
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 1
-  src.tf.classifier.dynamicImport:
-    name: dynamicImport
-    module: src.tf.classifier
-    line: 29
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 1
-  src.synthesis.todo-patch.currentHash:
-    name: currentHash
-    module: src.synthesis.todo-patch
-    line: 187
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 0
-  src.synthesis.todo-patch.createTodoPatch:
-    name: createTodoPatch
-    module: src.synthesis.todo-patch
-    line: 69
-    cyclomatic_complexity: 8
-    calls_out: 20
-    calls_in: 1
-  src.tf.classifier.importer:
-    name: importer
-    module: src.tf.classifier
-    line: 30
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.proposalDrafts:
-    name: proposalDrafts
-    module: src.synthesis.tasks-llm
-    line: 244
-    cyclomatic_complexity: 2
-    calls_out: 12
-    calls_in: 0
-  src.web.diff-ui.compareGraphs:
-    name: compareGraphs
-    module: src.web.diff-ui
-    line: 45
-    cyclomatic_complexity: 15
-    calls_out: 13
-    calls_in: 2
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeLocalKeys:
-    name: normalizeLocalKeys
-    module: src.synthesis.tasks-llm
-    line: 435
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  src.operations.validation.dateString:
-    name: dateString
-    module: src.operations.validation
-    line: 35
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 2
-  src.pipeline.run.skippedAudit:
-    name: skippedAudit
-    module: src.pipeline.run
-    line: 575
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 8
-  src.services.actions.resolveRoot:
-    name: resolveRoot
-    module: src.services.actions
-    line: 596
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 1
-  src.services.actions.conclusions:
-    name: conclusions
-    module: src.services.actions
-    line: 222
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 0
-  src.operations.validation.principals:
-    name: principals
-    module: src.operations.validation
-    line: 50
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.synthesis.code-change-plan.deterministicGeneration:
-    name: deterministicGeneration
-    module: src.synthesis.code-change-plan
-    line: 437
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 18
-  src.cli.handleWatch:
-    name: handleWatch
-    module: src.cli
-    line: 359
-    cyclomatic_complexity: 6
-    calls_out: 18
-    calls_in: 1
-  src.cli.controller:
-    name: controller
-    module: src.cli
-    line: 385
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.compactSynthesisPayload:
-    name: compactSynthesisPayload
-    module: src.synthesis.tasks-llm
-    line: 372
-    cyclomatic_complexity: 3
-    calls_out: 10
     calls_in: 1
   src.cli.optionNumber:
     name: optionNumber
@@ -789,61 +817,82 @@ nodes:
     cyclomatic_complexity: 5
     calls_out: 5
     calls_in: 18
-  src.operations.validation.objectValue:
-    name: objectValue
-    module: src.operations.validation
-    line: 18
+  src.services.actions.summaryModeValue:
+    name: summaryModeValue
+    module: src.services.actions
+    line: 542
     cyclomatic_complexity: 4
     calls_out: 2
-    calls_in: 16
-  src.summary.summarizer.SummaryAttemptError.sortedUnique:
-    name: sortedUnique
-    module: src.summary.summarizer
-    line: 372
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 4
-  src.synthesis.code-change-plan.rollbackFor:
-    name: rollbackFor
-    module: src.synthesis.code-change-plan
-    line: 433
-    cyclomatic_complexity: 1
+    calls_in: 2
+  src.cli.optionSummaryMode:
+    name: optionSummaryMode
+    module: src.cli
+    line: 745
+    cyclomatic_complexity: 6
     calls_out: 3
-    calls_in: 7
-  src.synthesis.code-change-plan.uniqueSorted:
-    name: uniqueSorted
-    module: src.synthesis.code-change-plan
-    line: 458
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 20
-  src.watch.watcher.pending:
-    name: pending
+    calls_in: 1
+  src.web.diff-ui.compareGraphs:
+    name: compareGraphs
+    module: src.web.diff-ui
+    line: 45
+    cyclomatic_complexity: 15
+    calls_out: 13
+    calls_in: 2
+  src.watch.watcher.snapshot:
+    name: snapshot
     module: src.watch.watcher
-    line: 169
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 0
-  src.services.actions.stringValue:
-    name: stringValue
-    module: src.services.actions
-    line: 634
-    cyclomatic_complexity: 3
+    line: 163
+    cyclomatic_complexity: 1
     calls_out: 1
-    calls_in: 12
-  src.operations.validation.exactKeys:
-    name: exactKeys
-    module: src.operations.validation
-    line: 23
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 12
-  src.pipeline.run.includeCommunication:
-    name: includeCommunication
-    module: src.pipeline.run
-    line: 185
+    calls_in: 0
+  src.cli.stamp:
+    name: stamp
+    module: src.cli
+    line: 402
     cyclomatic_complexity: 10
     calls_out: 5
+    calls_in: 0
+  src.tf.classifier.importer:
+    name: importer
+    module: src.tf.classifier
+    line: 30
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  src.synthesis.code-change-plan.candidates:
+    name: candidates
+    module: src.synthesis.code-change-plan
+    line: 117
+    cyclomatic_complexity: 7
+    calls_out: 18
+    calls_in: 0
+  src.watch.watcher.emit:
+    name: emit
+    module: src.watch.watcher
+    line: 151
+    cyclomatic_complexity: 2
+    calls_out: 0
+    calls_in: 10
+  src.synthesis.code-change-plan.createCodeChangeSourcePatch:
+    name: createCodeChangeSourcePatch
+    module: src.synthesis.code-change-plan
+    line: 631
+    cyclomatic_complexity: 13
+    calls_out: 20
+    calls_in: 2
+  src.synthesis.validation.validateAndClassifyTodoProposals:
+    name: validateAndClassifyTodoProposals
+    module: src.synthesis.validation
+    line: 17
+    cyclomatic_complexity: 1
+    calls_out: 10
+    calls_in: 0
+  src.synthesis.todo-patch.now:
+    name: now
+    module: src.synthesis.todo-patch
+    line: 186
+    cyclomatic_complexity: 5
+    calls_out: 4
     calls_in: 0
   src.summary.summarizer.SummaryAttemptError.requireText:
     name: requireText
@@ -852,271 +901,47 @@ nodes:
     cyclomatic_complexity: 3
     calls_out: 4
     calls_in: 1
-  src.synthesis.validation.duplicateEvidence:
-    name: duplicateEvidence
-    module: src.synthesis.validation
-    line: 38
-    cyclomatic_complexity: 11
-    calls_out: 9
-    calls_in: 1
-  src.synthesis.todo-patch.uniqueIds:
-    name: uniqueIds
-    module: src.synthesis.todo-patch
-    line: 358
-    cyclomatic_complexity: 7
-    calls_out: 5
-    calls_in: 6
-  src.synthesis.todo-patch.inline:
-    name: inline
-    module: src.synthesis.todo-patch
-    line: 321
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 3
-  src.operations.validation.visit:
-    name: visit
+  src.operations.validation.generation:
+    name: generation
     module: src.operations.validation
-    line: 139
-    cyclomatic_complexity: 7
-    calls_out: 4
-    calls_in: 5
-  src.synthesis.code-change-plan.evaluateCodeChangeAcceptance:
-    name: evaluateCodeChangeAcceptance
-    module: src.synthesis.code-change-plan
-    line: 192
-    cyclomatic_complexity: 9
-    calls_out: 18
-    calls_in: 3
-  src.services.actions.todoPath:
-    name: todoPath
-    module: src.services.actions
-    line: 200
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.operations.validation.writers:
-    name: writers
-    module: src.operations.validation
-    line: 82
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.web.diff-ui.fillSelect:
-    name: fillSelect
-    module: src.web.diff-ui
-    line: 42
-    cyclomatic_complexity: 6
-    calls_out: 9
-    calls_in: 2
-  src.operations.validation.access:
-    name: access
-    module: src.operations.validation
-    line: 79
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.pipeline.run.communicationAudit:
-    name: communicationAudit
-    module: src.pipeline.run
-    line: 187
-    cyclomatic_complexity: 10
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesisAudit:
-    name: synthesisAudit
-    module: src.synthesis.tasks-llm
-    line: 345
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 2
-  src.synthesis.code-change-plan.unifiedDiff:
-    name: unifiedDiff
-    module: src.synthesis.code-change-plan
-    line: 657
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.services.actions.afterInput:
-    name: afterInput
-    module: src.services.actions
-    line: 399
+    line: 111
     cyclomatic_complexity: 2
-    calls_out: 2
+    calls_out: 1
     calls_in: 0
-  src.services.actions.diff:
-    name: diff
-    module: src.services.actions
-    line: 431
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 0
-  src.synthesis.todo-patch.atomicWrite:
-    name: atomicWrite
-    module: src.synthesis.todo-patch
-    line: 274
-    cyclomatic_complexity: 5
-    calls_out: 13
-    calls_in: 6
-  src.watch.watcher.current:
+  src.synthesis.todo-patch.current:
     name: current
-    module: src.watch.watcher
-    line: 181
+    module: src.synthesis.todo-patch
+    line: 179
     cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.pipeline.run.message:
-    name: message
-    module: src.pipeline.run
-    line: 507
-    cyclomatic_complexity: 9
-    calls_out: 2
-    calls_in: 0
-  src.watch.watcher.scanTree:
-    name: scanTree
-    module: src.watch.watcher
-    line: 37
-    cyclomatic_complexity: 12
-    calls_out: 17
-    calls_in: 4
-  src.operations.validation.assertPrincipalList:
-    name: assertPrincipalList
-    module: src.operations.validation
-    line: 49
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 3
-  src.synthesis.code-change-plan.acceptanceCriteriaFor:
-    name: acceptanceCriteriaFor
-    module: src.synthesis.code-change-plan
-    line: 392
-    cyclomatic_complexity: 4
     calls_out: 3
-    calls_in: 7
-  src.pipeline.run.knownAudit:
-    name: knownAudit
-    module: src.pipeline.run
-    line: 508
-    cyclomatic_complexity: 9
-    calls_out: 2
     calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeAcceptanceCriteria:
-    name: normalizeAcceptanceCriteria
-    module: src.synthesis.tasks-llm
-    line: 500
+  src.synthesis.todo-patch.object:
+    name: object
+    module: src.synthesis.todo-patch
+    line: 333
     cyclomatic_complexity: 4
     calls_out: 2
-    calls_in: 4
-  src.services.actions.view:
-    name: view
-    module: src.services.actions
-    line: 454
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 0
-  src.operations.validation.ids:
-    name: ids
-    module: src.operations.validation
-    line: 135
-    cyclomatic_complexity: 7
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.validation.proposalWords:
-    name: proposalWords
-    module: src.synthesis.validation
-    line: 40
+    calls_in: 6
+  src.pipeline.run.aborted:
+    name: aborted
+    module: src.pipeline.run
+    line: 503
     cyclomatic_complexity: 1
     calls_out: 1
-    calls_in: 0
-  src.synthesis.code-change-plan.recordsById:
-    name: recordsById
-    module: src.synthesis.code-change-plan
-    line: 113
-    cyclomatic_complexity: 7
-    calls_out: 18
-    calls_in: 0
-  src.synthesis.code-change-plan.target:
-    name: target
-    module: src.synthesis.code-change-plan
-    line: 131
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.code-change-plan.normalizeUnifiedDiff:
-    name: normalizeUnifiedDiff
-    module: src.synthesis.code-change-plan
-    line: 916
-    cyclomatic_complexity: 17
-    calls_out: 9
-    calls_in: 4
-  src.summary.summarizer.SummaryAttemptError.requireIdArray:
-    name: requireIdArray
-    module: src.summary.summarizer
-    line: 199
-    cyclomatic_complexity: 5
-    calls_out: 7
-    calls_in: 0
-  src.operations.validation.assertGeneration:
-    name: assertGeneration
-    module: src.operations.validation
-    line: 110
-    cyclomatic_complexity: 16
-    calls_out: 8
-    calls_in: 1
-  src.cli.taskFile:
-    name: taskFile
-    module: src.cli
-    line: 361
+    calls_in: 2
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.rawStringArray:
+    name: rawStringArray
+    module: src.synthesis.tasks-llm
+    line: 464
     cyclomatic_complexity: 3
-    calls_out: 8
-    calls_in: 0
-  src.synthesis.todo-patch.applyTodoPatch:
-    name: applyTodoPatch
-    module: src.synthesis.todo-patch
-    line: 160
-    cyclomatic_complexity: 12
-    calls_out: 20
-    calls_in: 0
-  src.summary.summarizer.systemPrompt:
-    name: systemPrompt
-    module: src.summary.summarizer
-    line: 102
-    cyclomatic_complexity: 6
-    calls_out: 6
-    calls_in: 0
-  src.summary.summarizer.summarizeGraph:
-    name: summarizeGraph
-    module: src.summary.summarizer
-    line: 56
-    cyclomatic_complexity: 10
-    calls_out: 13
-    calls_in: 0
-  src.services.actions.beforePath:
-    name: beforePath
-    module: src.services.actions
-    line: 425
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 0
-  src.synthesis.todo-patch.duplicates:
-    name: duplicates
-    module: src.synthesis.todo-patch
-    line: 239
-    cyclomatic_complexity: 6
-    calls_out: 8
-    calls_in: 0
-  src.synthesis.validation.sharedPath:
-    name: sharedPath
-    module: src.synthesis.validation
-    line: 46
-    cyclomatic_complexity: 1
     calls_out: 2
-    calls_in: 0
-  src.cli.handleExtract:
-    name: handleExtract
-    module: src.cli
-    line: 511
-    cyclomatic_complexity: 16
-    calls_out: 18
+    calls_in: 1
+  src.synthesis.validation.intersects:
+    name: intersects
+    module: src.synthesis.validation
+    line: 110
+    cyclomatic_complexity: 1
+    calls_out: 5
     calls_in: 1
   src.synthesis.code-change-plan.renderCodeChangeReviewMarkdown:
     name: renderCodeChangeReviewMarkdown
@@ -1125,10 +950,59 @@ nodes:
     cyclomatic_complexity: 10
     calls_out: 6
     calls_in: 1
-  src.synthesis.code-change-path.isUsefulCodeChangePath:
-    name: isUsefulCodeChangePath
-    module: src.synthesis.code-change-path
-    line: 198
+  src.services.actions.view:
+    name: view
+    module: src.services.actions
+    line: 454
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 0
+  src.synthesis.todo-patch.isoDate:
+    name: isoDate
+    module: src.synthesis.todo-patch
+    line: 354
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 2
+  src.pipeline.run.communicationStartedAt:
+    name: communicationStartedAt
+    module: src.pipeline.run
+    line: 186
+    cyclomatic_complexity: 10
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.todo-patch.classified:
+    name: classified
+    module: src.synthesis.todo-patch
+    line: 242
+    cyclomatic_complexity: 6
+    calls_out: 8
+    calls_in: 0
+  src.summary.summarizer.mode:
+    name: mode
+    module: src.summary.summarizer
+    line: 65
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.synthesis.code-change-plan.assertCodeChangeSourcePatch:
+    name: assertCodeChangeSourcePatch
+    module: src.synthesis.code-change-plan
+    line: 723
+    cyclomatic_complexity: 47
+    calls_out: 26
+    calls_in: 5
+  src.tf.classifier.dynamicImport:
+    name: dynamicImport
+    module: src.tf.classifier
+    line: 29
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 1
+  src.operations.validation.writers:
+    name: writers
+    module: src.operations.validation
+    line: 82
     cyclomatic_complexity: 1
     calls_out: 1
     calls_in: 0
@@ -1139,145 +1013,19 @@ nodes:
     cyclomatic_complexity: 6
     calls_out: 7
     calls_in: 0
-  src.cli.stamp:
-    name: stamp
-    module: src.cli
-    line: 402
-    cyclomatic_complexity: 10
-    calls_out: 5
-    calls_in: 0
-  src.operations.validation.assertAcyclic:
-    name: assertAcyclic
-    module: src.operations.validation
-    line: 134
-    cyclomatic_complexity: 8
-    calls_out: 8
-    calls_in: 1
-  src.watch.watcher.generate:
-    name: generate
-    module: src.watch.watcher
-    line: 207
-    cyclomatic_complexity: 3
-    calls_out: 5
-    calls_in: 5
-  src.synthesis.code-change-plan.exactSourcePatchKeys:
-    name: exactSourcePatchKeys
-    module: src.synthesis.code-change-plan
-    line: 870
-    cyclomatic_complexity: 3
-    calls_out: 5
-    calls_in: 4
-  src.operations.validation.contract:
-    name: contract
-    module: src.operations.validation
-    line: 63
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.cli.diagnosticsPath:
-    name: diagnosticsPath
-    module: src.cli
-    line: 491
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 0
-  src.watch.watcher.relative:
-    name: relative
-    module: src.watch.watcher
-    line: 55
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 4
-  src.pipeline.run.values:
-    name: values
-    module: src.pipeline.run
-    line: 482
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 3
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.client:
-    name: client
-    module: src.synthesis.tasks-llm
-    line: 105
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.validation.validateAndClassifyTodoProposals:
-    name: validateAndClassifyTodoProposals
-    module: src.synthesis.validation
-    line: 17
-    cyclomatic_complexity: 1
-    calls_out: 10
-    calls_in: 0
-  src.synthesis.code-change-plan.set:
-    name: set
-    module: src.synthesis.code-change-plan
-    line: 836
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 5
-  src.cli.mode:
-    name: mode
-    module: src.cli
-    line: 422
-    cyclomatic_complexity: 8
-    calls_out: 10
-    calls_in: 0
-  src.web.diff-ui.updateMeta:
-    name: updateMeta
-    module: src.web.diff-ui
-    line: 41
-    cyclomatic_complexity: 7
-    calls_out: 3
-    calls_in: 2
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.keys:
-    name: keys
-    module: src.synthesis.tasks-llm
-    line: 470
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 1
-  src.cli.command:
-    name: command
-    module: src.cli
-    line: 64
-    cyclomatic_complexity: 4
-    calls_out: 1
-    calls_in: 0
-  src.cli.execFileAsync:
-    name: execFileAsync
-    module: src.cli
-    line: 39
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 2
-  src.synthesis.code-change-plan.applyCodeChangeSourcePatch:
-    name: applyCodeChangeSourcePatch
-    module: src.synthesis.code-change-plan
-    line: 964
-    cyclomatic_complexity: 41
-    calls_out: 35
-    calls_in: 0
-  src.services.actions.nullableScopedPath:
-    name: nullableScopedPath
-    module: src.services.actions
-    line: 611
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 2
-  src.services.actions.llmModeValue:
-    name: llmModeValue
-    module: src.services.actions
-    line: 530
+  src.summary.summarizer.SummaryAttemptError.requireIdArray:
+    name: requireIdArray
+    module: src.summary.summarizer
+    line: 199
     cyclomatic_complexity: 5
+    calls_out: 7
+    calls_in: 0
+  src.summary.summarizer.SummaryAttemptError.summaryMode:
+    name: summaryMode
+    module: src.summary.summarizer
+    line: 361
+    cyclomatic_complexity: 7
     calls_out: 1
-    calls_in: 4
-  src.cli.handleReality:
-    name: handleReality
-    module: src.cli
-    line: 485
-    cyclomatic_complexity: 9
-    calls_out: 12
     calls_in: 1
   src.synthesis.code-change-path.isPlannablePath:
     name: isPlannablePath
@@ -1286,131 +1034,96 @@ nodes:
     cyclomatic_complexity: 35
     calls_out: 13
     calls_in: 1
-  src.synthesis.code-change-plan.splitKeep:
-    name: splitKeep
+  src.synthesis.code-change-plan.rollbackFor:
+    name: rollbackFor
     module: src.synthesis.code-change-plan
-    line: 1238
-    cyclomatic_complexity: 3
+    line: 433
+    cyclomatic_complexity: 1
     calls_out: 3
-    calls_in: 1
-  src.synthesis.code-change-plan.inline:
-    name: inline
-    module: src.synthesis.code-change-plan
-    line: 609
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 1
-  src.watch.watcher.finish:
-    name: finish
-    module: src.watch.watcher
-    line: 238
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 3
-  src.services.actions.patch:
-    name: patch
-    module: src.services.actions
-    line: 300
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.cli.root:
-    name: root
+    calls_in: 7
+  src.cli.parseArgs:
+    name: parseArgs
     module: src.cli
-    line: 577
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 0
-  src.pipeline.run.collectTargetHints:
-    name: collectTargetHints
-    module: src.pipeline.run
-    line: 481
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 2
-  src.watch.watcher.visit:
-    name: visit
-    module: src.watch.watcher
-    line: 42
-    cyclomatic_complexity: 11
-    calls_out: 13
-    calls_in: 5
-  src.services.actions.summaryModeValue:
-    name: summaryModeValue
-    module: src.services.actions
-    line: 542
-    cyclomatic_complexity: 4
-    calls_out: 2
-    calls_in: 2
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.conclusions:
-    name: conclusions
-    module: src.synthesis.tasks-llm
-    line: 226
-    cyclomatic_complexity: 1
-    calls_out: 8
-    calls_in: 0
-  src.pipeline.run.persistFailedRun:
-    name: persistFailedRun
-    module: src.pipeline.run
-    line: 493
-    cyclomatic_complexity: 19
-    calls_out: 12
-    calls_in: 1
-  src.watch.watcher.sleep:
-    name: sleep
-    module: src.watch.watcher
-    line: 153
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 3
-  src.synthesis.validation.target:
-    name: target
-    module: src.synthesis.validation
-    line: 43
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.cli.optionString:
-    name: optionString
-    module: src.cli
-    line: 697
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 17
-  src.cli.parsed:
-    name: parsed
-    module: src.cli
-    line: 63
-    cyclomatic_complexity: 4
-    calls_out: 1
-    calls_in: 0
-  src.summary.summarizer.SummaryAttemptError.conclusions:
-    name: conclusions
-    module: src.summary.summarizer
-    line: 312
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 0
-  src.pipeline.run.aborted:
-    name: aborted
-    module: src.pipeline.run
-    line: 503
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 2
-  src.summary.summarizer.SummaryAttemptError.summaryMode:
-    name: summaryMode
-    module: src.summary.summarizer
-    line: 361
-    cyclomatic_complexity: 7
-    calls_out: 1
-    calls_in: 1
-  src.pipeline.run.communicationStartedAt:
-    name: communicationStartedAt
-    module: src.pipeline.run
-    line: 186
-    cyclomatic_complexity: 10
+    line: 658
+    cyclomatic_complexity: 13
     calls_out: 5
+    calls_in: 1
+  src.cli.view:
+    name: view
+    module: src.cli
+    line: 495
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.summary.summarizer.SummaryAttemptError.bad:
+    name: bad
+    module: src.summary.summarizer
+    line: 203
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.cli.diff:
+    name: diff
+    module: src.cli
+    line: 437
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 0
+  src.pipeline.run.runPipeline:
+    name: runPipeline
+    module: src.pipeline.run
+    line: 54
+    cyclomatic_complexity: 53
+    calls_out: 53
+    calls_in: 0
+  src.services.actions.afterInput:
+    name: afterInput
+    module: src.services.actions
+    line: 399
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.sortedUnique:
+    name: sortedUnique
+    module: src.synthesis.tasks-llm
+    line: 478
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 9
+  src.operations.validation.uniqueStrings:
+    name: uniqueStrings
+    module: src.operations.validation
+    line: 40
+    cyclomatic_complexity: 8
+    calls_out: 5
+    calls_in: 13
+  src.synthesis.code-change-plan.target:
+    name: target
+    module: src.synthesis.code-change-plan
+    line: 131
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.cli.stop:
+    name: stop
+    module: src.cli
+    line: 386
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.code-change-plan.evaluateCodeChangeAcceptance:
+    name: evaluateCodeChangeAcceptance
+    module: src.synthesis.code-change-plan
+    line: 192
+    cyclomatic_complexity: 9
+    calls_out: 18
+    calls_in: 3
+  src.synthesis.todo-patch.currentHash:
+    name: currentHash
+    module: src.synthesis.todo-patch
+    line: 187
+    cyclomatic_complexity: 5
+    calls_out: 4
     calls_in: 0
   src.cli.html:
     name: html
@@ -1419,391 +1132,41 @@ nodes:
     cyclomatic_complexity: 8
     calls_out: 10
     calls_in: 0
-  src.watch.watcher.DEFAULT_SCAN_INTERVAL_MS:
-    name: DEFAULT_SCAN_INTERVAL_MS
-    module: src.watch.watcher
-    line: 145
-    cyclomatic_complexity: 19
-    calls_out: 14
-    calls_in: 0
-  src.synthesis.code-change-plan.assertSourceApplyReceipt:
-    name: assertSourceApplyReceipt
-    module: src.synthesis.code-change-plan
-    line: 1113
-    cyclomatic_complexity: 11
-    calls_out: 13
-    calls_in: 2
-  src.synthesis.todo-patch.hash:
-    name: hash
+  src.synthesis.todo-patch.sameArray:
+    name: sameArray
     module: src.synthesis.todo-patch
-    line: 350
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 1
-  src.services.actions.hasInputValue:
-    name: hasInputValue
-    module: src.services.actions
-    line: 655
-    cyclomatic_complexity: 3
-    calls_out: 0
-    calls_in: 7
-  src.synthesis.code-change-plan.titleFor:
-    name: titleFor
-    module: src.synthesis.code-change-plan
-    line: 371
-    cyclomatic_complexity: 5
-    calls_out: 1
-    calls_in: 7
-  src.services.actions.root:
-    name: root
-    module: src.services.actions
-    line: 72
-    cyclomatic_complexity: 83
-    calls_out: 63
-    calls_in: 0
-  src.services.actions.title:
-    name: title
-    module: src.services.actions
-    line: 555
-    cyclomatic_complexity: 3
-    calls_out: 6
-    calls_in: 0
-  src.cli.svg:
-    name: svg
-    module: src.cli
-    line: 498
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 0
-  src.watch.watcher.DEFAULT_MIN_INTERVAL_MS:
-    name: DEFAULT_MIN_INTERVAL_MS
-    module: src.watch.watcher
-    line: 144
-    cyclomatic_complexity: 19
-    calls_out: 14
-    calls_in: 0
-  src.watch.watcher.runReport:
-    name: runReport
-    module: src.watch.watcher
-    line: 157
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 5
-  src.services.actions.numberValue:
-    name: numberValue
-    module: src.services.actions
-    line: 649
-    cyclomatic_complexity: 6
-    calls_out: 4
-    calls_in: 18
-  src.synthesis.todo-patch.writeTodoPatchArtifacts:
-    name: writeTodoPatchArtifacts
-    module: src.synthesis.todo-patch
-    line: 152
-    cyclomatic_complexity: 3
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.code-change-plan.createCodeChangeReviewPatch:
-    name: createCodeChangeReviewPatch
-    module: src.synthesis.code-change-plan
-    line: 480
-    cyclomatic_complexity: 6
-    calls_out: 15
-    calls_in: 0
-  src.services.actions.beforeDiagnostics:
-    name: beforeDiagnostics
-    module: src.services.actions
-    line: 351
-    cyclomatic_complexity: 8
-    calls_out: 2
-    calls_in: 0
-  src.watch.watcher.snapshot:
-    name: snapshot
-    module: src.watch.watcher
-    line: 163
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.operations.validation.uniqueStrings:
-    name: uniqueStrings
-    module: src.operations.validation
-    line: 40
-    cyclomatic_complexity: 8
-    calls_out: 5
-    calls_in: 13
-  src.summary.render.renderConclusion:
-    name: renderConclusion
-    module: src.summary.render
-    line: 54
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 1
-  src.synthesis.code-change-plan.assertSourcePatchStrings:
-    name: assertSourcePatchStrings
-    module: src.synthesis.code-change-plan
-    line: 886
-    cyclomatic_complexity: 8
-    calls_out: 5
-    calls_in: 2
-  src.summary.summarizer.payload:
-    name: payload
-    module: src.summary.summarizer
-    line: 103
-    cyclomatic_complexity: 6
-    calls_out: 6
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeSeverity:
-    name: normalizeSeverity
-    module: src.synthesis.tasks-llm
-    line: 526
-    cyclomatic_complexity: 9
-    calls_out: 3
-    calls_in: 4
-  src.cli.config:
-    name: config
-    module: src.cli
-    line: 65
-    cyclomatic_complexity: 4
-    calls_out: 1
-    calls_in: 0
-  src.summary.summarizer.SummaryAttemptError.assertRawConclusion:
-    name: assertRawConclusion
-    module: src.summary.summarizer
-    line: 288
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 2
-  src.summary.summarizer.SummaryAttemptError.bad:
-    name: bad
-    module: src.summary.summarizer
-    line: 203
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.cli.handleDiff:
-    name: handleDiff
-    module: src.cli
-    line: 421
-    cyclomatic_complexity: 24
-    calls_out: 19
-    calls_in: 1
-  src.services.actions.after:
-    name: after
-    module: src.services.actions
-    line: 401
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.code-change-plan.createCodeChangeSourcePatch:
-    name: createCodeChangeSourcePatch
-    module: src.synthesis.code-change-plan
-    line: 631
-    cyclomatic_complexity: 13
-    calls_out: 20
-    calls_in: 2
-  src.summary.summarizer.SummaryAttemptError.materializeConclusions:
-    name: materializeConclusions
-    module: src.summary.summarizer
-    line: 280
-    cyclomatic_complexity: 1
-    calls_out: 8
-    calls_in: 1
-  src.synthesis.todo-patch.normalizePath:
-    name: normalizePath
-    module: src.synthesis.todo-patch
-    line: 325
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 2
-  src.synthesis.code-change-plan.matchingConclusions:
-    name: matchingConclusions
-    module: src.synthesis.code-change-plan
-    line: 130
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.code-change-plan.paths:
-    name: paths
-    module: src.synthesis.code-change-plan
-    line: 763
-    cyclomatic_complexity: 16
-    calls_out: 12
-    calls_in: 0
-  src.watch.watcher.describeDelta:
-    name: describeDelta
-    module: src.watch.watcher
-    line: 100
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 5
-  src.services.actions.afterPath:
-    name: afterPath
-    module: src.services.actions
-    line: 426
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 0
-  src.synthesis.todo-patch.result:
-    name: result
-    module: src.synthesis.todo-patch
-    line: 188
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 0
-  src.services.actions.receiptPath:
-    name: receiptPath
-    module: src.services.actions
-    line: 301
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.services.actions.readRecords:
-    name: readRecords
-    module: src.services.actions
-    line: 622
-    cyclomatic_complexity: 4
-    calls_out: 7
-    calls_in: 2
-  src.watch.watcher.watchRepository:
-    name: watchRepository
-    module: src.watch.watcher
-    line: 147
-    cyclomatic_complexity: 19
-    calls_out: 14
-    calls_in: 0
-  src.services.actions.proposals:
-    name: proposals
-    module: src.services.actions
-    line: 225
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 0
-  src.summary.summarizer.SummaryAttemptError.assertConclusions:
-    name: assertConclusions
-    module: src.summary.summarizer
     line: 329
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 4
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.generation:
+    name: generation
+    module: src.synthesis.tasks-llm
+    line: 188
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeAcceptanceCriteria:
+    name: normalizeAcceptanceCriteria
+    module: src.synthesis.tasks-llm
+    line: 500
+    cyclomatic_complexity: 4
+    calls_out: 2
+    calls_in: 4
+  src.pipeline.run.communicationInputPresent:
+    name: communicationInputPresent
+    module: src.pipeline.run
+    line: 188
+    cyclomatic_complexity: 10
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.assertConclusions:
+    name: assertConclusions
+    module: src.synthesis.tasks-llm
+    line: 281
     cyclomatic_complexity: 1
     calls_out: 0
     calls_in: 3
-  src.pipeline.run.stageValue:
-    name: stageValue
-    module: src.pipeline.run
-    line: 531
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 1
-  src.services.actions.before:
-    name: before
-    module: src.services.actions
-    line: 400
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.code-change-plan.patchHash:
-    name: patchHash
-    module: src.synthesis.code-change-plan
-    line: 678
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.cli.parseArgs:
-    name: parseArgs
-    module: src.cli
-    line: 658
-    cyclomatic_complexity: 13
-    calls_out: 5
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.materializeResponse:
-    name: materializeResponse
-    module: src.synthesis.tasks-llm
-    line: 203
-    cyclomatic_complexity: 9
-    calls_out: 26
-    calls_in: 2
-  src.cli.context:
-    name: context
-    module: src.cli
-    line: 444
-    cyclomatic_complexity: 9
-    calls_out: 10
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.diagnosticIds:
-    name: diagnosticIds
-    module: src.synthesis.tasks-llm
-    line: 227
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.todo-patch.sourceTodo:
-    name: sourceTodo
-    module: src.synthesis.todo-patch
-    line: 232
-    cyclomatic_complexity: 6
-    calls_out: 8
-    calls_in: 0
-  src.synthesis.todo-patch.renderTargets:
-    name: renderTargets
-    module: src.synthesis.todo-patch
-    line: 307
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 1
-  src.services.actions.svg:
-    name: svg
-    module: src.services.actions
-    line: 403
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.cli.maxRows:
-    name: maxRows
-    module: src.cli
-    line: 445
-    cyclomatic_complexity: 9
-    calls_out: 10
-    calls_in: 0
-  src.synthesis.todo-patch.diagnosticReportFingerprint:
-    name: diagnosticReportFingerprint
-    module: src.synthesis.todo-patch
-    line: 60
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 2
-  src.synthesis.todo-patch.isoDate:
-    name: isoDate
-    module: src.synthesis.todo-patch
-    line: 354
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 2
-  src.watch.watcher.result:
-    name: result
-    module: src.watch.watcher
-    line: 211
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.cli.optionPipelineTaskMode:
-    name: optionPipelineTaskMode
-    module: src.cli
-    line: 755
-    cyclomatic_complexity: 6
-    calls_out: 3
-    calls_in: 3
-  src.synthesis.code-change-plan.assertCodeChangeSourcePatch:
-    name: assertCodeChangeSourcePatch
-    module: src.synthesis.code-change-plan
-    line: 723
-    cyclomatic_complexity: 47
-    calls_out: 26
-    calls_in: 5
-  src.services.actions.beforeGraph:
-    name: beforeGraph
-    module: src.services.actions
-    line: 348
-    cyclomatic_complexity: 8
-    calls_out: 2
-    calls_in: 0
   src.synthesis.todo-patch.orderedSelected:
     name: orderedSelected
     module: src.synthesis.todo-patch
@@ -1811,131 +1174,12 @@ nodes:
     cyclomatic_complexity: 2
     calls_out: 2
     calls_in: 0
-  src.tf.classifier.loadClassifier:
-    name: loadClassifier
-    module: src.tf.classifier
-    line: 47
-    cyclomatic_complexity: 6
-    calls_out: 5
-    calls_in: 1
-  src.operations.validation.visited:
-    name: visited
-    module: src.operations.validation
-    line: 137
-    cyclomatic_complexity: 7
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.todo-patch.assertTodoPatchArtifact:
-    name: assertTodoPatchArtifact
-    module: src.synthesis.todo-patch
-    line: 221
-    cyclomatic_complexity: 11
-    calls_out: 16
-    calls_in: 2
-  src.services.actions.afterDiagnostics:
-    name: afterDiagnostics
-    module: src.services.actions
-    line: 359
-    cyclomatic_complexity: 8
-    calls_out: 2
-    calls_in: 0
-  src.services.actions.nullableString:
-    name: nullableString
-    module: src.services.actions
-    line: 638
-    cyclomatic_complexity: 5
-    calls_out: 1
-    calls_in: 3
-  src.operations.validation.visiting:
-    name: visiting
-    module: src.operations.validation
-    line: 136
-    cyclomatic_complexity: 7
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.validation.sharedSymbol:
-    name: sharedSymbol
-    module: src.synthesis.validation
-    line: 45
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.tf.classifier.loadAssets:
-    name: loadAssets
-    module: src.tf.classifier
-    line: 34
-    cyclomatic_complexity: 2
-    calls_out: 6
-    calls_in: 1
-  src.web.diff-ui.requestHeaders:
-    name: requestHeaders
-    module: src.web.diff-ui
-    line: 38
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 3
-  src.synthesis.code-change-plan.priorityRank:
-    name: priorityRank
-    module: src.synthesis.code-change-plan
-    line: 605
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  src.cli.optionNullableString:
-    name: optionNullableString
-    module: src.cli
-    line: 702
-    cyclomatic_complexity: 6
-    calls_out: 3
-    calls_in: 6
-  src.summary.render.confidence:
-    name: confidence
-    module: src.summary.render
-    line: 55
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.summary.summarizer.SummaryAttemptError.responseSchema:
-    name: responseSchema
+  src.summary.summarizer.client:
+    name: client
     module: src.summary.summarizer
-    line: 377
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.mapKeys:
-    name: mapKeys
-    module: src.synthesis.tasks-llm
-    line: 469
-    cyclomatic_complexity: 2
+    line: 84
+    cyclomatic_complexity: 4
     calls_out: 5
-    calls_in: 6
-  src.synthesis.code-change-plan.candidates:
-    name: candidates
-    module: src.synthesis.code-change-plan
-    line: 117
-    cyclomatic_complexity: 7
-    calls_out: 18
-    calls_in: 0
-  src.watch.watcher.delta:
-    name: delta
-    module: src.watch.watcher
-    line: 182
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.services.actions.withTextDiffViews:
-    name: withTextDiffViews
-    module: src.services.actions
-    line: 554
-    cyclomatic_complexity: 3
-    calls_out: 7
-    calls_in: 2
-  src.synthesis.code-change-plan.matchingProposals:
-    name: matchingProposals
-    module: src.synthesis.code-change-plan
-    line: 129
-    cyclomatic_complexity: 1
-    calls_out: 2
     calls_in: 0
   src.watch.watcher.diffSnapshots:
     name: diffSnapshots
@@ -1944,13 +1188,83 @@ nodes:
     cyclomatic_complexity: 6
     calls_out: 5
     calls_in: 3
-  src.cli.optionBoolean:
-    name: optionBoolean
-    module: src.cli
-    line: 709
+  src.services.actions.receiptPath:
+    name: receiptPath
+    module: src.services.actions
+    line: 301
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.todo-patch.exactKeys:
+    name: exactKeys
+    module: src.synthesis.todo-patch
+    line: 338
     cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 15
+    calls_out: 6
+    calls_in: 6
+  src.tf.classifier.loadAssets:
+    name: loadAssets
+    module: src.tf.classifier
+    line: 34
+    cyclomatic_complexity: 2
+    calls_out: 6
+    calls_in: 1
+  src.summary.summarizer.SummaryAttemptError.generationMetadata:
+    name: generationMetadata
+    module: src.summary.summarizer
+    line: 333
+    cyclomatic_complexity: 9
+    calls_out: 5
+    calls_in: 6
+  src.operations.validation.exactKeys:
+    name: exactKeys
+    module: src.operations.validation
+    line: 23
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 12
+  src.operations.validation.assertAcyclic:
+    name: assertAcyclic
+    module: src.operations.validation
+    line: 134
+    cyclomatic_complexity: 8
+    calls_out: 8
+    calls_in: 1
+  src.watch.watcher.scanTree:
+    name: scanTree
+    module: src.watch.watcher
+    line: 37
+    cyclomatic_complexity: 12
+    calls_out: 17
+    calls_in: 4
+  src.watch.watcher.runReport:
+    name: runReport
+    module: src.watch.watcher
+    line: 157
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 5
+  src.services.actions.afterDiagnostics:
+    name: afterDiagnostics
+    module: src.services.actions
+    line: 359
+    cyclomatic_complexity: 8
+    calls_out: 2
+    calls_in: 0
+  src.watch.watcher.visit:
+    name: visit
+    module: src.watch.watcher
+    line: 42
+    cyclomatic_complexity: 11
+    calls_out: 13
+    calls_in: 5
+  src.synthesis.validation.proposalWords:
+    name: proposalWords
+    module: src.synthesis.validation
+    line: 40
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
   src.summary.summarizer.SummaryAttemptError.readPrompt:
     name: readPrompt
     module: src.summary.summarizer
@@ -1958,12 +1272,152 @@ nodes:
     cyclomatic_complexity: 2
     calls_out: 6
     calls_in: 1
-  src.operations.validation.source:
-    name: source
-    module: src.operations.validation
-    line: 72
+  src.cli.formatWatchEvent:
+    name: formatWatchEvent
+    module: src.cli
+    line: 401
+    cyclomatic_complexity: 10
+    calls_out: 7
+    calls_in: 3
+  src.summary.summarizer.SummaryAttemptError.assertConclusions:
+    name: assertConclusions
+    module: src.summary.summarizer
+    line: 329
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 3
+  src.watch.watcher.absoluteRoot:
+    name: absoluteRoot
+    module: src.watch.watcher
+    line: 40
+    cyclomatic_complexity: 11
+    calls_out: 14
+    calls_in: 0
+  src.watch.watcher.watchRepository:
+    name: watchRepository
+    module: src.watch.watcher
+    line: 147
+    cyclomatic_complexity: 19
+    calls_out: 14
+    calls_in: 0
+  src.synthesis.code-change-plan.exactSourcePatchKeys:
+    name: exactSourcePatchKeys
+    module: src.synthesis.code-change-plan
+    line: 870
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 4
+  src.summary.summarizer.systemPrompt:
+    name: systemPrompt
+    module: src.summary.summarizer
+    line: 102
+    cyclomatic_complexity: 6
+    calls_out: 6
+    calls_in: 0
+  src.summary.summarizer.SummaryAttemptError.assertRawConclusion:
+    name: assertRawConclusion
+    module: src.summary.summarizer
+    line: 288
     cyclomatic_complexity: 1
     calls_out: 1
+    calls_in: 2
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.conclusionIdByKey:
+    name: conclusionIdByKey
+    module: src.synthesis.tasks-llm
+    line: 241
+    cyclomatic_complexity: 2
+    calls_out: 12
+    calls_in: 0
+  src.services.actions.hasInputValue:
+    name: hasInputValue
+    module: src.services.actions
+    line: 655
+    cyclomatic_complexity: 3
+    calls_out: 0
+    calls_in: 7
+  src.operations.validation.visit:
+    name: visit
+    module: src.operations.validation
+    line: 139
+    cyclomatic_complexity: 7
+    calls_out: 4
+    calls_in: 5
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeSeverity:
+    name: normalizeSeverity
+    module: src.synthesis.tasks-llm
+    line: 526
+    cyclomatic_complexity: 9
+    calls_out: 3
+    calls_in: 4
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.payload:
+    name: payload
+    module: src.synthesis.tasks-llm
+    line: 115
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.synthesis.todo-patch.diagnosticReportFingerprint:
+    name: diagnosticReportFingerprint
+    module: src.synthesis.todo-patch
+    line: 60
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 2
+  src.cli.emitExtraction:
+    name: emitExtraction
+    module: src.cli
+    line: 601
+    cyclomatic_complexity: 4
+    calls_out: 4
+    calls_in: 2
+  src.cli.printHelp:
+    name: printHelp
+    module: src.cli
+    line: 769
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 4
+  src.synthesis.code-change-plan.applyCodeChangeSourcePatch:
+    name: applyCodeChangeSourcePatch
+    module: src.synthesis.code-change-plan
+    line: 964
+    cyclomatic_complexity: 41
+    calls_out: 35
+    calls_in: 0
+  src.synthesis.validation.duplicateEvidence:
+    name: duplicateEvidence
+    module: src.synthesis.validation
+    line: 38
+    cyclomatic_complexity: 11
+    calls_out: 9
+    calls_in: 1
+  src.services.actions.graph:
+    name: graph
+    module: src.services.actions
+    line: 450
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 0
+  src.pipeline.run.includeCommunication:
+    name: includeCommunication
+    module: src.pipeline.run
+    line: 185
+    cyclomatic_complexity: 10
+    calls_out: 5
+    calls_in: 0
+  src.cli.optionNullableString:
+    name: optionNullableString
+    module: src.cli
+    line: 702
+    cyclomatic_complexity: 6
+    calls_out: 3
+    calls_in: 6
+  src.synthesis.todo-patch.result:
+    name: result
+    module: src.synthesis.todo-patch
+    line: 188
+    cyclomatic_complexity: 5
+    calls_out: 4
     calls_in: 0
   src.cli.invokedPath:
     name: invokedPath
@@ -1972,146 +1426,48 @@ nodes:
     cyclomatic_complexity: 4
     calls_out: 4
     calls_in: 0
-  src.tf.classifier.classifyAction:
-    name: classifyAction
-    module: src.tf.classifier
-    line: 69
-    cyclomatic_complexity: 17
-    calls_out: 12
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.startedAt:
-    name: startedAt
-    module: src.synthesis.tasks-llm
-    line: 101
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.synthesis.code-change-plan.renderIds:
-    name: renderIds
-    module: src.synthesis.code-change-plan
-    line: 613
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.fallbackOrThrow:
-    name: fallbackOrThrow
-    module: src.synthesis.tasks-llm
-    line: 287
-    cyclomatic_complexity: 2
-    calls_out: 6
-    calls_in: 2
-  src.synthesis.todo-patch.renderIds:
-    name: renderIds
-    module: src.synthesis.todo-patch
-    line: 317
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeTodoProposals:
-    name: synthesizeTodoProposals
-    module: src.synthesis.tasks-llm
-    line: 95
-    cyclomatic_complexity: 5
-    calls_out: 12
-    calls_in: 0
-  src.services.actions.scopedPath:
-    name: scopedPath
-    module: src.services.actions
-    line: 601
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 2
-  src.synthesis.code-change-plan.acceptedCount:
-    name: acceptedCount
-    module: src.synthesis.code-change-plan
-    line: 284
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 0
-  src.operations.validation.readers:
-    name: readers
-    module: src.operations.validation
-    line: 81
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.synthesis.todo-patch.wasAlreadyAppended:
-    name: wasAlreadyAppended
-    module: src.synthesis.todo-patch
-    line: 299
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 6
-  src.pipeline.run.configurationExtraction:
-    name: configurationExtraction
-    module: src.pipeline.run
-    line: 181
-    cyclomatic_complexity: 10
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.code-change-plan.plansById:
-    name: plansById
-    module: src.synthesis.code-change-plan
-    line: 850
-    cyclomatic_complexity: 5
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.proposals:
-    name: proposals
-    module: src.synthesis.tasks-llm
-    line: 272
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.responseSchema:
-    name: responseSchema
-    module: src.synthesis.tasks-llm
-    line: 566
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.generationMetadata:
-    name: generationMetadata
-    module: src.synthesis.tasks-llm
-    line: 323
-    cyclomatic_complexity: 3
-    calls_out: 5
-    calls_in: 1
-  src.services.actions.result:
-    name: result
-    module: src.services.actions
-    line: 440
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 0
-  src.services.actions.nlModeValue:
-    name: nlModeValue
-    module: src.services.actions
-    line: 526
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 2
-  src.summary.summarizer.SummaryAttemptError.assertRawSummaryShape:
-    name: assertRawSummaryShape
-    module: src.summary.summarizer
-    line: 286
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 1
-  src.watch.watcher.emit:
-    name: emit
+  src.watch.watcher.relative:
+    name: relative
     module: src.watch.watcher
-    line: 151
-    cyclomatic_complexity: 2
-    calls_out: 0
-    calls_in: 10
-  src.synthesis.code-change-plan.buildChanges:
-    name: buildChanges
+    line: 55
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 4
+  src.synthesis.code-change-plan.relatedRecords:
+    name: relatedRecords
     module: src.synthesis.code-change-plan
-    line: 348
-    cyclomatic_complexity: 6
+    line: 124
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.cli.diagnostics:
+    name: diagnostics
+    module: src.cli
+    line: 492
+    cyclomatic_complexity: 2
     calls_out: 5
-    calls_in: 7
+    calls_in: 0
+  src.pipeline.run.failureCode:
+    name: failureCode
+    module: src.pipeline.run
+    line: 571
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 5
+  src.operations.validation.assertGeneration:
+    name: assertGeneration
+    module: src.operations.validation
+    line: 110
+    cyclomatic_complexity: 16
+    calls_out: 8
+    calls_in: 1
+  src.operations.validation.visiting:
+    name: visiting
+    module: src.operations.validation
+    line: 136
+    cyclomatic_complexity: 7
+    calls_out: 5
+    calls_in: 0
   src.cli.handleCommunication:
     name: handleCommunication
     module: src.cli
@@ -2126,54 +1482,68 @@ nodes:
     cyclomatic_complexity: 1
     calls_out: 2
     calls_in: 0
-  src.synthesis.code-change-plan.rawDiff:
-    name: rawDiff
-    module: src.synthesis.code-change-plan
-    line: 656
-    cyclomatic_complexity: 1
+  src.web.diff-ui.selectedRun:
+    name: selectedRun
+    module: src.web.diff-ui
+    line: 40
+    cyclomatic_complexity: 7
+    calls_out: 2
+    calls_in: 3
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.idArray:
+    name: idArray
+    module: src.synthesis.tasks-llm
+    line: 615
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 1
+  src.summary.summarizer.SummaryAttemptError.describe:
+    name: describe
+    module: src.summary.summarizer
+    line: 207
+    cyclomatic_complexity: 5
+    calls_out: 4
+    calls_in: 3
+  src.services.actions.proposals:
+    name: proposals
+    module: src.services.actions
+    line: 225
+    cyclomatic_complexity: 3
     calls_out: 2
     calls_in: 0
-  src.synthesis.code-change-plan.collectTarget:
-    name: collectTarget
-    module: src.synthesis.code-change-plan
-    line: 323
-    cyclomatic_complexity: 11
-    calls_out: 3
-    calls_in: 7
-  src.cli.file:
-    name: file
-    module: src.cli
-    line: 516
-    cyclomatic_complexity: 3
-    calls_out: 0
-    calls_in: 2
-  src.web.diff-ui.byId:
-    name: byId
-    module: src.web.diff-ui
-    line: 36
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 8
-  src.web.diff-ui.diffUiHtml:
-    name: diffUiHtml
-    module: src.web.diff-ui
-    line: 1
-    cyclomatic_complexity: 52
-    calls_out: 42
+  src.watch.watcher.DEFAULT_MIN_INTERVAL_MS:
+    name: DEFAULT_MIN_INTERVAL_MS
+    module: src.watch.watcher
+    line: 144
+    cyclomatic_complexity: 19
+    calls_out: 14
     calls_in: 0
-  src.synthesis.code-change-plan.riskFor:
-    name: riskFor
-    module: src.synthesis.code-change-plan
-    line: 422
-    cyclomatic_complexity: 4
-    calls_out: 1
-    calls_in: 7
-  src.pipeline.run.docs:
-    name: docs
-    module: src.pipeline.run
-    line: 145
-    cyclomatic_complexity: 2
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.materializeResponse:
+    name: materializeResponse
+    module: src.synthesis.tasks-llm
+    line: 203
+    cyclomatic_complexity: 9
+    calls_out: 26
+    calls_in: 2
+  src.services.actions.beforePath:
+    name: beforePath
+    module: src.services.actions
+    line: 425
+    cyclomatic_complexity: 1
     calls_out: 4
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.conclusionByKey:
+    name: conclusionByKey
+    module: src.synthesis.tasks-llm
+    line: 242
+    cyclomatic_complexity: 2
+    calls_out: 12
+    calls_in: 0
+  src.synthesis.todo-patch.rendered:
+    name: rendered
+    module: src.synthesis.todo-patch
+    line: 312
+    cyclomatic_complexity: 1
+    calls_out: 3
     calls_in: 0
   src.synthesis.code-change-plan.exactSourcePatchSet:
     name: exactSourcePatchSet
@@ -2182,47 +1552,131 @@ nodes:
     cyclomatic_complexity: 4
     calls_out: 4
     calls_in: 3
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeConfidence:
-    name: normalizeConfidence
-    module: src.synthesis.tasks-llm
-    line: 508
-    cyclomatic_complexity: 8
-    calls_out: 4
-    calls_in: 7
-  src.web.diff-ui.selectedRun:
-    name: selectedRun
-    module: src.web.diff-ui
-    line: 40
-    cyclomatic_complexity: 7
+  src.synthesis.todo-patch.inline:
+    name: inline
+    module: src.synthesis.todo-patch
+    line: 321
+    cyclomatic_complexity: 1
     calls_out: 2
     calls_in: 3
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizePriority:
-    name: normalizePriority
-    module: src.synthesis.tasks-llm
-    line: 536
-    cyclomatic_complexity: 9
-    calls_out: 3
-    calls_in: 4
-  src.summary.summarizer.SummaryAttemptError.summarizeWithCorrection:
-    name: summarizeWithCorrection
-    module: src.summary.summarizer
-    line: 223
-    cyclomatic_complexity: 7
-    calls_out: 7
-    calls_in: 3
-  src.cli.optionSummaryMode:
-    name: optionSummaryMode
-    module: src.cli
-    line: 745
-    cyclomatic_complexity: 6
-    calls_out: 3
-    calls_in: 1
-  src.synthesis.code-change-plan.proposals:
-    name: proposals
+  src.synthesis.code-change-plan.now:
+    name: now
     module: src.synthesis.code-change-plan
-    line: 112
-    cyclomatic_complexity: 7
-    calls_out: 18
+    line: 1032
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 0
+  src.services.actions.afterPath:
+    name: afterPath
+    module: src.services.actions
+    line: 426
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 0
+  src.cli.root:
+    name: root
+    module: src.cli
+    line: 577
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 0
+  src.synthesis.todo-patch.selected:
+    name: selected
+    module: src.synthesis.todo-patch
+    line: 238
+    cyclomatic_complexity: 6
+    calls_out: 8
+    calls_in: 0
+  src.synthesis.code-change-plan.uniqueSorted:
+    name: uniqueSorted
+    module: src.synthesis.code-change-plan
+    line: 458
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 20
+  src.synthesis.validation.words:
+    name: words
+    module: src.synthesis.validation
+    line: 99
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 7
+  src.pipeline.run.knownAudit:
+    name: knownAudit
+    module: src.pipeline.run
+    line: 508
+    cyclomatic_complexity: 9
+    calls_out: 2
+    calls_in: 0
+  src.services.actions.diff:
+    name: diff
+    module: src.services.actions
+    line: 431
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 0
+  src.summary.summarizer.SummaryAttemptError.assertRawSummaryShape:
+    name: assertRawSummaryShape
+    module: src.summary.summarizer
+    line: 286
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 1
+  src.summary.render.actions:
+    name: actions
+    module: src.summary.render
+    line: 32
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.services.actions.stringValue:
+    name: stringValue
+    module: src.services.actions
+    line: 634
+    cyclomatic_complexity: 3
+    calls_out: 1
+    calls_in: 12
+  src.tf.classifier.loadClassifier:
+    name: loadClassifier
+    module: src.tf.classifier
+    line: 47
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 1
+  src.synthesis.code-change-plan.riskFor:
+    name: riskFor
+    module: src.synthesis.code-change-plan
+    line: 422
+    cyclomatic_complexity: 4
+    calls_out: 1
+    calls_in: 7
+  src.synthesis.code-change-plan.acceptedCount:
+    name: acceptedCount
+    module: src.synthesis.code-change-plan
+    line: 284
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 0
+  src.cli.parsed:
+    name: parsed
+    module: src.cli
+    line: 63
+    cyclomatic_complexity: 4
+    calls_out: 1
+    calls_in: 0
+  src.synthesis.todo-patch.writeTodoPatchArtifacts:
+    name: writeTodoPatchArtifacts
+    module: src.synthesis.todo-patch
+    line: 152
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 0
+  src.cli.extractor:
+    name: extractor
+    module: src.cli
+    line: 512
+    cyclomatic_complexity: 6
+    calls_out: 6
     calls_in: 0
   src.synthesis.code-change-plan.proposalsByDiagnostic:
     name: proposalsByDiagnostic
@@ -2231,130 +1685,130 @@ nodes:
     cyclomatic_complexity: 7
     calls_out: 18
     calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeWithCorrection:
-    name: synthesizeWithCorrection
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.fallbackOrThrow:
+    name: fallbackOrThrow
     module: src.synthesis.tasks-llm
-    line: 150
+    line: 287
+    cyclomatic_complexity: 2
+    calls_out: 6
+    calls_in: 2
+  src.services.actions.root:
+    name: root
+    module: src.services.actions
+    line: 72
+    cyclomatic_complexity: 83
+    calls_out: 63
+    calls_in: 0
+  src.synthesis.todo-patch.createTodoPatch:
+    name: createTodoPatch
+    module: src.synthesis.todo-patch
+    line: 69
     cyclomatic_complexity: 8
-    calls_out: 8
-    calls_in: 3
-  src.watch.watcher.absoluteRoot:
-    name: absoluteRoot
-    module: src.watch.watcher
-    line: 40
-    cyclomatic_complexity: 11
-    calls_out: 14
-    calls_in: 0
-  src.synthesis.code-change-plan.confidenceFor:
-    name: confidenceFor
-    module: src.synthesis.code-change-plan
-    line: 413
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 8
-  src.summary.summarizer.client:
-    name: client
-    module: src.summary.summarizer
-    line: 84
-    cyclomatic_complexity: 4
-    calls_out: 5
-    calls_in: 0
-  src.synthesis.code-change-plan.assertCodeChangeSourcePatchSet:
-    name: assertCodeChangeSourcePatchSet
-    module: src.synthesis.code-change-plan
-    line: 829
-    cyclomatic_complexity: 18
-    calls_out: 14
+    calls_out: 20
     calls_in: 1
-  src.cli.initProject:
-    name: initProject
-    module: src.cli
-    line: 616
+  src.synthesis.code-change-plan.createCodeChangeReviewPatch:
+    name: createCodeChangeReviewPatch
+    module: src.synthesis.code-change-plan
+    line: 480
     cyclomatic_complexity: 6
-    calls_out: 9
-    calls_in: 1
-  src.operations.validation.assertVariableContract:
-    name: assertVariableContract
-    module: src.operations.validation
-    line: 62
-    cyclomatic_complexity: 20
-    calls_out: 14
+    calls_out: 15
     calls_in: 0
-  src.cli.optionTaskMode:
-    name: optionTaskMode
-    module: src.cli
-    line: 739
-    cyclomatic_complexity: 5
+  src.synthesis.todo-patch.renderTargets:
+    name: renderTargets
+    module: src.synthesis.todo-patch
+    line: 307
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 1
+  src.operations.validation.assertPrincipalList:
+    name: assertPrincipalList
+    module: src.operations.validation
+    line: 49
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 3
+  src.watch.watcher.finish:
+    name: finish
+    module: src.watch.watcher
+    line: 238
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 3
+  src.services.actions.after:
+    name: after
+    module: src.services.actions
+    line: 401
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.summary.render.renderRecords:
+    name: renderRecords
+    module: src.summary.render
+    line: 46
+    cyclomatic_complexity: 2
     calls_out: 3
     calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeConclusionKind:
-    name: normalizeConclusionKind
+  src.summary.render.confidence:
+    name: confidence
+    module: src.summary.render
+    line: 55
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeConfidence:
+    name: normalizeConfidence
     module: src.synthesis.tasks-llm
-    line: 517
+    line: 508
     cyclomatic_complexity: 8
-    calls_out: 3
-    calls_in: 4
-  src.synthesis.code-change-plan.generatedAt:
-    name: generatedAt
+    calls_out: 4
+    calls_in: 7
+  src.synthesis.code-change-plan.assertExistingSourceReceipt:
+    name: assertExistingSourceReceipt
     module: src.synthesis.code-change-plan
-    line: 702
+    line: 1085
+    cyclomatic_complexity: 8
+    calls_out: 10
+    calls_in: 1
+  src.watch.watcher.startedAt:
+    name: startedAt
+    module: src.watch.watcher
+    line: 209
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.services.actions.conclusions:
+    name: conclusions
+    module: src.services.actions
+    line: 222
     cyclomatic_complexity: 3
     calls_out: 2
     calls_in: 0
-  src.watch.watcher.timer:
-    name: timer
+  src.watch.watcher.pending:
+    name: pending
     module: src.watch.watcher
-    line: 232
-    cyclomatic_complexity: 1
+    line: 169
+    cyclomatic_complexity: 3
     calls_out: 2
     calls_in: 0
-  src.synthesis.todo-patch.renderTodoPatchMarkdown:
-    name: renderTodoPatchMarkdown
-    module: src.synthesis.todo-patch
-    line: 119
-    cyclomatic_complexity: 6
-    calls_out: 5
-    calls_in: 1
-  src.synthesis.validation.dependencyFirstPriorityOrder:
-    name: dependencyFirstPriorityOrder
-    module: src.synthesis.validation
-    line: 64
-    cyclomatic_complexity: 11
+  src.synthesis.code-change-plan.createCodeChangeSourcePatchSet:
+    name: createCodeChangeSourcePatchSet
+    module: src.synthesis.code-change-plan
+    line: 692
+    cyclomatic_complexity: 8
+    calls_out: 11
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.compactSynthesisPayload:
+    name: compactSynthesisPayload
+    module: src.synthesis.tasks-llm
+    line: 372
+    cyclomatic_complexity: 3
     calls_out: 10
     calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.proposalKeys:
-    name: proposalKeys
-    module: src.synthesis.tasks-llm
-    line: 221
-    cyclomatic_complexity: 1
-    calls_out: 8
-    calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.proposalIdByKey:
-    name: proposalIdByKey
-    module: src.synthesis.tasks-llm
-    line: 271
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.synthesis.todo-patch.assertReceipt:
-    name: assertReceipt
-    module: src.synthesis.todo-patch
-    line: 262
-    cyclomatic_complexity: 7
-    calls_out: 4
-    calls_in: 2
-  src.synthesis.todo-patch.now:
-    name: now
-    module: src.synthesis.todo-patch
-    line: 186
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 0
-  src.operations.validation.generation:
-    name: generation
+  src.operations.validation.source:
+    name: source
     module: src.operations.validation
-    line: 111
-    cyclomatic_complexity: 2
+    line: 72
+    cyclomatic_complexity: 1
     calls_out: 1
     calls_in: 0
   src.synthesis.tasks-llm.TaskSynthesisAttemptError.prompt:
@@ -2364,40 +1818,61 @@ nodes:
     cyclomatic_complexity: 1
     calls_out: 1
     calls_in: 0
-  src.cli.main:
-    name: main
-    module: src.cli
-    line: 53
-    cyclomatic_complexity: 94
-    calls_out: 43
-    calls_in: 1
-  src.summary.render.actions:
-    name: actions
-    module: src.summary.render
-    line: 32
-    cyclomatic_complexity: 2
+  src.synthesis.code-change-plan.patchHash:
+    name: patchHash
+    module: src.synthesis.code-change-plan
+    line: 678
+    cyclomatic_complexity: 1
     calls_out: 2
     calls_in: 0
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.idArray:
-    name: idArray
-    module: src.synthesis.tasks-llm
-    line: 615
+  src.synthesis.todo-patch.appendPatch:
+    name: appendPatch
+    module: src.synthesis.todo-patch
+    line: 294
     cyclomatic_complexity: 2
     calls_out: 1
-    calls_in: 1
-  src.synthesis.tasks-llm.TaskSynthesisAttemptError.stringArray:
-    name: stringArray
-    module: src.synthesis.tasks-llm
-    line: 611
+    calls_in: 6
+  src.pipeline.run.message:
+    name: message
+    module: src.pipeline.run
+    line: 507
+    cyclomatic_complexity: 9
+    calls_out: 2
+    calls_in: 0
+  src.cli.isPlanSet:
+    name: isPlanSet
+    module: src.cli
+    line: 239
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 0
+  src.cli.svg:
+    name: svg
+    module: src.cli
+    line: 498
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.validation.sharedSymbol:
+    name: sharedSymbol
+    module: src.synthesis.validation
+    line: 45
     cyclomatic_complexity: 1
-    calls_out: 0
+    calls_out: 2
+    calls_in: 0
+  src.pipeline.run.manifestConfiguration:
+    name: manifestConfiguration
+    module: src.pipeline.run
+    line: 431
+    cyclomatic_complexity: 8
+    calls_out: 3
     calls_in: 2
-  src.synthesis.todo-patch.artifact:
-    name: artifact
-    module: src.synthesis.todo-patch
-    line: 222
-    cyclomatic_complexity: 6
-    calls_out: 8
+  src.synthesis.validation.target:
+    name: target
+    module: src.synthesis.validation
+    line: 43
+    cyclomatic_complexity: 1
+    calls_out: 2
     calls_in: 0
   src.services.actions.stringList:
     name: stringList
@@ -2406,19 +1881,544 @@ nodes:
     cyclomatic_complexity: 4
     calls_out: 6
     calls_in: 3
-  src.synthesis.code-change-plan.fileHashesAfter:
-    name: fileHashesAfter
-    module: src.synthesis.code-change-plan
-    line: 1033
+  src.web.diff-ui.diffUiHtml:
+    name: diffUiHtml
+    module: src.web.diff-ui
+    line: 1
+    cyclomatic_complexity: 52
+    calls_out: 42
+    calls_in: 0
+  src.pipeline.run.values:
+    name: values
+    module: src.pipeline.run
+    line: 482
     cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 3
+  src.synthesis.code-change-plan.assertCodeChangeSourcePatchSet:
+    name: assertCodeChangeSourcePatchSet
+    module: src.synthesis.code-change-plan
+    line: 829
+    cyclomatic_complexity: 18
+    calls_out: 14
+    calls_in: 1
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.diagnosticIds:
+    name: diagnosticIds
+    module: src.synthesis.tasks-llm
+    line: 227
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.synthesis.code-change-plan.recordsById:
+    name: recordsById
+    module: src.synthesis.code-change-plan
+    line: 113
+    cyclomatic_complexity: 7
+    calls_out: 18
+    calls_in: 0
+  src.services.actions.nullableScopedPath:
+    name: nullableScopedPath
+    module: src.services.actions
+    line: 611
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 2
+  src.operations.validation.ids:
+    name: ids
+    module: src.operations.validation
+    line: 135
+    cyclomatic_complexity: 7
+    calls_out: 5
+    calls_in: 0
+  src.pipeline.run.failedAudit:
+    name: failedAudit
+    module: src.pipeline.run
+    line: 515
+    cyclomatic_complexity: 9
+    calls_out: 2
+    calls_in: 2
+  src.watch.watcher.sleep:
+    name: sleep
+    module: src.watch.watcher
+    line: 153
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 3
+  src.operations.validation.objectValue:
+    name: objectValue
+    module: src.operations.validation
+    line: 18
+    cyclomatic_complexity: 4
+    calls_out: 2
+    calls_in: 16
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.proposalDrafts:
+    name: proposalDrafts
+    module: src.synthesis.tasks-llm
+    line: 244
+    cyclomatic_complexity: 2
+    calls_out: 12
+    calls_in: 0
+  src.services.actions.analysis:
+    name: analysis
+    module: src.services.actions
+    line: 129
+    cyclomatic_complexity: 2
     calls_out: 4
     calls_in: 0
-  src.cli.view:
-    name: view
+  src.tf.classifier.classifyAction:
+    name: classifyAction
+    module: src.tf.classifier
+    line: 69
+    cyclomatic_complexity: 17
+    calls_out: 12
+    calls_in: 0
+  src.summary.summarizer.payload:
+    name: payload
+    module: src.summary.summarizer
+    line: 103
+    cyclomatic_complexity: 6
+    calls_out: 6
+    calls_in: 0
+  src.watch.watcher.current:
+    name: current
+    module: src.watch.watcher
+    line: 181
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.summary.render.renderSummaryMarkdown:
+    name: renderSummaryMarkdown
+    module: src.summary.render
+    line: 3
+    cyclomatic_complexity: 10
+    calls_out: 9
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.generationMetadata:
+    name: generationMetadata
+    module: src.synthesis.tasks-llm
+    line: 323
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 1
+  src.cli.config:
+    name: config
     module: src.cli
-    line: 495
+    line: 65
+    cyclomatic_complexity: 4
+    calls_out: 1
+    calls_in: 0
+  src.pipeline.run.persistFailedRun:
+    name: persistFailedRun
+    module: src.pipeline.run
+    line: 493
+    cyclomatic_complexity: 19
+    calls_out: 12
+    calls_in: 1
+  src.operations.validation.principals:
+    name: principals
+    module: src.operations.validation
+    line: 50
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.tf.classifier.vectorize:
+    name: vectorize
+    module: src.tf.classifier
+    line: 60
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 1
+  src.web.diff-ui.byId:
+    name: byId
+    module: src.web.diff-ui
+    line: 36
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 8
+  src.services.actions.svg:
+    name: svg
+    module: src.services.actions
+    line: 403
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.code-change-plan.conclusionsByDiagnostic:
+    name: conclusionsByDiagnostic
+    module: src.synthesis.code-change-plan
+    line: 115
+    cyclomatic_complexity: 7
+    calls_out: 18
+    calls_in: 0
+  src.web.diff-ui.updateMeta:
+    name: updateMeta
+    module: src.web.diff-ui
+    line: 41
+    cyclomatic_complexity: 7
+    calls_out: 3
+    calls_in: 2
+  src.cli.controller:
+    name: controller
+    module: src.cli
+    line: 385
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.services.actions.scopedPath:
+    name: scopedPath
+    module: src.services.actions
+    line: 601
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 2
+  src.synthesis.code-change-plan.applyUnifiedDiffToText:
+    name: applyUnifiedDiffToText
+    module: src.synthesis.code-change-plan
+    line: 1155
+    cyclomatic_complexity: 47
+    calls_out: 13
+    calls_in: 1
+  src.synthesis.code-change-plan.unifiedDiff:
+    name: unifiedDiff
+    module: src.synthesis.code-change-plan
+    line: 657
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.services.actions.withTextDiffViews:
+    name: withTextDiffViews
+    module: src.services.actions
+    line: 554
+    cyclomatic_complexity: 3
+    calls_out: 7
+    calls_in: 2
+  src.cli.optionBoolean:
+    name: optionBoolean
+    module: src.cli
+    line: 709
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 15
+  src.synthesis.code-change-plan.acceptances:
+    name: acceptances
+    module: src.synthesis.code-change-plan
+    line: 277
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.pipeline.run.skippedAudit:
+    name: skippedAudit
+    module: src.pipeline.run
+    line: 575
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 8
+  src.cli.handleReality:
+    name: handleReality
+    module: src.cli
+    line: 485
+    cyclomatic_complexity: 9
+    calls_out: 12
+    calls_in: 1
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.proposals:
+    name: proposals
+    module: src.synthesis.tasks-llm
+    line: 272
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.watch.watcher.waitMs:
+    name: waitMs
+    module: src.watch.watcher
+    line: 192
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 0
+  src.synthesis.code-change-plan.normalizeUnifiedDiff:
+    name: normalizeUnifiedDiff
+    module: src.synthesis.code-change-plan
+    line: 916
+    cyclomatic_complexity: 17
+    calls_out: 9
+    calls_in: 4
+  src.cli.command:
+    name: command
+    module: src.cli
+    line: 64
+    cyclomatic_complexity: 4
+    calls_out: 1
+    calls_in: 0
+  src.watch.watcher.result:
+    name: result
+    module: src.watch.watcher
+    line: 211
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeRawTarget:
+    name: normalizeRawTarget
+    module: src.synthesis.tasks-llm
+    line: 490
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 4
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.client:
+    name: client
+    module: src.synthesis.tasks-llm
+    line: 105
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.services.actions.title:
+    name: title
+    module: src.services.actions
+    line: 555
+    cyclomatic_complexity: 3
+    calls_out: 6
+    calls_in: 0
+  src.summary.summarizer.SummaryAttemptError.sortedUnique:
+    name: sortedUnique
+    module: src.summary.summarizer
+    line: 372
     cyclomatic_complexity: 2
     calls_out: 5
+    calls_in: 4
+  src.synthesis.code-change-plan.collectTarget:
+    name: collectTarget
+    module: src.synthesis.code-change-plan
+    line: 323
+    cyclomatic_complexity: 11
+    calls_out: 3
+    calls_in: 7
+  src.synthesis.code-change-plan.markdown:
+    name: markdown
+    module: src.synthesis.code-change-plan
+    line: 491
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 0
+  src.synthesis.code-change-plan.descriptionFor:
+    name: descriptionFor
+    module: src.synthesis.code-change-plan
+    line: 377
+    cyclomatic_complexity: 5
+    calls_out: 3
+    calls_in: 7
+  src.services.actions.value:
+    name: value
+    module: src.services.actions
+    line: 367
+    cyclomatic_complexity: 3
+    calls_out: 1
+    calls_in: 0
+  src.cli.optionList:
+    name: optionList
+    module: src.cli
+    line: 724
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 4
+  src.synthesis.validation.dependencyFirstPriorityOrder:
+    name: dependencyFirstPriorityOrder
+    module: src.synthesis.validation
+    line: 64
+    cyclomatic_complexity: 11
+    calls_out: 10
+    calls_in: 1
+  src.summary.summarizer.SummaryAttemptError.materializeConclusions:
+    name: materializeConclusions
+    module: src.summary.summarizer
+    line: 280
+    cyclomatic_complexity: 1
+    calls_out: 8
+    calls_in: 1
+  src.watch.watcher.absolute:
+    name: absolute
+    module: src.watch.watcher
+    line: 54
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 0
+  src.synthesis.code-change-plan.confidenceFor:
+    name: confidenceFor
+    module: src.synthesis.code-change-plan
+    line: 413
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 8
+  src.summary.summarizer.SummaryAttemptError.conclusions:
+    name: conclusions
+    module: src.summary.summarizer
+    line: 312
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 0
+  src.services.actions.filterCommunicationGraph:
+    name: filterCommunicationGraph
+    module: src.services.actions
+    line: 509
+    cyclomatic_complexity: 17
+    calls_out: 7
+    calls_in: 2
+  src.cli.doctor:
+    name: doctor
+    module: src.cli
+    line: 637
+    cyclomatic_complexity: 6
+    calls_out: 7
+    calls_in: 1
+  src.synthesis.code-change-plan.assertSourceApplyReceipt:
+    name: assertSourceApplyReceipt
+    module: src.synthesis.code-change-plan
+    line: 1113
+    cyclomatic_complexity: 11
+    calls_out: 13
+    calls_in: 2
+  src.watch.watcher.maxFiles:
+    name: maxFiles
+    module: src.watch.watcher
+    line: 38
+    cyclomatic_complexity: 11
+    calls_out: 14
+    calls_in: 0
+  src.services.actions.booleanValue:
+    name: booleanValue
+    module: src.services.actions
+    line: 673
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 11
+  src.operations.validation.access:
+    name: access
+    module: src.operations.validation
+    line: 79
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.synthesis.tasks-llm.TaskSynthesisAttemptError.normalizeLocalKeys:
+    name: normalizeLocalKeys
+    module: src.synthesis.tasks-llm
+    line: 435
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  src.web.diff-ui.formatBytes:
+    name: formatBytes
+    module: src.web.diff-ui
+    line: 39
+    cyclomatic_complexity: 7
+    calls_out: 2
+    calls_in: 3
+  src.cli.optionNlMode:
+    name: optionNlMode
+    module: src.cli
+    line: 729
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 5
+  src.web.diff-ui.fillSelect:
+    name: fillSelect
+    module: src.web.diff-ui
+    line: 42
+    cyclomatic_complexity: 6
+    calls_out: 9
+    calls_in: 2
+  src.services.actions.executeAction:
+    name: executeAction
+    module: src.services.actions
+    line: 71
+    cyclomatic_complexity: 83
+    calls_out: 64
+    calls_in: 0
+  src.synthesis.code-change-plan.proposals:
+    name: proposals
+    module: src.synthesis.code-change-plan
+    line: 112
+    cyclomatic_complexity: 7
+    calls_out: 18
+    calls_in: 0
+  src.synthesis.code-change-plan.conclusions:
+    name: conclusions
+    module: src.synthesis.code-change-plan
+    line: 111
+    cyclomatic_complexity: 7
+    calls_out: 18
+    calls_in: 0
+  src.synthesis.code-change-path.isUsefulCodeChangePath:
+    name: isUsefulCodeChangePath
+    module: src.synthesis.code-change-path
+    line: 198
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.pipeline.run.docs:
+    name: docs
+    module: src.pipeline.run
+    line: 145
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 0
+  src.synthesis.todo-patch.uniqueStrings:
+    name: uniqueStrings
+    module: src.synthesis.todo-patch
+    line: 366
+    cyclomatic_complexity: 7
+    calls_out: 5
+    calls_in: 6
+  src.services.actions.nlModeValue:
+    name: nlModeValue
+    module: src.services.actions
+    line: 526
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 2
+  src.cli.taskFile:
+    name: taskFile
+    module: src.cli
+    line: 361
+    cyclomatic_complexity: 3
+    calls_out: 8
+    calls_in: 0
+  src.watch.watcher.describeDelta:
+    name: describeDelta
+    module: src.watch.watcher
+    line: 100
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 5
+  src.cli.handleExtract:
+    name: handleExtract
+    module: src.cli
+    line: 511
+    cyclomatic_complexity: 16
+    calls_out: 18
+    calls_in: 1
+  src.services.actions.beforeDiagnostics:
+    name: beforeDiagnostics
+    module: src.services.actions
+    line: 351
+    cyclomatic_complexity: 8
+    calls_out: 2
+    calls_in: 0
+  src.cli.handleWatch:
+    name: handleWatch
+    module: src.cli
+    line: 359
+    cyclomatic_complexity: 6
+    calls_out: 18
+    calls_in: 1
+  src.synthesis.code-change-plan.rawDiff:
+    name: rawDiff
+    module: src.synthesis.code-change-plan
+    line: 656
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.cli.maxRows:
+    name: maxRows
+    module: src.cli
+    line: 445
+    cyclomatic_complexity: 9
+    calls_out: 10
     calls_in: 0
 edges:
 - caller: src.cli.main
@@ -4981,6 +4981,7 @@ entry_points:
 - src.core.text.HOST_TLDS
 - src.core.text.PATH_ROOTS
 - src.core.text.STOP_WORDS
+- src.core.text.aliased
 - src.core.text.backticks
 - src.core.text.camel
 - src.core.text.classifyActionHeuristically
@@ -4992,6 +4993,7 @@ entry_points:
 - src.core.text.extractPaths
 - src.core.text.extractSymbols
 - src.core.text.extractVersions
+- src.core.text.foldTopicToken
 - src.core.text.inferObject
 - src.core.text.intersection
 - src.core.text.isPathLike
@@ -5009,6 +5011,7 @@ entry_points:
 - src.core.text.segments
 - src.core.text.separated
 - src.core.text.similarity
+- src.core.text.singular
 - src.core.text.splitIntentLines
 - src.core.text.stripped
 - src.core.text.ticketPrefixes
@@ -5034,6 +5037,8 @@ entry_points:
 - src.diff.reality.LABEL_CHAR
 - src.diff.reality.aligned
 - src.diff.reality.alignment
+- src.diff.reality.anchor
+- src.diff.reality.anchors
 - src.diff.reality.bucket
 - src.diff.reality.buildRealityView
 - src.diff.reality.bySeverity
@@ -5062,14 +5067,17 @@ entry_points:
 - src.diff.reality.laneX
 - src.diff.reality.lanes
 - src.diff.reality.maxRows
+- src.diff.reality.modulePaths
 - src.diff.reality.object
 - src.diff.reality.observed
 - src.diff.reality.observedRecords
 - src.diff.reality.observedTopics
+- src.diff.reality.path
 - src.diff.reality.paths
 - src.diff.reality.pillWidth
 - src.diff.reality.renderRealityMarkdown
 - src.diff.reality.renderRealitySvg
+- src.diff.reality.resolved
 - src.diff.reality.rowHeight
 - src.diff.reality.rows
 - src.diff.reality.separator
@@ -5077,6 +5085,7 @@ entry_points:
 - src.diff.reality.statusWidth
 - src.diff.reality.statusX
 - src.diff.reality.symbolPaths
+- src.diff.reality.targetless
 - src.diff.reality.theme
 - src.diff.reality.title
 - src.diff.reality.value
@@ -5159,6 +5168,7 @@ entry_points:
 - src.evaluation.gold-cases.diagnosticIds
 - src.evaluation.gold-cases.diagnostics
 - src.evaluation.gold-cases.duplicateIds
+- src.evaluation.gold-cases.evaluateDiagnosticsCase
 - src.evaluation.gold-cases.evaluateDsl2TodoCase
 - src.evaluation.gold-cases.evaluateLinkingCase
 - src.evaluation.gold-cases.exact
@@ -5174,6 +5184,7 @@ entry_points:
 - src.evaluation.gold-cases.record
 - src.evaluation.gold-cases.recordIds
 - src.evaluation.gold-cases.records
+- src.evaluation.gold-cases.report
 - src.evaluation.gold-cases.validation
 - src.evaluation.gold-cli.arg
 - src.evaluation.gold-cli.args
@@ -5187,6 +5198,7 @@ entry_points:
 - src.evaluation.gold-cli.requirePerfect
 - src.evaluation.gold-extraction.config
 - src.evaluation.gold-extraction.destination
+- src.evaluation.gold-extraction.files
 - src.evaluation.gold-extraction.originalFetch
 - src.evaluation.gold-extraction.projectRecord
 - src.evaluation.gold-extraction.root
@@ -5203,8 +5215,10 @@ entry_points:
 - src.evaluation.gold-types.channels
 - src.evaluation.gold-types.dataset
 - src.evaluation.gold.actual
+- src.evaluation.gold.byChannel
 - src.evaluation.gold.byClass
 - src.evaluation.gold.counts
+- src.evaluation.gold.diagnostics
 - src.evaluation.gold.dsl2todo
 - src.evaluation.gold.duplicateCounts
 - src.evaluation.gold.evaluateGoldDataset

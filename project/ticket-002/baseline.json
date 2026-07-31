@@ -1,0 +1,248 @@
+{
+  "schemaVersion": "t2c.external-benchmark/v1",
+  "runtime": {
+    "name": "todo2code",
+    "version": "0.5.0",
+    "commit": "5f5ae5938ab77dcce474ba7abbd23686072776ec"
+  },
+  "policy": {
+    "checkout": "detached tracked-only worktree",
+    "task": "tracked TASK.md when present; otherwise disabled",
+    "todo": "tracked TODO.md when present; otherwise disabled",
+    "changelog": "tracked CHANGELOG.md when present; otherwise disabled",
+    "documents": [
+      "README.md",
+      "docs/**/*.md"
+    ],
+    "nlMode": "deterministic",
+    "markdownMode": "deterministic",
+    "communication": "disabled",
+    "summaryLlm": false,
+    "taskSynthesis": "disabled"
+  },
+  "repositories": [
+    {
+      "repository": "semcod/code2llm",
+      "commit": "b297d600ae7d923ce22730bc90c6cd330ec7e243",
+      "status": "succeeded",
+      "runId": "20260731T065730Z-ca7a9a28",
+      "elapsedSeconds": 18,
+      "graphFingerprint": "2e57056bf75fc5ef5dead16dd990f56082a6e184f86ed4995f5607a48bd9e732",
+      "records": 16899,
+      "relations": 41747,
+      "topics": 628,
+      "alignedTopics": 107,
+      "declaredRecords": 752,
+      "observedRecords": 14017,
+      "implementationCoveragePercent": 59.4,
+      "plannedCodePercent": 43.7,
+      "documentedCodePercent": 31.4,
+      "warnings": 9,
+      "diagnostics": {
+        "total": 4700,
+        "info": 912,
+        "warning": 2377,
+        "review_required": 1411,
+        "blocking": 0,
+        "byCode": {
+          "CHANGELOG_WITHOUT_IMPLEMENTATION": 1411,
+          "UNLINKED_RECORD": 1332,
+          "IMPLEMENTED_NOT_PLANNED": 1044,
+          "IMPLEMENTED_NOT_DOCUMENTED": 912,
+          "PLANNED_NOT_IMPLEMENTED": 1
+        }
+      }
+    },
+    {
+      "repository": "semcod/domd",
+      "commit": "b6c5ad24f2f2da386a2e3e5bad05433184f54c58",
+      "status": "succeeded",
+      "runId": "20260731T065753Z-a3fde5a3",
+      "elapsedSeconds": 5,
+      "graphFingerprint": "9df7e187f82b4ce8028c22938642bf2746ba0fe123ddc26386efa1a6916e6f68",
+      "records": 10611,
+      "relations": 7470,
+      "topics": 241,
+      "alignedTopics": 9,
+      "declaredRecords": 588,
+      "observedRecords": 9914,
+      "implementationCoveragePercent": 11.8,
+      "plannedCodePercent": 5.4,
+      "documentedCodePercent": 5.4,
+      "warnings": 0,
+      "diagnostics": {
+        "total": 2109,
+        "info": 616,
+        "warning": 1388,
+        "review_required": 105,
+        "blocking": 0,
+        "byCode": {
+          "UNLINKED_RECORD": 779,
+          "IMPLEMENTED_NOT_DOCUMENTED": 616,
+          "IMPLEMENTED_NOT_PLANNED": 609,
+          "CHANGELOG_WITHOUT_IMPLEMENTATION": 105
+        }
+      }
+    },
+    {
+      "repository": "semcod/pactfix",
+      "commit": "daf301a9e23d65cd341ffa2d6c0a6cfe728e651d",
+      "status": "succeeded",
+      "runId": "20260731T065802Z-48dc0b12",
+      "elapsedSeconds": 5,
+      "graphFingerprint": "9c2d15fc76b8585f8ae68dbd7b9f518c6cf819fce841b5178c9797e5d7d25b69",
+      "records": 5161,
+      "relations": 3917,
+      "topics": 153,
+      "alignedTopics": 2,
+      "declaredRecords": 118,
+      "observedRecords": 4992,
+      "implementationCoveragePercent": 5.0,
+      "plannedCodePercent": 1.8,
+      "documentedCodePercent": 1.8,
+      "warnings": 5,
+      "diagnostics": {
+        "total": 664,
+        "info": 197,
+        "warning": 419,
+        "review_required": 48,
+        "blocking": 0,
+        "byCode": {
+          "UNLINKED_RECORD": 217,
+          "IMPLEMENTED_NOT_DOCUMENTED": 197,
+          "IMPLEMENTED_NOT_PLANNED": 190,
+          "CHANGELOG_WITHOUT_IMPLEMENTATION": 48,
+          "PLANNED_NOT_IMPLEMENTED": 12
+        }
+      }
+    },
+    {
+      "repository": "semcod/code2logic",
+      "commit": "ba93489b56f51af31206671a1f55ab860bb725c2",
+      "status": "succeeded",
+      "runId": "20260731T065808Z-a52c2716",
+      "elapsedSeconds": 12,
+      "graphFingerprint": "722f90e806be667f271eb393b523f771cae18cc61912416c5f4d88c9125f01e7",
+      "records": 21423,
+      "relations": 16927,
+      "topics": 359,
+      "alignedTopics": 27,
+      "declaredRecords": 864,
+      "observedRecords": 20413,
+      "implementationCoveragePercent": 17.7,
+      "plannedCodePercent": 14.1,
+      "documentedCodePercent": 14.1,
+      "warnings": 3,
+      "diagnostics": {
+        "total": 4680,
+        "info": 1474,
+        "warning": 3081,
+        "review_required": 121,
+        "blocking": 4,
+        "byCode": {
+          "IMPLEMENTED_NOT_PLANNED": 1574,
+          "UNLINKED_RECORD": 1504,
+          "IMPLEMENTED_NOT_DOCUMENTED": 1474,
+          "CHANGELOG_WITHOUT_IMPLEMENTATION": 121,
+          "CONFLICTING_INTENT": 4,
+          "PLANNED_NOT_IMPLEMENTED": 3
+        }
+      }
+    },
+    {
+      "repository": "semcod/code2docs",
+      "commit": "c738aff7bd51670104e144ae19b657fd3915565d",
+      "status": "succeeded",
+      "runId": "20260731T065827Z-9f042652",
+      "elapsedSeconds": 9,
+      "graphFingerprint": "4598fbe9eec85d61f1290a4db5c672bc3923df29d7e9db80923671b7fb3fb36f",
+      "records": 6717,
+      "relations": 35447,
+      "topics": 265,
+      "alignedTopics": 57,
+      "declaredRecords": 1487,
+      "observedRecords": 4556,
+      "implementationCoveragePercent": 47.1,
+      "plannedCodePercent": 77.0,
+      "documentedCodePercent": 47.3,
+      "warnings": 0,
+      "diagnostics": {
+        "total": 1555,
+        "info": 283,
+        "warning": 876,
+        "review_required": 396,
+        "blocking": 0,
+        "byCode": {
+          "UNLINKED_RECORD": 463,
+          "IMPLEMENTED_NOT_PLANNED": 413,
+          "CHANGELOG_WITHOUT_IMPLEMENTATION": 396,
+          "IMPLEMENTED_NOT_DOCUMENTED": 283
+        }
+      }
+    },
+    {
+      "repository": "semcod/redup",
+      "commit": "a175fb0a80b54fcda4bf5cd34c8b087fe9472608",
+      "status": "succeeded",
+      "runId": "20260731T065840Z-61c33c16",
+      "elapsedSeconds": 6,
+      "graphFingerprint": "ed0359f98ed4e18f103a3751543f3e08a4accecc1be730633446fc63f4db3087",
+      "records": 7204,
+      "relations": 19173,
+      "topics": 277,
+      "alignedTopics": 62,
+      "declaredRecords": 563,
+      "observedRecords": 5820,
+      "implementationCoveragePercent": 49.2,
+      "plannedCodePercent": 55.9,
+      "documentedCodePercent": 10.8,
+      "warnings": 0,
+      "diagnostics": {
+        "total": 2384,
+        "info": 476,
+        "warning": 1205,
+        "review_required": 703,
+        "blocking": 0,
+        "byCode": {
+          "UNLINKED_RECORD": 708,
+          "CHANGELOG_WITHOUT_IMPLEMENTATION": 703,
+          "IMPLEMENTED_NOT_PLANNED": 493,
+          "IMPLEMENTED_NOT_DOCUMENTED": 476,
+          "PLANNED_NOT_IMPLEMENTED": 4
+        }
+      }
+    },
+    {
+      "repository": "subactor/platform",
+      "commit": "3e96573d587cb664741849ceba205bf303b9f418",
+      "status": "succeeded",
+      "runId": "20260731T065848Z-3863e97d",
+      "elapsedSeconds": 6,
+      "graphFingerprint": "1c4166dd1b7b7789d06693a224b5d816963c4bdee5b026a5e1145861c60f786d",
+      "records": 10628,
+      "relations": 11002,
+      "topics": 688,
+      "alignedTopics": 25,
+      "declaredRecords": 1177,
+      "observedRecords": 9309,
+      "implementationCoveragePercent": 5.9,
+      "plannedCodePercent": 9.3,
+      "documentedCodePercent": 8.9,
+      "warnings": 1,
+      "diagnostics": {
+        "total": 1271,
+        "info": 185,
+        "warning": 993,
+        "review_required": 93,
+        "blocking": 0,
+        "byCode": {
+          "UNLINKED_RECORD": 780,
+          "IMPLEMENTED_NOT_DOCUMENTED": 185,
+          "IMPLEMENTED_NOT_PLANNED": 177,
+          "CHANGELOG_WITHOUT_IMPLEMENTATION": 93,
+          "PLANNED_NOT_IMPLEMENTED": 36
+        }
+      }
+    }
+  ]
+}

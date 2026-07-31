@@ -1,5 +1,5 @@
 # code2llm call graph | <PROJECT_ROOT>
-# generated in 0.19s
+# generated in 0.21s
 # nodes: 345 | edges: 500 | modules: 14
 # CC̄=3.9
 
@@ -28,22 +28,22 @@ HUBS[20]:
     CC=6  in:18  out:4  total:22
   src.synthesis.code-change-plan.createCodeChangeSourcePatch
     CC=13  in:2  out:20  total:22
-  src.synthesis.todo-patch.createTodoPatch
-    CC=8  in:1  out:20  total:21
   src.synthesis.code-change-plan.deterministicGeneration
     CC=1  in:18  out:3  total:21
   src.synthesis.code-change-plan.evaluateCodeChangeAcceptance
     CC=9  in:3  out:18  total:21
   src.watch.watcher.scanTree
     CC=12  in:4  out:17  total:21
-  src.synthesis.todo-patch.applyTodoPatch
-    CC=12  in:0  out:20  total:20
+  src.synthesis.todo-patch.createTodoPatch
+    CC=8  in:1  out:20  total:21
   src.cli.handleDiff
     CC=24  in:1  out:19  total:20
-  src.cli.handleWatch
-    CC=6  in:1  out:18  total:19
+  src.synthesis.todo-patch.applyTodoPatch
+    CC=12  in:0  out:20  total:20
   src.synthesis.todo-patch.atomicWrite
     CC=5  in:6  out:13  total:19
+  src.cli.handleCommunication
+    CC=11  in:1  out:18  total:19
 
 MODULES:
   src.cli  [45 funcs]

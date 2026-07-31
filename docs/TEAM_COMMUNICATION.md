@@ -21,6 +21,39 @@ project/
 Pliki powinny być dopisywane, a nie nadpisywane. Numer na końcu nazwy ułatwia
 odtworzenie kolejności, lecz to `timestamp` jest źródłem czasu w DSL.
 
+Standard governance z `wellmanifest/new-project` jest obsługiwany równolegle:
+
+```text
+project/
+└── ticket-005/
+    ├── user-tom-sapletta-com.md
+    ├── ai-codex.md
+    ├── ai-codex-logs.txt
+    ├── README.md
+    ├── preprompt.md
+    └── changelog.md
+```
+
+`user-*` jest uczestnikiem `human`, a `ai-*` uczestnikiem `agent`. Sufiks
+nazwy pliku jest kanonizowany do małych liter, dzięki czemu `ai-Codex.md` i
+`ai-codex.md` nie tworzą dwóch tożsamości. Pliki `README.md`, `preprompt.md`,
+`changelog.md`, `audit.md`, `baseline.md`, `iteration-*.md` oraz
+`ai-*-logs.txt` pozostają dowodami ticketu i nie są wypowiedziami uczestnika.
+
+W plikach governance typ wypowiedzi wynika z sekcji:
+
+| Właściciel pliku | Sekcja | Typ DSL |
+|---|---|---|
+| człowiek | Instructions, Assigned Instructions, Requirements, Goal, Scope | `request` |
+| człowiek | Decisions, Approval | `decision` |
+| agent | Understanding, Execution Plan, Scope, Guardrails, Risks | `plan` |
+| agent | Actual Changes, Results, Report, Blockers | `report` |
+| agent | Approval | `claim` |
+
+Sekcje statusu, metadanych i granic własności nie stają się intencjami.
+Zawinięte akapity są scalane przed konwersją, a same znaczniki Markdown i
+separatory nie tworzą rekordów.
+
 ## Kontrakt pliku
 
 ```markdown
@@ -82,6 +115,27 @@ ani aliasów i nie stosuje podobieństwa tekstowego. `humanAliases` służą jak
 jawna mapa integracyjna, a nie jako heurystyka. Przy aktywnym rejestrze role i
 autorzy Git z front matter sprzeczni z wpisem są ignorowani i raportowani.
 Schemat znajduje się w `schemas/participant-registry.schema.json`.
+
+### Migracja starszych promptów i raportów
+
+Samo przemianowanie dowolnego `Prompt.txt` na `user-owner.md` nie wystarcza.
+Plik governance bez rozpoznanej sekcji jest odrzucany z ostrzeżeniem
+wskazującym właściciela treści; system nie zgaduje typu i nie ukrywa utraty
+intencji.
+
+Jeżeli cały starszy plik ma jeden typ, można użyć płaskiego front matter:
+
+```markdown
+---
+type: request
+---
+Treść starszego promptu.
+```
+
+Analogicznie odpowiedź analityczna, która nie deklaruje wykonania, powinna mieć
+`type: message`, a nie `report`. Plik mieszający polecenia, decyzje, plany i
+raporty trzeba podzielić na sekcje. Przypisanie jednego typu całemu mieszanemu
+dokumentowi zmienia klasę epistemiczną i może wytworzyć fałszywe claimy.
 
 ## Uruchomienie
 
@@ -154,11 +208,28 @@ claim Codexa ma dowód. Dodanie `--no-ast` demonstruje osobny problem
 - polecenie człowieka bez semantycznie powiązanej odpowiedzi agenta;
 - claim wykonania bez powiązanego commita lub faktu AST;
 - plan albo praca agenta poza zakresem polecenia człowieka;
+- claim agenta o akceptacji człowieka, której człowiek nie zapisał we własnym
+  kanale;
 - brak jednoznacznej tożsamości lub roli uczestnika.
 
 Analiza nie uznaje wypowiedzi agenta za fakt wykonania. `report`, `result` i
 `claim` pozostają klasą epistemiczną `claim`; dowodami są osobne rekordy Git,
 AST i testów.
+
+Każdy problem zawiera `responseRequiredRole` i `responseRequiredFrom`.
+Przypisanie odpowiedzi jest częścią wyniku, a nie sugestią renderera:
+
+| Rozbieżność | Kto powinien się wypowiedzieć |
+|---|---|
+| polecenie bez odpowiedzi | agent przypisany do ticketu |
+| konflikt dwóch ludzi | obaj ludzie |
+| konflikt człowiek–agent | człowiek będący właścicielem zakresu |
+| konflikt dwóch agentów | człowiek będący właścicielem zakresu |
+| praca agenta poza zakresem | człowiek — zatwierdza albo odrzuca rozszerzenie |
+| claim wykonania bez dowodu | agent — dostarcza ścieżkę, symbol lub commit |
+| claim agenta o decyzji człowieka | człowiek — zapisuje decyzję we własnym pliku |
+
+Agent nie może zamknąć ostatniego przypadku, edytując `user-*` za człowieka.
 
 ## Wdrożenie w `wellmanifest/new-project`
 

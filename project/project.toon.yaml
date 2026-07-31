@@ -1,8 +1,8 @@
-# todo2code | 2821 func | 128f | 36133L | typescript | 2026-07-30
+# todo2code | 2840 func | 128f | 38492L | typescript | 2026-07-31
 # generated in 0.00s
 
 HEALTH:
-  CC̄=3.9  critical=220 (limit:10)  dup=28  cycles=0
+  CC̄=3.9  critical=228 (limit:10)  dup=28  cycles=0
 
 ALERTS[20]:
   !!! cc_exceeded      main = 94 (limit:15)
@@ -16,23 +16,23 @@ ALERTS[20]:
   !!! high_fan_out     root = 63 (limit:10)
   !!! cc_exceeded      parseCommand = 57 (limit:15)
 
-MODULES[232] (top by size):
+MODULES[233] (top by size):
+  M[evaluation/gold/v2/dataset.json] 1698L C:0 F:0 CC↑0 D:0 (json)
   M[src/synthesis/code-change-plan.ts] 1243L C:10 F:121 CC↑47 D:4 (typescript)
   M[src/core/schema.ts] 922L C:4 F:124 CC↑23 D:0 (typescript)
   M[docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md] 872L C:0 F:0 CC↑0 D:0 (md)
   M[docs/reference/original-monitoring-design.md] 872L C:0 F:0 CC↑0 D:0 (md)
-  M[README.md] 830L C:0 F:0 CC↑0 D:0 (md)
+  M[README.md] 835L C:0 F:0 CC↑0 D:0 (md)
   M[src/cli.ts] 819L C:1 F:83 CC↑94 D:0 (typescript)
   M[evaluation/gold/v1/dataset.json] 761L C:0 F:0 CC↑0 D:0 (json)
   M[src/services/actions.ts] 698L C:0 F:74 CC↑83 D:0 (typescript)
   M[src/core/types.ts] 657L C:39 F:0 CC↑0 D:0 (typescript)
   M[src/synthesis/tasks-llm.ts] 617L C:7 F:75 CC↑9 D:1 (typescript)
   M[src/pipeline/run.ts] 598L C:1 F:64 CC↑53 D:0 (typescript)
+  M[src/diff/reality.ts] 564L C:3 F:72 CC↑22 D:0 (typescript)
+  M[CHANGELOG.md] 532L C:0 F:0 CC↑0 D:0 (md)
   M[src/interfaces/a2a-task-store.ts] 513L C:3 F:81 CC↑11 D:0 (typescript)
-  M[docs/TEST_REPORT.md] 499L C:0 F:0 CC↑0 D:0 (md)
-  M[src/diff/reality.ts] 494L C:3 F:64 CC↑22 D:0 (typescript)
-  M[src/communication/llm.ts] 492L C:7 F:50 CC↑18 D:0 (typescript)
-  LANGS: typescript:102/md:50/json:29/python:13/javascript:10/rust:7/go:6/shell:5/php:3/other:2/toml:2/java:1/yml:1/txt:1
+  LANGS: typescript:102/md:50/json:30/python:13/javascript:10/rust:7/go:6/shell:5/php:3/other:2/toml:2/java:1/yml:1/txt:1
 
 HOTSPOTS[10]:
   ★ executeAction fan=64  // Orchestrates 64 calls
@@ -49,4 +49,4 @@ REFACTOR[15]:
   [5] H/L Split applyUnifiedDiffToText (CC=47)
 
 EVOLUTION:
-  2026-07-30 CC̄=3.9 crit=220 36133L // Automated analysis
+  2026-07-31 CC̄=3.9 crit=228 38492L // Automated analysis

@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "t2c.external-benchmark-iteration/v1",
+  "iteration": 1,
+  "target": "exact Update <file> changelog bookkeeping",
+  "runtimeBaseCommit": "18cc21b",
+  "invariants": {
+    "graphFingerprintsUnchanged": true,
+    "goldV2Precision": 1,
+    "goldV2Recall": 1,
+    "goldV2ForbiddenViolations": 0
+  },
+  "totals": {
+    "beforeDiagnostics": 16280,
+    "afterDiagnostics": 15545,
+    "removedDiagnostics": 735,
+    "beforeChangelogWithoutImplementation": 1853,
+    "afterChangelogWithoutImplementation": 1306,
+    "removedChangelogWithoutImplementation": 547,
+    "beforeUnlinkedRecord": 5728,
+    "afterUnlinkedRecord": 5540,
+    "removedUnlinkedRecord": 188
+  },
+  "repositories": [
+    {
+      "repository": "semcod/code2llm",
+      "beforeRunId": "20260731T072152Z-fb1ab530",
+      "afterRunId": "20260731T072927Z-898d6edc",
+      "graphFingerprint": "bd57f05a14c3abca5ebcbb95a6ad9b3fbb47ff40f656846c5b4857fd5ecde407",
+      "beforeDiagnostics": 4224,
+      "afterDiagnostics": 3826,
+      "beforeChangelogWithoutImplementation": 955,
+      "afterChangelogWithoutImplementation": 650,
+      "beforeUnlinkedRecord": 1312,
+      "afterUnlinkedRecord": 1219
+    },
+    {
+      "repository": "semcod/domd",
+      "beforeRunId": "20260731T072221Z-f577ffe7",
+      "afterRunId": "20260731T072950Z-828d57a8",
+      "graphFingerprint": "a9d2d5eb1287b7cb69ce7cdd3aa1a77078c6e7860e96be2a602a1c0858d6e0bd",
+      "beforeDiagnostics": 2096,
+      "afterDiagnostics": 2096,
+      "beforeChangelogWithoutImplementation": 99,
+      "afterChangelogWithoutImplementation": 99,
+      "beforeUnlinkedRecord": 772,
+      "afterUnlinkedRecord": 772
+    },
+    {
+      "repository": "semcod/pactfix",
+      "beforeRunId": "20260731T072226Z-0fb2f8b8",
+      "afterRunId": "20260731T072955Z-557f34ae",
+      "graphFingerprint": "9c2d15fc76b8585f8ae68dbd7b9f518c6cf819fce841b5178c9797e5d7d25b69",
+      "beforeDiagnostics": 664,
+      "afterDiagnostics": 664,
+      "beforeChangelogWithoutImplementation": 48,
+      "afterChangelogWithoutImplementation": 48,
+      "beforeUnlinkedRecord": 217,
+      "afterUnlinkedRecord": 217
+    },
+    {
+      "repository": "semcod/code2logic",
+      "beforeRunId": "20260731T072209Z-30215e36",
+      "afterRunId": "20260731T072939Z-9b5cf1f2",
+      "graphFingerprint": "c6e9f7a0671dc9b4e0c0f3fad5c5dcf1319ba674ba55bbafcc22b0caa908e6af",
+      "beforeDiagnostics": 4678,
+      "afterDiagnostics": 4656,
+      "beforeChangelogWithoutImplementation": 120,
+      "afterChangelogWithoutImplementation": 109,
+      "beforeUnlinkedRecord": 1503,
+      "afterUnlinkedRecord": 1492
+    },
+    {
+      "repository": "semcod/code2docs",
+      "beforeRunId": "20260731T072143Z-a3208b84",
+      "afterRunId": "20260731T072918Z-da0094d2",
+      "graphFingerprint": "83dcfa7a5b21ca7714b9546bef4baead7ef197e936a0b61088bde2cb1c275643",
+      "beforeDiagnostics": 1420,
+      "afterDiagnostics": 1241,
+      "beforeChangelogWithoutImplementation": 269,
+      "afterChangelogWithoutImplementation": 127,
+      "beforeUnlinkedRecord": 455,
+      "afterUnlinkedRecord": 418
+    },
+    {
+      "repository": "semcod/redup",
+      "beforeRunId": "20260731T072230Z-6a2d832d",
+      "afterRunId": "20260731T073000Z-92d5870f",
+      "graphFingerprint": "b3a582ffa178ee307157461e348b51757f4e726eadd809cbfa3dc8e8b143442f",
+      "beforeDiagnostics": 1945,
+      "afterDiagnostics": 1818,
+      "beforeChangelogWithoutImplementation": 269,
+      "afterChangelogWithoutImplementation": 184,
+      "beforeUnlinkedRecord": 703,
+      "afterUnlinkedRecord": 661
+    },
+    {
+      "repository": "subactor/platform",
+      "beforeRunId": "20260731T072237Z-6cab0835",
+      "afterRunId": "20260731T073006Z-1a2ec448",
+      "graphFingerprint": "ae92ead72d35e88e6de754d7af02d074201213c56166eb788a5e152d6a6f695d",
+      "beforeDiagnostics": 1253,
+      "afterDiagnostics": 1244,
+      "beforeChangelogWithoutImplementation": 93,
+      "afterChangelogWithoutImplementation": 89,
+      "beforeUnlinkedRecord": 766,
+      "afterUnlinkedRecord": 761
+    }
+  ]
+}

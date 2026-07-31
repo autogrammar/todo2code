@@ -297,6 +297,7 @@ export function extractPaths(text: string): string[] {
   const candidates = [
     ...extractBacktickValues(text),
     ...(text.match(/(?:^|\s)([A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.@*{}-]+)+)/g) ?? []).map((item) => item.trim()),
+    ...(text.match(/(?<![A-Za-z0-9_./@*{}-])[A-Za-z0-9_-][A-Za-z0-9_.-]*\.[A-Za-z0-9]{1,12}\b/g) ?? []),
   ];
   return [...new Set(candidates.filter(isPathLike))].sort();
 }

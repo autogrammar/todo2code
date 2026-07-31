@@ -1,19 +1,19 @@
-# todo2code | 232f 36133L | json:29,yml:1,md:50,typescript:102,python:13,toml:2,rust:7,php:3,go:6,javascript:10,shell:5,txt:1,java:1 | 2026-07-30
+# todo2code | 233f 38492L | json:30,yml:1,md:50,typescript:102,python:13,toml:2,rust:7,php:3,go:6,javascript:10,shell:5,txt:1,java:1 | 2026-07-31
 # generated in 0.03s
 # producer: code2llm | artifact: map.toon.yaml | schema: 1
-# stats: 2821 func | 0 cls | 232 mod | CC̄=3.9 | critical:99 | cycles:0
+# stats: 2840 func | 0 cls | 233 mod | CC̄=3.9 | critical:99 | cycles:0
 # alerts[5]: CC main=94; CC assertOperationPlan=84; CC executeAction=83; CC root=83; CC extractCommunicationIntent=68
 # hotspots[5]: executeAction fan=64; root fan=63; runPipeline fan=53; extractTypeScriptFile fan=44; main fan=43
 # evolution: baseline
 # Keys: M=modules, D=details, i=imports, e=exports, c=classes, f=functions, m=methods
-M[232]:
-  CHANGELOG.md,485
+M[233]:
+  CHANGELOG.md,532
   CONTRIBUTION.md,37
   Dockerfile,45
   Makefile,114
-  README.md,830
+  README.md,835
   TASK.md,15
-  TODO.md,242
+  TODO.md,282
   adapters/tensorflow/package.json,10
   docker-compose.yml,18
   docs/ARCHITECTURE.md,198
@@ -25,7 +25,7 @@ M[232]:
   docs/OPTIMIZATION.md,230
   docs/PIPELINE_DSL_NL.md,462
   docs/PROTOCOLS.md,124
-  docs/READINESS.md,158
+  docs/READINESS.md,228
   docs/REQUIREMENTS.md,39
   docs/SECURITY.md,49
   docs/SUBACTOR_OPERATION_DSL.md,33
@@ -36,8 +36,9 @@ M[232]:
   docs/intent-guard-diagrams/ALL_DIAGRAMS.md,410
   docs/intent-guard-diagrams/README.md,22
   docs/reference/original-monitoring-design.md,872
-  evaluation/gold/README.md,44
+  evaluation/gold/README.md,76
   evaluation/gold/v1/dataset.json,761
+  evaluation/gold/v2/dataset.json,1698
   examples/CHANGELOG.md,11
   examples/TODO.md,7
   examples/backend/CHANGELOG.md,11
@@ -64,7 +65,7 @@ M[232]:
   examples/task.md,9
   golang/ast_extract.go,368
   java/JavaAstExtract.java,260
-  package.json,43
+  package.json,44
   prompts/communication-to-intent.system.md,7
   prompts/docs-to-intent.system.md,23
   prompts/markdown-to-intent.system.md,5
@@ -85,7 +86,7 @@ M[232]:
   schemas/code-change-source-patch.schema.json,63
   schemas/conclusion.schema.json,51
   schemas/document-extraction-response.schema.json,52
-  schemas/gold-dataset.schema.json,435
+  schemas/gold-dataset.schema.json,505
   schemas/intent-graph-diff.schema.json,80
   schemas/intent-graph.schema.json,40
   schemas/intent-record.schema.json,132
@@ -160,21 +161,21 @@ M[232]:
   src/core/schema.ts,922
   src/core/security.ts,55
   src/core/target.ts,57
-  src/core/text.ts,346
+  src/core/text.ts,482
   src/core/types.ts,657
   src/core/version.ts,2
   src/diff/git.ts,161
-  src/diff/reality.ts,494
+  src/diff/reality.ts,564
   src/diff/svg.ts,104
   src/diff/text.ts,239
   src/diff/text-render.ts,251
   src/diff/text-types.ts,39
-  src/evaluation/gold.ts,227
-  src/evaluation/gold-cases.ts,228
+  src/evaluation/gold.ts,274
+  src/evaluation/gold-cases.ts,263
   src/evaluation/gold-cli.ts,44
-  src/evaluation/gold-extraction.ts,104
+  src/evaluation/gold-extraction.ts,127
   src/evaluation/gold-metrics.ts,50
-  src/evaluation/gold-types.ts,208
+  src/evaluation/gold-types.ts,293
   src/extractors/ast.ts,50
   src/extractors/ast/external.ts,48
   src/extractors/ast/go.ts,20
@@ -993,7 +994,7 @@ D:
     isUsefulCodeChangePath()
   src/core/text.ts:
     i: ./types.js
-    e: STOP_WORDS,classifyActionHeuristically,conventional,prose,searchable,detectModality,prose,detectPolarity,prose,stripped,normalizeToken,keywords,GENERIC_TOPICS,topicKeywords,separated,similarity,left,right,intersection,extractBacktickValues,value,extractPaths,FILE_EXTENSIONS,hasFileExtension,last,dot,PATH_ROOTS,isPathLike,segments,HOST_TLDS,isHostname,parts,tld,extractSymbols,backticks,camel,ticketPrefixes,extractTickets,values,extractVersions,inferObject,normalized,result,splitIntentLines,lines,raw,cleaned,pieces,value
+    e: STOP_WORDS,classifyActionHeuristically,conventional,prose,searchable,detectModality,prose,searchable,matches,detectPolarity,prose,stripped,normalizeToken,keywords,GENERIC_TOPICS,topicKeywords,separated,foldTopicToken,aliased,singular,similarity,left,right,intersection,extractBacktickValues,value,extractPaths,FILE_EXTENSIONS,hasFileExtension,last,dot,PATH_ROOTS,isPathLike,segments,HOST_TLDS,isHostname,parts,tld,extractSymbols,backticks,camel,ticketPrefixes,extractTickets,values,extractVersions,inferObject,normalized,result,splitIntentLines,lines,raw,cleaned,pieces,value
     STOP_WORDS()
     classifyActionHeuristically()
     conventional()
@@ -1001,6 +1002,8 @@ D:
     searchable()
     detectModality()
     prose()
+    searchable()
+    matches()
     detectPolarity()
     prose()
     stripped()
@@ -1009,6 +1012,9 @@ D:
     GENERIC_TOPICS()
     topicKeywords()
     separated()
+    foldTopicToken()
+    aliased()
+    singular()
     similarity()
     left()
     right()
@@ -1289,7 +1295,7 @@ D:
     isJsonValue()
   src/diff/reality.ts:
     i: ../core/id.js,../core/schema.js,../core/target.js
-    e: RealityRow,IntentRealityView,RealitySvgOptions,buildRealityView,components,diagnosticsByRecord,codes,status,bySeverity,alignment,bySize,declaredRecords,observedRecords,aligned,declaredTopics,observedTopics,implementationAlignedTopics,documentedObservedTopics,ratio,documentedCoverageLabel,LABEL_CHAR,BADGE_CHAR,widestLabel,groupIntoTopics,symbolPaths,groups,key,bucket,indexUnambiguousSymbolPaths,candidates,paths,values,primaryTargetKey,indexDiagnostics,index,bucket,resolveStatus,declared,observed,changelog,topicLabel,separator,value,declared,object,renderRealitySvg,theme,maxRows,title,rows,visible,laneX,laneStep,statusX,statusWidth,width,rowHeight,headerY,y,isDeclared,color,count,cx,fill,label,pillWidth,renderRealityMarkdown,lanes,escapeMarkdown
+    e: RealityRow,IntentRealityView,RealitySvgOptions,buildRealityView,components,diagnosticsByRecord,codes,status,bySeverity,alignment,bySize,declaredRecords,observedRecords,aligned,declaredTopics,observedTopics,implementationAlignedTopics,documentedObservedTopics,ratio,documentedCoverageLabel,LABEL_CHAR,BADGE_CHAR,widestLabel,groupIntoTopics,symbolPaths,anchors,groups,key,bucket,indexModuleAnchors,modulePaths,targetless,candidates,path,values,resolvesToFile,resolved,indexUnambiguousSymbolPaths,candidates,paths,values,primaryTargetKey,anchor,indexDiagnostics,index,bucket,resolveStatus,declared,observed,changelog,topicLabel,separator,value,declared,object,renderRealitySvg,theme,maxRows,title,rows,visible,laneX,laneStep,statusX,statusWidth,width,rowHeight,headerY,y,isDeclared,color,count,cx,fill,label,pillWidth,renderRealityMarkdown,lanes,escapeMarkdown
     RealityRow:
     IntentRealityView:
     RealitySvgOptions:
@@ -1315,14 +1321,24 @@ D:
     widestLabel()
     groupIntoTopics()
     symbolPaths()
+    anchors()
     groups()
     key()
     bucket()
+    indexModuleAnchors()
+    modulePaths()
+    targetless()
+    candidates()
+    path()
+    values()
+    resolvesToFile()
+    resolved()
     indexUnambiguousSymbolPaths()
     candidates()
     paths()
     values()
     primaryTargetKey()
+    anchor()
     indexDiagnostics()
     index()
     bucket()
@@ -2083,6 +2099,71 @@ D:
     ids()
     selectedRelations()
     compactRecord()
+  src/evaluation/gold.ts:
+    i: ../core/id.js,./gold-cases.js,./gold-extraction.js,node:fs
+    e: EvaluationCore,EvaluationRun,EvaluationResult,loadGoldDataset,parsed,evaluateGoldDataset,first,second,stable,goldReportIsPerfect,renderGoldReportMarkdown,percent,support,rows,value,evaluateOnce,extraction,linking,dsl2todo,diagnostics,evaluateExtraction,byChannel,actual,overall,evaluateDiagnostics,counts,forbiddenViolations,snapshots,result,evaluateLinking,counts,byClass,forbiddenViolations,snapshots,result,evaluateDsl2Todo,duplicateCounts,snapshots,result
+    EvaluationCore:
+    EvaluationRun:
+    EvaluationResult:
+    loadGoldDataset()
+    parsed()
+    evaluateGoldDataset()
+    first()
+    second()
+    stable()
+    goldReportIsPerfect()
+    renderGoldReportMarkdown()
+    percent()
+    support()
+    rows()
+    value()
+    evaluateOnce()
+    extraction()
+    linking()
+    dsl2todo()
+    diagnostics()
+    evaluateExtraction()
+    byChannel()
+    actual()
+    overall()
+    evaluateDiagnostics()
+    counts()
+    forbiddenViolations()
+    snapshots()
+    result()
+    evaluateLinking()
+    counts()
+    byClass()
+    forbiddenViolations()
+    snapshots()
+    result()
+    evaluateDsl2Todo()
+    duplicateCounts()
+    snapshots()
+    result()
+  src/evaluation/gold-types.ts:
+    e: GoldRecordProjection,GoldDocumentModelRecord,GoldExtractionCase,GoldFixtureRecord,GoldExpectedRelation,GoldLinkingCase,GoldProposalFixture,GoldDsl2TodoCase,GoldExpectedDiagnostic,GoldDiagnosticsCase,GoldDataset,BinaryMetric,GoldEvaluationReport,assertGoldDataset,dataset,assertDatasetObject,assertDatasetMetadata,assertDatasetCollections,assertUniqueCaseIds,assertExtractionCoverage,channels
+    GoldRecordProjection:
+    GoldDocumentModelRecord:
+    GoldExtractionCase:
+    GoldFixtureRecord:
+    GoldExpectedRelation:
+    GoldLinkingCase:
+    GoldProposalFixture:
+    GoldDsl2TodoCase:
+    GoldExpectedDiagnostic:
+    GoldDiagnosticsCase:
+    GoldDataset:
+    BinaryMetric:
+    GoldEvaluationReport:
+    assertGoldDataset()
+    dataset()
+    assertDatasetObject()
+    assertDatasetMetadata()
+    assertDatasetCollections()
+    assertUniqueCaseIds()
+    assertExtractionCoverage()
+    channels()
   src/evaluation/gold-cli.ts:
     i: node:fs,node:path
     e: main,args,arg,json,requirePerfect,outIndex,outPath,dataset,report,rendered
@@ -2492,6 +2573,53 @@ D:
     findKeyLine()
     pattern()
     index()
+  src/evaluation/gold-cases.ts:
+    i: ../core/id.js,../core/record.js,../core/types.js,../graph/diagnostics.js,../graph/linker.js,../synthesis/validation.js,../version.js,./gold-metrics.js
+    e: LinkingCaseResult,DiagnosticsCaseResult,Dsl2TodoCaseResult,evaluateLinkingCase,idToLabel,graph,observed,actual,expected,byClass,forbidden,forbiddenViolations,classifyRelation,exact,evaluateDiagnosticsCase,idToLabel,graph,report,observed,forbidden,forbiddenViolations,evaluateDsl2TodoCase,graph,diagnostics,diagnosticIds,conclusion,proposals,validation,duplicateIds,actual,expected,citations,buildConclusion,buildProposal,recordIds,id,countCitations,citationRequired,citationCited,buildFixtureRecords,labels,records,record,deterministicGeneration
+    LinkingCaseResult:
+    DiagnosticsCaseResult:
+    Dsl2TodoCaseResult:
+    evaluateLinkingCase()
+    idToLabel()
+    graph()
+    observed()
+    actual()
+    expected()
+    byClass()
+    forbidden()
+    forbiddenViolations()
+    classifyRelation()
+    exact()
+    evaluateDiagnosticsCase()
+    idToLabel()
+    graph()
+    report()
+    observed()
+    forbidden()
+    forbiddenViolations()
+    evaluateDsl2TodoCase()
+    graph()
+    diagnostics()
+    diagnosticIds()
+    conclusion()
+    proposals()
+    validation()
+    duplicateIds()
+    actual()
+    expected()
+    citations()
+    buildConclusion()
+    buildProposal()
+    recordIds()
+    id()
+    countCitations()
+    citationRequired()
+    citationCited()
+    buildFixtureRecords()
+    labels()
+    records()
+    record()
+    deterministicGeneration()
   src/core/ignore.ts:
     i: node:fs,node:path
     e: IgnoreRule,IgnoreMatcher,LoadIgnoreOptions,compileIgnorePattern,pattern,negated,directoryOnly,anchored,body,prefix,translateGlob,char,next,close,body,escapeLiteral,parseIgnoreFile,createIgnoreMatcher,normalize,decide,target,segments,ancestor,loadIgnoreMatcher,files,absolute,rule
@@ -2652,80 +2780,6 @@ D:
     files()
     result()
     parsed()
-  src/evaluation/gold.ts:
-    i: ../core/id.js,./gold-cases.js,./gold-extraction.js,node:fs
-    e: EvaluationCore,EvaluationRun,EvaluationResult,loadGoldDataset,parsed,evaluateGoldDataset,first,second,stable,goldReportIsPerfect,renderGoldReportMarkdown,percent,support,rows,value,evaluateOnce,extraction,linking,dsl2todo,evaluateExtraction,actual,overall,evaluateLinking,counts,byClass,forbiddenViolations,snapshots,result,evaluateDsl2Todo,duplicateCounts,snapshots,result
-    EvaluationCore:
-    EvaluationRun:
-    EvaluationResult:
-    loadGoldDataset()
-    parsed()
-    evaluateGoldDataset()
-    first()
-    second()
-    stable()
-    goldReportIsPerfect()
-    renderGoldReportMarkdown()
-    percent()
-    support()
-    rows()
-    value()
-    evaluateOnce()
-    extraction()
-    linking()
-    dsl2todo()
-    evaluateExtraction()
-    actual()
-    overall()
-    evaluateLinking()
-    counts()
-    byClass()
-    forbiddenViolations()
-    snapshots()
-    result()
-    evaluateDsl2Todo()
-    duplicateCounts()
-    snapshots()
-    result()
-  src/evaluation/gold-cases.ts:
-    i: ../core/id.js,../core/record.js,../core/types.js,../graph/diagnostics.js,../graph/linker.js,../synthesis/validation.js,../version.js,./gold-metrics.js
-    e: LinkingCaseResult,Dsl2TodoCaseResult,evaluateLinkingCase,idToLabel,graph,observed,actual,expected,byClass,forbidden,forbiddenViolations,classifyRelation,exact,evaluateDsl2TodoCase,graph,diagnostics,diagnosticIds,conclusion,proposals,validation,duplicateIds,actual,expected,citations,buildConclusion,buildProposal,recordIds,id,countCitations,citationRequired,citationCited,buildFixtureRecords,labels,records,record,deterministicGeneration
-    LinkingCaseResult:
-    Dsl2TodoCaseResult:
-    evaluateLinkingCase()
-    idToLabel()
-    graph()
-    observed()
-    actual()
-    expected()
-    byClass()
-    forbidden()
-    forbiddenViolations()
-    classifyRelation()
-    exact()
-    evaluateDsl2TodoCase()
-    graph()
-    diagnostics()
-    diagnosticIds()
-    conclusion()
-    proposals()
-    validation()
-    duplicateIds()
-    actual()
-    expected()
-    citations()
-    buildConclusion()
-    buildProposal()
-    recordIds()
-    id()
-    countCitations()
-    citationRequired()
-    citationCited()
-    buildFixtureRecords()
-    labels()
-    records()
-    record()
-    deterministicGeneration()
   src/core/target.ts:
     i: ./types.js
     e: GENERIC_SYMBOLS,GENERIC_FILES,normalizeTarget,normalizePath,normalizeSymbol,symbolAliases,normalized,parts,leaf,pathAliases,normalized,basename,unique
@@ -2908,27 +2962,6 @@ D:
     body()
     result()
     unsupported()
-  src/evaluation/gold-types.ts:
-    e: GoldRecordProjection,GoldDocumentModelRecord,GoldExtractionCase,GoldFixtureRecord,GoldExpectedRelation,GoldLinkingCase,GoldProposalFixture,GoldDsl2TodoCase,GoldDataset,BinaryMetric,GoldEvaluationReport,assertGoldDataset,dataset,assertDatasetObject,assertDatasetMetadata,assertDatasetCollections,assertUniqueCaseIds,assertExtractionCoverage,channels
-    GoldRecordProjection:
-    GoldDocumentModelRecord:
-    GoldExtractionCase:
-    GoldFixtureRecord:
-    GoldExpectedRelation:
-    GoldLinkingCase:
-    GoldProposalFixture:
-    GoldDsl2TodoCase:
-    GoldDataset:
-    BinaryMetric:
-    GoldEvaluationReport:
-    assertGoldDataset()
-    dataset()
-    assertDatasetObject()
-    assertDatasetMetadata()
-    assertDatasetCollections()
-    assertUniqueCaseIds()
-    assertExtractionCoverage()
-    channels()
   src/core/security.ts:
     i: node:fs,node:path
     e: assertPathWithinRoot,rootAbsolute,candidateAbsolute,existingAncestor,ancestorReal,assertDescendant,relative,nearestExistingPath,current,code,parent
@@ -3059,6 +3092,23 @@ Example:
     files()
     counts()
     extension()
+  src/evaluation/gold-extraction.ts:
+    i: ../config/env.js,../core/security.js,../core/types.js,../extractors/docs-deterministic.js,../extractors/docs-llm.js,../extractors/markdown.js,../extractors/nl.js,./gold-types.js,node:fs,node:os,node:path
+    e: runExtractionCase,root,config,writeFixtureFiles,destination,extractNlCase,extractMarkdownCase,extractDeterministicDocumentationCase,files,extractDocumentationCase,originalFetch,benchmarkConfig,config,projectRecord
+    runExtractionCase()
+    root()
+    config()
+    writeFixtureFiles()
+    destination()
+    extractNlCase()
+    extractMarkdownCase()
+    extractDeterministicDocumentationCase()
+    files()
+    extractDocumentationCase()
+    originalFetch()
+    benchmarkConfig()
+    config()
+    projectRecord()
   src/core/id.ts:
     i: node:crypto
     e: stableStringify,sortValue,sha256,shortHash,createIntentId,createRelationId,createConclusionId,createTodoProposalId,createCodeChangePlanHash,createCodeChangePlanId,createCodeChangeSourcePatchHash,createCodeChangeSourcePatchId,graphFingerprint,newRunId,stamp,asJsonValue
@@ -3119,21 +3169,6 @@ Example:
     counts()
     metric()
     ratio()
-  src/evaluation/gold-extraction.ts:
-    i: ../config/env.js,../core/security.js,../core/types.js,../extractors/docs-llm.js,../extractors/markdown.js,../extractors/nl.js,./gold-types.js,node:fs,node:os,node:path
-    e: runExtractionCase,root,config,writeFixtureFiles,destination,extractNlCase,extractMarkdownCase,extractDocumentationCase,originalFetch,benchmarkConfig,config,projectRecord
-    runExtractionCase()
-    root()
-    config()
-    writeFixtureFiles()
-    destination()
-    extractNlCase()
-    extractMarkdownCase()
-    extractDocumentationCase()
-    originalFetch()
-    benchmarkConfig()
-    config()
-    projectRecord()
   sdk/rust/src/actions.rs:
     i: crate::,serde_json::
   sdk/go/types.go:
@@ -3537,6 +3572,7 @@ Graph compar...
   examples/backend/README.md:
   examples/backend/CHANGELOG.md:
   evaluation/gold/README.md:
+  evaluation/gold/v2/dataset.json:
   evaluation/gold/v1/dataset.json:
   docs/VALIDATION.md:
   docs/TEST_REPORT.md:

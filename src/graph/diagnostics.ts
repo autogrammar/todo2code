@@ -1,6 +1,7 @@
 import { createIntentId } from '../core/id.js';
 import { assertIntentGraph } from '../core/schema.js';
 import { pathAliases } from '../core/target.js';
+import { isActionableChangelogRecord } from './changelog-signal.js';
 import type {
   Diagnostic,
   DiagnosticReport,
@@ -57,7 +58,7 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
       ));
     }
 
-    if (record.source.kind === 'changelog' && !evidenced) {
+    if (record.source.kind === 'changelog' && isActionableChangelogRecord(record) && !evidenced) {
       diagnostics.push(makeDiagnostic(
         'review_required',
         'CHANGELOG_WITHOUT_IMPLEMENTATION',
@@ -235,7 +236,8 @@ function isReleaseCandidate(record: IntentRecord): boolean {
 
 function isImportantRecord(record: IntentRecord): boolean {
   if (record.source.kind === 'ast') return isPublicImplementation(record);
-  return ['nl', 'todo', 'git', 'changelog', 'document'].includes(record.source.kind);
+  if (record.source.kind === 'changelog') return isActionableChangelogRecord(record);
+  return ['nl', 'todo', 'git', 'document'].includes(record.source.kind);
 }
 
 function makeDiagnostic(

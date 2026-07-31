@@ -1,6 +1,11 @@
 import { promises as fs } from 'node:fs';
 import { sha256, stableStringify } from '../core/id.js';
-import { evaluateDiagnosticsCase, evaluateDsl2TodoCase, evaluateLinkingCase } from './gold-cases.js';
+import {
+  evaluateDiagnosticsCase,
+  evaluateDsl2TodoCase,
+  evaluateLinkingCase,
+  evaluateRerankingCase,
+} from './gold-cases.js';
 import { projectRecord, runExtractionCase } from './gold-extraction.js';
 import {
   addCounts,
@@ -45,6 +50,8 @@ export type {
   GoldFixtureRecord,
   GoldLinkingCase,
   GoldProposalFixture,
+  GoldRerankerDecisionFixture,
+  GoldRerankerFixture,
   GoldRecordProjection,
   GoldRelationClass,
 } from './gold-types.js';
@@ -96,6 +103,8 @@ export function goldReportIsPerfect(report: GoldEvaluationReport): boolean {
     && report.linking.precision === 1
     && report.linking.recall === 1
     && report.linking.forbiddenViolations === 0
+    && report.linking.semanticReranking.satisfied === report.linking.semanticReranking.expected
+    && report.linking.semanticReranking.forbiddenViolations === 0
     && report.dsl2todo.citationCompleteness.rate === 1
     && report.dsl2todo.deduplication.precision === 1
     && report.dsl2todo.deduplication.recall === 1
@@ -134,6 +143,10 @@ export function renderGoldReportMarkdown(report: GoldEvaluationReport): string {
     `Diagnostics cases: **${report.diagnostics.cases}** (forbidden codes raised: ${report.diagnostics.forbiddenViolations}).`,
     '',
     `Known linking gaps: **${report.linking.knownGaps.satisfied}/${report.linking.knownGaps.expected}** relations reached across ${report.linking.knownGaps.cases} documented case(s); excluded from precision and recall.`,
+    '',
+    `Cross-language linking: **${report.linking.crossLanguage.satisfied}/${report.linking.crossLanguage.expected}** expected relations and **${report.linking.crossLanguage.forbiddenViolations}/${report.linking.crossLanguage.forbidden}** forbidden violations across ${report.linking.crossLanguage.cases} case(s).`,
+    '',
+    `Cross-language reranking: **${report.linking.semanticReranking.satisfied}/${report.linking.semanticReranking.expected}** expected relations and **${report.linking.semanticReranking.forbiddenViolations}/${report.linking.semanticReranking.forbidden}** forbidden violations across ${report.linking.semanticReranking.cases} captured case(s); accepted ${report.linking.semanticReranking.accepted}, abstained ${report.linking.semanticReranking.abstained}.`,
     '',
     `Citation completeness: **${percent(report.dsl2todo.citationCompleteness.rate)}** (${report.dsl2todo.citationCompleteness.cited}/${report.dsl2todo.citationCompleteness.required}).`,
     '',
@@ -213,9 +226,44 @@ function evaluateLinking(fixtures: GoldLinkingCase[]): EvaluationResult<GoldEval
   const byClass = Object.fromEntries(GOLD_RELATION_CLASSES.map((name) => [name, emptyCounts()]));
   let forbiddenViolations = 0;
   const knownGaps = { cases: 0, expected: 0, satisfied: 0 };
+  const crossLanguage = {
+    cases: 0,
+    expected: 0,
+    satisfied: 0,
+    forbidden: 0,
+    forbiddenViolations: 0,
+  };
+  const semanticReranking = {
+    cases: 0,
+    expected: 0,
+    satisfied: 0,
+    forbidden: 0,
+    forbiddenViolations: 0,
+    accepted: 0,
+    abstained: 0,
+  };
   const snapshots = fixtures.map((fixture) => {
     const result = evaluateLinkingCase(fixture);
+    let rerankingSnapshot: unknown = null;
     forbiddenViolations += result.forbiddenViolations;
+    if (fixture.cohort === 'cross-language') {
+      crossLanguage.cases += 1;
+      crossLanguage.expected += fixture.expected.length;
+      crossLanguage.satisfied += result.counts.truePositive;
+      crossLanguage.forbidden += fixture.forbidden?.length ?? 0;
+      crossLanguage.forbiddenViolations += result.forbiddenViolations;
+      if (fixture.reranker) {
+        const reranking = evaluateRerankingCase(fixture);
+        rerankingSnapshot = reranking.snapshot;
+        semanticReranking.cases += 1;
+        semanticReranking.expected += fixture.expected.length;
+        semanticReranking.satisfied += reranking.counts.truePositive;
+        semanticReranking.forbidden += fixture.forbidden?.length ?? 0;
+        semanticReranking.forbiddenViolations += reranking.forbiddenViolations;
+        semanticReranking.accepted += reranking.accepted;
+        semanticReranking.abstained += reranking.abstained;
+      }
+    }
     if (fixture.knownGap) {
       // Scored, reported, and kept out of the pass/fail metric on purpose.
       knownGaps.cases += 1;
@@ -225,7 +273,12 @@ function evaluateLinking(fixtures: GoldLinkingCase[]): EvaluationResult<GoldEval
       addCounts(counts, result.counts);
       for (const name of GOLD_RELATION_CLASSES) addCounts(byClass[name]!, result.byClass[name]);
     }
-    return { scope: 'linking', caseId: fixture.id, actual: result.actual };
+    return {
+      scope: 'linking',
+      caseId: fixture.id,
+      actual: result.actual,
+      ...(rerankingSnapshot ? { reranking: rerankingSnapshot } : {}),
+    };
   });
   return {
     metric: {
@@ -236,6 +289,8 @@ function evaluateLinking(fixtures: GoldLinkingCase[]): EvaluationResult<GoldEval
       },
       forbiddenViolations,
       knownGaps,
+      crossLanguage,
+      semanticReranking,
     },
     snapshots,
   };

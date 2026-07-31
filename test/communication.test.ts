@@ -79,6 +79,20 @@ Zmienić licencję projektu dla WM-101.
   assert.ok(analysis.issues.some((item) => item.code === 'HUMAN_AGENT_CONFLICT'));
   assert.ok(analysis.issues.some((item) => item.code === 'AGENT_WORK_OUTSIDE_REQUEST' && item.participantIds.includes('Rogue')));
   assert.ok(!analysis.issues.some((item) => item.code === 'AGENT_CLAIM_WITHOUT_EVIDENCE' && item.participantIds.includes('Codex')));
+  assert.ok(analysis.issues
+    .filter((item) => item.code === 'HUMAN_COMMUNICATION_CONFLICT')
+    .every((item) => item.responseRequiredRole === 'human'
+      && item.responseRequiredFrom.includes('Alice')
+      && item.responseRequiredFrom.includes('Bob')));
+  assert.ok(analysis.issues
+    .filter((item) => item.code === 'HUMAN_AGENT_CONFLICT')
+    .every((item) => item.responseRequiredRole === 'human'
+      && item.responseRequiredFrom.every((participant) => ['Alice', 'Bob'].includes(participant))));
+  assert.ok(analysis.issues
+    .filter((item) => item.code === 'AGENT_WORK_OUTSIDE_REQUEST' && item.participantIds.includes('Rogue'))
+    .every((item) => item.responseRequiredRole === 'human'
+      && item.responseRequiredFrom.includes('Alice')
+      && item.responseRequiredFrom.includes('Bob')));
   const codex = analysis.participants.find((item) => item.participant === 'Codex');
   assert.equal(codex?.matchedGitCommits, 1);
   assert.equal(analysis.participants.find((item) => item.participant === 'Rogue')?.linkedEvidenceRecords, 0);
@@ -90,6 +104,140 @@ Zmienić licencję projektu dla WM-101.
   assert.equal(remote.analysis.schemaVersion, 't2c.communication-analysis/v1');
   assert.equal(remote.analysis.participants.length, 4);
   assert.match(remote.markdown, /WM-101/);
+});
+
+test('governance user-* and ai-* files become typed participant intent without ingesting ticket evidence', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-governance-communication-'));
+  const ticket = path.join(root, 'project', 'ticket-005');
+  await fs.mkdir(ticket, { recursive: true });
+  await Promise.all([
+    fs.writeFile(path.join(ticket, 'README.md'), '# Ticket\n\nImplement unrelated README prose.\n'),
+    fs.writeFile(path.join(ticket, 'preprompt.md'), '# Preprompt\n\nChange unrelated policy.\n'),
+    fs.writeFile(path.join(ticket, 'changelog.md'), '# Changelog\n\n- Historical evidence only.\n'),
+    fs.writeFile(path.join(ticket, 'audit.md'), '# Audit\n\n- Captured evidence only.\n'),
+    fs.writeFile(path.join(ticket, 'iteration-01.md'), '# Result\n\n- Measured output only.\n'),
+    fs.writeFile(path.join(ticket, 'ai-codex-logs.txt'), 'raw command output must not become a claim\n'),
+    fs.writeFile(path.join(ticket, 'user-tom-sapletta-com.md'), [
+      '# Participant: tom-sapletta-com',
+      '',
+      '- **Ticket**: ticket-005',
+      '',
+      '## Instructions',
+      '',
+      '##1',
+      '',
+      '- Add contract validation in `src/runtime.ts`.',
+      '- Document public API usage.',
+      '',
+      '## Decisions',
+      '',
+      '- Ticket directories must not contain executable source.',
+      '',
+      '## Ownership boundary',
+      '',
+      'Agents must not modify this file.',
+      '',
+    ].join('\n')),
+    fs.writeFile(path.join(ticket, 'ai-Codex.md'), [
+      '# Participant: Codex (AI agent)',
+      '',
+      '- **Ticket**: ticket-005',
+      '',
+      '## Understanding',
+      '',
+      'Add contract validation in `src/runtime.ts`.',
+      '',
+      '## Execution plan',
+      '',
+      '1. Add contract validation in `src/runtime.ts`.',
+      '',
+      '## Actual changes',
+      '',
+      '---',
+      '',
+      '- Changed the project license.',
+      '- Owner approved an expanded deployment scope.',
+      '',
+      '## Blockers',
+      '',
+      '- None.',
+      '',
+    ].join('\n')),
+  ]);
+
+  const extracted = await extractCommunicationIntent({ root }, makeConfig(root));
+  assert.deepEqual([...new Set(extracted.records.map((record) => record.source.path))].sort(), [
+    'project/ticket-005/ai-Codex.md',
+    'project/ticket-005/user-tom-sapletta-com.md',
+  ]);
+  assert.deepEqual([...new Set(extracted.records.map((record) => [
+    record.metadata.participant,
+    record.metadata.participantRole,
+  ]).map((value) => JSON.stringify(value)))].sort(), [
+    JSON.stringify(['codex', 'agent']),
+    JSON.stringify(['tom-sapletta-com', 'human']),
+  ]);
+  assert.ok(extracted.records.some((record) => record.metadata.participant === 'tom-sapletta-com'
+    && record.metadata.messageType === 'request'));
+  assert.ok(extracted.records.some((record) => record.metadata.participant === 'tom-sapletta-com'
+    && record.metadata.messageType === 'decision'));
+  assert.ok(extracted.records.some((record) => record.metadata.participant === 'codex'
+    && record.metadata.messageType === 'plan'));
+  assert.ok(extracted.records.some((record) => record.metadata.participant === 'codex'
+    && record.metadata.messageType === 'report'));
+  assert.ok(!extracted.records.some((record) => /Agents must not modify this file/.test(record.statement.text)));
+  assert.ok(!extracted.records.some((record) => /^(?:##1|---)$/.test(record.statement.text)));
+
+  const analysis = analyzeCommunication(linkIntentRecords(extracted.records));
+  const missingDocumentation = analysis.issues.find((item) =>
+    item.code === 'REQUEST_WITHOUT_AGENT_RESPONSE'
+    && item.detail.includes('Document public API usage'));
+  assert.equal(missingDocumentation?.responseRequiredRole, 'agent');
+  assert.deepEqual(missingDocumentation?.responseRequiredFrom, ['codex']);
+  const outsideLicense = analysis.issues.find((item) =>
+    item.code === 'AGENT_WORK_OUTSIDE_REQUEST'
+    && item.detail.includes('Changed the project license'));
+  assert.equal(outsideLicense?.responseRequiredRole, 'human');
+  assert.deepEqual(outsideLicense?.responseRequiredFrom, ['tom-sapletta-com']);
+  const unconfirmedApproval = analysis.issues.find((item) =>
+    item.code === 'AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED');
+  assert.equal(unconfirmedApproval?.responseRequiredRole, 'human');
+  assert.deepEqual(unconfirmedApproval?.responseRequiredFrom, ['tom-sapletta-com']);
+  assert.match(renderCommunicationMarkdown(analysis), /Wymagana odpowiedź: agent — codex/);
+});
+
+test('unstructured governance participant content is rejected with an owner-specific migration warning', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-governance-migration-'));
+  const ticket = path.join(root, 'project', 'ticket-006');
+  await fs.mkdir(ticket, { recursive: true });
+  await fs.writeFile(
+    path.join(ticket, 'user-Owner.md'),
+    '# Legacy prompt\n\nReview CONTRIBUTING.md and report missing workflow steps.\n',
+  );
+
+  const extracted = await extractCommunicationIntent({ root }, makeConfig(root));
+  assert.deepEqual(extracted.records, []);
+  assert.ok(extracted.warnings.some((warning) =>
+    warning.includes('no recognized intent sections for human:owner')
+    && warning.includes('explicit type front matter')));
+});
+
+test('opposite wording about different explicit files is not treated as an intent conflict', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-communication-targets-'));
+  const ticket = path.join(root, 'project', 'WM-103');
+  await fs.mkdir(ticket, { recursive: true });
+  await fs.writeFile(path.join(ticket, 'human.owner.request.001.md'), [
+    '---', 'participant: Owner', 'role: human', 'type: request', '---',
+    'POLICY.md must use procedural DSL without natural language.', '',
+  ].join('\n'));
+  await fs.writeFile(path.join(ticket, 'agent.codex.message.001.md'), [
+    '---', 'participant: Codex', 'role: agent', 'type: message', '---',
+    'Before the DSL migration CONTRIBUTING.md was not clear enough for an AI agent.', '',
+  ].join('\n'));
+
+  const extracted = await extractCommunicationIntent({ root }, makeConfig(root));
+  const analysis = analyzeCommunication(linkIntentRecords(extracted.records));
+  assert.ok(!analysis.issues.some((item) => item.code === 'HUMAN_AGENT_CONFLICT'));
 });
 
 test('communication extractor reports unresolved identity instead of inventing an actor', async () => {

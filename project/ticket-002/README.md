@@ -2,8 +2,8 @@
 
 - **ID**: ticket-002
 - **Owner**: tom-sapletta-com
-- **Status**: IN_PROGRESS
-- **Workflow state**: TOOLS
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-07-31
 
 ## Goal and scope
@@ -28,24 +28,24 @@ private and untracked files.
 
 ## Acceptance criteria
 
-- [ ] AC-01: The baseline records repository commit, graph fingerprint, record
+- [x] AC-01: The baseline records repository commit, graph fingerprint, record
   and relation counts, topic status, implementation/documentation coverage,
   diagnostic counts, warnings and elapsed time for at least five external
   repositories.
-- [ ] AC-02: Results use the same documented deterministic command and document
+- [x] AC-02: Results use the same documented deterministic command and document
   selection policy, with repository-specific exceptions recorded explicitly.
-- [ ] AC-03: At least one repeated semantic failure is demonstrated on external
+- [x] AC-03: At least one repeated semantic failure is demonstrated on external
   evidence and represented by a focused gold or unit regression test before
   its implementation changes.
-- [ ] AC-04: Each library change is evaluated independently against gold v2 and
+- [x] AC-04: Each library change is evaluated independently against gold v2 and
   the external corpus; improvements and regressions are both reported.
-- [ ] AC-05: The selected improvement raises its target metric on at least two
+- [x] AC-05: The selected improvement raises its target metric on at least two
   external repositories, or is rejected with a documented reason, without
   reducing gold precision/recall or introducing forbidden-pair violations.
-- [ ] AC-06: `npm run verify`, relevant smoke tests and Docker validation pass;
+- [x] AC-06: `npm run verify`, relevant smoke tests and Docker validation pass;
   the Java test may only be skipped locally when the required CI job remains
   verified.
-- [ ] AC-07: Conclusions, raw command output, changed files, remaining risks and
+- [x] AC-07: Conclusions, raw command output, changed files, remaining risks and
   follow-up candidates are preserved in this ticket.
 
 ## Risks and mitigations
@@ -72,6 +72,11 @@ private and untracked files.
 ## Evidence
 
 - [`preprompt.md`](preprompt.md)
+- [`baseline.md`](baseline.md)
+- [`baseline.json`](baseline.json)
+- [`iteration-01.md`](iteration-01.md)
+- [`iteration-01.json`](iteration-01.json)
+- [`iteration-02.md`](iteration-02.md)
 - [`ai-codex-logs.txt`](ai-codex-logs.txt)
 - [`changelog.md`](changelog.md)
 
@@ -80,3 +85,14 @@ private and untracked files.
 - **Decision**: approved
 - **Evidence**: user message `kontynuuj`
 - **Date**: 2026-07-31
+
+## Conclusion
+
+Iteration 01 is accepted. It reduced false `review_required` findings on five
+external repositories without changing any graph fingerprint or gold metric.
+Iteration 02 fixed a tracked-evidence false positive in the generated-analysis
+isolation gate while retaining the original untracked-input hard negative.
+The next iteration should be a separate approved ticket: either broaden
+cross-language semantic evidence beyond the hand-written PL→EN dictionary, or
+sample and classify the remaining 1,853 actionable changelog findings before
+changing linker policy.

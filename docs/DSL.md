@@ -73,6 +73,43 @@
 | `same_as` | silna zgodność semantyczna |
 | `related_to` | słabsze, ale wystarczające powiązanie |
 
+## Komunikacja `user-*` / `ai-*` jako Intent DSL
+
+Konwersja nie porównuje całych plików jako nieprzezroczystych bloków. Najpierw
+zachowuje właściciela i typ każdej sekcji, następnie materializuje osobne
+rekordy `source.kind=agent_log`, a dopiero te rekordy porównuje semantycznie.
+
+```text
+user-*.md / ai-*.md
+        │  właściciel pliku + sekcja
+        ▼
+t2c.intent/v1 (request / decision / plan / report / claim)
+        │  ticket + paths + symbols + tematy + polaryzacja
+        ▼
+t2c.communication-analysis/v1
+        │
+        ├── code + severity + recordIds
+        └── responseRequiredRole + responseRequiredFrom
+```
+
+Tekst źródłowy pozostaje w `statement.text`, `source.rawExcerpt`,
+`source.path` i `source.lines`; DSL nie zastępuje dowodu wejściowego. Rola i
+uczestnik wynikają z kontraktu pliku lub rejestru, nie z treści odpowiedzi LLM.
+Jawne, różne ścieżki nie są uznawane za konflikt tylko dlatego, że zdania
+używają podobnego słownictwa. Niesekcyjny plik governance nie jest po cichu
+konwertowany: ekstraktor zwraca ostrzeżenie wskazujące człowieka lub agenta,
+który musi sklasyfikować treść albo dodać jawny `type`.
+
+## Eksperymentalna decyzja semantyczna
+
+`t2c.semantic-candidate-set/v1` i `t2c.semantic-rerank/v1` są kontraktami
+badawczymi, nie częścią publicznego API. Retrieval może tylko utworzyć
+ograniczoną listę kandydatów. Relacja `evidenced_by` może powstać dopiero po
+decyzji `accept`, która cytuje dokładnie deklarację i moduł; `reject` i
+`abstain` nie zmieniają grafu. Runtime odrzuca wymyślone cytaty, więcej niż
+jeden zaakceptowany moduł oraz odpowiedź niezgodną ze schematem. Po negatywnym
+teście live kontrakty nie są eksportowane przez paczkę ani interfejsy usługowe.
+
 ## Reguły provenance
 
 - Każdy rekord bez wyjątku ma obowiązkowe `metadata.generation`. Runtime i JSON

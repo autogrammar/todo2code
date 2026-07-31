@@ -14,14 +14,15 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 240 testów: 239 pass, 0 fail, 1 Java skip |
-| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 30 modułów |
-| Moduły | `npm run verify:modules` | PASS — 93 moduły, 426 importów, 0 cykli |
+| Testy | `npm test` | 252 testy: 251 pass, 0 fail, 1 Java skip |
+| Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 31 modułów |
+| Moduły | `npm run verify:modules` | PASS — 97 modułów, 441 importów, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 63 zmienne i 63 klucze |
 | Workflow YAML | `npm run verify:workflows` | PASS — brak zduplikowanych kluczy najwyższego poziomu |
 | Izolacja generowanej analizy | `npm run verify:generated-analysis` | PASS — brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Operation-plan DSL | `operation-plan.test.ts` | PASS — 9 testów kontraktu, authority, hasha, ryzyka, fail-closed bindingów i prywatnego artefaktu |
-| Gold benchmark | `npm run evaluate:gold` | gold v2: 100% precision/recall (ekstrakcja, linkowanie po klasach, kody diagnostyk) i 100% stabilności |
+| Gold benchmark | `npm run evaluate:gold` | gold v2: 100% precision/recall dla bramek; linker cross-language 0/6, captured reranker 6/6 i 0/6 naruszeń par zabronionych, 1 abstencja; 100% stabilności |
+| Live cross-language reranker | tracked `subactor/platform` | REJECTED/FAIL-CLOSED — Plus naruszył envelope/typ, Flash dodał niedozwolone `decisions[0].decision`; dokładne diagnostyki, 0 utworzonych relacji |
 | Przykłady | `npm run examples:check` | PASS — wszystkie 5 SDK |
 | CLI/MCP/A2A | `make smoke && make protocol-smoke` | PASS |
 | Docker | `make docker-smoke` | PASS — build, `/healthz`, `doctor` |
@@ -32,6 +33,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Pełny pipeline live | `make demollm` | PASS — 6/6 etapów `succeeded / llm / degraded=false`, bez fallbacku |
 | Trzy zewnętrzne repozytoria (batch 1) | pipeline na `code2llm`, `domd`, `pactfix` | PASS — trzy kompletne manifesty |
 | Trzy zewnętrzne repozytoria (batch 2) | pipeline na `code2logic`, `code2docs`, `redup` | PASS — trzy `succeeded`, code-change stage deterministic, review + source patches |
+| Migracja komunikacji innego projektu | historyczne Opus/GPT56Luna z `wellmanifest/new-project` | PASS — jawna ochrona przed beztypowym rename; Opus 0 problemów, GPT 3 wymagające odpowiedzi, bez fałszywego konfliktu plików |
 
 Jedyny pominięty test dotyczy adaptera Java i wynika z braku lokalnego JDK.
 CI ustawia `T2C_REQUIRE_JAVA_TEST=1` w jobie Temurin 17, więc brak toolchainu
@@ -106,12 +108,24 @@ Pozostałe ostrzeżenia są oczekiwane i audytowalne: brak lokalnego JDK,
 wykryte nieobsługiwane PHP/Ruby/C#, celowo niepoprawne fixture’y parserów oraz
 cztery śledzone pliki JavaScript w `domd` przekraczające limit 524288 bajtów.
 
+### Standard komunikacji na `wellmanifest/new-project`
+
+Repozytoria z wcześniejszego siedmioelementowego korpusu nie mają jeszcze
+plików `user-*`/`ai-*`. Walidację wykonano więc na rzeczywistych, historycznych
+promptach i odpowiedziach Opus/GPT56Luna z commita `2b9e3c9`, bez zapisu w
+repozytorium źródłowym. Sam rename dał 0 rekordów i dwa jawne ostrzeżenia
+właścicielskie. Po poprawnym typowaniu `request`/`message` Opus dał 9 rekordów
+człowieka, 58 agenta i 0 problemów; GPT56Luna — 9, 72 oraz 3 nieodpowiedziane
+fragmenty przypisane agentowi. Początkowy fałszywy konflikt
+`POLICY.md`↔`CONTRIBUTING.md` został usunięty przez zakaz konfliktu dla dwóch
+jawnych, różnych ścieżek.
+
 ## Przykłady
 
 Końcowy przebieg `examples:check`:
 
 ```text
-demo: 227 records, 91 relations; communication: 3 blocking, 1 warning
+demo: 227 records, 97 relations; communication: 3 blocking, 1 warning
 rejected event: agent is required
 backend/frontend: strict compilation and HTTP integration passed
 SDK examples: 5 languages, shared fingerprint 438b4742f8149178
@@ -294,7 +308,7 @@ edycją backlogu; ostatnia kolumna obejmuje nowe, jawnie zapisane deklaracje z
 `module_topic:*` (176 AST↔TODO, 11 AST↔NL i 3 AST↔CHANGELOG). Kontrolowany
 pomiar linkera utrzymał AST↔AST na 617; bieżące 647 wynika z nowych modułów i
 faktów dodanych do analizowanego kodu, a nie z relacji `module_topic`. Bieżące
-demo ma 227 rekordów i 98 relacji, w tym cztery rekordy `document` i sześć
+demo ma 227 rekordów i 97 relacji, w tym cztery rekordy `document` i sześć
 rekordów konfiguracji `system` (cztery deklaracje oraz dwa agregaty plikowe).
 
 ### Ekstrakcja ścieżek i metryka dokumentacji

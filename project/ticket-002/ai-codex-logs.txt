@@ -39,3 +39,121 @@ $ npm run verify:generated-analysis
 
 User decision: kontynuuj
 Workflow transition: WAIT_FOR_APPROVAL -> TOOLS
+
+2026-07-31 generated-analysis audit
+
+$ T2C_SKIP_TOOL_INSTALL=1 T2C_ANALYSIS_SOURCE=tracked ./project.sh
+detached tracked worktree: used
+code2docs/redup/vallm/code2llm: completed
+{"filesChecked":18,"filesChanged":8}
+{"filesChecked":18,"untrackedInputsChecked":7,"status":"ok"}
+prefact: skipped; requires T2C_APPLY_PREFACT=1
+Result: generated analysis passed, but project/README.md generation replaced
+the manually added ticket index. The namespace conflict is retained as a
+follow-up tooling defect; ticket discovery remains available through TODO.md.
+
+2026-07-31 external deterministic baseline
+
+Policy: detached tracked-only commits; TASK.md/TODO.md/CHANGELOG.md selected
+only when tracked; documents README.md and docs/**/*.md; deterministic NL and
+Markdown; no communication, task synthesis or LLM summary.
+
+semcod/code2llm b297d600 run=20260731T065730Z-ca7a9a28 time=18s records=16899 relations=41747 graph=2e57056bf75fc5ef diagnostics=4700 warnings=9
+semcod/domd b6c5ad24 run=20260731T065753Z-a3fde5a3 time=5s records=10611 relations=7470 graph=9df7e187f82b4ce8 diagnostics=2109 warnings=0
+semcod/pactfix daf301a9 run=20260731T065802Z-48dc0b12 time=5s records=5161 relations=3917 graph=9c2d15fc76b8585f diagnostics=664 warnings=5
+semcod/code2logic ba93489b run=20260731T065808Z-a52c2716 time=12s records=21423 relations=16927 graph=722f90e806be667f diagnostics=4680 warnings=3
+semcod/code2docs c738aff7 run=20260731T065827Z-9f042652 time=9s records=6717 relations=35447 graph=4598fbe9eec85d61 diagnostics=1555 warnings=0
+semcod/redup a175fb0a run=20260731T065840Z-61c33c16 time=6s records=7204 relations=19173 graph=ed0359f98ed4e18f diagnostics=2384 warnings=0
+subactor/platform 3e96573d run=20260731T065848Z-3863e97d time=6s records=10628 relations=11002 graph=1c4166dd1b7b7789 diagnostics=1271 warnings=1
+
+Result: 7/7 succeeded. CHANGELOG_WITHOUT_IMPLEMENTATION occurred in every
+repository, 2877 times in total. Samples include both substantive claims and
+non-actionable generated-file updates/placeholders; broad topic linking is
+therefore rejected for the first iteration.
+
+2026-07-31 regression before implementation
+
+$ npm run build && node --test dist/test/graph.test.js
+tests=6 pass=5 fail=1
+failure: Diagnostics ignore non-actionable changelog mechanics but retain
+release claims
+first counterexample: Update project/calls.mmd
+Result: expected red regression confirmed before the implementation change.
+
+2026-07-31 iteration 01 focused and gold validation
+
+$ npm run build && node --test dist/test/graph.test.js
+tests=6 pass=6 fail=0
+
+$ npm run evaluate:gold
+extraction=100%/100% linking=100%/100% diagnostics=100%/100%
+forbiddenDiagnosticCodes=0 repeatedRunStability=PASS knownGap=0/1
+
+2026-07-31 iteration 01 external comparison
+
+Runtime: clean 5f5ae593 plus only src/graph/changelog-signal.ts and the
+diagnostics integration. External commits and deterministic input policy are
+unchanged.
+
+semcod/code2llm graph=same changelog=1411->955 review=1411->955 unlinked=1332->1313
+semcod/domd graph=same changelog=105->99 review=105->99 unlinked=779->773
+semcod/pactfix graph=same changelog=48->48 review=48->48 unlinked=217->217
+semcod/code2logic graph=same changelog=121->120 review=121->120 unlinked=1504->1503
+semcod/code2docs graph=same changelog=396->269 review=396->269 unlinked=463->455
+semcod/redup graph=same changelog=703->269 review=703->269 unlinked=708->703
+subactor/platform graph=same changelog=93->93 review=93->93 unlinked=780->780
+
+Total: CHANGELOG_WITHOUT_IMPLEMENTATION 2877->1853 (-1024),
+UNLINKED_RECORD 5783->5744 (-39), all diagnostics 17363->16300 (-1063).
+Result: keep iteration 01; target improved in 5 repositories with no graph or
+gold regression. Workflow transition: ANALYSIS -> VERIFY.
+
+2026-07-31 final validation
+
+$ npm run verify
+PASS: 241 tests, 240 pass, 0 fail, 1 Java skip (JDK unavailable)
+PASS: LLM boundary 9 entrypoints / 31 modules
+PASS: module boundary 94 modules / 429 imports / 0 cycles
+PASS: env contract 63/63, workflow YAML, generated-analysis isolation
+
+$ npm run evaluate:gold
+PASS: all measured precision/recall 100%, forbidden diagnostics 0, stability PASS
+
+$ npm run examples:check
+PASS: 5 SDKs, shared graph and patch fingerprints
+
+$ npm audit --omit=dev
+PASS: 0 vulnerabilities
+
+$ make smoke protocol-smoke
+PASS: offline CLI, MCP and A2A
+
+$ make docker-smoke
+PASS: image build, /healthz and doctor
+
+Result: all acceptance criteria satisfied. Workflow transition: VERIFY -> DONE.
+
+2026-07-31 iteration 02 generated-analysis isolation
+
+$ T2C_SKIP_TOOL_INSTALL=1 T2C_ANALYSIS_SOURCE=tracked ./project.sh
+FAIL: project/index.html references untracked input nlp2uri.yaml
+Cause: generated HTML quoted the committed ticket log containing an earlier
+git-status line; the detached generator did not consume the untracked file.
+
+$ npm run build && node --test dist/test/generated-analysis.test.js
+before implementation: tests=4 pass=3 fail=1
+failing regression: accepts an untracked filename already quoted by tracked evidence
+
+After implementation:
+focused generated-analysis tests=4 pass=4 fail=0
+new untracked reference hard negative=PASS
+tracked audit quotation=PASS
+
+$ T2C_SKIP_TOOL_INSTALL=1 T2C_ANALYSIS_SOURCE=tracked ./project.sh
+PASS: {"filesChecked":18,"untrackedInputsChecked":6,"status":"ok"}
+
+$ npm run verify
+PASS: 242 tests, 241 pass, 0 fail, 1 Java skip
+
+$ make docker-smoke
+PASS

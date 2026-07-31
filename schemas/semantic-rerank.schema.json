@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/semantic-rerank.schema.json",
+  "title": "Grounded semantic rerank result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "graphFingerprint",
+    "candidateSetHash",
+    "generation",
+    "decisions",
+    "resultHash"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "t2c.semantic-rerank/v1" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "graphFingerprint": { "$ref": "#/$defs/hash" },
+    "candidateSetHash": { "$ref": "#/$defs/hash" },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generator",
+        "generatorVersion",
+        "runtimeVersion",
+        "provider",
+        "requestedModel",
+        "model",
+        "modelRevision",
+        "responseId",
+        "promptHash"
+      ],
+      "properties": {
+        "generator": { "const": "t2c/cross-language-reranker" },
+        "generatorVersion": { "const": "1" },
+        "runtimeVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?$" },
+        "provider": { "$ref": "#/$defs/nonBlank" },
+        "requestedModel": { "$ref": "#/$defs/nonBlank" },
+        "model": { "$ref": "#/$defs/nonBlank" },
+        "modelRevision": { "$ref": "#/$defs/nonBlank" },
+        "responseId": {
+          "oneOf": [
+            { "$ref": "#/$defs/nonBlank" },
+            { "type": "null" }
+          ]
+        },
+        "promptHash": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "candidateId",
+          "verdict",
+          "confidence",
+          "reasonCode",
+          "rationale",
+          "citedRecordIds",
+          "evidence"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^SDEC-[a-f0-9]{20}$" },
+          "candidateId": { "type": "string", "pattern": "^SCAND-[a-f0-9]{20}$" },
+          "verdict": { "type": "string", "enum": ["accept", "reject", "abstain"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "reasonCode": {
+            "type": "string",
+            "enum": [
+              "repository_evidence_supports_match",
+              "wrong_target",
+              "contradicted",
+              "insufficient_evidence",
+              "ambiguous",
+              "multi_module"
+            ]
+          },
+          "rationale": { "type": "string", "minLength": 1, "pattern": ".*\\S.*" },
+          "citedRecordIds": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^INT-[A-Z]+-[a-f0-9]{20}$" }
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["recordId", "quote"],
+              "properties": {
+                "recordId": { "type": "string", "pattern": "^INT-[A-Z]+-[a-f0-9]{20}$" },
+                "quote": { "type": "string", "minLength": 1, "pattern": ".*\\S.*" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "resultHash": { "$ref": "#/$defs/hash" }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "nonBlank": { "type": "string", "minLength": 1, "pattern": ".*\\S.*" }
+  }
+}

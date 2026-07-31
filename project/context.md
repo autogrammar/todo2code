@@ -5,12 +5,12 @@
 
 - **Project**: <PROJECT_ROOT>
 - **Primary Language**: typescript
-- **Languages**: typescript: 102, md: 50, json: 29, python: 13, javascript: 10
+- **Languages**: typescript: 102, md: 50, json: 30, python: 13, javascript: 10
 - **Analysis Mode**: static
-- **Total Functions**: 2821
-- **Total Classes**: 296
-- **Modules**: 232
-- **Entry Points**: 1980
+- **Total Functions**: 2840
+- **Total Classes**: 299
+- **Modules**: 233
+- **Entry Points**: 1994
 
 ## Architecture by Module
 
@@ -43,15 +43,15 @@
 - **Classes**: 7
 - **File**: `tasks-llm.ts`
 
+### src.diff.reality
+- **Functions**: 76
+- **Classes**: 3
+- **File**: `reality.ts`
+
 ### src.graph.linker
 - **Functions**: 73
 - **Classes**: 4
 - **File**: `linker.ts`
-
-### src.diff.reality
-- **Functions**: 66
-- **Classes**: 3
-- **File**: `reality.ts`
 
 ### src.pipeline.run
 - **Functions**: 64
@@ -67,6 +67,10 @@
 - **Functions**: 55
 - **Classes**: 3
 - **File**: `workspace.ts`
+
+### src.core.text
+- **Functions**: 54
+- **File**: `text.ts`
 
 ### src.synthesis.todo-patch
 - **Functions**: 53
@@ -87,10 +91,6 @@
 - **Functions**: 52
 - **Classes**: 3
 - **File**: `analyzer.ts`
-
-### src.core.text
-- **Functions**: 49
-- **File**: `text.ts`
 
 ### sdk.typescript.src
 - **Functions**: 48

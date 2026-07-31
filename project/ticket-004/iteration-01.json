@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "t2c.language-matching-iteration/v1",
+  "iteration": 1,
+  "decision": "reject-production-matcher-retain-benchmark",
+  "synthetic": {
+    "languages": [
+      "pl",
+      "de",
+      "es",
+      "fr"
+    ],
+    "positivePairs": 6,
+    "negativePairs": 6,
+    "models": {
+      "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@86741b4e3f5cb7765a600d3a3d55a0f6a6cb443d": {
+        "minimumPositive": 0.673289,
+        "maximumNegative": 0.732568,
+        "separation": -0.059279,
+        "pairwiseCorrect": 5
+      },
+      "intfloat/multilingual-e5-small@f470c6a1a906014160ece1968c484b275f0396de": {
+        "queryPrefix": "query: ",
+        "passagePrefix": "passage: ",
+        "minimumPositive": 0.759374,
+        "maximumNegative": 0.835202,
+        "separation": -0.075828,
+        "pairwiseCorrect": 6,
+        "minimumPairwiseMargin": 0.00719
+      }
+    }
+  },
+  "platform": {
+    "commit": "3e96573d587cb664741849ceba205bf303b9f418",
+    "graphFingerprint": "ae92ead72d35e88e6de754d7af02d074201213c56166eb788a5e152d6a6f695d",
+    "moduleAggregates": 133,
+    "actionableTargetlessDeclarations": 66,
+    "forwardThreshold": {
+      "minimumScore": 0.75,
+      "minimumMargin": 0.01,
+      "selected": 6,
+      "newCandidates": 2,
+      "acceptedNewCandidates": 0
+    },
+    "reciprocalThreshold": {
+      "minimumScore": 0.75,
+      "minimumForwardMargin": 0.01,
+      "minimumReverseMargin": 0.01,
+      "selected": 1,
+      "newCandidates": 0
+    }
+  },
+  "goldV2": {
+    "crossLanguageCases": 7,
+    "expectedRelations": 6,
+    "satisfiedRelations": 0,
+    "forbiddenPairs": 6,
+    "forbiddenViolations": 0,
+    "gatedPrecision": 1,
+    "gatedRecall": 1
+  }
+}

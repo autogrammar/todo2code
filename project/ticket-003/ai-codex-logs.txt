@@ -1,0 +1,105 @@
+2026-07-31 ticket initialization
+
+User decision: kontynuuj
+Previous recommendation: audit and classify the residual actionable changelog
+findings before changing linker policy.
+Workflow state: TOOLS
+
+Baseline source: project/ticket-002/iteration-01.json
+Target tracked runtime: 18cc21b
+External corpus: unchanged seven detached commits from ticket-002
+
+2026-07-31 current residual baseline
+
+semcod/code2docs run=20260731T072143Z-a3208b84 records=6717 relations=35468 changelog=269 graph=83dcfa7a5b21ca77
+semcod/code2llm run=20260731T072152Z-fb1ab530 records=16899 relations=41758 changelog=955 graph=bd57f05a14c3abca
+semcod/code2logic run=20260731T072209Z-30215e36 records=21423 relations=16933 changelog=120 graph=c6e9f7a0671dc9b4
+semcod/domd run=20260731T072221Z-f577ffe7 records=10611 relations=7484 changelog=99 graph=a9d2d5eb1287b7cb
+semcod/pactfix run=20260731T072226Z-0fb2f8b8 records=5161 relations=3917 changelog=48 graph=9c2d15fc76b8585f
+semcod/redup run=20260731T072230Z-6a2d832d records=7204 relations=19259 changelog=269 graph=b3a582ffa178ee30
+subactor/platform run=20260731T072237Z-6cab0835 records=10628 relations=11424 changelog=93 graph=ae92ead72d35e88e
+Result: 7/7 succeeded, residual findings=1853.
+
+2026-07-31 deterministic audit
+
+Selection: lexical target-class:action strata, stable ID, round-robin, 24 per
+repository.
+sampled=168
+non_actionable_file_update=28 across 5 repositories
+non_actionable_file_summary=1 across 1 repository
+roadmap_not_release=6 sampled / 30 census across 2 repositories
+substantive_or_unverified=133 sampled / 1275 census across 7 repositories
+Selected correction: exact Update <file> bookkeeping only.
+Workflow transition: TOOLS -> ANALYSIS.
+
+2026-07-31 regression before implementation
+
+$ npm run build && node --test dist/test/graph.test.js
+tests=6 pass=5 fail=1
+failure: Diagnostics ignore non-actionable changelog mechanics but retain
+release claims
+first counterexample: Update src/runtime.ts
+Result: expected red regression confirmed before implementation.
+
+2026-07-31 focused validation after implementation
+
+$ npm run build && node --test dist/test/graph.test.js
+tests=6 pass=6 fail=0
+
+$ npm run evaluate:gold
+PASS: all measured precision/recall 100%, forbidden diagnostics 0, stability PASS
+
+2026-07-31 external A/B
+
+semcod/code2docs graph=same changelog=269->127 unlinked=455->418
+semcod/code2llm graph=same changelog=955->650 unlinked=1312->1219
+semcod/code2logic graph=same changelog=120->109 unlinked=1503->1492
+semcod/domd graph=same changelog=99->99 unlinked=772->772
+semcod/pactfix graph=same changelog=48->48 unlinked=217->217
+semcod/redup graph=same changelog=269->184 unlinked=703->661
+subactor/platform graph=same changelog=93->89 unlinked=766->761
+
+Total: changelog 1853->1306 (-547), unlinked 5728->5540 (-188),
+all diagnostics 16280->15545 (-735).
+Result: keep iteration; workflow transition ANALYSIS -> VERIFY.
+
+2026-07-31 full validation and close
+
+$ npm run verify
+tests=242 pass=241 fail=0 skip=1
+Java fixture skip reason: local JDK unavailable; required CI uses JDK 17.
+LLM boundary=PASS (9 entrypoints, 31 modules)
+module graph=PASS (94 modules, 429 imports, no cycles)
+environment contract=PASS (63/63)
+workflows=PASS
+generated analysis=PASS (18 files)
+
+$ npm run examples:check
+Result: PASS, five SDK fingerprints agree.
+
+$ npm audit --omit=dev
+Result: PASS, 0 vulnerabilities.
+
+$ make smoke protocol-smoke
+Result: PASS, CLI, MCP and A2A.
+
+$ make docker-smoke
+Result: PASS.
+
+Readiness updated with residual census:
+substantive_or_unverified=1275
+roadmap_not_release=30
+non_actionable_file_summary=1
+total retained=1306
+
+Result: all acceptance criteria satisfied; workflow transition VERIFY -> DONE.
+
+2026-07-31 repository layout correction
+
+User review identified executable code under project/ticket-003.
+Moved:
+project/ticket-003/sample-changelog.mjs
+-> scripts/research/audit-changelog-sample.mjs
+
+Ticket inputs, captured results, decisions and raw logs remain under the
+ticket. No experiment code remains there.

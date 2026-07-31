@@ -8,9 +8,20 @@ raportuje wyniki ostatniego przebiegu testów. Ten dokument ocenia dystans do
 „gotowe" i nie powtarza ich treści.
 
 Bramki offline uruchomiono ponownie 2026-07-31: `npm run verify`,
-`npm run evaluate:gold`, `npm run examples:check` i audyt zależności przeszły.
-Pomiary repozytoriów wykonano w odłączonych worktree z ich śledzonych `HEAD`,
-bez prywatnych i nieśledzonych plików.
+`npm run evaluate:gold`, `npm run examples:check`, smoke CLI/MCP/A2A, Docker i
+audyt zależności przeszły. Pomiary repozytoriów wykonano w odłączonych worktree
+z ich śledzonych commitów, bez prywatnych i nieśledzonych plików. Pełny
+baseline siedmiu repozytoriów i kontrolowane A/B pierwszej poprawki są w
+[`project/ticket-002`](../project/ticket-002/README.md). Deterministyczny audyt
+pozostałych wpisów i drugie, niezależne A/B są w
+[`project/ticket-003`](../project/ticket-003/README.md). Eksperyment
+wielojęzycznego dopasowania i decyzja o odrzuceniu surowych embeddingów są w
+[`project/ticket-004`](../project/ticket-004/README.md). Audyt konwersji
+`user-*`/`ai-*` do Intent DSL i właścicieli odpowiedzi jest w
+[`project/ticket-005`](../project/ticket-005/README.md); ticket zamknął
+eksperyment rerankera przez kontrolowaną ścieżkę odrzucenia. Ticket
+[`project/ticket-006`](../project/ticket-006/README.md) ujednolicił walidację
+odpowiedzi i potwierdził odrzucenie na drugiej trasie modelowej.
 
 ## Odpowiedź krótka
 
@@ -43,8 +54,8 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change i operation-plan; 240 testów, 239 zaliczonych, 0 błędów i 1 lokalny skip JDK |
-| Granica LLM | 9 deterministycznych entrypointów, 30 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i eksperymentalnego rerankingu; 252 testy, 251 zaliczonych, 0 błędów i 1 lokalny skip JDK |
+| Granica LLM | 9 deterministycznych entrypointów, 31 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
 | Ochrona ścieżek | wyjście poza `T2C_ROOT` odrzucane spójnie w CLI, MCP, A2A i SDK |
@@ -52,6 +63,92 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 | Agregaty konfiguracji | jeden `configuration_file_fact` na plik; dokumentacja wiąże się przez jawną ścieżkę, a ogólne klucze nie uruchamiają capability-topic |
 | Interfejsy | CLI, MCP, A2A v1.0, Docker, wheel Pythona |
 | Odporność na obce repo | sześć repozytoriów zewnętrznych plus `subactor/platform`; brak awarii, brak wycieku poza root |
+| Sygnał changeloga | placeholdery, skróty `... and N more files` i znane artefakty analizy pod `project/` nie udają już braku implementacji; merytoryczne wpisy nadal wymagają dowodu |
+| Izolacja generowanej analizy | nowa referencja do nieśledzonego wejścia nadal blokuje raport; śledzona wzmianka audytowa o jego nazwie nie jest już mylona z odczytem prywatnego pliku |
+| Intencje ludzi i agentów | sekcje `user-*`/`ai-*` zachowują właściciela i typ DSL; dowody ticketu nie udają rozmowy; każda rozbieżność wskazuje rolę i konkretnego respondenta |
+
+## Audyt `user-*` / `ai-*` → DSL
+
+Przed poprawką ticket-005 tworzył 165 rekordów `agent_log` z sześciu
+anonimowych „uczestników”, bo `README.md`, logi, changelog i pliki iteracji
+były traktowane jak rozmowa. Wszystkie 165 rekordów miało nierozstrzygniętą
+tożsamość, a cztery konflikty człowiek–agent były artefaktem ról `unknown`.
+
+Bezpośrednio po poprawce ten sam ticket tworzył 38 rekordów z dwóch
+właścicieli: 34 dla `codex` i 4 dla `tom-sapletta-com`. Po dopisaniu końcowego
+planu, raportu i decyzji jest to 51 + 4. Końcowa analiza ma 0 blocking, 8
+warning i 8 `review_required`; nie są to anonimowe konflikty:
+
+- 7 claimów wykonania nie ma jeszcze commita/test-faktu, więc odpowiedzieć
+  (`responseRequiredRole=agent`) musi `codex`;
+- 1 claim agenta o zatwierdzeniu nie ma decyzji w pliku należącym do człowieka,
+  więc odpowiedzieć musi `tom-sapletta-com`;
+- 8 szczegółowych działań nie ma równie szczegółowej intencji w human-owned
+  pliku (najnowsze polecenie istnieje tylko w rozmowie), więc potwierdzenie albo
+  korekta zakresu również należy do `tom-sapletta-com`.
+
+Agent nie może zamknąć dwóch ostatnich klas przez edycję `user-*`. To właśnie
+oczekiwany podział odpowiedzialności: dowód własnego wykonania uzupełnia agent,
+a ludzką decyzję lub rozszerzenie zakresu zapisuje człowiek.
+
+Pozostaje przypadek brzegowy zmierzony na ticket-006: gdy istnieje wyłącznie
+plik agenta, analiza poprawnie wskazuje `responseRequiredRole=human`, ale
+`responseRequiredFrom=[]`, bo nie ma ludzkiego rekordu, z którego wolno
+wyprowadzić tożsamość. Następna poprawka powinna użyć zaufanego rejestru
+właścicieli albo jawnego sentinela „unresolved human"; nie może zgadywać osoby
+ani pozwalać agentowi stworzyć `user-*` w jej imieniu.
+
+Test migracyjny użył read-only historycznego commita `2b9e3c9` z
+`wellmanifest/new-project`:
+
+| Wariant | Rekordy | Wynik |
+|---|---:|---|
+| samo przemianowanie Prompt/raportu na `user-*`/`ai-*` | 0 | jawne ostrzeżenia wskazują człowieka i agenta, którzy muszą sklasyfikować treść |
+| Opus, jawne `request` + analityczne `message` | 9 + 58 | 0 rozbieżności |
+| GPT56Luna, jawne `request` + analityczne `message` | 9 + 72 | 3 fragmenty bez odpowiedzi, 0 fałszywego konfliktu różnych plików |
+
+Wniosek: system porównuje intencje dopiero po konwersji sekcji do DSL, ale
+zachowuje tekst, ścieżkę i linie źródłowe. Migracja musi zachować typ
+epistemiczny — oznaczenie całej analizy jako `report` wytwarza fałszywe claimy,
+dlatego starsze dokumenty mieszane wymagają podziału na sekcje.
+
+## Audyt siedmiu repozytoriów
+
+Wspólny pipeline offline uruchomiono na `code2llm`, `domd`, `pactfix`,
+`code2logic`, `code2docs`, `redup` i `subactor/platform`. Wszystkie 7/7
+przebiegów zakończyło się `succeeded`; zakres dokumentacji, tryby i commity są
+utrwalone w
+[`baseline.json`](../project/ticket-002/baseline.json).
+
+| Repozytorium | Rekordy | Relacje | Implementation coverage | `CHANGELOG_WITHOUT_IMPLEMENTATION` |
+|---|---:|---:|---:|---:|
+| code2llm | 16 899 | 41 747 | 59,4% | 1 411 |
+| domd | 10 611 | 7 470 | 11,8% | 105 |
+| pactfix | 5 161 | 3 917 | 5,0% | 48 |
+| code2logic | 21 423 | 16 927 | 17,7% | 121 |
+| code2docs | 6 717 | 35 447 | 47,1% | 396 |
+| redup | 7 204 | 19 173 | 49,2% | 703 |
+| subactor/platform | 10 628 | 11 002 | 5,9% | 93 |
+
+Powtarzalna próbka diagnostyk wykazała, że mechaniczne wpisy wydania zasłaniają
+realne deklaracje bez implementacji. Minimalny klasyfikator usunął 1 024
+fałszywe `review_required` w pięciu repozytoriach
+(`2 877 → 1 853`) oraz 39 wtórnych `UNLINKED_RECORD`. Na `pactfix` i
+`subactor/platform`, gdzie próbkowane wpisy były merytoryczne, liczby się nie
+zmieniły. Fingerprint każdego grafu pozostał identyczny, a gold v2 zachował
+100% precision/recall i zero naruszeń zabronionych kodów. Szczegóły:
+[`iteration-01.md`](../project/ticket-002/iteration-01.md).
+
+Drugi audyt sklasyfikował deterministyczną próbkę 168 z pozostałych 1 853
+zgłoszeń (24 z każdego repozytorium), a następnie wykonał pełny cenzus
+wyłonionych klas. Dokładne, pozbawione deklaracji zachowania wpisy
+`Update <file>` stanowiły 547 przypadków w pięciu repozytoriach. Ich
+odfiltrowanie obniżyło liczbę
+`CHANGELOG_WITHOUT_IMPLEMENTATION` z **1 853 do 1 306** oraz wtórnych
+`UNLINKED_RECORD` z 5 728 do 5 540. Wszystkie 7/7 fingerprintów grafu
+pozostało identycznych, gold v2 nadal ma 100% precision/recall, a pełna
+walidacja offline przeszła. Szczegóły i próbka:
+[`iteration-01.md`](../project/ticket-003/iteration-01.md).
 
 ## Co blokuje uznanie za kompletny
 
@@ -77,15 +174,43 @@ Zamknięto trzy przyczyny, każda zmierzona na tej samej treści:
   ticket/ścieżka/symbol rekordu, a nie graf.
 
 Co zostaje: dopasowanie działa dla słownictwa w słowniku, nie dla języka. Gold
-v2 mierzy to przypadkiem `link-topic-polish-vocabulary-outside-dictionary`
-(`knownGap`, 0/1): „Kolejka zadań powinna ponawiać nieudane próby z
-opóźnieniem" nie dosięga `src/queue/task-retry-backoff.ts`, bo `kolejka`,
-`ponawiać` i `opóźnienie` nie są w słowniku. Skalowanie słownika ręcznie na
-każdy język i każdą dziedzinę nie jest planem.
+v2 mierzy teraz osobny kohort PL/DE/ES/FR: **0/6** oczekiwanych relacji poza
+słownikiem i 0/6 naruszeń bliskich semantycznie par zabronionych.
+
+Ticket-004 sprawdził dwa przypięte modele lokalne. MiniLM poprawnie uszeregował
+5/6 par, E5 6/6, lecz zakresy cosine pozytywów i negatywów nachodziły na siebie.
+Na rzeczywistym grafie `subactor/platform` próg E5 wskazał dwie nowe relacje i
+obie odrzucono po przeglądzie. Wzajemny top-1 usunął fałszywe trafienia, ale nie
+dodał żadnej relacji, więc surowe embeddingi nie weszły do linkera. Skalowanie
+słownika ręcznie na każdy język i dziedzinę nadal nie jest planem.
+
+Ticket-005 oddzielił retrieval od decyzji. Wersjonowany kandydat jest
+ograniczony do 1–10 modułów, nie może utworzyć relacji, a decyzja musi
+zaakceptować, odrzucić albo abstainować z cytatami z obu rekordów. Na
+przejrzanych fixture'ach gold v2 reranker osiąga **6/6** oczekiwanych relacji,
+**0/6** naruszeń par zabronionych i jedną abstencję hard-negative; zwykły
+linker nadal świadomie raportuje 0/6.
+
+Próba live na czystym commitcie `3e96573` platformy nie przeszła granicy
+kontraktu. Trzy odpowiedzi `qwen/qwen3.7-plus` kolejno: nie zawierały tablicy
+`decisions`, użyły pola `judgments`, a następnie zwróciły niepoprawny typ lub
+zakres `confidence`. Runtime za każdym razem odmówił utworzenia relacji. Nie
+zmierzono więc wzrostu coverage ani stabilnej, przypiętej rewizji dostawcy;
+reranker nie jest eksportowany przez paczkę, CLI, MCP ani A2A. To wynik
+negatywny, ale ważny: JSON Schema deklarowane na granicy providera nie jest
+samo w sobie dowodem zgodności odpowiedzi.
+
+Ticket-006 usunął lokalny drift: schema wysyłana do providera, typ TypeScript i
+walidator runtime mają jedno źródło, a pełny test porównuje je z opublikowanym
+schematem. Druga trasa, `qwen/qwen3.7-flash`, również zawiodła — dodała
+niedozwolone `response.decisions[0].decision`. Nowy błąd podał dokładną
+ścieżkę oraz provider/model/response ID bez utrwalania payloadu. Plus i Flash
+zostały więc odrzucone przed zmianą grafu.
 
 **Warunek zamknięcia:** dopasowanie niezależne od ręcznego słownika (osadzenia
-albo tłumaczenie tematów), podniesione z 0/1 na gold v2 i potwierdzone wzrostem
-`implementation coverage` na repozytorium spoza tego korpusu.
+albo tłumaczenie/reranking tematów), stabilny kontrakt live podniesiony z 0/6
+na gold v2 i potwierdzony wzrostem `implementation coverage` na repozytorium
+spoza tego korpusu.
 
 ### 2. Gold dataset: rozszerzony w v2, ale próba wciąż jest mała
 
@@ -99,9 +224,10 @@ Stan po rozszerzeniu:
 | Kanały ekstrakcji | 3 | 4 (doszedł deterministyczny baseline dokumentacji) |
 | Relacje linkowania `exact-target` | 6 | 6 |
 | Relacje linkowania `capability-topic` | 1 | 8 |
-| Twarde negatywy linkowania | 2 | 6 |
+| Zabronione pary linkowania | 2 | 14 |
 | Przypadki diagnostyk (false DONE, partial) | brak zakresu | 5 / 11 oczekiwań |
-| Udokumentowane luki (`knownGap`) | brak | 1 |
+| Wielojęzyczny kohort | brak | 6 oczekiwanych / 6 zabronionych |
+| Udokumentowane luki (`knownGap`) | brak | 6 |
 
 Zakres `diagnostics` istnieje, bo ani ekstrakcja, ani linkowanie nie wyrażają
 zdania „ten DONE nie ma za sobą implementacji": rekord ekstrahuje się poprawnie
@@ -144,11 +270,15 @@ w PHP dostanie niepełny obraz rzeczywistości.
 - Konfiguracja i AST są obecnie równorzędnym dowodem `implemented`. Nie ma
   jeszcze pomiaru, czy słaby dowód w postaci samego klucza konfiguracji nie
   zawyża statusu `aligned`.
-- Wpisy changelogu nie uczestniczą w dopasowaniu tematycznym: `isModuleTopicSource`
-  obejmuje `module_fact`, `nl`, `todo` i `document`, więc wpis wydania może
-  dosięgnąć modułu wyłącznie przez jawny ticket, symbol lub ścieżkę. To wprost
-  podnosi liczbę `CHANGELOG_WITHOUT_IMPLEMENTATION`; nie zmierzono jeszcze, ile
-  z tych wpisów byłoby uzasadnionych tematycznie.
+- Wpisy changelogu nie uczestniczą w szerokim dopasowaniu tematycznym. Audyt
+  siedmiu repozytoriów pokazał, że takie połączenie mieszałoby prawdziwe
+  deklaracje wydania z mechaniką release notes. Szum mechaniczny jest już
+  odfiltrowany. Z pozostałych **1 306** wpisów pełny cenzus klasyfikuje 1 275
+  jako merytoryczne lub nieweryfikowalne deklaracje, 30 jako niezrealizowane
+  pozycje roadmapy i 1 jako zbiorcze podsumowanie plików. Pierwsza grupa nadal
+  wymaga precyzyjnego dowodu przez ticket, symbol lub ścieżkę. Następna
+  hipoteza to jawny cykl życia pozycji roadmapy, nie kolejne wyciszenie tekstu
+  changeloga.
 
 ### 6. Wydajność na dużych repozytoriach nieprzebadana
 
@@ -170,12 +300,13 @@ tu pomiar gotowości ma 17,1 tys. rekordów, a test przenośności na `domd` oko
 Wersję `0.6.0` uznaję za gotową, gdy:
 
 1. **zrobione** — gold v2 zachowuje osobne precision/recall dla dopasowania po
-   celu i po temacie oraz rozszerza próbę: 7 pozytywów `capability-topic`
-   zamiast 1, 5 twardych negatywów, osobny zakres diagnostyk i jedna
-   udokumentowana luka. Próba jest nadal mała i pozostaje pozycją w TODO;
+   celu i po temacie oraz rozszerza próbę: 8 pozytywów `capability-topic`
+   zamiast 1, 14 par zabronionych, osobny zakres diagnostyk oraz kohort
+   cross-language z 6 pozytywami i 6 negatywami. Próba jest nadal mała i
+   pozostaje pozycją w TODO;
 2. live check obejmuje sześć etapów LLM i ma zapisaną historię wyniku;
 3. `implementation coverage` na repozytorium innym niż własne przekracza próg
-   ustalony po pomiarze z punktu 1 — dziś 5,9% jest zbyt niskie, by narzędzie
+   ustalony po pomiarze z punktu 1 — dziś 10,0% jest zbyt niskie, by narzędzie
    było użyteczne bez ręcznej interpretacji.
 
 Punkty 1 i 3 są warunkami merytorycznymi, a punkt 2 techniczno-operacyjnym.
@@ -200,7 +331,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 240 testów, 93 moduły, kontrakt .env, workflowy
+npm run verify          # 252 testy, 97 modułów, kontrakt .env, workflowy
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

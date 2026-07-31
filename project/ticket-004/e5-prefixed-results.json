@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "t2c.embedding-experiment/v1",
+  "model": "intfloat/multilingual-e5-small",
+  "revision": "f470c6a1a906014160ece1968c484b275f0396de",
+  "queryPrefix": "query: ",
+  "passagePrefix": "passage: ",
+  "dimensions": 384,
+  "pairCount": 12,
+  "positiveCount": 6,
+  "negativeCount": 6,
+  "minimumPositive": 0.759374,
+  "maximumNegative": 0.835202,
+  "separation": -0.075828,
+  "loadSeconds": 4.041,
+  "totalSeconds": 4.228,
+  "results": [
+    {
+      "id": "pl-queue-retry-backoff-positive",
+      "language": "pl",
+      "intent": "Kolejka zadań powinna ponawiać nieudane próby z opóźnieniem",
+      "module": "declare src/queue/task-retry-backoff.ts",
+      "expected": true,
+      "score": 0.759374
+    },
+    {
+      "id": "pl-queue-priority-hard-negative",
+      "language": "pl",
+      "intent": "Kolejka zadań powinna ponawiać nieudane próby z opóźnieniem",
+      "module": "declare src/queue/task-priority-sort.ts",
+      "expected": false,
+      "score": 0.752184
+    },
+    {
+      "id": "de-auth-token-expiry-positive",
+      "language": "de",
+      "intent": "Abgelaufene Authentifizierungs-Token müssen vor dem Zugriff abgelehnt werden",
+      "module": "declare src/security/auth-token-expiry-validator.ts",
+      "expected": true,
+      "score": 0.837574
+    },
+    {
+      "id": "de-auth-role-hard-negative",
+      "language": "de",
+      "intent": "Abgelaufene Authentifizierungs-Token müssen vor dem Zugriff abgelehnt werden",
+      "module": "declare src/security/user-role-permission-registry.ts",
+      "expected": false,
+      "score": 0.8046
+    },
+    {
+      "id": "es-document-cache-hash-positive",
+      "language": "es",
+      "intent": "La caché de documentos debe invalidarse cuando cambia el hash del contenido",
+      "module": "declare src/cache/document-content-hash-cache.ts",
+      "expected": true,
+      "score": 0.86764
+    },
+    {
+      "id": "es-ast-cache-hard-negative",
+      "language": "es",
+      "intent": "La caché de documentos debe invalidarse cuando cambia el hash del contenido",
+      "module": "declare src/cache/ast-symbol-cache.ts",
+      "expected": false,
+      "score": 0.824159
+    },
+    {
+      "id": "fr-participant-identity-positive",
+      "language": "fr",
+      "intent": "Le registre doit vérifier l'identité de chaque participant avant l'enregistrement",
+      "module": "declare src/communication/participant-identity-registry.ts",
+      "expected": true,
+      "score": 0.830392
+    },
+    {
+      "id": "fr-ticket-status-hard-negative",
+      "language": "fr",
+      "intent": "Le registre doit vérifier l'identité de chaque participant avant l'enregistrement",
+      "module": "declare src/communication/ticket-status-registry.ts",
+      "expected": false,
+      "score": 0.815187
+    },
+    {
+      "id": "pl-job-timeout-positive",
+      "language": "pl",
+      "intent": "Harmonogram powinien przerywać zadania po przekroczeniu limitu czasu",
+      "module": "declare src/scheduler/job-timeout-cancellation.ts",
+      "expected": true,
+      "score": 0.779611
+    },
+    {
+      "id": "pl-job-order-hard-negative",
+      "language": "pl",
+      "intent": "Harmonogram powinien przerywać zadania po przekroczeniu limitu czasu",
+      "module": "declare src/scheduler/job-order-planner.ts",
+      "expected": false,
+      "score": 0.768394
+    },
+    {
+      "id": "es-secret-redaction-positive",
+      "language": "es",
+      "intent": "Los secretos deben eliminarse del registro de auditoría antes de guardarlo",
+      "module": "declare src/audit/secret-redaction.ts",
+      "expected": true,
+      "score": 0.847803
+    },
+    {
+      "id": "es-audit-export-hard-negative",
+      "language": "es",
+      "intent": "Los secretos deben eliminarse del registro de auditoría antes de guardarlo",
+      "module": "declare src/audit/report-export.ts",
+      "expected": false,
+      "score": 0.835202
+    }
+  ]
+}

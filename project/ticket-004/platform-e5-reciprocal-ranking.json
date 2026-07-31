@@ -1,0 +1,2203 @@
+{
+  "schemaVersion": "t2c.embedding-ranking-experiment/v1",
+  "graphFingerprint": "ae92ead72d35e88e6de754d7af02d074201213c56166eb788a5e152d6a6f695d",
+  "graphSha256": "a83609ffc91d13278b1bd9936e915d50b9dc349373e73c61d0c0a90315d9084a",
+  "model": "intfloat/multilingual-e5-small",
+  "revision": "f470c6a1a906014160ece1968c484b275f0396de",
+  "queryPrefix": "query: ",
+  "passagePrefix": "passage: ",
+  "minimumScore": 0.75,
+  "minimumMargin": 0.01,
+  "moduleCount": 133,
+  "declarationCount": 66,
+  "selectedCount": 1,
+  "newCandidateCount": 0,
+  "elapsedSeconds": 4.453,
+  "rankings": [
+    {
+      "recordId": "INT-DOC-008eb31efc8f4dfca38b",
+      "sourceKind": "document",
+      "sourcePath": "docs/API_ORG_CORE.md",
+      "modality": "required",
+      "text": "Każde wywołanie wymaga `idempotency_key`.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e78d096476327aa23b1e",
+          "path": "scripts/build-urirun-registry.py",
+          "score": 0.84097
+        },
+        {
+          "recordId": "INT-AST-e8add6c9c5592524640f",
+          "path": "packages/founder-cli/src/lifecycle.mjs",
+          "score": 0.83026
+        },
+        {
+          "recordId": "INT-AST-4ad37ba491a05a6daa0b",
+          "path": "scripts/sync-intent-pack-derived.mjs",
+          "score": 0.828326
+        }
+      ],
+      "margin": 0.01071,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.002985,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-019b1be685d528779c3f",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_COMMUNICATION_PROCESS_PACKS.md",
+      "modality": "required",
+      "text": "`communication.founder.reply` wiąże źródłowy `PLF-NNN`, status i correlation z autoryzowanym wątkiem. Odbiorca musi być równy `FOUNDER_EMAIL`; próba podmiany kończy się `founder_reply_recipient_mismatch` przed wysyłką. `In-Reply-To` i `References` pochodzą wyłącznie z zachowanej korelacji, a nagłówki są czyszczone ze znaków sterujących.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e8add6c9c5592524640f",
+          "path": "packages/founder-cli/src/lifecycle.mjs",
+          "score": 0.841888
+        },
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.841289
+        },
+        {
+          "recordId": "INT-AST-4ad37ba491a05a6daa0b",
+          "path": "scripts/sync-intent-pack-derived.mjs",
+          "score": 0.840961
+        }
+      ],
+      "margin": 0.000599,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.002108,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-025e3568780cbedcfa6d",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_URGENT_ACTIONS.md",
+      "modality": "required",
+      "text": "Principal maszyny musi wcześniej istnieć w rejestrze dostępu z kontraktem `aql:contract/v1`. Rejestr i kompilator AQL obsługują `machine`, `service` oraz `provider`; token może być wydany dopiero dla aktywnego, zarejestrowanego principal. Pozwala to rotować lub unieważniać credential niezależnie od authority zapisanej w ticketach.",
+      "currentModuleIds": [
+        "INT-AST-932d9e7b7fc499ee5051"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-87d5a6d7c8c4dfef9468",
+          "path": "scripts/lib/process-ticket.mjs",
+          "score": 0.833554
+        },
+        {
+          "recordId": "INT-AST-2f146f1cc195dd96c6f4",
+          "path": "scripts/audit-ticket-governance.mjs",
+          "score": 0.832712
+        },
+        {
+          "recordId": "INT-AST-ce3060272624f87da997",
+          "path": "test/process-ticket.test.mjs",
+          "score": 0.83265
+        }
+      ],
+      "margin": 0.000842,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003979,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-13c1c72b5787468a471c",
+      "sourceKind": "document",
+      "sourcePath": "docs/PROJECTS_AND_IMPORTS.md",
+      "modality": "required",
+      "text": "Katalog musi znajdować się wewnątrz `PROJECT_IMPORT_ROOT`. Importer stosuje:",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-1af39de912ce9b7c9440",
+          "path": "packages/founder-cli/src/config.mjs",
+          "score": 0.840472
+        },
+        {
+          "recordId": "INT-AST-76fb17f792a499e351d3",
+          "path": "scripts/init-env.mjs",
+          "score": 0.839076
+        },
+        {
+          "recordId": "INT-AST-c0a9741500d2830c1f34",
+          "path": "scripts/lib/production-environment.mjs",
+          "score": 0.838046
+        }
+      ],
+      "margin": 0.001396,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003483,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-1fd58d53d2745e829d14",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_LINKS_AUDIT_AND_REFACTOR_2026-07-21.md",
+      "modality": "required",
+      "text": "3. Link pilnej decyzji wymaga HTTPS, hosta `SUBACTOR_PUBLIC_HOST`, dokładnej ścieżki `/founder/action`, portu domyślnego oraz braku query/hash przed dodaniem jednorazowego tokenu.",
+      "currentModuleIds": [
+        "INT-AST-002e0c686cfeb6968b5e",
+        "INT-AST-1af39de912ce9b7c9440",
+        "INT-AST-265fdb5b302eb0e66e36",
+        "INT-AST-6669cdeb59d2dd1b01e0",
+        "INT-AST-6df68049deb2ff430a49",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-94306c69b189da79195a",
+        "INT-AST-9e7b169cb0dcf86f226a",
+        "INT-AST-c633e264e7f6b083e783"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-7fa98cd51c5167b57fa2",
+          "path": "scripts/send-founder-magic-link.mjs",
+          "score": 0.861952
+        },
+        {
+          "recordId": "INT-AST-c633e264e7f6b083e783",
+          "path": "scripts/create-founder-vault-reveal-link.mjs",
+          "score": 0.853653
+        },
+        {
+          "recordId": "INT-AST-9a4f2ce56264112037c7",
+          "path": "packages/founder-cli/bin/subactor.mjs",
+          "score": 0.85238
+        }
+      ],
+      "margin": 0.008299,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.007306,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-1fe25da1a7826ae30433",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_URGENT_ACTIONS.md",
+      "modality": "required",
+      "text": "`resume` automatycznie deleguje ticket do aktora zapisanego w kontrakcie i ustawia stan `ready`. `defer` zachowuje `waiting_input`. `cancel` zamyka ticket jako `canceled`, bez tworzenia fałszywego completion receipt. Każda opcja musi mieć dokładnie jeden skutek; wartości formularza i tabela skutków są walidowane jako zbiory równoważne.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-22f285d9ae741064ff39",
+          "path": "scripts/normalize-active-ticket-routes.mjs",
+          "score": 0.82912
+        },
+        {
+          "recordId": "INT-AST-b8788dcd3e0b418d0ac5",
+          "path": "scripts/audit-ticket-definition-of-done.mjs",
+          "score": 0.828759
+        },
+        {
+          "recordId": "INT-AST-2f146f1cc195dd96c6f4",
+          "path": "scripts/audit-ticket-governance.mjs",
+          "score": 0.828404
+        }
+      ],
+      "margin": 0.000361,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.006642,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-21bec78de30ca0dfa826",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_OPERATIONAL_DSL_LAYERS.md",
+      "modality": "required",
+      "text": "Wynik LLM zawsze zaczyna jako `proposed`. Model nie może sam podnieść go do `accepted`, `ready`, `verified` ani `done`. Awaria, timeout, brak modelu lub niepoprawny JSON nie uruchamia deterministycznego parsera NL. Powstaje jawny stan `waiting_input`/`llm_interpretation_unavailable`, bez decyzji i bez mutacji.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e78d096476327aa23b1e",
+          "path": "scripts/build-urirun-registry.py",
+          "score": 0.843129
+        },
+        {
+          "recordId": "INT-AST-e3cff82dc01d34518b78",
+          "path": "scripts/lib/audit-log-window.mjs",
+          "score": 0.840151
+        },
+        {
+          "recordId": "INT-AST-224e8700618a854f6bc0",
+          "path": "scripts/lib/layered-system-readiness.mjs",
+          "score": 0.838721
+        }
+      ],
+      "margin": 0.002978,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.002985,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-25eabc74e38b81737c1f",
+      "sourceKind": "document",
+      "sourcePath": "docs/TESTQL_PROJECT_GATES.md",
+      "modality": "required",
+      "text": "Wersja developerska przechowuje podstawowe rekordy `evidence`, `test_suites`, `test_runs`, `outcomes` i hash OQL. W produkcji należy dodać podpisy, trwałą bazę i retencję.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.833963
+        },
+        {
+          "recordId": "INT-AST-87d5a6d7c8c4dfef9468",
+          "path": "scripts/lib/process-ticket.mjs",
+          "score": 0.826495
+        },
+        {
+          "recordId": "INT-AST-c0a9741500d2830c1f34",
+          "path": "scripts/lib/production-environment.mjs",
+          "score": 0.826081
+        }
+      ],
+      "margin": 0.007468,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-2994619a281ce0c038fe",
+      "sourceKind": "document",
+      "sourcePath": "docs/PLESK_OBSERVABILITY.md",
+      "modality": "required",
+      "text": "Endpoint tworzenia klucza jest konfigurowany przez `PLESK_API_KEY_CREATE_PATH`. Jeżeli dana wersja Pleska wymaga MFA, CAPTCHA albo jednorazowej zgody, browser agent utworzy ticket `waiting_input`; mechanizmy bezpieczeństwa nie są obchodzone.",
+      "currentModuleIds": [
+        "INT-AST-002e0c686cfeb6968b5e",
+        "INT-AST-0fad4a78463ccc53e942",
+        "INT-AST-1564314c4c5c8b304c27",
+        "INT-AST-265fdb5b302eb0e66e36",
+        "INT-AST-2ad0a72220a446c0fe88",
+        "INT-AST-3b7d8bf9b45b36aeae19",
+        "INT-AST-6df68049deb2ff430a49",
+        "INT-AST-9e7b169cb0dcf86f226a",
+        "INT-AST-a4a1c7ea87551da3dc42",
+        "INT-AST-c633e264e7f6b083e783"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-6bee94aa65ae666378c2",
+          "path": "scripts/configure-plesk-admin-vault.mjs",
+          "score": 0.860015
+        },
+        {
+          "recordId": "INT-AST-265fdb5b302eb0e66e36",
+          "path": "scripts/create-plesk-secret-link.mjs",
+          "score": 0.859964
+        },
+        {
+          "recordId": "INT-AST-002e0c686cfeb6968b5e",
+          "path": "scripts/create-system-email-secret-link.mjs",
+          "score": 0.856131
+        }
+      ],
+      "margin": 5.1e-05,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.002844,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-2ca381a36c715ea44bac",
+      "sourceKind": "document",
+      "sourcePath": "docs/FLAT_WORKSPACE_AND_LINKEDIN_INTERNSHIP_2026-07-21.md",
+      "modality": "required",
+      "text": "System nie może wywnioskować tych danych z nazwy `Subactor` ani domeny Foundera. Są to decyzje biznesowe/prawne. Adres i marka `prototypowanie.pl` mogą być użyte jako kontekst, ale nie zastępują prawnej nazwy strony umowy.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-9a4f2ce56264112037c7",
+          "path": "packages/founder-cli/bin/subactor.mjs",
+          "score": 0.829453
+        },
+        {
+          "recordId": "INT-AST-94306c69b189da79195a",
+          "path": "scripts/validate-env.mjs",
+          "score": 0.827468
+        },
+        {
+          "recordId": "INT-AST-7fa98cd51c5167b57fa2",
+          "path": "scripts/send-founder-magic-link.mjs",
+          "score": 0.826652
+        }
+      ],
+      "margin": 0.001985,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.011471,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-2dbfe16e760f4d35c9e0",
+      "sourceKind": "document",
+      "sourcePath": "docs/AUTONOMY_CONTRACTS.md",
+      "modality": "required",
+      "text": "Founder jest korzeniem odpowiedzialności. Kontrakt bez pola `principal` należy do `human:founder`, a praca bez pokrycia trafia do kolejki foundera i jest notyfikowana na `founder@localhost`.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e8add6c9c5592524640f",
+          "path": "packages/founder-cli/src/lifecycle.mjs",
+          "score": 0.851962
+        },
+        {
+          "recordId": "INT-AST-1af39de912ce9b7c9440",
+          "path": "packages/founder-cli/src/config.mjs",
+          "score": 0.851016
+        },
+        {
+          "recordId": "INT-AST-c633e264e7f6b083e783",
+          "path": "scripts/create-founder-vault-reveal-link.mjs",
+          "score": 0.848556
+        }
+      ],
+      "margin": 0.000946,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.002108,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-326545ec5f8d681ae88a",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_URGENT_ACTIONS.md",
+      "modality": "required",
+      "text": "Ticket publikacji z blockerem `mutation_gate_disabled` albo `founder_publish_approval_required` nie może przerzucać na Foundera technicznego polecenia „wykonaj dry-run i oceń plan_hash”. Przed utworzeniem e-maila Control wybiera wyłącznie zadeklarowany proces URI o identyfikatorze `dry-run`, `human_approval=false` i `payload.apply=false`, wykonuje go jako `project-operator-bot` i zapisuje ograniczony receipt:",
+      "currentModuleIds": [
+        "INT-AST-0fad4a78463ccc53e942",
+        "INT-AST-22f285d9ae741064ff39",
+        "INT-AST-271f3ac4314857a8b631",
+        "INT-AST-2847b0cb1f6a2d4045ae",
+        "INT-AST-2ad0a72220a446c0fe88",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-a03fbcaf0d05b6cb3367",
+        "INT-AST-a4a1c7ea87551da3dc42",
+        "INT-AST-ad4c73e93b22f06e0fc4",
+        "INT-AST-d67629284ccbd55accc2",
+        "INT-AST-dd4ad46cd453fe2ef337"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-002e0c686cfeb6968b5e",
+          "path": "scripts/create-system-email-secret-link.mjs",
+          "score": 0.848469
+        },
+        {
+          "recordId": "INT-AST-6df68049deb2ff430a49",
+          "path": "scripts/create-inbound-email-secret-link.mjs",
+          "score": 0.846583
+        },
+        {
+          "recordId": "INT-AST-265fdb5b302eb0e66e36",
+          "path": "scripts/create-plesk-secret-link.mjs",
+          "score": 0.843954
+        }
+      ],
+      "margin": 0.001886,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.004768,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-35c3fec8a2fa4ed7790b",
+      "sourceKind": "document",
+      "sourcePath": "docs/FLAT_WORKSPACE_AND_LINKEDIN_INTERNSHIP_2026-07-21.md",
+      "modality": "required",
+      "text": "| Docker BuildKit nie może kopiować plików przez symlink wychodzący poza kontekst buildu | obrazy po spłaszczeniu nie budowałyby się mimo poprawnych ścieżek na hoście | Compose używa kanonicznych repozytoriów jako kontekstów oraz jawnych `additional_contexts`; Dockerfile assembly należą do `platform/docker` |",
+      "currentModuleIds": [
+        "INT-AST-07bc79de0391fa296e7a",
+        "INT-AST-1c6bb4bfd86ba09512b5",
+        "INT-AST-28ecc726b3af01b6d912",
+        "INT-AST-29de31f162b50811f891",
+        "INT-AST-6e8a1d4ad536d4cc9567",
+        "INT-AST-932d9e7b7fc499ee5051",
+        "INT-AST-bf0bfd7598586ad009c9",
+        "INT-AST-c9ad46e56a172df67338",
+        "INT-AST-e4fca5fce4f74af1b8ec",
+        "INT-AST-f2588e9e2e79005e6e0e",
+        "INT-AST-f40c7cca2b0be0281cb8",
+        "INT-AST-f7460573b485ef9218bf",
+        "INT-AST-fd47cb1953b5ccae0760"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.85972
+        },
+        {
+          "recordId": "INT-AST-bf0bfd7598586ad009c9",
+          "path": "test/production-compose.test.mjs",
+          "score": 0.845449
+        },
+        {
+          "recordId": "INT-AST-a3826288f0454d74eaa7",
+          "path": "scripts/audit-documentation-plans.mjs",
+          "score": 0.844077
+        }
+      ],
+      "margin": 0.014271,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-36a129beb520f95c6b3a",
+      "sourceKind": "document",
+      "sourcePath": "docs/PROJECT_RECONCILIATION_CONTROLLER.md",
+      "modality": "required",
+      "text": "Kontroler nie przechowuje sekretów, nie zmienia DNS/TLS i nie włącza mutation gates. Produkcyjny apply nadal wymaga podpisanego grantu związanego z dry-run `plan_hash` i jawnej operacji Foundera.",
+      "currentModuleIds": [
+        "INT-AST-271f3ac4314857a8b631",
+        "INT-AST-2ad0a72220a446c0fe88",
+        "INT-AST-ad4c73e93b22f06e0fc4"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-ad4c73e93b22f06e0fc4",
+          "path": "packages/founder-cli/src/apply-grant.mjs",
+          "score": 0.856689
+        },
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.842309
+        },
+        {
+          "recordId": "INT-AST-c0a9741500d2830c1f34",
+          "path": "scripts/lib/production-environment.mjs",
+          "score": 0.8423
+        }
+      ],
+      "margin": 0.01438,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.008705,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-3a0e329ea4f412cd49f1",
+      "sourceKind": "document",
+      "sourcePath": "docs/WORKER_CONTRACT_PORTAL.md",
+      "modality": "required",
+      "text": "3. Utwórz indywidualne konto Basic Auth. Plik haseł musi znajdować się poza `httpdocs`:",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-5aacf092cd20dfecaeac",
+          "path": "test/documentation-plan-audit.test.mjs",
+          "score": 0.842441
+        },
+        {
+          "recordId": "INT-AST-c0a9741500d2830c1f34",
+          "path": "scripts/lib/production-environment.mjs",
+          "score": 0.841794
+        },
+        {
+          "recordId": "INT-AST-e3cff82dc01d34518b78",
+          "path": "scripts/lib/audit-log-window.mjs",
+          "score": 0.837173
+        }
+      ],
+      "margin": 0.000647,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.006114,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-3b67ff4d3d16f1c25ea7",
+      "sourceKind": "document",
+      "sourcePath": "docs/performance-gui-connectors-audit-2026-07-16.md",
+      "modality": "recommended",
+      "text": "`hr-bridge` nadal ma lokalne implementacje `plesk.*`, `email.send`, `slack.send`, `teams.send`, `calendar.ics.create` i `task.create`. Migracja powinna przebiegać następująco:",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-12cf897f5148c62cb27c",
+          "path": "test/intent-packs.test.mjs",
+          "score": 0.847169
+        },
+        {
+          "recordId": "INT-AST-501c17e4bf9663cd6131",
+          "path": "scripts/run-local-e2e.mjs",
+          "score": 0.846942
+        },
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.845283
+        }
+      ],
+      "margin": 0.000227,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.003968,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-48df7879b921b8bcf5e4",
+      "sourceKind": "document",
+      "sourcePath": "docs/PROJECT_RECONCILIATION_TEST_PLAN.md",
+      "modality": "required",
+      "text": "rzeczywisty apply wymaga osobnego ticketu URI Process i grantu związanego z `plan_hash`.",
+      "currentModuleIds": [
+        "INT-AST-22f285d9ae741064ff39",
+        "INT-AST-2847b0cb1f6a2d4045ae",
+        "INT-AST-ad4c73e93b22f06e0fc4",
+        "INT-AST-d67629284ccbd55accc2"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-002e0c686cfeb6968b5e",
+          "path": "scripts/create-system-email-secret-link.mjs",
+          "score": 0.854757
+        },
+        {
+          "recordId": "INT-AST-265fdb5b302eb0e66e36",
+          "path": "scripts/create-plesk-secret-link.mjs",
+          "score": 0.853594
+        },
+        {
+          "recordId": "INT-AST-a3826288f0454d74eaa7",
+          "path": "scripts/audit-documentation-plans.mjs",
+          "score": 0.853075
+        }
+      ],
+      "margin": 0.001163,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.004768,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-4c3be8c6dc220976cc53",
+      "sourceKind": "document",
+      "sourcePath": "docs/PROJECT_RECONCILIATION_CONTROLLER.md",
+      "modality": "required",
+      "text": "`domain` musi być pełną publiczną nazwą DNS, nie `localhost` ani adresem IP;",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-1564314c4c5c8b304c27",
+          "path": "scripts/bootstrap-plesk-api-key.mjs",
+          "score": 0.839013
+        },
+        {
+          "recordId": "INT-AST-c51776bea8cc5bf2583c",
+          "path": "test/deploy-public-pages.test.mjs",
+          "score": 0.836738
+        },
+        {
+          "recordId": "INT-AST-bdaf4f7c21b3a3912ef3",
+          "path": "scripts/find-free-network.mjs",
+          "score": 0.834026
+        }
+      ],
+      "margin": 0.002275,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.005475,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-4f9db52d56bd0026823b",
+      "sourceKind": "document",
+      "sourcePath": "docs/performance-gui-connectors-audit-2026-07-16.md",
+      "modality": "required",
+      "text": "`urirun-connector-subactor` udostępnia obecnie wiele schematów przez ogólny `process/command/dispatch`. Najpierw należy rozdzielić go wewnętrznie na pakiety `organization`, `contractor/recruitment`, `site-generator` i `testql`. Osobne publiczne repozytorium ma sens dopiero wtedy, gdy moduł ma własny kontrakt URI, schematy wejścia/wyjścia, testy, wersjonowanie i może być wdrażany niezależnie.",
+      "currentModuleIds": [
+        "INT-AST-0fad4a78463ccc53e942",
+        "INT-AST-1b24f96cd4dbff614cc0",
+        "INT-AST-34dd3d4f9ce437b8da87",
+        "INT-AST-3b7d8bf9b45b36aeae19",
+        "INT-AST-792da796f1b4b26b12da",
+        "INT-AST-ac2e2bd1273cfb5ac662",
+        "INT-AST-f2588e9e2e79005e6e0e"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-792da796f1b4b26b12da",
+          "path": "scripts/audit-urirun-connectors.mjs",
+          "score": 0.849456
+        },
+        {
+          "recordId": "INT-AST-e78d096476327aa23b1e",
+          "path": "scripts/build-urirun-registry.py",
+          "score": 0.846713
+        },
+        {
+          "recordId": "INT-AST-1b24f96cd4dbff614cc0",
+          "path": "test/build-urirun-registry.test.mjs",
+          "score": 0.840765
+        }
+      ],
+      "margin": 0.002743,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.001523,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-5149d3861e55a958b08e",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_URGENT_ACTIONS.md",
+      "modality": "required",
+      "text": "`run_preflight` — musi wskazywać konkretny `process_id`; wykonawca nadal weryfikuje, że jest to niezmieniający produkcji proces `dry-run`,",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.855529
+        },
+        {
+          "recordId": "INT-AST-c0a9741500d2830c1f34",
+          "path": "scripts/lib/production-environment.mjs",
+          "score": 0.852303
+        },
+        {
+          "recordId": "INT-AST-87d5a6d7c8c4dfef9468",
+          "path": "scripts/lib/process-ticket.mjs",
+          "score": 0.846205
+        }
+      ],
+      "margin": 0.003226,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-5224f52434cd4e13e790",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_EMAIL_ONE_CLICK_ACTIONS.md",
+      "modality": "required",
+      "text": "Powiadomienie `email_action_required` nie wymaga już ręcznego kopiowania numeru ticketu. Każdy e-mail zawiera:",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-002e0c686cfeb6968b5e",
+          "path": "scripts/create-system-email-secret-link.mjs",
+          "score": 0.851227
+        },
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.847184
+        },
+        {
+          "recordId": "INT-AST-2f146f1cc195dd96c6f4",
+          "path": "scripts/audit-ticket-governance.mjs",
+          "score": 0.842789
+        }
+      ],
+      "margin": 0.004043,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.004768,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-598734e7c12787b3e6ad",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_VAULT_REVEAL.md",
+      "modality": "required",
+      "text": "`FOUNDER_ACCESS_SCOPES` musi zawierać `vault:reveal`",
+      "currentModuleIds": [
+        "INT-AST-c633e264e7f6b083e783"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-c633e264e7f6b083e783",
+          "path": "scripts/create-founder-vault-reveal-link.mjs",
+          "score": 0.860331
+        },
+        {
+          "recordId": "INT-AST-3fc6d08576a55c11d9e1",
+          "path": "test/rotate-platform-secrets.test.mjs",
+          "score": 0.845534
+        },
+        {
+          "recordId": "INT-AST-fd47cb1953b5ccae0760",
+          "path": "scripts/rotate-platform-secrets.mjs",
+          "score": 0.84493
+        }
+      ],
+      "margin": 0.014797,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003874,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-5bfd8fc288d0e3e3e3d9",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_COMMUNICATION_PROCESS_PACKS.md",
+      "modality": "required",
+      "text": "Rejestr wybiera najnowszą zgodną wersję `process.vN`; nie należy kodować wersji w kontrolerze domenowym. Każda ścieżka najpierw tworzy dedykowany ticket Planfile z AQL/EQL/OQL/URI. Dopiero później wykonuje `email.send`.",
+      "currentModuleIds": [
+        "INT-AST-002e0c686cfeb6968b5e",
+        "INT-AST-12cf897f5148c62cb27c",
+        "INT-AST-1b24f96cd4dbff614cc0",
+        "INT-AST-34dd3d4f9ce437b8da87",
+        "INT-AST-6df68049deb2ff430a49",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-932d9e7b7fc499ee5051",
+        "INT-AST-b8788dcd3e0b418d0ac5"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-002e0c686cfeb6968b5e",
+          "path": "scripts/create-system-email-secret-link.mjs",
+          "score": 0.861178
+        },
+        {
+          "recordId": "INT-AST-a3826288f0454d74eaa7",
+          "path": "scripts/audit-documentation-plans.mjs",
+          "score": 0.850183
+        },
+        {
+          "recordId": "INT-AST-87d5a6d7c8c4dfef9468",
+          "path": "scripts/lib/process-ticket.mjs",
+          "score": 0.850166
+        }
+      ],
+      "margin": 0.010995,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.004768,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-6f640680ab497d1d553f",
+      "sourceKind": "document",
+      "sourcePath": "docs/INTEGRATION_ADAPTERS.md",
+      "modality": "required",
+      "text": "Nie trzeba zmieniać istniejących modeli AQL, jeśli korzystają z ogólnego `notification.send`.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e78d096476327aa23b1e",
+          "path": "scripts/build-urirun-registry.py",
+          "score": 0.826191
+        },
+        {
+          "recordId": "INT-AST-12cf897f5148c62cb27c",
+          "path": "test/intent-packs.test.mjs",
+          "score": 0.824924
+        },
+        {
+          "recordId": "INT-AST-4ad37ba491a05a6daa0b",
+          "path": "scripts/sync-intent-pack-derived.mjs",
+          "score": 0.823401
+        }
+      ],
+      "margin": 0.001267,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.002985,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-718b7f44fe9f4539da66",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_OPERATIONAL_DSL_LAYERS.md",
+      "modality": "required",
+      "text": "Interpretacji NL, wyboru intencji, klasyfikacji decyzji ani uzupełniania brakujących pól nie wolno realizować regexami, tablicą słów kluczowych, punktacją lub inną heurystyką. Jeżeli LLM nie zwróci poprawnego structured output, system zatrzymuje operację jako `llm_interpretation_unavailable`.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-87d5a6d7c8c4dfef9468",
+          "path": "scripts/lib/process-ticket.mjs",
+          "score": 0.83227
+        },
+        {
+          "recordId": "INT-AST-4ad37ba491a05a6daa0b",
+          "path": "scripts/sync-intent-pack-derived.mjs",
+          "score": 0.830631
+        },
+        {
+          "recordId": "INT-AST-75ecc71e18412a3f8214",
+          "path": "test/ticket-llm-context.test.mjs",
+          "score": 0.828476
+        }
+      ],
+      "margin": 0.001639,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003979,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-73621239e97df9af3e7a",
+      "sourceKind": "document",
+      "sourcePath": "docs/CONNECTOR_LAN_ARCHITECTURE.md",
+      "modality": "required",
+      "text": "Domyślny executor ma tylko dedykowany wolumen `/workspace`; nie montuje `/`, `/var/run/docker.sock` ani trybu `privileged`. Konektory wymagające sprzętu należy włączać osobno:",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-1c6bb4bfd86ba09512b5",
+          "path": "test/control-safe-start.test.mjs",
+          "score": 0.844471
+        },
+        {
+          "recordId": "INT-AST-bf0bfd7598586ad009c9",
+          "path": "test/production-compose.test.mjs",
+          "score": 0.843603
+        },
+        {
+          "recordId": "INT-AST-0ae86359bdbeb34a808c",
+          "path": "test/control-execute-once.test.mjs",
+          "score": 0.843361
+        }
+      ],
+      "margin": 0.000868,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.001157,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-73a881368c3a9fe2b0f4",
+      "sourceKind": "document",
+      "sourcePath": "docs/SESSION_RECOVERY_AND_MODULARIZATION_2026-07-21.md",
+      "modality": "required",
+      "text": "2. `platform/components/*` są osobnymi checkoutami tych samych repozytoriów, lecz katalog nadrzędny je ignoruje. Zwykły `git status` w `platform` ukrywa ich zmiany. Publikacja musi traktować checkout uruchomieniowy jako kanoniczny, rebase'ować go na `origin/main`, a dopiero potem synchronizować dodatkowe klony.",
+      "currentModuleIds": [
+        "INT-AST-28ecc726b3af01b6d912",
+        "INT-AST-429740c646b555806b8b",
+        "INT-AST-8ed40f8ed8b18102cb3d",
+        "INT-AST-932d9e7b7fc499ee5051",
+        "INT-AST-a03fbcaf0d05b6cb3367",
+        "INT-AST-f7460573b485ef9218bf"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.859558
+        },
+        {
+          "recordId": "INT-AST-28ecc726b3af01b6d912",
+          "path": "scripts/link-flat-workspace.mjs",
+          "score": 0.851344
+        },
+        {
+          "recordId": "INT-AST-f7460573b485ef9218bf",
+          "path": "scripts/check-component-drift.mjs",
+          "score": 0.848807
+        }
+      ],
+      "margin": 0.008214,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-767dd0d952dd7f6c09c1",
+      "sourceKind": "document",
+      "sourcePath": "docs/FLAT_WORKSPACE_AND_LINKEDIN_INTERNSHIP_2026-07-21.md",
+      "modality": "required",
+      "text": "certyfikat `founder.subactor.com` musi odpowiadać domenie, zanim można użyć go jako bezpiecznego wejścia. Odczyt z 2026-07-21 pokazuje CNAME `founder.subactor.com -> subactor.github.io` oraz certyfikat GitHub `*.github.io`, który nie obejmuje nazwy Foundera. Dlatego sama zmiana certyfikatu nr 311 w Plesk nie naprawi obecnego ruchu: najpierw trzeba wybrać docelowy hosting. Dla Pleska należy zmienić DNS na jego serwer, utworzyć host/subdomenę i wydać lub przypisać certyfikat obejmujący `founder.subactor.com`. Dla GitHub Pages należy skonfigurować tę nazwę jako custom domain i poczekać na właściwy certyfikat. Dopiero potem wykonuje się niezależną weryfikację strict TLS.",
+      "currentModuleIds": [
+        "INT-AST-3b7d8bf9b45b36aeae19",
+        "INT-AST-6669cdeb59d2dd1b01e0",
+        "INT-AST-6bee94aa65ae666378c2"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-9a4f2ce56264112037c7",
+          "path": "packages/founder-cli/bin/subactor.mjs",
+          "score": 0.846098
+        },
+        {
+          "recordId": "INT-AST-7fa98cd51c5167b57fa2",
+          "path": "scripts/send-founder-magic-link.mjs",
+          "score": 0.838802
+        },
+        {
+          "recordId": "INT-AST-34dd3d4f9ce437b8da87",
+          "path": "packages/capability-preflight/src/preflight.mjs",
+          "score": 0.838685
+        }
+      ],
+      "margin": 0.007296,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.011471,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-7da4ea8c34d708aa977d",
+      "sourceKind": "document",
+      "sourcePath": "docs/DIGITAL_TWIN_ROUTER_ORCHESTRATOR.md",
+      "modality": "recommended",
+      "text": "Ręczny cykl kontrolera wykonał dwa gotowe tickety, ale etap `queue_execution` trwał około 70 s. Niezależne kroki jednego ticketu są nadal wykonywane sekwencyjnie. Bezpieczna równoległość powinna być wyliczana z DAG `depends_on` i ograniczana budżetem connectora.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-1c6bb4bfd86ba09512b5",
+          "path": "test/control-safe-start.test.mjs",
+          "score": 0.83197
+        },
+        {
+          "recordId": "INT-AST-271f3ac4314857a8b631",
+          "path": "scripts/run-controller-cycle.mjs",
+          "score": 0.827962
+        },
+        {
+          "recordId": "INT-AST-0ae86359bdbeb34a808c",
+          "path": "test/control-execute-once.test.mjs",
+          "score": 0.826695
+        }
+      ],
+      "margin": 0.004008,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.001157,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-7e6497c757ff8d20f249",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_URGENT_ACTIONS.md",
+      "modality": "required",
+      "text": "Dla pytań typu `ticket.decision` e-mail umieszcza po każdej odpowiedzi osobny link `#token=…&answer=…`. Fragment nie jest wysyłany w żądaniu HTTP ani zapisywany w logach serwera. Link wybiera wyłącznie wartość istniejącą w zamkniętym katalogu formularza i zmienia etykietę przycisku na „Potwierdź tę decyzję”. Wymagane pozostaje świadome potwierdzenie na stronie: zwykły skaner linków pocztowych nie może zużyć tokenu ani zmienić lifecycle ticketu przez GET.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-9e4b0f271e9279c9d60e",
+          "path": "scripts/lib/ticket-lifecycle.mjs",
+          "score": 0.848592
+        },
+        {
+          "recordId": "INT-AST-271f3ac4314857a8b631",
+          "path": "scripts/run-controller-cycle.mjs",
+          "score": 0.846701
+        },
+        {
+          "recordId": "INT-AST-0e3f72c26d8f6ea35f80",
+          "path": "scripts/backfill-ticket-definition-of-done.mjs",
+          "score": 0.845006
+        }
+      ],
+      "margin": 0.001891,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.005594,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-814fd7b2a90e4fd7f349",
+      "sourceKind": "document",
+      "sourcePath": "docs/SUBACTOR_MULTI_REPO_MIGRATION.md",
+      "modality": "required",
+      "text": "After component repositories are published, `platform` records them as external source checkouts. Verification must include:",
+      "currentModuleIds": [
+        "INT-AST-28ecc726b3af01b6d912"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.87058
+        },
+        {
+          "recordId": "INT-AST-22e72147fec8b9d55ff1",
+          "path": "scripts/verify-layered-system.mjs",
+          "score": 0.86265
+        },
+        {
+          "recordId": "INT-AST-f54cfcb46e60ea2daf22",
+          "path": "test/platform.test.js",
+          "score": 0.861889
+        }
+      ],
+      "margin": 0.00793,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-81f213d607d4a9e6d773",
+      "sourceKind": "document",
+      "sourcePath": "docs/AUTONOMY_CONTRACTS.md",
+      "modality": "required",
+      "text": "Founder może delegować bez kontraktu nadrzędnego. Inna osoba może tworzyć dalsze delegacje tylko wtedy, gdy poda `parent_contract_id`, jest podmiotem aktywnego kontraktu nadrzędnego, a ten kontrakt dopuszcza operację `autonomy.contract.delegate`. Bot nie może sam rozszerzać swoich uprawnień.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-edc170e805da7985926b",
+          "path": "scripts/configure-autonomy-chat.mjs",
+          "score": 0.82498
+        },
+        {
+          "recordId": "INT-AST-e78d096476327aa23b1e",
+          "path": "scripts/build-urirun-registry.py",
+          "score": 0.820146
+        },
+        {
+          "recordId": "INT-AST-9c6e38ddf867cc10a0c0",
+          "path": "packages/founder-cli/tests/founder.test.mjs",
+          "score": 0.818133
+        }
+      ],
+      "margin": 0.004834,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.013658,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-874b23309a57fba88bb0",
+      "sourceKind": "document",
+      "sourcePath": "docs/AUTONOMOUS_BROWSER_VAULT.md",
+      "modality": "required",
+      "text": "API wymaga `Authorization: Bearer ...`. Domyślnie tokenem wewnętrznym jest `BRIDGE_INTROSPECTION_SECRET`; można ustawić osobny `BROWSER_AGENT_SERVICE_TOKEN`. Klucz szyfrowania domyślnie korzysta z `INTEGRATION_SECRET_KEY`; produkcyjnie zalecany jest osobny `BROWSER_AGENT_VAULT_KEY` przechowywany poza repozytorium.",
+      "currentModuleIds": [
+        "INT-AST-501c17e4bf9663cd6131",
+        "INT-AST-fd47cb1953b5ccae0760"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-edc170e805da7985926b",
+          "path": "scripts/configure-autonomy-chat.mjs",
+          "score": 0.837148
+        },
+        {
+          "recordId": "INT-AST-0a117640892c43195f42",
+          "path": "scripts/init-secrets.mjs",
+          "score": 0.835999
+        },
+        {
+          "recordId": "INT-AST-e78d096476327aa23b1e",
+          "path": "scripts/build-urirun-registry.py",
+          "score": 0.835911
+        }
+      ],
+      "margin": 0.001149,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.013658,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-88df94ec3f62b969e433",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_VAULT_REVEAL.md",
+      "modality": "required",
+      "text": "To nie jest przeglądarka całego sejfu. Ticket musi z góry wskazywać wpis, origin i pole (`password`, `username` albo `api_key`). Ani sekret, ani token linku nie są zapisywane w tickecie, audycie Control lub wyniku CLI.",
+      "currentModuleIds": [
+        "INT-AST-0fad4a78463ccc53e942",
+        "INT-AST-170732522e9a08fc4777",
+        "INT-AST-1af39de912ce9b7c9440",
+        "INT-AST-2847b0cb1f6a2d4045ae",
+        "INT-AST-2ad0a72220a446c0fe88",
+        "INT-AST-3b7d8bf9b45b36aeae19",
+        "INT-AST-6bee94aa65ae666378c2",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-a4a1c7ea87551da3dc42",
+        "INT-AST-c633e264e7f6b083e783",
+        "INT-AST-e4fca5fce4f74af1b8ec"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-265fdb5b302eb0e66e36",
+          "path": "scripts/create-plesk-secret-link.mjs",
+          "score": 0.856613
+        },
+        {
+          "recordId": "INT-AST-9e7b169cb0dcf86f226a",
+          "path": "scripts/create-cloudflare-secret-link.mjs",
+          "score": 0.855406
+        },
+        {
+          "recordId": "INT-AST-3b7d8bf9b45b36aeae19",
+          "path": "scripts/deploy-public-pages.mjs",
+          "score": 0.850217
+        }
+      ],
+      "margin": 0.001207,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.009517,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-88ebbac4e76e7fa6acc6",
+      "sourceKind": "document",
+      "sourcePath": "docs/PROJECT_RECONCILIATION_CONTROLLER.md",
+      "modality": "required",
+      "text": "`id` musi być unikalnym identyfikatorem kebab-case;",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-5d0ae2203807472c3612",
+          "path": "scripts/run-controller-once.mjs",
+          "score": 0.835302
+        },
+        {
+          "recordId": "INT-AST-3b7d8bf9b45b36aeae19",
+          "path": "scripts/deploy-public-pages.mjs",
+          "score": 0.834452
+        },
+        {
+          "recordId": "INT-AST-bf0bfd7598586ad009c9",
+          "path": "test/production-compose.test.mjs",
+          "score": 0.833188
+        }
+      ],
+      "margin": 0.00085,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.000352,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-8b209aa7dc2e722b4dd7",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_DAILY_DIGEST.md",
+      "modality": "recommended",
+      "text": "Awaria nie uruchamia lokalnego fallbacku SMTP. Ponowienie następuje po `FOUNDER_DAILY_DIGEST_RETRY_MS` i używa tego samego ticketa oraz klucza idempotencji, więc nie powinno wysłać drugiej wiadomości po częściowej awarii.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.834571
+        },
+        {
+          "recordId": "INT-AST-002e0c686cfeb6968b5e",
+          "path": "scripts/create-system-email-secret-link.mjs",
+          "score": 0.829515
+        },
+        {
+          "recordId": "INT-AST-a3826288f0454d74eaa7",
+          "path": "scripts/audit-documentation-plans.mjs",
+          "score": 0.829102
+        }
+      ],
+      "margin": 0.005056,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-8b7042e2696ff6f23051",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_URGENT_ACTIONS.md",
+      "modality": "required",
+      "text": "Token wymaga `plans:approve`. Control nie przyjmuje principal w body — odczytuje go z uwierzytelnionej tożsamości, a następnie sprawdza osobne przypisanie authority w tickecie. Dzięki temu scope tokenu nie staje się globalnym prawem zatwierdzania. Dozwolone decyzje to `approve`, `defer` i `reject`; każda jest zapisywana w audycie wraz z principal i metodą uwierzytelnienia.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-5aacf092cd20dfecaeac",
+          "path": "test/documentation-plan-audit.test.mjs",
+          "score": 0.834053
+        },
+        {
+          "recordId": "INT-AST-d79aa26ea931af33f0d6",
+          "path": "scripts/configure-remediation-planner.mjs",
+          "score": 0.832855
+        },
+        {
+          "recordId": "INT-AST-a3826288f0454d74eaa7",
+          "path": "scripts/audit-documentation-plans.mjs",
+          "score": 0.829247
+        }
+      ],
+      "margin": 0.001198,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.006114,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-8d7022906b9a1e65b9ec",
+      "sourceKind": "document",
+      "sourcePath": "docs/DEVELOPMENT_OPENROUTER.md",
+      "modality": "required",
+      "text": "Gateway jest domyślnie publikowany tylko na `127.0.0.1` i wymaga lokalnego `LLM_GATEWAY_SERVICE_TOKEN`.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.840702
+        },
+        {
+          "recordId": "INT-AST-4ad37ba491a05a6daa0b",
+          "path": "scripts/sync-intent-pack-derived.mjs",
+          "score": 0.839761
+        },
+        {
+          "recordId": "INT-AST-ebdfa3628e9c4e8432e6",
+          "path": "scripts/llm-status.mjs",
+          "score": 0.839585
+        }
+      ],
+      "margin": 0.000941,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-958ddb1db2512381cc5f",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_URGENT_ACTIONS.md",
+      "modality": "recommended",
+      "text": "Founder nie powinien znać stanów kolejki, wybierać `reassign` ani wpisywać komend lifecycle. Planfile pozostaje wewnętrznym źródłem stanu i dowodów, a interakcję człowieka obsługuje deklaratywny kontrakt `subactor.interactive-form.v1` lub jego zgodne rozszerzenie `subactor.interactive-form.v2`. Control interpretuje skutek odpowiedzi, a bezstanowe repozytorium `views/` renderuje wyłącznie projekcję HTML.",
+      "currentModuleIds": [
+        "INT-AST-002e0c686cfeb6968b5e",
+        "INT-AST-1af39de912ce9b7c9440",
+        "INT-AST-265fdb5b302eb0e66e36",
+        "INT-AST-2847b0cb1f6a2d4045ae",
+        "INT-AST-3b7d8bf9b45b36aeae19",
+        "INT-AST-501c17e4bf9663cd6131",
+        "INT-AST-6df68049deb2ff430a49",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-94306c69b189da79195a",
+        "INT-AST-9e7b169cb0dcf86f226a",
+        "INT-AST-c633e264e7f6b083e783"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-9a4f2ce56264112037c7",
+          "path": "packages/founder-cli/bin/subactor.mjs",
+          "score": 0.852536
+        },
+        {
+          "recordId": "INT-AST-e8add6c9c5592524640f",
+          "path": "packages/founder-cli/src/lifecycle.mjs",
+          "score": 0.849854
+        },
+        {
+          "recordId": "INT-AST-7fa98cd51c5167b57fa2",
+          "path": "scripts/send-founder-magic-link.mjs",
+          "score": 0.848442
+        }
+      ],
+      "margin": 0.002682,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.011471,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-9c3fc3cb3825c7092c7f",
+      "sourceKind": "document",
+      "sourcePath": "docs/PLESK_LIVE.md",
+      "modality": "required",
+      "text": "Mock Plesk implementuje endpoint publikacji bez dodatkowych zmian. W trybie live ścieżka `PLESK_SITE_PUBLISH_PATH` musi wskazywać endpoint udostępniony przez konkretną instalację Plesk, rozszerzenie panelu albo kontrolowany adapter CLI. Nie należy zakładać, że niestandardowa ścieżka `/api/v2/sites/publish` istnieje w każdej instalacji.",
+      "currentModuleIds": [
+        "INT-AST-0fad4a78463ccc53e942",
+        "INT-AST-1564314c4c5c8b304c27",
+        "INT-AST-f2c14a1e840818e82b47"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-1564314c4c5c8b304c27",
+          "path": "scripts/bootstrap-plesk-api-key.mjs",
+          "score": 0.846759
+        },
+        {
+          "recordId": "INT-AST-265fdb5b302eb0e66e36",
+          "path": "scripts/create-plesk-secret-link.mjs",
+          "score": 0.844142
+        },
+        {
+          "recordId": "INT-AST-501c17e4bf9663cd6131",
+          "path": "scripts/run-local-e2e.mjs",
+          "score": 0.839924
+        }
+      ],
+      "margin": 0.002617,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.005475,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-acc70bcd3285163c8a83",
+      "sourceKind": "document",
+      "sourcePath": "docs/WORKER_CONTRACT_PORTAL.md",
+      "modality": "required",
+      "text": "Nazwa użytkownika musi być identyczna z `worker.http_basic_user` w JSON. Runtime odrzuca również poprawnie uwierzytelnione konto przypisane do innego pracownika.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.841455
+        },
+        {
+          "recordId": "INT-AST-cbabaecd2615f3b68a2c",
+          "path": "test/recruitment-workflow.test.mjs",
+          "score": 0.837079
+        },
+        {
+          "recordId": "INT-AST-c0a9741500d2830c1f34",
+          "path": "scripts/lib/production-environment.mjs",
+          "score": 0.836195
+        }
+      ],
+      "margin": 0.004376,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-b966966b4a3a222cdab4",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_OPERATIONAL_DSL_LAYERS.md",
+      "modality": "required",
+      "text": "Control ponownie waliduje wynik, sprawdza scope, wykonuje wskazane odczyty i przekazuje do drugiej fazy LLM wyłącznie krótkie, zatwierdzone fakty. Odpowiedź ma kontrakt `subactor.founder-grounded-answer/v1` i musi wskazać `fact_refs`. Model nie otrzymuje authority, dowolnego filtra, URI ani surowych obiektów.",
+      "currentModuleIds": [
+        "INT-AST-002e0c686cfeb6968b5e",
+        "INT-AST-265fdb5b302eb0e66e36",
+        "INT-AST-2847b0cb1f6a2d4045ae",
+        "INT-AST-33ed799f815097a2ebcb",
+        "INT-AST-34dd3d4f9ce437b8da87",
+        "INT-AST-3b7d8bf9b45b36aeae19",
+        "INT-AST-501c17e4bf9663cd6131",
+        "INT-AST-6df68049deb2ff430a49",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-94306c69b189da79195a",
+        "INT-AST-9e7b169cb0dcf86f226a",
+        "INT-AST-c633e264e7f6b083e783"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-27cef449f964a294ffcd",
+          "path": "scripts/lib/json-schema-subset.mjs",
+          "score": 0.83752
+        },
+        {
+          "recordId": "INT-AST-94306c69b189da79195a",
+          "path": "scripts/validate-env.mjs",
+          "score": 0.837417
+        },
+        {
+          "recordId": "INT-AST-7fa98cd51c5167b57fa2",
+          "path": "scripts/send-founder-magic-link.mjs",
+          "score": 0.837069
+        }
+      ],
+      "margin": 0.000103,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.00486,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-ba509d6ee6ec15b626b8",
+      "sourceKind": "document",
+      "sourcePath": "docs/ORGANIZATION_OS_ARCHITECTURE.md",
+      "modality": "required",
+      "text": "Claim jest ponownie walidowany przed zmianą stanu. Zakończenie wymaga receiptów kroków i completion receipt z `verified_by`; sam HTTP 2xx nie wystarcza.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.863786
+        },
+        {
+          "recordId": "INT-AST-22e72147fec8b9d55ff1",
+          "path": "scripts/verify-layered-system.mjs",
+          "score": 0.863029
+        },
+        {
+          "recordId": "INT-AST-224e8700618a854f6bc0",
+          "path": "scripts/lib/layered-system-readiness.mjs",
+          "score": 0.85533
+        }
+      ],
+      "margin": 0.000757,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003148,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-c0464135791a8ed38c66",
+      "sourceKind": "document",
+      "sourcePath": "docs/PROJECT_RECONCILIATION_CONTROLLER.md",
+      "modality": "required",
+      "text": "Ścieżka hosta jest montowana do kontenera tylko do odczytu. Zmiana `SUBACTOR_PROJECTS_PATH` wymaga zgodności wartości w `.env` z bind-mountem Compose.",
+      "currentModuleIds": [
+        "INT-AST-002e0c686cfeb6968b5e",
+        "INT-AST-1564314c4c5c8b304c27",
+        "INT-AST-170732522e9a08fc4777",
+        "INT-AST-265fdb5b302eb0e66e36",
+        "INT-AST-2e5029d3b3ab1ba50c91",
+        "INT-AST-48dfdd4791e461e90b73",
+        "INT-AST-501c17e4bf9663cd6131",
+        "INT-AST-6669cdeb59d2dd1b01e0",
+        "INT-AST-6bee94aa65ae666378c2",
+        "INT-AST-6df68049deb2ff430a49",
+        "INT-AST-76fb17f792a499e351d3",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-94306c69b189da79195a",
+        "INT-AST-9e7b169cb0dcf86f226a",
+        "INT-AST-b7fda5399edec3c1acb1",
+        "INT-AST-c633e264e7f6b083e783",
+        "INT-AST-e4fca5fce4f74af1b8ec",
+        "INT-AST-ebdfa3628e9c4e8432e6"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-94306c69b189da79195a",
+          "path": "scripts/validate-env.mjs",
+          "score": 0.872004
+        },
+        {
+          "recordId": "INT-AST-76fb17f792a499e351d3",
+          "path": "scripts/init-env.mjs",
+          "score": 0.867679
+        },
+        {
+          "recordId": "INT-AST-6669cdeb59d2dd1b01e0",
+          "path": "scripts/configure-inbound-email-vault.mjs",
+          "score": 0.862333
+        }
+      ],
+      "margin": 0.004325,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.006814,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-c515505dcb1f9e834ef1",
+      "sourceKind": "document",
+      "sourcePath": "docs/SYSTEM_STATE_2026-07-24.md",
+      "modality": "required",
+      "text": "**Dopasowanie reguł to AND, nie OR.** `ruleMatchesTicket` wymaga spełnienia **wszystkich** wypełnionych kryteriów. Dodanie `uri_prefixes_any` do reguły, która ma już `labels_any`, **zawęża** ją — ticket musi mieć etykietę *oraz* URI. Reguły URI muszą być osobnymi wpisami z pustymi pozostałymi kryteriami.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e78d096476327aa23b1e",
+          "path": "scripts/build-urirun-registry.py",
+          "score": 0.856836
+        },
+        {
+          "recordId": "INT-AST-87d5a6d7c8c4dfef9468",
+          "path": "scripts/lib/process-ticket.mjs",
+          "score": 0.854146
+        },
+        {
+          "recordId": "INT-AST-ce3060272624f87da997",
+          "path": "test/process-ticket.test.mjs",
+          "score": 0.853856
+        }
+      ],
+      "margin": 0.00269,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.002985,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-c72a940082e5281fdd16",
+      "sourceKind": "document",
+      "sourcePath": "docs/SYSTEM_EMAIL.md",
+      "modality": "required",
+      "text": "`REAL_SYSTEM_EMAIL` określa prawdziwą skrzynkę systemu, a `DEMO_SYSTEM_EMAIL` nadawcę używanego wyłącznie przez Mailpit i testy. `SYSTEM_EMAIL` wskazuje aktywną tożsamość foundera, administratora i supervisora. `EMAIL_IDENTITY_MODE=real` wymaga zgodności `SYSTEM_EMAIL` z `REAL_SYSTEM_EMAIL`; tryb `demo` przełącza ją na `DEMO_SYSTEM_EMAIL`.",
+      "currentModuleIds": [
+        "INT-AST-94306c69b189da79195a"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-224e8700618a854f6bc0",
+          "path": "scripts/lib/layered-system-readiness.mjs",
+          "score": 0.843144
+        },
+        {
+          "recordId": "INT-AST-4ad37ba491a05a6daa0b",
+          "path": "scripts/sync-intent-pack-derived.mjs",
+          "score": 0.840485
+        },
+        {
+          "recordId": "INT-AST-94306c69b189da79195a",
+          "path": "scripts/validate-env.mjs",
+          "score": 0.838475
+        }
+      ],
+      "margin": 0.002659,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.006823,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-ce10b816225eeeea1aef",
+      "sourceKind": "document",
+      "sourcePath": "docs/FLAT_WORKSPACE_AND_LINKEDIN_INTERNSHIP_2026-07-21.md",
+      "modality": "required",
+      "text": "Jeżeli node wymaga auth, `lenovo.token_file` ma wskazywać lokalny plik zawierający token; token nie jest wersjonowany ani zapisywany w artefakcie. Automat wykonuje readiness i otwiera formularz tylko na istniejącej, uwierzytelnionej powierzchni browser/CDP. Founder weryfikuje pola i publikuje.",
+      "currentModuleIds": [
+        "INT-AST-1af39de912ce9b7c9440",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-94306c69b189da79195a",
+        "INT-AST-ad4c73e93b22f06e0fc4",
+        "INT-AST-c633e264e7f6b083e783",
+        "INT-AST-dd4ad46cd453fe2ef337",
+        "INT-AST-e4fca5fce4f74af1b8ec",
+        "INT-AST-fd47cb1953b5ccae0760"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-1af39de912ce9b7c9440",
+          "path": "packages/founder-cli/src/config.mjs",
+          "score": 0.843646
+        },
+        {
+          "recordId": "INT-AST-a3826288f0454d74eaa7",
+          "path": "scripts/audit-documentation-plans.mjs",
+          "score": 0.842754
+        },
+        {
+          "recordId": "INT-AST-edc170e805da7985926b",
+          "path": "scripts/configure-autonomy-chat.mjs",
+          "score": 0.842372
+        }
+      ],
+      "margin": 0.000892,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.003483,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-cf53c018b86f82f3967f",
+      "sourceKind": "document",
+      "sourcePath": "docs/AUTONOMY_CONTRACTS.md",
+      "modality": "required",
+      "text": "`principal` wskazuje osobę albo bota, np. `{\"kind\":\"bot\",\"id\":\"it-provisioner-bot\"}`. Ticket utworzony w ramach takiego kontraktu otrzymuje tego samego wykonawcę i kolejkę. Sam routing nie udaje wykonania: bot musi mieć rzeczywisty adapter lub proces URIrun, który odbierze ticket i zapisze dowód rezultatu.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-a3826288f0454d74eaa7",
+          "path": "scripts/audit-documentation-plans.mjs",
+          "score": 0.85194
+        },
+        {
+          "recordId": "INT-AST-792da796f1b4b26b12da",
+          "path": "scripts/audit-urirun-connectors.mjs",
+          "score": 0.851694
+        },
+        {
+          "recordId": "INT-AST-f40c7cca2b0be0281cb8",
+          "path": "scripts/audit-active-ticket-routes.mjs",
+          "score": 0.847934
+        }
+      ],
+      "margin": 0.000246,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.001135,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-d0f2d64cdf114aecb081",
+      "sourceKind": "document",
+      "sourcePath": "docs/RELCom_INTEGRATION.md",
+      "modality": "required",
+      "text": "Nie kopiuj tokenów, danych testowych ani mock Pleska. Produkcyjny `plan-registry` powinien pozostać źródłem prawdy i wymagać `SUBACTOR_ADMIN_TOKEN`.",
+      "currentModuleIds": [
+        "INT-AST-7fa98cd51c5167b57fa2"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-265fdb5b302eb0e66e36",
+          "path": "scripts/create-plesk-secret-link.mjs",
+          "score": 0.852756
+        },
+        {
+          "recordId": "INT-AST-e5bd0b88590a365b8624",
+          "path": "config/intent-packs/registry.mjs",
+          "score": 0.85208
+        },
+        {
+          "recordId": "INT-AST-9a4f2ce56264112037c7",
+          "path": "packages/founder-cli/bin/subactor.mjs",
+          "score": 0.848715
+        }
+      ],
+      "margin": 0.000676,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.009517,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-d8cc038eab8108dffbd7",
+      "sourceKind": "document",
+      "sourcePath": "docs/PROJECT_RECONCILIATION_CONTROLLER.md",
+      "modality": "required",
+      "text": "Kontrola dokumentów prawnych jest jakościowa, nie tylko nazwowa. Akceptowane są pliki `.md`, `.html`, `.htm`, `.txt` i `.pdf`. Każdy wymagany dokument musi mieć co najmniej 200 bajtów/znaków, a pliki tekstowe zawierające `TODO`, `do uzupełnienia` albo `placeholder` są traktowane jako niekompletne. Wymagane kategorie to: polityka prywatności, cookies, dane administratora, zasady formularza kontaktowego i informacja o statusie pilotażu.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-5aacf092cd20dfecaeac",
+          "path": "test/documentation-plan-audit.test.mjs",
+          "score": 0.827941
+        },
+        {
+          "recordId": "INT-AST-167bbd84e4e4afe736e9",
+          "path": "test/capability-preflight.test.mjs",
+          "score": 0.823662
+        },
+        {
+          "recordId": "INT-AST-59742984dd7ae51fd03b",
+          "path": "test/active-ticket-route-audit.test.mjs",
+          "score": 0.822936
+        }
+      ],
+      "margin": 0.004279,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.006114,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-d9088f27e0bd7ac5d51b",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_LINKS_AUDIT_AND_REFACTOR_2026-07-21.md",
+      "modality": "required",
+      "text": "Jaki publiczny adres IP lub nazwa hosta ingressu ma obsługiwać `founder.subactor.com`? Bez tej informacji nie należy zmieniać rekordu DNS ani deklarować, że publiczny link działa. Po uzyskaniu odpowiedzi trzeba również potwierdzić, czy kolejka Planfile ma być publikowana na tej samej domenie, czy pod osobnym, uwierzytelnionym adresem.",
+      "currentModuleIds": [
+        "INT-AST-3b7d8bf9b45b36aeae19",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-c633e264e7f6b083e783"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-9a4f2ce56264112037c7",
+          "path": "packages/founder-cli/bin/subactor.mjs",
+          "score": 0.844263
+        },
+        {
+          "recordId": "INT-AST-7fa98cd51c5167b57fa2",
+          "path": "scripts/send-founder-magic-link.mjs",
+          "score": 0.837775
+        },
+        {
+          "recordId": "INT-AST-1564314c4c5c8b304c27",
+          "path": "scripts/bootstrap-plesk-api-key.mjs",
+          "score": 0.832502
+        }
+      ],
+      "margin": 0.006488,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.011471,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-dce58b4c336ad1c53826",
+      "sourceKind": "document",
+      "sourcePath": "docs/DIGITAL_TWIN_ROUTER_ORCHESTRATOR.md",
+      "modality": "required",
+      "text": "W rejestrze lifecycle `digital_twin_profile` ma status `partial` i `autonomy.enabled=false`. Portret może być używany do decyzji routingowej, ale nie może autonomicznie migrować siebie ani modyfikować praw, dopóki luki taksonomii specjalizacji i jakości wyników nie zostaną domknięte.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-e78d096476327aa23b1e",
+          "path": "scripts/build-urirun-registry.py",
+          "score": 0.8306
+        },
+        {
+          "recordId": "INT-AST-9e4b0f271e9279c9d60e",
+          "path": "scripts/lib/ticket-lifecycle.mjs",
+          "score": 0.825245
+        },
+        {
+          "recordId": "INT-AST-edc170e805da7985926b",
+          "path": "scripts/configure-autonomy-chat.mjs",
+          "score": 0.821944
+        }
+      ],
+      "margin": 0.005355,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.002985,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-e5d909b9cb997225241b",
+      "sourceKind": "document",
+      "sourcePath": "docs/PROJECT_RECONCILIATION_CONTROLLER.md",
+      "modality": "required",
+      "text": "`schema` musi mieć wartość `subactor.projects/v1`;",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-9a4f2ce56264112037c7",
+          "path": "packages/founder-cli/bin/subactor.mjs",
+          "score": 0.865702
+        },
+        {
+          "recordId": "INT-AST-3b7d8bf9b45b36aeae19",
+          "path": "scripts/deploy-public-pages.mjs",
+          "score": 0.861173
+        },
+        {
+          "recordId": "INT-AST-94306c69b189da79195a",
+          "path": "scripts/validate-env.mjs",
+          "score": 0.856483
+        }
+      ],
+      "margin": 0.004529,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.011471,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-e907e7c7a7d55704ca51",
+      "sourceKind": "document",
+      "sourcePath": "docs/AUTONOMOUS_QUEUE_CONTROLLER.md",
+      "modality": "required",
+      "text": "Każdy cykl ponownie bada ticket, jeżeli ma Process Envelope v2, należy do włączonego bota i trafił do `waiting_input` z błędem `readiness_preflight:*`. Kontroler nie promuje ticketów ludzkich, legacy, z aktywnym `blocked-by:*` ani z zadeklarowanym blockerem. Kandydat przechodzi ponownie przez aktualne rejestry aktorów i exact URI. Dopiero zielony wynik zmienia stan na `ready`.",
+      "currentModuleIds": [
+        "INT-AST-f2588e9e2e79005e6e0e"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-f40c7cca2b0be0281cb8",
+          "path": "scripts/audit-active-ticket-routes.mjs",
+          "score": 0.834894
+        },
+        {
+          "recordId": "INT-AST-9e4b0f271e9279c9d60e",
+          "path": "scripts/lib/ticket-lifecycle.mjs",
+          "score": 0.834087
+        },
+        {
+          "recordId": "INT-AST-87d5a6d7c8c4dfef9468",
+          "path": "scripts/lib/process-ticket.mjs",
+          "score": 0.832743
+        }
+      ],
+      "margin": 0.000807,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.001362,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-ef47ae9fb56681714214",
+      "sourceKind": "document",
+      "sourcePath": "docs/FOUNDER_URGENT_ACTIONS.md",
+      "modality": "required",
+      "text": "Odpowiedź e-mail może zawierać wyłącznie `TAK`, `NIE`, `ODROCZ` lub `PÓŹNIEJ`, jeżeli temat zachowuje znacznik `[URGENT:PLF-N]` wygenerowany przez system. Nadal akceptowane są jawne formy `APPROVE PLF-N`, `REJECT PLF-N` i `DEFER PLF-N`. Nadawca przechodzi istniejącą autoryzację kontaktu i kontraktu AQL. Klasa principal nie nadaje globalnego wyjątku: również `human:founder` musi być związany z ticketem przez `assigned_to`, etykietę `authority:`, `approver:`, `principal:` albo jawną capability decyzyjną AQL.",
+      "currentModuleIds": [
+        "INT-AST-002e0c686cfeb6968b5e",
+        "INT-AST-0fad4a78463ccc53e942",
+        "INT-AST-265fdb5b302eb0e66e36",
+        "INT-AST-2ad0a72220a446c0fe88",
+        "INT-AST-2f146f1cc195dd96c6f4",
+        "INT-AST-34dd3d4f9ce437b8da87",
+        "INT-AST-6df68049deb2ff430a49",
+        "INT-AST-7fa98cd51c5167b57fa2",
+        "INT-AST-932d9e7b7fc499ee5051",
+        "INT-AST-94306c69b189da79195a",
+        "INT-AST-9e7b169cb0dcf86f226a",
+        "INT-AST-ac2e2bd1273cfb5ac662",
+        "INT-AST-c633e264e7f6b083e783",
+        "INT-AST-dc1dcce0faf40419b64e",
+        "INT-AST-dd4ad46cd453fe2ef337"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-e8add6c9c5592524640f",
+          "path": "packages/founder-cli/src/lifecycle.mjs",
+          "score": 0.836239
+        },
+        {
+          "recordId": "INT-AST-2ad0a72220a446c0fe88",
+          "path": "packages/founder-cli/src/ask.mjs",
+          "score": 0.836008
+        },
+        {
+          "recordId": "INT-AST-4ad37ba491a05a6daa0b",
+          "path": "scripts/sync-intent-pack-derived.mjs",
+          "score": 0.834528
+        }
+      ],
+      "margin": 0.000231,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.002108,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-efe140f5619e37a96d82",
+      "sourceKind": "document",
+      "sourcePath": "docs/SECRET_INTAKE_PROCESS_PACKS.md",
+      "modality": "required",
+      "text": "Każdy ticket zawiera komplet AQL/EQL/OQL/URI. LLM może wybrać proces i wypełnić ograniczony slot `provider`, ale nie może wybrać transportu, wpisu sejfu ani wygenerować URI.",
+      "currentModuleIds": [
+        "INT-AST-5d19be2a9b2f6eb9c00c"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-9e4b0f271e9279c9d60e",
+          "path": "scripts/lib/ticket-lifecycle.mjs",
+          "score": 0.840829
+        },
+        {
+          "recordId": "INT-AST-ce3060272624f87da997",
+          "path": "test/process-ticket.test.mjs",
+          "score": 0.839737
+        },
+        {
+          "recordId": "INT-AST-75ecc71e18412a3f8214",
+          "path": "test/ticket-llm-context.test.mjs",
+          "score": 0.839105
+        }
+      ],
+      "margin": 0.001092,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.005594,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-f48ad72c3cd1e900e80f",
+      "sourceKind": "document",
+      "sourcePath": "docs/AUTONOMOUS_CONTROLLER_CONTINUATION_PLAN.md",
+      "modality": "required",
+      "text": "Kontroler nie może promować, wykonywać ani zamykać ticketu bez wspieranej wersji kontraktu, kompletnego envelope v2, aktywnego aktora, live exact URI, uprawnień AQL, oczekiwań EQL i braku aktualnego blockera. Brak bezpiecznej ścieżki pozostaje widocznym `waiting_input`; przypomnienie nie nadaje authority i nie odnawia tokenu częściej niż pozwala lifecycle artefaktu.",
+      "currentModuleIds": [
+        "INT-AST-34dd3d4f9ce437b8da87",
+        "INT-AST-932d9e7b7fc499ee5051",
+        "INT-AST-f2588e9e2e79005e6e0e"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-a3826288f0454d74eaa7",
+          "path": "scripts/audit-documentation-plans.mjs",
+          "score": 0.833423
+        },
+        {
+          "recordId": "INT-AST-9e4b0f271e9279c9d60e",
+          "path": "scripts/lib/ticket-lifecycle.mjs",
+          "score": 0.830379
+        },
+        {
+          "recordId": "INT-AST-271f3ac4314857a8b631",
+          "path": "scripts/run-controller-cycle.mjs",
+          "score": 0.830257
+        }
+      ],
+      "margin": 0.003044,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.001135,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-fb082dd22afc2a7434e5",
+      "sourceKind": "document",
+      "sourcePath": "docs/SYSTEM_STATE_2026-07-24.md",
+      "modality": "required",
+      "text": "Powód jest strukturalny, nie awaryjny: kolejka autonomiczna wykonuje wyłącznie tickety w stanie wykonywalnym, a praktycznie cały backlog stoi na `waiting_input`. Licznik `executable` opisuje tę kolejkę, a nie ścieżkę delegowania — dlatego oba wskaźniki mogą się rozjeżdżać i **nie należy czytać `executable: 0` jako awarii kontrolera**.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-9e4b0f271e9279c9d60e",
+          "path": "scripts/lib/ticket-lifecycle.mjs",
+          "score": 0.857835
+        },
+        {
+          "recordId": "INT-AST-c74d93ff12a626f5e8df",
+          "path": "test/ticket-auditor-audit-window.test.mjs",
+          "score": 0.849431
+        },
+        {
+          "recordId": "INT-AST-419698c412dc2105ea07",
+          "path": "test/ticket-auditor-selection.test.mjs",
+          "score": 0.845601
+        }
+      ],
+      "margin": 0.008404,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.005594,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-fdb89ea01f0b0eaa5628",
+      "sourceKind": "document",
+      "sourcePath": "docs/ENV_CONFIGURATION.md",
+      "modality": "required",
+      "text": "4. Kod serwisów nie może używać bezpośrednio `process.env.VAR`.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-94306c69b189da79195a",
+          "path": "scripts/validate-env.mjs",
+          "score": 0.854812
+        },
+        {
+          "recordId": "INT-AST-0ccec610937016ed5ee4",
+          "path": "scripts/migrate-env.mjs",
+          "score": 0.851694
+        },
+        {
+          "recordId": "INT-AST-5d0ae2203807472c3612",
+          "path": "scripts/run-controller-once.mjs",
+          "score": 0.851052
+        }
+      ],
+      "margin": 0.003118,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.006814,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-DOC-fea4537ba7aa1ca8a381",
+      "sourceKind": "document",
+      "sourcePath": "docs/INBOUND_EMAIL_AUTHORIZATION.md",
+      "modality": "required",
+      "text": "The default authentication policy is `strict`. `contract-only` exists solely for isolated local tests and must not be used for a real mailbox.",
+      "currentModuleIds": [
+        "INT-AST-167bbd84e4e4afe736e9",
+        "INT-AST-576fc1c342f93d1fcef2",
+        "INT-AST-6e8a1d4ad536d4cc9567",
+        "INT-AST-bcd8179169d840bc205e"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-ce3060272624f87da997",
+          "path": "test/process-ticket.test.mjs",
+          "score": 0.83973
+        },
+        {
+          "recordId": "INT-AST-42da0c70f37348edd281",
+          "path": "test/active-ticket-route-normalization.test.mjs",
+          "score": 0.837595
+        },
+        {
+          "recordId": "INT-AST-59742984dd7ae51fd03b",
+          "path": "test/active-ticket-route-audit.test.mjs",
+          "score": 0.836975
+        }
+      ],
+      "margin": 0.002135,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.005786,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-TODO-180a8388572a6ea7a824",
+      "sourceKind": "todo",
+      "sourcePath": "TODO.md",
+      "modality": "required",
+      "text": "Resolve Plesk `subscription_domain_limit_unknown`, DNS and TLS before production apply.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-265fdb5b302eb0e66e36",
+          "path": "scripts/create-plesk-secret-link.mjs",
+          "score": 0.869481
+        },
+        {
+          "recordId": "INT-AST-c0a9741500d2830c1f34",
+          "path": "scripts/lib/production-environment.mjs",
+          "score": 0.859953
+        },
+        {
+          "recordId": "INT-AST-1564314c4c5c8b304c27",
+          "path": "scripts/bootstrap-plesk-api-key.mjs",
+          "score": 0.859809
+        }
+      ],
+      "margin": 0.009528,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.009517,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-TODO-5c003c3825645e675e46",
+      "sourceKind": "todo",
+      "sourcePath": "TODO.md",
+      "modality": "required",
+      "text": "Provision `urirun-connector-twilio-voice`: vault credentials, caller number, destination/consent policy and signed status callback.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-a00b21088f556fc59477",
+          "path": "scripts/validate-urirun-connectors-audit.mjs",
+          "score": 0.878721
+        },
+        {
+          "recordId": "INT-AST-792da796f1b4b26b12da",
+          "path": "scripts/audit-urirun-connectors.mjs",
+          "score": 0.873161
+        },
+        {
+          "recordId": "INT-AST-170732522e9a08fc4777",
+          "path": "scripts/configure-system-email-vault.mjs",
+          "score": 0.858164
+        }
+      ],
+      "margin": 0.00556,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.018359,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-TODO-9b79f780a672f6add271",
+      "sourceKind": "todo",
+      "sourcePath": "TODO.md",
+      "modality": "required",
+      "text": "Deploy one authenticated portal for `contracts.subactor.com` and `chat.subactor.com`.",
+      "currentModuleIds": [
+        "INT-AST-94306c69b189da79195a"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-9868e7332a3017885a0f",
+          "path": "config/connector-capabilities/preflight.mjs",
+          "score": 0.866502
+        },
+        {
+          "recordId": "INT-AST-e5bd0b88590a365b8624",
+          "path": "config/intent-packs/registry.mjs",
+          "score": 0.864586
+        },
+        {
+          "recordId": "INT-AST-6bee94aa65ae666378c2",
+          "path": "scripts/configure-plesk-admin-vault.mjs",
+          "score": 0.86286
+        }
+      ],
+      "margin": 0.001916,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.015824,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-TODO-b7058854b8ae3d810e17",
+      "sourceKind": "todo",
+      "sourcePath": "TODO.md",
+      "modality": "required",
+      "text": "Rotate the scoped autonomy-chat control token before 2026-08-18.",
+      "currentModuleIds": [
+        "INT-AST-edc170e805da7985926b"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-edc170e805da7985926b",
+          "path": "scripts/configure-autonomy-chat.mjs",
+          "score": 0.866802
+        },
+        {
+          "recordId": "INT-AST-3fc6d08576a55c11d9e1",
+          "path": "test/rotate-platform-secrets.test.mjs",
+          "score": 0.84412
+        },
+        {
+          "recordId": "INT-AST-fd47cb1953b5ccae0760",
+          "path": "scripts/rotate-platform-secrets.mjs",
+          "score": 0.843419
+        }
+      ],
+      "margin": 0.022682,
+      "reciprocalTopOne": true,
+      "reverseMargin": 0.013658,
+      "selected": true,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-TODO-d00584ed9e9dbbb233b5",
+      "sourceKind": "todo",
+      "sourcePath": "TODO.md",
+      "modality": "required",
+      "text": "Remove duplicate urirun connector discovery and repair optional connector dependencies.",
+      "currentModuleIds": [],
+      "top": [
+        {
+          "recordId": "INT-AST-792da796f1b4b26b12da",
+          "path": "scripts/audit-urirun-connectors.mjs",
+          "score": 0.871638
+        },
+        {
+          "recordId": "INT-AST-1b24f96cd4dbff614cc0",
+          "path": "test/build-urirun-registry.test.mjs",
+          "score": 0.86949
+        },
+        {
+          "recordId": "INT-AST-e346dd734bf80bf3ee67",
+          "path": "scripts/run-post-deploy-project-check.mjs",
+          "score": 0.867432
+        }
+      ],
+      "margin": 0.002148,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.001523,
+      "selected": false,
+      "addsNewCandidate": false
+    },
+    {
+      "recordId": "INT-TODO-db792516a8944c2e7692",
+      "sourceKind": "todo",
+      "sourcePath": "TODO.md",
+      "modality": "required",
+      "text": "Provision live SMTP/IMAP vault entries and verify founder e-mail round trip.",
+      "currentModuleIds": [
+        "INT-AST-c633e264e7f6b083e783"
+      ],
+      "top": [
+        {
+          "recordId": "INT-AST-94306c69b189da79195a",
+          "path": "scripts/validate-env.mjs",
+          "score": 0.86519
+        },
+        {
+          "recordId": "INT-AST-c633e264e7f6b083e783",
+          "path": "scripts/create-founder-vault-reveal-link.mjs",
+          "score": 0.864205
+        },
+        {
+          "recordId": "INT-AST-6669cdeb59d2dd1b01e0",
+          "path": "scripts/configure-inbound-email-vault.mjs",
+          "score": 0.861663
+        }
+      ],
+      "margin": 0.000985,
+      "reciprocalTopOne": false,
+      "reverseMargin": 0.006814,
+      "selected": false,
+      "addsNewCandidate": false
+    }
+  ]
+}

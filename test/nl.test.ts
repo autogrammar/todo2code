@@ -57,9 +57,9 @@ test('path extraction rejects lowercase prose alternations without losing reposi
 
 test('path extraction rejects dotted DSL fields but keeps known file extensions', () => {
   const paths = extractPaths(
-    'Compare `metadata.generation`, `statement.object` and `epistemic.basis` with `manifest.json`, `changelog.ts` and `config/app.yaml`.',
+    'Compare `metadata.generation`, `statement.object` and `epistemic.basis` with manifest.json, `changelog.ts`, POLICY.md and `config/app.yaml`.',
   );
-  assert.deepEqual(paths, ['changelog.ts', 'config/app.yaml', 'manifest.json']);
+  assert.deepEqual(paths, ['POLICY.md', 'changelog.ts', 'config/app.yaml', 'manifest.json']);
 });
 
 test('detectModality ignores parenthetical labels and bare adjectives', () => {

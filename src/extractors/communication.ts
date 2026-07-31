@@ -32,6 +32,19 @@ interface CommunicationEnvelope {
   metadata: Record<string, string>;
 }
 
+interface InferredCommunicationIdentity {
+  role: string | null;
+  participant: string | null;
+  type: string | null;
+  governanceParticipantFile: boolean;
+}
+
+interface CommunicationSegment {
+  text: string;
+  line: number;
+  type: CommunicationType;
+}
+
 /**
  * Converts append-only human/agent communication under project/<ticket>/ to
  * canonical agent_log records. Front matter is intentionally parsed without a
@@ -84,6 +97,7 @@ export async function extractCommunicationIntent(
       envelope.metadata.type,
       envelope.metadata.ticket,
     ));
+    if (!explicitEnvelope && isTicketEvidenceFile(relativeToProject)) continue;
     if (!options.ticket && !identityRegistry && !looksLikeTicket(pathTicket)
       && !inferred.role && !explicitEnvelope) continue;
     communicationFiles += 1;
@@ -94,7 +108,8 @@ export async function extractCommunicationIntent(
     const participant = identity.entry?.id ?? declaredParticipantId ?? declaredParticipant ?? `unknown:${path.basename(file)}`;
     const role = identity.entry?.role ?? declaredRole;
     const displayName = identity.entry?.displayName ?? declaredParticipant ?? participant;
-    const messageType = normalizeType(first(envelope.metadata.type, envelope.metadata.kind, inferred.type));
+    const explicitMessageType = first(envelope.metadata.type, envelope.metadata.kind);
+    const messageType = normalizeType(first(explicitMessageType, inferred.type));
     const ticket = first(envelope.metadata.ticket, pathTicket) ?? pathTicket;
     const recipient = first(envelope.metadata.recipient, envelope.metadata.to);
     const timestamp = validTimestamp(first(envelope.metadata.timestamp, envelope.metadata.created_at, envelope.metadata.createdat));
@@ -125,16 +140,30 @@ export async function extractCommunicationIntent(
       warnings.push(`${relativeToProject}: invalid timestamp`);
     }
 
-    const semantics = semanticsFor(messageType, role);
-    for (const segment of splitIntentLines(envelope.body)) {
+    const segments = communicationSegments(
+      envelope.body,
+      messageType,
+      inferred.governanceParticipantFile && !explicitMessageType ? role : null,
+    );
+    if (segments.length === 0
+      && inferred.governanceParticipantFile
+      && envelope.body.trim()) {
+      warnings.push(
+        `${relativeToProject}: no recognized intent sections for ${role}:${participant}; `
+        + `${role} participant must classify the content under a supported heading or add explicit type front matter`,
+      );
+    }
+    for (const segment of segments) {
+      const segmentType = segment.type;
+      const semantics = semanticsFor(segmentType, role);
       const classified = await classifyAction(segment.text, config);
-      const action = messageType === 'decision' && classified.action === 'unknown' ? 'approve' : classified.action;
+      const action = segmentType === 'decision' && classified.action === 'unknown' ? 'approve' : classified.action;
       const line = envelope.bodyStartLine + segment.line - 1;
       const tickets = [...new Set([ticket.toUpperCase(), ...extractTickets(segment.text)])];
       const symbols = [...new Set([...explicitSymbols, ...extractSymbols(segment.text)])]
         .filter((symbol) => !tickets.some((item) => item === symbol.toUpperCase() || item.startsWith(`${symbol.toUpperCase()}-`)));
       records.push(buildRecord({
-        kind: `communication_${messageType}`,
+        kind: `communication_${segmentType}`,
         actor: participant,
         action,
         subject: recipient ? `to:${recipient}` : `ticket:${ticket}`,
@@ -145,7 +174,7 @@ export async function extractCommunicationIntent(
           tickets,
           versions: extractVersions(segment.text),
         },
-        modality: messageType === 'report' || messageType === 'result' || messageType === 'claim'
+        modality: segmentType === 'report' || segmentType === 'result' || segmentType === 'claim'
           ? 'claimed'
           : detectModality(segment.text),
         polarity: detectPolarity(segment.text),
@@ -164,7 +193,7 @@ export async function extractCommunicationIntent(
           participantId: identity.entry?.id ?? null,
           displayName,
           participantRole: role,
-          messageType,
+          messageType: segmentType,
           ticket,
           recipient,
           gitAuthors,
@@ -212,9 +241,20 @@ function parseEnvelope(value: string): CommunicationEnvelope {
   return { body: lines.slice(end + 2).join('\n'), bodyStartLine: end + 3, metadata };
 }
 
-function inferIdentity(relativePath: string): { role: string | null; participant: string | null; type: string | null } {
+function inferIdentity(relativePath: string): InferredCommunicationIdentity {
   const parts = relativePath.split('/');
-  const fileParts = path.basename(relativePath, path.extname(relativePath)).split('.');
+  const basename = path.basename(relativePath, path.extname(relativePath));
+  const governance = basename.match(/^(user|human|ai|agent)-(.+)$/i);
+  if (governance?.[1] && governance[2] && !/-logs$/i.test(governance[2])) {
+    const role = /^(user|human)$/i.test(governance[1]) ? 'human' : 'agent';
+    return {
+      role,
+      participant: governance[2].toLowerCase(),
+      type: role === 'human' ? 'request' : 'plan',
+      governanceParticipantFile: true,
+    };
+  }
+  const fileParts = basename.split('.');
   const nestedRoleIndex = parts.findIndex((part) => /^(agents?|humans?|users?)$/i.test(part));
   const nestedRole = nestedRoleIndex >= 0 ? parts[nestedRoleIndex] ?? null : null;
   const nestedParticipant = nestedRoleIndex >= 0 ? parts[nestedRoleIndex + 1] ?? null : null;
@@ -223,7 +263,116 @@ function inferIdentity(relativePath: string): { role: string | null; participant
     role: filenameRole ?? nestedRole,
     participant: filenameRole ? fileParts[1] ?? null : nestedParticipant,
     type: filenameRole ? fileParts[2] ?? null : fileParts.find((part) => isCommunicationType(part)) ?? null,
+    governanceParticipantFile: false,
   };
+}
+
+/**
+ * Governance tickets contain specifications, raw logs and captured results
+ * beside participant files. Those artifacts are evidence for the ticket, not
+ * utterances by an anonymous participant. Explicit communication front matter
+ * still wins, so a deliberately authored file with one of these names remains
+ * available to callers.
+ */
+function isTicketEvidenceFile(relativePath: string): boolean {
+  const basename = path.basename(relativePath).toLowerCase();
+  return [
+    'readme.md',
+    'preprompt.md',
+    'changelog.md',
+    'audit.md',
+    'baseline.md',
+    'logs.txt',
+  ].includes(basename)
+    || /^iteration-\d+(?:-[a-z0-9-]+)?\.md$/.test(basename)
+    || /^(?:ai|agent)-.+-logs\.txt$/.test(basename);
+}
+
+/**
+ * The governance-standard participant files are structured documents rather
+ * than one homogeneous message. Heading ownership is deterministic:
+ * instructions/decisions belong to the human, while an agent's plan and actual
+ * changes remain different epistemic classes. Metadata and ownership boilerplate
+ * are deliberately skipped.
+ */
+function communicationSegments(
+  body: string,
+  defaultType: CommunicationType,
+  governanceRole: CommunicationRole | null,
+): CommunicationSegment[] {
+  if (!governanceRole || governanceRole === 'unknown') {
+    return splitIntentLines(body)
+      .filter((segment) => !isCommunicationNoise(segment.text))
+      .map((segment) => ({ ...segment, type: defaultType }));
+  }
+  const output: CommunicationSegment[] = [];
+  const lines = body.split(/\r?\n/);
+  let sectionType: CommunicationType | null = null;
+  let pending: { text: string; line: number; type: CommunicationType } | null = null;
+  const flush = (): void => {
+    if (!pending) return;
+    const item = pending;
+    pending = null;
+    if (/^(?:none|brak)[.!]?$/i.test(item.text.trim())) return;
+    for (const segment of splitIntentLines(item.text)) {
+      if (isCommunicationNoise(segment.text)) continue;
+      output.push({ text: segment.text, line: item.line + segment.line - 1, type: item.type });
+    }
+  };
+  for (let index = 0; index < lines.length; index += 1) {
+    const raw = lines[index] ?? '';
+    const heading = raw.match(/^\s{0,3}#{2,6}\s+(.+?)\s*$/)?.[1];
+    if (heading) {
+      flush();
+      sectionType = governanceSectionType(heading, governanceRole);
+      continue;
+    }
+    if (!sectionType) {
+      flush();
+      continue;
+    }
+    if (!raw.trim()) {
+      flush();
+      continue;
+    }
+    const startsListItem = /^\s*(?:[-*+]|\d+[.)]|\[[ xX]\])\s+/.test(raw);
+    if (startsListItem) flush();
+    const cleaned = raw
+      .replace(/^\s*[-*+]\s+/, '')
+      .replace(/^\s*\d+[.)]\s+/, '')
+      .replace(/^\s*\[[ xX]\]\s+/, '')
+      .trim();
+    if (!cleaned) continue;
+    if (pending) pending.text = `${pending.text} ${cleaned}`;
+    else pending = { text: cleaned, line: index + 1, type: sectionType };
+  }
+  flush();
+  return output;
+}
+
+function isCommunicationNoise(value: string): boolean {
+  const normalized = value.trim();
+  return /^#{1,6}\s*\d+(?:[.):_-]\d+)*[.):_-]?\s*$/.test(normalized)
+    || /^(?:-{3,}|_{3,}|\*{3,})$/.test(normalized);
+}
+
+function governanceSectionType(heading: string, role: Exclude<CommunicationRole, 'unknown'>): CommunicationType | null {
+  const normalized = heading.toLowerCase().replace(/[^a-z0-9ąćęłńóśźż]+/gi, ' ').trim();
+  if (role === 'human') {
+    if (/\b(decision|decisions|decyzj|approval|zatwierdzen)/i.test(normalized)) return 'decision';
+    if (/\b(instruction|instructions|request|requirements?|goal|scope|polecen|wymagan|zakres|cel)\b/i.test(normalized)) {
+      return 'request';
+    }
+    return null;
+  }
+  if (/\b(actual changes?|result|results|report|unfinished|blockers?|wykonan|zmian|wynik|raport|blokad)\b/i.test(normalized)) {
+    return 'report';
+  }
+  if (/\b(understanding|execution plan|plan|scope|guardrails?|risks?|hypotheses|code locations?|rozumien|zakres|ryzyk)\b/i.test(normalized)) {
+    return 'plan';
+  }
+  if (/\b(approval|zatwierdzen)\b/i.test(normalized)) return 'claim';
+  return null;
 }
 
 function looksLikeTicket(value: string): boolean {

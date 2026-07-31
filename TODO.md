@@ -1,10 +1,30 @@
 # TODO
 
-## Active tickets
+## Active ticket
 
-- [ ] [`ticket-002`](project/ticket-002/README.md) — cross-repository semantic
+No ticket is currently active.
+
+## Completed tickets
+
+- [x] [`ticket-006`](project/ticket-006/README.md) — canonical structured-output
+  conformance. Retained exact fail-closed diagnostics and a schema drift gate;
+  rejected both tested Qwen routes before graph mutation. Current state:
+  `DONE`.
+- [x] [`ticket-005`](project/ticket-005/README.md) — audited communication and
+  cross-language reranking. Retained section-aware `user-*`/`ai-*` Intent DSL
+  plus explicit response ownership; rejected the live semantic candidate after
+  three fail-closed provider contract violations and zero demonstrated coverage
+  improvement. Current state: `DONE`.
+- [x] [`ticket-004`](project/ticket-004/README.md) — language-independent topic
+  matching benchmark. Rejected unsafe raw embeddings and added a separately
+  reported 6-positive/6-negative cross-language gold cohort. Current state:
+  `DONE`.
+- [x] [`ticket-003`](project/ticket-003/README.md) — deterministic audit of
+  residual changelog diagnostics and one evidence-gated correction. Removed
+  547 false review findings with stable graphs. Current state: `DONE`.
+- [x] [`ticket-002`](project/ticket-002/README.md) — cross-repository semantic
   benchmark and iterative todo2code quality improvements. Current state:
-  `ANALYSIS`.
+  `DONE`.
 
 ## P1 — improve semantic quality and signal
 
@@ -14,6 +34,15 @@
 - [x] Add audited structured LLM enrichment for communication records and a
   grounded per-participant synthesis. Preserve human/agent identity, ticket,
   source lines and epistemic class as runtime-owned fields.
+- [x] Convert governance `user-*` and `ai-*` sections to typed Intent DSL
+  without ingesting ticket evidence/logs, reject unstructured migration
+  silently losing content, and attach the required role plus participant IDs
+  to every communication divergence.
+- [ ] Route a required response when the required role has no participant
+  record. Ticket-006 correctly returns `responseRequiredRole=human` but an
+  empty `responseRequiredFrom` because the agent refused to fabricate a
+  human-owned `user-*` file. Resolve through a trusted owner/participant
+  registry or an explicit unresolved-human sentinel, never by guessing.
 - [x] Add a participant identity registry mapping stable IDs to Git authors,
   A2A agent IDs and optional human aliases without guessing identity from
   display names.
@@ -187,9 +216,10 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [x] Gold v2 (reszta): `evaluation/gold/v2/dataset.json` z kanałem
   `documentation-deterministic` (prescriptive vs descriptive w ekstrakcji),
   zakresem `diagnostics` (false DONE bez dowodu vs DONE z dowodem, partial
-  implementation jednego ticketu) oraz siedmioma pozytywami i pięcioma twardymi
-  negatywami `capability-topic` zamiast jednego i dwóch. `npm run evaluate:gold`
-  liczy teraz v2; v1 pozostaje pod `evaluate:gold:v1`.
+  implementation jednego ticketu), ośmioma pozytywami `capability-topic`,
+  czternastoma parami zabronionymi oraz osobnym kohortem cross-language
+  (6 oczekiwanych, 6 zabronionych). `npm run evaluate:gold` liczy teraz v2; v1
+  pozostaje pod `evaluate:gold:v1`.
 - [ ] Powiększyć próbę `capability-topic` na tyle, by zmiana progu trzech
   tematów dawała mierzalny spadek w obie strony. Siedem pozytywów wykrywa
   regresję progu, ale nie pozwala go stroić.
@@ -200,11 +230,17 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
   kotwiczenie deklaracji bez własnego celu w powiązanym module. A/B na tej samej
   treści: `aligned` 25 → 43 i coverage 5,9% → 10,0% na `subactor/platform`,
   74 → 82 i 22,0% → 24,4% tutaj.
-- [ ] Dopasowanie niezależne od ręcznego słownika (osadzenia albo tłumaczenie
-  tematów). Słownik działa dla słownictwa, które w nim jest, nie dla języka;
-  gold v2 mierzy resztę jako `knownGap` 0/1
-  (`link-topic-polish-vocabulary-outside-dictionary`). Skalowanie słownika
-  ręcznie na każdy język i dziedzinę nie jest planem.
+- [ ] Dopasowanie niezależne od ręcznego słownika. Gold v2 mierzy obecnie 0/6
+  oczekiwanych relacji PL/DE/ES/FR i 0/6 naruszeń par zabronionych. Ticket-004
+  odrzucił surowy próg embeddingów: E5 uszeregował 6/6 par syntetycznych, ale
+  zaproponował dwa błędne nowe linki na `subactor/platform`; wzajemny top-1
+  usunął błędy kosztem zerowego wzrostu pokrycia. Ticket-005 dodał osobno
+  mierzone, ugruntowane kontrakty rerankera i osiągnął 6/6 na przejrzanych
+  fixture'ach, lecz trzy rzeczywiste odpowiedzi Qwen/OpenRouter złamały
+  wymagany kształt lub typ danych. Żadna relacja nie powstała, a eksperyment
+  nie został wyeksportowany produkcyjnie. Następny kandydat musi najpierw
+  dowieść stabilności provider/schema na śledzonym repozytorium, a dopiero
+  potem wzrostu pokrycia.
 - [ ] Zbadać 69 deklaracji `subactor/platform`, które dotykają kilku modułów i
   dlatego celowo nie dostają kotwicy. Rozstrzygnięcie ich wymaga dowodu
   mocniejszego niż wspólne tematy — bez niego wybór modułu byłby zgadywaniem.

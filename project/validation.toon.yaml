@@ -1,7 +1,7 @@
-# vallm batch | 320f | 190✓ 29⚠ 0✗ | 2026-07-30
+# vallm batch | 327f | 191✓ 29⚠ 0✗ | 2026-07-31
 
 SUMMARY:
-  scanned: 320  passed: 190 (59.4%)  warnings: 29  errors: 0  unsupported: 0
+  scanned: 327  passed: 191 (58.4%)  warnings: 29  errors: 0  unsupported: 0
 
 WARNINGS[29]{path,score}:
   src/operations/validation.ts,0.80
@@ -69,7 +69,7 @@ WARNINGS[29]{path,score}:
       complexity.lizard_cc,warning,buildRecord: CC=33 exceeds limit 15,57
   src/core/text.ts,0.95
     issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,inferObject: CC=31 exceeds limit 15,295
+      complexity.lizard_cc,warning,inferObject: CC=31 exceeds limit 15,431
   src/extractors/ast/typescript.ts,0.95
     issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,visit: CC=26 exceeds limit 15,76

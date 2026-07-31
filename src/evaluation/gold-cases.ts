@@ -3,6 +3,11 @@ import { buildRecord } from '../core/record.js';
 import type { Conclusion, GroundedGenerationMetadata, IntentRecord, TodoProposal } from '../core/types.js';
 import { diagnoseGraph } from '../graph/diagnostics.js';
 import { linkIntentRecords } from '../graph/linker.js';
+import {
+  applyAcceptedSemanticRelations,
+  createSemanticCandidateSet,
+  createSemanticRerankResult,
+} from '../semantic/reranker.js';
 import { validateAndClassifyTodoProposals } from '../synthesis/validation.js';
 import { T2C_VERSION } from '../version.js';
 import { compareSets, type Counts } from './gold-metrics.js';
@@ -52,6 +57,99 @@ export function evaluateLinkingCase(fixture: GoldLinkingCase): LinkingCaseResult
     || (relation.from === pair.to && relation.to === pair.from))).length;
 
   return { counts: compareSets(actual, expected), byClass, forbiddenViolations, actual };
+}
+
+export interface RerankingCaseResult {
+  counts: Counts;
+  forbiddenViolations: number;
+  accepted: number;
+  abstained: number;
+  actual: unknown[];
+  snapshot: unknown;
+}
+
+export function evaluateRerankingCase(fixture: GoldLinkingCase): RerankingCaseResult {
+  if (!fixture.reranker) throw new Error(`Gold case ${fixture.id} has no reranker fixture`);
+  const { records, labels } = buildFixtureRecords(fixture.id, fixture.records);
+  const idToLabel = new Map([...labels].map(([label, id]) => [id, label]));
+  const declarationRecordId = labels.get('declaration');
+  if (!declarationRecordId) throw new Error(`Gold reranker case ${fixture.id} has no declaration label`);
+  const graph = linkIntentRecords(records, GOLD_FIXED_TIME);
+  const candidates = createSemanticCandidateSet(
+    graph,
+    fixture.reranker.decisions.map((decision) => {
+      const moduleRecordId = labels.get(decision.module);
+      if (!moduleRecordId) {
+        throw new Error(`Gold reranker case ${fixture.id} references unknown module label ${decision.module}`);
+      }
+      return {
+        declarationRecordId,
+        moduleRecordId,
+        score: decision.score,
+      };
+    }),
+    {
+      provider: 'captured-gold-retrieval',
+      model: 'intfloat/multilingual-e5-base',
+      revision: '18fcae5',
+      metric: 'cosine',
+    },
+    Math.max(1, fixture.reranker.decisions.length),
+    GOLD_FIXED_TIME,
+  );
+  const candidateByModule = new Map(candidates.candidates.map((candidate) => [candidate.moduleRecordId, candidate]));
+  const decisions = fixture.reranker.decisions.map((decision) => {
+    const moduleRecordId = labels.get(decision.module);
+    const candidate = moduleRecordId ? candidateByModule.get(moduleRecordId) : undefined;
+    if (!moduleRecordId || !candidate) {
+      throw new Error(`Gold reranker case ${fixture.id} cannot resolve candidate ${decision.module}`);
+    }
+    return {
+      candidateId: candidate.id,
+      verdict: decision.verdict,
+      confidence: decision.confidence,
+      reasonCode: decision.reasonCode,
+      rationale: decision.rationale,
+      citedRecordIds: [declarationRecordId, moduleRecordId],
+      evidence: [
+        { recordId: declarationRecordId, quote: decision.declarationQuote },
+        { recordId: moduleRecordId, quote: decision.moduleQuote },
+      ],
+    };
+  });
+  const rerank = createSemanticRerankResult(graph, candidates, decisions, {
+    provider: 'captured-gold-response',
+    requestedModel: fixture.reranker.model,
+    model: fixture.reranker.model,
+    modelRevision: fixture.reranker.modelRevision,
+    responseId: `gold-${fixture.id}`,
+  }, GOLD_FIXED_TIME);
+  const augmented = applyAcceptedSemanticRelations(graph, candidates, rerank, GOLD_FIXED_TIME);
+  const observed = augmented.relations
+    .filter((relation) => relation.basis.includes('cross_language_reranker'))
+    .map((relation) => ({
+      from: idToLabel.get(relation.from) ?? relation.from,
+      to: idToLabel.get(relation.to) ?? relation.to,
+      type: relation.type,
+    }));
+  const expected = fixture.expected.map(({ from, to, type }) => ({ from, to, type }));
+  const forbidden = fixture.forbidden ?? [];
+  const forbiddenViolations = forbidden.filter((pair) => observed.some((relation) =>
+    (relation.from === pair.from && relation.to === pair.to)
+    || (relation.from === pair.to && relation.to === pair.from))).length;
+  return {
+    counts: compareSets(observed, expected),
+    forbiddenViolations,
+    accepted: rerank.decisions.filter((decision) => decision.verdict === 'accept').length,
+    abstained: rerank.decisions.filter((decision) => decision.verdict === 'abstain').length,
+    actual: observed,
+    snapshot: {
+      caseId: fixture.id,
+      candidateSetHash: candidates.candidateSetHash,
+      resultHash: rerank.resultHash,
+      actual: observed,
+    },
+  };
 }
 
 /**

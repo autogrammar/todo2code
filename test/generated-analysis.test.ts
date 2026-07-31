@@ -33,6 +33,33 @@ test('generated analysis accepts outputs independent of untracked input', async 
   });
 });
 
+test('generated analysis accepts an untracked filename already quoted by tracked evidence', async () => {
+  const root = await fixtureRoot();
+  await fs.mkdir(path.join(root, 'project', 'ticket-002'));
+  await fs.writeFile(
+    path.join(root, 'project', 'ticket-002', 'ai-log.txt'),
+    '$ git status --short\n?? private-plan.yaml\n',
+  );
+  await execFileAsync('git', ['add', 'project/ticket-002/ai-log.txt'], { cwd: root });
+  await execFileAsync('git', [
+    '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+    'commit', '--quiet', '-m', 'tracked audit evidence',
+  ], { cwd: root });
+
+  await fs.writeFile(path.join(root, 'private-plan.yaml'), 'secret: local\n');
+  await fs.writeFile(
+    path.join(root, 'project', 'context.md'),
+    'embedded tracked log:\n?? private-plan.yaml\n',
+  );
+
+  const { stdout } = await execFileAsync(process.execPath, [script, root]);
+  assert.deepEqual(JSON.parse(stdout), {
+    filesChecked: 2,
+    untrackedInputsChecked: 1,
+    status: 'ok',
+  });
+});
+
 test('generated analysis rejects temporary paths and unavailable validators', async () => {
   const root = await fixtureRoot();
   await fs.writeFile(path.join(root, 'project', 'context.md'), '/tmp/t2c-analysis.ABC123/todo2code/src/a.ts\n');

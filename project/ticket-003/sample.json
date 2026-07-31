@@ -1,0 +1,5343 @@
+{
+  "schemaVersion": "t2c.changelog-audit/v1",
+  "generatedAt": "2026-07-31T00:00:00.000Z",
+  "selectionPolicy": {
+    "description": "Round-robin over lexical target-class:action strata, then stable record ID.",
+    "perRepositoryLimit": 24,
+    "targetClassPrecedence": [
+      "ticket",
+      "path",
+      "symbol",
+      "none"
+    ]
+  },
+  "classificationPolicy": {
+    "version": 1,
+    "labels": {
+      "non_actionable_file_update": "Exact Update <file> bookkeeping with no behavioral statement.",
+      "non_actionable_file_summary": "Opaque chore summary naming only a file count.",
+      "roadmap_not_release": "Unchecked Markdown task embedded in a changelog.",
+      "substantive_or_unverified": "Behavioral, compatibility, test or documentation claim that still needs evidence."
+    }
+  },
+  "repositories": [
+    {
+      "repository": "semcod__code2docs",
+      "commit": "c738aff7bd51670104e144ae19b657fd3915565d",
+      "runId": "20260731T072143Z-a3208b84",
+      "graphFingerprint": "83dcfa7a5b21ca7714b9546bef4baead7ef197e936a0b61088bde2cb1c275643",
+      "records": 6717,
+      "relations": 35468,
+      "residualFindings": 269,
+      "residualLabelCounts": {
+        "non_actionable_file_update": 142,
+        "substantive_or_unverified": 127
+      },
+      "sampledFindings": 24
+    },
+    {
+      "repository": "semcod__code2llm",
+      "commit": "b297d600ae7d923ce22730bc90c6cd330ec7e243",
+      "runId": "20260731T072152Z-fb1ab530",
+      "graphFingerprint": "bd57f05a14c3abca5ebcbb95a6ad9b3fbb47ff40f656846c5b4857fd5ecde407",
+      "records": 16899,
+      "relations": 41758,
+      "residualFindings": 955,
+      "residualLabelCounts": {
+        "non_actionable_file_update": 305,
+        "roadmap_not_release": 15,
+        "substantive_or_unverified": 635
+      },
+      "sampledFindings": 24
+    },
+    {
+      "repository": "semcod__code2logic",
+      "commit": "ba93489b56f51af31206671a1f55ab860bb725c2",
+      "runId": "20260731T072209Z-30215e36",
+      "graphFingerprint": "c6e9f7a0671dc9b4e0c0f3fad5c5dcf1319ba674ba55bbafcc22b0caa908e6af",
+      "records": 21423,
+      "relations": 16933,
+      "residualFindings": 120,
+      "residualLabelCounts": {
+        "non_actionable_file_update": 11,
+        "roadmap_not_release": 15,
+        "substantive_or_unverified": 94
+      },
+      "sampledFindings": 24
+    },
+    {
+      "repository": "semcod__domd",
+      "commit": "b6c5ad24f2f2da386a2e3e5bad05433184f54c58",
+      "runId": "20260731T072221Z-f577ffe7",
+      "graphFingerprint": "a9d2d5eb1287b7cb69ce7cdd3aa1a77078c6e7860e96be2a602a1c0858d6e0bd",
+      "records": 10611,
+      "relations": 7484,
+      "residualFindings": 99,
+      "residualLabelCounts": {
+        "substantive_or_unverified": 99
+      },
+      "sampledFindings": 24
+    },
+    {
+      "repository": "semcod__pactfix",
+      "commit": "daf301a9e23d65cd341ffa2d6c0a6cfe728e651d",
+      "runId": "20260731T072226Z-0fb2f8b8",
+      "graphFingerprint": "9c2d15fc76b8585f8ae68dbd7b9f518c6cf819fce841b5178c9797e5d7d25b69",
+      "records": 5161,
+      "relations": 3917,
+      "residualFindings": 48,
+      "residualLabelCounts": {
+        "non_actionable_file_summary": 1,
+        "substantive_or_unverified": 47
+      },
+      "sampledFindings": 24
+    },
+    {
+      "repository": "semcod__redup",
+      "commit": "a175fb0a80b54fcda4bf5cd34c8b087fe9472608",
+      "runId": "20260731T072230Z-6a2d832d",
+      "graphFingerprint": "b3a582ffa178ee307157461e348b51757f4e726eadd809cbfa3dc8e8b143442f",
+      "records": 7204,
+      "relations": 19259,
+      "residualFindings": 269,
+      "residualLabelCounts": {
+        "non_actionable_file_update": 85,
+        "substantive_or_unverified": 184
+      },
+      "sampledFindings": 24
+    },
+    {
+      "repository": "subactor__platform",
+      "commit": "3e96573d587cb664741849ceba205bf303b9f418",
+      "runId": "20260731T072237Z-6cab0835",
+      "graphFingerprint": "ae92ead72d35e88e6de754d7af02d074201213c56166eb788a5e152d6a6f695d",
+      "records": 10628,
+      "relations": 11424,
+      "residualFindings": 93,
+      "residualLabelCounts": {
+        "non_actionable_file_update": 4,
+        "substantive_or_unverified": 89
+      },
+      "sampledFindings": 24
+    }
+  ],
+  "summary": {
+    "residualFindings": 1853,
+    "residualLabelCounts": {
+      "non_actionable_file_summary": 1,
+      "non_actionable_file_update": 547,
+      "roadmap_not_release": 30,
+      "substantive_or_unverified": 1275
+    },
+    "residualLabelRepositories": {
+      "non_actionable_file_summary": [
+        "semcod__pactfix"
+      ],
+      "non_actionable_file_update": [
+        "semcod__code2docs",
+        "semcod__code2llm",
+        "semcod__code2logic",
+        "semcod__redup",
+        "subactor__platform"
+      ],
+      "roadmap_not_release": [
+        "semcod__code2llm",
+        "semcod__code2logic"
+      ],
+      "substantive_or_unverified": [
+        "semcod__code2docs",
+        "semcod__code2llm",
+        "semcod__code2logic",
+        "semcod__domd",
+        "semcod__pactfix",
+        "semcod__redup",
+        "subactor__platform"
+      ]
+    },
+    "sampledFindings": 168,
+    "labelCounts": {
+      "non_actionable_file_summary": 1,
+      "non_actionable_file_update": 28,
+      "roadmap_not_release": 6,
+      "substantive_or_unverified": 133
+    },
+    "labelRepositories": {
+      "non_actionable_file_summary": [
+        "semcod__pactfix"
+      ],
+      "non_actionable_file_update": [
+        "semcod__code2docs",
+        "semcod__code2llm",
+        "semcod__code2logic",
+        "semcod__redup",
+        "subactor__platform"
+      ],
+      "roadmap_not_release": [
+        "semcod__code2logic"
+      ],
+      "substantive_or_unverified": [
+        "semcod__code2docs",
+        "semcod__code2llm",
+        "semcod__code2logic",
+        "semcod__domd",
+        "semcod__pactfix",
+        "semcod__redup",
+        "subactor__platform"
+      ]
+    }
+  },
+  "sample": [
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-007a432c09e33ae77b31",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "feat(tests): add tests for code analysis engine",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 12,
+          "end": 12
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-041d83cf1bb5dc3b899d",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix string-concat issues (ticket-cdf62d0c)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 152,
+          "end": 152
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-07b36978a72254ca951c",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (.pyqual/pipeline.db); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update .pyqual/pipeline.db",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        ".pyqual/pipeline.db"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 312,
+          "end": 312
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-00590852c29ac35cfe4e",
+      "stratum": "path:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (code2docs/project/dashboard.html); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update code2docs/project/dashboard.html",
+      "target": {
+        "paths": [
+          "code2docs/project/dashboard.html"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        "code2docs/project/dashboard.html"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 372,
+          "end": 372
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-023fcbd1900e940d5196",
+      "stratum": "path:test",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (tests/project/analysis.json); it makes no behavioral implementation claim.",
+      "action": "test",
+      "text": "Update tests/project/analysis.json",
+      "target": {
+        "paths": [
+          "tests/project/analysis.json"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        "tests/project/analysis.json"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 678,
+          "end": 678
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-32b6196132311a07042d",
+      "stratum": "symbol:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Update TICKET",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "TICKET"
+        ],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 915,
+          "end": 915
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-0480b5421d7c5547f189",
+      "stratum": "ticket:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix ai-boilerplate issues (ticket-7de2f0bc)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [
+          "TICKET-7"
+        ],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 226,
+          "end": 226
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-18b8460f056f069bcc61",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "fix: repair syntax errors and module-level definitions",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 11,
+          "end": 11
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-1517319ed93be089166f",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix wildcard-imports issues (ticket-c9e8e515)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 126,
+          "end": 126
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-122bda82ce2140c4257f",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (.gitignore); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update .gitignore",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.30"
+        ]
+      },
+      "trackedPathOwners": [
+        ".gitignore"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 76,
+          "end": 76
+        }
+      },
+      "metadata": {
+        "version": "3.0.30",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-047a98d95499e06a933b",
+      "stratum": "path:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (project/project.yaml); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update project/project.yaml",
+      "target": {
+        "paths": [
+          "project/project.yaml"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        "project/project.yaml"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 538,
+          "end": 538
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-037289616a91154777a0",
+      "stratum": "path:test",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (tests/project/project.yaml); it makes no behavioral implementation claim.",
+      "action": "test",
+      "text": "Update tests/project/project.yaml",
+      "target": {
+        "paths": [
+          "tests/project/project.yaml"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        "tests/project/project.yaml"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 411,
+          "end": 411
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-3f10ab6e2d79275e2202",
+      "stratum": "symbol:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (TODO.md); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update TODO.md",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "TODO"
+        ],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        "TODO.md"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 305,
+          "end": 305
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Docs"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-0c50ef140dfdcaec5137",
+      "stratum": "ticket:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix llm-generated-code issues (ticket-3dd60300)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [
+          "TICKET-3"
+        ],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 244,
+          "end": 244
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-aa77ec5c1a453d43e224",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "docs: regenerate documentation",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 8,
+          "end": 8
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-153a9eedc9a3badc2543",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix relative-imports issues (ticket-b5156dbd)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 143,
+          "end": 143
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-12327418fe16f96aa3e8",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (.gitignore); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update .gitignore",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        ".gitignore"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 808,
+          "end": 808
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-0683d30858be70c27880",
+      "stratum": "path:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (code2docs/project/context.md); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update code2docs/project/context.md",
+      "target": {
+        "paths": [
+          "code2docs/project/context.md"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        "code2docs/project/context.md"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 586,
+          "end": 586
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Docs"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-0398d74e08f68b09acfe",
+      "stratum": "path:test",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (tests/project/dashboard.html); it makes no behavioral implementation claim.",
+      "action": "test",
+      "text": "Update tests/project/dashboard.html",
+      "target": {
+        "paths": [
+          "tests/project/dashboard.html"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        "tests/project/dashboard.html"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 430,
+          "end": 430
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-913277007c6044bb88bf",
+      "stratum": "symbol:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (CHANGELOG.md); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update CHANGELOG.md",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CHANGELOG"
+        ],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [
+        "CHANGELOG.md"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 303,
+          "end": 303
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Docs"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-1356c7ab3e3a12a78f1d",
+      "stratum": "ticket:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix relative-imports issues (ticket-80fa29e7)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [
+          "TICKET-80"
+        ],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 145,
+          "end": 145
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-dd5e1cd15a4dea921111",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "docs(docs): add markdown output",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 6,
+          "end": 6
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-1907d230d65dd07b5ba5",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix unused-imports issues (ticket-e0f2ff98)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.28"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 148,
+          "end": 148
+        }
+      },
+      "metadata": {
+        "version": "3.0.28",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2docs",
+      "recordId": "INT-CHANGELOG-14ec3463be6026cb6c61",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (code2docs/templates/readme.md.j2); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update code2docs/templates/readme.md.j2",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "3.0.31"
+        ]
+      },
+      "trackedPathOwners": [
+        "code2docs/templates/readme.md.j2"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 64,
+          "end": 64
+        }
+      },
+      "metadata": {
+        "version": "3.0.31",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-0d270ce5476cbd971d60",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Initial project structure",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 3334,
+          "end": 3334
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-0738cc3774b9ec8ddfb6",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "**Setup**: Updated setup.py and pyproject.toml with new name",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2935,
+          "end": 2935
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-04f9cc09cd33d1d0811e",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix relative-imports issues (ticket-f36da736)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1376,
+          "end": 1376
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-033e144a42ed113b5de4",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (debug/.code2flow_cache/__init___563e1960e3f8fe02.pkl); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "update debug/.code2flow_cache/__init___563e1960e3f8fe02.pkl",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 3223,
+          "end": 3223
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-25c546008701d419870f",
+      "stratum": "none:remove",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "remove",
+      "text": "**`optimization/`** (1590L dead code) — 4 files, zero external imports",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2915,
+          "end": 2915
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Removed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-0362f0aa535e6aa4d408",
+      "stratum": "none:test",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (test_prompt/root/analysis.toon); it makes no behavioral implementation claim.",
+      "action": "test",
+      "text": "Update test_prompt/root/analysis.toon",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [
+        "test_prompt/root/analysis.toon"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2342,
+          "end": 2342
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-1326ad7579fd87e571b4",
+      "stratum": "path:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "`examples/litellm/` — code2llm + LiteLLM Python automation",
+      "target": {
+        "paths": [
+          "examples/litellm"
+        ],
+        "symbols": [
+          "LiteLLM"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2863,
+          "end": 2863
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-5a7c0208748441b0ed4b",
+      "stratum": "path:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "LLMPromptExporter now outputs `context.md` by default",
+      "target": {
+        "paths": [
+          "context.md"
+        ],
+        "symbols": [
+          "context.md",
+          "LLMPromptExporter"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 3071,
+          "end": 3071
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-69fccb36d67f6aa41e3d",
+      "stratum": "path:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "`_SKIP_DIR_NAMES` blanket-excluded any directory named exactly `lib`, `lib64`, `include`, `bin`, or `share` from analysis, regardless of location. These are common legitimate source directory names (Ruby gems keep all source in `lib/`, PlatformIO/Arduino firmware projects keep custom libraries in `lib/`, C/C++ projects keep headers in `include/`, Node packages ship CLI entrypoints in `bin/`), so real code was silently dropped from the analysis. The entries were also redundant: virtualenv directories are already fully pruned via the `venv`/`.venv`/`env`/`.env` entries, and `site-packages` remains excluded directly.",
+      "target": {
+        "paths": [
+          "bin",
+          "lib"
+        ],
+        "symbols": [
+          "_SKIP_DIR_NAMES",
+          "bin",
+          "CLI",
+          "env",
+          "include",
+          "lib",
+          "lib64",
+          "PlatformIO",
+          "share",
+          "venv"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.170"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 104,
+          "end": 110
+        }
+      },
+      "metadata": {
+        "version": "0.5.170",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-0190963b4ae7a6521047",
+      "stratum": "path:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (.planfile/.koru/nfo-events.jsonl); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update .planfile/.koru/nfo-events.jsonl",
+      "target": {
+        "paths": [
+          ".planfile/.koru/nfo-events.jsonl"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.154"
+        ]
+      },
+      "trackedPathOwners": [
+        ".planfile/.koru/nfo-events.jsonl"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 324,
+          "end": 324
+        }
+      },
+      "metadata": {
+        "version": "0.5.154",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-1b64c0434baadae69464",
+      "stratum": "path:test",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (test_dynamic/root/context.md); it makes no behavioral implementation claim.",
+      "action": "test",
+      "text": "Update test_dynamic/root/context.md",
+      "target": {
+        "paths": [
+          "test_dynamic/root/context.md"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [
+        "test_dynamic/root/context.md"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2319,
+          "end": 2319
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-04b8e5da810f6edf8f04",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "`--format context` — generate context.md (LLM narrative)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "LLM"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 3065,
+          "end": 3065
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-2271f83cd10dedcdb834",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "**Structural Refactoring** — 9 high-CC functions split into focused helpers:",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CC"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2846,
+          "end": 2846
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-0e20ed711e7a07b20012",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Human-readable node IDs (e.g. `core__ProjectAnalyzer_analyze`) instead of hashes",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "core__ProjectAnalyzer_analyze",
+          "IDs"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2887,
+          "end": 2887
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-004e32ce7a04dd631cc0",
+      "stratum": "symbol:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (SUMR.json); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update SUMR.json",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "SUMR"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.121"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 998,
+          "end": 998
+        }
+      },
+      "metadata": {
+        "version": "0.5.121",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-80fca22b9324bf837b62",
+      "stratum": "symbol:remove",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "remove",
+      "text": "**`visualizers/`** (150L dead code) — never imported from CLI or other modules",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CLI"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2916,
+          "end": 2916
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Removed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-018dece31f6435cdc31f",
+      "stratum": "ticket:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix unused-imports issues (ticket-660b3f81)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [
+          "TICKET-660"
+        ],
+        "versions": [
+          "0.1.10"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 578,
+          "end": 578
+        }
+      },
+      "metadata": {
+        "version": "0.1.10",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-0f4c94d2db19355291f2",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Modules, imports, signatures, type information",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 3050,
+          "end": 3050
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-18617cda6e84a813b11f",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Purpose: \"understand the system to rebuild it\"",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 3072,
+          "end": 3072
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-052def3dac8407406f1d",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix string-concat issues (ticket-e62394c5)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1450,
+          "end": 1450
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-03809423828c9bd21d76",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (context.md); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update context.md",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [
+        "calls_output/context.md",
+        "context.md",
+        "project/batch_1/context.md",
+        "project/context.md",
+        "project/root/context.md",
+        "project/test_python_only_examples/context.md",
+        "project_calls_test/context.md",
+        "test_dynamic/batch_1/context.md",
+        "test_dynamic/context.md",
+        "test_dynamic/root/context.md",
+        "test_dynamic2/batch_1/context.md",
+        "test_dynamic2/context.md",
+        "test_dynamic2/root/context.md",
+        "test_metrics/batch_1/context.md",
+        "test_metrics/context.md",
+        "test_metrics/root/context.md",
+        "test_prompt/batch_1/context.md",
+        "test_prompt/context.md",
+        "test_prompt/root/context.md"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2242,
+          "end": 2242
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Docs"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-0fa67f02b2b3bc99ea0c",
+      "stratum": "none:test",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "test",
+      "text": "all tests passing (17/17)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 3122,
+          "end": 3122
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-1cdb3440bf24066341af",
+      "stratum": "path:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "`examples/shell-llm/` — code2llm + aider / llm / sgpt integration",
+      "target": {
+        "paths": [
+          "examples/shell-llm"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 2862,
+          "end": 2862
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2llm",
+      "recordId": "INT-CHANGELOG-6bc960ae574072f22679",
+      "stratum": "path:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "**Renamed `llm_prompt.md` → `context.md`** — LLM narrative context",
+      "target": {
+        "paths": [
+          "context.md",
+          "llm_prompt.md"
+        ],
+        "symbols": [
+          "context.md",
+          "LLM",
+          "llm_prompt.md"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.5.105"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 3070,
+          "end": 3070
+        }
+      },
+      "metadata": {
+        "version": "0.5.105",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-040ee3f3a2db29a5ebac",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Keyword matching with weighted scoring",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 122,
+          "end": 122
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-002748ad2ef518479544",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "refactor(goal): code analysis engine",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 13,
+          "end": 13
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-9b3f62f06c9e4d937f81",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Parallel processing pickle compatibility issues",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 189,
+          "end": 189
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-0d8aef8cc675a876443d",
+      "stratum": "none:release",
+      "label": "roadmap_not_release",
+      "rationale": "Unchecked Markdown denotes planned work, not a released implementation claim.",
+      "action": "release",
+      "text": "[ ] Integration with Git for diff analysis",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Future"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 217,
+          "end": 217
+        }
+      },
+      "metadata": {
+        "version": "Future",
+        "category": "Planned for 0.4.0"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-04fd361ca057623214db",
+      "stratum": "symbol:add",
+      "label": "roadmap_not_release",
+      "rationale": "Unchecked Markdown denotes planned work, not a released implementation claim.",
+      "action": "add",
+      "text": "[ ] Support for additional languages (JavaScript, TypeScript)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "JavaScript",
+          "TypeScript"
+        ],
+        "tickets": [],
+        "versions": [
+          "Future"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 213,
+          "end": 213
+        }
+      },
+      "metadata": {
+        "version": "Future",
+        "category": "Planned for 0.3.0"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-08f42da84f60807ed95c",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "refactor(goal): CLI interface improvements",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CLI"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 14,
+          "end": 14
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-234fb71d07ff9a0ef1a0",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Import errors in CLI module",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CLI"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 187,
+          "end": 187
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-061661c552d47775aa89",
+      "stratum": "symbol:release",
+      "label": "roadmap_not_release",
+      "rationale": "Unchecked Markdown denotes planned work, not a released implementation claim.",
+      "action": "release",
+      "text": "[ ] Custom pattern definition via YAML",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "YAML"
+        ],
+        "tickets": [],
+        "versions": [
+          "Future"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 218,
+          "end": 218
+        }
+      },
+      "metadata": {
+        "version": "Future",
+        "category": "Planned for 0.4.0"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-06bbe4e218e0fc383199",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Configurable include/exclude patterns",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 104,
+          "end": 104
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-079941d830c0897d4138",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "feat(goal): deep code analysis engine with 7 supporting modules",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 5,
+          "end": 5
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-fe53dd76398239df8c40",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Attribute mismatches between models and exporters",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 188,
+          "end": 188
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-1823c8f942da75202a99",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (debug/.code2flow_cache/__init___092c164e1ea3ed2a.pkl); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "update debug/.code2flow_cache/__init___092c164e1ea3ed2a.pkl",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.1"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 72,
+          "end": 72
+        }
+      },
+      "metadata": {
+        "version": "0.2.1",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-1acd7ec0e5b03bd166f3",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Complete API documentation",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "API"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 174,
+          "end": 174
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-11b35738afd546050d83",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Enhanced type hints for better IDE support",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "IDE"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 183,
+          "end": 183
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-402ce8711ede42fa1de2",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "FlowEdge attribute access (condition -> conditions)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "FlowEdge"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 190,
+          "end": 190
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-198fdb6a3f363a257f3b",
+      "stratum": "symbol:release",
+      "label": "roadmap_not_release",
+      "rationale": "Unchecked Markdown denotes planned work, not a released implementation claim.",
+      "action": "release",
+      "text": "[ ] VS Code extension",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "VS"
+        ],
+        "tickets": [],
+        "versions": [
+          "Future"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 212,
+          "end": 212
+        }
+      },
+      "metadata": {
+        "version": "Future",
+        "category": "Planned for 0.3.0"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-0ba858ac3aa35d64a4df",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "**Pipeline Integration (4a-4e)**",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 133,
+          "end": 133
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-1b2f48d6897f60cd0567",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Refactored monolithic flow.py into modular package structure",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 181,
+          "end": 181
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-259a2416825cfdf8df5a",
+      "stratum": "none:release",
+      "label": "roadmap_not_release",
+      "rationale": "Unchecked Markdown denotes planned work, not a released implementation claim.",
+      "action": "release",
+      "text": "[ ] Advanced pattern detection (factory, singleton, observer)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Future"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 210,
+          "end": 210
+        }
+      },
+      "metadata": {
+        "version": "Future",
+        "category": "Planned for 0.3.0"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-218b12b8bfb2e02d90a4",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Automatic PNG generation from Mermaid files",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "PNG"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 154,
+          "end": 154
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-45ba4613581ef189a617",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Updated setup.py for PyPI publication readiness",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "PyPI"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 184,
+          "end": 184
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-436b19b2fdc1c36f80e4",
+      "stratum": "symbol:release",
+      "label": "roadmap_not_release",
+      "rationale": "Unchecked Markdown denotes planned work, not a released implementation claim.",
+      "action": "release",
+      "text": "[ ] Performance optimizations for 100k+ LOC projects",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "LOC"
+        ],
+        "tickets": [],
+        "versions": [
+          "Future"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 226,
+          "end": 226
+        }
+      },
+      "metadata": {
+        "version": "Future",
+        "category": "Planned for 1.0.0"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-0d784351fc177548b285",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Cross-language fuzzy matching",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 141,
+          "end": 141
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__code2logic",
+      "recordId": "INT-CHANGELOG-2b6233f63df1c1d90ce8",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "feat(config): deep code analysis engine with 6 supporting modules",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 4,
+          "end": 4
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-03c6c12104e1588e73c9",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Pattern-based file inclusion/exclusion",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 82,
+          "end": 82
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Features Added in 0.1.0"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-006c4c43eb21d009b3f5",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Improved error handling in command detection",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2.2.41"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 55,
+          "end": 55
+        }
+      },
+      "metadata": {
+        "version": "2.2.41",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-1f28ff4213e6819e9c67",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Resolved build issues with package versioning",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2.2.50"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 42,
+          "end": 42
+        }
+      },
+      "metadata": {
+        "version": "2.2.50",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-06ea63574a858804df0a",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "**Bundler**: Ruby gem management",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 120,
+          "end": 120
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Supported Parsers"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-dcdf05e948c6d085ad37",
+      "stratum": "path:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Support for JavaScript/Node.js projects (package.json, npm scripts)",
+      "target": {
+        "paths": [
+          "JavaScript/Node.js"
+        ],
+        "symbols": [
+          "JavaScript"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 70,
+          "end": 70
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Features Added in 0.1.0"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-56dbf101a0a6cd4eede1",
+      "stratum": "path:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Configuration file support (`.domd.yaml`)",
+      "target": {
+        "paths": [
+          ".domd.yaml"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Roadmap"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 209,
+          "end": 209
+        }
+      },
+      "metadata": {
+        "version": "Roadmap",
+        "category": "Upcoming Features (v0.2.0)"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-22e184819c81a9506b1e",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Comprehensive CLI interface with dry-run mode",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CLI"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 80,
+          "end": 80
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Features Added in 0.1.0"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-9ca67cc23d78bc49f158",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Updated version to 2.2.41 for PyPI publication",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "PyPI"
+        ],
+        "tickets": [],
+        "versions": [
+          "2.2.41"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 54,
+          "end": 54
+        }
+      },
+      "metadata": {
+        "version": "2.2.41",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-346e0c2677e96bb808a5",
+      "stratum": "symbol:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "**JavaScript**: package.json scripts, npm/yarn/pnpm installations",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "JavaScript"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 112,
+          "end": 112
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Supported Parsers"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-083e44ba3563c8ccdd84",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Support for Docker (Dockerfile, docker-compose.yml)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 73,
+          "end": 73
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Features Added in 0.1.0"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-7d67b9be120a51f35315",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Enhanced documentation structure and readability",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2.2.41"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 56,
+          "end": 56
+        }
+      },
+      "metadata": {
+        "version": "2.2.41",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-22fe6e6bf391de6da44d",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Interactive fix mode",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Roadmap"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 212,
+          "end": 212
+        }
+      },
+      "metadata": {
+        "version": "Roadmap",
+        "category": "Upcoming Features (v0.2.0)"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-087c77659da9ca4f8510",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Discussions: https://github.com/wronai/domd/discussions",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Support"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 243,
+          "end": 243
+        }
+      },
+      "metadata": {
+        "version": "Support",
+        "category": "Long-term Goals (v1.0.0+)"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-303bf9b297fc5636d210",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Support for build systems (Makefile, CMakeLists.txt, Gradle, Maven)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CMakeLists"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 72,
+          "end": 72
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Features Added in 0.1.0"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-9702895f07211c45762c",
+      "stratum": "symbol:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Stable API",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "API"
+        ],
+        "tickets": [],
+        "versions": [
+          "Roadmap"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 226,
+          "end": 226
+        }
+      },
+      "metadata": {
+        "version": "Roadmap",
+        "category": "Long-term Goals (v1.0.0+)"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-2d3bb5683e287b5653b2",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "**0.0.1** - Project setup and structure",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.0.1",
+          "Version"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 159,
+          "end": 159
+        }
+      },
+      "metadata": {
+        "version": "Version",
+        "category": "Added in 0.0.1"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-24715491b42e23c0333b",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Suggested fix actions for common issues",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 128,
+          "end": 128
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Output Features"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-157440dc7139fcbb686d",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Type hints throughout codebase",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 95,
+          "end": 95
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Technical Details"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-39c81dc2ec39b325b244",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Support for other languages (PHP, Ruby, Rust, Go)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "PHP"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 75,
+          "end": 75
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Features Added in 0.1.0"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-bac803460974b381a72c",
+      "stratum": "symbol:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "`domd --format json` - JSON output",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "JSON"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 106,
+          "end": 106
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Example Commands"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-419965defb31b2acbbd5",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "**2.2.41** - Web interface and documentation improvements",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2.2.41",
+          "Version"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 157,
+          "end": 157
+        }
+      },
+      "metadata": {
+        "version": "Version",
+        "category": "Added in 0.0.1"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-4b2d992b057d695b58be",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fixed version inconsistency across the codebase",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2.2.50"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 41,
+          "end": 41
+        }
+      },
+      "metadata": {
+        "version": "2.2.50",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-23bc61d3c447b474697e",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Code formatting with Black",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 138,
+          "end": 138
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Quality Assurance"
+      }
+    },
+    {
+      "repository": "semcod__domd",
+      "recordId": "INT-CHANGELOG-45f150ec71926e19fc4b",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "CI/CD pipeline configuration",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CD",
+          "CI"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 86,
+          "end": 86
+        }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "category": "Features Added in 0.1.0"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-06b81bb57751459895c4",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Multi-language support for 20+ formats",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 50,
+          "end": 50
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-138ace557665dca1b887",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Updated git commit helper",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 62,
+          "end": 62
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-0d452579f528cb0ab62a",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Missing fix comments for bash analysis",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 31,
+          "end": 31
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-03b4de2c7477f55e32f4",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Docker sandbox testing documentation",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 42,
+          "end": 42
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Improved"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-1d0f0c2527f1fa778a7d",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Share via URL feature",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "URL"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 48,
+          "end": 48
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-4fecb38757995b6a40c3",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Updated PYPI.md documentation",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "PYPI"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 12,
+          "end": 12
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-72529c9f2e1377fcbaac",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "E2E test stability improvements",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "E2E"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 33,
+          "end": 33
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-6d99ee5393b0a775d452",
+      "stratum": "symbol:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "API documentation with all endpoints (`/api/analyze`, `/api/health`, `/api/snippet`)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "API"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 39,
+          "end": 39
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Improved"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-06bfbedc79c4aa6604e8",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "History tracking for all fixes",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 46,
+          "end": 46
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-1953c1c87e68cf630253",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Refactored Docker Compose and Kubernetes analyzers",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 11,
+          "end": 11
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-35808c1e9b8eb40dc3d3",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Basic syntax highlighting",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 56,
+          "end": 56
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-0f187af78faebbbbf9b9",
+      "stratum": "none:release",
+      "label": "non_actionable_file_summary",
+      "rationale": "Opaque file-count bookkeeping provides no behavior to ground.",
+      "action": "release",
+      "text": "chore: update 6 files",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 93,
+          "end": 93
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "From Source"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-53b2e841c946a1b0148c",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "refactor: introduce new DSL (refactoring with new DSL)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "DSL"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 90,
+          "end": 90
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "From Source"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-f4076a9818a0c35fb0fe",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Updated Playwright E2E test configuration",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "E2E"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 17,
+          "end": 17
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-a6ab4708788d7fc9c56b",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Initial UI responsiveness issues",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "UI"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 55,
+          "end": 55
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-0d1456c0762fb6678aae",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Jenkinsfile support for pipeline analysis",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 21,
+          "end": 21
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-2a5ac33f3fed647982db",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Updated sandbox test scripts",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 61,
+          "end": 61
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-477dbb5b08683c4e4342",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Clear input functionality",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 36,
+          "end": 36
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-2d07e7453f200832ab42",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Development setup instructions",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 40,
+          "end": 40
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Improved"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-5d3741f1a6a35d964daa",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Pactfix CLI integration",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CLI"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 52,
+          "end": 52
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-dafa012596c058499789",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Quote positioning detection in bash command substitutions (SC1073)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "SC1073"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 30,
+          "end": 30
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-174235d3ad7a0ec6364f",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Better error messages and fix explanations",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 23,
+          "end": 23
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Added"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-54aa85e7eb988b286a13",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Code quality metrics improvements with 6 supporting modules",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 13,
+          "end": 13
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "semcod__pactfix",
+      "recordId": "INT-CHANGELOG-5e61c2dbb62d7105f1d2",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Stats not updating when typing code",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 34,
+          "end": 34
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-13b8020f49b64938c7d0",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Added `_build_config()`, `_print_scan_header()`, `_print_scan_summary()`, `_write_results()`",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1188,
+          "end": 1188
+        }
+      },
+      "metadata": {
+        "version": "0.2.0",
+        "category": "🎯 **Sprint 1 Refactoring - MAJOR IMPROVEMENTS**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-af60ce7ea7554d38e79d",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "**Configuration**: New optional features, existing configs unchanged",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.3.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1113,
+          "end": 1113
+        }
+      },
+      "metadata": {
+        "version": "0.3.0",
+        "category": "🔧 **Breaking Changes**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-3d88b5934d877eaeb4d3",
+      "stratum": "none:document",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "document",
+      "text": "**Added comprehensive changelog** with detailed improvements",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.10"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1216,
+          "end": 1216
+        }
+      },
+      "metadata": {
+        "version": "0.1.10",
+        "category": "📚 **Documentation Updates**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-07ab5bab4f12a85e6a4c",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "**Clean user experience** with no syntax noise",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.7"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1272,
+          "end": 1272
+        }
+      },
+      "metadata": {
+        "version": "0.1.7",
+        "category": "🔧 **Bug Fixes**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-01d444cb1cd63a03fef3",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (app.doql.less); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update app.doql.less",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.4.26"
+        ]
+      },
+      "trackedPathOwners": [
+        "app.doql.less"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 167,
+          "end": 167
+        }
+      },
+      "metadata": {
+        "version": "0.4.26",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-045b56e5d3f9de9230a2",
+      "stratum": "none:test",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "test",
+      "text": "**Test coverage**: 14/15 tests passing (93%)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.3.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1107,
+          "end": 1107
+        }
+      },
+      "metadata": {
+        "version": "0.3.0",
+        "category": "🧪 **Testing**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-12ffd5a6391b9a9e6c5e",
+      "stratum": "path:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (src/redup/core/hasher.py.bak); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update src/redup/core/hasher.py.bak",
+      "target": {
+        "paths": [
+          "src/redup/core/hasher.py.bak"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.4.17"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 286,
+          "end": 286
+        }
+      },
+      "metadata": {
+        "version": "0.4.17",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-678c58e4a805b5e5d530",
+      "stratum": "path:test",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (testql-scenarios/generated-from-pytests.testql.toon.yaml); it makes no behavioral implementation claim.",
+      "action": "test",
+      "text": "Update testql-scenarios/generated-from-pytests.testql.toon.yaml",
+      "target": {
+        "paths": [
+          "testql-scenarios/generated-from-pytests.testql.toon.yaml"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.4.26"
+        ]
+      },
+      "trackedPathOwners": [
+        "testql-scenarios/generated-from-pytests.testql.toon.yaml"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 157,
+          "end": 157
+        }
+      },
+      "metadata": {
+        "version": "0.4.26",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-515b22b5d96136ff1dbc",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Added missing `min_similarity` parameter to `refine_structural_matches()`",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "min_similarity"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.1.8"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1261,
+          "end": 1261
+        }
+      },
+      "metadata": {
+        "version": "0.1.8",
+        "category": "🛠️ **Technical Debt**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-c6f8f31efef581b88b69",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "**None** - all public APIs preserved",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "APIs"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.3.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1112,
+          "end": 1112
+        }
+      },
+      "metadata": {
+        "version": "0.3.0",
+        "category": "🔧 **Breaking Changes**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-200343d135e4705010a3",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "`os.walk` topdown pruning in the file collector only skipped dot-directories, so every scan fully walked and stat'd populated `venv`/`site-packages`/`node_modules` trees (tens of thousands of files) before filtering them out post-hoc. Now excluded directories are pruned before descent, matching the existing exclude-pattern logic.",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "node_modules",
+          "os.walk",
+          "venv"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.4.33"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 36,
+          "end": 39
+        }
+      },
+      "metadata": {
+        "version": "0.4.33",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-033a3da6048a7b66c167",
+      "stratum": "symbol:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (PERFORMANCE_OPTIMIZATIONS.md); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update PERFORMANCE_OPTIMIZATIONS.md",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "PERFORMANCE_OPTIMIZATIONS"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.3.13"
+        ]
+      },
+      "trackedPathOwners": [
+        "PERFORMANCE_OPTIMIZATIONS.md"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 756,
+          "end": 756
+        }
+      },
+      "metadata": {
+        "version": "0.3.13",
+        "category": "Docs"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-70f64598d61724dc5ac5",
+      "stratum": "symbol:test",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "test",
+      "text": "Add regression coverage proving target-file scans do not call `os.walk`.",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "os.walk"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.4.27"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 140,
+          "end": 140
+        }
+      },
+      "metadata": {
+        "version": "0.4.27",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-05e2724b81f04a403a33",
+      "stratum": "ticket:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Fix llm-generated-code issues (ticket-4965051d)",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [
+          "TICKET-4965051"
+        ],
+        "versions": [
+          "0.1.10"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 58,
+          "end": 58
+        }
+      },
+      "metadata": {
+        "version": "0.1.10",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-abbee501e4a5dc263718",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Track resolved, new, and unchanged duplicate groups",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.3.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1050,
+          "end": 1050
+        }
+      },
+      "metadata": {
+        "version": "0.3.0",
+        "category": "🚀 **Sprint 2 & 3 - Advanced Features Implementation**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-494b58444d9ed9bef96d",
+      "stratum": "none:document",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "document",
+      "text": "**Enhanced integration guide** for wronai toolchain",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.10"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1217,
+          "end": 1217
+        }
+      },
+      "metadata": {
+        "version": "0.1.10",
+        "category": "📚 **Documentation Updates**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-17f68518b66c86b8d825",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "**Added warning filter** to suppress external library warnings",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.7"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1271,
+          "end": 1271
+        }
+      },
+      "metadata": {
+        "version": "0.1.7",
+        "category": "🔧 **Bug Fixes**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-02453c0c87fe72930412",
+      "stratum": "none:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (uv.lock); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update uv.lock",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.4.30"
+        ]
+      },
+      "trackedPathOwners": [
+        "uv.lock"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 111,
+          "end": 111
+        }
+      },
+      "metadata": {
+        "version": "0.4.30",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-26e8eae2f0e88fa049db",
+      "stratum": "none:test",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "test",
+      "text": "**Comprehensive test suite** validation",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.1.4"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1297,
+          "end": 1297
+        }
+      },
+      "metadata": {
+        "version": "0.1.4",
+        "category": "🧪 **Testing & Validation**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-17a48560875657d5914c",
+      "stratum": "path:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (project/planfile-tickets.yaml); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update project/planfile-tickets.yaml",
+      "target": {
+        "paths": [
+          "project/planfile-tickets.yaml"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.4.35"
+        ]
+      },
+      "trackedPathOwners": [
+        "project/planfile-tickets.yaml"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 26,
+          "end": 26
+        }
+      },
+      "metadata": {
+        "version": "0.4.35",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-cef05ab7d25948a9c441",
+      "stratum": "path:test",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (testql-scenarios/generated-cli-tests.testql.toon.yaml); it makes no behavioral implementation claim.",
+      "action": "test",
+      "text": "Update testql-scenarios/generated-cli-tests.testql.toon.yaml",
+      "target": {
+        "paths": [
+          "testql-scenarios/generated-cli-tests.testql.toon.yaml"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "0.4.26"
+        ]
+      },
+      "trackedPathOwners": [
+        "testql-scenarios/generated-cli-tests.testql.toon.yaml"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 156,
+          "end": 156
+        }
+      },
+      "metadata": {
+        "version": "0.4.26",
+        "category": "Test"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-56d1d59ed6259334133e",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "Exit code 1 for new duplicates (CI integration)",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CI"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.3.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1051,
+          "end": 1051
+        }
+      },
+      "metadata": {
+        "version": "0.3.0",
+        "category": "🚀 **Sprint 2 & 3 - Advanced Features Implementation**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-eec29250346fa7f674dd",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "**CLI**: All existing commands work unchanged",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "CLI"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.3.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 1114,
+          "end": 1114
+        }
+      },
+      "metadata": {
+        "version": "0.3.0",
+        "category": "🔧 **Breaking Changes**"
+      }
+    },
+    {
+      "repository": "semcod__redup",
+      "recordId": "INT-CHANGELOG-55a011272f6b4202808c",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "Default `exclude_patterns` used broad prefix globs (`python*`, `venv*`, `env*`) and bare generic names (`lib`, `lib64`) that matched legitimate source directories anywhere in the tree (e.g. `adapters/python/urirun`, `env2llm`), causing `redup scan .` to silently skip real code and under-report duplicates. Replaced with exact-name matches (`venv`, `.venv`, `env`, `.env`, `virtualenv`, `site-packages`) that only catch actual virtualenv directories.",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "env",
+          "env2llm",
+          "exclude_patterns",
+          "lib",
+          "lib64",
+          "venv",
+          "virtualenv"
+        ],
+        "tickets": [],
+        "versions": [
+          "0.4.33"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 31,
+          "end": 35
+        }
+      },
+      "metadata": {
+        "version": "0.4.33",
+        "category": "Fixed"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-12b964a3e2e1a843da3b",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "added `make ports` and `npm run ports`;",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "1.1.2"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 237,
+          "end": 237
+        }
+      },
+      "metadata": {
+        "version": "1.1.2",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-59cd6918dc32769d6b4f",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Ścieżki `projekty/*` są montowane read-only w usługach planujących publikację.",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 95,
+          "end": 95
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-e7c4d8290f4271e3b74f",
+      "stratum": "none:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "fixed upgrades from v1.0/partial `.env` files;",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "1.1.1",
+          "v1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 244,
+          "end": 244
+        }
+      },
+      "metadata": {
+        "version": "1.1.1",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-09916d42e87a3667f734",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Docker Compose reuses the same variables for ports, health checks, images and volumes;",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "1.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 258,
+          "end": 258
+        }
+      },
+      "metadata": {
+        "version": "1.1.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-1be6c58eb754f85387e7",
+      "stratum": "path:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "added `.port-allocation.json`;",
+      "target": {
+        "paths": [
+          ".port-allocation.json"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "1.1.2"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 236,
+          "end": 236
+        }
+      },
+      "metadata": {
+        "version": "1.1.2",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-643db1b13e75978690ea",
+      "stratum": "path:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "stopped tracking generated `TEST_RESULTS_*.txt` artifacts and ignored `test-results/` / `coverage/` / `node_modules`;",
+      "target": {
+        "paths": [
+          "TEST_RESULTS_*.txt"
+        ],
+        "symbols": [
+          "node_modules",
+          "TEST_RESULTS_"
+        ],
+        "tickets": [],
+        "versions": [
+          "2.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 145,
+          "end": 145
+        }
+      },
+      "metadata": {
+        "version": "2.2.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-08745b077d68e73b8512",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "added OpenRouter model availability check and live router status;",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "OpenRouter"
+        ],
+        "tickets": [],
+        "versions": [
+          "1.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 210,
+          "end": 210
+        }
+      },
+      "metadata": {
+        "version": "1.2.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-4a09817e62193b66938b",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Artifact Registry policy v2 obejmuje kanoniczne JSON Schema z repozytorium Contracts oraz wiedzę o wdrożonym rdzeniu Intent Contract.",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "JSON"
+        ],
+        "tickets": [],
+        "versions": [
+          "2026-07-22"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 12,
+          "end": 13
+        }
+      },
+      "metadata": {
+        "version": "2026-07-22",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-775b4ba499c460eb4c10",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "fixed packaging so `.env.example` is included in the ZIP;",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "ZIP"
+        ],
+        "tickets": [],
+        "versions": [
+          "1.1.3"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 225,
+          "end": 225
+        }
+      },
+      "metadata": {
+        "version": "1.1.3",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-3951138091fbb4d1344f",
+      "stratum": "symbol:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (README.md); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update README.md",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "README"
+        ],
+        "tickets": [],
+        "versions": [
+          "2.2.1"
+        ]
+      },
+      "trackedPathOwners": [
+        "README.md",
+        "config/intent-packs/README.md",
+        "config/intent-packs/_wip/README.md",
+        "config/knowledge/README.md",
+        "config/problem-strategies/README.md",
+        "packages/planfile-orchestration/README.md"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 109,
+          "end": 109
+        }
+      },
+      "metadata": {
+        "version": "2.2.1",
+        "category": "Docs"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-a59f80048e2b540dadf2",
+      "stratum": "ticket:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "fixed flaky `make e2e` / `test-environment` full-api-e2e: the suite reset shared org-core state (`POST /api/org/demo/reset`), so two concurrent runs (e.g. a local run plus parallel automation on the same Docker stack) wiped each other's project mid-flow, causing an intermittent `bootstrap-plan` 404 (`workspace null`). Root-caused via org-core diagnostics (a run's project was replaced by a later run's projects) and fixed by defaulting `E2E_RESET_STATE` to `false`: the Docker e2e is now append-only and concurrency-safe (all its assertions are existence/`>=` checks that tolerate accumulated state), so concurrent runs no longer clobber each other. Verified 0/6 workspace-404 failures (was ~3/5). The node-based `npm test` e2e was never affected — it uses isolated per-run temp state, which remains the clean-slate path;",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "E2E_RESET_STATE",
+          "false",
+          "POST"
+        ],
+        "tickets": [
+          "WORKSPACE-404"
+        ],
+        "versions": [
+          "2.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 125,
+          "end": 135
+        }
+      },
+      "metadata": {
+        "version": "2.2.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-2a3440c350e168e47026",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "added a regression test for stale `.env.example` plus incomplete `.env`;",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "1.1.3"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 226,
+          "end": 226
+        }
+      },
+      "metadata": {
+        "version": "1.1.3",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-b65d1790a1a9e3b5fbe6",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Kontrakt środowiska obejmuje ustawienia autonomicznego relay czatu.",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 96,
+          "end": 96
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-10f68ab2e4ac1835cddd",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "introduced a plugin adapter registry;",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 157,
+          "end": 157
+        }
+      },
+      "metadata": {
+        "version": "2.2.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-76310669dd635ae8af21",
+      "stratum": "path:release",
+      "label": "non_actionable_file_update",
+      "rationale": "Names only the updated file (scripts/run-testql-environment.sh); it makes no behavioral implementation claim.",
+      "action": "release",
+      "text": "Update scripts/run-testql-environment.sh",
+      "target": {
+        "paths": [
+          "scripts/run-testql-environment.sh"
+        ],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2.2.1"
+        ]
+      },
+      "trackedPathOwners": [
+        "scripts/run-testql-environment.sh"
+      ],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 120,
+          "end": 120
+        }
+      },
+      "metadata": {
+        "version": "2.2.1",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-0f6fb4385312826edc1e",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "added local `llm-gateway` service with no direct OpenRouter access from the browser;",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "OpenRouter"
+        ],
+        "tickets": [],
+        "versions": [
+          "1.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 207,
+          "end": 207
+        }
+      },
+      "metadata": {
+        "version": "1.2.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-9d30d5038b6a1be3c9a1",
+      "stratum": "symbol:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Bridge nie klasyfikuje już skutecznego efektu zewnętrznego jako błędu tylko dlatego, że późniejszy zapis dowodu w Planfile przekroczył timeout. Zapis evidence ma retry, marker lokalny jest best-effort, a Control odzyskuje terminalny receipt z potwierdzonego dowodu SMTP.",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "SMTP"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 78,
+          "end": 81
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-d42b4b5cc217b4277a60",
+      "stratum": "symbol:fix",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "fix",
+      "text": "fixed duplicate `OPENROUTER_API_KEY` entries in Docker Compose;",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "OPENROUTER_API_KEY"
+        ],
+        "tickets": [],
+        "versions": [
+          "1.2.1"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 196,
+          "end": 196
+        }
+      },
+      "metadata": {
+        "version": "1.2.1",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-3b416062c2d5aba9d3b9",
+      "stratum": "symbol:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "serialized complete JsonStore read-modify-write updates;",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "JsonStore"
+        ],
+        "tickets": [],
+        "versions": [
+          "2.2.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 153,
+          "end": 153
+        }
+      },
+      "metadata": {
+        "version": "2.2.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-305496b1147485591cbe",
+      "stratum": "none:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "added project campaigns, offers, leads, opportunities, support cases, outcomes and evidence;",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 169,
+          "end": 169
+        }
+      },
+      "metadata": {
+        "version": "2.1.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-ceb21dd22e21f74046e8",
+      "stratum": "none:change",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "change",
+      "text": "Opublikowano komponent Analytics/Observability i włączono jego ustawienia do wspólnego, typowanego kontraktu środowiska Platform.",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "2026-07-22"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 20,
+          "end": 21
+        }
+      },
+      "metadata": {
+        "version": "2026-07-22",
+        "category": "Changed"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-1c2c9ab124d338170ab2",
+      "stratum": "none:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "existing values and custom variables are preserved;",
+      "target": {
+        "paths": [],
+        "symbols": [],
+        "tickets": [],
+        "versions": [
+          "1.1.1"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 246,
+          "end": 246
+        }
+      },
+      "metadata": {
+        "version": "1.1.1",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-1c95a75cafa07f4619a9",
+      "stratum": "symbol:add",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "add",
+      "text": "added project import TestQL and postflight business TestQL;",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "TestQL"
+        ],
+        "tickets": [],
+        "versions": [
+          "2.1.0"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 170,
+          "end": 170
+        }
+      },
+      "metadata": {
+        "version": "2.1.0",
+        "category": "Other"
+      }
+    },
+    {
+      "repository": "subactor__platform",
+      "recordId": "INT-CHANGELOG-c1b0df92dd8b4b071167",
+      "stratum": "symbol:release",
+      "label": "substantive_or_unverified",
+      "rationale": "Contains a behavior, compatibility, quality or documentation claim that still requires evidence review.",
+      "action": "release",
+      "text": "Live Plesk/SFTP dry-run: 8 plików, 32 934 B; bez produkcyjnego apply.",
+      "target": {
+        "paths": [],
+        "symbols": [
+          "SFTP"
+        ],
+        "tickets": [],
+        "versions": [
+          "Unreleased"
+        ]
+      },
+      "trackedPathOwners": [],
+      "source": {
+        "path": "CHANGELOG.md",
+        "lines": {
+          "start": 102,
+          "end": 102
+        }
+      },
+      "metadata": {
+        "version": "Unreleased",
+        "category": "Verified"
+      }
+    }
+  ]
+}

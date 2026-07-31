@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "t2c.cross-language-benchmark/v1",
+  "description": "Cross-language intent-to-module pairs outside the current hand-written Polish topic dictionary.",
+  "pairs": [
+    {
+      "id": "pl-queue-retry-backoff-positive",
+      "language": "pl",
+      "intent": "Kolejka zadań powinna ponawiać nieudane próby z opóźnieniem",
+      "module": "declare src/queue/task-retry-backoff.ts",
+      "expected": true
+    },
+    {
+      "id": "pl-queue-priority-hard-negative",
+      "language": "pl",
+      "intent": "Kolejka zadań powinna ponawiać nieudane próby z opóźnieniem",
+      "module": "declare src/queue/task-priority-sort.ts",
+      "expected": false
+    },
+    {
+      "id": "de-auth-token-expiry-positive",
+      "language": "de",
+      "intent": "Abgelaufene Authentifizierungs-Token müssen vor dem Zugriff abgelehnt werden",
+      "module": "declare src/security/auth-token-expiry-validator.ts",
+      "expected": true
+    },
+    {
+      "id": "de-auth-role-hard-negative",
+      "language": "de",
+      "intent": "Abgelaufene Authentifizierungs-Token müssen vor dem Zugriff abgelehnt werden",
+      "module": "declare src/security/user-role-permission-registry.ts",
+      "expected": false
+    },
+    {
+      "id": "es-document-cache-hash-positive",
+      "language": "es",
+      "intent": "La caché de documentos debe invalidarse cuando cambia el hash del contenido",
+      "module": "declare src/cache/document-content-hash-cache.ts",
+      "expected": true
+    },
+    {
+      "id": "es-ast-cache-hard-negative",
+      "language": "es",
+      "intent": "La caché de documentos debe invalidarse cuando cambia el hash del contenido",
+      "module": "declare src/cache/ast-symbol-cache.ts",
+      "expected": false
+    },
+    {
+      "id": "fr-participant-identity-positive",
+      "language": "fr",
+      "intent": "Le registre doit vérifier l'identité de chaque participant avant l'enregistrement",
+      "module": "declare src/communication/participant-identity-registry.ts",
+      "expected": true
+    },
+    {
+      "id": "fr-ticket-status-hard-negative",
+      "language": "fr",
+      "intent": "Le registre doit vérifier l'identité de chaque participant avant l'enregistrement",
+      "module": "declare src/communication/ticket-status-registry.ts",
+      "expected": false
+    },
+    {
+      "id": "pl-job-timeout-positive",
+      "language": "pl",
+      "intent": "Harmonogram powinien przerywać zadania po przekroczeniu limitu czasu",
+      "module": "declare src/scheduler/job-timeout-cancellation.ts",
+      "expected": true
+    },
+    {
+      "id": "pl-job-order-hard-negative",
+      "language": "pl",
+      "intent": "Harmonogram powinien przerywać zadania po przekroczeniu limitu czasu",
+      "module": "declare src/scheduler/job-order-planner.ts",
+      "expected": false
+    },
+    {
+      "id": "es-secret-redaction-positive",
+      "language": "es",
+      "intent": "Los secretos deben eliminarse del registro de auditoría antes de guardarlo",
+      "module": "declare src/audit/secret-redaction.ts",
+      "expected": true
+    },
+    {
+      "id": "es-audit-export-hard-negative",
+      "language": "es",
+      "intent": "Los secretos deben eliminarse del registro de auditoría antes de guardarlo",
+      "module": "declare src/audit/report-export.ts",
+      "expected": false
+    }
+  ]
+}

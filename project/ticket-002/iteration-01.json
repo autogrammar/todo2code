@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "t2c.external-benchmark-iteration/v1",
+  "iteration": 1,
+  "target": "non-actionable changelog mechanics",
+  "changedFiles": [
+    "src/graph/changelog-signal.ts",
+    "src/graph/diagnostics.ts",
+    "test/graph.test.ts"
+  ],
+  "invariants": {
+    "graphFingerprintsUnchanged": true,
+    "goldV2Precision": 1,
+    "goldV2Recall": 1,
+    "goldV2ForbiddenViolations": 0
+  },
+  "totals": {
+    "beforeDiagnostics": 17363,
+    "afterDiagnostics": 16300,
+    "removedDiagnostics": 1063,
+    "beforeChangelogWithoutImplementation": 2877,
+    "afterChangelogWithoutImplementation": 1853,
+    "removedChangelogWithoutImplementation": 1024,
+    "beforeUnlinkedRecord": 5783,
+    "afterUnlinkedRecord": 5744,
+    "removedUnlinkedRecord": 39
+  },
+  "repositories": [
+    {
+      "repository": "semcod/code2llm",
+      "runId": "20260731T070702Z-9c821450",
+      "graphFingerprint": "2e57056bf75fc5ef5dead16dd990f56082a6e184f86ed4995f5607a48bd9e732",
+      "beforeDiagnostics": 4700,
+      "afterDiagnostics": 4225,
+      "beforeReviewRequired": 1411,
+      "afterReviewRequired": 955,
+      "beforeChangelogWithoutImplementation": 1411,
+      "afterChangelogWithoutImplementation": 955,
+      "beforeUnlinkedRecord": 1332,
+      "afterUnlinkedRecord": 1313
+    },
+    {
+      "repository": "semcod/domd",
+      "runId": "20260731T070725Z-26c1f092",
+      "graphFingerprint": "9df7e187f82b4ce8028c22938642bf2746ba0fe123ddc26386efa1a6916e6f68",
+      "beforeDiagnostics": 2109,
+      "afterDiagnostics": 2097,
+      "beforeReviewRequired": 105,
+      "afterReviewRequired": 99,
+      "beforeChangelogWithoutImplementation": 105,
+      "afterChangelogWithoutImplementation": 99,
+      "beforeUnlinkedRecord": 779,
+      "afterUnlinkedRecord": 773
+    },
+    {
+      "repository": "semcod/pactfix",
+      "runId": "20260731T070731Z-ab868903",
+      "graphFingerprint": "9c2d15fc76b8585f8ae68dbd7b9f518c6cf819fce841b5178c9797e5d7d25b69",
+      "beforeDiagnostics": 664,
+      "afterDiagnostics": 664,
+      "beforeReviewRequired": 48,
+      "afterReviewRequired": 48,
+      "beforeChangelogWithoutImplementation": 48,
+      "afterChangelogWithoutImplementation": 48,
+      "beforeUnlinkedRecord": 217,
+      "afterUnlinkedRecord": 217
+    },
+    {
+      "repository": "semcod/code2logic",
+      "runId": "20260731T070714Z-9a108669",
+      "graphFingerprint": "722f90e806be667f271eb393b523f771cae18cc61912416c5f4d88c9125f01e7",
+      "beforeDiagnostics": 4680,
+      "afterDiagnostics": 4678,
+      "beforeReviewRequired": 121,
+      "afterReviewRequired": 120,
+      "beforeChangelogWithoutImplementation": 121,
+      "afterChangelogWithoutImplementation": 120,
+      "beforeUnlinkedRecord": 1504,
+      "afterUnlinkedRecord": 1503
+    },
+    {
+      "repository": "semcod/code2docs",
+      "runId": "20260731T070652Z-c9867ada",
+      "graphFingerprint": "4598fbe9eec85d61f1290a4db5c672bc3923df29d7e9db80923671b7fb3fb36f",
+      "beforeDiagnostics": 1555,
+      "afterDiagnostics": 1420,
+      "beforeReviewRequired": 396,
+      "afterReviewRequired": 269,
+      "beforeChangelogWithoutImplementation": 396,
+      "afterChangelogWithoutImplementation": 269,
+      "beforeUnlinkedRecord": 463,
+      "afterUnlinkedRecord": 455
+    },
+    {
+      "repository": "semcod/redup",
+      "runId": "20260731T070735Z-58dcf97a",
+      "graphFingerprint": "ed0359f98ed4e18f103a3751543f3e08a4accecc1be730633446fc63f4db3087",
+      "beforeDiagnostics": 2384,
+      "afterDiagnostics": 1945,
+      "beforeReviewRequired": 703,
+      "afterReviewRequired": 269,
+      "beforeChangelogWithoutImplementation": 703,
+      "afterChangelogWithoutImplementation": 269,
+      "beforeUnlinkedRecord": 708,
+      "afterUnlinkedRecord": 703
+    },
+    {
+      "repository": "subactor/platform",
+      "runId": "20260731T070740Z-e130d916",
+      "graphFingerprint": "1c4166dd1b7b7789d06693a224b5d816963c4bdee5b026a5e1145861c60f786d",
+      "beforeDiagnostics": 1271,
+      "afterDiagnostics": 1271,
+      "beforeReviewRequired": 93,
+      "afterReviewRequired": 93,
+      "beforeChangelogWithoutImplementation": 93,
+      "afterChangelogWithoutImplementation": 93,
+      "beforeUnlinkedRecord": 780,
+      "afterUnlinkedRecord": 780
+    }
+  ]
+}

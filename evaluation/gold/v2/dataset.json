@@ -1286,6 +1286,7 @@
     },
     {
       "id": "link-topic-polish-vocabulary-outside-dictionary",
+      "cohort": "cross-language",
       "records": [
         {
           "label": "declaration",
@@ -1317,10 +1318,27 @@
           "relationClass": "capability-topic"
         }
       ],
+      "reranker": {
+        "model": "captured/precision-reranker",
+        "modelRevision": "gold-v1",
+        "decisions": [
+          {
+            "module": "module",
+            "score": 0.82,
+            "verdict": "accept",
+            "confidence": 0.93,
+            "reasonCode": "repository_evidence_supports_match",
+            "rationale": "The task queue retry requirement maps unambiguously to the retry-backoff module.",
+            "declarationQuote": "Kolejka zadań",
+            "moduleQuote": "task-retry-backoff.ts"
+          }
+        ]
+      },
       "knownGap": true
     },
     {
       "id": "link-topic-polish-two-translated-topics-hard-negative",
+      "cohort": "cross-language",
       "records": [
         {
           "label": "declaration",
@@ -1350,7 +1368,428 @@
           "from": "declaration",
           "to": "module"
         }
-      ]
+      ],
+      "reranker": {
+        "model": "captured/precision-reranker",
+        "modelRevision": "gold-v1",
+        "decisions": [
+          {
+            "module": "module",
+            "score": 0.78,
+            "verdict": "abstain",
+            "confidence": 0.95,
+            "reasonCode": "insufficient_evidence",
+            "rationale": "Generic documentation and registry words do not identify a version registry report.",
+            "declarationQuote": "Dokumentacja opisuje rejestr",
+            "moduleQuote": "version-registry-report.ts"
+          }
+        ]
+      }
+    },
+    {
+      "id": "link-topic-german-auth-token-expiry",
+      "cohort": "cross-language",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "validate",
+          "modality": "required",
+          "text": "Abgelaufene Authentifizierungs-Token müssen vor dem Zugriff abgelehnt werden",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/security/auth-token-expiry-validator.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/security/auth-token-expiry-validator.ts"
+            ]
+          }
+        },
+        {
+          "label": "wrong-module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/security/user-role-permission-registry.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/security/user-role-permission-registry.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "wrong-module"
+        }
+      ],
+      "reranker": {
+        "model": "captured/precision-reranker",
+        "modelRevision": "gold-v1",
+        "decisions": [
+          {
+            "module": "module",
+            "score": 0.83,
+            "verdict": "accept",
+            "confidence": 0.94,
+            "reasonCode": "repository_evidence_supports_match",
+            "rationale": "The requirement is specifically about rejecting expired authentication tokens.",
+            "declarationQuote": "Authentifizierungs-Token",
+            "moduleQuote": "auth-token-expiry-validator.ts"
+          },
+          {
+            "module": "wrong-module",
+            "score": 0.8,
+            "verdict": "reject",
+            "confidence": 0.96,
+            "reasonCode": "wrong_target",
+            "rationale": "A user-role permission registry does not implement token expiry validation.",
+            "declarationQuote": "abgelehnt werden",
+            "moduleQuote": "user-role-permission-registry.ts"
+          }
+        ]
+      },
+      "knownGap": true
+    },
+    {
+      "id": "link-topic-spanish-document-content-cache",
+      "cohort": "cross-language",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "change",
+          "modality": "required",
+          "text": "La caché de documentos debe invalidarse cuando cambia el hash del contenido",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/cache/document-content-hash-cache.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/cache/document-content-hash-cache.ts"
+            ]
+          }
+        },
+        {
+          "label": "wrong-module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/cache/ast-symbol-cache.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/cache/ast-symbol-cache.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "wrong-module"
+        }
+      ],
+      "reranker": {
+        "model": "captured/precision-reranker",
+        "modelRevision": "gold-v1",
+        "decisions": [
+          {
+            "module": "module",
+            "score": 0.84,
+            "verdict": "accept",
+            "confidence": 0.95,
+            "reasonCode": "repository_evidence_supports_match",
+            "rationale": "The declaration names document cache invalidation by content hash.",
+            "declarationQuote": "hash del contenido",
+            "moduleQuote": "document-content-hash-cache.ts"
+          },
+          {
+            "module": "wrong-module",
+            "score": 0.79,
+            "verdict": "reject",
+            "confidence": 0.97,
+            "reasonCode": "wrong_target",
+            "rationale": "An AST symbol cache is a different cache domain.",
+            "declarationQuote": "caché de documentos",
+            "moduleQuote": "ast-symbol-cache.ts"
+          }
+        ]
+      },
+      "knownGap": true
+    },
+    {
+      "id": "link-topic-french-participant-identity",
+      "cohort": "cross-language",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "validate",
+          "modality": "required",
+          "text": "Le registre doit vérifier l'identité de chaque participant avant l'enregistrement",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/communication/participant-identity-registry.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/communication/participant-identity-registry.ts"
+            ]
+          }
+        },
+        {
+          "label": "wrong-module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/communication/ticket-status-registry.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/communication/ticket-status-registry.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "wrong-module"
+        }
+      ],
+      "reranker": {
+        "model": "captured/precision-reranker",
+        "modelRevision": "gold-v1",
+        "decisions": [
+          {
+            "module": "module",
+            "score": 0.86,
+            "verdict": "accept",
+            "confidence": 0.96,
+            "reasonCode": "repository_evidence_supports_match",
+            "rationale": "The declaration explicitly requires participant identity verification by a registry.",
+            "declarationQuote": "l'identité de chaque participant",
+            "moduleQuote": "participant-identity-registry.ts"
+          },
+          {
+            "module": "wrong-module",
+            "score": 0.77,
+            "verdict": "reject",
+            "confidence": 0.98,
+            "reasonCode": "wrong_target",
+            "rationale": "A ticket status registry does not verify participant identity.",
+            "declarationQuote": "registre doit vérifier",
+            "moduleQuote": "ticket-status-registry.ts"
+          }
+        ]
+      },
+      "knownGap": true
+    },
+    {
+      "id": "link-topic-polish-job-timeout",
+      "cohort": "cross-language",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "block",
+          "modality": "recommended",
+          "text": "Harmonogram powinien przerywać zadania po przekroczeniu limitu czasu",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/scheduler/job-timeout-cancellation.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/scheduler/job-timeout-cancellation.ts"
+            ]
+          }
+        },
+        {
+          "label": "wrong-module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/scheduler/job-order-planner.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/scheduler/job-order-planner.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "wrong-module"
+        }
+      ],
+      "reranker": {
+        "model": "captured/precision-reranker",
+        "modelRevision": "gold-v1",
+        "decisions": [
+          {
+            "module": "module",
+            "score": 0.85,
+            "verdict": "accept",
+            "confidence": 0.94,
+            "reasonCode": "repository_evidence_supports_match",
+            "rationale": "The scheduler requirement is specifically timeout cancellation.",
+            "declarationQuote": "limitu czasu",
+            "moduleQuote": "job-timeout-cancellation.ts"
+          },
+          {
+            "module": "wrong-module",
+            "score": 0.8,
+            "verdict": "reject",
+            "confidence": 0.96,
+            "reasonCode": "wrong_target",
+            "rationale": "Job ordering does not cancel timed-out jobs.",
+            "declarationQuote": "przerywać zadania",
+            "moduleQuote": "job-order-planner.ts"
+          }
+        ]
+      },
+      "knownGap": true
+    },
+    {
+      "id": "link-topic-spanish-secret-redaction",
+      "cohort": "cross-language",
+      "records": [
+        {
+          "label": "declaration",
+          "sourceKind": "document",
+          "action": "remove",
+          "modality": "required",
+          "text": "Los secretos deben eliminarse del registro de auditoría antes de guardarlo",
+          "lifecycle": "proposed"
+        },
+        {
+          "label": "module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/audit/secret-redaction.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/audit/secret-redaction.ts"
+            ]
+          }
+        },
+        {
+          "label": "wrong-module",
+          "sourceKind": "ast",
+          "action": "declare",
+          "statementKind": "module_fact",
+          "text": "declare src/audit/report-export.ts",
+          "lifecycle": "implemented",
+          "target": {
+            "paths": [
+              "src/audit/report-export.ts"
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "from": "declaration",
+          "to": "module",
+          "type": "evidenced_by",
+          "relationClass": "capability-topic"
+        }
+      ],
+      "forbidden": [
+        {
+          "from": "declaration",
+          "to": "wrong-module"
+        }
+      ],
+      "reranker": {
+        "model": "captured/precision-reranker",
+        "modelRevision": "gold-v1",
+        "decisions": [
+          {
+            "module": "module",
+            "score": 0.87,
+            "verdict": "accept",
+            "confidence": 0.97,
+            "reasonCode": "repository_evidence_supports_match",
+            "rationale": "The declaration requires secret redaction before persisting an audit log.",
+            "declarationQuote": "secretos deben eliminarse",
+            "moduleQuote": "secret-redaction.ts"
+          },
+          {
+            "module": "wrong-module",
+            "score": 0.78,
+            "verdict": "reject",
+            "confidence": 0.98,
+            "reasonCode": "wrong_target",
+            "rationale": "Report export does not redact secrets.",
+            "declarationQuote": "registro de auditoría",
+            "moduleQuote": "report-export.ts"
+          }
+        ]
+      },
+      "knownGap": true
     }
   ],
   "dsl2todo": [

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://todo2code.local/schemas/semantic-candidate-set.schema.json",
+  "title": "Bounded semantic candidate set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "graphFingerprint",
+    "maxCandidatesPerDeclaration",
+    "retrieval",
+    "candidates",
+    "candidateSetHash"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "t2c.semantic-candidate-set/v1" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "graphFingerprint": { "$ref": "#/$defs/hash" },
+    "maxCandidatesPerDeclaration": { "type": "integer", "minimum": 1, "maximum": 10 },
+    "retrieval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "model", "revision", "metric", "inputHash"],
+      "properties": {
+        "provider": { "$ref": "#/$defs/nonBlank" },
+        "model": { "$ref": "#/$defs/nonBlank" },
+        "revision": { "$ref": "#/$defs/nonBlank" },
+        "metric": { "$ref": "#/$defs/nonBlank" },
+        "inputHash": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "declarationRecordId", "moduleRecordId", "score", "rank"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^SCAND-[a-f0-9]{20}$" },
+          "declarationRecordId": { "type": "string", "pattern": "^INT-[A-Z]+-[a-f0-9]{20}$" },
+          "moduleRecordId": { "type": "string", "pattern": "^INT-[A-Z]+-[a-f0-9]{20}$" },
+          "score": { "type": "number", "minimum": -1, "maximum": 1 },
+          "rank": { "type": "integer", "minimum": 1, "maximum": 10 }
+        }
+      }
+    },
+    "candidateSetHash": { "$ref": "#/$defs/hash" }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "nonBlank": { "type": "string", "minLength": 1, "pattern": ".*\\S.*" }
+  }
+}

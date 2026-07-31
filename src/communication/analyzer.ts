@@ -1,6 +1,6 @@
 import { createIntentId } from '../core/id.js';
 import { assertIntentGraph } from '../core/schema.js';
-import { normalizeToken, similarity } from '../core/text.js';
+import { normalizeToken, similarity, topicKeywords } from '../core/text.js';
 import type { Diagnostic, DiagnosticReport, IntentGraph, IntentRecord } from '../core/types.js';
 import type { CommunicationRole } from '../extractors/communication.js';
 import type { ParticipantCommunicationSynthesis } from './llm.js';
@@ -15,12 +15,15 @@ export interface CommunicationIssue {
     | 'AGENT_COMMUNICATION_CONFLICT'
     | 'HUMAN_AGENT_CONFLICT'
     | 'REQUEST_WITHOUT_AGENT_RESPONSE'
+    | 'AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED'
     | 'AGENT_CLAIM_WITHOUT_EVIDENCE'
     | 'AGENT_WORK_OUTSIDE_REQUEST';
   severity: CommunicationIssueSeverity;
   ticket: string;
   participantIds: string[];
   recordIds: string[];
+  responseRequiredRole: CommunicationRole;
+  responseRequiredFrom: string[];
   detail: string;
   suggestedAction: string;
 }
@@ -72,6 +75,7 @@ export function analyzeCommunication(
         'PARTICIPANT_IDENTITY_UNRESOLVED', 'review_required', ticketOf(record), [participant], [record.id],
         `Nie można wiarygodnie przypisać komunikatu do człowieka albo agenta: ${record.source.path ?? record.id}.`,
         'Uzupełnić front matter o participant oraz role: human|agent.',
+        'unknown', [participant],
       ));
     }
   }
@@ -82,17 +86,27 @@ export function analyzeCommunication(
       const right = communication[rightIndex];
       if (!left || !right || participantOf(left) === participantOf(right)) continue;
       if (ticketOf(left) !== ticketOf(right) || left.statement.polarity === right.statement.polarity) continue;
-      if (!semanticMatch(left, right)) continue;
-      const roles = [roleOf(left), roleOf(right)].sort().join(':');
+      if (!conflictSemanticMatch(left, right)) continue;
+      const leftRole = roleOf(left);
+      const rightRole = roleOf(right);
+      if (leftRole === 'unknown' || rightRole === 'unknown') continue;
+      const roles = [leftRole, rightRole].sort().join(':');
       const code = roles === 'human:human'
         ? 'HUMAN_COMMUNICATION_CONFLICT'
         : roles === 'agent:agent'
           ? 'AGENT_COMMUNICATION_CONFLICT'
           : 'HUMAN_AGENT_CONFLICT';
+      const responseRequiredRole: CommunicationRole = 'human';
+      const responseRequiredFrom = roles === 'human:human'
+        ? [participantOf(left), participantOf(right)]
+        : roles === 'agent:human'
+          ? [left, right].filter((record) => roleOf(record) === 'human').map(participantOf)
+          : participantsForRole(communication, ticketOf(left), 'human');
       issues.push(issue(
         code, 'blocking', ticketOf(left), [participantOf(left), participantOf(right)], [left.id, right.id],
         `Przeciwne deklaracje dotyczą podobnego zakresu: „${left.statement.text}” / „${right.statement.text}”.`,
         'Rozstrzygnąć konflikt w decyzji człowieka i wskazać rekord, który superseduje poprzedni.',
+        responseRequiredRole, responseRequiredFrom,
       ));
     }
   }
@@ -100,19 +114,28 @@ export function analyzeCommunication(
   const humanRequests = communication.filter((record) => roleOf(record) === 'human' && ['request', 'message'].includes(typeOf(record)));
   const agentMessages = communication.filter((record) => roleOf(record) === 'agent');
   for (const request of humanRequests) {
-    const response = agentMessages.some((record) => ticketOf(record) === ticketOf(request) && semanticMatch(record, request));
+    const response = agentResponseCoversRequest(request, agentMessages);
     if (!response) {
       issues.push(issue(
         'REQUEST_WITHOUT_AGENT_RESPONSE', 'warning', ticketOf(request), [participantOf(request)], [request.id],
         `Polecenie człowieka nie ma semantycznie powiązanej odpowiedzi agenta: ${request.statement.text}`,
         'Agent powinien dodać plik planu albo jawnie odrzucić/zablokować polecenie z uzasadnieniem.',
+        'agent', participantsForRole(communication, ticketOf(request), 'agent'),
       ));
     }
   }
 
   for (const record of agentMessages) {
     const type = typeOf(record);
-    if (['report', 'result', 'claim'].includes(type)) {
+    if (['report', 'result', 'claim'].includes(type) && isHumanDecisionClaim(record)) {
+      issues.push(issue(
+        'AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED', 'review_required', ticketOf(record),
+        [participantOf(record)], [record.id],
+        `Agent powołuje się na decyzję człowieka, której nie ma w komunikacji należącej do człowieka: ${record.statement.text}`,
+        'Właściciel zakresu powinien zapisać decyzję we własnym pliku komunikacji; agent nie może zrobić tego w jego imieniu.',
+        'human', participantsForRole(communication, ticketOf(record), 'human'),
+      ));
+    } else if (['report', 'result', 'claim'].includes(type) && isPositiveImplementationClaim(record)) {
       const participantGit = matchedGitRecords(record, graph.records);
       const linked = evidenceByRecord.get(record.id) ?? [];
       if (participantGit.length === 0 && linked.length === 0) {
@@ -120,16 +143,20 @@ export function analyzeCommunication(
           'AGENT_CLAIM_WITHOUT_EVIDENCE', 'review_required', ticketOf(record), [participantOf(record)], [record.id],
           `Agent raportuje wykonanie bez powiązanego commita lub faktu AST: ${record.statement.text}`,
           'Dodać ticket do commita albo wskazać paths/symbols i ponownie uruchomić analizę.',
+          'agent', [participantOf(record)],
         ));
       }
     }
-    if (['plan', 'report', 'result', 'claim'].includes(type)) {
-      const matchedRequest = humanRequests.some((request) => ticketOf(request) === ticketOf(record) && semanticMatch(request, record));
+    if (['plan', 'report', 'result', 'claim'].includes(type)
+      && !isHumanDecisionClaim(record)
+      && isActionableAgentWork(record)) {
+      const matchedRequest = agentWorkCoveredByHumanScope(record, humanRequests, agentMessages);
       if (!matchedRequest) {
         issues.push(issue(
           'AGENT_WORK_OUTSIDE_REQUEST', 'warning', ticketOf(record), [participantOf(record)], [record.id],
           `Plan lub działanie agenta nie ma powiązanej intencji człowieka: ${record.statement.text}`,
           'Powiązać działanie z poleceniem człowieka albo uzyskać decyzję rozszerzającą zakres ticketu.',
+          'human', participantsForRole(communication, ticketOf(record), 'human'),
         ));
       }
     }
@@ -215,6 +242,7 @@ export function renderCommunicationMarkdown(analysis: CommunicationAnalysis): st
   if (analysis.issues.length === 0) lines.push('- Nie wykryto rozbieżności w dostępnych źródłach. Nie oznacza to automatycznego zatwierdzenia wykonania.');
   for (const item of analysis.issues) {
     lines.push(`- **${item.severity} / ${item.code} / ${item.ticket}** — ${item.detail} ${item.recordIds.map((id) => `[${id}]`).join(' ')}`);
+    lines.push(`  - Wymagana odpowiedź: ${item.responseRequiredRole} — ${item.responseRequiredFrom.join(', ') || 'nieprzypisany uczestnik'}`);
     lines.push(`  - Następny krok: ${item.suggestedAction}`);
   }
   return `${lines.join('\n')}\n`;
@@ -232,7 +260,7 @@ export function addCommunicationIssuesToDiagnostics(
     code: item.code,
     severity: item.severity,
     title: communicationIssueTitle(item.code),
-    detail: `${item.detail} Communication issue: ${item.id}. Ticket: ${item.ticket}. Participants: ${item.participantIds.join(', ')}.`,
+    detail: `${item.detail} Communication issue: ${item.id}. Ticket: ${item.ticket}. Participants: ${item.participantIds.join(', ')}. Required response: ${item.responseRequiredRole} (${item.responseRequiredFrom.join(', ') || 'unassigned'}).`,
     recordIds: [...item.recordIds],
     suggestedAction: item.suggestedAction,
   }));
@@ -254,6 +282,7 @@ function communicationIssueTitle(code: CommunicationIssue['code']): string {
     AGENT_COMMUNICATION_CONFLICT: 'Sprzeczne deklaracje agentów',
     HUMAN_AGENT_CONFLICT: 'Sprzeczność człowiek–agent',
     REQUEST_WITHOUT_AGENT_RESPONSE: 'Polecenie bez odpowiedzi agenta',
+    AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED: 'Niepotwierdzony claim agenta o decyzji człowieka',
     AGENT_CLAIM_WITHOUT_EVIDENCE: 'Claim agenta bez dowodu',
     AGENT_WORK_OUTSIDE_REQUEST: 'Praca agenta poza intencją człowieka',
   } satisfies Record<CommunicationIssue['code'], string>)[code];
@@ -297,6 +326,109 @@ function semanticMatch(left: IntentRecord, right: IntentRecord): boolean {
   return similarity(withoutTickets(left), withoutTickets(right)) >= 0.2;
 }
 
+function conflictSemanticMatch(left: IntentRecord, right: IntentRecord): boolean {
+  if (intersects(left.statement.target.paths, right.statement.target.paths)) return true;
+  if (left.statement.target.paths.length > 0 && right.statement.target.paths.length > 0) return false;
+  if (intersects(left.statement.target.symbols, right.statement.target.symbols)) return true;
+  const leftHasExplicitTarget = left.statement.target.paths.length > 0
+    || left.statement.target.symbols.length > 0;
+  const rightHasExplicitTarget = right.statement.target.paths.length > 0
+    || right.statement.target.symbols.length > 0;
+  if (leftHasExplicitTarget && rightHasExplicitTarget) return false;
+  return similarity(withoutTickets(left), withoutTickets(right)) >= 0.45;
+}
+
+function agentResponseCoversRequest(request: IntentRecord, agentMessages: IntentRecord[]): boolean {
+  const candidates = agentMessages.filter((record) => ticketOf(record) === ticketOf(request));
+  if (candidates.some((record) => semanticMatch(record, request))) return true;
+  const bySource = new Map<string, IntentRecord[]>();
+  for (const record of candidates) {
+    const key = `${participantOf(record)}:${record.source.path ?? record.id}`;
+    const values = bySource.get(key);
+    if (values) values.push(record);
+    else bySource.set(key, [record]);
+  }
+  return [...bySource.values()].some((records) => aggregateTopicMatch(request, records));
+}
+
+function aggregateTopicMatch(request: IntentRecord, records: IntentRecord[]): boolean {
+  const requested = new Set(topicKeywords(withoutTickets(request)));
+  const response = new Set(records.flatMap((record) => topicKeywords(withoutTickets(record))));
+  let shared = 0;
+  for (const topic of requested) if (response.has(topic)) shared += 1;
+  if (shared >= 2) return true;
+  return shared === 1 && records.some((record) =>
+    record.statement.action !== 'unknown'
+    && record.statement.action === request.statement.action);
+}
+
+function agentWorkCoveredByHumanScope(
+  record: IntentRecord,
+  humanRequests: IntentRecord[],
+  agentMessages: IntentRecord[],
+): boolean {
+  const requests = humanRequests.filter((request) => ticketOf(request) === ticketOf(record));
+  if (requests.some((request) => semanticMatch(request, record))) return true;
+  if (typeOf(record) === 'plan') {
+    const sourceRecords = agentSourceRecords(record, agentMessages);
+    return requests.some((request) =>
+      isBroadRequest(request)
+      && (sourceRecords.some((candidate) => semanticMatch(candidate, request))
+        || aggregateTopicMatch(request, sourceRecords)));
+  }
+  const plans = agentMessages.filter((candidate) =>
+    typeOf(candidate) === 'plan'
+    && ticketOf(candidate) === ticketOf(record)
+    && participantOf(candidate) === participantOf(record)
+    && semanticMatch(candidate, record));
+  return plans.some((plan) => agentWorkCoveredByHumanScope(plan, humanRequests, agentMessages));
+}
+
+function agentSourceRecords(record: IntentRecord, agentMessages: IntentRecord[]): IntentRecord[] {
+  return agentMessages.filter((candidate) =>
+    ticketOf(candidate) === ticketOf(record)
+    && participantOf(candidate) === participantOf(record)
+    && candidate.source.path === record.source.path);
+}
+
+function isBroadRequest(record: IntentRecord): boolean {
+  return record.statement.target.paths.length === 0
+    && record.statement.target.symbols.length === 0;
+}
+
+function isActionableAgentWork(record: IntentRecord): boolean {
+  if (record.statement.polarity !== 'positive') return false;
+  return new Set([
+      'add',
+      'analyze',
+      'block',
+      'configure',
+      'document',
+      'fix',
+      'remove',
+      'refactor',
+      'test',
+      'change',
+      'validate',
+    ]).has(record.statement.action)
+    || (['report', 'result', 'claim'].includes(typeOf(record)) && hasImplementationVerb(record.statement.text));
+}
+
+function isPositiveImplementationClaim(record: IntentRecord): boolean {
+  return record.statement.polarity === 'positive'
+    && (isActionableAgentWork(record) || hasImplementationVerb(record.statement.text))
+    && !new Set(['analyze', 'block']).has(record.statement.action);
+}
+
+function isHumanDecisionClaim(record: IntentRecord): boolean {
+  return /\b(?:owner|user|human|founder|właściciel|użytkownik|człowiek)\b.{0,60}\b(?:approved|accepted|authorized|zatwierdził|zaakceptował|upoważnił)\b/iu
+    .test(record.statement.text);
+}
+
+function hasImplementationVerb(value: string): boolean {
+  return /\b(?:added|built|changed|configured|created|documented|fixed|implemented|removed|refactored|tested|validated)\b/i.test(value);
+}
+
 function withoutTickets(record: IntentRecord): string {
   let value = record.statement.text;
   for (const ticket of record.statement.target.tickets) {
@@ -316,6 +448,17 @@ function participantOf(record: IntentRecord): string {
     : typeof record.metadata.participant === 'string'
     ? record.metadata.participant
     : record.statement.actor ?? `unknown:${record.id}`;
+}
+
+function participantsForRole(
+  records: IntentRecord[],
+  ticket: string,
+  role: Exclude<CommunicationRole, 'unknown'>,
+): string[] {
+  return [...new Set(records
+    .filter((record) => ticketOf(record) === ticket && roleOf(record) === role)
+    .map(participantOf))]
+    .sort();
 }
 
 function roleOf(record: IntentRecord | undefined): CommunicationRole {
@@ -352,12 +495,29 @@ function append(map: Map<string, string[]>, key: string, value: string): void {
 function issue(
   code: CommunicationIssue['code'], severity: CommunicationIssueSeverity, ticket: string,
   participantIds: string[], recordIds: string[], detail: string, suggestedAction: string,
+  responseRequiredRole: CommunicationRole, responseRequiredFrom: string[],
 ): CommunicationIssue {
   const sortedParticipants = [...new Set(participantIds)].sort();
   const sortedRecords = [...new Set(recordIds)].sort();
+  const sortedRespondents = [...new Set(responseRequiredFrom)].sort();
   return {
-    id: createIntentId({ code, ticket, participantIds: sortedParticipants, recordIds: sortedRecords }, 'COMM'),
-    code, severity, ticket, participantIds: sortedParticipants, recordIds: sortedRecords, detail, suggestedAction,
+    id: createIntentId({
+      code,
+      ticket,
+      participantIds: sortedParticipants,
+      recordIds: sortedRecords,
+      responseRequiredRole,
+      responseRequiredFrom: sortedRespondents,
+    }, 'COMM'),
+    code,
+    severity,
+    ticket,
+    participantIds: sortedParticipants,
+    recordIds: sortedRecords,
+    responseRequiredRole,
+    responseRequiredFrom: sortedRespondents,
+    detail,
+    suggestedAction,
   };
 }
 

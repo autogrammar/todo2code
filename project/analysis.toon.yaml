@@ -1,6 +1,6 @@
-# code2llm | 232f 36133L | typescript:102,md:50,json:29,python:13,javascript:10,rust:7,go:6,shell:5,php:3,toml:2,yml:1,txt:1,java:1 | 2026-07-30
-# generated in 0.17s
-# CC̅=3.9 | critical:99/2821 | dups:0 | cycles:0
+# code2llm | 233f 38492L | typescript:102,md:50,json:30,python:13,javascript:10,rust:7,go:6,shell:5,php:3,toml:2,yml:1,txt:1,java:1 | 2026-07-31
+# generated in 0.18s
+# CC̅=3.9 | critical:99/2840 | dups:0 | cycles:0
 
 HEALTH[20]:
   🔴 GOD   src/synthesis/tasks-llm.ts = 617L, 7 classes, 75m, max CC=9
@@ -31,7 +31,7 @@ REFACTOR[5]:
   4. split src/core/types.ts  (god module)
   5. split 16 high-CC methods  (CC>15)
 
-PIPELINES[1596]:
+PIPELINES[1604]:
   [1] Src [parsed]: parsed → printHelp
       PURITY: 100% pure
   [2] Src [command]: command → printHelp
@@ -145,35 +145,35 @@ LAYERS:
   │ !! types.ts                   657L  39C    0m  CC=0.0    ←0
   │ !! tasks-llm.ts               617L  7C   75m  CC=9      ←1
   │ !! run.ts                     598L  1C   64m  CC=53     ←0
+  │ !! reality.ts                 564L  3C   72m  CC=22     ←0
   │ !! a2a-task-store.ts          513L  3C   81m  CC=11     ←0
-  │ !! reality.ts                 494L  3C   64m  CC=22     ←0
   │ !! llm.ts                     492L  7C   50m  CC=18     ←0
   │ !! linker.ts                  487L  4C   70m  CC=16     ←0
+  │ !! text.ts                    482L  0C   50m  CC=34     ←0
   │ summarizer.ts              412L  5C   34m  CC=10     ←0
   │ !! analyzer.ts                374L  3C   47m  CC=40     ←0
   │ todo-patch.ts              372L  5C   52m  CC=12     ←0
-  │ !! text.ts                    346L  0C   46m  CC=34     ←0
   │ workspace.ts               327L  3C   54m  CC=12     ←0
   │ a2a.ts                     320L  0C   45m  CC=9      ←0
   │ mcp-tools.ts               307L  1C   10m  CC=8      ←0
   │ !! markdown-llm.ts            304L  4C   31m  CC=17     ←0
   │ !! openrouter.ts              302L  7C   34m  CC=25     ←0
+  │ gold-types.ts              293L  13C    8m  CC=12     ←0
   │ !! validation.ts              281L  0C   47m  CC=84     ←0
+  │ gold.ts                    274L  3C   30m  CC=12     ←0
   │ !! communication.ts           273L  2C   56m  CC=68     ←0
   │ !! docs-deterministic.ts      270L  1C   29m  CC=18     ←0
   │ !! nl-llm.ts                  266L  4C   38m  CC=18     ←0
   │ !! diagnostics.ts             263L  0C   25m  CC=32     ←1
+  │ gold-cases.ts              263L  3C   33m  CC=10     ←0
   │ mcp.ts                     261L  2C   38m  CC=9      ←0
   │ text-render.ts             251L  2C   33m  CC=13     ←0
   │ !! watcher.ts                 243L  4C   37m  CC=19     ←0
   │ !! text.ts                    239L  1C   48m  CC=19     ←1
   │ diff.ts                    235L  1C   38m  CC=11     ←0
-  │ gold-cases.ts              228L  2C   31m  CC=9      ←0
-  │ gold.ts                    227L  3C   27m  CC=9      ←0
   │ !! a2a-history.ts             226L  3C   37m  CC=18     ←0
   │ env.ts                     216L  1C   20m  CC=13     ←0
   │ configuration.ts           208L  1C   38m  CC=10     ←0
-  │ gold-types.ts              208L  11C    8m  CC=7      ←0
   │ !! code-change-path.ts        200L  0C   14m  CC=35     ←0
   │ ignore.ts                  200L  3C   23m  CC=10     ←0
   │ docs-llm.ts                196L  1C   23m  CC=4      ←0
@@ -190,10 +190,10 @@ LAYERS:
   │ a2a-types.ts               160L  9C   14m  CC=10     ←0
   │ types.ts                   155L  8C    0m  CC=0.0    ←0
   │ docs-chunks.ts             147L  0C   29m  CC=8      ←0
+  │ gold-extraction.ts         127L  0C   13m  CC=5      ←0
   │ subactor.ts                122L  1C    9m  CC=13     ←0
   │ validation.ts              113L  2C   28m  CC=11     ←0
   │ nl.ts                      107L  1C   12m  CC=10     ←0
-  │ gold-extraction.ts         104L  0C   11m  CC=4      ←0
   │ svg.ts                     104L  2C    7m  CC=2      ←0
   │ !! identity.ts                100L  3C   14m  CC=30     ←0
   │ !! classifier.ts               96L  4C   27m  CC=17     ←0
@@ -324,19 +324,19 @@ LAYERS:
   │ Cargo.toml                  12L  0C    0m  CC=0.0    ←0
   │
   ./                              CC̄=0.0    ←in:0  →out:0
-  │ !! README.md                  830L  0C    0m  CC=0.0    ←0
-  │ CHANGELOG.md               485L  0C    0m  CC=0.0    ←0
-  │ TODO.md                    242L  0C    0m  CC=0.0    ←0
+  │ !! README.md                  835L  0C    0m  CC=0.0    ←0
+  │ !! CHANGELOG.md               532L  0C    0m  CC=0.0    ←0
+  │ TODO.md                    282L  0C    0m  CC=0.0    ←0
   │ Makefile                   114L  0C    0m  CC=0.0    ←0
   │ Dockerfile                  45L  0C    0m  CC=0.0    ←0
-  │ package.json                43L  0C    0m  CC=0.0    ←0
+  │ package.json                44L  0C    0m  CC=0.0    ←0
   │ CONTRIBUTION.md             37L  0C    0m  CC=0.0    ←0
   │ tsconfig.json               23L  0C    0m  CC=0.0    ←0
   │ docker-compose.yml          18L  0C    0m  CC=0.0    ←0
   │ TASK.md                     15L  0C    0m  CC=0.0    ←0
   │
   schemas/                        CC̄=0.0    ←in:0  →out:0
-  │ gold-dataset.schema.json   435L  0C    0m  CC=0.0    ←0
+  │ !! gold-dataset.schema.json   505L  0C    0m  CC=0.0    ←0
   │ intent-record.schema.json   132L  0C    0m  CC=0.0    ←0
   │ code-change-plan.schema.json    98L  0C    0m  CC=0.0    ←0
   │ operation-plan.schema.json    94L  0C    0m  CC=0.0    ←0
@@ -366,8 +366,9 @@ LAYERS:
   │ markdown-to-intent.system.md     5L  0C    0m  CC=0.0    ←0
   │
   evaluation/                     CC̄=0.0    ←in:0  →out:0
+  │ !! dataset.json              1698L  0C    0m  CC=0.0    ←0
   │ !! dataset.json               761L  0C    0m  CC=0.0    ←0
-  │ README.md                   44L  0C    0m  CC=0.0    ←0
+  │ README.md                   76L  0C    0m  CC=0.0    ←0
   │
   docs/                           CC̄=0.0    ←in:0  →out:0
   │ !! SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md   872L  0C    0m  CC=0.0    ←0
@@ -379,12 +380,12 @@ LAYERS:
   │ CLI_GUIDE.md               297L  0C    0m  CC=0.0    ←0
   │ GROK-PLAN.md               266L  0C    0m  CC=0.0    ←0
   │ OPTIMIZATION.md            230L  0C    0m  CC=0.0    ←0
+  │ READINESS.md               228L  0C    0m  CC=0.0    ←0
   │ ARCHITECTURE.md            198L  0C    0m  CC=0.0    ←0
   │ TEAM_COMMUNICATION.md      180L  0C    0m  CC=0.0    ←0
   │ DEMOLLM.md                 175L  0C    0m  CC=0.0    ←0
   │ CODE_CHANGE_PLANS.md       173L  0C    0m  CC=0.0    ←0
   │ VALIDATION.md              162L  0C    0m  CC=0.0    ←0
-  │ READINESS.md               158L  0C    0m  CC=0.0    ←0
   │ PROTOCOLS.md               124L  0C    0m  CC=0.0    ←0
   │ SECURITY.md                 49L  0C    0m  CC=0.0    ←0
   │ REQUIREMENTS.md             39L  0C    0m  CC=0.0    ←0

@@ -1,0 +1,48 @@
+2026-07-31 ticket initialization
+
+Input from ticket-005 live evaluation:
+- attempt 1: no decisions array,
+- attempt 2: judgments instead of decisions,
+- attempt 3: invalid confidence type/range,
+- all attempts failed closed,
+- no relation or coverage change was accepted.
+
+Selected next work:
+canonical structured-output conformance and precise provider diagnostics.
+
+Workflow state: PLAN
+
+2026-07-31 offline conformance implementation
+
+- provider schema and runtime validator share
+  src/semantic/reranker-response.ts,
+- verdict/reason values and compatibility rule share
+  src/semantic/reranker.ts,
+- published schema drift is checked in semantic-reranker.test.ts,
+- invalid response error identifies property + provider/model/response ID,
+- no raw response persistence and no coercion,
+- focused semantic tests: 5/5 PASS.
+
+Workflow transition: PLAN -> TOOLS
+
+2026-07-31 tracked live comparison
+
+- root: clean subactor/platform worktree,
+- commit: 3e96573d587cb664741849ceba205bf303b9f418,
+- candidates: reciprocal E5 selected top-1, 6 declarations,
+- qwen/qwen3.7-plus: three prior contract failures from ticket-005,
+- qwen/qwen3.7-flash:
+  response.decisions[0] contains unknown properties: decision,
+- response identity:
+  Alibaba/qwen/qwen3.7-flash/gen-1785490219-noOw2NdfoPMqC6dLf7x6,
+- graph mutations: 0.
+
+Final gates:
+- npm run verify: 252 total, 251 pass, 0 fail, 1 local JDK skip,
+- gold v2/v1: PASS,
+- examples:check: PASS, 227 records, 97 relations, five SDKs,
+- npm audit --omit=dev: 0 vulnerabilities,
+- CLI, MCP, A2A and Docker smoke: PASS.
+
+Decision: retain conformance diagnostics; reject production semantic
+enablement. Workflow state: DONE.

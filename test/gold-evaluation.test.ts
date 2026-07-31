@@ -78,6 +78,26 @@ test('gold known gaps are measured and kept out of precision and recall', async 
   assert.match(renderGoldReportMarkdown(report), /Known linking gaps: \*\*0\/\d+\*\*/);
 });
 
+test('gold reports cross-language positives and hard negatives as a separate cohort', async () => {
+  const dataset = await loadGoldDataset(DATASET);
+  const report = await evaluateGoldDataset(dataset);
+
+  assert.ok(report.linking.crossLanguage.cases >= 6);
+  assert.ok(report.linking.crossLanguage.expected >= 6);
+  assert.ok(report.linking.crossLanguage.forbidden >= 6);
+  assert.equal(report.linking.crossLanguage.satisfied, 0);
+  assert.equal(report.linking.crossLanguage.forbiddenViolations, 0);
+  assert.equal(
+    report.linking.semanticReranking.satisfied,
+    report.linking.semanticReranking.expected,
+  );
+  assert.ok(report.linking.semanticReranking.expected >= 6);
+  assert.equal(report.linking.semanticReranking.forbiddenViolations, 0);
+  assert.equal(report.linking.semanticReranking.abstained, 1);
+  assert.match(renderGoldReportMarkdown(report), /Cross-language linking: \*\*0\/\d+\*\*/);
+  assert.match(renderGoldReportMarkdown(report), /Cross-language reranking: \*\*6\/6\*\*/);
+});
+
 test('gold diagnostics separate a false DONE claim from an evidenced one', async () => {
   const dataset = await loadGoldDataset(DATASET);
   const report = await evaluateGoldDataset(dataset);
@@ -108,6 +128,17 @@ test('gold loader rejects unsupported dataset versions', async () => {
   await assert.rejects(
     () => evaluateGoldDataset({ schemaVersion: 't2c.gold-dataset/v3' } as never),
     /Unsupported gold dataset schemaVersion/,
+  );
+});
+
+test('gold evaluator rejects unknown linking cohorts', async () => {
+  const dataset = await loadGoldDataset(DATASET);
+  const linking = dataset.linking.map((fixture, index) => (
+    index === 0 ? { ...fixture, cohort: 'hidden-blended-score' as never } : fixture
+  ));
+  await assert.rejects(
+    () => evaluateGoldDataset({ ...dataset, linking }),
+    /Unsupported gold linking cohort/,
   );
 });
 

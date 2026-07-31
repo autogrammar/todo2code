@@ -10,18 +10,19 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrola | Wynik |
 |---|---|
 | TypeScript `strict` / `npm run check` | PASS |
-| Transitive no-LLM import boundary | PASS — 9 entrypointów, 30 modułów |
-| Granice modułów | PASS — 93 moduły, 426 importów wewnętrznych, brak cykli, niezależny `src/core` |
+| Transitive no-LLM import boundary | PASS — 9 entrypointów, 31 modułów |
+| Granice modułów | PASS — 97 modułów, 441 importów wewnętrznych, brak cykli, niezależny `src/core` |
 | Kontrakt środowiska | PASS — 63 zmienne kodu/Dockera/skryptów, 63 klucze `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 239 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
-| Pipeline `examples/` | PASS — 227 rekordów i 98 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
+| Testy Node | PASS — 251 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Pipeline `examples/` | PASS — 227 rekordów i 97 relacji, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17 oraz Rust fixture i `cargo test` |
 | Audytowane NL → DSL | PASS — mock LLM, oznaczony fallback i błąd `require-llm` |
 | Audytowane TODO/CHANGELOG → DSL | PASS — zachowanie struktury, runtime validation, oznaczony fallback i błąd `require-llm` |
-| `npm run evaluate:gold` | PASS — gold v2: ekstrakcja (4 kanały), linkowanie (`exact-target` 6, `capability-topic` 8) i kody diagnostyk 100% precision/recall; cytowania 100%; klasyfikacja duplikatów 100% precision/recall; 0 naruszeń par i kodów zabronionych; deduplication rate 50%; udokumentowana luka `knownGap` 0/1 poza metryką; stabilność 2/2 przebiegów |
+| `npm run evaluate:gold` | PASS — gold v2: ekstrakcja (4 kanały), linkowanie (`exact-target` 6, `capability-topic` 8) i kody diagnostyk 100% precision/recall; cytowania i klasyfikacja duplikatów 100%; linker cross-language 0/6, captured reranker 6/6 z 0/6 naruszeń i 1 abstencją; `knownGap` 0/6 poza metryką; stabilność 2/2 przebiegów |
+| Eksperymentalny reranker live | REJECTED/FAIL-CLOSED — czysty tracked snapshot platformy; Plus łamie envelope/typ, Flash dodaje `decisions[0].decision`; 0 relacji i brak eksportu produkcyjnego |
 | Pełny kontrakt runtime DSL | PASS — exact keys, enumy, ID/hash/czas/linie, relacje, końce i statystyki grafu |
 | Governed operation-plan DSL | PASS — 9 testów ID/hash, authority, sekretów, ryzyka, rollbacku, fail-closed bindingów i prywatnego atomowego artefaktu bez overwrite/dispatch |
 | Code-change plan, source patch i acceptance | PASS — 17 testów: ugruntowane i użyteczne ścieżki/ID, content hash, risk/rollback, provenance, tampering/sekrety, persisted CLI, zatwierdzone apply z preflightem/rollbackiem oraz re-diagnose pass/fail |
@@ -40,7 +41,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Diff graf/pliki/Git i reality: JSON/SVG/HTML/Markdown | PASS |
 | Origin → niecommitowany workspace | PASS — prawdziwy bare origin i prywatny worktree |
 | Python wheel + lokalny most do TypeScript runtime | PASS — test wykonuje reality bez serwera |
-| `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `DEMO-101` wykrywa konflikty człowiek–człowiek i człowiek–agent oraz pracę poza zakresem; wariant `--no-ast` wykrywa claim bez dowodu |
+| `project/<ticket>`: komunikacja ludzi i agentów | PASS — główny pipeline, manifest/history/UI/filter/watch; `user-*`/`ai-*` zachowują rolę i typ sekcji, dowody ticketu są pomijane, a każdy problem wskazuje `responseRequiredRole` i `responseRequiredFrom`; migracja Opus/GPT wykrywa brak typu i nie myli różnych plików |
 | Audytowane wzbogacanie komunikacji | PASS — mock structured OpenRouter, syntezy per uczestnik z cytowaniami, zachowane runtime-owned identity/role/ticket/source/epistemic class, jawny fallback i `require-llm` |
 | `t2c.participant-registry/v1` | PASS — exact stable IDs, mapowanie Git/A2A/human aliases, wykrywanie duplikatów i konfliktów; brak dopasowania po display name |
 | `npm run examples:check` | PASS — offline demo, `DEMO-101`, strict backend/frontend, HTTP integration i 5 SDK ze wspólnym fingerprintem grafu `438b4742f8149178` oraz patcha `3aa54acb84df28c2` |
@@ -55,7 +56,7 @@ zawartości prywatnego `.env`.
 
 Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
 offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 240 testów, 239 zaliczonych, 0 błędów i 1 lokalny skip JDK.
+Wynik: 252 testy, 251 zaliczonych, 0 błędów i 1 lokalny skip JDK.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
@@ -137,6 +138,10 @@ timeout, bez powtórnego schema-fallbacku. Ten sam 2000-znakowy chunk na
 `qwen/qwen3.7-flash` zakończył się powodzeniem: 10 rekordów, jedno response ID,
 resolved provider `Alibaba` i 5900 total tokens. Dowodzi to poprawności ścieżki
 runtime; `plus` pozostaje problemem latencji providera dla przyjętego SLA.
+Był to etap ekstrakcji/podsumowania, a nie eksperymentalny reranker semantyczny.
+Późniejsza próba rerankera na Flash została odrzucona przed zmianą grafu z
+powodu dodatkowego pola `response.decisions[0].decision`, zgodnie z wynikiem w
+tabeli powyżej.
 Szeroki glob `.intent/**/*.md` pozostaje zablokowany; domyślne exclusions może
 ominąć wyłącznie literalny `.intent/runs/<id>/team-summary.md`.
 

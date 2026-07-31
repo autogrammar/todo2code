@@ -1,8 +1,8 @@
-# redup/duplication | 14 groups | 148f 25790L | 2026-07-30
+# redup/duplication | 14 groups | 148f 26186L | 2026-07-31
 
 SUMMARY:
   files_scanned: 148
-  total_lines:   25790
+  total_lines:   26186
   dup_groups:    14
   actionable:    14
   review:        0
@@ -12,13 +12,13 @@ SUMMARY:
   generated_L:   0
   dup_fragments: 35
   saved_lines:   93
-  scan_ms:       1009
+  scan_ms:       1052
 
 HOTSPOTS[7] (files with most duplication):
   src/extractors/markdown-llm.ts  dup=23L  groups=4  frags=4  (0.1%)
   src/communication/llm.ts  dup=23L  groups=4  frags=4  (0.1%)
   src/extractors/nl-llm.ts  dup=18L  groups=5  frags=5  (0.1%)
-  src/synthesis/tasks-llm.ts  dup=13L  groups=3  frags=3  (0.1%)
+  src/synthesis/tasks-llm.ts  dup=13L  groups=3  frags=3  (0.0%)
   src/extractors/docs-llm.ts  dup=12L  groups=3  frags=3  (0.0%)
   src/summary/summarizer.ts  dup=9L  groups=2  frags=2  (0.0%)
   scripts/verify-env-contract.mjs  dup=9L  groups=1  frags=1  (0.0%)
