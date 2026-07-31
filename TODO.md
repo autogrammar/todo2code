@@ -274,10 +274,19 @@ guardem intencji: LLM może proponować, runtime waliduje, człowiek zatwierdza.
 - [ ] Zbadać 69 deklaracji `subactor/platform`, które dotykają kilku modułów i
   dlatego celowo nie dostają kotwicy. Rozstrzygnięcie ich wymaga dowodu
   mocniejszego niż wspólne tematy — bez niego wybór modułu byłby zgadywaniem.
-- [ ] Zmierzyć, czy wpisy changelogu powinny uczestniczyć w dopasowaniu
-  tematycznym. `isModuleTopicSource` obejmuje `module_fact`, `nl`, `todo` i
-  `document`, więc wpis wydania dosięga modułu tylko przez jawny ticket, symbol
-  lub ścieżkę — co bezpośrednio podnosi `CHANGELOG_WITHOUT_IMPLEMENTATION`.
+- [x] Zmierzone i odrzucone: wpisy changelogu **nie** powinny trafić do
+  `isModuleTopicSource`. Na `subactor/platform` ze 111 diagnostyk
+  `CHANGELOG_WITHOUT_IMPLEMENTATION` dopasowanie tematyczne sięgnęłoby dokładnie
+  jednego modułu w 8 przypadkach (7%) przy 15 niejednoznacznych; w tym repo ze
+  121 diagnostyk — 7 (6%) przy **105 niejednoznacznych (87%)**. Wpis wydania
+  opisuje zwykle zmianę w kilku modułach naraz, więc dopuszczenie go do
+  dopasowania tematycznego kupiłoby kilka procent mniej diagnostyk za setkę
+  arbitralnych relacji.
+- [ ] Rozważyć węższy wariant tego samego: pozwolić kotwicy z
+  Intent-vs-Reality (`indexModuleAnchors`) objąć wpis changelogu, gdy trafia
+  w dokładnie jeden moduł. To 8 i 7 przypadków wyżej, bez wpuszczania
+  niejednoznacznych do grafu — ale zmienia znaczenie
+  `CHANGELOG_WITHOUT_IMPLEMENTATION`, więc wymaga decyzji, nie samego pomiaru.
 - [x] Wzmocnić NL→target: odrzucanie absolutnych/HTTP/traversal path i
   hostnames; ticket binding w gold exact-target.
 - [x] Dalsze NL→target: resolution symboli względem AST bez zgadywania
