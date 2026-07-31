@@ -210,10 +210,13 @@ No ticket is currently active.
   added to `LANE_ORDER`, but the eight-lane table is now wide enough that the
   topic column truncates earlier; check whether a combined "evidence" column or
   a wider viewBox reads better.
-- [ ] Measure whether counting configuration as evidence hides genuine gaps.
-  A documented behaviour whose only evidence is a config key is weaker than one
-  backed by AST, yet both now yield `aligned`. Consider grading alignment by
-  evidence kind instead of treating all observed records as equal.
+- [x] Measure whether counting configuration as evidence hides genuine gaps, and
+  grade alignment by evidence kind. Measured on tracked `HEAD`: 16 of 46 aligned
+  topics on `subactor/platform` rest on configuration alone against 4 of 89 here,
+  so an undifferentiated headline reads the same for a repository whose evidence
+  is a third weaker. `RealityRow.evidence` and `totals.alignedByEvidence` now
+  report the split; neither changes what counts as `aligned`, because a
+  behaviour whose implementation *is* configuration is implemented.
 - [x] Scope `detectPolarity` so "without / bez + dopełnienie" does not negate
   the governing intent (for example "Document X without inventing files");
   covered by the offline gold set and a focused unit test.

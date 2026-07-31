@@ -4,6 +4,13 @@
 
 ### Added
 
+- Intent-vs-Reality grades aligned topics by evidence kind (`RealityRow.evidence`,
+  `totals.alignedByEvidence`, and a line in the Markdown report). Configuration
+  alone is weaker evidence than a parsed symbol or a commit, and until now both
+  produced an identical `aligned`: measured on tracked `HEAD`, 16 of 46 aligned
+  topics on `subactor/platform` rest on configuration against 4 of 89 here. The
+  grade never changes what counts as aligned — a behaviour whose implementation
+  is configuration is implemented.
 - `npm run live:models` (`make live-model-comparison`): an opt-in live comparison
   of models for the batched TODO/CHANGELOG stage, written as
   `t2c.live-model-comparison/v1`. The stage enriches in bounded 32-record

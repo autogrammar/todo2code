@@ -172,3 +172,49 @@ test('a declaration touching several modules keeps its own topic', () => {
   assert.equal(declarationRow.key, 'path:docs/architektura.md');
   assert.equal(declarationRow.status, 'planned_not_implemented');
 });
+
+test('aligned topics are graded by evidence without changing what counts as aligned', () => {
+  const configured = buildRecord({
+    kind: 'configuration_file_fact',
+    action: 'configure',
+    object: 'declare config/autonomy.json',
+    text: 'declare config/autonomy.json',
+    target: { paths: ['config/autonomy.json'], symbols: [], tickets: [], versions: [] },
+    lifecycle: 'implemented',
+    sourceKind: 'system',
+    sourcePath: 'config/autonomy.json',
+    sourceLines: { start: 1, end: 1 },
+    extractor: 'test',
+    epistemicClass: 'fact',
+    confidence: 1,
+    basis: ['test'],
+  });
+  const declaration = buildRecord({
+    kind: 'documentation_statement',
+    action: 'configure',
+    object: 'autonomy configuration',
+    text: 'The runtime must read `config/autonomy.json` before granting autonomy',
+    target: { paths: ['config/autonomy.json'], symbols: [], tickets: [], versions: [] },
+    modality: 'required',
+    lifecycle: 'proposed',
+    sourceKind: 'document',
+    sourcePath: 'docs/autonomy.md',
+    sourceLines: { start: 3, end: 3 },
+    extractor: 'test',
+    epistemicClass: 'declaration',
+    confidence: 1,
+    basis: ['test'],
+  });
+  const graph = linkIntentRecords([configured, declaration], '2026-07-29T00:00:00.000Z');
+  const view = buildRealityView(graph, diagnoseGraph(graph), '2026-07-29T00:01:00.000Z');
+  const row = view.rows.find((item) => item.key === 'path:config/autonomy.json');
+
+  // A behaviour whose implementation *is* configuration is implemented, so the
+  // grade must not demote it — it only says the evidence is weaker than a
+  // parsed symbol, which an undifferentiated `aligned` could not express.
+  assert.equal(row?.status, 'aligned');
+  assert.equal(row?.evidence, 'configuration');
+  assert.equal(view.totals.aligned, 1);
+  assert.deepEqual(view.totals.alignedByEvidence, { code: 0, configuration: 1, none: 0 });
+  assert.match(renderRealityMarkdown(view), /Aligned evidence: 0 backed by code or commits, 1 by configuration alone/);
+});

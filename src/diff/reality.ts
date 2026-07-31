@@ -49,6 +49,18 @@ export type RealityStatus =
   | 'conflicting'
   | 'unlinked';
 
+/**
+ * What kind of observed record proves a topic.
+ *
+ * `configuration` means the only evidence is a declared key in a committed
+ * file. That is real — a behaviour whose implementation *is* configuration is
+ * implemented — but it is weaker than a function the parser found, and until
+ * now both produced an identical `aligned` with nothing to tell them apart.
+ * Measured: 16 of 46 aligned topics on `subactor/platform` rest on
+ * configuration alone, against 4 of 89 here.
+ */
+export type RealityEvidence = 'code' | 'configuration' | 'none';
+
 export interface RealityRow {
   key: string;
   label: string;
@@ -57,6 +69,8 @@ export interface RealityRow {
   severity: DiagnosticSeverity;
   recordIds: string[];
   diagnosticCodes: DiagnosticCode[];
+  /** Graded, not gated: this never changes whether a topic counts as aligned. */
+  evidence: RealityEvidence;
 }
 
 export interface IntentRealityView {
@@ -86,6 +100,12 @@ export interface IntentRealityView {
      * offline run produced that number.
      */
     documentationMeasured: boolean;
+    /**
+     * Aligned topics split by how strong their evidence is. Reported so a
+     * headline that rests mostly on configuration cannot read the same as one
+     * backed by parsed code; neither number changes what counts as aligned.
+     */
+    alignedByEvidence: Record<RealityEvidence, number>;
   };
 }
 
@@ -164,6 +184,7 @@ export function buildRealityView(
       severity: status === 'aligned' ? 'info' : severity,
       recordIds: records.map((record) => record.id).sort(),
       diagnosticCodes: [...codes].sort(),
+      evidence: resolveEvidence(lanes),
     };
   });
 
@@ -203,6 +224,11 @@ export function buildRealityView(
       topics: rows.length,
       aligned,
       gaps: rows.length - aligned,
+      alignedByEvidence: {
+        code: rows.filter((row) => row.status === 'aligned' && row.evidence === 'code').length,
+        configuration: rows.filter((row) => row.status === 'aligned' && row.evidence === 'configuration').length,
+        none: rows.filter((row) => row.status === 'aligned' && row.evidence === 'none').length,
+      },
       byStatus: Object.fromEntries(Object.entries(byStatus).sort(([a], [b]) => a.localeCompare(b))),
       declaredRecords,
       observedRecords,
@@ -396,6 +422,20 @@ function indexDiagnostics(report: DiagnosticReport): Map<string, DiagnosticRepor
  * holds both declared and observed records is never reported as "planned, no
  * code" just because one of its members carries that diagnostic.
  */
+/**
+ * Grades observed evidence without regrading the topic.
+ *
+ * AST or Git evidence outranks configuration: a parser found the symbol, or a
+ * commit touched the file. Configuration alone still proves the behaviour
+ * exists, so it stays `aligned` — the caller decides what to do with a
+ * headline where most of the alignment is configuration.
+ */
+function resolveEvidence(lanes: Record<string, number>): RealityEvidence {
+  if ((lanes.ast ?? 0) > 0 || (lanes.git ?? 0) > 0) return 'code';
+  if ((lanes.system ?? 0) > 0) return 'configuration';
+  return 'none';
+}
+
 function resolveStatus(codes: Set<DiagnosticCode>, lanes: Record<string, number>): RealityStatus {
   const declared = DECLARED_KINDS.reduce((total, kind) => total + (lanes[kind] ?? 0), 0);
   const observed = OBSERVED_KINDS.reduce((total, kind) => total + (lanes[kind] ?? 0), 0);
@@ -547,6 +587,7 @@ export function renderRealityMarkdown(view: IntentRealityView, maxRows = 40): st
     `- Topics: ${view.totals.topics} (aligned ${view.totals.aligned}, divergent ${view.totals.gaps})`,
     `- Declared records: ${view.totals.declaredRecords}, observed records: ${view.totals.observedRecords}`,
     `- Implementation coverage: ${(view.totals.implementationCoverage * 100).toFixed(1)}% of declared topics; planned code: ${(view.totals.plannedCodeCoverage * 100).toFixed(1)}%; documented code: ${documentedCoverageLabel(view.totals)}`,
+    `- Aligned evidence: ${view.totals.alignedByEvidence.code} backed by code or commits, ${view.totals.alignedByEvidence.configuration} by configuration alone`,
     '',
     `| Topic | ${LANE_ORDER.map((kind) => kind.toUpperCase()).join(' | ')} | Status |`,
     `|---|${LANE_ORDER.map(() => '--:').join('|')}|---|`,
