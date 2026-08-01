@@ -76,6 +76,14 @@ bounded Vallm review round. The review combines deterministic syntax,
 complexity and security checks with an OpenRouter semantic judge supplied by
 the existing organization-level `OPENROUTER_API_KEY` secret.
 
+The semantic judge is `google/gemini-3.1-pro-preview`, selected from the current
+live `llm-code-benchmark/v1` report because it is the only compared model that
+qualified for both repair and validation (repair 1.000, validation 0.929,
+security 1.000 and availability 100%). Vallm's Python-oriented `--regression`
+mode is intentionally not used for TypeScript: the separate required `verify`
+job owns the repository's 335-test regression suite, while Koru remains the
+read-only semantic, syntax, complexity and security review boundary.
+
 The workflow will never use `pull_request_target`, check out untrusted code
 with a write-capable token, modify source, auto-fix, commit, push or submit a
 GitHub `APPROVE` review. A missing secret or semantic-provider failure is an
@@ -234,6 +242,14 @@ remain historical evidence, not evidence for AC-11..AC-17.
   artifact upload and attestation still succeeded. The attested report digest
   is `sha256:fa0f4d0c1f780bb8d21f56ca74d8ae901e184fb4996f9e84832a87846adfc1d8`.
   No credential value appears in the workflow output.
+- Pull request #3 exposed that the original Koru configuration had drifted from
+  the current benchmark winner. Run `30712589077` still used
+  `openrouter/deepseek/deepseek-v4-pro`; Vallm also attempted `pytest` for the
+  TypeScript diff and the semantic request failed with OpenRouter 401 `User not
+  found`. The workflow now uses the qualified Gemini model and delegates
+  regression to the already passing required `verify` job. The 401 cannot be
+  repaired in repository code: a trusted repository or organization owner must
+  rotate the `OPENROUTER_API_KEY` Actions secret and rerun the exact commit.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,

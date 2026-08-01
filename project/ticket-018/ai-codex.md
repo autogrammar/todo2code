@@ -150,6 +150,12 @@ Current verified baseline:
   and Koru status checks, mandatory pull requests, stale-evidence dismissal and
   force-push/deletion prevention. It remains disabled solely for the final
   bootstrap evidence merge and will be activated afterward.
+- Revalidated Koru after the model-adoption benchmark. Pull request #3 showed
+  that the workflow still used stale DeepSeek, invoked Python `pytest` for a
+  TypeScript diff and received OpenRouter 401. Updated the semantic judge to
+  benchmark-qualified Gemini 3.1 Pro Preview, left regression ownership with
+  the required Node `verify` job, and did not read or overwrite the external
+  Actions secret.
 
 ## Blockers
 

@@ -233,3 +233,38 @@ bypass actors: none
 current_user_can_bypass: never
 rules: pull request, dismiss stale reviews, block deletion/force-push,
 strict required checks governance / enforce and koru / code-review
+
+2026-08-01 KORU BENCHMARK MODEL ADOPTION
+$ inspect llm-code-benchmark/reports/latest/REPORT.md
+standard: llm-code-benchmark/v1
+winner: google/gemini-3.1-pro-preview
+repair=1.000 validator=0.929 security=1.000 availability=100.0%
+selection: only compared model qualified for both repair and validation
+
+$ inspect pull request #3 Koru run 30712589077 artifact
+configured model: openrouter/deepseek/deepseek-v4-pro (stale)
+selected files: src/config/env.ts, test/config-env.test.ts
+Vallm regression error: pytest is not installed for the TypeScript repository
+semantic provider error: OpenRouter 401 User not found
+report, artifact upload and provenance attestation: PASS
+enforced verdict: FAIL
+
+Decision:
+- use openrouter/google/gemini-3.1-pro-preview for the Koru semantic judge;
+- omit Vallm --regression because the required Node verify job owns regression;
+- retain fail-closed behavior for provider errors;
+- do not read, copy or overwrite the GitHub Actions secret. A trusted owner must
+  rotate OPENROUTER_API_KEY and rerun the exact commit.
+
+$ npm run verify:workflows
+Workflow YAML verified: 2 file(s), no duplicate top-level keys.
+
+$ npm run verify
+tests 335; pass 334; fail 0; skipped 1 (local JDK unavailable)
+module boundaries: 114 modules, 521 internal imports, no cycles
+workflow, schema, no-LLM and generated-analysis gates: PASS
+
+$ make governance
+Four inherited ticket-019 findings remain: GOV-CONFLICT-001,
+GOV-DEPENDENCY-002, GOV-WORKSTREAM-003 and GOV-WORKSTREAM-004.
+No ticket-018 scope, ownership or secret finding was emitted.

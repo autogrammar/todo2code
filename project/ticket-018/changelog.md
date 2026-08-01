@@ -1,5 +1,16 @@
 # Ticket Changelog (ticket-018)
 
+## [0.2.1] - 2026-08-01
+
+- Replaced the stale DeepSeek Koru judge with benchmark-qualified
+  `google/gemini-3.1-pro-preview`.
+- Removed Vallm's Python-specific regression mode from the TypeScript review;
+  the independent required `verify` job remains the authoritative regression
+  gate.
+- Recorded pull request #3 run `30712589077`: Koru evidence generation and
+  attestation worked, while the live semantic call failed with OpenRouter 401
+  `User not found`. Secret rotation remains an external trusted-owner action.
+
 ## [0.2.0] - 2026-08-01
 
 - Evolved the plan for concurrent humans/agents: named workstreams,
