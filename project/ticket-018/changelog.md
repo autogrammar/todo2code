@@ -10,6 +10,8 @@
 - Recorded pull request #3 run `30712589077`: Koru evidence generation and
   attestation worked, while the live semantic call failed with OpenRouter 401
   `User not found`. Secret rotation remains an external trusted-owner action.
+- Verified the new judge in pull request #4's attested no-source report; Koru,
+  Node/Docker verification and the required Java fixture passed remotely.
 
 ## [0.2.0] - 2026-08-01
 

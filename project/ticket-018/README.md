@@ -250,6 +250,12 @@ remain historical evidence, not evidence for AC-11..AC-17.
   regression to the already passing required `verify` job. The 401 cannot be
   repaired in repository code: a trusted repository or organization owner must
   rotate the `OPENROUTER_API_KEY` Actions secret and rerun the exact commit.
+- Pull request #4 run `30712853708` passed the read-only Koru gate for commit
+  `a4eb0f9`. Its attested `t2c.koru-code-review/v1` report records
+  `openrouter/google/gemini-3.1-pro-preview` and an empty supported-source set,
+  so no provider request or cost occurred. This proves the deployed workflow
+  configuration and no-source path; it does not supersede the required live
+  rerun after secret rotation.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,

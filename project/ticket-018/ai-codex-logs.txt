@@ -268,3 +268,20 @@ $ make governance
 Four inherited ticket-019 findings remain: GOV-CONFLICT-001,
 GOV-DEPENDENCY-002, GOV-WORKSTREAM-003 and GOV-WORKSTREAM-004.
 No ticket-018 scope, ownership or secret finding was emitted.
+
+2026-08-01 KORU REMOTE MODEL CONFIGURATION EVIDENCE
+$ GitHub pull request #4 / workflow run 30712853708
+reviewed base: 2e87205dcd0b06286529ca9fa8ab9518694e9068
+reviewed head: a4eb0f9155ce5fcac46dc5388370df7e18deb9a8
+report schema: t2c.koru-code-review/v1
+reported model: openrouter/google/gemini-3.1-pro-preview
+selected supported source files: 0
+provider request/cost: none; credential step skipped by design
+Koru report/artifact/attestation/enforced verdict: PASS
+Node verify including Docker smoke: PASS
+Java adapter with required JDK 17 fixture: PASS
+governance: FAIL on inherited ticket-019 state only
+
+Interpretation: this is commit-bound evidence for the deployed model and the
+no-source path. A live TypeScript semantic rerun is still required after a
+trusted owner rotates the failing OPENROUTER_API_KEY Actions secret.
