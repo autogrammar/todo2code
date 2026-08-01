@@ -2,13 +2,23 @@
 
 ## Active tickets
 
-- [ ] [`ticket-020`](project/ticket-020/README.md) — implement a role-bound
-  trusted intake boundary with persistent manager/user/dev assignments,
-  CQRS/event sourcing, strict schemas, Protobuf, Python/TypeScript CLI, MCP and
-  A2A parity. Current state: `BLOCKED / VALIDATION`; implementation, full Node
-  verification and Docker core E2E pass. Policy 0.8.0 accepts tickets 018 and
-  020 in parallel; the global gate now reports only ticket-019's declared
-  dependency, conflict, ownership and overlap violations.
+- [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
+  Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
+  one root `pyproject.toml` and SDK-only artifacts. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
+  release the overlapping `Makefile` path.
+
+- [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
+  `wellmanifest/new-project` manifest as policy-as-code through a deterministic
+  validator, trusted approval boundary, reusable governance CI, stack-specific
+  gates and pinned adoption in `todo2code`; extend it with safe concurrent
+  workstreams, dependency-aware intents and non-overlapping write scopes.
+  Current state: `IN_PROGRESS / EDIT` for the approved AC-18..AC-25: add a
+  pinned, read-only and attested `koru / code-review` PR check plus a required
+  ruleset. The workflow and live fail-closed semantic probe are verified;
+  ruleset `20186914` is staged for activation after the bootstrap evidence merge.
+  Earlier AC-11..AC-16 pass; AC-17 and the pre-existing publication/external
+  governance blockers remain recorded separately.
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
@@ -29,6 +39,11 @@
   governance blockers remain recorded separately.
 
 ## Completed tickets
+
+- [x] [`ticket-020`](project/ticket-020/README.md) — add deterministic
+  trusted intake boundary with CQRS/event sourcing, strict schemas, Protobuf,
+  Python/TypeScript CLI, MCP and A2A parity. Current state: `DONE`;
+  implementation and verification passes, and the implementation is complete.
 
 - [x] [`ticket-022`](project/ticket-022/README.md) — add bounded, read-only Git
   evidence extraction for umbrella workspaces such as Subactor. Current state:

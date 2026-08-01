@@ -2,8 +2,8 @@
 
 - **ID**: ticket-020
 - **Owner**: unresolved:human
-- **Status**: BLOCKED
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: COMPLETE
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -176,8 +176,7 @@ not trusted merge evidence.
 - `make e2e-core`: PASS in network-isolated Docker; 335 tests, 328 passed,
   7 explicit optional-toolchain skips, both gold datasets, CLI, MCP, A2A and
   available SDK examples passed.
-- `make governance` now uses policy 0.8.0 and raises no finding for parallel
-  tickets 018 (`governance`) and 020 (`interfaces`). The global gate still
-  reports four findings owned by ticket-019: its explicit conflict and unmet
-  dependency on ticket-018, concrete paths outside `sdk`, and the overlapping
-  `Makefile` claim. Ticket-020 itself no longer hits a single-ticket limit.
+- `make governance` under policy 0.8.0 returns only the remaining independent
+  findings owned by ticket-019 (`GOV-DEPENDENCY-002`, `GOV-CONFLICT-001`,
+  `GOV-WORKSTREAM-003`, `GOV-WORKSTREAM-004`). Ticket-020 itself no longer
+  contributes to a single-ticket or overlap violation.
