@@ -42,7 +42,8 @@ the governance workstream or through a separately approved ownership change.
 ## Validation evidence
 
 - Focused test: 2/2 passed.
-- Full `npm run verify`: 340 tests, 339 passed, 1 JDK-dependent skip, 0 failed.
+- Clean-base `npm run verify`: 337 tests, 336 passed, 1 JDK-dependent skip,
+  0 failed.
 - No OpenRouter request was made.
 - Governance reports no ticket-023 scope, ownership or secret finding. Its
   overall result remains blocked by four pre-existing ticket-019 findings.

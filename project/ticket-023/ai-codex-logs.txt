@@ -75,3 +75,18 @@ Makefile/goal.yaml claims.
 
 Ticket state: BLOCKED / VALIDATION pending independent protected review and
 resolution of the inherited repository-wide governance gate.
+
+2026-08-01 isolated branch publication preflight
+
+Rebased the two unpublished ticket-023 commits from local ticket-022 commit
+43b6a50 onto origin/main 2e87205. Conflict resolution retained ticket-023 only;
+`git diff origin/main...HEAD` lists no ticket-022 path.
+
+The first post-rebase test run executed four ignored stale
+dist/test/diff-git-umbrella artifacts from the former base and failed its three
+ticket-022 cases. Removed exactly those reproducible generated artifacts and
+repeated verification.
+
+$ npm run verify
+Final clean-base result: PASS, 337 tests, 336 passed, 1 JDK-dependent skip,
+0 failures. No paid provider request was made.
