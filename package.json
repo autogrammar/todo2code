@@ -1,6 +1,6 @@
 {
   "name": "todo2code",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "todo2code (t2c): audited intent and team-communication extraction, evidence graphs, origin-to-workspace comparison and grounded summaries through CLI, MCP and A2A.",
   "type": "module",
   "private": true,
@@ -44,5 +44,9 @@
   },
   "devDependencies": {
     "@types/node": ">=20 <25"
+  },
+  "author": {
+    "name": "Tom Sapletta",
+    "email": "tom@sapletta.com"
   }
 }

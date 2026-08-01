@@ -1,10 +1,14 @@
 {
   "name": "@todo2code/tensorflow-adapter-runtime",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "description": "Isolated optional TensorFlow runtime for todo2code action classification.",
   "license": "Apache-2.0",
   "dependencies": {
     "@tensorflow/tfjs-node": "4.22.0"
+  },
+  "author": {
+    "name": "Tom Sapletta",
+    "email": "tom@sapletta.com"
   }
 }

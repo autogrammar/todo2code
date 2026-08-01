@@ -5,8 +5,10 @@
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
-  gates and pinned adoption in `todo2code`. Current state:
-  `IN_PROGRESS / EDIT`; plan explicitly approved before implementation.
+  gates and pinned adoption in `todo2code`; extend it with safe concurrent
+  workstreams, dependency-aware intents and non-overlapping write scopes.
+  Current state: `IN_PROGRESS / EDIT` after explicit approval of the evolved
+  plan. Existing 0.7.0 publication blockers remain recorded in the ticket.
 
 ## Completed tickets
 

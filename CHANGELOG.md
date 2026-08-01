@@ -477,6 +477,23 @@
   from MIT to Apache License 2.0; README and container/package metadata now use
   the same SPDX identity.
 
+## [0.5.1] - 2026-08-01
+
+### Docs
+- Update README.md
+- Update TODO.md
+- Update project/ticket-018/README.md
+- Update project/ticket-018/ai-codex.md
+- Update project/ticket-018/changelog.md
+
+### Other
+- Update project/ticket-018/ai-codex-logs.txt
+- Update project/ticket-018/intent.json
+- Update python/.env.example
+- Update python/.gitignore
+- Update python/tests/test_python.py
+- Update rust-ast/tests/placeholder_test.rs
+
 ## [0.5.0] - 2026-07-30
 
 ### Added

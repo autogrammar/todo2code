@@ -21,3 +21,73 @@ User response: explicit approval of the presented ticket-018 plan.
 Transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT.
 Note: chat approval authorizes this local implementation; it is not represented
 as trusted GitHub merge approval.
+
+2026-08-01 GOVERNANCE VALIDATOR
+$ bash tests/governance-scripts.test.sh
+governance scripts: PASS
+$ bash tests/governance-validator.test.sh
+governance validator: PASS
+
+Positive target-scoped probe:
+GOV-PASS: passed (0 errors, 0 warnings)
+
+Negative probes:
+GOV-SCOPE-001: src/unplanned.ts is outside ticket intent (exit 1)
+GOV-OWNER-001: agent change to user-alice.md rejected (exit 1)
+GOV-APPROVAL-001: untrusted approval source rejected (exit 1)
+GOV-INTENT-003: ticket intent and implementation in one commit rejected (exit 1)
+
+2026-08-01 DOCKER E2E
+$ make e2e-core
+tests 328; pass 321; fail 0; skipped 7; both gold datasets PASS;
+CLI/MCP/A2A/examples PASS; T2C-E2E-000: PASS suite=core
+
+$ docker compose -f compose.e2e.yml run --rm --no-deps e2e-core <scoped governance command>
+GOV-PASS: passed (0 errors, 0 warnings)
+
+$ make e2e-full
+tests 328; pass 328; fail 0; skipped 0; both gold datasets PASS;
+CLI/MCP/A2A/examples PASS; SDK examples 5 languages;
+T2C-E2E-000: PASS suite=full
+
+2026-08-01 CONCURRENT PUBLICATION AUDIT
+Observed HEAD moved concurrently to:
+5f1f4bdc03776fb59dd490d6fd2ccebb78f5f2d6 Tom Softreck <tom@sapletta.com> refaktor
+No commit or push was performed by Codex.
+
+$ bash project/governance-check.sh --actor ci --base HEAD^ --enforce-approval --approval-source github-review --approved-ticket ticket-018
+exit=1
+GOV-INTENT-003: project/ticket-018/intent.json did not exist before the first implementation commit.
+GOV-SCOPE-001: nlp2uri.yaml, project/compact_flow.mmd,
+project/compact_flow.png, src/cli.ts, src/core/types.ts,
+src/extractors/runtime-cycle.ts, src/pipeline/run.ts and
+test/runtime-cycle.test.ts are outside ticket-018 intent.
+
+2026-08-01 MULTI-WORKSTREAM PLAN EVOLUTION
+$ command -v docker
+/usr/bin/docker
+
+$ docker info --format '{{.ServerVersion}}'
+29.1.3
+
+$ git status --short
+Result: concurrent modifications are present in .env.example, src/config/env.ts,
+src/interfaces/a2a.ts, test/a2a.test.ts and tests/fixtures/autonom-cycle.json.
+They are explicitly preserved outside the multi-workstream plan change.
+
+Transition: BLOCKED -> PLAN / WAIT_FOR_APPROVAL for AC-11..AC-17.
+No schema, validator, CI, application source or test implementation changed.
+
+$ git diff --check -- TODO.md project/ticket-018/README.md
+  project/ticket-018/intent.json project/ticket-018/ai-codex.md
+  project/ticket-018/ai-codex-logs.txt project/ticket-018/changelog.md
+exit=0 (no output)
+
+$ python3 -m json.tool project/ticket-018/intent.json
+exit=0 (formatted output intentionally discarded)
+
+2026-08-01 MULTI-WORKSTREAM APPROVAL TRANSITION
+User response: ZATWIERDZAM
+Transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT.
+Scope approved: multi-workstream acceptance criteria recorded in ticket-018.
+Note: interactive approval is not external trusted merge evidence.

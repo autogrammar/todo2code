@@ -1,5 +1,20 @@
 # todo2code (`t2c`)
 
+
+## AI Cost Tracking
+
+![PyPI](https://img.shields.io/badge/pypi-costs-blue) ![Version](https://img.shields.io/badge/version-0.5.1-blue) ![Python](https://img.shields.io/badge/python-3.9+-blue) ![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![AI Cost](https://img.shields.io/badge/AI%20Cost-$3.86-orange) ![Human Time](https://img.shields.io/badge/Human%20Time-36.0h-blue) ![Model](https://img.shields.io/badge/Model-openrouter%2Fqwen%2Fqwen3--coder--next-lightgrey)
+
+- 🤖 **LLM usage:** $3.8584 (110 commits)
+- 👤 **Human dev:** ~$3603 (36.0h @ $100/h, 30min dedup)
+
+Generated on 2026-08-01 using [openrouter/qwen/qwen3-coder-next](https://openrouter.ai/qwen/qwen3-coder-next)
+
+---
+
+
+
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 
 `todo2code` buduje wspólny **Intent Evidence DSL** z poleceń, historii Git, aktualnego kodu, list zadań, changelogu i dokumentacji. Następnie łączy rekordy w graf przepływu wiedzy, wykrywa rozbieżności i generuje raport dla zespołu.
@@ -880,3 +895,8 @@ Wbudowane klasy obejmują m.in.:
 ## Licencja
 
 Projekt jest udostępniany na warunkach [Apache License 2.0](LICENSE).
+
+
+## License
+
+Licensed under Apache-2.0.

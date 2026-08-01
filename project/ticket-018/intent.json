@@ -1,7 +1,7 @@
 {
   "schema": "new-project.intent/v1",
   "ticket": "ticket-018",
-  "summary": "Adopt deterministic new-project governance policy-as-code",
+  "summary": "Adopt deterministic governance policy-as-code with concurrent workstreams, dependency-aware tickets and non-overlapping write scopes",
   "allowedPaths": [
     ".governance/**",
     ".github/workflows/**",
