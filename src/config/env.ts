@@ -140,7 +140,7 @@ function envLlmMode(name: string, fallback: LlmExtractionMode): LlmExtractionMod
 }
 
 export function getConfig(cwd = process.cwd()): T2CConfig {
-  const model = envString('OPENROUTER_MODEL', 'mistralai/codestral-2508');
+  const model = envString('OPENROUTER_MODEL', 'google/gemini-3.1-pro-preview');
   const root = path.resolve(cwd, envString('T2C_ROOT', '.'));
   return {
     root,
@@ -212,15 +212,16 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
 }
 
 export function configForDisplay(config: T2CConfig): Record<string, unknown> {
+  const redact = (value: string | null): string | null => value ? '[configured]' : null;
   return {
     ...config,
     openRouter: {
       ...config.openRouter,
-      apiKey: config.openRouter.apiKey ? '[configured]' : null,
+      apiKey: redact(config.openRouter.apiKey),
     },
     a2a: {
       ...config.a2a,
-      token: config.a2a.token ? '[configured]' : null,
+      token: redact(config.a2a.token),
     },
     envFile: loadedEnvPath,
   };

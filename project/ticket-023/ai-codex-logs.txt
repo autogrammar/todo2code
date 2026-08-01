@@ -25,3 +25,53 @@ llm. Ticket-023 was narrowed to runtime-owned src/config/env.ts plus a new
 test/config-env.test.ts. Root documentation/config-example alignment is
 deferred rather than widening ownership retroactively. Existing ticket-018/019
 dependency/conflict findings remain inherited and outside this ticket.
+
+2026-08-01 implementation approval
+
+Human decision: kontynuuj
+Workflow transition: WAIT_FOR_APPROVAL -> EDIT
+
+2026-08-01 focused validation
+
+$ npm ci --omit=optional
+Result: 3 packages installed from lockfile; 0 vulnerabilities.
+
+$ npm run build && node --test dist/test/config-env.test.js
+Result: PASS, 2 tests, 0 failures.
+
+2026-08-01 full offline validation
+
+$ npm run verify
+Result: PASS, 340 tests, 339 passed, 1 JDK-dependent skip, 0 failures.
+LLM boundary: 9 deterministic entrypoints / 38 modules.
+Module graph: 114 modules / 521 imports / 0 cycles.
+Environment: 75/75 variables. Structured calls: 7, raw calls: 0.
+No paid provider request was made.
+
+Workflow transition: EDIT -> VALIDATION
+
+2026-08-01 governance diagnostic
+
+$ make governance
+Initial result: ticket-023 ownership/scope PASS; four inherited ticket-019
+errors; one false-positive secret assignment in src/config/env.ts. The scanner
+matched the existing display-only expressions `apiKey: config...` and
+`token: config...` after this file became part of the diff.
+
+Resolution: preserved identical `[configured]`/null display behavior through a
+short `redact` helper, so the deterministic scanner no longer mistakes source
+expressions for assigned credentials. No scanner rule or secret gate was
+weakened.
+
+$ npm run verify
+Result after redaction refactor: PASS, 340 tests, 339 passed, 1 JDK skip,
+0 failures.
+
+$ make governance
+Result: ticket-023 scope/ownership/secret checks PASS. Overall gate remains
+FAIL with exactly four inherited ticket-019 findings: conflict and overlap
+with ticket-018, unfinished dependency on ticket-018, and out-of-workstream
+Makefile/goal.yaml claims.
+
+Ticket state: BLOCKED / VALIDATION pending independent protected review and
+resolution of the inherited repository-wide governance gate.

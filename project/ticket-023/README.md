@@ -2,8 +2,8 @@
 
 - **ID**: ticket-023
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: BLOCKED
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -16,14 +16,14 @@ and its regression test only; it does not make a paid provider request.
 
 ## Acceptance criteria
 
-- [ ] AC-01: `getConfig()` defaults `OPENROUTER_MODEL` and all inherited
+- [x] AC-01: `getConfig()` defaults `OPENROUTER_MODEL` and all inherited
   semantic stage models to `google/gemini-3.1-pro-preview` when no model
   environment variable is present.
-- [ ] AC-02: Explicit global and stage-specific model overrides continue to
+- [x] AC-02: Explicit global and stage-specific model overrides continue to
   take precedence.
-- [ ] AC-03: A regression test covers the default and override behavior.
-- [ ] AC-04: `npm run verify` passes without a paid LLM request.
-- [ ] AC-05: Governance reports no ticket-023 ownership or scope error. The
+- [x] AC-03: A regression test covers the default and override behavior.
+- [x] AC-04: `npm run verify` passes without a paid LLM request.
+- [x] AC-05: Governance reports no ticket-023 ownership or scope error. The
   pre-existing ticket-018/ticket-019 conflict remains outside this scope.
 
 ## Participants
@@ -38,3 +38,13 @@ and its regression test only; it does not make a paid provider request.
 governance ticket-018 already claims `README.md`, while `.env.example` has no
 declared runtime ownership in policy 0.8.0. Align them after ticket-018 releases
 the governance workstream or through a separately approved ownership change.
+
+## Validation evidence
+
+- Focused test: 2/2 passed.
+- Full `npm run verify`: 340 tests, 339 passed, 1 JDK-dependent skip, 0 failed.
+- No OpenRouter request was made.
+- Governance reports no ticket-023 scope, ownership or secret finding. Its
+  overall result remains blocked by four pre-existing ticket-019 findings.
+- Protected merge still requires an independent GitHub review or signed
+  attestation.

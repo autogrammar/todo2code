@@ -24,14 +24,20 @@ authoritative.
 
 ## Actual changes
 
-- Governance plan only; no runtime, test or documentation source has been
-  changed yet.
+- Human supplied the required follow-up `kontynuuj`; workflow transitioned
+  from `WAIT_FOR_APPROVAL` to `EDIT`.
+- Changed the runtime fallback to `google/gemini-3.1-pro-preview`.
+- Added two environment-isolated regression cases covering inherited defaults
+  and explicit global/per-stage overrides.
+- Completed focused and full offline verification; transitioned to
+  `VALIDATION`.
 
 ## Blockers
 
-- Repository policy requires the planned ticket to remain in
-  `WAIT_FOR_APPROVAL` until a subsequent human message authorizes transition
-  to `EDIT`.
 - Active ticket-018 owns root README governance scope, and policy 0.8.0 does
   not assign `.env.example` to the runtime workstream. Those files are not in
   this intent.
+- Protected merge still requires independent GitHub review or signed
+  attestation; supervised chat approval is implementation authority only.
+- Repository-wide governance remains red only for the inherited
+  ticket-018/ticket-019 conflict/dependency/ownership findings.
