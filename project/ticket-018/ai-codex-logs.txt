@@ -204,3 +204,32 @@ $ make governance
 Four existing ticket-019 findings remain: GOV-CONFLICT-001,
 GOV-DEPENDENCY-002, GOV-WORKSTREAM-003 and GOV-WORKSTREAM-004.
 No new ticket-018 secret, path or scope finding was emitted.
+
+2026-08-01 KORU REMOTE VALIDATION
+$ GitHub pull request #1 / workflow run 30703151199
+koru / code-review: PASS
+verify: PASS
+Java adapter (JDK 17 required): PASS
+governance / enforce: FAIL only on the separately owned ticket-019 state
+report schema: t2c.koru-code-review/v1
+artifact retention: 14 days
+Sigstore provenance attestations for review.json: 1
+
+$ workflow_dispatch run 30703292661
+reviewed base: 38d33d222d2e550d055c02b609a036937c7db255
+reviewed head: bc93128f42060be3106776a7c9551c464bb52ffc
+selected: src/comparison/workspace.ts, test/workspace.test.ts
+semantic credential check: PASS (value was neither read nor logged)
+Koru/Vallm result: reject, exit=1, 2/2 files failed review
+required check: FAIL (expected negative path)
+report/artifact/attestation steps: PASS
+report digest: sha256:fa0f4d0c1f780bb8d21f56ca74d8ae901e184fb4996f9e84832a87846adfc1d8
+GitHub Sigstore provenance attestations for digest: 1
+
+$ stage repository ruleset 20186914
+name: main: governed Koru review
+enforcement: disabled for final bootstrap evidence merge
+bypass actors: none
+current_user_can_bypass: never
+rules: pull request, dismiss stale reviews, block deletion/force-push,
+strict required checks governance / enforce and koru / code-review

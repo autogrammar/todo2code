@@ -140,6 +140,16 @@ Current verified baseline:
   bounded artifact retention and GitHub provenance attestation. The job is
   read-only with respect to repository contents and cannot approve or mutate a
   pull request.
+- Published the workflow through pull request #1 after the Koru check, Node
+  verification and Java adapter passed. The unrelated deterministic governance
+  failure remains assigned to ticket-019.
+- Exercised the real OpenRouter semantic path through historical dispatch
+  `30703292661`. Koru/Vallm rejected two TypeScript files and propagated a
+  failing required check while preserving an attested, commit-bound report.
+- Staged repository ruleset `20186914` with no bypass actors, strict governance
+  and Koru status checks, mandatory pull requests, stale-evidence dismissal and
+  force-push/deletion prevention. It remains disabled solely for the final
+  bootstrap evidence merge and will be activated afterward.
 
 ## Blockers
 
@@ -151,10 +161,6 @@ Current verified baseline:
   not retroactively claimed here.
 - Central `new-project` 0.7.0 is uncommitted/unpublished, so no honest immutable
   reusable-workflow SHA exists yet.
-- GitHub Ruleset and CODEOWNERS need a trusted human/team identity and external
-  repository configuration.
-- AC-18 requires explicit approval of the new Koru design after this plan is
-  visible. Until then, CI and external repository rules remain unchanged.
 - AC-17: concurrent commit `9928699` bumped the Rust SDK manifest to 0.5.1, but
   the ignored local Cargo lock still identifies the root package as 0.5.0.
   Official full Docker E2E fails closed at `cargo fetch --locked` (exit 101).
