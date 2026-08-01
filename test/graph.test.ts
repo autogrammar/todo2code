@@ -84,8 +84,8 @@ test('An existing target path does not prove an unrelated capability', () => {
   const diagnostic = report.diagnostics.find((item) =>
     item.code === 'PLANNED_NOT_IMPLEMENTED' && item.recordIds.includes(plan.id));
   assert.ok(diagnostic);
-  assert.match(diagnostic.detail, /wskazuje lokalizację, ale nie potwierdza wymaganej funkcji/);
-  assert.match(diagnostic.suggestedAction, /Wykonawca techniczny/);
+  assert.match(diagnostic.detail, /wskazuje lokalizację, ale nie potwierdza wymaganej zmiany/);
+  assert.match(diagnostic.suggestedAction, /rekordzie źródłowym/);
 });
 
 test('An existing target path plus an AST capability proves implementation', () => {

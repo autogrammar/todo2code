@@ -113,6 +113,10 @@ test('proposeCodeChangePlans materialises grounded plans from PLANNED_NOT_IMPLEM
   assert.equal(plan.changes.length, 1);
   assert.equal(plan.changes[0]!.path, 'src/contracts.ts');
   assert.equal(plan.changes[0]!.action, 'modify');
+  assert.equal(
+    plan.changes[0]!.rationale,
+    'Implement the source intent: Add validateContract in src/contracts.ts for T2C-401.',
+  );
   assert.equal(plan.risk.level, 'low');
   assert.ok(plan.risk.reasons.length > 0);
   assert.match(plan.rollback, /revert/i);
@@ -159,6 +163,32 @@ test('proposeCodeChangePlans is deterministic for the same evidence', () => {
     () => proposeCodeChangePlans({ graph, diagnostics, generatedAt: 'not-a-date' }),
     /generatedAt must be an ISO date-time/,
   );
+});
+
+test('bounded plan sets prefer explicit TODO work over historical changelog audit', () => {
+  const todo = buildRecord({
+    kind: 'todo_item', action: 'add', object: 'module entrypoint',
+    target: { paths: ['pkg/__main__.py'] },
+    text: 'Add pkg/__main__.py to support python -m pkg.',
+    lifecycle: 'planned', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test/code-change',
+    epistemicClass: 'plan', confidence: 0.95, basis: ['fixture'],
+  });
+  const historical = buildRecord({
+    kind: 'changelog_item', action: 'release', object: 'legacy import',
+    target: { paths: ['src/legacy.py'], versions: ['0.1.0'] },
+    text: 'Updated legacy import in src/legacy.py.',
+    lifecycle: 'released', sourceKind: 'changelog', sourcePath: 'CHANGELOG.md',
+    sourceLines: { start: 5, end: 5 }, extractor: 'test/code-change',
+    epistemicClass: 'claim', confidence: 0.9, basis: ['fixture'],
+  });
+  const graph = linkIntentRecords([historical, todo], AT);
+  const diagnostics = diagnoseGraph(graph, AT);
+  assert.ok(diagnostics.diagnostics.some((item) => item.code === 'CHANGELOG_WITHOUT_IMPLEMENTATION'));
+
+  const result = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT, maxPlans: 1 });
+  assert.equal(result.plans.length, 1);
+  assert.deepEqual(result.plans[0]?.evidence.recordIds, [todo.id]);
 });
 
 test('evaluateCodeChangeAcceptance passes when targeted diagnostics clear', () => {

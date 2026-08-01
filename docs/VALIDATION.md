@@ -1,7 +1,7 @@
 # Walidacja paczki
 
-Stan walidacji: **2026-07-31**, `todo2code 0.5.0`. Najnowsza lokalna kontrola
-została wykonana na bieżącym drzewie `main`. Poniższe próby origin/workspace i live
+Stan walidacji: **2026-08-01**, `todo2code 0.5.0`. Najnowsza lokalna kontrola
+została wykonana na bieżącym drzewie roboczym. Poniższe próby origin/workspace i live
 OpenRouter są zachowanymi pomiarami historycznymi i mają własne identyfikatory
 runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 
@@ -15,7 +15,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Kontrakt środowiska | PASS — 75 zmiennych kodu/Dockera/skryptów, 75 kluczy `.env.example`; klucze prywatnego `.env` zsynchronizowane; brak duplikatów i nadmiarowych kluczy |
 | Generowana analiza | PASS — tracked-only snapshot; brak odwołań do nieśledzonych wejść, ścieżek tymczasowych i awarii pobrania parsera |
 | Build TypeScript | PASS |
-| Testy Node | PASS — 303 zaliczone, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
+| Testy Node | PASS — 306 zaliczonych, 0 błędów, 1 skip lokalnego JDK; dedykowany job CI nie pozwala pominąć adaptera Java |
 | Pipeline `examples/` | PASS — 227 rekordów i 84 relacje, w tym 5 `agent_log`, 4 `document` i 6 `system` (2 agregaty plikowe); NL, Markdown, dokumentacja, konfiguracja i komunikacja deterministyczne, bez sieci i fallbacku |
 | Git extractor na repo z 12 commitami | PASS — dokładnie 10 rekordów commitów |
 | TypeScript/JavaScript + Python + Go + Java + Rust AST + PHP syntax | PASS — Java 7 faktów w JDK 21 Docker, wymagany job CI na Temurin 17, Rust fixture i `cargo test`; PHP namespace/use/type/function/method/call, skip oraz fail-open bez runtime |
@@ -35,7 +35,7 @@ runów — nie należy interpretować ich jako porównania aktualnego drzewa.
 | Cache AST i chunków | PASS — content hash, cold/warm equivalence, invalidacja po zmianie pliku/parametru, recovery po uszkodzeniu, bypass oraz brak cache odpowiedzi providera |
 | Konfiguracja/infrastruktura → DSL | PASS — JSON, TOML, Dockerfile i workflow CI (także z aktywną regułą `.*/`), jeden deterministyczny agregat na plik, explicit-path linking bez szumu tematów oraz publiczne interfejsy |
 | Graf → NL przez mock OpenRouter | PASS — uziemione cytowania i budżet AST |
-| Scheduled live OpenRouter | PASS/SKIP — osobny opt-in job sprawdza NL i summary w `require-llm`, budżety i redacted audit; bez klucza jawnie pomijany |
+| Scheduled live OpenRouter | PASS/SKIP — osobny opt-in job sprawdza wszystkie 6 etapów w `require-llm`, budżety etapów/przebiegu, zredagowany audyt i historię; bez klucza jawnie pomijany |
 | MCP `2026-07-28` `server/discover` + `tools/list` | PASS — 26 narzędzi, w tym TODO propose/render/apply oraz code-change propose/render/source-patch/approved-apply/evaluate/close |
 | MCP legacy `initialize` `2025-11-25` + `tools/list` | PASS — 26 narzędzi, w tym TODO propose/render/apply oraz code-change propose/render/source-patch/approved-apply/evaluate/close |
 | A2A v1 `SendMessage` | PASS — deterministyczny task completed, 1 artifact |
@@ -60,9 +60,10 @@ Pełny przebieg wykonano poleceniem `make validate`. Próby MCP i A2A jawnie
 nadpisują lokalne ustawienia wersji/LLM, dlatego kontrola offline nie zależy od
 zawartości prywatnego `.env`.
 
-Najnowsza kontrola obejmowała `npm run verify`, `npm run examples:check`, smoke
-offline, build i health smoke Dockera oraz kontrolowany `live:check` bez klucza.
-Wynik: 304 testy, 303 zaliczone, 0 błędów i 1 lokalny skip JDK.
+Najnowsze `npm run verify` na bieżącym drzewie roboczym zakończyło się wynikiem
+307 testów, 306 zaliczonych, 0 błędów i 1 lokalnego skipu JDK. Szerszy przebieg
+z 2026-07-31 obejmował również `npm run examples:check`, smoke offline, build i
+health smoke Dockera oraz kontrolowany `live:check` bez klucza.
 Stan funkcjonalny oraz pozostałe ograniczenia opisuje
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 

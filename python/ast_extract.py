@@ -29,11 +29,25 @@ def dotted_name(node: ast.AST) -> str:
     return ''
 
 
+def is_module_entrypoint(node: ast.If) -> bool:
+    """Return true for the canonical ``if __name__ == '__main__'`` guard."""
+    test = node.test
+    if not isinstance(test, ast.Compare) or len(test.ops) != 1 or len(test.comparators) != 1:
+        return False
+    if not isinstance(test.ops[0], ast.Eq):
+        return False
+    values = (test.left, test.comparators[0])
+    has_name = any(isinstance(value, ast.Name) and value.id == '__name__' for value in values)
+    has_main = any(isinstance(value, ast.Constant) and value.value == '__main__' for value in values)
+    return has_name and has_main
+
+
 class FactVisitor(ast.NodeVisitor):
     def __init__(self, relative_path: str, lines: list[str]) -> None:
         self.relative_path = relative_path
         self.lines = lines
         self.scope: list[str] = []
+        self.function_depth = 0
         self.facts: list[dict[str, Any]] = []
 
     def excerpt(self, node: ast.AST) -> str:
@@ -79,7 +93,9 @@ class FactVisitor(ast.NodeVisitor):
             'arguments': [item.arg for item in node.args.args],
         })
         self.scope.append(node.name)
+        self.function_depth += 1
         self.generic_visit(node)
+        self.function_depth -= 1
         self.scope.pop()
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> Any:
@@ -90,7 +106,9 @@ class FactVisitor(ast.NodeVisitor):
             'arguments': [item.arg for item in node.args.args],
         })
         self.scope.append(node.name)
+        self.function_depth += 1
         self.generic_visit(node)
+        self.function_depth -= 1
         self.scope.pop()
 
     def visit_ClassDef(self, node: ast.ClassDef) -> Any:
@@ -102,6 +120,43 @@ class FactVisitor(ast.NodeVisitor):
         self.scope.append(node.name)
         self.generic_visit(node)
         self.scope.pop()
+
+    def add_named_constant(self, node: ast.AST, name: str, value: ast.AST) -> None:
+        """Record module/class constants, but never ordinary local variables."""
+        if self.function_depth > 0 or not name.isupper():
+            return
+        try:
+            literal = ast.literal_eval(value)
+        except (ValueError, TypeError, MemoryError, RecursionError):
+            return
+        if literal is None or isinstance(literal, bool) or not isinstance(literal, (int, float, str)):
+            return
+        rendered = repr(literal)
+        if len(rendered) > 120:
+            return
+        self.add(node, 'python_constant_fact', 'declare', f'named constant {rendered}', symbol=name, metadata={
+            'symbolKind': 'constant',
+            'constantName': name,
+            'constantValue': literal,
+        })
+
+    def visit_Assign(self, node: ast.Assign) -> Any:
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                self.add_named_constant(node, target.id, node.value)
+        self.generic_visit(node)
+
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> Any:
+        if isinstance(node.target, ast.Name) and node.value is not None:
+            self.add_named_constant(node, node.target.id, node.value)
+        self.generic_visit(node)
+
+    def visit_If(self, node: ast.If) -> Any:
+        if self.function_depth == 0 and is_module_entrypoint(node):
+            self.add(node, 'python_module_entrypoint_fact', 'declare', 'module execution', metadata={
+                'symbolKind': 'module_entrypoint',
+            })
+        self.generic_visit(node)
 
     def visit_Call(self, node: ast.Call) -> Any:
         callee = dotted_name(node.func)

@@ -88,6 +88,19 @@
 
 ### Fixed
 
+- Python AST extraction records bounded module/class named constants and the
+  canonical `if __name__ == "__main__"` entrypoint without promoting ordinary
+  local variables. Module aggregates expose constant identifiers instead of a
+  shared literal description, and external AST cache keys now include the
+  adapter contract identity so changed extractors cannot reuse stale facts.
+- TODO extraction resolves a bare filename through its Markdown heading scope
+  or a unique repository basename. Ambiguous names remain unresolved instead
+  of being assigned to an arbitrary file.
+- Bounded code-change planning prioritizes active
+  `PLANNED_NOT_IMPLEMENTED` work over historical changelog audit findings and
+  derives each file rationale from the source intent rather than a generic
+  diagnostic remediation.
+
 - Code-change titles preserve compound source intent when action inference
   removes a secondary verb. The PLF-003 source now renders as `Implement ...
   and verify it ...` instead of `Implement Implement ... and it ...`.

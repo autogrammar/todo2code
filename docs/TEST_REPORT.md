@@ -1,6 +1,6 @@
 # Raport z testów i poprawek
 
-Data wykonania: **2026-07-31**. Runtime: **0.5.0**. Baza robocza:
+Data wykonania: **2026-08-01**. Runtime: **0.5.0**. Baza robocza:
 bieżący `main` wraz z opisanymi niżej poprawkami. Środowisko: Linux,
 Node.js 20.19.5, Python 3.13.12, Go 1.24.4, Rust 1.93.0 i Docker 29.1.3.
 Lokalnie nie ma JDK; adapter Java jest wymagany w osobnym jobie CI z Temurin
@@ -14,7 +14,7 @@ poprawkach, a nie ze starszych snapshotów dokumentacji.
 | Obszar | Polecenie | Wynik |
 |---|---|---|
 | Pełna walidacja | `npm run verify` | PASS |
-| Testy | `npm test` | 304 testy: 303 pass, 0 fail, 1 Java skip |
+| Testy | `npm test` | 307 testów: 306 pass, 0 fail, 1 Java skip |
 | Granica LLM | `npm run verify:no-llm` | PASS — 9 entrypointów, 36 modułów |
 | Moduły | `npm run verify:modules` | PASS — 104 moduły, 484 importy, 0 cykli |
 | Kontrakt środowiska | `npm run verify:env` | PASS — 75 zmiennych i 75 kluczy |

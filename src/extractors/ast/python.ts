@@ -27,7 +27,7 @@ export async function extractPythonAst(root: string, config: T2CConfig): Promise
       executable: config.pythonExecutable,
       helperPath,
       arguments: [helperPath, root, '--max-file-bytes', String(config.maxFileBytes), '--files-from', filesPath],
-      extractor: 't2c/python-ast@2',
+      extractor: 't2c/python-ast@5',
       basis: 'python_stdlib_ast',
       language: 'python',
       label: 'Python',

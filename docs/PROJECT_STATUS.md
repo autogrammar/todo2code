@@ -1,6 +1,6 @@
 # Aktualny stan projektu
 
-Stan na **2026-07-31**, wersja runtime `0.5.0`.
+Stan na **2026-08-01**, wersja runtime `0.5.0`.
 
 ## Ocena wykonania przepływu
 
@@ -73,7 +73,7 @@ jawnej zgodzie na dokładny hash; receipt również trafia do manifestu. Sekcja
 
 `npm run verify` zakończyło się powodzeniem:
 
-- 304 testy: 303 zaliczone, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
+- 307 testów: 306 zaliczonych, 0 błędów, 1 pominięty test Java bez lokalnego JDK;
 - 104 moduły i 484 importy wewnętrzne, brak cykli, niezależny `src/core`;
 - 9 deterministycznych entrypointów i 36 modułów bez tranzytywnego importu LLM;
 - 75 zmiennych używanych przez kod/Docker i 75 odpowiadających kluczy

@@ -48,7 +48,13 @@ function moduleRecords(
     const end = Math.max(...fileFacts.map((fact) => fact.lineEnd));
     const capabilities = boundedCapabilities(fileFacts
       .filter((fact) => fact.action === 'declare' || fact.action === 'depend_on')
-      .map((fact) => fact.object));
+      // A constant detail describes why the assignment is evidence (for
+      // example `named constant 50`), but repeating that generic phrase in
+      // every module aggregate would link unrelated files that happen to use
+      // the same value. Aggregates advertise the actual identifier instead.
+      .map((fact) => typeof fact.metadata.constantName === 'string'
+        ? fact.metadata.constantName
+        : fact.object));
     return buildRecord({
       kind: 'module_fact',
       action: 'declare',

@@ -1,6 +1,6 @@
 # Gotowość projektu
 
-Stan na **2026-07-31**, runtime `0.5.0`. Dokument odpowiada na jedno pytanie:
+Stan na **2026-08-01**, runtime `0.5.0`. Dokument odpowiada na jedno pytanie:
 **czy todo2code jest kompletny i co trzeba poprawić, zanim będzie**.
 
 `docs/PROJECT_STATUS.md` opisuje, co jest zbudowane. `docs/TEST_REPORT.md`
@@ -78,7 +78,7 @@ Te obszary mają kontrakt, testy i pomiar. Nie są obecnie blockerami wydania.
 
 | Obszar | Dowód |
 |---|---|
-| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 304 testy, 303 zaliczone, 0 błędów i 1 lokalny skip JDK |
+| Kontrakty DSL i walidacja runtime | kontrakty intencji, grafu, diagnostyk, wniosków, TODO, code-change, operation-plan i wszystkich siedmiu odpowiedzi LLM; 307 testów, 306 zaliczonych, 0 błędów i 1 lokalny skip JDK |
 | Granica LLM | 9 deterministycznych entrypointów, 36 modułów bez tranzytywnego importu klienta; wymuszane przez `verify:no-llm` |
 | Prowenienacja | każdy rekord niesie konwerter, wersję runtime i tryb; rekord LLM dodatkowo provider/model/response ID, a fallback jawny stan degradacji |
 | Determinizm | dwa identyczne przebiegi gold dają ten sam fingerprint; `examples:check` powtarzalny |
@@ -278,7 +278,7 @@ musi milczeć.
 mierzalny spadek w którąkolwiek stronę — dziś 8 pozytywów i 6 negatywów to
 minimum, nie komfort.
 
-### 3. Harmonogramowana kontrola LLM obejmuje tylko część pipeline'u
+### 3. Harmonogramowana kontrola LLM obejmuje cały pipeline, ale trend jest jeszcze krótki
 
 `make demollm` przechodzi. Historia przebiegów pokazała **1 z 6** przed
 dodaniem korygującej próby, a później sporadyczny zmyślony `recordId` i pusty
@@ -319,9 +319,10 @@ jawnie języków.
 - Bare nazwy plików rozwiązują się tylko przy unikalności w repo; `validation.ts`
   czy `types.ts` pozostają niewiązalne bez katalogu. To świadomy kompromis
   precyzji, nie usterka, ale obniża recall.
-- Konfiguracja i AST są obecnie równorzędnym dowodem `implemented`. Nie ma
-  jeszcze pomiaru, czy słaby dowód w postaci samego klucza konfiguracji nie
-  zawyża statusu `aligned`.
+- Konfiguracja i AST mogą dowodzić `implemented`, ale raport rozdziela już
+  jakość tego dowodu. Pomiar wykazał 16 z 46 tematów opartych wyłącznie na
+  konfiguracji na `subactor/platform` wobec 4 z 89 tutaj; `alignedByEvidence`
+  zachowuje ten podział bez odbierania konfiguracji statusu implementacji.
 - Wpisy changelogu nie uczestniczą w szerokim dopasowaniu tematycznym. Audyt
   siedmiu repozytoriów pokazał, że takie połączenie mieszałoby prawdziwe
   deklaracje wydania z mechaniką release notes. Szum mechaniczny jest już
@@ -413,7 +414,7 @@ metrykę.
 ## Reprodukcja
 
 ```bash
-npm run verify          # 304 testy, 104 moduły, 7/0 structured/raw LLM calls
+npm run verify          # 307 testów, 104 moduły, 7/0 structured/raw LLM calls
 npm run evaluate:gold   # precision/recall po klasach, diagnostyki, stabilność
 npm run examples:check  # pięć SDK, powtarzalny
 npm audit --omit=dev    # zależności produkcyjne

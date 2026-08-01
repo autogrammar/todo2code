@@ -116,7 +116,12 @@ export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): 
 
   const candidates = options.diagnostics.diagnostics
     .filter((diagnostic) => IMPLEMENTATION_DIAGNOSTIC_CODES.has(diagnostic.code))
-    .sort((left, right) => left.id.localeCompare(right.id));
+    // A released CHANGELOG entry is an audit signal; an open TODO is an
+    // explicit request for work.  With a bounded plan set, sorting only by
+    // content id allowed historical release notes to consume every slot and
+    // hide the repository's actual backlog from autonomous executors.
+    .sort((left, right) => implementationDiagnosticRank(left)
+      - implementationDiagnosticRank(right) || left.id.localeCompare(right.id));
 
   const plans: CodeChangePlan[] = [];
   for (const diagnostic of candidates) {
@@ -180,6 +185,10 @@ export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): 
     sourceDiagnosticCount: candidates.length,
     generation: deterministicGeneration(generatedAt, 't2c/code-change-plan-set'),
   };
+}
+
+function implementationDiagnosticRank(diagnostic: Diagnostic): number {
+  return diagnostic.code === 'PLANNED_NOT_IMPLEMENTED' ? 0 : 1;
 }
 
 /**
@@ -351,9 +360,15 @@ function buildChanges(
   diagnostic: Diagnostic,
 ): CodeChangeFile[] {
   const symbols = uniqueSorted(target.symbols);
-  const rationale = diagnostic.suggestedAction?.trim()
-    || diagnostic.detail
-    || `Address ${diagnostic.code} for ${records.map((record) => record.statement.object).join(', ')}.`;
+  // The diagnostic explains why evidence is missing; it is not necessarily an
+  // implementation instruction. Reusing its generic remediation here produced
+  // contradictory tickets such as “replace magic number 50” followed by
+  // “provide a missing function”. The lossless source declaration is the work
+  // to perform, while the diagnostic remains available in the plan evidence.
+  const sourceIntents = uniqueSorted(records.map((record) => record.statement.text));
+  const rationale = sourceIntents.length
+    ? `Implement the source intent: ${sourceIntents.join(' | ')}`
+    : diagnostic.detail || `Address ${diagnostic.code}.`;
 
   if (target.paths.length) {
     return uniqueSorted(target.paths).map((path) => ({

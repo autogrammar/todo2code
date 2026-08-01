@@ -67,6 +67,39 @@ test('Markdown extractor preserves indented continuation lines and their source 
   assert.deepEqual(changelog?.source.lines, { start: 7, end: 8 });
 });
 
+test('TODO bare filenames inherit an existing directory from the heading scope', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-heading-path-'));
+  await fs.mkdir(path.join(root, 'examples', 'todo-app-ts'), { recursive: true });
+  await fs.writeFile(path.join(root, 'examples', 'todo-app-ts', 'run.sh'), '#!/bin/sh\n');
+  await fs.writeFile(path.join(root, 'TODO.md'), [
+    '# Audit',
+    '',
+    '## Problems in `run.sh` (examples/todo-app-ts)',
+    '',
+    '- [ ] Replace `grep -oP` in `run.sh` with a portable expression.',
+    '',
+  ].join('\n'));
+
+  const result = await extractTodo(root, 'TODO.md', makeConfig(root));
+  assert.deepEqual(result.records[0]?.statement.target.paths, ['examples/todo-app-ts/run.sh']);
+  assert.equal(result.records[0]?.source.extractor, 't2c/markdown-todo@2');
+});
+
+test('TODO resolves a bare filename only when its repository basename is unique', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-unique-path-'));
+  await fs.mkdir(path.join(root, 'src', 'ui'), { recursive: true });
+  await fs.writeFile(path.join(root, 'src', 'ui', 'tickets.jsx'), 'export default {};\n');
+  await fs.writeFile(path.join(root, 'TODO.md'), [
+    '# Dashboard',
+    '',
+    '- [ ] Split `tickets.jsx` into smaller components.',
+    '',
+  ].join('\n'));
+
+  const result = await extractTodo(root, 'TODO.md', makeConfig(root));
+  assert.deepEqual(result.records[0]?.statement.target.paths, ['src/ui/tickets.jsx']);
+});
+
 test('TODO and CHANGELOG receive audited LLM enrichment without changing structural facts', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-llm-'));
   await fs.writeFile(path.join(root, 'TODO.md'), '# API\n\n- [x] Obsłużyć kontrakt dla T2C-7.\n');

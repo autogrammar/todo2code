@@ -37,11 +37,11 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
         'PLANNED_NOT_IMPLEMENTED',
         record.lifecycle.status === 'completed' ? 'Zadanie oznaczone jako ukończone bez dowodu implementacji' : 'Zaplanowane zadanie bez dowodu implementacji',
         hasLocationOnlyEvidence
-          ? `Powiązany rekord Git/AST wskazuje lokalizację, ale nie potwierdza wymaganej funkcji: ${record.statement.text}`
+          ? `Powiązany rekord Git/AST wskazuje lokalizację, ale nie potwierdza wymaganej zmiany: ${record.statement.text}`
           : `Nie znaleziono powiązanego rekordu Git ani faktu AST dla: ${record.statement.text}`,
         [record.id],
         hasLocationOnlyEvidence
-          ? 'Wykonawca techniczny powinien dostarczyć brakującą funkcję lub wskazać jej symbol; następnie ponownie uruchomić linker.'
+          ? 'Zrealizować konkretną zmianę opisaną w rekordzie źródłowym albo wskazać jednoznaczny symbol lub dowód; następnie ponownie uruchomić linker.'
           : 'Dodać identyfikator ticketu/symbolu albo dostarczyć implementację i ponownie uruchomić linker.',
       ));
     }

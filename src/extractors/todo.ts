@@ -1,4 +1,6 @@
 import path from 'node:path';
+import { promises as fs } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists, readText, relativePosix } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
@@ -41,13 +43,14 @@ export async function extractTodo(root: string, todoPath: string, config: T2CCon
     const text = block.text;
     const classified = await classifyAction(text, config);
     const action = classified.action;
+    const resolvedPaths = await resolveTodoPaths(root, extractPaths(text), headings);
     records.push(buildRecord({
       kind: 'todo_item',
       actor: inferOwner(text),
       action,
       object: inferObject(text, action),
       target: {
-        paths: extractPaths(text),
+        paths: resolvedPaths,
         symbols: extractSymbols(text),
         tickets: extractTickets(text),
         versions: extractVersions(text),
@@ -59,7 +62,7 @@ export async function extractTodo(root: string, todoPath: string, config: T2CCon
       sourceKind: 'todo',
       sourcePath: relative,
       sourceLines: { start: block.startLine, end: block.endLine },
-      extractor: 't2c/markdown-todo@1',
+      extractor: 't2c/markdown-todo@2',
       rawExcerpt: block.raw.join('\n'),
       epistemicClass: 'plan',
       confidence: Math.min(0.98, classified.confidence + 0.12),
@@ -73,6 +76,76 @@ export async function extractTodo(root: string, todoPath: string, config: T2CCon
     }));
   }
   return { records, warnings: records.length ? [] : [`No Markdown checkbox tasks found in ${relative}`] };
+}
+
+/**
+ * Resolve a bare filename against repository directories named by its Markdown
+ * section.  Audit TODOs commonly put the scope in a heading (for example
+ * "Problems in run.sh (examples/todo-app-ts)") and keep checklist items short.
+ * Losing that scope turns a grounded task into a ticket for a non-existent
+ * root file.
+ */
+async function resolveTodoPaths(
+  root: string,
+  paths: string[],
+  headings: string[],
+): Promise<string[]> {
+  const headingDirectories = [...new Set(headings.flatMap((heading) =>
+    [...heading.matchAll(/(?:[A-Za-z0-9_.-]+\/)+[A-Za-z0-9_.-]+/g)]
+      .map((match) => match[0]?.replace(/^\.\//, '').replace(/\/$/, '') ?? '')
+      .filter(Boolean)))];
+  const output: string[] = [];
+  for (const declared of paths) {
+    const normalized = declared.replace(/\\/g, '/').replace(/^\.\//, '');
+    if (normalized.includes('/') || await pathExists(path.resolve(root, normalized))) {
+      output.push(normalized);
+      continue;
+    }
+    const matches: string[] = [];
+    for (const directory of headingDirectories) {
+      const candidate = path.posix.join(directory, normalized);
+      if (await pathExists(path.resolve(root, candidate))) matches.push(candidate);
+    }
+    if (matches.length === 1) {
+      output.push(matches[0]!);
+      continue;
+    }
+    const repositoryMatches = await findByUniqueBasename(root, normalized);
+    output.push(repositoryMatches.length === 1 ? repositoryMatches[0]! : normalized);
+  }
+  return [...new Set(output)];
+}
+
+const PATH_SEARCH_EXCLUDES = new Set([
+  '.git', '.hg', '.svn', '.intent', 'node_modules', 'dist', 'build',
+  'coverage', '.venv', 'venv', '__pycache__',
+]);
+
+async function findByUniqueBasename(root: string, basename: string): Promise<string[]> {
+  const matches: string[] = [];
+  const pending = [path.resolve(root)];
+  while (pending.length && matches.length < 2) {
+    const directory = pending.pop()!;
+    let entries: Dirent<string>[];
+    try {
+      entries = await fs.readdir(directory, { withFileTypes: true, encoding: 'utf8' });
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      if (entry.isSymbolicLink()) continue;
+      const absolute = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        if (!PATH_SEARCH_EXCLUDES.has(entry.name) && !entry.name.startsWith('.intent-')) {
+          pending.push(absolute);
+        }
+      } else if (entry.isFile() && entry.name === basename) {
+        matches.push(relativePosix(root, absolute));
+        if (matches.length >= 2) break;
+      }
+    }
+  }
+  return matches.sort();
 }
 
 function inferOwner(text: string): string | null {

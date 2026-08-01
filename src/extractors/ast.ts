@@ -48,6 +48,7 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     {
       enabled: config.enablePythonAst,
       namespace: 'ast-python-v1',
+      identity: 't2c/python-ast@5',
       extensions: ['.py'],
       executable: config.pythonExecutable,
       useIgnoreMatcher: true,
@@ -56,6 +57,7 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     {
       enabled: config.enableGoAst,
       namespace: 'ast-go-v1',
+      identity: 't2c/go-ast@1',
       extensions: ['.go'],
       executable: config.goExecutable,
       extract: () => extractGoAst(root, config),
@@ -63,6 +65,7 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     {
       enabled: config.enableJavaAst,
       namespace: 'ast-java-v1',
+      identity: 't2c/java-compiler-ast@1',
       extensions: ['.java'],
       executable: config.javaExecutable,
       extract: () => extractJavaAst(root, config),
@@ -70,6 +73,7 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     {
       enabled: config.enablePhpAst,
       namespace: 'ast-php-v1',
+      identity: 't2c/php-syntax@1',
       extensions: ['.php'],
       executable: config.phpExecutable,
       useIgnoreMatcher: true,
@@ -78,6 +82,7 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
     {
       enabled: config.enableRustAst,
       namespace: 'ast-rust-v1',
+      identity: 't2c/rust-syn-ast@1',
       extensions: ['.rs'],
       executable: config.cargoExecutable,
       extract: () => extractRustAst(root, config),
@@ -97,6 +102,7 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
         namespace: adapter.namespace,
         inputs: {
           files: manifest,
+          adapter: adapter.identity,
           executable: adapter.executable,
           maxFileBytes: config.maxFileBytes,
           runtimeVersion: T2C_VERSION,
@@ -119,6 +125,8 @@ export async function extractAstIntent(options: AstExtractionOptions, config: T2
 interface ExternalCacheAdapter {
   enabled: boolean;
   namespace: string;
+  /** Output contract identity; changing an adapter must invalidate old facts. */
+  identity: string;
   extensions: string[];
   executable: string;
   useIgnoreMatcher?: boolean;
