@@ -148,13 +148,13 @@ agent self-approved.
 - [x] AC-20: Koru 0.1.444 runs exactly one read-only Vallm 0.1.94 review round
       over changed supported source files; auto-fix, commit, push and mutable
       dependency versions are absent.
-- [ ] AC-21: Deterministic syntax/complexity/security checks and semantic
+- [x] AC-21: Deterministic syntax/complexity/security checks and semantic
       LLM-as-judge review fail closed on findings, missing credentials,
       malformed output or provider failure, with no secret value in logs.
-- [ ] AC-22: The structured report records repository, base/head SHA, selected
+- [x] AC-22: The structured report records repository, base/head SHA, selected
       files, tool/model versions and verdict, is uploaded with fixed retention,
       and receives GitHub artifact provenance attestation.
-- [ ] AC-23: The workflow uses least-privilege read permissions, never uses
+- [x] AC-23: The workflow uses least-privilege read permissions, never uses
       `pull_request_target`, and treats fork PRs without secrets as requiring a
       trusted rerun rather than exposing organization credentials.
 - [ ] AC-24: A repository ruleset requires `governance / enforce` and
@@ -224,3 +224,19 @@ remain historical evidence, not evidence for AC-11..AC-17.
   stops at `cargo fetch --locked` with exit 101 before the full tests start.
   Resolving it belongs to the `sdk`/`integration` workstream and requires its
   own approved ticket; ticket-018 does not rewrite or claim that artifact.
+- Pull request #1 ran `koru / code-review` successfully as run `30703151199`.
+  Its `t2c.koru-code-review/v1` report binds base `06a2faa`, head `4cfd2f9`,
+  the pinned tool/model versions and an empty supported-source set. The report
+  was uploaded for 14 days and has a GitHub Sigstore provenance attestation.
+- Historical dispatch `30703292661` exercised the live semantic path over
+  `src/comparison/workspace.ts` and `test/workspace.test.ts`. Koru rejected
+  both files with exit 1; the required check failed while report construction,
+  artifact upload and attestation still succeeded. The attested report digest
+  is `sha256:fa0f4d0c1f780bb8d21f56ca74d8ae901e184fb4996f9e84832a87846adfc1d8`.
+  No credential value appears in the workflow output.
+- Repository ruleset `20186914` is staged with no bypass actors and
+  `current_user_can_bypass: never`. It targets the default branch, requires a
+  pull request, dismisses stale review evidence, rejects deletion/force-push,
+  and requires strict `governance / enforce` plus `koru / code-review` checks.
+  Enforcement remains disabled only until this bootstrap evidence commit is
+  merged; AC-24 is not claimed until the rule is activated and queried back.

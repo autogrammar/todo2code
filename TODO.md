@@ -22,7 +22,9 @@
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
   Current state: `IN_PROGRESS / EDIT` for the approved AC-18..AC-25: add a
-  pinned, read-only and attested `koru / code-review` PR check plus a required ruleset.
+  pinned, read-only and attested `koru / code-review` PR check plus a required
+  ruleset. The workflow and live fail-closed semantic probe are verified;
+  ruleset `20186914` is staged for activation after the bootstrap evidence merge.
   Earlier AC-11..AC-16 pass; AC-17 and the pre-existing publication/external
   governance blockers remain recorded separately.
 

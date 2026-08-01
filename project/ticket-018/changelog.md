@@ -23,6 +23,13 @@
 - Added the pinned `koru / code-review` workflow with exact diff selection,
   one bounded semantic/security review round, structured evidence, artifact
   upload and GitHub provenance attestation.
+- Merged the workflow through pull request #1 after its attested Koru check and
+  existing application checks passed.
+- Proved live semantic fail-closed behavior with dispatch `30703292661`: two
+  source files were rejected, the job failed, and its report was still uploaded
+  and attested.
+- Staged ruleset `20186914` without bypass actors for final activation after the
+  bootstrap evidence merge.
 
 ## [0.1.0] - 2026-08-01
 
