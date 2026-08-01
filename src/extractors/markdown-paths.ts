@@ -73,7 +73,8 @@ function headingScopes(headings: string[]): string[] {
 
 async function buildBasenameIndex(root: string): Promise<Map<string, string[]>> {
   const index = new Map<string, string[]>();
-  const pending = [path.resolve(root)];
+  const base = path.resolve(root);
+  const pending = [base];
   let seen = 0;
   while (pending.length && seen < MAX_INDEXED_FILES) {
     const directory = pending.pop()!;
@@ -83,6 +84,11 @@ async function buildBasenameIndex(root: string): Promise<Map<string, string[]>> 
     } catch {
       continue;
     }
+    // A directory carrying its own `.git` is a nested checkout or agent
+    // worktree. Indexing its copy of the tree duplicates every basename and
+    // blocks resolution repository-wide: on `if-uri/urirun`, 63 worktrees
+    // under `.claude/worktrees/` shadowed the real `docs/ARCHITECTURE.md`.
+    if (directory !== base && entries.some((entry) => entry.name === '.git')) continue;
     for (const entry of entries) {
       if (entry.isSymbolicLink()) continue;
       const absolute = path.join(directory, entry.name);

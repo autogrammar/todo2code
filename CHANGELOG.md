@@ -123,6 +123,19 @@
   is still planned as `modify`, and the diagnostic continues to report every
   gap the plan withholds. The cost is real: a plausible root-level
   `compose.yml` is withheld too, because the source never said where it goes.
+- Deterministic documentation extraction (`t2c/markdown-documentation@2`) shares
+  the Markdown path resolver with TODO and CHANGELOG. It was the one converter
+  that kept a bare filename, so prose naming `ARCHITECTURE.md` produced a
+  root-level path that does not exist while `docs/ARCHITECTURE.md` does. On
+  `if-uri/urirun` this cut bare non-existent path tokens from 375 to 100 and on
+  `wronai/contract` from 160 to 79, with no record lost and slightly more
+  relations, because a resolved path can link to the Git and AST evidence for
+  that file.
+- The repository basename index skips a directory carrying its own `.git`. A
+  nested checkout or agent worktree duplicates every basename and blocks
+  resolution repository-wide: on `if-uri/urirun`, 63 worktrees under
+  `.claude/worktrees/` shadowed the real `docs/ARCHITECTURE.md`, which 24
+  documentation records can now name.
 - Bounded code-change planning prioritizes active
   `PLANNED_NOT_IMPLEMENTED` work over historical changelog audit findings and
   derives each file rationale from the source intent rather than a generic

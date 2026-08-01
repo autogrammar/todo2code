@@ -86,7 +86,7 @@ test('Offline pipeline writes a complete run', async () => {
   assert.ok(graph.records.some((record) => record.source.kind === 'ast'));
   assert.ok(graph.records.some((record) => record.source.kind === 'todo'));
   assert.ok(graph.records.some((record) => record.source.kind === 'document'
-    && record.source.extractor === 't2c/markdown-documentation@1'));
+    && record.source.extractor === 't2c/markdown-documentation@2'));
 });
 
 test('Pipeline persists synthesis, validation and review patch, then registers approval receipt', async () => {

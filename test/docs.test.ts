@@ -30,11 +30,55 @@ test('deterministic documentation baseline records headings, code blocks and exp
     'heading', 'reference', 'code_block',
   ]);
   assert.ok(result.records.every((record) => record.source.kind === 'document'));
-  assert.ok(result.records.every((record) => record.source.extractor === 't2c/markdown-documentation@1'));
+  assert.ok(result.records.every((record) => record.source.extractor === 't2c/markdown-documentation@2'));
   assert.ok(result.records.every((record) => record.metadata.generation.generator === 't2c/markdown-documentation'));
   assert.ok(result.records.every((record) => record.metadata.generation.runtimeVersion === '0.5.0'));
   const reference = result.records[1];
   assert.deepEqual(reference?.statement.target.paths, ['src/runtime.ts']);
   assert.deepEqual(reference?.statement.target.symbols, ['validateContract']);
   assert.deepEqual(reference?.statement.target.tickets, ['T2C-14']);
+});
+
+test('documentation prose resolves a bare filename to its repository location', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-path-'));
+  await fs.mkdir(path.join(root, 'docs'), { recursive: true });
+  await fs.writeFile(path.join(root, 'docs', 'ARCHITECTURE.md'), '# Architecture\n');
+  await fs.writeFile(path.join(root, 'README.md'), [
+    '# Overview',
+    '',
+    'The decision loop is described in `ARCHITECTURE.md` for every component.',
+  ].join('\n'));
+
+  const result = await extractDocumentationBaseline({
+    root,
+    files: [path.join(root, 'README.md')],
+  }, makeConfig(root));
+
+  const reference = result.records.find((record) => record.metadata.documentationOrigin === 'reference');
+  assert.deepEqual(reference?.statement.target.paths, ['docs/ARCHITECTURE.md']);
+});
+
+test('a nested checkout does not shadow the repository copy of a documented file', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-worktree-'));
+  await fs.mkdir(path.join(root, 'docs'), { recursive: true });
+  await fs.writeFile(path.join(root, 'docs', 'COMPONENTS.md'), '# Components\n');
+  // An agent worktree carries a full copy of the tree. Indexing it would make
+  // every basename ambiguous and block resolution repository-wide.
+  const worktree = path.join(root, '.claude', 'worktrees', 'agent-1', 'docs');
+  await fs.mkdir(worktree, { recursive: true });
+  await fs.writeFile(path.join(root, '.claude', 'worktrees', 'agent-1', '.git'), 'gitdir: /elsewhere\n');
+  await fs.writeFile(path.join(worktree, 'COMPONENTS.md'), '# Components\n');
+  await fs.writeFile(path.join(root, 'README.md'), [
+    '# Overview',
+    '',
+    'Every runtime component is catalogued in `COMPONENTS.md` before release.',
+  ].join('\n'));
+
+  const result = await extractDocumentationBaseline({
+    root,
+    files: [path.join(root, 'README.md')],
+  }, makeConfig(root));
+
+  const reference = result.records.find((record) => record.metadata.documentationOrigin === 'reference');
+  assert.deepEqual(reference?.statement.target.paths, ['docs/COMPONENTS.md']);
 });

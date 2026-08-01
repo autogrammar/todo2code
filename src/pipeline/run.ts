@@ -126,7 +126,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     ? skippedAudit('deterministic', 'No documentation files matched the configured patterns')
     : {
         runtimeVersion: T2C_VERSION,
-        configuration: { generator: 't2c/markdown-documentation', generatorVersion: '1' },
+        configuration: { generator: 't2c/markdown-documentation', generatorVersion: '2' },
         status: deterministicDocs.warnings.length ? 'partial' : 'succeeded',
         requestedMode: 'deterministic',
         effectiveMode: 'deterministic',
@@ -156,7 +156,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
         recordCount: bySource.document.length,
         configuration: {
           ...docs.audit.configuration,
-          deterministicGenerator: 't2c/markdown-documentation@1',
+          deterministicGenerator: 't2c/markdown-documentation@2',
           deterministicRecordCount: deterministicDocs.records.length,
         },
       };

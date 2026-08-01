@@ -28,8 +28,12 @@ import {
 } from '../core/text.js';
 import type { ExtractionResult, IntentRecord } from '../core/types.js';
 import { readListBlock } from './markdown-block.js';
+import { createMarkdownPathResolver, type MarkdownPathResolver } from './markdown-paths.js';
 
-const EXTRACTOR = 't2c/markdown-documentation@1';
+const EXTRACTOR = 't2c/markdown-documentation@2';
+
+/** Maps the raw path tokens of one statement onto repository-relative paths. */
+type PathMapper = (paths: string[]) => string[];
 
 /** Headings deeper than this are section decoration rather than a claim. */
 const MAX_HEADING_LEVEL = 4;
@@ -56,11 +60,12 @@ export async function extractDocumentationBaseline(
   const root = path.resolve(options.root);
   const records: IntentRecord[] = [];
   const warnings: string[] = [];
+  const resolver = createMarkdownPathResolver(root);
 
   for (const file of options.files) {
     try {
       const body = await readText(file, config.maxFileBytes);
-      records.push(...convertDocument(root, file, body));
+      records.push(...convertDocument(root, file, body, await primePathMapper(resolver, body)));
     } catch (error) {
       warnings.push(`${relativePosix(root, file)}: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -69,7 +74,30 @@ export async function extractDocumentationBaseline(
   return { records, warnings };
 }
 
-function convertDocument(root: string, filePath: string, body: string): IntentRecord[] {
+/**
+ * Documentation prose names files exactly the way TODO and CHANGELOG do, and
+ * until now was the one Markdown converter that kept the shorthand. On
+ * `if-uri/urirun` that left 59 records pointing at a root-level
+ * `ARCHITECTURE.md` that does not exist while `docs/ARCHITECTURE.md` does.
+ *
+ * Statement conversion is synchronous, so each file's tokens are resolved once
+ * up front and the parser consults the resulting map. A token the map does not
+ * know keeps its raw form rather than disappearing.
+ */
+async function primePathMapper(resolver: MarkdownPathResolver, body: string): Promise<PathMapper> {
+  const resolved = new Map<string, string | null>();
+  for (const token of new Set(extractPaths(body))) {
+    const [value] = await resolver.resolve([token]);
+    resolved.set(token, value ?? null);
+  }
+  return (paths: string[]): string[] => [...new Set(paths.flatMap((value) => {
+    const mapped = resolved.get(value);
+    if (mapped === undefined) return [value];
+    return mapped === null ? [] : [mapped];
+  }))];
+}
+
+function convertDocument(root: string, filePath: string, body: string, resolvePaths: PathMapper): IntentRecord[] {
   const relative = relativePosix(root, filePath);
   const lines = body.split(/\r?\n/);
   const records: IntentRecord[] = [];
@@ -104,7 +132,7 @@ function convertDocument(root: string, filePath: string, body: string): IntentRe
       headings.splice(level - 1);
       headings[level - 1] = title;
       if (level <= MAX_HEADING_LEVEL && title) {
-        records.push(statementRecord(relative, headings, title, { start: index + 1, end: index + 1 }, 'heading'));
+        records.push(statementRecord(relative, headings, title, { start: index + 1, end: index + 1 }, 'heading', resolvePaths));
       }
       continue;
     }
@@ -113,7 +141,7 @@ function convertDocument(root: string, filePath: string, body: string): IntentRe
     if (bullet) {
       const block = readListBlock(lines, index, bullet[1] ?? '');
       index = block.endIndex;
-      const record = qualifyingStatement(relative, headings, block.text, { start: block.startLine, end: block.endLine });
+      const record = qualifyingStatement(relative, headings, block.text, { start: block.startLine, end: block.endLine }, resolvePaths);
       if (record) records.push(record);
       continue;
     }
@@ -129,6 +157,7 @@ function convertDocument(root: string, filePath: string, body: string): IntentRe
         headings,
         paragraph.text,
         { start: paragraph.startLine, end: paragraph.endLine },
+        resolvePaths,
       );
       if (record) records.push(record);
     }
@@ -178,11 +207,12 @@ function qualifyingStatement(
   headings: string[],
   text: string,
   lines: { start: number; end: number },
+  resolvePaths: PathMapper,
 ): IntentRecord | null {
   if (text.length < MIN_STATEMENT_CHARS) return null;
-  const target = targetsOf(text);
+  const target = targetsOf(text, resolvePaths);
   if (target.paths.length === 0 && target.tickets.length === 0 && !hasCodeSpanIdentifier(text)) return null;
-  return statementRecord(sourcePath, headings, text, lines, 'reference');
+  return statementRecord(sourcePath, headings, text, lines, 'reference', resolvePaths);
 }
 
 /** True when the text quotes an identifier in a code span, e.g. `validateContract`. */
@@ -196,13 +226,14 @@ function statementRecord(
   text: string,
   lines: { start: number; end: number },
   origin: 'heading' | 'reference',
+  resolvePaths: PathMapper,
 ): IntentRecord {
   const action = classifyActionHeuristically(text);
   return buildRecord({
     kind: 'documentation_statement',
     action,
     object: inferObject(text, action),
-    target: targetsOf(text),
+    target: targetsOf(text, resolvePaths),
     modality: detectModality(text),
     polarity: detectPolarity(text),
     text,
@@ -260,9 +291,12 @@ function codeBlockRecord(
   });
 }
 
-function targetsOf(text: string): { paths: string[]; symbols: string[]; tickets: string[]; versions: string[] } {
+function targetsOf(
+  text: string,
+  resolvePaths: PathMapper,
+): { paths: string[]; symbols: string[]; tickets: string[]; versions: string[] } {
   return {
-    paths: extractPaths(text),
+    paths: resolvePaths(extractPaths(text)),
     symbols: extractSymbols(text),
     tickets: extractTickets(text),
     versions: extractVersions(text),
