@@ -25,3 +25,6 @@
 - Rebased the unpublished branch onto `origin/main` to exclude ticket-022,
   removed its four stale ignored test build artifacts and repeated the clean
   337-test verification successfully.
+- After the user raised the provider/key limit, completed the real six-stage
+  `require-llm` contract with Gemini: 6/6 PASS, no fallback/degradation,
+  219,602 ms and $0.578808 total cost under the authorized $5 budget.

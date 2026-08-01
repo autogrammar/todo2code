@@ -31,6 +31,10 @@ authoritative.
   and explicit global/per-stage overrides.
 - Completed focused and full offline verification; transitioned to
   `VALIDATION`.
+- After explicit authorization for paid testing and a provider-limit increase,
+  ran the production six-stage live contract. Gemini passed NL, Markdown,
+  documentation, communication, task synthesis and summary in `require-llm`
+  mode without fallback/degradation for $0.578808 total.
 
 ## Blockers
 

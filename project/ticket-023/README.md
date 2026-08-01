@@ -12,7 +12,9 @@ Adopt `google/gemini-3.1-pro-preview` as todo2code's runtime fallback after the
 human-approved `llm-code-benchmark` run qualified it for both repair and
 validation. Keep every stage-specific `OPENROUTER_*_MODEL` override and the
 fully deterministic modes unchanged. This ticket changes runtime configuration
-and its regression test only; it does not make a paid provider request.
+and its regression test only. Implementation and offline acceptance made no
+provider request; subsequent user-authorized validation exercises the real
+six-stage OpenRouter contract under a $5 budget.
 
 ## Acceptance criteria
 
@@ -25,6 +27,9 @@ and its regression test only; it does not make a paid provider request.
 - [x] AC-04: `npm run verify` passes without a paid LLM request.
 - [x] AC-05: Governance reports no ticket-023 ownership or scope error. The
   pre-existing ticket-018/ticket-019 conflict remains outside this scope.
+- [x] AC-06: The benchmark-qualified model passes all six production semantic
+  stages in `require-llm` mode without fallback or degradation and stays below
+  the authorized $5 live-test budget.
 
 ## Participants
 
@@ -44,7 +49,14 @@ the governance workstream or through a separately approved ownership change.
 - Focused test: 2/2 passed.
 - Clean-base `npm run verify`: 337 tests, 336 passed, 1 JDK-dependent skip,
   0 failed.
-- No OpenRouter request was made.
+- Initial implementation made no OpenRouter request. The later authorized live
+  rerun passed 6/6 semantic stages in 219,602 ms using 137,229 recorded tokens
+  at a total cost of $0.578808. Every stage reported
+  `google/gemini-3.1-pro-preview`, `effectiveMode=llm` and `degraded=false`.
+- Per-stage live results: NL $0.059112, Markdown $0.030618, documentation
+  $0.092588, communication $0.044838, task synthesis $0.177834 and summary
+  $0.173818. The two largest contexts remain task synthesis (50,057 tokens)
+  and summary (59,024 tokens), identifying the next context-compaction target.
 - Governance reports no ticket-023 scope, ownership or secret finding. Its
   overall result remains blocked by four pre-existing ticket-019 findings.
 - Protected merge still requires an independent GitHub review or signed

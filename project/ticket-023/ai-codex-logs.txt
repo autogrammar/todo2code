@@ -90,3 +90,25 @@ repeated verification.
 $ npm run verify
 Final clean-base result: PASS, 337 tests, 336 passed, 1 JDK-dependent skip,
 0 failures. No paid provider request was made.
+
+2026-08-01 authorized live Gemini contract validation
+
+The user raised the OpenRouter/key limit and requested continued testing. All
+stage-specific model variables were explicitly set to the benchmark winner;
+response max tokens were bounded at 8192 and the run-level cost gate at $5.
+Audits and run artifacts were written outside the repository.
+
+$ T2C_REQUIRE_LIVE_CHECK=1 npm run live:check
+naturalLanguageExtraction: PASS, 30,452 ms, 5,936 tokens, $0.059112
+markdownExtraction: PASS, 15,736 ms, 3,679 tokens, $0.030618
+documentationExtraction: PASS, 49,974 ms, 13,394 tokens, $0.092588
+communicationAnalysis: PASS, 22,275 ms, 5,139 tokens, $0.044838
+taskSynthesis: PASS, 55,326 ms, 50,057 tokens, $0.177834
+summary: PASS, 45,839 ms, 59,024 tokens, $0.173818
+Result: PASS, 6/6 stages, 219,602 ms, 137,229 tokens, $0.578808 total.
+Every semantic stage reported google/gemini-3.1-pro-preview,
+effectiveMode=llm and degraded=false.
+
+Observation: task synthesis plus summary account for 109,081 of 137,229
+recorded tokens and $0.351652 of $0.578808. Context compaction should target
+those two stages first; the model adoption itself is live-qualified.
