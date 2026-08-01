@@ -1,0 +1,18 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-023",
+  "summary": "Adopt benchmark-qualified Gemini model",
+  "workstream": "runtime",
+  "allowedPaths": [
+    "src/config/env.ts",
+    "test/config-env.test.ts",
+    "project/ticket-023/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}

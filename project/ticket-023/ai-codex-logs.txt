@@ -1,0 +1,27 @@
+2026-08-01 ticket initialization
+
+Human request: adopt the benchmark winner for todo2code and the repair agents
+integrated with todo-agent.
+
+Independent evidence:
+- benchmark repository: subactor/llm-code-benchmark
+- benchmark version: 4aca7471cd890a963a260a4a829277e2c2c930a0
+- profile: sha256:baa4f7acc9f947075c16655fec7c5263f741c1c3ebcf7ed536788af705e64a24
+- recommendation: google/gemini-3.1-pro-preview for developer and validator
+- result: repair 6/6, validator 13/14, structured reliability 100%
+
+Current todo2code evidence:
+- src/config/env.ts defaults OPENROUTER_MODEL to mistralai/codestral-2508
+- every stage-specific model inherits OPENROUTER_MODEL unless explicitly set
+- todo2code uses raw OpenRouter model IDs without the LiteLLM openrouter/ prefix
+
+State: WAIT_FOR_APPROVAL. No paid request or implementation change was made.
+
+2026-08-01 governance scope correction
+
+Initial governance diagnostic correctly rejected cross-workstream claims for
+.env.example, CHANGELOG.md, README.md and src/config/env.ts under workstream
+llm. Ticket-023 was narrowed to runtime-owned src/config/env.ts plus a new
+test/config-env.test.ts. Root documentation/config-example alignment is
+deferred rather than widening ownership retroactively. Existing ticket-018/019
+dependency/conflict findings remain inherited and outside this ticket.

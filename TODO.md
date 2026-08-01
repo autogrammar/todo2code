@@ -2,6 +2,13 @@
 
 ## Active tickets
 
+- [ ] [`ticket-023`](project/ticket-023/README.md) — adopt the independently
+  benchmark-qualified `google/gemini-3.1-pro-preview` as todo2code's default
+  semantic runtime fallback while preserving every explicit override. Current
+  state: `PLAN / WAIT_FOR_APPROVAL`; implementation and validation are
+  offline-only, while root documentation and `.env.example` await a separate
+  governance-owned scope.
+
 - [ ] [`ticket-020`](project/ticket-020/README.md) — implement a role-bound
   trusted intake boundary with persistent manager/user/dev assignments,
   CQRS/event sourcing, strict schemas, Protobuf, Python/TypeScript CLI, MCP and
