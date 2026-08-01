@@ -374,7 +374,14 @@ function indexUnambiguousSymbolPaths(records: IntentRecord[]): Map<string, strin
  * record has no target path, normalized symbol aliases still align
  * `validateContract`, `Runtime.validateContract` and Rust `::` notation.
  * A declaration with no target of its own falls back to the single module it
- * is linked to, and only then to `source.path`.
+ * is linked to, and only then to its own document under a separate `source:`
+ * namespace. "Written in X" is not "about X": sharing the `path:` namespace
+ * merged every unattributable release note into the topic for the changelog
+ * file itself — 283 of them beside the 20 that name it on `if-uri/urirun`,
+ * and 447 beside 40 on `semcod/goal` — so a document appeared to be a heavily
+ * declared topic with no implementation. Observed evidence is unaffected: AST,
+ * Git and configuration records always carry a target of their own and never
+ * reach this fallback.
  */
 function primaryTargetKey(
   record: IntentRecord,
@@ -399,7 +406,7 @@ function primaryTargetKey(
 
   if (symbols.length && symbols[0]) return `symbol:${symbols[0]}`;
 
-  if (record.source.path) return `path:${record.source.path}`;
+  if (record.source.path) return `source:${record.source.path}`;
 
   return `record:${record.id}`;
 }
@@ -472,7 +479,10 @@ function resolveStatus(codes: Set<DiagnosticCode>, lanes: Record<string, number>
  */
 function topicLabel(key: string, records: IntentRecord[]): string {
   const separator = key.indexOf(':');
-  const value = separator >= 0 ? key.slice(separator + 1) : key;
+  const raw = separator >= 0 ? key.slice(separator + 1) : key;
+  // The reader must be able to tell a topic about a file from the bucket of
+  // statements that merely live in it and name nothing.
+  const value = key.startsWith('source:') ? `${raw} (unattributed)` : raw;
 
   const declared = records
     .filter((record) => DECLARED_KINDS.includes(record.source.kind))

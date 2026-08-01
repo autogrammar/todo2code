@@ -119,6 +119,29 @@
   parent-traversal inputs, including traversal introduced by a heading scope.
   Existing, missing, unique and ambiguous repository-relative paths preserve
   their deterministic behavior.
+- Deterministic documentation extraction (`t2c/markdown-documentation@2`) shares
+  the Markdown path resolver with TODO and CHANGELOG. It was the one converter
+  that kept a bare filename, so prose naming `ARCHITECTURE.md` produced a
+  root-level path that does not exist while `docs/ARCHITECTURE.md` does. On
+  `if-uri/urirun` this cut bare non-existent path tokens from 375 to 100 and on
+  `wronai/contract` from 160 to 79, with no record lost and slightly more
+  relations, because a resolved path can link to the Git and AST evidence for
+  that file.
+- The repository basename index skips a directory carrying its own `.git`. A
+  nested checkout or agent worktree duplicates every basename and blocks
+  resolution repository-wide: on `if-uri/urirun`, 63 worktrees under
+  `.claude/worktrees/` shadowed the real `docs/ARCHITECTURE.md`, which 24
+  documentation records can now name.
+- Intent-vs-Reality separates a topic *about* a document from the statements
+  merely *written in* it. A declaration that names nothing fell back to its own
+  source file inside the `path:` namespace, so unattributable prose joined the
+  topic for that file: 283 release notes beside the 20 naming `CHANGELOG.md` on
+  `if-uri/urirun`, and 447 beside 40 on `semcod/goal`, making a document look
+  like a heavily declared topic with no implementation. The fallback now uses a
+  `source:` namespace and is labelled `(unattributed)`. Observed evidence is
+  untouched — AST, Git and configuration records always carry their own target
+  and never reach the fallback — and urirun's topic count rises 1114 to 1137
+  with coverage correcting 25.0% to 24.0%.
 
 - Python AST extraction records bounded module/class named constants and the
   canonical `if __name__ == "__main__"` entrypoint without promoting ordinary

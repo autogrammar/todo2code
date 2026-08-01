@@ -169,8 +169,30 @@ test('a declaration touching several modules keeps its own topic', () => {
   const declarationRow = view.rows.find((row) => (row.lanes.document ?? 0) > 0);
 
   assert.ok(declarationRow);
-  assert.equal(declarationRow.key, 'path:docs/architektura.md');
+  // Its own document, under the `source:` namespace: the declaration is
+  // written there but names no file, so it must not join the topic for
+  // statements that actually target `docs/architektura.md`.
+  assert.equal(declarationRow.key, 'source:docs/architektura.md');
   assert.equal(declarationRow.status, 'planned_not_implemented');
+  assert.match(declarationRow.label, /^docs\/architektura\.md \(unattributed\)/);
+});
+
+test('a topic about a document does not absorb the statements written in it', () => {
+  const graph = linkIntentRecords([
+    polishDeclaration('Walidacja kontraktu i walidacja konfiguracji muszą raportować błędy', 5),
+    buildRecord({
+      kind: 'changelog_entry', action: 'document', object: 'architecture notes',
+      text: 'Rozszerzono `docs/architektura.md` o sekcję walidacji.',
+      target: { paths: ['docs/architektura.md'], symbols: [], tickets: [], versions: ['1.0.0'] },
+      lifecycle: 'released', sourceKind: 'changelog', sourcePath: 'CHANGELOG.md',
+      sourceLines: { start: 3, end: 3 }, extractor: 'test/reality',
+      epistemicClass: 'claim', confidence: 0.9, basis: ['fixture'],
+    }),
+  ], '2026-07-29T00:00:00.000Z');
+  const view = buildRealityView(graph, diagnoseGraph(graph), '2026-07-29T00:01:00.000Z');
+
+  const keys = view.rows.map((row) => row.key).filter((key) => key.endsWith('docs/architektura.md'));
+  assert.deepEqual(keys.sort(), ['path:docs/architektura.md', 'source:docs/architektura.md']);
 });
 
 test('semantically aligned configuration topics retain their evidence grade', () => {
