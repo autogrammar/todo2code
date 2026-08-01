@@ -96,6 +96,20 @@
 - TODO extraction resolves a bare filename through its Markdown heading scope
   or a unique repository basename. Ambiguous names remain unresolved instead
   of being assigned to an arbitrary file.
+- CHANGELOG extraction (`t2c/markdown-changelog@2`) shares that resolver with
+  TODO, so a file named by both documents carries one identity in the graph.
+  On `wellmanifest/new-project` the released claim about `new-ticket.sh` and
+  the plan for `project/new-ticket.sh` described the same file under two
+  targets and never linked; the claim now links to its Git evidence. The
+  repository is indexed at most once per extraction, and only when a bare
+  basename needs it.
+- A code-change plan marks a file the repository does not contain as `create`
+  instead of `modify`. Documentation routinely plans files that do not exist
+  yet, and on `wellmanifest/new-project` five of seventeen planned files —
+  including `docs/ARCHITECTURE.md` and `compose.yml` — instructed an executor
+  to modify a missing file, which `apply-source-patch` could not accept.
+  Plan synthesis stays pure: the caller injects the repository probe, and
+  without one the conservative `modify` is kept.
 - Bounded code-change planning prioritizes active
   `PLANNED_NOT_IMPLEMENTED` work over historical changelog audit findings and
   derives each file rationale from the source intent rather than a generic

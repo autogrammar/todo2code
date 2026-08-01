@@ -24,6 +24,7 @@ import {
   createCodeChangeReviewPatch,
   createCodeChangeSourcePatch,
   createCodeChangeSourcePatchSet,
+  createRepositoryPathProbe,
   evaluateCodeChangeAcceptance,
   isUsefulCodeChangePath,
   proposeCodeChangePlans,
@@ -163,6 +164,38 @@ test('proposeCodeChangePlans is deterministic for the same evidence', () => {
     () => proposeCodeChangePlans({ graph, diagnostics, generatedAt: 'not-a-date' }),
     /generatedAt must be an ISO date-time/,
   );
+});
+
+test('a plan creates a missing file and modifies an existing one', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-plan-probe-'));
+  await fs.mkdir(path.join(root, 'src'), { recursive: true });
+  await fs.writeFile(path.join(root, 'src', 'contracts.ts'), 'export {};\n');
+  const graph = plannedTodo();
+  const diagnostics = diagnoseGraph(graph, AT);
+
+  const probe = createRepositoryPathProbe(root);
+  const existing = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT, pathExists: probe });
+  assert.equal(existing.plans[0]?.changes[0]?.action, 'modify');
+
+  await fs.rm(path.join(root, 'src', 'contracts.ts'));
+  const missing = proposeCodeChangePlans({
+    graph, diagnostics, generatedAt: AT, pathExists: createRepositoryPathProbe(root),
+  });
+  assert.equal(missing.plans[0]?.changes[0]?.action, 'create');
+  // The action is part of the plan hash, so an executor cannot receive a
+  // create instruction under an identity minted for a modify plan.
+  assert.notEqual(missing.plans[0]?.planHash, existing.plans[0]?.planHash);
+
+  // Without a probe the runtime cannot know, and keeps the conservative action.
+  const unprobed = proposeCodeChangePlans({ graph, diagnostics, generatedAt: AT });
+  assert.equal(unprobed.plans[0]?.changes[0]?.action, 'modify');
+});
+
+test('the repository probe never proposes creating a file outside the root', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-plan-escape-'));
+  const probe = createRepositoryPathProbe(root);
+  assert.equal(probe('../outside.ts'), true);
+  assert.equal(probe('inside.ts'), false);
 });
 
 test('bounded plan sets prefer explicit TODO work over historical changelog audit', () => {

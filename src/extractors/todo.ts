@@ -1,6 +1,4 @@
 import path from 'node:path';
-import { promises as fs } from 'node:fs';
-import type { Dirent } from 'node:fs';
 import type { T2CConfig } from '../config/env.js';
 import { pathExists, readText, relativePosix } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
@@ -15,9 +13,16 @@ import {
 import type { ExtractionResult, IntentRecord } from '../core/types.js';
 import { classifyAction } from '../tf/classifier.js';
 import { readListBlock } from './markdown-block.js';
+import { createMarkdownPathResolver, type MarkdownPathResolver } from './markdown-paths.js';
 
 /** Deterministic TODO.md -> Intent DSL converter. */
-export async function extractTodo(root: string, todoPath: string, config: T2CConfig): Promise<ExtractionResult> {
+export async function extractTodo(
+  root: string,
+  todoPath: string,
+  config: T2CConfig,
+  /** Shared with the CHANGELOG converter so one repository walk serves both. */
+  pathResolver: MarkdownPathResolver = createMarkdownPathResolver(root),
+): Promise<ExtractionResult> {
   const absolute = path.resolve(root, todoPath);
   if (!(await pathExists(absolute))) return { records: [], warnings: [`TODO file not found: ${todoPath}`] };
   const body = await readText(absolute, config.maxFileBytes);
@@ -43,7 +48,7 @@ export async function extractTodo(root: string, todoPath: string, config: T2CCon
     const text = block.text;
     const classified = await classifyAction(text, config);
     const action = classified.action;
-    const resolvedPaths = await resolveTodoPaths(root, extractPaths(text), headings);
+    const resolvedPaths = await pathResolver.resolve(extractPaths(text), headings);
     records.push(buildRecord({
       kind: 'todo_item',
       actor: inferOwner(text),
@@ -76,76 +81,6 @@ export async function extractTodo(root: string, todoPath: string, config: T2CCon
     }));
   }
   return { records, warnings: records.length ? [] : [`No Markdown checkbox tasks found in ${relative}`] };
-}
-
-/**
- * Resolve a bare filename against repository directories named by its Markdown
- * section.  Audit TODOs commonly put the scope in a heading (for example
- * "Problems in run.sh (examples/todo-app-ts)") and keep checklist items short.
- * Losing that scope turns a grounded task into a ticket for a non-existent
- * root file.
- */
-async function resolveTodoPaths(
-  root: string,
-  paths: string[],
-  headings: string[],
-): Promise<string[]> {
-  const headingDirectories = [...new Set(headings.flatMap((heading) =>
-    [...heading.matchAll(/(?:[A-Za-z0-9_.-]+\/)+[A-Za-z0-9_.-]+/g)]
-      .map((match) => match[0]?.replace(/^\.\//, '').replace(/\/$/, '') ?? '')
-      .filter(Boolean)))];
-  const output: string[] = [];
-  for (const declared of paths) {
-    const normalized = declared.replace(/\\/g, '/').replace(/^\.\//, '');
-    if (normalized.includes('/') || await pathExists(path.resolve(root, normalized))) {
-      output.push(normalized);
-      continue;
-    }
-    const matches: string[] = [];
-    for (const directory of headingDirectories) {
-      const candidate = path.posix.join(directory, normalized);
-      if (await pathExists(path.resolve(root, candidate))) matches.push(candidate);
-    }
-    if (matches.length === 1) {
-      output.push(matches[0]!);
-      continue;
-    }
-    const repositoryMatches = await findByUniqueBasename(root, normalized);
-    output.push(repositoryMatches.length === 1 ? repositoryMatches[0]! : normalized);
-  }
-  return [...new Set(output)];
-}
-
-const PATH_SEARCH_EXCLUDES = new Set([
-  '.git', '.hg', '.svn', '.intent', 'node_modules', 'dist', 'build',
-  'coverage', '.venv', 'venv', '__pycache__',
-]);
-
-async function findByUniqueBasename(root: string, basename: string): Promise<string[]> {
-  const matches: string[] = [];
-  const pending = [path.resolve(root)];
-  while (pending.length && matches.length < 2) {
-    const directory = pending.pop()!;
-    let entries: Dirent<string>[];
-    try {
-      entries = await fs.readdir(directory, { withFileTypes: true, encoding: 'utf8' });
-    } catch {
-      continue;
-    }
-    for (const entry of entries) {
-      if (entry.isSymbolicLink()) continue;
-      const absolute = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        if (!PATH_SEARCH_EXCLUDES.has(entry.name) && !entry.name.startsWith('.intent-')) {
-          pending.push(absolute);
-        }
-      } else if (entry.isFile() && entry.name === basename) {
-        matches.push(relativePosix(root, absolute));
-        if (matches.length >= 2) break;
-      }
-    }
-  }
-  return matches.sort();
 }
 
 function inferOwner(text: string): string | null {

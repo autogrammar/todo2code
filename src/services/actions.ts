@@ -32,6 +32,7 @@ import {
   createCodeChangeReviewPatch,
   createCodeChangeSourcePatch,
   createCodeChangeSourcePatchSet,
+  createRepositoryPathProbe,
   closeCodeChanges,
   evaluateCodeChangeAcceptance,
   proposeCodeChangePlans,
@@ -231,6 +232,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         ...(conclusions !== undefined ? { conclusions } : {}),
         ...(proposals !== undefined ? { proposals } : {}),
         maxPlans: numberValue(input.maxPlans, 50, 1, 500),
+        pathExists: createRepositoryPathProbe(root),
       });
       if (input.output !== undefined) {
         const output = await scopedPath(input.output, '', root, config);

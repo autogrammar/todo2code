@@ -12,9 +12,16 @@ import {
 } from '../core/text.js';
 import type { ExtractionResult, IntentAction, IntentRecord } from '../core/types.js';
 import { readListBlock } from './markdown-block.js';
+import { createMarkdownPathResolver, type MarkdownPathResolver } from './markdown-paths.js';
 
 /** Deterministic CHANGELOG.md -> Intent DSL converter. */
-export async function extractChangelog(root: string, changelogPath: string, config: T2CConfig): Promise<ExtractionResult> {
+export async function extractChangelog(
+  root: string,
+  changelogPath: string,
+  config: T2CConfig,
+  /** Shared with the TODO converter so one repository walk serves both. */
+  pathResolver: MarkdownPathResolver = createMarkdownPathResolver(root),
+): Promise<ExtractionResult> {
   const absolute = path.resolve(root, changelogPath);
   if (!(await pathExists(absolute))) return { records: [], warnings: [`CHANGELOG file not found: ${changelogPath}`] };
   const body = await readText(absolute, config.maxFileBytes);
@@ -44,13 +51,16 @@ export async function extractChangelog(root: string, changelogPath: string, conf
     index = block.endIndex;
     const text = block.text;
     const action = changelogAction(category, text);
+    // A changelog heading names a release, never a directory, so only the
+    // repository itself can disambiguate a bare filename here.
+    const resolvedPaths = await pathResolver.resolve(extractPaths(text));
     records.push(buildRecord({
       kind: 'changelog_entry',
       action,
       subject: `release:${version}`,
       object: inferObject(text, action),
       target: {
-        paths: extractPaths(text),
+        paths: resolvedPaths,
         symbols: extractSymbols(text),
         tickets: extractTickets(text),
         versions: [version, ...extractVersions(text)],
@@ -62,7 +72,7 @@ export async function extractChangelog(root: string, changelogPath: string, conf
       sourceKind: 'changelog',
       sourcePath: relative,
       sourceLines: { start: block.startLine, end: block.endLine },
-      extractor: 't2c/markdown-changelog@1',
+      extractor: 't2c/markdown-changelog@2',
       rawExcerpt: block.raw.join('\n'),
       epistemicClass: 'claim',
       confidence: 0.92,

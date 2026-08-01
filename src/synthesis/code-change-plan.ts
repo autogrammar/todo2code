@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { promises as fs } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import {
   createCodeChangePlanHash,
@@ -62,6 +62,13 @@ export interface ProposeCodeChangePlansOptions {
   generatedAt?: string;
   /** Limit how many plans are materialised from open diagnostics. Default 50. */
   maxPlans?: number;
+  /**
+   * Repository probe used to tell `create` from `modify`. Injected rather than
+   * read here so plan synthesis stays pure and deterministic; when omitted the
+   * plan cannot know and keeps the conservative `modify`.
+   * See {@link createRepositoryPathProbe}.
+   */
+  pathExists?: (relativePath: string) => boolean;
 }
 
 export interface ProposeCodeChangePlansResult {
@@ -134,7 +141,7 @@ export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): 
     const matchingProposals = proposalsByDiagnostic.get(diagnostic.id) ?? [];
     const matchingConclusions = conclusionsByDiagnostic.get(diagnostic.id) ?? [];
     const target = collectTarget(relatedRecords, matchingProposals);
-    const changes = buildChanges(target, relatedRecords, diagnostic);
+    const changes = buildChanges(target, relatedRecords, diagnostic, options.pathExists);
     if (!changes.length) continue;
 
     const generation = deterministicGeneration(generatedAt, 't2c/code-change-plan');
@@ -184,6 +191,22 @@ export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): 
     graphFingerprint: options.graph.fingerprint,
     sourceDiagnosticCount: candidates.length,
     generation: deterministicGeneration(generatedAt, 't2c/code-change-plan-set'),
+  };
+}
+
+/**
+ * Build the repository probe for {@link ProposeCodeChangePlansOptions.pathExists}.
+ *
+ * A path that escapes the analysed root is reported as existing, so an unusual
+ * value degrades to today's conservative `modify` instead of instructing an
+ * executor to create a file outside the repository.
+ */
+export function createRepositoryPathProbe(root: string): (relativePath: string) => boolean {
+  const base = path.resolve(root);
+  return (relativePath: string): boolean => {
+    const absolute = path.resolve(base, relativePath);
+    if (absolute !== base && !absolute.startsWith(base + path.sep)) return true;
+    return existsSync(absolute);
   };
 }
 
@@ -358,6 +381,7 @@ function buildChanges(
   target: IntentTarget,
   records: IntentRecord[],
   diagnostic: Diagnostic,
+  pathExistsInRepository?: (relativePath: string) => boolean,
 ): CodeChangeFile[] {
   const symbols = uniqueSorted(target.symbols);
   // The diagnostic explains why evidence is missing; it is not necessarily an
@@ -371,12 +395,17 @@ function buildChanges(
     : diagnostic.detail || `Address ${diagnostic.code}.`;
 
   if (target.paths.length) {
-    return uniqueSorted(target.paths).map((path) => ({
-      path: path.replace(/\\/g, '/'),
-      action: 'modify' as const,
-      symbols,
-      rationale,
-    }));
+    return uniqueSorted(target.paths).map((path) => {
+      const normalized = path.replace(/\\/g, '/');
+      // Documentation routinely plans files that do not exist yet (a target
+      // repository's `docs/ARCHITECTURE.md`, a ticket's `preprompt.md`).
+      // Telling an executor to modify them is an instruction it cannot follow,
+      // and `apply-source-patch` rejects a create edit whose target already
+      // exists, so the two actions must not be guessed.
+      const action: CodeChangeFileAction = pathExistsInRepository
+        && !pathExistsInRepository(normalized) ? 'create' : 'modify';
+      return { path: normalized, action, symbols, rationale };
+    });
   }
 
   // Without a path the plan cannot safely name a source file. Skip rather than invent.

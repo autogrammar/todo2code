@@ -100,6 +100,59 @@ test('TODO resolves a bare filename only when its repository basename is unique'
   assert.deepEqual(result.records[0]?.statement.target.paths, ['src/ui/tickets.jsx']);
 });
 
+test('TODO and CHANGELOG resolve the same bare filename to one repository path', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-shared-path-'));
+  await fs.mkdir(path.join(root, 'project'), { recursive: true });
+  await fs.writeFile(path.join(root, 'project', 'new-ticket.sh'), '#!/bin/sh\n');
+  await fs.writeFile(path.join(root, 'TODO.md'), [
+    '# Roadmap',
+    '',
+    '- [ ] Harden `project/new-ticket.sh` against unfinished tickets.',
+    '',
+  ].join('\n'));
+  await fs.writeFile(path.join(root, 'CHANGELOG.md'), [
+    '# Changelog',
+    '',
+    '## [1.0.0] - 2026-07-31',
+    '',
+    '### Changed',
+    '',
+    '- Made `new-ticket.sh` fail closed when an unfinished ticket exists.',
+    '',
+  ].join('\n'));
+
+  const result = await extractMarkdownIntent(
+    { root, todoPath: 'TODO.md', changelogPath: 'CHANGELOG.md' },
+    makeConfig(root),
+  );
+  const todo = result.records.find((record) => record.source.kind === 'todo');
+  const changelog = result.records.find((record) => record.source.kind === 'changelog');
+  assert.deepEqual(todo?.statement.target.paths, ['project/new-ticket.sh']);
+  assert.deepEqual(changelog?.statement.target.paths, ['project/new-ticket.sh']);
+  assert.equal(changelog?.source.extractor, 't2c/markdown-changelog@2');
+});
+
+test('CHANGELOG keeps an ambiguous bare filename unresolved', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-ambiguous-path-'));
+  await fs.mkdir(path.join(root, 'backend'), { recursive: true });
+  await fs.mkdir(path.join(root, 'frontend'), { recursive: true });
+  await fs.writeFile(path.join(root, 'backend', 'server.ts'), 'export {};\n');
+  await fs.writeFile(path.join(root, 'frontend', 'server.ts'), 'export {};\n');
+  await fs.writeFile(path.join(root, 'CHANGELOG.md'), [
+    '# Changelog',
+    '',
+    '## [1.0.0] - 2026-07-31',
+    '',
+    '### Fixed',
+    '',
+    '- Restarted `server.ts` on an unhandled rejection.',
+    '',
+  ].join('\n'));
+
+  const result = await extractChangelog(root, 'CHANGELOG.md', makeConfig(root));
+  assert.deepEqual(result.records[0]?.statement.target.paths, ['server.ts']);
+});
+
 test('TODO and CHANGELOG receive audited LLM enrichment without changing structural facts', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-llm-'));
   await fs.writeFile(path.join(root, 'TODO.md'), '# API\n\n- [x] Obsłużyć kontrakt dla T2C-7.\n');

@@ -28,6 +28,7 @@ import { summarizeGraph } from '../summary/summarizer.js';
 import {
   createCodeChangeReviewPatch,
   createCodeChangeSourcePatchSet,
+  createRepositoryPathProbe,
   proposeCodeChangePlans,
 } from '../synthesis/code-change-plan.js';
 import { synthesizeTodoProposals, TaskSynthesisRequiredError, type AuditedTaskSynthesisResult } from '../synthesis/tasks-llm.js';
@@ -254,6 +255,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
       ? { conclusions: taskSynthesis.conclusions, proposals: taskSynthesis.proposals }
       : {}),
     generatedAt,
+    pathExists: createRepositoryPathProbe(root),
   });
   const codeChangeReview = createCodeChangeReviewPatch({
     plans: codeChangePlans.plans,
