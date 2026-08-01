@@ -1,58 +1,58 @@
-# code2llm/evolution | 2625 func | 102f | 2026-07-31
+# code2llm/evolution | 2976 func | 118f | 2026-08-01
 # generated in 0.01s
 
 NEXT[10] (ranked by impact):
   [1] !! SPLIT           src/synthesis/code-change-plan.ts
-      WHY: 1243L, 10 classes, max CC=47
-      EFFORT: ~4h  IMPACT: 58421
+      WHY: 1310L, 10 classes, max CC=47
+      EFFORT: ~4h  IMPACT: 61570
 
   [2] !! SPLIT           src/core/schema.ts
       WHY: 922L, 4 classes, max CC=23
       EFFORT: ~4h  IMPACT: 21206
 
-  [3] !! SPLIT-FUNC      executeAction  CC=83  fan=64
+  [3] !! SPLIT-FUNC      executeAction  CC=83  fan=65
+      WHY: CC=83 exceeds 15
+      EFFORT: ~1h  IMPACT: 5395
+
+  [4] !! SPLIT-FUNC      root  CC=83  fan=64
       WHY: CC=83 exceeds 15
       EFFORT: ~1h  IMPACT: 5312
 
-  [4] !! SPLIT-FUNC      root  CC=83  fan=63
-      WHY: CC=83 exceeds 15
-      EFFORT: ~1h  IMPACT: 5229
+  [5] !! SPLIT-FUNC      main  CC=95  fan=44
+      WHY: CC=95 exceeds 15
+      EFFORT: ~1h  IMPACT: 4180
 
-  [5] !! SPLIT-FUNC      main  CC=94  fan=43
-      WHY: CC=94 exceeds 15
-      EFFORT: ~1h  IMPACT: 4042
+  [6] !! SPLIT-FUNC      extractCommunicationIntent  CC=76  fan=43
+      WHY: CC=76 exceeds 15
+      EFFORT: ~1h  IMPACT: 3268
 
-  [6] !! SPLIT-FUNC      runPipeline  CC=53  fan=53
+  [7] !! SPLIT-FUNC      runPipeline  CC=53  fan=54
       WHY: CC=53 exceeds 15
-      EFFORT: ~1h  IMPACT: 2809
+      EFFORT: ~1h  IMPACT: 2862
 
-  [7] !! SPLIT-FUNC      extractCommunicationIntent  CC=68  fan=41
-      WHY: CC=68 exceeds 15
-      EFFORT: ~1h  IMPACT: 2788
+  [8] !! SPLIT-FUNC      identityRegistry  CC=72  fan=37
+      WHY: CC=72 exceeds 15
+      EFFORT: ~1h  IMPACT: 2664
 
-  [8] !! SPLIT-FUNC      assertOperationPlan  CC=84  fan=28
+  [9] !! SPLIT-FUNC      communicationFiles  CC=72  fan=37
+      WHY: CC=72 exceeds 15
+      EFFORT: ~1h  IMPACT: 2664
+
+  [10] !! SPLIT-FUNC      assertOperationPlan  CC=84  fan=28
       WHY: CC=84 exceeds 15
       EFFORT: ~1h  IMPACT: 2352
-
-  [9] !! SPLIT-FUNC      identityRegistry  CC=64  fan=35
-      WHY: CC=64 exceeds 15
-      EFFORT: ~1h  IMPACT: 2240
-
-  [10] !! SPLIT-FUNC      communicationFiles  CC=64  fan=35
-      WHY: CC=64 exceeds 15
-      EFFORT: ~1h  IMPACT: 2240
 
 
 RISKS[3]:
   ⚠ Splitting evaluation/gold/v2/dataset.json may break 0 import paths
-  ⚠ Splitting src/synthesis/code-change-plan.ts may break 121 import paths
+  ⚠ Splitting src/synthesis/code-change-plan.ts may break 127 import paths
   ⚠ Splitting src/core/schema.ts may break 124 import paths
 
 METRICS-TARGET:
   CC̄:          4.0 → ≤2.8
-  max-CC:      94 → ≤20
-  god-modules: 16 → 0
-  high-CC(≥15): 89 → ≤44
+  max-CC:      95 → ≤20
+  god-modules: 19 → 0
+  high-CC(≥15): 109 → ≤54
   hub-types:   0 → ≤0
 
 PATTERNS (language parser shared logic):

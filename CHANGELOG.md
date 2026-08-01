@@ -107,6 +107,9 @@
 
 ### Fixed
 
+- Generated-analysis normalization removes detached `/tmp/t2c-analysis.*`
+  roots embedded inside historical tracked logs as well as the current source
+  root, preventing a fresh `project/index.html` from failing its isolation gate.
 - CLI `--help` after a command is non-mutating. In particular,
   `t2c pipeline --help` no longer executes a pipeline or writes `.intent`.
 - Polish `zabrania się` and `zabraniają` forms are recognized as required,

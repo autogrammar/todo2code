@@ -15,7 +15,10 @@ test('generated analysis replaces its source root with a stable token', async ()
   await fs.mkdir(path.join(root, 'docs'));
   await fs.mkdir(path.join(root, 'project'));
   await fs.writeFile(path.join(root, 'docs', 'README.md'), `source: ${sourceRoot}\n`);
-  await fs.writeFile(path.join(root, 'project', 'context.md'), `root=${sourceRoot}  \nagain=${sourceRoot}\t\n`);
+  await fs.writeFile(
+    path.join(root, 'project', 'context.md'),
+    `root=${sourceRoot}  \nagain=${sourceRoot}\t\nhistorical=/tmp/t2c-analysis.OLD123/todo2code/src/a.ts\n`,
+  );
   await fs.writeFile(path.join(root, 'project', 'flow.mmd'), 'relative only\n');
   await fs.writeFile(path.join(root, 'project', 'flow.png'), Buffer.from([0, 1, 2]));
 
@@ -24,7 +27,7 @@ test('generated analysis replaces its source root with a stable token', async ()
   assert.equal(await fs.readFile(path.join(root, 'docs', 'README.md'), 'utf8'), 'source: <PROJECT_ROOT>\n');
   assert.equal(
     await fs.readFile(path.join(root, 'project', 'context.md'), 'utf8'),
-    'root=<PROJECT_ROOT>\nagain=<PROJECT_ROOT>\n',
+    'root=<PROJECT_ROOT>\nagain=<PROJECT_ROOT>\nhistorical=<PROJECT_ROOT>/src/a.ts\n',
   );
 });
 

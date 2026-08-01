@@ -1,5 +1,5 @@
 flowchart TD
-%% generated in 0.01s
+%% generated in 0.02s
     subgraph examples__backend
         examples__backend__src__validation__ALLOWED_ACTIONS("ALLOWED_ACTIONS CC=10")
         examples__backend__src__validation__validateEventPayload("validateEventPayload CC=10")
@@ -98,9 +98,19 @@ flowchart TD
         java__JavaAstExtract__JavaAstExtract__escape("escape CC=9")
         java__JavaAstExtract__JavaAstExtract__slash["slash"]
     end
+    subgraph php__ast_extract
+        php__ast_extract__argumentValue["argumentValue"]
+        php__ast_extract__normalizedToken["normalizedToken"]
+        php__ast_extract__significant["significant"]
+        php__ast_extract__qualifiedName("qualifiedName CC=9")
+        php__ast_extract__sourceExcerpt["sourceExcerpt"]
+        php__ast_extract__addFact["addFact"]
+        php__ast_extract__parseFile{{parseFile CC=38}}
+    end
     subgraph python__ast_extract
         python__ast_extract__source_hash["source_hash"]
         python__ast_extract__dotted_name["dotted_name"]
+        python__ast_extract__is_module_entrypoint("is_module_entrypoint CC=10")
         python__ast_extract__FactVisitor____init__["__init__"]
         python__ast_extract__FactVisitor__excerpt["excerpt"]
         python__ast_extract__FactVisitor__add["add"]
@@ -109,6 +119,10 @@ flowchart TD
         python__ast_extract__FactVisitor__visit_FunctionDef["visit_FunctionDef"]
         python__ast_extract__FactVisitor__visit_AsyncFunctionDef["visit_AsyncFunctionDef"]
         python__ast_extract__FactVisitor__visit_ClassDef["visit_ClassDef"]
+        python__ast_extract__FactVisitor__add_named_constant("add_named_constant CC=8")
+        python__ast_extract__FactVisitor__visit_Assign["visit_Assign"]
+        python__ast_extract__FactVisitor__visit_AnnAssign["visit_AnnAssign"]
+        python__ast_extract__FactVisitor__visit_If["visit_If"]
         python__ast_extract__FactVisitor__visit_Call["visit_Call"]
         python__ast_extract__iter_python_files{{iter_python_files CC=16}}
         python__ast_extract__main["main"]
@@ -152,10 +166,21 @@ flowchart TD
     subgraph scripts__docker_smoke
         scripts__docker_smoke__cleanup["cleanup"]
     end
+    subgraph scripts__e2e
+        scripts__e2e__fail["fail"]
+        scripts__e2e__require_command["require_command"]
+        scripts__e2e__run_step["run_step"]
+    end
     subgraph scripts__examples_check
         scripts__examples_check__cleanup["cleanup"]
         scripts__examples_check__record_sdk_log["record_sdk_log"]
         scripts__examples_check__run_sdk["run_sdk"]
+    end
+    subgraph scripts__generate_response_schemas
+        scripts__generate_response_schemas__root["root"]
+        scripts__generate_response_schemas__outputPath["outputPath"]
+        scripts__generate_response_schemas__publishedDocumentMaximum["publishedDocumentMaximum"]
+        scripts__generate_response_schemas__current["current"]
     end
     subgraph scripts__live_contract_check
         scripts__live_contract_check__REPO_ROOT["REPO_ROOT"]
@@ -163,39 +188,44 @@ flowchart TD
         scripts__live_contract_check__value["value"]
         scripts__live_contract_check__main["main"]
         scripts__live_contract_check__config["config"]
-        scripts__live_contract_check__stages["stages"]
-        scripts__live_contract_check__audit["audit"]
-        scripts__live_contract_check__runStages["runStages"]
-        scripts__live_contract_check__runDirectory["runDirectory"]
-        scripts__live_contract_check__graph["graph"]
-        scripts__live_contract_check__diagnostics["diagnostics"]
-        scripts__live_contract_check__nl["nl"]
-        scripts__live_contract_check__summary["summary"]
-        scripts__live_contract_check__latestDemoRun["latestDemoRun"]
-        scripts__live_contract_check__runsRoot["runsRoot"]
-        scripts__live_contract_check__latest["latest"]
-        scripts__live_contract_check__timeStage["timeStage"]
+        scripts__live_contract_check__manifest["manifest"]
+        scripts__live_contract_check__history["history"]
+        scripts__live_contract_check__recorded["recorded"]
+        scripts__live_contract_check__runLivePipeline["runLivePipeline"]
+        scripts__live_contract_check__root["root"]
+        scripts__live_contract_check__outputDir["outputDir"]
+        scripts__live_contract_check__deadline["deadline"]
+        scripts__live_contract_check__deadlineTimer["deadlineTimer"]
         scripts__live_contract_check__startedAt["startedAt"]
+        scripts__live_contract_check__failed["failed"]
+        scripts__live_contract_check__runLivePipelineOnce["runLivePipelineOnce"]
         scripts__live_contract_check__result["result"]
-        scripts__live_contract_check__responses["responses"]
-        scripts__live_contract_check__redactedError["redactedError"]
-        scripts__live_contract_check__message["message"]
-        scripts__live_contract_check__buildAudit("buildAudit CC=8")
-        scripts__live_contract_check__measured["measured"]
-        scripts__live_contract_check__usage["usage"]
-        scripts__live_contract_check__cost["cost"]
-        scripts__live_contract_check__totalTokens["totalTokens"]
-        scripts__live_contract_check__overLatency["overLatency"]
-        scripts__live_contract_check__totalCostUsd["totalCostUsd"]
-        scripts__live_contract_check__overCost["overCost"]
-        scripts__live_contract_check__failures["failures"]
-        scripts__live_contract_check__sum["sum"]
-        scripts__live_contract_check__numbers["numbers"]
-        scripts__live_contract_check__writeAudit["writeAudit"]
-        scripts__live_contract_check__target["target"]
-        scripts__live_contract_check__report("report CC=9")
-        scripts__live_contract_check__status["status"]
-        scripts__live_contract_check__total["total"]
+        scripts__live_contract_check__readLatestRunManifest["readLatestRunManifest"]
+        scripts__live_contract_check__runsRoot["runsRoot"]
+        scripts__live_contract_check__manifestPath["manifestPath"]
+        scripts__live_contract_check__stat["stat"]
+        scripts__live_contract_check__auditPath["auditPath"]
+        scripts__live_contract_check__historyPath["historyPath"]
+        scripts__live_contract_check__readHistory["readHistory"]
+        scripts__live_contract_check__parsed["parsed"]
+        scripts__live_contract_check__writeJson["writeJson"]
+    end
+    subgraph scripts__live_model_comparison
+        scripts__live_model_comparison__REPO_ROOT["REPO_ROOT"]
+        scripts__live_model_comparison__main("main CC=13")
+        scripts__live_model_comparison__probe["probe"]
+        scripts__live_model_comparison__timeoutMs["timeoutMs"]
+        scripts__live_model_comparison__models["models"]
+        scripts__live_model_comparison__root["root"]
+        scripts__live_model_comparison__config["config"]
+        scripts__live_model_comparison__result["result"]
+        scripts__live_model_comparison__comparison["comparison"]
+        scripts__live_model_comparison__rendered["rendered"]
+        scripts__live_model_comparison__jsonTarget["jsonTarget"]
+        scripts__live_model_comparison__markdownTarget["markdownTarget"]
+        scripts__live_model_comparison__failedAudit["failedAudit"]
+        scripts__live_model_comparison__message["message"]
+        scripts__live_model_comparison__writeFile["writeFile"]
     end
     subgraph scripts__normalize_generated_analysis_roots
         scripts__normalize_generated_analysis_roots__root["root"]
@@ -205,6 +235,68 @@ flowchart TD
         scripts__normalize_generated_analysis_roots__changed["changed"]
         scripts__normalize_generated_analysis_roots__original["original"]
         scripts__normalize_generated_analysis_roots__normalized["normalized"]
+    end
+    subgraph scripts__research
+        scripts__research__rerank_embedding_shortlist__options["options"]
+        scripts__research__rerank_embedding_shortlist__records["records"]
+        scripts__research__rerank_embedding_shortlist__selectedRows["selectedRows"]
+        scripts__research__rerank_embedding_shortlist__declaration["declaration"]
+        scripts__research__rerank_embedding_shortlist__module["module"]
+        scripts__research__rerank_embedding_shortlist__candidateSet["candidateSet"]
+        scripts__research__rerank_embedding_shortlist__config["config"]
+        scripts__research__rerank_embedding_shortlist__rerank["rerank"]
+        scripts__research__rerank_embedding_shortlist__augmentedGraph["augmentedGraph"]
+        scripts__research__rerank_embedding_shortlist__originalRelationIds["originalRelationIds"]
+        scripts__research__rerank_embedding_shortlist__originallyRelatedPairs["originallyRelatedPairs"]
+        scripts__research__rerank_embedding_shortlist__candidateById("candidateById CC=9")
+        scripts__research__rerank_embedding_shortlist__accepted("accepted CC=9")
+        scripts__research__rerank_embedding_shortlist__candidate["candidate"]
+        scripts__research__rerank_embedding_shortlist__relation["relation"]
+        scripts__research__rerank_embedding_shortlist__verdictCounts["verdictCounts"]
+        scripts__research__rerank_embedding_shortlist__resolveDeclaration["resolveDeclaration"]
+        scripts__research__rerank_embedding_shortlist__exact["exact"]
+        scripts__research__rerank_embedding_shortlist__matches["matches"]
+        scripts__research__rerank_embedding_shortlist__resolveModule["resolveModule"]
+        scripts__research__rerank_embedding_shortlist__readJson["readJson"]
+        scripts__research__rerank_embedding_shortlist__parseArgs("parseArgs CC=14")
+        scripts__research__rerank_embedding_shortlist__values["values"]
+        scripts__research__rerank_embedding_shortlist__key["key"]
+        scripts__research__rerank_embedding_shortlist__value["value"]
+        scripts__research__rerank_embedding_shortlist__required["required"]
+        scripts__research__rerank_embedding_shortlist__top["top"]
+        scripts__research__rank_intent_graph_embeddings__parse_args["parse_args"]
+        scripts__research__rank_intent_graph_embeddings__projection_text["projection_text"]
+        scripts__research__rank_intent_graph_embeddings__main{{main CC=27}}
+        scripts__research__evaluate_embedding_pairs__parse_args["parse_args"]
+        scripts__research__evaluate_embedding_pairs__main("main CC=9")
+        scripts__research__audit_changelog_sample__options["options"]
+        scripts__research__audit_changelog_sample__entries["entries"]
+        scripts__research__audit_changelog_sample__root["root"]
+        scripts__research__audit_changelog_sample__latest["latest"]
+        scripts__research__audit_changelog_sample__runDirectory["runDirectory"]
+        scripts__research__audit_changelog_sample__diagnostics["diagnostics"]
+        scripts__research__audit_changelog_sample__graph["graph"]
+        scripts__research__audit_changelog_sample__recordsById["recordsById"]
+        scripts__research__audit_changelog_sample__findings["findings"]
+        scripts__research__audit_changelog_sample__selected["selected"]
+        scripts__research__audit_changelog_sample__trackedFiles["trackedFiles"]
+        scripts__research__audit_changelog_sample__classification["classification"]
+        scripts__research__audit_changelog_sample__labelCounts["labelCounts"]
+        scripts__research__audit_changelog_sample__labelRepositories["labelRepositories"]
+        scripts__research__audit_changelog_sample__stratifiedSample("stratifiedSample CC=10")
+        scripts__research__audit_changelog_sample__groups["groups"]
+        scripts__research__audit_changelog_sample__values["values"]
+        scripts__research__audit_changelog_sample__added["added"]
+        scripts__research__audit_changelog_sample__record["record"]
+        scripts__research__audit_changelog_sample__targetClass["targetClass"]
+        scripts__research__audit_changelog_sample__target["target"]
+        scripts__research__audit_changelog_sample__classify["classify"]
+        scripts__research__audit_changelog_sample__text["text"]
+        scripts__research__audit_changelog_sample__file["file"]
+        scripts__research__audit_changelog_sample__exactFileUpdate["exactFileUpdate"]
+        scripts__research__audit_changelog_sample__match["match"]
+        scripts__research__audit_changelog_sample__candidate["candidate"]
+        scripts__research__audit_changelog_sample__basename["basename"]
     end
     subgraph scripts__sync_generated_readme_metadata
         scripts__sync_generated_readme_metadata__root["root"]
@@ -247,10 +339,16 @@ flowchart TD
         scripts__verify_generated_analysis__root["root"]
         scripts__verify_generated_analysis__projectDirectory["projectDirectory"]
         scripts__verify_generated_analysis__textExtensions["textExtensions"]
-        scripts__verify_generated_analysis__untracked["untracked"]
+        scripts__verify_generated_analysis__untracked("untracked CC=8")
+        scripts__verify_generated_analysis__tracked("tracked CC=8")
+        scripts__verify_generated_analysis__generatedRelative("generatedRelative CC=8")
+        scripts__verify_generated_analysis__trackedReferences("trackedReferences CC=8")
         scripts__verify_generated_analysis__relative["relative"]
         scripts__verify_generated_analysis__content["content"]
         scripts__verify_generated_analysis__normalizePath["normalizePath"]
+        scripts__verify_generated_analysis__referencesAlreadyInTrackedSources["referencesAlreadyInTrackedSources"]
+        scripts__verify_generated_analysis__referenced["referenced"]
+        scripts__verify_generated_analysis__text["text"]
     end
     subgraph scripts__verify_module_boundaries
         scripts__verify_module_boundaries__sourceRoot["sourceRoot"]
@@ -277,6 +375,15 @@ flowchart TD
         scripts__verify_no_llm_imports__resolved["resolved"]
         scripts__verify_no_llm_imports__resolveSource["resolveSource"]
         scripts__verify_no_llm_imports__raw["raw"]
+    end
+    subgraph scripts__verify_structured_responses
+        scripts__verify_structured_responses__root("root CC=8")
+        scripts__verify_structured_responses__sourceRoot("sourceRoot CC=8")
+        scripts__verify_structured_responses__files("files CC=8")
+        scripts__verify_structured_responses__structuredCalls("structuredCalls CC=8")
+        scripts__verify_structured_responses__source["source"]
+        scripts__verify_structured_responses__typescriptFiles["typescriptFiles"]
+        scripts__verify_structured_responses__absolute["absolute"]
     end
     subgraph scripts__verify_workflow_yaml
         scripts__verify_workflow_yaml__explicit("explicit CC=11")
@@ -530,7 +637,7 @@ flowchart TD
     end
     subgraph src__cli
         src__cli__execFileAsync["execFileAsync"]
-        src__cli__main{{main CC=94}}
+        src__cli__main{{main CC=95}}
         src__cli__parsed["parsed"]
         src__cli__command["command"]
         src__cli__config["config"]
@@ -591,56 +698,59 @@ flowchart TD
         src__cli__targetEnv["targetEnv"]
     end
     subgraph src__communication
-        src__communication__llm__ACTION_SET["ACTION_SET"]
         src__communication__llm__CommunicationLlmRequiredError__super["super"]
-        src__communication__llm__CommunicationLlmRequiredError__extractCommunicationIntentAudited("extractCommunicationIntentAudited CC=10")
+        src__communication__llm__CommunicationLlmRequiredError__extractCommunicationIntentAudited("extractCommunicationIntentAudited CC=12")
         src__communication__llm__CommunicationLlmRequiredError__startedAt["startedAt"]
         src__communication__llm__CommunicationLlmRequiredError__deterministic["deterministic"]
         src__communication__llm__CommunicationLlmRequiredError__records["records"]
         src__communication__llm__CommunicationLlmRequiredError__client["client"]
         src__communication__llm__CommunicationLlmRequiredError__groups["groups"]
-        src__communication__llm__CommunicationLlmRequiredError__completion["completion"]
+        src__communication__llm__CommunicationLlmRequiredError__response["response"]
         src__communication__llm__CommunicationLlmRequiredError__enrichments["enrichments"]
         src__communication__llm__CommunicationLlmRequiredError__enrichedByOriginal["enrichedByOriginal"]
         src__communication__llm__CommunicationLlmRequiredError__generation["generation"]
         src__communication__llm__CommunicationLlmRequiredError__participants["participants"]
-        src__communication__llm__CommunicationLlmRequiredError__fallbackOrThrow["fallbackOrThrow"]
-        src__communication__llm__CommunicationLlmRequiredError__failed["failed"]
-        src__communication__llm__CommunicationLlmRequiredError__marked["marked"]
-        src__communication__llm__CommunicationLlmRequiredError__participantGroups("participantGroups CC=10")
-        src__communication__llm__CommunicationLlmRequiredError__grouped["grouped"]
-        src__communication__llm__CommunicationLlmRequiredError__participant["participant"]
-        src__communication__llm__CommunicationLlmRequiredError__role["role"]
-        src__communication__llm__CommunicationLlmRequiredError__key["key"]
-        src__communication__llm__CommunicationLlmRequiredError__values["values"]
-        src__communication__llm__CommunicationLlmRequiredError__promptPayload["promptPayload"]
-        src__communication__llm__CommunicationLlmRequiredError__validateEnrichments["validateEnrichments"]
-        src__communication__llm__CommunicationLlmRequiredError__expected["expected"]
-        src__communication__llm__CommunicationLlmRequiredError__output["output"]
-        src__communication__llm__CommunicationLlmRequiredError__materializeSyntheses("materializeSyntheses CC=10")
-        src__communication__llm__CommunicationLlmRequiredError__byKey["byKey"]
-        src__communication__llm__CommunicationLlmRequiredError__seen["seen"]
-        src__communication__llm__CommunicationLlmRequiredError__group["group"]
-        src__communication__llm__CommunicationLlmRequiredError__permitted["permitted"]
-        src__communication__llm__CommunicationLlmRequiredError__recordIds["recordIds"]
-        src__communication__llm__CommunicationLlmRequiredError__enrichRecord["enrichRecord"]
-        src__communication__llm__CommunicationLlmRequiredError__deterministicSyntheses["deterministicSyntheses"]
-        src__communication__llm__CommunicationLlmRequiredError__synthesis["synthesis"]
-        src__communication__llm__CommunicationLlmRequiredError__markDeterministic["markDeterministic"]
-        src__communication__llm__CommunicationLlmRequiredError__deterministicGeneration["deterministicGeneration"]
-        src__communication__llm__CommunicationLlmRequiredError__fallbackGeneration["fallbackGeneration"]
-        src__communication__llm__CommunicationLlmRequiredError__llmGeneration["llmGeneration"]
-        src__communication__llm__CommunicationLlmRequiredError__audit["audit"]
-        src__communication__llm__CommunicationLlmRequiredError__roleOf["roleOf"]
-        src__communication__llm__CommunicationLlmRequiredError__isEnrichment{{isEnrichment CC=18}}
-        src__communication__llm__CommunicationLlmRequiredError__item["item"]
-        src__communication__llm__CommunicationLlmRequiredError__isRawSynthesis("isRawSynthesis CC=9")
-        src__communication__llm__CommunicationLlmRequiredError__finiteConfidence["finiteConfidence"]
-        src__communication__llm__CommunicationLlmRequiredError__isStrings["isStrings"]
-        src__communication__llm__CommunicationLlmRequiredError__sortedUnique["sortedUnique"]
-        src__communication__llm__CommunicationLlmRequiredError__readPrompt["readPrompt"]
-        src__communication__llm__CommunicationLlmRequiredError__promptPath["promptPath"]
-        src__communication__llm__CommunicationLlmRequiredError__responseSchema["responseSchema"]
+        src__communication__llm__CommunicationLlmRequiredError__failure["failure"]
+        src__communication__llm__CommunicationLlmRequiredError__responses["responses"]
+        src__communication__llm__CommunicationLlmRequiredError__classifyLlmFailure["classifyLlmFailure"]
+        src__communication__llm__CommunicationAttemptError__super["super"]
+        src__communication__llm__CommunicationAttemptError__enrichWithCorrection["enrichWithCorrection"]
+        src__communication__llm__CommunicationAttemptError__completion["completion"]
+        src__communication__llm__CommunicationAttemptError__fallbackOrThrow["fallbackOrThrow"]
+        src__communication__llm__CommunicationAttemptError__failed["failed"]
+        src__communication__llm__CommunicationAttemptError__marked["marked"]
+        src__communication__llm__CommunicationAttemptError__participantGroups("participantGroups CC=10")
+        src__communication__llm__CommunicationAttemptError__grouped["grouped"]
+        src__communication__llm__CommunicationAttemptError__participant["participant"]
+        src__communication__llm__CommunicationAttemptError__role["role"]
+        src__communication__llm__CommunicationAttemptError__key["key"]
+        src__communication__llm__CommunicationAttemptError__values["values"]
+        src__communication__llm__CommunicationAttemptError__promptPayload["promptPayload"]
+        src__communication__llm__CommunicationAttemptError__validateEnrichments["validateEnrichments"]
+        src__communication__llm__CommunicationAttemptError__expected["expected"]
+        src__communication__llm__CommunicationAttemptError__output["output"]
+        src__communication__llm__CommunicationAttemptError__materializeSyntheses("materializeSyntheses CC=9")
+        src__communication__llm__CommunicationAttemptError__byKey["byKey"]
+        src__communication__llm__CommunicationAttemptError__seen["seen"]
+        src__communication__llm__CommunicationAttemptError__group["group"]
+        src__communication__llm__CommunicationAttemptError__permitted["permitted"]
+        src__communication__llm__CommunicationAttemptError__recordIds["recordIds"]
+        src__communication__llm__CommunicationAttemptError__enrichRecord["enrichRecord"]
+        src__communication__llm__CommunicationAttemptError__deterministicSyntheses["deterministicSyntheses"]
+        src__communication__llm__CommunicationAttemptError__synthesis["synthesis"]
+        src__communication__llm__CommunicationAttemptError__markDeterministic["markDeterministic"]
+        src__communication__llm__CommunicationAttemptError__deterministicGeneration["deterministicGeneration"]
+        src__communication__llm__CommunicationAttemptError__fallbackGeneration["fallbackGeneration"]
+        src__communication__llm__CommunicationAttemptError__llmGeneration["llmGeneration"]
+        src__communication__llm__CommunicationAttemptError__audit["audit"]
+        src__communication__llm__CommunicationAttemptError__roleOf["roleOf"]
+        src__communication__llm__CommunicationAttemptError__sortedUnique["sortedUnique"]
+        src__communication__llm__CommunicationAttemptError__readPrompt["readPrompt"]
+        src__communication__llm__CommunicationAttemptError__promptPath["promptPath"]
+        src__communication__llm__CommunicationAttemptError__communicationStrings["communicationStrings"]
+        src__communication__llm__CommunicationAttemptError__COMMUNICATION_ENRICHMENT_CONTRACT["COMMUNICATION_ENRICHMENT_CONTRACT"]
+        src__communication__llm__CommunicationAttemptError__PARTICIPANT_SYNTHESIS_CONTRACT["PARTICIPANT_SYNTHESIS_CONTRACT"]
+        src__communication__llm__CommunicationAttemptError__COMMUNICATION_RESPONSE_CONTRACT["COMMUNICATION_RESPONSE_CONTRACT"]
         src__communication__identity__loadParticipantIdentityRegistry["loadParticipantIdentityRegistry"]
         src__communication__identity__registryPath["registryPath"]
         src__communication__identity__assertParticipantIdentityRegistry{{assertParticipantIdentityRegistry CC=30}}
@@ -648,9 +758,6 @@ flowchart TD
         src__communication__identity__ids{{ids CC=25}}
         src__communication__identity__external{{external CC=25}}
         src__communication__identity__entry["entry"]
-        src__communication__identity__values["values"]
-        src__communication__identity__normalized["normalized"]
-        src__communication__identity__owner["owner"]
     end
     subgraph src__comparison
         src__comparison__workspace__execFileAsync("execFileAsync CC=12")
@@ -738,8 +845,9 @@ flowchart TD
         src__core__text__searchable["searchable"]
         src__core__text__detectModality("detectModality CC=11")
         src__core__text__matches["matches"]
-        src__core__text__detectPolarity["detectPolarity"]
+        src__core__text__detectPolarity("detectPolarity CC=8")
         src__core__text__stripped["stripped"]
+        src__core__text__normalized{{normalized CC=30}}
         src__core__text__normalizeToken["normalizeToken"]
         src__core__text__keywords["keywords"]
         src__core__text__GENERIC_TOPICS["GENERIC_TOPICS"]
@@ -767,6 +875,7 @@ flowchart TD
         src__core__text__parts["parts"]
         src__core__text__tld["tld"]
         src__core__text__extractSymbols["extractSymbols"]
+        src__core__text__repositoryPaths["repositoryPaths"]
         src__core__text__backticks["backticks"]
         src__core__text__camel["camel"]
         src__core__text__ticketPrefixes["ticketPrefixes"]
@@ -774,7 +883,6 @@ flowchart TD
         src__core__text__values["values"]
         src__core__text__extractVersions["extractVersions"]
         src__core__text__inferObject{{inferObject CC=34}}
-        src__core__text__normalized{{normalized CC=30}}
         src__core__text__result["result"]
         src__core__text__splitIntentLines["splitIntentLines"]
         src__core__text__lines["lines"]
@@ -790,7 +898,6 @@ flowchart TD
         src__core__target__normalized["normalized"]
         src__core__target__parts["parts"]
         src__core__target__leaf["leaf"]
-        src__core__target__pathAliases["pathAliases"]
     end
     subgraph src__diff
         src__diff__text__DEFAULT_CONTEXT["DEFAULT_CONTEXT"]
@@ -861,7 +968,7 @@ flowchart TD
         src__evaluation__gold__first["first"]
         src__evaluation__gold__second["second"]
         src__evaluation__gold__stable["stable"]
-        src__evaluation__gold__goldReportIsPerfect("goldReportIsPerfect CC=12")
+        src__evaluation__gold__goldReportIsPerfect("goldReportIsPerfect CC=14")
         src__evaluation__gold__renderGoldReportMarkdown["renderGoldReportMarkdown"]
         src__evaluation__gold__percent["percent"]
         src__evaluation__gold__support["support"]
@@ -881,8 +988,9 @@ flowchart TD
         src__evaluation__gold__forbiddenViolations["forbiddenViolations"]
         src__evaluation__gold__snapshots["snapshots"]
         src__evaluation__gold__result["result"]
-        src__evaluation__gold__evaluateLinking["evaluateLinking"]
+        src__evaluation__gold__evaluateLinking("evaluateLinking CC=10")
         src__evaluation__gold__byClass["byClass"]
+        src__evaluation__gold__reranking["reranking"]
         src__evaluation__gold__evaluateDsl2Todo["evaluateDsl2Todo"]
         src__evaluation__gold__duplicateCounts["duplicateCounts"]
         src__evaluation__gold_types__assertGoldDataset["assertGoldDataset"]
@@ -893,6 +1001,9 @@ flowchart TD
         src__evaluation__gold_types__assertUniqueCaseIds["assertUniqueCaseIds"]
         src__evaluation__gold_types__assertExtractionCoverage["assertExtractionCoverage"]
         src__evaluation__gold_types__channels["channels"]
+        src__evaluation__gold_types__assertLinkingCohorts{{assertLinkingCohorts CC=32}}
+        src__evaluation__gold_types__labels{{labels CC=18}}
+        src__evaluation__gold_types__modules{{modules CC=18}}
         src__evaluation__gold_metrics__emptyCounts["emptyCounts"]
         src__evaluation__gold_metrics__addCounts["addCounts"]
         src__evaluation__gold_metrics__compareSets["compareSets"]
@@ -911,10 +1022,6 @@ flowchart TD
         src__evaluation__gold_extraction__destination["destination"]
         src__evaluation__gold_extraction__extractNlCase["extractNlCase"]
         src__evaluation__gold_extraction__extractMarkdownCase["extractMarkdownCase"]
-        src__evaluation__gold_extraction__extractDeterministicDocumentationCase["extractDeterministicDocumentationCa"]
-        src__evaluation__gold_extraction__files["files"]
-        src__evaluation__gold_extraction__extractDocumentationCase["extractDocumentationCase"]
-        src__evaluation__gold_extraction__originalFetch["originalFetch"]
     end
     subgraph src__extractors
         src__extractors__todo__extractTodo["extractTodo"]
@@ -931,6 +1038,7 @@ flowchart TD
         src__extractors__todo__text["text"]
         src__extractors__todo__classified["classified"]
         src__extractors__todo__action["action"]
+        src__extractors__todo__resolvedPaths["resolvedPaths"]
         src__extractors__todo__inferOwner["inferOwner"]
         src__extractors__todo__match["match"]
         src__extractors__todo__extractExplicitId["extractExplicitId"]
@@ -947,7 +1055,7 @@ flowchart TD
         src__extractors__nl__inferActor["inferActor"]
         src__extractors__nl__detectMissingFields("detectMissingFields CC=10")
         src__extractors__nl_llm__NlLlmRequiredError__super["super"]
-        src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited("extractNlIntentAudited CC=9")
+        src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited("extractNlIntentAudited CC=10")
         src__extractors__nl_llm__NlLlmRequiredError__assertNlExtractionOptions["assertNlExtractionOptions"]
         src__extractors__nl_llm__NlLlmRequiredError__startedAt["startedAt"]
         src__extractors__nl_llm__NlLlmRequiredError__result["result"]
@@ -957,28 +1065,43 @@ flowchart TD
         src__extractors__nl_llm__NlLlmRequiredError__sourcePath["sourcePath"]
         src__extractors__nl_llm__NlLlmRequiredError__maxLine["maxLine"]
         src__extractors__nl_llm__NlLlmRequiredError__prompt["prompt"]
-        src__extractors__nl_llm__NlLlmRequiredError__completion["completion"]
+        src__extractors__nl_llm__NlLlmRequiredError__response["response"]
         src__extractors__nl_llm__NlLlmRequiredError__records["records"]
-        src__extractors__nl_llm__NlLlmRequiredError__fallbackOrThrow["fallbackOrThrow"]
-        src__extractors__nl_llm__NlLlmRequiredError__failedAudit["failedAudit"]
-        src__extractors__nl_llm__NlLlmRequiredError__deterministic["deterministic"]
-        src__extractors__nl_llm__NlLlmRequiredError__markDeterministic["markDeterministic"]
-        src__extractors__nl_llm__NlLlmRequiredError__toIntentRecord{{toIntentRecord CC=18}}
-        src__extractors__nl_llm__NlLlmRequiredError__start["start"]
-        src__extractors__nl_llm__NlLlmRequiredError__end["end"]
-        src__extractors__nl_llm__NlLlmRequiredError__lines["lines"]
-        src__extractors__nl_llm__NlLlmRequiredError__excerpt["excerpt"]
-        src__extractors__nl_llm__NlLlmRequiredError__action["action"]
-        src__extractors__nl_llm__NlLlmRequiredError__normalizedText("normalizedText CC=11")
-        src__extractors__nl_llm__NlLlmRequiredError__statementText("statementText CC=11")
-        src__extractors__nl_llm__NlLlmRequiredError__OBJECT_PLACEHOLDERS["OBJECT_PLACEHOLDERS"]
-        src__extractors__nl_llm__NlLlmRequiredError__nonEmptyText["nonEmptyText"]
-        src__extractors__nl_llm__NlLlmRequiredError__isPlaceholder["isPlaceholder"]
-        src__extractors__nl_llm__NlLlmRequiredError__text["text"]
-        src__extractors__nl_llm__NlLlmRequiredError__resolveObject["resolveObject"]
-        src__extractors__nl_llm__NlLlmRequiredError__fallback["fallback"]
+        src__extractors__nl_llm__NlLlmRequiredError__failure["failure"]
+        src__extractors__nl_llm__NlLlmRequiredError__responses["responses"]
+        src__extractors__nl_llm__NlAttemptError__super["super"]
+        src__extractors__nl_llm__NlAttemptError__extractNlWithCorrection["extractNlWithCorrection"]
+        src__extractors__nl_llm__NlAttemptError__completion["completion"]
+        src__extractors__nl_llm__NlAttemptError__fallbackOrThrow["fallbackOrThrow"]
+        src__extractors__nl_llm__NlAttemptError__failedAudit["failedAudit"]
+        src__extractors__nl_llm__NlAttemptError__deterministic["deterministic"]
+        src__extractors__nl_llm__NlAttemptError__markDeterministic["markDeterministic"]
+        src__extractors__nl_llm__NlAttemptError__toIntentRecord{{toIntentRecord CC=18}}
+        src__extractors__nl_llm__NlAttemptError__start["start"]
+        src__extractors__nl_llm__NlAttemptError__end["end"]
+        src__extractors__nl_llm__NlAttemptError__lines["lines"]
+        src__extractors__nl_llm__NlAttemptError__excerpt["excerpt"]
+        src__extractors__nl_llm__NlAttemptError__action["action"]
+        src__extractors__nl_llm__NlAttemptError__normalizedText("normalizedText CC=11")
+        src__extractors__nl_llm__NlAttemptError__statementText("statementText CC=11")
     end
     subgraph src__graph
+        src__graph__symbol_resolution__buildSymbolResolutionIndex{{buildSymbolResolutionIndex CC=15}}
+        src__graph__symbol_resolution__byAlias("byAlias CC=9")
+        src__graph__symbol_resolution__values["values"]
+        src__graph__symbol_resolution__byNlRecord["byNlRecord"]
+        src__graph__symbol_resolution__hasResolvedNlAstSymbolPair("hasResolvedNlAstSymbolPair CC=10")
+        src__graph__symbol_resolution__nl["nl"]
+        src__graph__symbol_resolution__ast["ast"]
+        src__graph__symbol_resolution__resolveSymbol("resolveSymbol CC=8")
+        src__graph__symbol_resolution__matched["matched"]
+        src__graph__symbol_resolution__selected["selected"]
+        src__graph__symbol_resolution__paths["paths"]
+        src__graph__symbol_resolution__pathSelects["pathSelects"]
+        src__graph__symbol_resolution__normalized["normalized"]
+        src__graph__symbol_resolution__candidatePath["candidatePath"]
+        src__graph__symbol_resolution__uniquePaths["uniquePaths"]
+        src__graph__symbol_resolution__isAstDeclaration["isAstDeclaration"]
         src__graph__linker__indexKeywords["indexKeywords"]
         src__graph__linker__jaccard["jaccard"]
         src__graph__linker__intersection["intersection"]
@@ -986,6 +1109,7 @@ flowchart TD
         src__graph__linker__records["records"]
         src__graph__linker__byId["byId"]
         src__graph__linker__keywordIndex["keywordIndex"]
+        src__graph__linker__symbolResolutionIndex["symbolResolutionIndex"]
         src__graph__linker__candidatePairs["candidatePairs"]
         src__graph__linker__resolvableBasenames["resolvableBasenames"]
         src__graph__linker__left["left"]
@@ -1022,23 +1146,6 @@ flowchart TD
         src__graph__linker__basename["basename"]
         src__graph__linker__paths["paths"]
         src__graph__linker__pathsIntersect("pathsIntersect CC=8")
-        src__graph__linker__expand("expand CC=8")
-        src__graph__linker__aliases["aliases"]
-        src__graph__linker__full["full"]
-        src__graph__linker__leftSet["leftSet"]
-        src__graph__linker__scorePair{{scorePair CC=16}}
-        src__graph__linker__score["score"]
-        src__graph__linker__leftKeywords["leftKeywords"]
-        src__graph__linker__rightKeywords["rightKeywords"]
-        src__graph__linker__objectSimilarity["objectSimilarity"]
-        src__graph__linker__sharedTopics["sharedTopics"]
-        src__graph__linker__intersectionSize["intersectionSize"]
-        src__graph__linker__size["size"]
-        src__graph__linker__isFileAggregate["isFileAggregate"]
-        src__graph__linker__isFileAggregateEvidencePair["isFileAggregateEvidencePair"]
-        src__graph__linker__isModuleTopicEvidencePair["isModuleTopicEvidencePair"]
-        src__graph__linker__determineRelation["determineRelation"]
-        src__graph__linker__textScore["textScore"]
     end
     subgraph src__interfaces
         src__interfaces__mcp__DISCOVERY_TTL_MS["DISCOVERY_TTL_MS"]
@@ -1102,12 +1209,99 @@ flowchart TD
         src__interfaces__mcp_resources__relative["relative"]
         src__interfaces__mcp_resources__isInvalidResourceError["isInvalidResourceError"]
     end
+    subgraph src__live
+        src__live__model_comparison__measureLiveModelRun("measureLiveModelRun CC=12")
+        src__live__model_comparison__responses["responses"]
+        src__live__model_comparison__records["records"]
+        src__live__model_comparison__enrichedRecords["enrichedRecords"]
+        src__live__model_comparison__costUsd["costUsd"]
+        src__live__model_comparison__isLlmEnriched["isLlmEnriched"]
+        src__live__model_comparison__sourceKey["sourceKey"]
+        src__live__model_comparison__lines["lines"]
+        src__live__model_comparison__compareLiveModelOutputs["compareLiveModelOutputs"]
+        src__live__model_comparison__rightBySource["rightBySource"]
+        src__live__model_comparison__pairs["pairs"]
+        src__live__model_comparison__agreeing["agreeing"]
+        src__live__model_comparison__buildLiveModelComparison["buildLiveModelComparison"]
+        src__live__model_comparison__models["models"]
+        src__live__model_comparison__passing["passing"]
+        src__live__model_comparison__pick["pick"]
+        src__live__model_comparison__measured["measured"]
+        src__live__model_comparison__renderLiveModelComparison("renderLiveModelComparison CC=10")
+        src__live__model_comparison__sumUsage["sumUsage"]
+        src__live__model_comparison__values["values"]
+        src__live__model_comparison__round["round"]
+        src__live__contract_check__LIVE_HISTORY_LIMIT["LIVE_HISTORY_LIMIT"]
+        src__live__contract_check__liveRequestTimeoutMs["liveRequestTimeoutMs"]
+        src__live__contract_check__measureLiveStages["measureLiveStages"]
+        src__live__contract_check__missingLiveStages["missingLiveStages"]
+        src__live__contract_check__measureStage("measureStage CC=14")
+        src__live__contract_check__responses["responses"]
+        src__live__contract_check__overLatency["overLatency"]
+        src__live__contract_check__sumUsage["sumUsage"]
+        src__live__contract_check__values["values"]
+        src__live__contract_check__buildLiveAudit["buildLiveAudit"]
+        src__live__contract_check__stages["stages"]
+        src__live__contract_check__missingStages["missingStages"]
+        src__live__contract_check__totalLatencyMs["totalLatencyMs"]
+        src__live__contract_check__costs["costs"]
+        src__live__contract_check__totalCostUsd["totalCostUsd"]
+        src__live__contract_check__overCost["overCost"]
+        src__live__contract_check__overTotalLatency["overTotalLatency"]
+        src__live__contract_check__buildRecordedLiveAudit["buildRecordedLiveAudit"]
+        src__live__contract_check__initial["initial"]
+        src__live__contract_check__history["history"]
+        src__live__contract_check__toLiveHistoryRecord["toLiveHistoryRecord"]
+        src__live__contract_check__appendLiveHistory["appendLiveHistory"]
+        src__live__contract_check__kept["kept"]
+        src__live__contract_check__summarizeLiveHistory["summarizeLiveHistory"]
+        src__live__contract_check__runs["runs"]
+        src__live__contract_check__byStage["byStage"]
+        src__live__contract_check__entries["entries"]
+        src__live__contract_check__redactLiveMessage["redactLiveMessage"]
+        src__live__contract_check__renderLiveReport("renderLiveReport CC=14")
+        src__live__contract_check__lines("lines CC=8")
+        src__live__contract_check__status["status"]
+        src__live__contract_check__cost["cost"]
+        src__live__contract_check__detail["detail"]
+        src__live__contract_check__total["total"]
+        src__live__contract_check__median["median"]
+        src__live__contract_check__middle["middle"]
+        src__live__contract_check__value["value"]
+        src__live__contract_check__ratio["ratio"]
+        src__live__contract_check__round["round"]
+    end
     subgraph src__llm
+        src__llm__structured_schema__StructuredResponseError__super["super"]
+        src__llm__structured_schema__StructuredResponseError__schema["schema"]
+        src__llm__structured_schema__StructuredResponseError__parse["parse"]
+        src__llm__structured_schema__StructuredResponseError__string("string CC=10")
+        src__llm__structured_schema__StructuredResponseError__pattern["pattern"]
+        src__llm__structured_schema__StructuredResponseError__fail["fail"]
+        src__llm__structured_schema__StructuredResponseError__nullableString["nullableString"]
+        src__llm__structured_schema__StructuredResponseError__base["base"]
+        src__llm__structured_schema__StructuredResponseError__number["number"]
+        src__llm__structured_schema__StructuredResponseError__checkNumberBounds["checkNumberBounds"]
+        src__llm__structured_schema__StructuredResponseError__integer["integer"]
+        src__llm__structured_schema__StructuredResponseError__numeric["numeric"]
+        src__llm__structured_schema__StructuredResponseError__parsed["parsed"]
+        src__llm__structured_schema__StructuredResponseError__enumValue["enumValue"]
+        src__llm__structured_schema__StructuredResponseError__allowed["allowed"]
+        src__llm__structured_schema__StructuredResponseError__array("array CC=9")
+        src__llm__structured_schema__StructuredResponseError__identities["identities"]
+        src__llm__structured_schema__StructuredResponseError__object["object"]
+        src__llm__structured_schema__StructuredResponseError__keys["keys"]
+        src__llm__structured_schema__StructuredResponseError__candidate["candidate"]
+        src__llm__structured_schema__StructuredResponseError__unknown["unknown"]
+        src__llm__structured_schema__StructuredResponseError__missing["missing"]
+        src__llm__structured_schema__StructuredResponseError__jsonIdentity["jsonIdentity"]
+        src__llm__structured_schema__StructuredResponseError__record["record"]
+        src__llm__structured_schema__StructuredResponseError__describe["describe"]
         src__llm__openrouter__OpenRouterModelError__super["super"]
         src__llm__openrouter__OpenRouterClient__isConfigured["isConfigured"]
         src__llm__openrouter__OpenRouterClient__listAvailableModels("listAvailableModels CC=13")
-        src__llm__openrouter__OpenRouterClient__controller{{controller CC=23}}
-        src__llm__openrouter__OpenRouterClient__timeout{{timeout CC=23}}
+        src__llm__openrouter__OpenRouterClient__controller["controller"]
+        src__llm__openrouter__OpenRouterClient__timeout{{timeout CC=26}}
         src__llm__openrouter__OpenRouterClient__response["response"]
         src__llm__openrouter__OpenRouterClient__text["text"]
         src__llm__openrouter__OpenRouterClient__clearTimeout["clearTimeout"]
@@ -1115,10 +1309,13 @@ flowchart TD
         src__llm__openrouter__OpenRouterClient__chatTextWithMetadata["chatTextWithMetadata"]
         src__llm__openrouter__OpenRouterClient__content["content"]
         src__llm__openrouter__OpenRouterClient__chatJson["chatJson"]
+        src__llm__openrouter__OpenRouterClient__result["result"]
         src__llm__openrouter__OpenRouterClient__chatJsonWithMetadata("chatJsonWithMetadata CC=10")
         src__llm__openrouter__OpenRouterClient__fallback["fallback"]
-        src__llm__openrouter__OpenRouterClient__request{{request CC=25}}
-        src__llm__openrouter__OpenRouterClient__apiKey{{apiKey CC=23}}
+        src__llm__openrouter__OpenRouterClient__request{{request CC=31}}
+        src__llm__openrouter__OpenRouterClient__apiKey["apiKey"]
+        src__llm__openrouter__OpenRouterClient__externalSignal["externalSignal"]
+        src__llm__openrouter__OpenRouterClient__abortFromExternal["abortFromExternal"]
         src__llm__openrouter__OpenRouterClient__message["message"]
         src__llm__openrouter__OpenRouterClient__error["error"]
         src__llm__openrouter__OpenRouterClient__model["model"]
@@ -1135,11 +1332,6 @@ flowchart TD
         src__llm__openrouter__OpenRouterClient__parseJsonContent["parseJsonContent"]
         src__llm__openrouter__OpenRouterClient__trimmed["trimmed"]
         src__llm__openrouter__OpenRouterClient__start["start"]
-        src__llm__openrouter__OpenRouterClient__end["end"]
-        src__llm__openrouter__OpenRouterClient__sleep["sleep"]
-        src__llm__failure__classifyLlmFailure["classifyLlmFailure"]
-        src__llm__failure__message["message"]
-        src__llm__audit__openRouterAuditConfiguration["openRouterAuditConfiguration"]
     end
     subgraph src__operations
         src__operations__validation__VALUE_TYPES["VALUE_TYPES"]
@@ -1283,6 +1475,68 @@ flowchart TD
         src__sdk__typescript__Todo2CodeClient__extractNl["extractNl"]
         src__sdk__typescript__Todo2CodeClient__run["run"]
     end
+    subgraph src__semantic
+        src__semantic__reranker__createSemanticCandidateSet("createSemanticCandidateSet CC=8")
+        src__semantic__reranker__grouped["grouped"]
+        src__semantic__reranker__values["values"]
+        src__semantic__reranker__assertSemanticCandidateSet{{assertSemanticCandidateSet CC=27}}
+        src__semantic__reranker__records{{records CC=16}}
+        src__semantic__reranker__seenIds("seenIds CC=14")
+        src__semantic__reranker__seenPairs("seenPairs CC=14")
+        src__semantic__reranker__byDeclaration("byDeclaration CC=14")
+        src__semantic__reranker__declaration["declaration"]
+        src__semantic__reranker__module["module"]
+        src__semantic__reranker__expectedHash["expectedHash"]
+        src__semantic__reranker__createSemanticRerankResult["createSemanticRerankResult"]
+        src__semantic__reranker__decisions["decisions"]
+        src__semantic__reranker__assertSemanticRerankResult{{assertSemanticRerankResult CC=21}}
+        src__semantic__reranker__candidates["candidates"]
+        src__semantic__reranker__seenDecisions{{seenDecisions CC=16}}
+        src__semantic__reranker__acceptedDeclarations{{acceptedDeclarations CC=16}}
+        src__semantic__reranker__candidate["candidate"]
+        src__semantic__reranker__citations["citations"]
+        src__semantic__reranker__record["record"]
+        src__semantic__reranker__applyAcceptedSemanticRelations["applyAcceptedSemanticRelations"]
+        src__semantic__reranker__added["added"]
+        src__semantic__reranker__validateRetrieval["validateRetrieval"]
+        src__semantic__reranker__validateGeneration["validateGeneration"]
+        src__semantic__reranker__validateVerdictReason["validateVerdictReason"]
+        src__semantic__reranker__assertSemanticVerdictReason["assertSemanticVerdictReason"]
+        src__semantic__reranker__allowed["allowed"]
+        src__semantic__reranker__reasons["reasons"]
+        src__semantic__reranker__assertGroundedQuote["assertGroundedQuote"]
+        src__semantic__reranker__quote["quote"]
+        src__semantic__reranker__boundedScore["boundedScore"]
+        src__semantic__reranker__roundedConfidence["roundedConfidence"]
+        src__semantic__reranker__requiredText["requiredText"]
+        src__semantic__reranker__validDate["validDate"]
+        src__semantic__reranker__comparePair["comparePair"]
+        src__semantic__reranker_response__RERANK_DECISION_CONTRACT["RERANK_DECISION_CONTRACT"]
+        src__semantic__reranker_response__SEMANTIC_RERANK_RESPONSE_CONTRACT["SEMANTIC_RERANK_RESPONSE_CONTRACT"]
+        src__semantic__reranker_response__SEMANTIC_RERANK_RESPONSE_SCHEMA["SEMANTIC_RERANK_RESPONSE_SCHEMA"]
+        src__semantic__reranker_response__assertSemanticRerankerResponse["assertSemanticRerankerResponse"]
+        src__semantic__reranker_response__response["response"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__super["super"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__rerankSemanticCandidates{{rerankSemanticCandidates CC=25}}
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticCandidateSet["assertSemanticCandidateSet"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__model["model"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__modelRevision["modelRevision"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticRerankResult["assertSemanticRerankResult"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__client["client"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__records("records CC=9")
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__payload["payload"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__response("response CC=8")
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__metadata["metadata"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticRerankerResponse["assertSemanticRerankerResponse"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__execFileAsync["execFileAsync"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__assertTrackedSnapshot["assertTrackedSnapshot"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__root["root"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__revision["revision"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__head["head"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__resolvedRevision["resolvedRevision"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__tracked("tracked CC=9")
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__recordIds("recordIds CC=9")
+    end
     subgraph src__services
         src__services__actions__executeAction{{executeAction CC=83}}
         src__services__actions__root{{root CC=83}}
@@ -1354,20 +1608,15 @@ flowchart TD
         src__summary__summarizer__payload["payload"]
         src__summary__summarizer__failure["failure"]
         src__summary__summarizer__responses["responses"]
+        src__summary__summarizer__SUMMARY_CONCLUSION_CONTRACT["SUMMARY_CONCLUSION_CONTRACT"]
+        src__summary__summarizer__SUMMARY_RESPONSE_CONTRACT["SUMMARY_RESPONSE_CONTRACT"]
         src__summary__summarizer__SummaryAttemptError__super["super"]
-        src__summary__summarizer__SummaryAttemptError__assertRawSummaryShape["assertRawSummaryShape"]
-        src__summary__summarizer__SummaryAttemptError__candidate["candidate"]
-        src__summary__summarizer__SummaryAttemptError__keys["keys"]
-        src__summary__summarizer__SummaryAttemptError__assertRawConclusion["assertRawConclusion"]
-        src__summary__summarizer__SummaryAttemptError__requireText["requireText"]
-        src__summary__summarizer__SummaryAttemptError__requireIdArray["requireIdArray"]
-        src__summary__summarizer__SummaryAttemptError__bad["bad"]
-        src__summary__summarizer__SummaryAttemptError__describe["describe"]
-        src__summary__summarizer__SummaryAttemptError__summarizeWithCorrection["summarizeWithCorrection"]
+        src__summary__summarizer__SummaryAttemptError__summarizeWithCorrection("summarizeWithCorrection CC=10")
         src__summary__summarizer__SummaryAttemptError__conclusions["conclusions"]
         src__summary__summarizer__SummaryAttemptError__generationMetadata("generationMetadata CC=9")
         src__summary__summarizer__SummaryAttemptError__message["message"]
         src__summary__summarizer__SummaryAttemptError__materializeConclusions["materializeConclusions"]
+        src__summary__summarizer__SummaryAttemptError__parsed["parsed"]
         src__summary__summarizer__SummaryAttemptError__diagnosticIds["diagnosticIds"]
         src__summary__summarizer__SummaryAttemptError__assertConclusions["assertConclusions"]
         src__summary__summarizer__SummaryAttemptError__deterministicConclusions["deterministicConclusions"]
@@ -1376,8 +1625,6 @@ flowchart TD
         src__summary__summarizer__SummaryAttemptError__configuration["configuration"]
         src__summary__summarizer__SummaryAttemptError__summaryMode["summaryMode"]
         src__summary__summarizer__SummaryAttemptError__sortedUnique["sortedUnique"]
-        src__summary__summarizer__SummaryAttemptError__responseSchema["responseSchema"]
-        src__summary__summarizer__SummaryAttemptError__idArray["idArray"]
         src__summary__summarizer__SummaryAttemptError__readPrompt["readPrompt"]
         src__summary__summarizer__SummaryAttemptError__promptPath["promptPath"]
         src__summary__render__renderSummaryMarkdown("renderSummaryMarkdown CC=10")
@@ -1551,7 +1798,6 @@ flowchart TD
     src__cli__main --> src__cli__handleCommunication
     src__cli__parsed --> src__cli__printHelp
     src__cli__command --> src__cli__printHelp
-    src__cli__config --> src__cli__printHelp
     src__cli__diagnosticsPath --> src__cli__optionNumber
     src__cli__diagnosticsPath --> src__cli__optionBoolean
     src__cli__diagnostics --> src__cli__optionNumber
@@ -1794,72 +2040,55 @@ flowchart TD
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeTodoProposals --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__assertConclusions
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeTodoProposals --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__fallbackOrThrow
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeTodoProposals --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__readPrompt
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeTodoProposals --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__compactSynthesisPayload
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeTodoProposals --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeWithCorrection
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeTodoProposals --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesisAudit
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__startedAt --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__assertConclusions
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__client --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__fallbackOrThrow
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__prompt --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeWithCorrection
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__payload --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeWithCorrection
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeWithCorrection --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__responseSchema
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeWithCorrection --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__generationMetadata
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeWithCorrection --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__generation --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__keys
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeLocalKeys
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__rawStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConclusionKind
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeSeverity
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConfidence
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__keys --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalKeys --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalKeys --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConclusionKind
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalKeys --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeSeverity
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalKeys --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalKeys --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConfidence
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusions --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusions --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConclusionKind
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusions --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeSeverity
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusions --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusions --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConfidence
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__diagnosticIds --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConclusionKind
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__diagnosticIds --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeSeverity
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__diagnosticIds --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__diagnosticIds --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConfidence
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionIdByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionIdByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizePriority
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionIdByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeRawTarget
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionIdByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeAcceptanceCriteria
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionIdByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__mapKeys
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionIdByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionIdByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConfidence
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizePriority
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeRawTarget
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeAcceptanceCriteria
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__mapKeys
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__conclusionByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConfidence
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalDrafts --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalDrafts --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizePriority
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalDrafts --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeRawTarget
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalDrafts --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeAcceptanceCriteria
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalDrafts --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__mapKeys
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalDrafts --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalDrafts --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConfidence
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposalIdByKey --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__mapKeys
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__proposals --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__mapKeys
     src__synthesis__tasks_llm__TaskSynthesisAttemptError__fallbackOrThrow --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesisAudit
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__mapKeys --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__mapKeys --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeRawTarget --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeStringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeAcceptanceCriteria --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__sortedUnique
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__responseSchema --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__stringArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__responseSchema --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__idArray
-    src__synthesis__tasks_llm__TaskSynthesisAttemptError__idArray --> src__synthesis__tasks_llm__TaskSynthesisAttemptError__stringArray
+    src__synthesis__task_synthesis_materialize__materializeTaskSynthesisResponse --> src__synthesis__task_synthesis_materialize__normalizeLocalKeys
+    src__synthesis__task_synthesis_materialize__materializeTaskSynthesisResponse --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__materializeTaskSynthesisResponse --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__materializeTaskSynthesisResponse --> src__synthesis__task_synthesis_materialize__normalizeRawTarget
+    src__synthesis__task_synthesis_materialize__materializeTaskSynthesisResponse --> src__synthesis__task_synthesis_materialize__normalizeAcceptanceCriteria
+    src__synthesis__task_synthesis_materialize__materializeTaskSynthesisResponse --> src__synthesis__task_synthesis_materialize__mapKeys
+    src__synthesis__task_synthesis_materialize__parsed --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__parsed --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__proposalKeys --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__proposalKeys --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__conclusions --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__conclusions --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__diagnosticIds --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__conclusionIdByKey --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__conclusionIdByKey --> src__synthesis__task_synthesis_materialize__normalizeRawTarget
+    src__synthesis__task_synthesis_materialize__conclusionIdByKey --> src__synthesis__task_synthesis_materialize__normalizeAcceptanceCriteria
+    src__synthesis__task_synthesis_materialize__conclusionIdByKey --> src__synthesis__task_synthesis_materialize__mapKeys
+    src__synthesis__task_synthesis_materialize__conclusionIdByKey --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__conclusionByKey --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__conclusionByKey --> src__synthesis__task_synthesis_materialize__normalizeRawTarget
+    src__synthesis__task_synthesis_materialize__conclusionByKey --> src__synthesis__task_synthesis_materialize__normalizeAcceptanceCriteria
+    src__synthesis__task_synthesis_materialize__conclusionByKey --> src__synthesis__task_synthesis_materialize__mapKeys
+    src__synthesis__task_synthesis_materialize__conclusionByKey --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__proposalDrafts --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__proposalDrafts --> src__synthesis__task_synthesis_materialize__normalizeRawTarget
+    src__synthesis__task_synthesis_materialize__proposalDrafts --> src__synthesis__task_synthesis_materialize__normalizeAcceptanceCriteria
+    src__synthesis__task_synthesis_materialize__proposalDrafts --> src__synthesis__task_synthesis_materialize__mapKeys
+    src__synthesis__task_synthesis_materialize__proposalDrafts --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__proposalIdByKey --> src__synthesis__task_synthesis_materialize__mapKeys
+    src__synthesis__task_synthesis_materialize__proposals --> src__synthesis__task_synthesis_materialize__mapKeys
+    src__synthesis__task_synthesis_materialize__keys --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__mapKeys --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__mapKeys --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_materialize__sortedUnique --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__normalizeRawTarget --> src__synthesis__task_synthesis_materialize__normalizeStringArray
+    src__synthesis__task_synthesis_materialize__normalizeAcceptanceCriteria --> src__synthesis__task_synthesis_materialize__sortedUnique
+    src__synthesis__task_synthesis_contract__RAW_CONCLUSION_CONTRACT --> src__synthesis__task_synthesis_contract__nonBlank
+    src__synthesis__task_synthesis_contract__RAW_CONCLUSION_CONTRACT --> src__synthesis__task_synthesis_contract__taskIds
+    src__synthesis__task_synthesis_contract__RAW_PROPOSAL_CONTRACT --> src__synthesis__task_synthesis_contract__nonBlank
+    src__synthesis__task_synthesis_contract__RAW_PROPOSAL_CONTRACT --> src__synthesis__task_synthesis_contract__taskStrings
+    src__synthesis__task_synthesis_contract__RAW_PROPOSAL_CONTRACT --> src__synthesis__task_synthesis_contract__taskIds
     src__synthesis__code_change_plan__proposeCodeChangePlans --> src__synthesis__code_change_plan__indexProposalsByDiagnostic
     src__synthesis__code_change_plan__proposeCodeChangePlans --> src__synthesis__code_change_plan__indexConclusionsByDiagnostic
     src__synthesis__code_change_plan__generatedAt --> src__synthesis__code_change_plan__createCodeChangeSourcePatch
@@ -1941,6 +2170,9 @@ flowchart TD
     src__synthesis__code_change_plan__paths --> src__synthesis__code_change_plan__assertSourcePatchStrings
     src__synthesis__code_change_plan__paths --> src__synthesis__code_change_plan__normalizeUnifiedDiff
     src__synthesis__code_change_plan__buildChanges --> src__synthesis__code_change_plan__uniqueSorted
+    src__synthesis__code_change_plan__titleFor --> src__synthesis__code_change_plan__startsWithImperative
+    src__synthesis__code_change_plan__record --> src__synthesis__code_change_plan__startsWithImperative
+    src__synthesis__code_change_plan__object --> src__synthesis__code_change_plan__startsWithImperative
     src__synthesis__code_change_plan__acceptanceCriteriaFor --> src__synthesis__code_change_plan__uniqueSorted
     src__synthesis__code_change_plan__riskFor --> src__synthesis__code_change_plan__uniqueSorted
     src__synthesis__code_change_plan__rollbackFor --> src__synthesis__code_change_plan__uniqueSorted
@@ -1997,23 +2229,14 @@ flowchart TD
     src__summary__summarizer__payload --> src__summary__summarizer__SummaryAttemptError__summarizeWithCorrection
     src__summary__summarizer__payload --> src__summary__summarizer__SummaryAttemptError__deterministicConclusions
     src__summary__summarizer__payload --> src__summary__summarizer__SummaryAttemptError__generationMetadata
-    src__summary__summarizer__SummaryAttemptError__assertRawSummaryShape --> src__summary__summarizer__SummaryAttemptError__assertRawConclusion
-    src__summary__summarizer__SummaryAttemptError__assertRawSummaryShape --> src__summary__summarizer__SummaryAttemptError__sortedUnique
-    src__summary__summarizer__SummaryAttemptError__candidate --> src__summary__summarizer__SummaryAttemptError__requireText
-    src__summary__summarizer__SummaryAttemptError__requireText --> src__summary__summarizer__SummaryAttemptError__describe
-    src__summary__summarizer__SummaryAttemptError__requireIdArray --> src__summary__summarizer__SummaryAttemptError__describe
-    src__summary__summarizer__SummaryAttemptError__bad --> src__summary__summarizer__SummaryAttemptError__describe
-    src__summary__summarizer__SummaryAttemptError__summarizeWithCorrection --> src__summary__summarizer__SummaryAttemptError__responseSchema
     src__summary__summarizer__SummaryAttemptError__summarizeWithCorrection --> src__summary__summarizer__SummaryAttemptError__materializeConclusions
     src__summary__summarizer__SummaryAttemptError__summarizeWithCorrection --> src__summary__summarizer__SummaryAttemptError__generationMetadata
     src__summary__summarizer__SummaryAttemptError__conclusions --> src__summary__summarizer__SummaryAttemptError__sortedUnique
-    src__summary__summarizer__SummaryAttemptError__materializeConclusions --> src__summary__summarizer__SummaryAttemptError__assertRawSummaryShape
-    src__summary__summarizer__SummaryAttemptError__materializeConclusions --> src__summary__summarizer__SummaryAttemptError__assertRawConclusion
     src__summary__summarizer__SummaryAttemptError__materializeConclusions --> src__summary__summarizer__SummaryAttemptError__sortedUnique
     src__summary__summarizer__SummaryAttemptError__materializeConclusions --> src__summary__summarizer__SummaryAttemptError__assertConclusions
+    src__summary__summarizer__SummaryAttemptError__parsed --> src__summary__summarizer__SummaryAttemptError__sortedUnique
     src__summary__summarizer__SummaryAttemptError__deterministicConclusions --> src__summary__summarizer__SummaryAttemptError__sortedUnique
     src__summary__summarizer__SummaryAttemptError__deterministicConclusions --> src__summary__summarizer__SummaryAttemptError__assertConclusions
-    src__summary__summarizer__SummaryAttemptError__responseSchema --> src__summary__summarizer__SummaryAttemptError__idArray
     src__summary__render__renderSummaryMarkdown --> src__summary__render__renderRecords
     src__summary__render__renderSummaryMarkdown --> src__summary__render__renderConclusion
     src__summary__render__renderSummaryMarkdown --> src__summary__render__recordCitations
@@ -2079,6 +2302,51 @@ flowchart TD
     src__services__actions__scopedPath --> src__services__actions__stringValue
     src__services__actions__nullableScopedPath --> src__services__actions__nullableString
     src__services__actions__readRecords --> src__services__actions__stringList
+    src__semantic__reranker__createSemanticCandidateSet --> src__semantic__reranker__requiredText
+    src__semantic__reranker__assertSemanticCandidateSet --> src__semantic__reranker__validDate
+    src__semantic__reranker__assertSemanticCandidateSet --> src__semantic__reranker__validateRetrieval
+    src__semantic__reranker__assertSemanticCandidateSet --> src__semantic__reranker__boundedScore
+    src__semantic__reranker__records --> src__semantic__reranker__roundedConfidence
+    src__semantic__reranker__records --> src__semantic__reranker__validateVerdictReason
+    src__semantic__reranker__records --> src__semantic__reranker__requiredText
+    src__semantic__reranker__records --> src__semantic__reranker__assertGroundedQuote
+    src__semantic__reranker__seenIds --> src__semantic__reranker__boundedScore
+    src__semantic__reranker__seenPairs --> src__semantic__reranker__boundedScore
+    src__semantic__reranker__byDeclaration --> src__semantic__reranker__boundedScore
+    src__semantic__reranker__createSemanticRerankResult --> src__semantic__reranker__assertSemanticCandidateSet
+    src__semantic__reranker__createSemanticRerankResult --> src__semantic__reranker__requiredText
+    src__semantic__reranker__createSemanticRerankResult --> src__semantic__reranker__roundedConfidence
+    src__semantic__reranker__createSemanticRerankResult --> src__semantic__reranker__assertSemanticRerankResult
+    src__semantic__reranker__decisions --> src__semantic__reranker__roundedConfidence
+    src__semantic__reranker__decisions --> src__semantic__reranker__requiredText
+    src__semantic__reranker__assertSemanticRerankResult --> src__semantic__reranker__assertSemanticCandidateSet
+    src__semantic__reranker__assertSemanticRerankResult --> src__semantic__reranker__validDate
+    src__semantic__reranker__assertSemanticRerankResult --> src__semantic__reranker__validateGeneration
+    src__semantic__reranker__assertSemanticRerankResult --> src__semantic__reranker__roundedConfidence
+    src__semantic__reranker__assertSemanticRerankResult --> src__semantic__reranker__validateVerdictReason
+    src__semantic__reranker__assertSemanticRerankResult --> src__semantic__reranker__requiredText
+    src__semantic__reranker__seenDecisions --> src__semantic__reranker__roundedConfidence
+    src__semantic__reranker__seenDecisions --> src__semantic__reranker__validateVerdictReason
+    src__semantic__reranker__seenDecisions --> src__semantic__reranker__requiredText
+    src__semantic__reranker__seenDecisions --> src__semantic__reranker__assertGroundedQuote
+    src__semantic__reranker__acceptedDeclarations --> src__semantic__reranker__roundedConfidence
+    src__semantic__reranker__acceptedDeclarations --> src__semantic__reranker__validateVerdictReason
+    src__semantic__reranker__acceptedDeclarations --> src__semantic__reranker__requiredText
+    src__semantic__reranker__acceptedDeclarations --> src__semantic__reranker__assertGroundedQuote
+    src__semantic__reranker__applyAcceptedSemanticRelations --> src__semantic__reranker__assertSemanticRerankResult
+    src__semantic__reranker__applyAcceptedSemanticRelations --> src__semantic__reranker__values
+    src__semantic__reranker__validateRetrieval --> src__semantic__reranker__requiredText
+    src__semantic__reranker__validateGeneration --> src__semantic__reranker__requiredText
+    src__semantic__reranker__validateVerdictReason --> src__semantic__reranker__assertSemanticVerdictReason
+    src__semantic__reranker__assertGroundedQuote --> src__semantic__reranker__requiredText
+    src__semantic__reranker__quote --> src__semantic__reranker__requiredText
+    src__semantic__reranker_llm__SemanticRerankerRequiredError__rerankSemanticCandidates --> src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticCandidateSet
+    src__semantic__reranker_llm__SemanticRerankerRequiredError__rerankSemanticCandidates --> src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticRerankResult
+    src__semantic__reranker_llm__SemanticRerankerRequiredError__rerankSemanticCandidates --> src__semantic__reranker_llm__SemanticRerankerRequiredError__assertTrackedSnapshot
+    src__semantic__reranker_llm__SemanticRerankerRequiredError__rerankSemanticCandidates --> src__semantic__reranker_llm__SemanticRerankerRequiredError__projectRecord
+    src__semantic__reranker_llm__SemanticRerankerRequiredError__model --> src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticRerankResult
+    src__semantic__reranker_llm__SemanticRerankerRequiredError__modelRevision --> src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticRerankResult
+    src__semantic__reranker_llm__SemanticRerankerRequiredError__payload --> src__semantic__reranker_llm__SemanticRerankerRequiredError__projectRecord
     src__pipeline__run__runPipeline --> src__pipeline__run__skippedAudit
     src__pipeline__run__docs --> src__pipeline__run__collectTargetHints
     src__pipeline__run__docs --> src__pipeline__run__values
@@ -2122,29 +2390,8 @@ flowchart TD
     src__operations__validation__ids --> src__operations__validation__visit
     src__operations__validation__visiting --> src__operations__validation__visit
     src__operations__validation__visited --> src__operations__validation__visit
-    src__operations__validation__byId --> src__operations__validation__visit
-    src__operations__validation__assertOperationPlan --> src__operations__validation__objectValue
-    src__operations__validation__assertOperationPlan --> src__operations__validation__exactKeys
-    src__operations__validation__assertOperationPlan --> src__operations__validation__dateString
-    src__operations__validation__assertOperationPlan --> src__operations__validation__nonBlank
-    src__operations__validation__assertOperationPlan --> src__operations__validation__uniqueStrings
-    src__operations__validation__assertOperationPlan --> src__operations__validation__assertGeneration
-    src__operations__validation__plan --> src__operations__validation__uniqueStrings
-    src__operations__validation__evidence --> src__operations__validation__uniqueStrings
-    src__operations__validation__variables --> src__operations__validation__objectValue
-    src__operations__validation__variables --> src__operations__validation__exactKeys
-    src__operations__validation__variables --> src__operations__validation__nonBlank
-    src__operations__validation__variables --> src__operations__validation__uniqueStrings
-    src__operations__validation__variableById --> src__operations__validation__objectValue
-    src__operations__validation__variableById --> src__operations__validation__exactKeys
-    src__operations__validation__variableById --> src__operations__validation__nonBlank
-    src__operations__validation__variableById --> src__operations__validation__uniqueStrings
-    src__operations__validation__steps --> src__operations__validation__objectValue
-    src__operations__validation__steps --> src__operations__validation__exactKeys
-    src__operations__validation__steps --> src__operations__validation__nonBlank
-    src__operations__validation__steps --> src__operations__validation__uniqueStrings
 
     classDef highCC fill:#ff6b6b,stroke:#c92a2a,color:#fff
     classDef medCC fill:#ffd43b,stroke:#f08c00,color:#000
-    class src__cli__main,src__cli__handleDiff,src__cli__handleExtract,src__web__diff_ui__diffUiHtml,src__web__diff_ui__compareGraphs,src__watch__watcher__DEFAULT_MIN_INTERVAL_MS,src__watch__watcher__DEFAULT_SCAN_INTERVAL_MS,src__watch__watcher__watchRepository,src__tf__classifier__classifyAction,src__synthesis__code_change_plan__proposeCodeChangePlans,src__synthesis__code_change_plan__paths,src__synthesis__code_change_plan__assertCodeChangeReviewPatch,src__synthesis__code_change_plan__assertCodeChangeSourcePatch,src__synthesis__code_change_plan__assertCodeChangeSourcePatchSet,src__synthesis__code_change_plan__normalizeUnifiedDiff,src__synthesis__code_change_plan__applyCodeChangeSourcePatch,src__synthesis__code_change_plan__applyUnifiedDiffToText,src__synthesis__code_change_plan__cursor,src__synthesis__code_change_path__NON_SOURCE_DIR_SEGMENTS,src__synthesis__code_change_path__BINARY_EXTENSIONS,src__synthesis__code_change_path__GENERATED_ANALYSIS_BASENAMES,src__synthesis__code_change_path__T2C_ARTIFACT_BASENAMES,src__synthesis__code_change_path__EXTENSIONLESS_SOURCE_BASENAMES,src__synthesis__code_change_path__isPlannablePath,src__services__actions__executeAction,src__services__actions__root,src__services__actions__filterCommunicationGraph,src__pipeline__run__runPipeline,src__pipeline__run__persistFailedRun,src__operations__validation__assertVariableContract highCC
-    class src__cli__formatWatchEvent,src__cli__stamp,src__cli__mode,src__cli__html,src__cli__context,src__cli__maxRows,src__cli__handleReality,src__cli__handleCommunication,src__cli__parseArgs,src__cli__options,src__web__diff_ui__loadRuns,src__watch__watcher__scanTree,src__watch__watcher__maxFiles,src__watch__watcher__absoluteRoot,src__watch__watcher__visit,src__synthesis__validation__duplicateEvidence,src__synthesis__validation__dependencyFirstPriorityOrder,src__synthesis__todo_patch__createTodoPatch,src__synthesis__todo_patch__applyTodoPatch,src__synthesis__todo_patch__assertTodoPatchArtifact,src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeWithCorrection,src__synthesis__tasks_llm__TaskSynthesisAttemptError__materializeResponse,src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConfidence,src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeConclusionKind,src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizeSeverity,src__synthesis__tasks_llm__TaskSynthesisAttemptError__normalizePriority,src__synthesis__code_change_plan__evaluateCodeChangeAcceptance,src__synthesis__code_change_plan__collectTarget,src__synthesis__code_change_plan__renderCodeChangeReviewMarkdown,src__synthesis__code_change_plan__createCodeChangeSourcePatch medCC
+    class src__cli__main,src__cli__handleDiff,src__cli__handleExtract,src__web__diff_ui__diffUiHtml,src__web__diff_ui__compareGraphs,src__watch__watcher__DEFAULT_MIN_INTERVAL_MS,src__watch__watcher__DEFAULT_SCAN_INTERVAL_MS,src__watch__watcher__watchRepository,src__tf__classifier__classifyAction,src__synthesis__code_change_plan__proposeCodeChangePlans,src__synthesis__code_change_plan__paths,src__synthesis__code_change_plan__assertCodeChangeReviewPatch,src__synthesis__code_change_plan__assertCodeChangeSourcePatch,src__synthesis__code_change_plan__assertCodeChangeSourcePatchSet,src__synthesis__code_change_plan__normalizeUnifiedDiff,src__synthesis__code_change_plan__applyCodeChangeSourcePatch,src__synthesis__code_change_plan__applyUnifiedDiffToText,src__synthesis__code_change_plan__cursor,src__synthesis__code_change_path__NON_SOURCE_DIR_SEGMENTS,src__synthesis__code_change_path__BINARY_EXTENSIONS,src__synthesis__code_change_path__GENERATED_ANALYSIS_BASENAMES,src__synthesis__code_change_path__T2C_ARTIFACT_BASENAMES,src__synthesis__code_change_path__EXTENSIONLESS_SOURCE_BASENAMES,src__synthesis__code_change_path__isPlannablePath,src__services__actions__executeAction,src__services__actions__root,src__services__actions__filterCommunicationGraph,src__semantic__reranker__assertSemanticCandidateSet,src__semantic__reranker__records,src__semantic__reranker__assertSemanticRerankResult highCC
+    class src__cli__formatWatchEvent,src__cli__stamp,src__cli__mode,src__cli__html,src__cli__context,src__cli__maxRows,src__cli__handleReality,src__cli__handleCommunication,src__cli__parseArgs,src__cli__options,src__web__diff_ui__loadRuns,src__watch__watcher__scanTree,src__watch__watcher__maxFiles,src__watch__watcher__absoluteRoot,src__watch__watcher__visit,src__synthesis__validation__duplicateEvidence,src__synthesis__validation__dependencyFirstPriorityOrder,src__synthesis__todo_patch__createTodoPatch,src__synthesis__todo_patch__applyTodoPatch,src__synthesis__todo_patch__assertTodoPatchArtifact,src__synthesis__tasks_llm__TaskSynthesisAttemptError__synthesizeWithCorrection,src__synthesis__code_change_plan__evaluateCodeChangeAcceptance,src__synthesis__code_change_plan__collectTarget,src__synthesis__code_change_plan__buildChanges,src__synthesis__code_change_plan__titleFor,src__synthesis__code_change_plan__renderCodeChangeReviewMarkdown,src__synthesis__code_change_plan__createCodeChangeSourcePatch,src__synthesis__code_change_plan__createCodeChangeSourcePatchSet,src__synthesis__code_change_plan__assertSourcePatchStrings,src__synthesis__code_change_plan__assertExistingSourceReceipt medCC

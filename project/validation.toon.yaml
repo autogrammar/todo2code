@@ -1,20 +1,20 @@
-# vallm batch | 327f | 191✓ 29⚠ 0✗ | 2026-07-31
+# vallm batch | 474f | 227✓ 34⚠ 0✗ | 2026-08-01
 
 SUMMARY:
-  scanned: 327  passed: 191 (58.4%)  warnings: 29  errors: 0  unsupported: 0
+  scanned: 474  passed: 227 (47.9%)  warnings: 34  errors: 0  unsupported: 0
 
-WARNINGS[29]{path,score}:
+WARNINGS[34]{path,score}:
   src/operations/validation.ts,0.80
     issues[4]{rule,severity,message,line}:
       complexity.lizard_cc,warning,assertVariableContract: CC=19 exceeds limit 15,62
       complexity.lizard_cc,warning,assertGeneration: CC=16 exceeds limit 15,110
       complexity.lizard_cc,warning,assertOperationPlan: CC=82 exceeds limit 15,153
       complexity.lizard_length,warning,assertOperationPlan: 129 lines exceeds limit 100,153
-  src/extractors/communication.ts,0.85
+  scripts/research/rank-intent-graph-embeddings.py,0.90
     issues[3]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,extractCommunicationIntent: CC=71 exceeds limit 15,41
-      complexity.lizard_length,warning,extractCommunicationIntent: 135 lines exceeds limit 100,41
-      complexity.lizard_cc,warning,inferIdentity: CC=22 exceeds limit 15,215
+      complexity.cyclomatic,warning,main has cyclomatic complexity 27 (max: 15),35
+      complexity.lizard_cc,warning,main: CC=27 exceeds limit 15,35
+      complexity.lizard_length,warning,main: 133 lines exceeds limit 100,35
   src/core/ignore.ts,0.90
     issues[2]{rule,severity,message,line}:
       complexity.lizard_cc,warning,translateGlob: CC=29 exceeds limit 15,77
@@ -27,25 +27,36 @@ WARNINGS[29]{path,score}:
     issues[2]{rule,severity,message,line}:
       complexity.lizard_cc,warning,myers: CC=21 exceeds limit 15,140
       complexity.lizard_cc,warning,backtrack: CC=25 exceeds limit 15,172
+  src/extractors/communication.ts,0.90
+    issues[2]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,extractCommunicationIntent: CC=78 exceeds limit 15,54
+      complexity.lizard_length,warning,extractCommunicationIntent: 151 lines exceeds limit 100,54
   src/interfaces/a2a-task-store.ts,0.90
     issues[2]{rule,severity,message,line}:
       complexity.lizard_cc,warning,listTasks: CC=41 exceeds limit 15,397
       complexity.lizard_length,warning,listTasks: 107 lines exceeds limit 100,397
   src/pipeline/run.ts,0.90
     issues[2]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,runPipeline: CC=63 exceeds limit 15,54
-      complexity.lizard_length,warning,runPipeline: 357 lines exceeds limit 100,54
+      complexity.lizard_cc,warning,runPipeline: CC=63 exceeds limit 15,55
+      complexity.lizard_length,warning,runPipeline: 358 lines exceeds limit 100,55
+  src/semantic/reranker.ts,0.90
+    issues[2]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,assertSemanticCandidateSet: CC=22 exceeds limit 15,184
+      complexity.lizard_cc,warning,assertSemanticRerankResult: CC=18 exceeds limit 15,311
   src/services/actions.ts,0.90
     issues[2]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,executeAction: CC=82 exceeds limit 15,71
-      complexity.lizard_length,warning,executeAction: 433 lines exceeds limit 100,71
+      complexity.lizard_cc,warning,executeAction: CC=82 exceeds limit 15,72
+      complexity.lizard_length,warning,executeAction: 434 lines exceeds limit 100,72
   examples/backend/src/server.ts,0.95
     issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,handleRequest: CC=18 exceeds limit 15,28
+  php/ast_extract.php,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,parseFile: CC=40 exceeds limit 15,77
   python/ast_extract.py,0.95
     issues[2]{rule,severity,message,line}:
-      complexity.cyclomatic,warning,iter_python_files has cyclomatic complexity 16 (max: 15),113
-      complexity.lizard_cc,warning,iter_python_files: CC=16 exceeds limit 15,113
+      complexity.cyclomatic,warning,iter_python_files has cyclomatic complexity 16 (max: 15),168
+      complexity.lizard_cc,warning,iter_python_files: CC=16 exceeds limit 15,168
   sdk/go/examples/basic/main.go,0.95
     issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,run: CC=19 exceeds limit 15,29
@@ -57,7 +68,7 @@ WARNINGS[29]{path,score}:
       complexity.lizard_cc,warning,run: CC=20 exceeds limit 15,27
   src/cli.ts,0.95
     issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,handleExtract: CC=20 exceeds limit 15,511
+      complexity.lizard_cc,warning,handleExtract: CC=20 exceeds limit 15,518
   src/communication/identity.ts,0.95
     issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,assertParticipantIdentityRegistry: CC=29 exceeds limit 15,51
@@ -69,34 +80,40 @@ WARNINGS[29]{path,score}:
       complexity.lizard_cc,warning,buildRecord: CC=33 exceeds limit 15,57
   src/core/text.ts,0.95
     issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,inferObject: CC=31 exceeds limit 15,431
+      complexity.lizard_cc,warning,inferObject: CC=31 exceeds limit 15,440
+  src/evaluation/gold-types.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,assertLinkingCohorts: CC=25 exceeds limit 15,341
   src/extractors/ast/typescript.ts,0.95
     issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,visit: CC=26 exceeds limit 15,76
+      complexity.lizard_cc,warning,visit: CC=26 exceeds limit 15,77
   src/extractors/docs-record.ts,0.95
     issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,toDocumentIntentRecord: CC=19 exceeds limit 15,25
-  src/extractors/markdown-llm.ts,0.95
-    issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,isMarkdownEnrichment: CC=17 exceeds limit 15,176
   src/extractors/nl-llm.ts,0.95
     issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,toIntentRecord: CC=24 exceeds limit 15,127
+      complexity.lizard_cc,warning,toIntentRecord: CC=24 exceeds limit 15,175
+  src/graph/linker.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,scorePair: CC=18 exceeds limit 15,342
   src/interfaces/a2a-card.ts,0.95
     issues[1]{rule,severity,message,line}:
       complexity.lizard_length,warning,skills: 103 lines exceeds limit 100,55
   src/interfaces/a2a-message.ts,0.95
     issues[1]{rule,severity,message,line}:
       complexity.lizard_length,warning,parseKeyValues: 119 lines exceeds limit 100,67
+  src/live/contract-check.ts,0.95
+    issues[1]{rule,severity,message,line}:
+      complexity.lizard_cc,warning,measureStage: CC=17 exceeds limit 15,115
   src/llm/openrouter.ts,0.95
     issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,request: CC=24 exceeds limit 15,153
+      complexity.lizard_cc,warning,request: CC=26 exceeds limit 15,171
   src/synthesis/code-change-path.ts,0.95
     issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,isPlannablePath: CC=37 exceeds limit 15,138
+      complexity.lizard_cc,warning,isPlannablePath: CC=40 exceeds limit 15,138
   src/synthesis/code-change-plan.ts,0.95
     issues[1]{rule,severity,message,line}:
-      complexity.lizard_cc,warning,proposeCodeChangePlans: CC=21 exceeds limit 15,102
+      complexity.lizard_cc,warning,proposeCodeChangePlans: CC=22 exceeds limit 15,109
   src/tf/classifier.ts,0.95
     issues[1]{rule,severity,message,line}:
       complexity.lizard_cc,warning,classifyAction: CC=18 exceeds limit 15,69

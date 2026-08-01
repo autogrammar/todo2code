@@ -1,150 +1,175 @@
-# redup/duplication | 14 groups | 148f 26186L | 2026-07-31
+# redup/duplication | 17 groups | 172f 30805L | 2026-08-01
 
 SUMMARY:
-  files_scanned: 148
-  total_lines:   26186
-  dup_groups:    14
-  actionable:    14
+  files_scanned: 172
+  total_lines:   30805
+  dup_groups:    17
+  actionable:    17
   review:        0
   generated:     0
-  actionable_L:  93
+  actionable_L:  120
   review_L:      0
   generated_L:   0
-  dup_fragments: 35
-  saved_lines:   93
-  scan_ms:       1052
+  dup_fragments: 44
+  saved_lines:   120
+  scan_ms:       1116
 
 HOTSPOTS[7] (files with most duplication):
-  src/extractors/markdown-llm.ts  dup=23L  groups=4  frags=4  (0.1%)
-  src/communication/llm.ts  dup=23L  groups=4  frags=4  (0.1%)
-  src/extractors/nl-llm.ts  dup=18L  groups=5  frags=5  (0.1%)
+  src/extractors/markdown-llm.ts  dup=27L  groups=5  frags=5  (0.1%)
+  src/communication/llm.ts  dup=27L  groups=5  frags=5  (0.1%)
+  src/extractors/nl-llm.ts  dup=22L  groups=6  frags=6  (0.1%)
   src/synthesis/tasks-llm.ts  dup=13L  groups=3  frags=3  (0.0%)
   src/extractors/docs-llm.ts  dup=12L  groups=3  frags=3  (0.0%)
-  src/summary/summarizer.ts  dup=9L  groups=2  frags=2  (0.0%)
-  scripts/verify-env-contract.mjs  dup=9L  groups=1  frags=1  (0.0%)
+  src/live/contract-check.ts  dup=12L  groups=2  frags=2  (0.0%)
+  src/live/model-comparison.ts  dup=12L  groups=2  frags=2  (0.0%)
 
-DUPLICATES[14] (ranked by impact):
+DUPLICATES[17] (ranked by impact):
   [ff0b7d1fb897f5eb]   EXAC  readPrompt  L=5 N=5 saved=20 sim=1.00
-      src/extractors/docs-llm.ts:188-192  (readPrompt)
-      src/extractors/markdown-llm.ts:279-283  (readPrompt)
-      src/extractors/nl-llm.ts:235-239  (readPrompt)
-      src/summary/summarizer.ts:408-412  (readPrompt)
-      src/synthesis/tasks-llm.ts:560-564  (readPrompt)
+      src/extractors/docs-llm.ts:261-265  (readPrompt)
+      src/extractors/markdown-llm.ts:431-435  (readPrompt)
+      src/extractors/nl-llm.ts:283-287  (readPrompt)
+      src/summary/summarizer.ts:329-333  (readPrompt)
+      src/synthesis/tasks-llm.ts:262-266  (readPrompt)
   [09873fe5d7f53db8]   STRU  constructor  L=4 N=5 saved=16 sim=1.00
       src/communication/llm.ts:80-83  (constructor)
-      src/extractors/docs-llm.ts:36-39  (constructor)
-      src/extractors/markdown-llm.ts:48-51  (constructor)
-      src/extractors/nl-llm.ts:46-49  (constructor)
-      src/synthesis/tasks-llm.ts:52-55  (constructor)
+      src/extractors/docs-llm.ts:39-42  (constructor)
+      src/extractors/markdown-llm.ts:49-52  (constructor)
+      src/extractors/nl-llm.ts:47-50  (constructor)
+      src/synthesis/tasks-llm.ts:49-52  (constructor)
+  [bd6578d73c14c374]   STRU  constructor  L=4 N=5 saved=16 sim=1.00
+      src/communication/llm.ts:162-165  (constructor)
+      src/extractors/markdown-llm.ts:146-149  (constructor)
+      src/extractors/nl-llm.ts:109-112  (constructor)
+      src/summary/summarizer.ts:154-157  (constructor)
+      src/synthesis/tasks-llm.ts:56-59  (constructor)
   [8f9cb44a5788fdd0]   EXAC  collect  L=9 N=2 saved=9 sim=1.00
       scripts/verify-env-contract.mjs:95-103  (collect)
       scripts/verify-module-boundaries.mjs:59-67  (collect)
+  [6363b0c657dbde27]   EXAC  sumUsage  L=9 N=2 saved=9 sim=1.00
+      src/live/contract-check.ts:148-156  (sumUsage)
+      src/live/model-comparison.ts:206-214  (sumUsage)
   [040774ed1317816e]   EXAC  markDeterministic  L=8 N=2 saved=8 sim=1.00
-      src/communication/llm.ts:367-374  (markDeterministic)
-      src/extractors/markdown-llm.ts:250-257  (markDeterministic)
+      src/communication/llm.ts:417-424  (markDeterministic)
+      src/extractors/markdown-llm.ts:402-409  (markDeterministic)
   [a81abf06a2409abf]   EXAC  arrow_function  L=6 N=2 saved=6 sim=1.00
-      src/communication/llm.ts:368-373  (arrow_function)
-      src/extractors/markdown-llm.ts:251-256  (arrow_function)
+      src/communication/llm.ts:418-423  (arrow_function)
+      src/extractors/markdown-llm.ts:403-408  (arrow_function)
   [2e20d0fc42b5b689]   EXAC  errorMessage  L=3 N=3 saved=6 sim=1.00
-      src/extractors/docs-llm.ts:194-196  (errorMessage)
+      src/extractors/docs-llm.ts:267-269  (errorMessage)
       src/interfaces/a2a-task-store.ts:511-513  (errorMessage)
       src/interfaces/a2a.ts:310-312  (errorMessage)
   [13e54260c09235cb]   EXAC  roleOf  L=5 N=2 saved=5 sim=1.00
-      src/communication/analyzer.ts:321-325  (roleOf)
-      src/communication/llm.ts:426-430  (roleOf)
+      src/communication/analyzer.ts:464-468  (roleOf)
+      src/communication/llm.ts:476-480  (roleOf)
   [5a74faa98e248ba6]   EXAC  objectValue  L=4 N=2 saved=4 sim=1.00
       src/core/schema.ts:771-774  (objectValue)
       src/operations/validation.ts:18-21  (objectValue)
-  [bd6578d73c14c374]   STRU  constructor  L=4 N=2 saved=4 sim=1.00
-      src/summary/summarizer.ts:143-146  (constructor)
-      src/synthesis/tasks-llm.ts:59-62  (constructor)
+  [6108e7bc94eb85d0]   EXAC  readJson  L=3 N=2 saved=3 sim=1.00
+      scripts/research/audit-changelog-sample.mjs:205-207  (readJson)
+      scripts/research/rerank-embedding-shortlist.mjs:160-162  (readJson)
   [cf429410d135f725]   EXAC  clampLine  L=3 N=2 saved=3 sim=1.00
       src/extractors/docs-record.ts:179-181  (clampLine)
-      src/extractors/nl-llm.ts:223-225  (clampLine)
+      src/extractors/nl-llm.ts:271-273  (clampLine)
   [85958beabc80c768]   EXAC  allowedAction  L=3 N=2 saved=3 sim=1.00
       src/extractors/docs-record.ts:183-185  (allowedAction)
-      src/extractors/nl-llm.ts:227-229  (allowedAction)
+      src/extractors/nl-llm.ts:275-277  (allowedAction)
   [9b7097c5386e9cfa]   EXAC  allowedModality  L=3 N=2 saved=3 sim=1.00
       src/extractors/docs-record.ts:187-189  (allowedModality)
-      src/extractors/nl-llm.ts:231-233  (allowedModality)
+      src/extractors/nl-llm.ts:279-281  (allowedModality)
+  [b31b50027fdfb178]   EXAC  round  L=3 N=2 saved=3 sim=1.00
+      src/live/contract-check.ts:315-317  (round)
+      src/live/model-comparison.ts:216-218  (round)
   [dabffb80a2fd2146]   EXAC  nonBlank  L=3 N=2 saved=3 sim=1.00
       src/operations/validation.ts:31-33  (nonBlank)
       src/synthesis/todo-patch.ts:346-348  (nonBlank)
   [21ba1336248390a4]   EXAC  renderIds  L=3 N=2 saved=3 sim=1.00
-      src/synthesis/code-change-plan.ts:613-615  (renderIds)
+      src/synthesis/code-change-plan.ts:680-682  (renderIds)
       src/synthesis/todo-patch.ts:317-319  (renderIds)
 
-REFACTOR[14] (ranked by priority):
+REFACTOR[17] (ranked by priority):
   [1] ○ extract_function   → src/utils/readPrompt.py
       WHY: 5 occurrences of 5-line block across 5 files — saves 20 lines
       FILES: src/extractors/docs-llm.ts, src/extractors/markdown-llm.ts, src/extractors/nl-llm.ts, src/summary/summarizer.ts, src/synthesis/tasks-llm.ts
   [2] ○ extract_function   → src/utils/constructor.py
       WHY: 5 occurrences of 4-line block across 5 files — saves 16 lines
       FILES: src/communication/llm.ts, src/extractors/docs-llm.ts, src/extractors/markdown-llm.ts, src/extractors/nl-llm.ts, src/synthesis/tasks-llm.ts
-  [3] ○ extract_function   → scripts/utils/collect.py
+  [3] ○ extract_function   → src/utils/constructor.py
+      WHY: 5 occurrences of 4-line block across 5 files — saves 16 lines
+      FILES: src/communication/llm.ts, src/extractors/markdown-llm.ts, src/extractors/nl-llm.ts, src/summary/summarizer.ts, src/synthesis/tasks-llm.ts
+  [4] ○ extract_function   → scripts/utils/collect.py
       WHY: 2 occurrences of 9-line block across 2 files — saves 9 lines
       FILES: scripts/verify-env-contract.mjs, scripts/verify-module-boundaries.mjs
-  [4] ○ extract_function   → src/utils/markDeterministic.py
+  [5] ○ extract_function   → src/live/utils/sumUsage.py
+      WHY: 2 occurrences of 9-line block across 2 files — saves 9 lines
+      FILES: src/live/contract-check.ts, src/live/model-comparison.ts
+  [6] ○ extract_function   → src/utils/markDeterministic.py
       WHY: 2 occurrences of 8-line block across 2 files — saves 8 lines
       FILES: src/communication/llm.ts, src/extractors/markdown-llm.ts
-  [5] ○ extract_function   → src/utils/arrow_function.py
+  [7] ○ extract_function   → src/utils/arrow_function.py
       WHY: 2 occurrences of 6-line block across 2 files — saves 6 lines
       FILES: src/communication/llm.ts, src/extractors/markdown-llm.ts
-  [6] ○ extract_function   → src/utils/errorMessage.py
+  [8] ○ extract_function   → src/utils/errorMessage.py
       WHY: 3 occurrences of 3-line block across 3 files — saves 6 lines
       FILES: src/extractors/docs-llm.ts, src/interfaces/a2a-task-store.ts, src/interfaces/a2a.ts
-  [7] ○ extract_function   → src/communication/utils/roleOf.py
+  [9] ○ extract_function   → src/communication/utils/roleOf.py
       WHY: 2 occurrences of 5-line block across 2 files — saves 5 lines
       FILES: src/communication/analyzer.ts, src/communication/llm.ts
-  [8] ○ extract_function   → src/utils/objectValue.py
+  [10] ○ extract_function   → src/utils/objectValue.py
       WHY: 2 occurrences of 4-line block across 2 files — saves 4 lines
       FILES: src/core/schema.ts, src/operations/validation.ts
-  [9] ○ extract_function   → src/utils/constructor.py
-      WHY: 2 occurrences of 4-line block across 2 files — saves 4 lines
-      FILES: src/summary/summarizer.ts, src/synthesis/tasks-llm.ts
-  [10] ○ extract_function   → src/extractors/utils/clampLine.py
+  [11] ○ extract_function   → scripts/research/utils/readJson.py
+      WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
+      FILES: scripts/research/audit-changelog-sample.mjs, scripts/research/rerank-embedding-shortlist.mjs
+  [12] ○ extract_function   → src/extractors/utils/clampLine.py
       WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
       FILES: src/extractors/docs-record.ts, src/extractors/nl-llm.ts
-  [11] ○ extract_function   → src/extractors/utils/allowedAction.py
+  [13] ○ extract_function   → src/extractors/utils/allowedAction.py
       WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
       FILES: src/extractors/docs-record.ts, src/extractors/nl-llm.ts
-  [12] ○ extract_function   → src/extractors/utils/allowedModality.py
+  [14] ○ extract_function   → src/extractors/utils/allowedModality.py
       WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
       FILES: src/extractors/docs-record.ts, src/extractors/nl-llm.ts
-  [13] ○ extract_function   → src/utils/nonBlank.py
+  [15] ○ extract_function   → src/live/utils/round.py
+      WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
+      FILES: src/live/contract-check.ts, src/live/model-comparison.ts
+  [16] ○ extract_function   → src/utils/nonBlank.py
       WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
       FILES: src/operations/validation.ts, src/synthesis/todo-patch.ts
-  [14] ○ extract_function   → src/synthesis/utils/renderIds.py
+  [17] ○ extract_function   → src/synthesis/utils/renderIds.py
       WHY: 2 occurrences of 3-line block across 2 files — saves 3 lines
       FILES: src/synthesis/code-change-plan.ts, src/synthesis/todo-patch.ts
 
-QUICK_WINS[6] (low risk, high savings — do first):
+QUICK_WINS[8] (low risk, high savings — do first):
   [1] extract_function   saved=20L  → src/utils/readPrompt.py
       FILES: docs-llm.ts, markdown-llm.ts, nl-llm.ts +2
   [2] extract_function   saved=16L  → src/utils/constructor.py
       FILES: llm.ts, docs-llm.ts, markdown-llm.ts +2
-  [3] extract_function   saved=9L  → scripts/utils/collect.py
+  [3] extract_function   saved=16L  → src/utils/constructor.py
+      FILES: llm.ts, markdown-llm.ts, nl-llm.ts +2
+  [4] extract_function   saved=9L  → scripts/utils/collect.py
       FILES: verify-env-contract.mjs, verify-module-boundaries.mjs
-  [4] extract_function   saved=8L  → src/utils/markDeterministic.py
+  [5] extract_function   saved=9L  → src/live/utils/sumUsage.py
+      FILES: contract-check.ts, model-comparison.ts
+  [6] extract_function   saved=8L  → src/utils/markDeterministic.py
       FILES: llm.ts, markdown-llm.ts
-  [5] extract_function   saved=6L  → src/utils/arrow_function.py
+  [7] extract_function   saved=6L  → src/utils/arrow_function.py
       FILES: llm.ts, markdown-llm.ts
-  [6] extract_function   saved=6L  → src/utils/errorMessage.py
+  [8] extract_function   saved=6L  → src/utils/errorMessage.py
       FILES: docs-llm.ts, a2a-task-store.ts, a2a.ts
 
-EFFORT_ESTIMATE (total ≈ 3.1h):
+EFFORT_ESTIMATE (total ≈ 4.0h):
   medium readPrompt                          saved=20L  ~40min
   medium constructor                         saved=16L  ~32min
+  medium constructor                         saved=16L  ~32min
   easy   collect                             saved=9L  ~18min
+  easy   sumUsage                            saved=9L  ~18min
   easy   markDeterministic                   saved=8L  ~16min
   easy   arrow_function                      saved=6L  ~12min
   easy   errorMessage                        saved=6L  ~12min
   easy   roleOf                              saved=5L  ~10min
   easy   objectValue                         saved=4L  ~8min
-  easy   constructor                         saved=4L  ~8min
-  easy   clampLine                           saved=3L  ~6min
-  ... +4 more (~24min)
+  ... +7 more (~42min)
 
 METRICS-TARGET:
-  dup_groups:  14 → 0
-  saved_lines: 93 lines recoverable
+  dup_groups:  17 → 0
+  saved_lines: 120 lines recoverable

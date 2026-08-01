@@ -23,6 +23,10 @@ for (const file of files) {
   const original = await fs.readFile(file, 'utf8');
   const normalized = original
     .replaceAll(sourceRoot, '<PROJECT_ROOT>')
+    // Generated HTML can embed tracked audit logs from an older detached run.
+    // Scrub every analysis-worktree root, not only the current snapshot, so a
+    // historical command transcript cannot reintroduce a volatile /tmp path.
+    .replace(/\/tmp\/t2c-analysis\.[^/\s]+\/todo2code/g, '<PROJECT_ROOT>')
     .replace(/[ \t]+$/gm, '');
   if (normalized === original) continue;
   const temporary = `${file}.${process.pid}.tmp`;
