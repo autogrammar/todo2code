@@ -2,13 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-022`](project/ticket-022/README.md) — add bounded, read-only Git
-  evidence extraction for umbrella workspaces such as Subactor. Current state:
-  `BLOCKED / VALIDATION`; 337 tests and Docker smoke pass. The Subactor run now
-  extracts 326 commits from 39 member repositories, adds 41,792 net relations
-  and reduces same-snapshot diagnostics by 275. Only inherited ticket-018/019
-  governance findings block protected merge.
-
 - [ ] [`ticket-020`](project/ticket-020/README.md) — implement a role-bound
   trusted intake boundary with persistent manager/user/dev assignments,
   CQRS/event sourcing, strict schemas, Protobuf, Python/TypeScript CLI, MCP and
@@ -36,6 +29,12 @@
   governance blockers remain recorded separately.
 
 ## Completed tickets
+
+- [x] [`ticket-022`](project/ticket-022/README.md) — add bounded, read-only Git
+  evidence extraction for umbrella workspaces such as Subactor. Current state:
+  `DONE`; 337 tests and Docker smoke pass. The Subactor run now extracts 326
+  commits from 39 member repositories, adds 41,792 net relations and reduces
+  same-snapshot diagnostics by 275.
 
 - [x] [`ticket-017`](project/ticket-017/README.md) — repaired mutating command
   help, Polish prohibition polarity and repository-bound path resolution;

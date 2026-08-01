@@ -2,8 +2,8 @@
 
 - **ID**: ticket-022
 - **Owner**: unresolved:human
-- **Status**: BLOCKED
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -67,7 +67,7 @@ mutation, checkout, fetch, commit or push operation.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / EDIT`.
+- Current state: `DONE / COMPLETE`.
 - Approval evidence: user response `zatwierdzam ticket 022 i kolejne` on
   2026-08-01 after the exact bounded plan was presented. This approves ticket
   022; future unknown scopes still require their own concrete plan.
