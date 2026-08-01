@@ -72,17 +72,22 @@ The user requested automated code review through Koru. The implementation will
 add a read-only GitHub check named `koru / code-review`, run for pull requests
 and explicit historical-review dispatches. It will pin Koru 0.1.444 and Vallm
 0.1.94, select only changed supported source files, and let Koru execute one
-bounded Vallm review round. The review combines deterministic syntax,
-complexity and security checks with an OpenRouter semantic judge supplied by
-the existing organization-level `OPENROUTER_API_KEY` secret.
+bounded Vallm review round. The review runs deterministic complexity and
+security checks, attempts Vallm syntax analysis, and uses an OpenRouter
+semantic judge supplied by the existing organization-level
+`OPENROUTER_API_KEY` secret.
 
 The semantic judge is `google/gemini-3.1-pro-preview`, selected from the current
 live `llm-code-benchmark/v1` report because it is the only compared model that
 qualified for both repair and validation (repair 1.000, validation 0.929,
 security 1.000 and availability 100%). Vallm's Python-oriented `--regression`
 mode is intentionally not used for TypeScript: the separate required `verify`
-job owns the repository's 335-test regression suite, while Koru remains the
-read-only semantic, syntax, complexity and security review boundary.
+job owns TypeScript compilation and the repository's 335-test regression
+suite. Koru remains the read-only semantic, complexity and security review
+boundary. Vallm still attempts syntax analysis, but 0.1.94 passes the uppercase
+language enum `TYPESCRIPT` to a parser that accepts lowercase `typescript`; its
+`syntax.unsupported` warning is retained as an open upstream defect rather than
+being presented as successful syntax evidence.
 
 The workflow will never use `pull_request_target`, check out untrusted code
 with a write-capable token, modify source, auto-fix, commit, push or submit a
@@ -156,7 +161,7 @@ agent self-approved.
 - [x] AC-20: Koru 0.1.444 runs exactly one read-only Vallm 0.1.94 review round
       over changed supported source files; auto-fix, commit, push and mutable
       dependency versions are absent.
-- [x] AC-21: Deterministic syntax/complexity/security checks and semantic
+- [ ] AC-21: Deterministic syntax/complexity/security checks and semantic
       LLM-as-judge review fail closed on findings, missing credentials,
       malformed output or provider failure, with no secret value in logs.
 - [x] AC-22: The structured report records repository, base/head SHA, selected
@@ -256,6 +261,14 @@ remain historical evidence, not evidence for AC-11..AC-17.
   so no provider request or cost occurred. This proves the deployed workflow
   configuration and no-source path; it does not supersede the required live
   rerun after secret rotation.
+- Workflow dispatch `30713017811` then exercised that workflow against the
+  exact two-file TypeScript diff from pull request #3. The report records the
+  Gemini judge and no longer contains a regression/`pytest` error. It rejects
+  fail-closed because OpenRouter still returns 401 `User not found`; it also
+  retains Vallm 0.1.94's `TYPESCRIPT` parser warning. Report construction,
+  artifact upload and provenance attestation passed. AC-21 therefore remains
+  open until the secret is rotated and the upstream parser defect is fixed or
+  replaced with equivalent deterministic Koru-job evidence.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,

@@ -285,3 +285,26 @@ governance: FAIL on inherited ticket-019 state only
 Interpretation: this is commit-bound evidence for the deployed model and the
 no-source path. A live TypeScript semantic rerun is still required after a
 trusted owner rotates the failing OPENROUTER_API_KEY Actions secret.
+
+2026-08-01 KORU LIVE GEMINI DISPATCH
+$ workflow_dispatch run 30713017811
+workflow ref: ticket-018-koru-review at 920fcb9
+reviewed base: 2e87205dcd0b06286529ca9fa8ab9518694e9068
+reviewed head: eb9414cc34bd33e357d5ff9075604bdd68052438
+selected: src/config/env.ts, test/config-env.test.ts
+reported model: openrouter/google/gemini-3.1-pro-preview
+credential presence check: PASS (value was not read or logged)
+regression/pytest issue: absent after removal of Vallm --regression
+semantic provider: OpenRouter 401 User not found
+syntax: warning; Vallm 0.1.94 passes TYPESCRIPT while
+tree-sitter-language-pack accepts lowercase typescript
+report/artifact/provenance attestation: PASS
+enforced verdict: FAIL (expected fail-closed provider path)
+
+$ python -m pip index versions vallm
+latest published version: 0.1.94 (already pinned)
+
+Decision: reopen AC-21. The required verify job supplies passing TypeScript
+compilation and regression evidence, but Koru syntax and live semantic review
+cannot be claimed until the upstream parser defect and external credential are
+fixed.

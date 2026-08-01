@@ -12,6 +12,11 @@
   `User not found`. Secret rotation remains an external trusted-owner action.
 - Verified the new judge in pull request #4's attested no-source report; Koru,
   Node/Docker verification and the required Java fixture passed remotely.
+- Ran a bounded live dispatch over pull request #3's TypeScript diff. It proves
+  the regression/`pytest` error is gone and the Gemini ID is active, while
+  preserving fail-closed 401 and Vallm uppercase-language parser evidence.
+- Reopened AC-21 instead of claiming successful Koru syntax/semantic evidence;
+  the required `verify` job continues to own TypeScript compilation/regression.
 
 ## [0.2.0] - 2026-08-01
 

@@ -156,6 +156,11 @@ Current verified baseline:
   benchmark-qualified Gemini 3.1 Pro Preview, left regression ownership with
   the required Node `verify` job, and did not read or overwrite the external
   Actions secret.
+- Dispatched the updated branch workflow against pull request #3's exact source
+  diff. The attested report confirms Gemini and removal of the invalid pytest
+  path, then fails closed on the unchanged 401. It also proves Vallm 0.1.94
+  cannot resolve its uppercase TypeScript language enum; AC-21 was reopened and
+  no successful syntax/semantic verdict is claimed.
 
 ## Blockers
 
