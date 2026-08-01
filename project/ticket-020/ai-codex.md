@@ -100,22 +100,38 @@ Current verified baseline:
 
 ## Actual changes
 
-- Created and completed only the ticket-020 plan, intent and project-level
-  checklist entry.
-- No source, test, package, Docker, SDK, top-level schema or human participant
-  file was created or modified for this ticket.
+- The user explicitly approved implementation with "wdrażaj" after the agent
+  requested approval of ticket-020 and AC-01..AC-19.
+- Transitioned the ticket to `IN_PROGRESS / EDIT` in an isolated
+  `ticket-020-role-bound-intake` worktree.
+- Implemented strict intake contracts, registry v2 compatibility, deterministic
+  diagnostics, a hash-chained event store, authorization/capability decisions,
+  trusted projections and dry-run legacy conflict detection under
+  `src/communication/**`.
+- Implemented TypeScript/Python Protobuf codecs, strict JSON Schemas, a Python
+  shell CLI, TypeScript CLI commands, MCP tools and A2A JSON/Protobuf parity
+  under the approved interface paths.
+- Bound A2A intake identity to the authenticated bearer-derived principal and
+  rejected unauthenticated bootstrap; removed caller-controlled trusted-prefix
+  authority discovered during security review.
+- Added focused role persistence, spoofing, agent rejection, concurrency,
+  idempotency, hash-chain, secret, projection, CLI, MCP, A2A and cross-language
+  golden-vector tests. No human-owned role file was changed in this repository.
+- Completed Node and network-isolated Docker core verification with zero test
+  failures.
 
 ## Blockers
 
-- Explicit human approval is required before implementation.
-- Whole-repository governance validation is already blocked by four findings
-  owned by concurrent ticket-019 (`GOV-CONFLICT-001`, `GOV-DEPENDENCY-002`,
-  `GOV-WORKSTREAM-003`, `GOV-WORKSTREAM-004`). None names ticket-020, but the
-  shared gate cannot pass until the SDK ticket is corrected by its owner.
+- The branch was refreshed to committed policy 0.8.0. Safe parallel tickets
+  018 (`governance`) and 020 (`interfaces`) are accepted. The global gate now
+  fails only on ticket-019's explicit conflict/unmet dependency on ticket-018,
+  paths outside `sdk` and overlapping `Makefile` claim; no finding names
+  ticket-020.
 - Trusted merge evidence will still require an independent protected review or
   signed attestation; chat approval authorizes only the interactive edit phase.
 
 ## Approval boundary
 
-- Current state: `PLAN / WAIT_FOR_APPROVAL`.
-- Required response from: `unresolved:human`.
+- Current state: `BLOCKED / VALIDATION`.
+- Interactive implementation was approved by the human operator on 2026-08-01.
+- Protected merge approval remains unresolved and cannot be self-attested.

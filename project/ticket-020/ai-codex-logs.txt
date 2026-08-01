@@ -19,3 +19,49 @@ human role files unchanged: PASS
 
 $ git diff --check
 PASS (no output)
+
+$ npm run verify
+PASS
+tests 335; pass 334; fail 0; skipped 1 (JDK unavailable)
+module boundaries: 114 modules, 521 internal imports, no cycles
+structured calls: 7; raw calls: 0
+
+$ make e2e-core
+T2C-E2E-000: PASS suite=core
+tests 335; pass 328; fail 0; skipped 7 optional toolchains
+gold v1/v2: precision 100%; recall 100%; repeated-run stability PASS
+CLI smoke: PASS
+MCP smoke: PASS
+A2A smoke: PASS
+examples: PASS
+
+$ make governance  # before refreshing branch to main/0.8.0
+GOV-TICKET-002 ERROR: More than one active ticket exists.
+  paths: project/ticket-018, project/ticket-020
+  remediation: policy 0.7.0 requires serialization; ticket-018's approved
+  workstream-aware 0.8.0 validator is not committed in this branch and cannot
+  be imported without mixing ticket scopes.
+GOV-FAIL: failed (1 error, 0 warnings)
+
+$ git diff --check && git diff --cached --check
+PASS (no output)
+
+$ git merge --ff-only main
+PASS: ticket-020-role-bound-intake refreshed from 9928699 to 1a0799a
+policy baseline: wellmanifest/new-project 0.8.0
+
+$ make governance  # after refreshing branch to main/0.8.0
+GOV-CONFLICT-001: ticket-018/ticket-019
+GOV-DEPENDENCY-002: ticket-019 depends on unfinished ticket-018
+GOV-WORKSTREAM-003: ticket-019 claims Makefile and goal.yaml outside sdk
+GOV-WORKSTREAM-004: ticket-018/ticket-019 overlap on Makefile
+GOV-FAIL: 4 errors, 0 warnings
+ticket-018 + ticket-020 parallelism: accepted; no finding names ticket-020
+
+$ npm run verify  # after refreshing branch to main/0.8.0
+PASS
+tests 335; pass 334; fail 0; skipped 1 (JDK unavailable)
+module boundaries: 114 modules, 521 internal imports, no cycles
+
+$ git diff --check && git diff --cached --check
+PASS (no output)

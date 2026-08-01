@@ -5,8 +5,10 @@
 - [ ] [`ticket-020`](project/ticket-020/README.md) — implement a role-bound
   trusted intake boundary with persistent manager/user/dev assignments,
   CQRS/event sourcing, strict schemas, Protobuf, Python/TypeScript CLI, MCP and
-  A2A parity. Current state: `PLAN / WAIT_FOR_APPROVAL`; no implementation path
-  may change until the human approves AC-01..AC-19.
+  A2A parity. Current state: `BLOCKED / VALIDATION`; implementation, full Node
+  verification and Docker core E2E pass. Policy 0.8.0 accepts tickets 018 and
+  020 in parallel; the global gate now reports only ticket-019's declared
+  dependency, conflict, ownership and overlap violations.
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with

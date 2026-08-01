@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { pathExists, readText } from '../core/io.js';
 import { assertPathWithinRoot } from '../core/security.js';
+import { assertParticipant, principalKey, type ParticipantV2 } from './intake-contract.js';
 
 export interface ParticipantIdentityEntry {
   id: string;
@@ -9,6 +10,9 @@ export interface ParticipantIdentityEntry {
   gitAuthors: string[];
   a2aAgentIds: string[];
   humanAliases: string[];
+  governanceRole?: 'manager' | 'user' | 'dev' | null;
+  capabilities?: string[];
+  ticketIds?: string[];
 }
 
 export interface ParticipantIdentityRegistry {
@@ -28,11 +32,9 @@ export async function loadParticipantIdentityRegistry(
   maxBytes: number,
   allowOutsideRoot = false,
 ): Promise<LoadedParticipantIdentityRegistry | null> {
-  const registryPath = await assertPathWithinRoot(
-    root,
-    path.resolve(projectRoot, 'participants.json'),
-    allowOutsideRoot,
-  );
+  const v2Path = await assertPathWithinRoot(root, path.resolve(projectRoot, 'participants.v2.json'), allowOutsideRoot);
+  const v1Path = await assertPathWithinRoot(root, path.resolve(projectRoot, 'participants.json'), allowOutsideRoot);
+  const registryPath = await pathExists(v2Path) ? v2Path : v1Path;
   if (!(await pathExists(registryPath))) return null;
   let value: unknown;
   try {
@@ -40,11 +42,55 @@ export async function loadParticipantIdentityRegistry(
   } catch (error) {
     throw new Error(`Invalid participant identity registry ${registryPath}: ${error instanceof Error ? error.message : String(error)}`);
   }
-  assertParticipantIdentityRegistry(value);
+  const normalized = normalizeParticipantIdentityRegistry(value);
   return {
     path: registryPath,
-    registry: value,
-    byId: new Map(value.participants.map((entry) => [entry.id, entry])),
+    registry: normalized,
+    byId: new Map(normalized.participants.map((entry) => [entry.id, entry])),
+  };
+}
+
+function normalizeParticipantIdentityRegistry(value: unknown): ParticipantIdentityRegistry {
+  if (value && typeof value === 'object' && !Array.isArray(value)
+    && (value as Record<string, unknown>).schemaVersion === 't2c.participant-registry/v2') {
+    const registry = value as Record<string, unknown>;
+    exactKeys(registry, ['schemaVersion', 'version', 'participants'], 'Participant registry v2');
+    if (!Number.isSafeInteger(registry.version) || (registry.version as number) < 0 || !Array.isArray(registry.participants)) {
+      throw new Error('Participant registry v2 version/participants are invalid');
+    }
+    const participants = registry.participants.map((raw) => normalizeV2Entry(raw));
+    const normalized: ParticipantIdentityRegistry = { schemaVersion: 't2c.participant-registry/v1', participants };
+    const ids = new Set<string>();
+    const principals = new Set<string>();
+    for (const [index, raw] of registry.participants.entries()) {
+      assertParticipant(raw);
+      if (ids.has(raw.id)) throw new Error(`Duplicate participant registry id: ${raw.id}`);
+      ids.add(raw.id);
+      for (const principal of raw.principals) {
+        const key = principalKey(principal);
+        if (principals.has(key)) throw new Error(`Duplicate verified principal at participant index ${index}: ${key}`);
+        principals.add(key);
+      }
+    }
+    return normalized;
+  }
+  assertParticipantIdentityRegistry(value);
+  return value;
+}
+
+function normalizeV2Entry(raw: unknown): ParticipantIdentityEntry {
+  assertParticipant(raw);
+  const entry: ParticipantV2 = raw;
+  const principals = entry.principals.map((principal) => ({ provider: principal.provider.toLowerCase(), subject: principal.subject }));
+  const kind = entry.kind;
+  return {
+    id: entry.id, role: kind, displayName: entry.displayName,
+    gitAuthors: principals.filter((item) => item.provider === 'git').map((item) => item.subject),
+    a2aAgentIds: kind === 'agent' ? principals.filter((item) => item.provider === 'a2a').map((item) => item.subject) : [],
+    humanAliases: kind === 'human' ? principals.filter((item) => item.provider !== 'git').map((item) => item.subject) : [],
+    governanceRole: entry.governanceRole,
+    capabilities: [...entry.capabilities],
+    ticketIds: [...entry.ticketIds],
   };
 }
 

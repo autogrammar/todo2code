@@ -55,6 +55,18 @@ export function agentCard(config: T2CConfig): Record<string, unknown> {
 function skills(): Array<Record<string, unknown>> {
   return [
     skill(
+      'governed_intake',
+      'Governed trusted intake',
+      'Execute role-bound CQRS commands and queries with idempotency, optimistic concurrency and deterministic diagnostics.',
+      ['governance', 'cqrs', 'event-sourcing', 'protobuf', 'identity'],
+      [
+        '{"action":"intake_command","input":{"envelope":{"schemaVersion":"t2c.intake-envelope/v1","payload":{"schemaVersion":"t2c.intake-command/v1","type":"CaptureMessage"}}}}',
+        '{"action":"intake_query","input":{"envelope":{"schemaVersion":"t2c.intake-envelope/v1","payload":{"schemaVersion":"t2c.intake-query/v1","type":"GetRole"}}}}',
+      ],
+      ['application/json', 'application/x-protobuf'],
+      ['application/json', 'application/x-protobuf'],
+    ),
+    skill(
       'analyze_repository',
       'Analyze repository',
       'Run the full t2c pipeline over NL, Git, AST, TODO, CHANGELOG and optional documentation.',

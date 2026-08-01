@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "t2c.participant-registry/v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "version", "participants"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.participant-registry/v2" },
+    "version": { "type": "integer", "minimum": 0 },
+    "participants": { "type": "array", "items": { "$ref": "#/$defs/participant" } }
+  },
+  "$defs": {
+    "principal": {
+      "type": "object", "additionalProperties": false,
+      "required": ["provider", "subject", "verifiedAt"],
+      "properties": {
+        "provider": { "type": "string", "minLength": 1 },
+        "subject": { "type": "string", "minLength": 1 },
+        "verifiedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "participant": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "displayName", "governanceRole", "capabilities", "principals", "ticketIds"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(human|agent):[a-z0-9][a-z0-9._-]*$" },
+        "kind": { "enum": ["human", "agent"] },
+        "displayName": { "type": "string", "minLength": 1 },
+        "governanceRole": { "type": ["string", "null"], "enum": ["manager", "user", "dev", null] },
+        "capabilities": { "type": "array", "uniqueItems": true, "items": { "enum": ["assign_participant", "assign_role", "capture_own_message", "rebuild_projection", "verify_event_stream"] } },
+        "principals": { "type": "array", "items": { "$ref": "#/$defs/principal" } },
+        "ticketIds": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^ticket-[0-9]{3,}$" } }
+      }
+    }
+  }
+}

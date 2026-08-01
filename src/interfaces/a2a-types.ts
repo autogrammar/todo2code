@@ -1,4 +1,7 @@
 import type { T2CAction } from '../services/actions.js';
+import type { IntakeAction } from './intake-actions.js';
+
+export type A2AAction = T2CAction | IntakeAction;
 
 export interface JsonRpcRequest {
   jsonrpc: '2.0';
@@ -65,7 +68,8 @@ export interface SendConfiguration {
   historyLength: number | undefined;
 }
 
-export const A2A_ACTIONS: T2CAction[] = [
+export const A2A_ACTIONS: A2AAction[] = [
+  'intake_command', 'intake_query',
   'extract_nl', 'extract_git', 'extract_ast', 'extract_config', 'extract_markdown', 'extract_docs',
   'extract_communication', 'analyze_communication', 'link', 'diagnose', 'summarize',
   'diff', 'diff_files', 'diff_git', 'reality', 'compare_workspace', 'pipeline',

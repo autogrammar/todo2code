@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "t2c.intake-result/v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "accepted", "messageId", "correlationId", "causationId", "authenticatedPrincipal", "aggregateId", "expectedVersion", "actualVersion", "idempotencyKey", "timestamp", "payloadHash", "diagnostic", "data"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.intake-result/v1" }, "accepted": { "type": "boolean" }, "messageId": { "type": "string" }, "correlationId": { "type": "string" }, "causationId": { "type": ["string", "null"] }, "authenticatedPrincipal": { "type": "string" }, "aggregateId": { "const": "intake" }, "expectedVersion": { "type": ["integer", "null"] }, "actualVersion": { "type": "integer", "minimum": 0 }, "idempotencyKey": { "type": "string" }, "timestamp": { "type": "string", "format": "date-time" }, "payloadHash": { "type": "string" }, "diagnostic": { "oneOf": [{ "type": "null" }, { "$ref": "diagnostic-v1.schema.json" }] }, "data": true
+  }
+}

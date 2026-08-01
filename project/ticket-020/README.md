@@ -2,8 +2,8 @@
 
 - **ID**: ticket-020
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: BLOCKED
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -78,54 +78,54 @@ code, remediation and retryability.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves this understanding, scope and checklist before
+- [x] AC-01: A human approves this understanding, scope and checklist before
       any implementation path is changed.
-- [ ] AC-02: Participant registry v2 has strict schemas separating
+- [x] AC-02: Participant registry v2 has strict schemas separating
       `human|agent` kind, stable identity, `manager|user|dev` governance role,
       verified external principals and explicit capability grants.
-- [ ] AC-03: Identity resolution uses exact verified principal identifiers;
+- [x] AC-03: Identity resolution uses exact verified principal identifiers;
       display names and role-prefixed filenames are never sufficient evidence.
-- [ ] AC-04: CQRS command and query handlers are transport-independent and
+- [x] AC-04: CQRS command and query handlers are transport-independent and
       reject commands with missing identity, authority, ticket binding or
       expected stream version.
-- [ ] AC-05: The event store is append-only, atomic and replayable, with
+- [x] AC-05: The event store is append-only, atomic and replayable, with
       optimistic concurrency, idempotency and a verifiable SHA-256 hash chain.
-- [ ] AC-06: A deterministic projection maps a verified human to exactly one
+- [x] AC-06: A deterministic projection maps a verified human to exactly one
       `manager-*`, `user-*` or `dev-*` file per ticket and detects projection
       drift without overwriting untrusted content.
-- [ ] AC-07: Only a trusted intake capability may create or update human role
+- [x] AC-07: Only a trusted intake capability may create or update human role
       projections; an AI/agent command fails closed and cannot self-approve.
-- [ ] AC-08: Strict JSON Schemas reject unknown fields and version every
+- [x] AC-08: Strict JSON Schemas reject unknown fields and version every
       registry, command, query, event, result and diagnostic payload.
-- [ ] AC-09: A versioned `.proto` contract defines the canonical envelope and
+- [x] AC-09: A versioned `.proto` contract defines the canonical envelope and
       command/query/event variants; TypeScript and Python round trips match
       byte-level golden vectors and preserve unknown-field compatibility.
-- [ ] AC-10: A dependency-free Python CLI supports participant resolution,
+- [x] AC-10: A dependency-free Python CLI supports participant resolution,
       role assignment, message capture, validation, event verification/replay
       and projection rebuild, with stable JSON output and documented exits.
-- [ ] AC-11: The existing TypeScript CLI exposes equivalent commands and calls
+- [x] AC-11: The existing TypeScript CLI exposes equivalent commands and calls
       the same application handlers as MCP and A2A.
-- [ ] AC-12: MCP exposes typed intake/resolve/validate/query tools, maps domain
+- [x] AC-12: MCP exposes typed intake/resolve/validate/query tools, maps domain
       diagnostics deterministically and declares mutating-tool annotations.
-- [ ] AC-13: A2A exposes a versioned governed-intake skill, accepts JSON and
+- [x] AC-13: A2A exposes a versioned governed-intake skill, accepts JSON and
       Protobuf data parts, preserves correlation/idempotency metadata and maps
       rejections to deterministic task outcomes.
-- [ ] AC-14: Stable `T2C-INTAKE-*` diagnostics cover unknown/unverified actor,
+- [x] AC-14: Stable `T2C-INTAKE-*` diagnostics cover unknown/unverified actor,
       role mismatch, unauthorized command, filename mismatch, version conflict,
       duplicate request, broken chain, invalid schema/wire data, secret input,
       unsafe path, projection drift and storage failure, each with remediation.
-- [ ] AC-15: Secret scanning, size limits, path confinement, symlink defense,
+- [x] AC-15: Secret scanning, size limits, path confinement, symlink defense,
       payload hashing and sanitized logs run before persistent human content is
       written; rejected secret text is not copied to the event stream.
-- [ ] AC-16: Legacy `user-*` remains readable; migration to role-bound v2 is
+- [x] AC-16: Legacy `user-*` remains readable; migration to role-bound v2 is
       explicit, dry-runnable and conflict-producing when history is ambiguous.
-- [ ] AC-17: Tests prove role persistence across tickets, role-change
+- [x] AC-17: Tests prove role persistence across tickets, role-change
       authorization, filename spoof rejection, agent-write rejection,
       concurrency conflicts, idempotent replay and deterministic rebuild.
-- [ ] AC-18: CLI, MCP, A2A and cross-language Protobuf contract tests run in
+- [x] AC-18: CLI, MCP, A2A and cross-language Protobuf contract tests run in
       Docker without live providers or LLM calls and produce no real human
       participant file in the repository.
-- [ ] AC-19: Existing CLI/MCP/A2A and communication tests remain green; every
+- [x] AC-19: Existing CLI/MCP/A2A and communication tests remain green; every
       failure is reported with its stable code and no unrelated dirty path is
       modified or attributed to this ticket.
 
@@ -133,6 +133,13 @@ code, remediation and retryability.
 
 - Human participant: unresolved; no human role file was created by the agent.
 - Agent participant: [ai-codex.md](ai-codex.md)
+
+## Approval record
+
+The user explicitly instructed the agent to implement ("wdrażaj") in chat on
+2026-08-01 after the agent restated that ticket-020 and AC-01..AC-19 required
+explicit approval. This authorizes the interactive `EDIT` phase only; it is
+not trusted merge evidence.
 
 ## Risks and stop conditions
 
@@ -143,7 +150,34 @@ code, remediation and retryability.
 - Adding a Protobuf/runtime package, modifying `package.json`, Docker files,
   top-level `schemas/**` or documentation requires a separate integration
   ticket, dependency/license review and fresh approval.
-- Concurrent ticket-019 owns SDK/Python packaging paths and remains untouched.
-- Whole-repository governance currently fails on ticket-019's pre-existing
-  dependency, conflict and ownership declarations. Ticket-020 cannot claim a
-  passing global gate until that independent SDK plan is repaired.
+- SDK/Python packaging paths remain outside this ticket and are untouched.
+- The branch now inherits committed policy 0.8.0 and its workstream-aware
+  validator; remaining governance findings, if any, must be attributed to an
+  actual dependency, conflict, ownership or scope violation rather than a
+  repository-wide single-ticket limit.
+
+## Implementation and validation result
+
+- Added a strict registry v2, typed command/query/result contracts, the stable
+  `T2C-INTAKE-*` diagnostic catalog and Draft 2020-12 schemas.
+- Added an append-only event-per-version store with optimistic concurrency,
+  idempotency, exclusive append locking, replay and a verified SHA-256 chain.
+- Added trusted human projection materialization, role/filename drift checks,
+  secret and size rejection, root/symlink confinement and dry-run legacy
+  migration conflict reporting. No real human projection was written here.
+- Added dependency-free TypeScript and Python Protobuf codecs with golden-byte
+  parity and unknown-field preservation, plus explicit command/query/event and
+  result variants in `governed-intake.proto`.
+- Added TypeScript and Python CLI parity, typed MCP tools and an A2A skill.
+  A2A binds intake identity to the authenticated bearer-derived principal,
+  rejects unauthenticated bootstrap and preserves JSON/Protobuf result modes.
+- `npm run verify`: PASS, 335 tests, 334 passed, 1 explicit missing-JDK skip,
+  0 failed.
+- `make e2e-core`: PASS in network-isolated Docker; 335 tests, 328 passed,
+  7 explicit optional-toolchain skips, both gold datasets, CLI, MCP, A2A and
+  available SDK examples passed.
+- `make governance` now uses policy 0.8.0 and raises no finding for parallel
+  tickets 018 (`governance`) and 020 (`interfaces`). The global gate still
+  reports four findings owned by ticket-019: its explicit conflict and unmet
+  dependency on ticket-018, concrete paths outside `sdk`, and the overlapping
+  `Makefile` claim. Ticket-020 itself no longer hits a single-ticket limit.

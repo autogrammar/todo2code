@@ -31,6 +31,7 @@ import { diffIntentGraphs, renderGraphDiffSvg } from './graph/diff.js';
 import { linkIntentRecords } from './graph/linker.js';
 import { startA2aServer } from './interfaces/a2a.js';
 import { startMcpServer } from './interfaces/mcp.js';
+import { executeIntakeAction } from './interfaces/intake-actions.js';
 import { runPipeline } from './pipeline/run.js';
 import { executeAction } from './services/actions.js';
 import { summarizeGraph } from './summary/summarizer.js';
@@ -94,6 +95,10 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
   if (command === 'a2a') {
     await startA2aServer(config);
+    return;
+  }
+  if (command === 'intake') {
+    await handleIntake(parsed, config);
     return;
   }
   if (command === 'extract') {
@@ -630,6 +635,36 @@ async function emitJson(value: unknown, out: string | null): Promise<void> {
   else process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
 }
 
+async function handleIntake(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const operation = parsed.positionals.shift();
+  const inputPath = parsed.positionals.shift();
+  if ((operation !== 'command' && operation !== 'query') || !inputPath) {
+    throw new Error('Usage: t2c intake <command|query> <envelope.json|envelope.pb> [--protobuf] [--root .] [--project-dir project]');
+  }
+  const absolute = path.resolve(inputPath);
+  const input: Record<string, unknown> = {
+    root: optionString(parsed, 'root') ?? config.root,
+    projectDir: optionString(parsed, 'project-dir') ?? 'project',
+  };
+  if (optionBoolean(parsed, 'protobuf', false)) input.protobuf = (await fs.readFile(absolute)).toString('base64');
+  else input.envelope = JSON.parse(await readText(absolute, config.maxFileBytes)) as unknown;
+  const result = await executeIntakeAction(operation === 'command' ? 'intake_command' : 'intake_query', input, config) as {
+    accepted?: boolean;
+    diagnostic?: { code?: string } | null;
+  };
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  if (result.accepted === false) process.exitCode = intakeExitCode(result.diagnostic?.code);
+}
+
+function intakeExitCode(code: string | undefined): number {
+  if (!code || code === 'T2C-INTAKE-INVALID-SCHEMA' || code === 'T2C-INTAKE-INVALID-WIRE') return 2;
+  if (['T2C-INTAKE-UNKNOWN-ACTOR', 'T2C-INTAKE-UNVERIFIED-ACTOR', 'T2C-INTAKE-ROLE-MISMATCH', 'T2C-INTAKE-UNAUTHORIZED'].includes(code)) return 3;
+  if (code === 'T2C-INTAKE-VERSION-CONFLICT' || code === 'T2C-INTAKE-DUPLICATE') return 4;
+  if (code === 'T2C-INTAKE-BROKEN-CHAIN' || code === 'T2C-INTAKE-PROJECTION-DRIFT') return 5;
+  if (code === 'T2C-INTAKE-STORAGE-FAILURE') return 6;
+  return 7;
+}
+
 async function initProject(root: string): Promise<void> {
   await fs.mkdir(root, { recursive: true });
   const moduleRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -826,6 +861,7 @@ function printHelp(): void {
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);
   process.stdout.write(`  t2c a2a\n\n`);
+  process.stdout.write(`  t2c intake <command|query> <envelope.json|envelope.pb> [--protobuf] [--root .] [--project-dir project]\n\n`);
   process.stdout.write(`LLM boundary: NL, TODO/CHANGELOG and communication enrichment, documentation extraction, task synthesis and summarization are the audited OpenRouter stages.\n`);
 }
 

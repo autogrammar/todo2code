@@ -5,6 +5,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import type { T2CConfig } from '../config/env.js';
 import { assertPathWithinRoot } from '../core/security.js';
 import { executeAction } from '../services/actions.js';
+import { executeIntakeAction } from './intake-actions.js';
 import {
   cloneMessage,
   clonePart,
@@ -352,12 +353,38 @@ async function executeMessage(
   try {
     const command = parseCommand(message, params);
     task.metadata.lastAction = command.action;
-    const result = await executeAction(command.action, command.input, config);
+    const result = command.action === 'intake_command' || command.action === 'intake_query'
+      ? await executeIntakeAction(command.action, command.input, config, {
+          authenticatedPrincipal: task.owner,
+          allowBootstrap: Boolean(config.a2a.token),
+        })
+      : await executeAction(command.action, command.input, config);
     if (currentTaskState(task) === 'TASK_STATE_CANCELED') return;
+    const domainResult = intakeDomainResult(result);
+    if ((command.action === 'intake_command' || command.action === 'intake_query')
+      && domainResult?.accepted === false) {
+      rejectTask(task, command.action, result, domainResult);
+      return;
+    }
     completeTask(task, command.action, result);
   } catch (error) {
     if (currentTaskState(task) !== 'TASK_STATE_CANCELED') failTask(task, error);
   }
+}
+
+function rejectTask(task: StoredTask, action: string, result: unknown, domainResult: Record<string, unknown>): void {
+  const protobuf = protobufResult(result);
+  task.artifacts.push({
+    artifactId: randomUUID(),
+    name: `${action}-rejection.json`,
+    description: `todo2code deterministic domain rejection for ${action}`,
+    parts: protobuf ? [{ raw: protobuf.data, mediaType: protobuf.mediaType }] : [{ data: result, mediaType: 'application/json' }],
+  });
+  const diagnostic = (domainResult as { diagnostic?: { code?: string } }).diagnostic?.code;
+  const message = agentMessage(task, diagnostic ?? 'T2C-INTAKE-REJECTED');
+  task.history.push(message);
+  task.status = { state: 'TASK_STATE_REJECTED', message, timestamp: new Date().toISOString() };
+  task.metadata.active = false;
 }
 
 function currentTaskState(task: StoredTask): A2ATaskState {
@@ -365,16 +392,36 @@ function currentTaskState(task: StoredTask): A2ATaskState {
 }
 
 function completeTask(task: StoredTask, action: string, result: unknown): void {
+  const protobuf = protobufResult(result);
   task.artifacts.push({
     artifactId: randomUUID(),
     name: `${action}-result.json`,
     description: `todo2code result for ${action}`,
-    parts: [{ data: result, mediaType: 'application/json' }],
+    parts: protobuf
+      ? [{ raw: protobuf.data, mediaType: protobuf.mediaType }]
+      : [{ data: result, mediaType: 'application/json' }],
   });
   const message = agentMessage(task, `todo2code completed ${action}`);
   task.history.push(message);
   task.status = { state: 'TASK_STATE_COMPLETED', message, timestamp: new Date().toISOString() };
   task.metadata.active = false;
+}
+
+function protobufResult(result: unknown): { mediaType: string; data: string } | null {
+  return result && typeof result === 'object' && !Array.isArray(result)
+    && (result as Record<string, unknown>).mediaType === 'application/x-protobuf'
+    && typeof (result as Record<string, unknown>).data === 'string'
+    ? result as { mediaType: string; data: string }
+    : null;
+}
+
+function intakeDomainResult(result: unknown): Record<string, unknown> | null {
+  if (!result || typeof result !== 'object' || Array.isArray(result)) return null;
+  const record = result as Record<string, unknown>;
+  if (record.result && typeof record.result === 'object' && !Array.isArray(record.result)) {
+    return record.result as Record<string, unknown>;
+  }
+  return record;
 }
 
 function failTask(task: StoredTask, error: unknown): void {
@@ -407,8 +454,8 @@ function listTasks(params: Record<string, unknown>, principal: string): Record<s
     statusTimestampAfter: statusTimestampAfter ?? null,
   });
   const filtered = filteredTasks(principal, contextId, status, statusTimestampAfter);
-  const pageToken = optionalString(params.pageToken, 'pageToken');
-  const start = pageToken ? indexAfterCursor(filtered, decodeCursor(pageToken, filter)) : 0;
+  const pageCursor = optionalString(params.pageToken, 'pageToken');
+  const start = pageCursor ? indexAfterCursor(filtered, decodeCursor(pageCursor, filter)) : 0;
   const page = filtered.slice(start, start + pageSize);
   const last = page.at(-1);
   return {

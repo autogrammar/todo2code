@@ -10,3 +10,18 @@
   governance and SDK workstreams.
 - Recorded the pre-existing ticket-019 governance findings without modifying
   that concurrent ticket.
+- Recorded explicit interactive approval and transitioned to `EDIT` in a
+  dedicated implementation worktree.
+- Implemented role-bound CQRS/event sourcing, registry v2, strict schemas,
+  deterministic diagnostics, projections and transport parity across both
+  CLIs, MCP and A2A.
+- Added TypeScript/Python golden Protobuf compatibility and security/concurrency
+  regression coverage.
+- Reached `VALIDATION`: application and Docker core gates pass; the first
+  governance run was blocked by the inherited v0.7.0 single-ticket rule.
+- Refreshed the isolated implementation branch to the committed 0.8.0
+  workstream baseline so parallel tickets are evaluated by scope and ownership
+  instead of a repository-wide single-ticket rule.
+- Confirmed that 0.8.0 accepts tickets 018 and 020 concurrently; the remaining
+  global findings belong only to ticket-019's declared dependency, conflict,
+  ownership and overlap state.

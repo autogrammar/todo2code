@@ -1,15 +1,28 @@
 import type { T2CConfig } from '../config/env.js';
 import { executeAction, type T2CAction } from '../services/actions.js';
+import { executeIntakeAction, type IntakeAction } from './intake-actions.js';
 import { McpRequestError } from './mcp-errors.js';
 
 interface McpTool {
-  name: T2CAction;
+  name: T2CAction | IntakeAction;
   description: string;
   inputSchema: Record<string, unknown>;
   annotations?: Record<string, unknown>;
 }
 
 export const MCP_TOOLS: McpTool[] = [
+  tool('intake_command', 'Execute one role-bound trusted-intake command through the shared CQRS handler.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    projectDir: stringProp('Governance directory, default project.'),
+    envelope: { type: 'object', description: 'Strict t2c.intake-envelope/v1 command envelope.' },
+    protobuf: stringProp('Optional base64 canonical Protobuf envelope.'),
+  }),
+  tool('intake_query', 'Execute one read-only governed-intake query through the shared CQRS handler.', {
+    root: stringProp('Repository root under T2C_ROOT.'),
+    projectDir: stringProp('Governance directory, default project.'),
+    envelope: { type: 'object', description: 'Strict t2c.intake-envelope/v1 query envelope.' },
+    protobuf: stringProp('Optional base64 canonical Protobuf envelope.'),
+  }),
   tool('extract_nl', 'Extract NL/task text to canonical Intent DSL through audited LLM generation with a deterministic fallback.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     file: stringProp('Source file path. Defaults to TASK.md.'),
@@ -253,7 +266,9 @@ export async function callMcpTool(
     ? params.arguments as Record<string, unknown>
     : {};
   try {
-    const result = await executeAction(name as T2CAction, args, config);
+    const result = name === 'intake_command' || name === 'intake_query'
+      ? await executeIntakeAction(name, args, config)
+      : await executeAction(name as T2CAction, args, config);
     return {
       content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       structuredContent: result,
@@ -268,12 +283,13 @@ export async function callMcpTool(
 }
 
 function tool(
-  name: T2CAction,
+  name: T2CAction | IntakeAction,
   description: string,
   properties: Record<string, unknown>,
   required: string[] = [],
 ): McpTool {
-  const writes = new Set<T2CAction>([
+  const writes = new Set<T2CAction | IntakeAction>([
+    'intake_command',
     'pipeline', 'propose_todo', 'render_todo', 'apply_todo',
     'propose_code_change', 'render_code_change', 'propose_source_patch', 'apply_source_patch',
     'evaluate_code_change', 'close_code_change',

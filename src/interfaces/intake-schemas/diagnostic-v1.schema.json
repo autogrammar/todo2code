@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "t2c.intake-diagnostic/v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "code", "message", "remediation", "retryable"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.intake-diagnostic/v1" },
+    "code": { "enum": ["T2C-INTAKE-UNKNOWN-ACTOR", "T2C-INTAKE-UNVERIFIED-ACTOR", "T2C-INTAKE-ROLE-MISMATCH", "T2C-INTAKE-UNAUTHORIZED", "T2C-INTAKE-FILENAME-MISMATCH", "T2C-INTAKE-VERSION-CONFLICT", "T2C-INTAKE-DUPLICATE", "T2C-INTAKE-BROKEN-CHAIN", "T2C-INTAKE-INVALID-SCHEMA", "T2C-INTAKE-INVALID-WIRE", "T2C-INTAKE-SECRET-INPUT", "T2C-INTAKE-UNSAFE-PATH", "T2C-INTAKE-PROJECTION-DRIFT", "T2C-INTAKE-STORAGE-FAILURE"] },
+    "message": { "type": "string", "minLength": 1 }, "remediation": { "type": "string", "minLength": 1 }, "retryable": { "type": "boolean" }
+  }
+}

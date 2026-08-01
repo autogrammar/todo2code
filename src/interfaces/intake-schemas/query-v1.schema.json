@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "t2c.intake-query/v1",
+  "oneOf": [
+    { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "principal"], "properties": { "schemaVersion": { "const": "t2c.intake-query/v1" }, "type": { "const": "ResolveParticipant" }, "principal": { "type": "string", "minLength": 1 } } },
+    { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "participantId"], "properties": { "schemaVersion": { "const": "t2c.intake-query/v1" }, "type": { "const": "GetRole" }, "participantId": { "type": "string" } } },
+    { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "ticketId"], "properties": { "schemaVersion": { "const": "t2c.intake-query/v1" }, "type": { "const": "GetTicketConversation" }, "ticketId": { "type": "string" } } },
+    { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "idempotencyKey"], "properties": { "schemaVersion": { "const": "t2c.intake-query/v1" }, "type": { "const": "GetCommandStatus" }, "idempotencyKey": { "type": "string" } } },
+    { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "participantId", "ticketId"], "properties": { "schemaVersion": { "const": "t2c.intake-query/v1" }, "type": { "const": "ValidateProjection" }, "participantId": { "type": "string" }, "ticketId": { "type": "string" } } }
+  ]
+}

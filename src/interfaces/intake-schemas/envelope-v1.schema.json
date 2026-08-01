@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "t2c.intake-envelope/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "messageId", "correlationId", "causationId", "idempotencyKey", "authenticatedPrincipal", "expectedVersion", "timestamp", "payloadHash", "payload"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.intake-envelope/v1" },
+    "messageId": { "type": "string", "minLength": 1 },
+    "correlationId": { "type": "string", "minLength": 1 },
+    "causationId": { "type": ["string", "null"] },
+    "idempotencyKey": { "type": "string", "minLength": 1 },
+    "authenticatedPrincipal": { "type": "string", "minLength": 1 },
+    "expectedVersion": { "type": ["integer", "null"], "minimum": 0 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "payloadHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "payload": { "oneOf": [{ "$ref": "command-v1.schema.json" }, { "$ref": "query-v1.schema.json" }] },
+    "unknownFields": { "type": "array", "items": { "type": "string", "contentEncoding": "base64" } }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "t2c.intake-event/v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "aggregateId", "version", "type", "timestamp", "previousHash", "hash", "messageId", "correlationId", "causationId", "idempotencyKey", "authenticatedPrincipal", "payloadHash", "payload"],
+  "properties": {
+    "schemaVersion": { "const": "t2c.intake-event/v1" }, "aggregateId": { "const": "intake" },
+    "version": { "type": "integer", "minimum": 1 }, "type": { "enum": ["ParticipantRegistered", "ExternalIdentityBound", "GovernanceRoleAssigned", "MessageCaptured", "ProjectionRebuilt", "EventStreamVerified"] },
+    "timestamp": { "type": "string", "format": "date-time" }, "previousHash": { "type": ["string", "null"] }, "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "messageId": { "type": "string" }, "correlationId": { "type": "string" }, "causationId": { "type": ["string", "null"] }, "idempotencyKey": { "type": "string" }, "authenticatedPrincipal": { "type": "string" }, "payloadHash": { "type": "string" },
+    "payload": { "oneOf": [
+      { "type": "object", "additionalProperties": false, "required": ["participant"], "properties": { "participant": { "$ref": "participant-registry-v2.schema.json#/$defs/participant" } } },
+      { "type": "object", "additionalProperties": false, "required": ["participantId", "principal"], "properties": { "participantId": { "type": "string" }, "principal": { "$ref": "participant-registry-v2.schema.json#/$defs/principal" } } },
+      { "type": "object", "additionalProperties": false, "required": ["participantId", "governanceRole", "ticketIds", "capabilities"], "properties": { "participantId": { "type": "string" }, "governanceRole": { "enum": ["manager", "user", "dev"] }, "ticketIds": { "type": "array", "items": { "type": "string" } }, "capabilities": { "type": "array", "items": { "type": "string" } } } },
+      { "type": "object", "additionalProperties": false, "required": ["participantId", "governanceRole", "ticketId", "message"], "properties": { "participantId": { "type": "string" }, "governanceRole": { "enum": ["manager", "user", "dev"] }, "ticketId": { "type": "string" }, "message": { "type": "string" } } },
+      { "type": "object", "additionalProperties": false, "required": ["participantId", "ticketId"], "properties": { "participantId": { "type": "string" }, "ticketId": { "type": "string" } } },
+      { "type": "object", "additionalProperties": false, "required": ["verifiedVersion", "verifiedHash"], "properties": { "verifiedVersion": { "type": "integer" }, "verifiedHash": { "type": ["string", "null"] } } }
+    ] }
+  }
+}

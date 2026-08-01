@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package todo2code.intake.v1;
+
+// The JSON payload is validated against the strict command/query schemas.
+// Keeping it as canonical UTF-8 bytes lets dependency-free TypeScript and
+// Python codecs preserve unknown Protobuf fields without generated runtimes.
+message GovernedIntakeEnvelope {
+  string schema_version = 1;
+  string message_id = 2;
+  string correlation_id = 3;
+  string causation_id = 4;
+  string idempotency_key = 5;
+  string authenticated_principal = 6;
+  uint64 expected_version = 7;
+  string timestamp = 8;
+  string payload_hash = 9;
+  bytes canonical_json_payload = 10;
+}
+
+message RegisterParticipant { bytes participant_json = 1; }
+message BindExternalIdentity { string participant_id = 1; bytes principal_json = 2; }
+message AssignRole { string participant_id = 1; string governance_role = 2; repeated string ticket_ids = 3; repeated string capabilities = 4; }
+message CaptureMessage { string participant_id = 1; string governance_role = 2; string ticket_id = 3; string message = 4; }
+message RebuildProjection { string participant_id = 1; string ticket_id = 2; }
+message VerifyEventStream {}
+
+message IntakeCommand {
+  oneof command {
+    RegisterParticipant register_participant = 1;
+    BindExternalIdentity bind_external_identity = 2;
+    AssignRole assign_role = 3;
+    CaptureMessage capture_message = 4;
+    RebuildProjection rebuild_projection = 5;
+    VerifyEventStream verify_event_stream = 6;
+  }
+}
+
+message ResolveParticipant { string principal = 1; }
+message GetRole { string participant_id = 1; }
+message GetTicketConversation { string ticket_id = 1; }
+message GetCommandStatus { string idempotency_key = 1; }
+message ValidateProjection { string participant_id = 1; string ticket_id = 2; }
+
+message IntakeQuery {
+  oneof query {
+    ResolveParticipant resolve_participant = 1;
+    GetRole get_role = 2;
+    GetTicketConversation get_ticket_conversation = 3;
+    GetCommandStatus get_command_status = 4;
+    ValidateProjection validate_projection = 5;
+  }
+}
+
+message IntakeEvent {
+  uint64 version = 1;
+  string type = 2;
+  string previous_hash = 3;
+  string hash = 4;
+  bytes payload_json = 5;
+}
+
+message GovernedIntakeResult {
+  string schema_version = 1;
+  bool accepted = 2;
+  string message_id = 3;
+  string correlation_id = 4;
+  string causation_id = 5;
+  string authenticated_principal = 6;
+  string aggregate_id = 7;
+  uint64 expected_version = 8;
+  uint64 actual_version = 9;
+  string idempotency_key = 10;
+  string timestamp = 11;
+  string payload_hash = 12;
+  bytes diagnostic_json = 13;
+  bytes data_json = 14;
+}

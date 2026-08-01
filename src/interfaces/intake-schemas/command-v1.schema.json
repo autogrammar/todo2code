@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "t2c.intake-command/v1",
+  "oneOf": [
+    { "$ref": "#/$defs/register" }, { "$ref": "#/$defs/bind" }, { "$ref": "#/$defs/assign" },
+    { "$ref": "#/$defs/capture" }, { "$ref": "#/$defs/rebuild" }, { "$ref": "#/$defs/verify" }
+  ],
+  "$defs": {
+    "base": { "type": "object", "properties": { "schemaVersion": { "const": "t2c.intake-command/v1" } }, "required": ["schemaVersion", "type"] },
+    "register": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "participant"], "properties": { "schemaVersion": { "const": "t2c.intake-command/v1" }, "type": { "const": "RegisterParticipant" }, "participant": { "$ref": "participant-registry-v2.schema.json#/$defs/participant" } } },
+    "bind": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "participantId", "principal"], "properties": { "schemaVersion": { "const": "t2c.intake-command/v1" }, "type": { "const": "BindExternalIdentity" }, "participantId": { "type": "string" }, "principal": { "$ref": "participant-registry-v2.schema.json#/$defs/principal" } } },
+    "assign": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "participantId", "governanceRole", "ticketIds", "capabilities"], "properties": { "schemaVersion": { "const": "t2c.intake-command/v1" }, "type": { "const": "AssignRole" }, "participantId": { "type": "string" }, "governanceRole": { "enum": ["manager", "user", "dev"] }, "ticketIds": { "type": "array", "items": { "type": "string" } }, "capabilities": { "type": "array", "items": { "type": "string" } } } },
+    "capture": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "participantId", "governanceRole", "ticketId", "message"], "properties": { "schemaVersion": { "const": "t2c.intake-command/v1" }, "type": { "const": "CaptureMessage" }, "participantId": { "type": "string" }, "governanceRole": { "enum": ["manager", "user", "dev"] }, "ticketId": { "type": "string" }, "message": { "type": "string", "minLength": 1, "maxLength": 262144 } } },
+    "rebuild": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type", "participantId", "ticketId"], "properties": { "schemaVersion": { "const": "t2c.intake-command/v1" }, "type": { "const": "RebuildProjection" }, "participantId": { "type": "string" }, "ticketId": { "type": "string" } } },
+    "verify": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "type"], "properties": { "schemaVersion": { "const": "t2c.intake-command/v1" }, "type": { "const": "VerifyEventStream" } } }
+  }
+}
