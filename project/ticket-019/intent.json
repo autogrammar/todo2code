@@ -1,0 +1,21 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-019",
+  "summary": "Publish the Python SDK as the root todo2code package",
+  "workstream": "sdk",
+  "allowedPaths": [
+    "pyproject.toml",
+    "goal.yaml",
+    "sdk/python/pyproject.toml",
+    "sdk/python/README.md",
+    "Makefile",
+    "project/ticket-019/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "python"],
+  "dependsOn": ["ticket-018"],
+  "conflictsWith": ["ticket-018"],
+  "integrationTicket": null
+}

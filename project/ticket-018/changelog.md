@@ -9,6 +9,12 @@
   implementation file was changed and no new ticket was created.
 - The user explicitly approved the evolved plan; transitioned to
   `IN_PROGRESS / EDIT` before implementation.
+- Added and adopted `new-project` 0.8.0 workstream policy-as-code with intent
+  v2, deterministic dependency/conflict/integration checks and stable codes.
+- Central fixtures, target schema/gate checks, Docker overlap probes and core
+  E2E pass.
+- Transitioned to `BLOCKED` because concurrent Rust SDK version drift prevents
+  official full E2E before tests; no out-of-scope Cargo artifact was rewritten.
 
 ## [0.1.0] - 2026-08-01
 

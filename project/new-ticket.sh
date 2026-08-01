@@ -6,6 +6,7 @@ set -euo pipefail
 TITLE="New Task Ticket"
 USERS=""
 AGENT="antigravity"
+WORKSTREAM="unresolved"
 FORCE_NEW=false
 
 usage() {
@@ -14,6 +15,7 @@ Usage: ./project/new-ticket.sh [options]
 
   -t, --title TITLE       Ticket title
   -a, --agent ID         Agent provider/id used for ai-{ID}.md
+  -w, --workstream ID    Declared workstream (for example runtime or sdk)
   -u, --users IDS        Compatibility input only; human files are not created
       --force-new        Create a new ticket despite an unfinished ticket
   -h, --help             Show this help
@@ -48,6 +50,11 @@ while [[ $# -gt 0 ]]; do
       AGENT="$2"
       shift 2
       ;;
+    -w|--workstream)
+      require_value "$@"
+      WORKSTREAM="$2"
+      shift 2
+      ;;
     --force-new)
       FORCE_NEW=true
       shift
@@ -75,13 +82,19 @@ if [[ ! "$AGENT" =~ ^[a-z0-9][a-z0-9._-]*$ ]]; then
   exit 2
 fi
 
+WORKSTREAM="$(printf '%s' "$WORKSTREAM" | tr '[:upper:]' '[:lower:]')"
+if [[ ! "$WORKSTREAM" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+  echo "Workstream id must match [a-z0-9][a-z0-9-]*" >&2
+  exit 2
+fi
+
 is_closed_ticket() {
   local readme="$1/README.md"
   [[ -f "$readme" ]] && grep -Eiq '^-[[:space:]]+\*\*Status\*\*:[[:space:]]*(DONE|CANCELLED)([[:space:]]|$)' "$readme"
 }
 
 highest=0
-active_ticket=""
+conflicting_ticket=""
 if [[ -d project ]]; then
   for dir in project/ticket-*; do
     [[ -d "$dir" ]] || continue
@@ -90,14 +103,17 @@ if [[ -d project ]]; then
     decimal=$((10#$number))
     (( decimal > highest )) && highest=$decimal
     if ! is_closed_ticket "$dir"; then
-      active_ticket="$dir"
+      active_workstream="$(sed -nE 's/^[[:space:]]*"workstream"[[:space:]]*:[[:space:]]*"([a-z0-9-]+)".*/\1/p' "$dir/intent.json" 2>/dev/null | head -n 1)"
+      if [[ -z "$active_workstream" || "$active_workstream" == "unresolved" || "$WORKSTREAM" == "unresolved" || "$active_workstream" == "$WORKSTREAM" ]]; then
+        conflicting_ticket="$dir"
+      fi
     fi
   done
 fi
 
-if [[ -n "$active_ticket" && "$FORCE_NEW" != true ]]; then
-  echo "Active ticket exists: $active_ticket" >&2
-  echo "Continue it, mark it DONE/CANCELLED, or use --force-new after an explicit human decision." >&2
+if [[ -n "$conflicting_ticket" && "$FORCE_NEW" != true ]]; then
+  echo "Active ticket conflicts with workstream '$WORKSTREAM': $conflicting_ticket" >&2
+  echo "Continue it, choose a distinct declared workstream, close/cancel it, or use --force-new after an explicit human decision." >&2
   exit 3
 fi
 
@@ -131,6 +147,7 @@ render_template() {
     -e "s|{YYYY-MM-DD}|$(escape_sed "$date_only")|g" \
     -e "s|{OWNER_NAME}|unresolved:human|g" \
     -e "s|{PROVIDER}|$(escape_sed "$AGENT")|g" \
+    -e "s|{WORKSTREAM}|$(escape_sed "$WORKSTREAM")|g" \
     "$source" > "$target"
 }
 
@@ -152,6 +169,7 @@ render_json_template() {
     -e "s|{TIMESTAMP}|$(escape_sed "$(json_escape "$timestamp")")|g" \
     -e "s|{YYYY-MM-DD}|$(escape_sed "$(json_escape "$date_only")")|g" \
     -e "s|{PROVIDER}|$(escape_sed "$(json_escape "$AGENT")")|g" \
+    -e "s|{WORKSTREAM}|$(escape_sed "$(json_escape "$WORKSTREAM")")|g" \
     "$source" > "$target"
 }
 
@@ -202,12 +220,16 @@ if [[ -f template/files/intent.template.json ]]; then
 else
   cat > "$ticket_dir/intent.json" <<EOF
 {
-  "schema": "new-project.intent/v1",
+  "schema": "new-project.intent/v2",
   "ticket": "$ticket_id",
   "summary": "$(json_escape "$TITLE")",
+  "workstream": "$WORKSTREAM",
   "allowedPaths": ["project/$ticket_id/**", "TODO.md", "project/TICKETS.md"],
   "forbiddenPaths": ["project/ticket-*/user-*.md"],
-  "stacks": []
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
 }
 EOF
 fi

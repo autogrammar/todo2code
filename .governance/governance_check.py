@@ -15,7 +15,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
-RUNTIME_VERSION = "0.7.0"
+RUNTIME_VERSION = "0.8.0"
 ACTIVE_DEFAULT = {"PLAN", "IN_PROGRESS", "BLOCKED"}
 EXECUTABLE_SUFFIXES = {
     ".bat", ".c", ".cc", ".cmd", ".cpp", ".go", ".java", ".js", ".jsx",
@@ -37,6 +37,15 @@ class Finding:
     remediation: str
     paths: list[str] = field(default_factory=list, compare=False)
     evidence: dict[str, Any] = field(default_factory=dict, compare=False)
+
+
+@dataclass
+class TicketRecord:
+    directory: Path
+    status: str | None
+    workflow: str | None
+    intent: dict[str, Any] | None
+    intent_error: str | None
 
 
 class Report:
@@ -171,12 +180,14 @@ def check_history_order(
 
 
 def basic_manifest_valid(manifest: Any) -> bool:
-    if not isinstance(manifest, dict) or manifest.get("schema") != "new-project.governance/v1":
+    if not isinstance(manifest, dict) or manifest.get("schema") not in {
+        "new-project.governance/v1", "new-project.governance/v2",
+    }:
         return False
     standard = manifest.get("standard")
     ticket = manifest.get("ticket")
     docker = manifest.get("docker")
-    return (
+    common_valid = (
         isinstance(standard, dict)
         and standard.get("id") == "wellmanifest/new-project"
         and isinstance(standard.get("version"), str)
@@ -190,6 +201,28 @@ def basic_manifest_valid(manifest: Any) -> bool:
         ))
         and isinstance(docker, dict)
         and all(key in docker for key in ("required", "dockerfiles", "composeFiles"))
+    )
+    if not common_valid or manifest.get("schema") == "new-project.governance/v1":
+        return common_valid
+    coordination = manifest.get("coordination")
+    return (
+        isinstance(coordination, dict)
+        and coordination.get("mode") == "workstreams"
+        and isinstance(coordination.get("maxActiveTicketsPerWorkstream"), int)
+        and coordination["maxActiveTicketsPerWorkstream"] >= 1
+        and isinstance(coordination.get("rejectActiveScopeOverlap"), bool)
+        and isinstance(coordination.get("workstreams"), dict)
+        and bool(coordination["workstreams"])
+        and all(
+            isinstance(item, dict)
+            and isinstance(item.get("ownedPaths"), list)
+            and bool(item["ownedPaths"])
+            for item in coordination["workstreams"].values()
+        )
+        and isinstance(coordination.get("integration"), dict)
+        and isinstance(coordination["integration"].get("workstream"), str)
+        and isinstance(coordination["integration"].get("requiredForPaths"), list)
+        and coordination["integration"]["workstream"] in coordination["workstreams"]
     )
 
 
@@ -252,10 +285,16 @@ def validate_intent(path: Path, ticket_name: str) -> tuple[dict[str, Any] | None
         intent = load_json(path)
     except (OSError, json.JSONDecodeError) as error:
         return None, str(error)
-    required = {"schema", "ticket", "summary", "allowedPaths", "forbiddenPaths", "stacks"}
-    if not isinstance(intent, dict) or set(intent) != required:
-        return None, "intent must contain exactly the v1 fields"
-    if intent.get("schema") != "new-project.intent/v1" or intent.get("ticket") != ticket_name:
+    v1_fields = {"schema", "ticket", "summary", "allowedPaths", "forbiddenPaths", "stacks"}
+    v2_fields = v1_fields | {"workstream", "dependsOn", "conflictsWith", "integrationTicket"}
+    if not isinstance(intent, dict) or intent.get("schema") not in {
+        "new-project.intent/v1", "new-project.intent/v2",
+    }:
+        return None, "unsupported intent schema"
+    expected = v2_fields if intent["schema"] == "new-project.intent/v2" else v1_fields
+    if set(intent) != expected:
+        return None, f"intent must contain exactly the {intent['schema'].rsplit('/', 1)[-1]} fields"
+    if intent.get("ticket") != ticket_name:
         return None, "intent schema or ticket identity differs"
     if not isinstance(intent.get("summary"), str) or not intent["summary"].strip():
         return None, "intent summary is blank"
@@ -264,7 +303,200 @@ def validate_intent(path: Path, ticket_name: str) -> tuple[dict[str, Any] | None
             return None, f"intent {field_name} must be a list of non-blank strings"
     if not intent["allowedPaths"]:
         return None, "intent allowedPaths is empty"
+    if intent["schema"] == "new-project.intent/v2":
+        if not isinstance(intent.get("workstream"), str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]*", intent["workstream"]):
+            return None, "intent workstream is invalid"
+        for field_name in ("dependsOn", "conflictsWith"):
+            values = intent.get(field_name)
+            if not isinstance(values, list) or not all(isinstance(value, str) and re.fullmatch(r"ticket-[0-9]{3}", value) for value in values):
+                return None, f"intent {field_name} must contain ticket IDs"
+            if len(values) != len(set(values)):
+                return None, f"intent {field_name} contains duplicates"
+        integration = intent.get("integrationTicket")
+        if integration is not None and (not isinstance(integration, str) or not re.fullmatch(r"ticket-[0-9]{3}", integration)):
+            return None, "intent integrationTicket must be null or a ticket ID"
     return intent, None
+
+
+def load_ticket_records(directories: list[Path], config: dict[str, Any]) -> list[TicketRecord]:
+    records = []
+    for directory in directories:
+        status, workflow = parse_ticket_state(directory / "README.md")
+        intent, error = validate_intent(directory / config["intentFile"], directory.name)
+        records.append(TicketRecord(directory, status, workflow, intent, error))
+    return records
+
+
+def repository_files(root: Path, changed: list[str]) -> list[str]:
+    try:
+        raw = git_output(root, ["ls-files", "-co", "--exclude-standard", "-z"])
+        files = raw.decode("utf-8", "surrogateescape").split("\0")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        files = [rel(root, path) for path in root.rglob("*") if path.is_file() and ".git" not in path.parts]
+    return sorted(set([*files, *changed]) - {""})
+
+
+def check_coordination(
+    root: Path,
+    manifest: dict[str, Any],
+    records: list[TicketRecord],
+    changed: list[str],
+    report: Report,
+) -> None:
+    coordination = manifest.get("coordination")
+    if not isinstance(coordination, dict):
+        return
+    config = manifest["ticket"]
+    active_statuses = set(config.get("activeStatuses", ACTIVE_DEFAULT))
+    closed_statuses = set(config.get("closedStatuses", []))
+    active = [record for record in records if record.status in active_statuses]
+    by_name = {record.directory.name: record for record in records}
+    workstreams = coordination["workstreams"]
+    valid_active: list[TicketRecord] = []
+
+    for record in active:
+        intent_path = rel(root, record.directory / config["intentFile"])
+        if record.intent_error:
+            report.add(
+                "GOV-INTENT-002", f"Ticket intent is invalid: {record.intent_error}",
+                "Create a valid new-project.intent/v2 file before implementation.", [intent_path],
+            )
+            continue
+        assert record.intent is not None
+        if record.intent["schema"] != "new-project.intent/v2":
+            report.add(
+                "GOV-INTENT-002", f"Active ticket {record.directory.name} still uses intent v1.",
+                "Migrate the active ticket explicitly to intent v2; archived closed v1 tickets remain readable.", [intent_path],
+            )
+            continue
+        workstream = record.intent["workstream"]
+        if workstream not in workstreams:
+            report.add(
+                "GOV-WORKSTREAM-001", f"Active ticket {record.directory.name} declares unknown workstream '{workstream}'.",
+                "Choose a workstream declared in the pinned governance manifest and obtain fresh plan approval.", [intent_path],
+                {"workstream": workstream, "knownWorkstreams": sorted(workstreams)},
+            )
+            continue
+        valid_active.append(record)
+
+    limit = coordination["maxActiveTicketsPerWorkstream"]
+    grouped: dict[str, list[TicketRecord]] = {}
+    for record in valid_active:
+        grouped.setdefault(record.intent["workstream"], []).append(record)  # type: ignore[index]
+    for workstream, members in sorted(grouped.items()):
+        if len(members) > limit:
+            report.add(
+                "GOV-WORKSTREAM-002", f"Workstream '{workstream}' has {len(members)} active tickets; limit is {limit}.",
+                "Keep one active implementation ticket in this workstream or close/block-route the competing scope.",
+                [rel(root, member.directory) for member in members],
+                {"workstream": workstream, "tickets": [member.directory.name for member in members], "limit": limit},
+            )
+
+    graph: dict[str, list[str]] = {}
+    for record in records:
+        if record.intent and record.intent.get("schema") == "new-project.intent/v2":
+            graph[record.directory.name] = list(record.intent["dependsOn"])
+            if record.directory.name in record.intent["dependsOn"] or record.directory.name in record.intent["conflictsWith"]:
+                report.add(
+                    "GOV-DEPENDENCY-001", f"Ticket {record.directory.name} references itself as a dependency or conflict.",
+                    "Remove the self-reference and keep only directed edges to other tickets.", [rel(root, record.directory / config["intentFile"])],
+                )
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+    cycle: list[str] = []
+
+    def visit(name: str, trail: list[str]) -> bool:
+        if name in visiting:
+            cycle.extend(trail[trail.index(name):] + [name])
+            return True
+        if name in visited:
+            return False
+        visiting.add(name)
+        for dependency in graph.get(name, []):
+            if dependency in graph and visit(dependency, [*trail, dependency]):
+                return True
+        visiting.remove(name)
+        visited.add(name)
+        return False
+
+    for name in sorted(graph):
+        if visit(name, [name]):
+            report.add(
+                "GOV-DEPENDENCY-001", "Ticket dependency graph contains a cycle.",
+                "Break the cycle by choosing a directed implementation order or an explicit integration ticket.",
+                [f"project/{item}/intent.json" for item in sorted(set(cycle))], {"cycle": cycle},
+            )
+            break
+
+    active_names = {record.directory.name for record in active}
+    conflict_pairs: set[tuple[str, str]] = set()
+    for record in valid_active:
+        assert record.intent is not None
+        for dependency in record.intent["dependsOn"]:
+            prerequisite = by_name.get(dependency)
+            if prerequisite is None or prerequisite.status not in closed_statuses:
+                report.add(
+                    "GOV-DEPENDENCY-002", f"Active ticket {record.directory.name} has unfinished or missing dependency {dependency}.",
+                    "Complete the prerequisite or return the dependent ticket to a non-active planning backlog.",
+                    [rel(root, record.directory / config["intentFile"])],
+                    {"ticket": record.directory.name, "dependency": dependency, "dependencyStatus": prerequisite.status if prerequisite else None},
+                )
+        for conflict in record.intent["conflictsWith"]:
+            if conflict in active_names:
+                conflict_pairs.add(tuple(sorted((record.directory.name, conflict))))
+    for first, second in sorted(conflict_pairs):
+        report.add(
+            "GOV-CONFLICT-001", f"Conflicting tickets {first} and {second} are active together.",
+            "Serialize the tickets or resolve the conflict through an approved integration plan.",
+            [f"project/{first}/intent.json", f"project/{second}/intent.json"],
+        )
+
+    files = repository_files(root, changed)
+    governance_patterns = manifest["governancePaths"]
+    for record in valid_active:
+        assert record.intent is not None
+        owned_paths = workstreams[record.intent["workstream"]]["ownedPaths"]
+        unowned_claims = [
+            path for path in files
+            if not matches(path, governance_patterns)
+            and matches(path, record.intent["allowedPaths"])
+            and not matches(path, record.intent["forbiddenPaths"])
+            and not matches(path, owned_paths)
+        ]
+        if unowned_claims:
+            report.add(
+                "GOV-WORKSTREAM-003", f"Ticket {record.directory.name} claims concrete paths outside workstream '{record.intent['workstream']}'.",
+                "Narrow allowedPaths or route the concrete files to their owning workstream/integration ticket and obtain fresh approval.",
+                unowned_claims[:20],
+                {"ticket": record.directory.name, "workstream": record.intent["workstream"], "ownedPaths": owned_paths, "concretePathCount": len(unowned_claims)},
+            )
+
+    if coordination["rejectActiveScopeOverlap"]:
+        for index, first in enumerate(valid_active):
+            assert first.intent is not None
+            for second in valid_active[index + 1:]:
+                assert second.intent is not None
+                shared_files = [
+                    path for path in files
+                    if not matches(path, governance_patterns)
+                    and matches(path, first.intent["allowedPaths"])
+                    and not matches(path, first.intent["forbiddenPaths"])
+                    and matches(path, second.intent["allowedPaths"])
+                    and not matches(path, second.intent["forbiddenPaths"])
+                ]
+                common_patterns = sorted(
+                    (set(first.intent["allowedPaths"]) & set(second.intent["allowedPaths"]))
+                    - set(governance_patterns)
+                )
+                if shared_files or common_patterns:
+                    report.add(
+                        "GOV-WORKSTREAM-004",
+                        f"Active ticket scopes overlap: {first.directory.name} and {second.directory.name}.",
+                        "Narrow one allowedPaths declaration, serialize the work, or route the shared contract through integration.",
+                        shared_files[:20],
+                        {"tickets": [first.directory.name, second.directory.name], "commonPatterns": common_patterns, "concretePathCount": len(shared_files)},
+                    )
 
 
 def check_required_files(root: Path, manifest: dict[str, Any], report: Report) -> None:
@@ -371,7 +603,7 @@ def check_changed_content(root: Path, changed: list[str], actor: str, trusted_hu
 def check_change_gate(
     root: Path,
     manifest: dict[str, Any],
-    directories: list[Path],
+    records: list[TicketRecord],
     changed: list[str],
     base: str | None,
     head: str,
@@ -385,22 +617,56 @@ def check_change_gate(
     if not implementation:
         return
     config = manifest["ticket"]
-    states = [(directory, *parse_ticket_state(directory / "README.md")) for directory in directories]
-    active = [item for item in states if item[1] in set(config.get("activeStatuses", ACTIVE_DEFAULT))]
+    active = [record for record in records if record.status in set(config.get("activeStatuses", ACTIVE_DEFAULT))]
     if not active:
         report.add(
             "GOV-TICKET-001", "Implementation paths changed without an active ticket.",
             "Create the next target-repository ticket, publish its plan and obtain approval before editing implementation.", implementation,
         )
         return
-    if len(active) > 1:
-        report.add(
-            "GOV-TICKET-002", "More than one active ticket exists.",
-            "Continue the existing ticket or close/cancel it before creating another.",
-            [rel(root, item[0]) for item in active], {"tickets": [item[0].name for item in active]},
-        )
-        return
-    directory, _, workflow = active[0]
+    coordination = manifest.get("coordination")
+    if not isinstance(coordination, dict):
+        if len(active) > 1:
+            report.add(
+                "GOV-TICKET-002", "More than one active ticket exists.",
+                "Continue the existing ticket or close/cancel it before creating another.",
+                [rel(root, item.directory) for item in active], {"tickets": [item.directory.name for item in active]},
+            )
+            return
+        selected = active[0]
+    else:
+        candidates = [
+            record for record in active
+            if record.intent is not None
+            and record.intent.get("schema") == "new-project.intent/v2"
+            and all(
+                matches(path, record.intent["allowedPaths"])
+                and not matches(path, record.intent["forbiddenPaths"])
+                for path in implementation
+            )
+        ]
+        if len(candidates) == 1:
+            selected = candidates[0]
+        elif not candidates and len(active) == 1:
+            selected = active[0]
+        else:
+            path_owners = {
+                path: [
+                    record.directory.name for record in active
+                    if record.intent is not None
+                    and matches(path, record.intent["allowedPaths"])
+                    and not matches(path, record.intent["forbiddenPaths"])
+                ]
+                for path in implementation
+            }
+            report.add(
+                "GOV-TICKET-005", "Implementation diff does not resolve to exactly one active ticket.",
+                "Use one ticket per branch/PR, narrow allowedPaths, or create an approved integration ticket for the combined diff.",
+                implementation, {"candidateTickets": [record.directory.name for record in candidates], "pathOwners": path_owners},
+            )
+            return
+    directory = selected.directory
+    workflow = selected.workflow
     check_history_order(
         root, base=base, head=head, ticket_name=directory.name,
         intent_path=config["intentFile"], governance_patterns=governance_patterns,
@@ -412,9 +678,9 @@ def check_change_gate(
             "Keep the change plan-only until explicit approval moves the ticket to EDIT.", implementation,
         )
     intent_path = directory / config["intentFile"]
-    intent, error = validate_intent(intent_path, directory.name)
+    intent, error = selected.intent, selected.intent_error
     if error:
-        report.add("GOV-INTENT-002", f"Ticket intent is invalid: {error}", "Create a valid new-project.intent/v1 file before implementation.", [rel(root, intent_path)])
+        report.add("GOV-INTENT-002", f"Ticket intent is invalid: {error}", "Create a valid intent file before implementation.", [rel(root, intent_path)])
     else:
         outside = [path for path in implementation if not matches(path, intent["allowedPaths"]) or matches(path, intent["forbiddenPaths"])]
         if outside:
@@ -423,6 +689,34 @@ def check_change_gate(
                 "Revert the paths or return to PLAN, expand allowedPaths and obtain fresh approval.", outside,
                 {"ticket": directory.name, "allowedPaths": intent["allowedPaths"]},
             )
+        if isinstance(coordination, dict) and intent.get("schema") == "new-project.intent/v2":
+            workstream = coordination["workstreams"].get(intent["workstream"])
+            if isinstance(workstream, dict):
+                unowned = [path for path in implementation if not matches(path, workstream["ownedPaths"])]
+                if unowned:
+                    report.add(
+                        "GOV-WORKSTREAM-003", f"Changed paths are not owned by workstream '{intent['workstream']}'.",
+                        "Move the change to its owning workstream or create and approve an integration ticket; do not widen ownership retroactively.",
+                        unowned, {"ticket": directory.name, "workstream": intent["workstream"], "ownedPaths": workstream["ownedPaths"]},
+                    )
+            integration = coordination["integration"]
+            shared = [path for path in implementation if matches(path, integration["requiredForPaths"])]
+            if shared and intent["workstream"] != integration["workstream"]:
+                integration_name = intent["integrationTicket"]
+                integration_record = next((record for record in records if record.directory.name == integration_name), None)
+                valid_integration = (
+                    integration_record is not None
+                    and integration_record.intent is not None
+                    and integration_record.intent.get("schema") == "new-project.intent/v2"
+                    and integration_record.intent.get("workstream") == integration["workstream"]
+                    and integration_record.status != "CANCELLED"
+                )
+                if not valid_integration:
+                    report.add(
+                        "GOV-INTEGRATION-001", "Shared contract paths lack valid integration-ticket routing.",
+                        "Create an integration-workstream ticket, record it in integrationTicket and obtain fresh approval before changing the shared contract.",
+                        shared, {"ticket": directory.name, "integrationTicket": integration_name, "requiredWorkstream": integration["workstream"]},
+                    )
     if enforce_approval:
         trusted = set(manifest["trustedApprovalSources"])
         if approval_source not in trusted:
@@ -431,11 +725,12 @@ def check_change_gate(
                 "Require an approving CODEOWNER GitHub review or signed attestation; Markdown status alone is not trusted.",
                 [rel(root, directory / "README.md")], {"suppliedSource": approval_source, "trustedSources": sorted(trusted)},
             )
-        if approved_ticket != directory.name:
+        approved_tickets = set((approved_ticket or "").split(",")) - {""}
+        if directory.name not in approved_tickets:
             report.add(
                 "GOV-APPROVAL-002", "Trusted approval does not identify the active ticket.",
                 "Approve the current ticket after reviewing its latest intent and implementation diff.",
-                [rel(root, directory)], {"activeTicket": directory.name, "approvedTicket": approved_ticket},
+                [rel(root, directory)], {"activeTicket": directory.name, "approvedTickets": sorted(approved_tickets)},
             )
 
 
@@ -513,9 +808,9 @@ def main(argv: list[str] | None = None) -> int:
         try:
             manifest = load_json(manifest_path)
             if not basic_manifest_valid(manifest):
-                raise ValueError("required v1 fields are missing or invalid")
+                raise ValueError("required manifest fields are missing or invalid")
         except (OSError, ValueError, json.JSONDecodeError) as error:
-            report.add("GOV-MANIFEST-001", f"Governance manifest is invalid: {error}", "Restore a manifest conforming to new-project.governance/v1.", [args.manifest])
+            report.add("GOV-MANIFEST-001", f"Governance manifest is invalid: {error}", "Restore a manifest conforming to the pinned governance schema.", [args.manifest])
             manifest = None
 
     if manifest is not None:
@@ -527,9 +822,11 @@ def main(argv: list[str] | None = None) -> int:
         check_stacks(root, manifest, profiles_path, report)
         directories = ticket_directories(root, manifest["ticket"])
         check_ticket_content(root, directories, manifest["ticket"], report)
+        records = load_ticket_records(directories, manifest["ticket"])
+        check_coordination(root, manifest, records, changed, report)
         check_changed_content(root, changed, args.actor, args.trusted_human_change, report)
         check_change_gate(
-            root, manifest, directories, changed, args.base, args.head, args.approval_source,
+            root, manifest, records, changed, args.base, args.head, args.approval_source,
             args.approved_ticket, args.enforce_approval, report,
         )
 

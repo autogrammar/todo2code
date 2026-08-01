@@ -1,0 +1,21 @@
+Updated project/TICKETS.md ticket index successfully.
+Successfully scaffolded project/ticket-020 for 'Role-bound trusted intake with CQRS ES Protobuf MCP and A2A'.
+
+$ ./project/governance-check.sh --actor agent --format text
+GOV-CONFLICT-001 ERROR: Conflicting tickets ticket-018 and ticket-019 are active together. [project/ticket-018/intent.json, project/ticket-019/intent.json]
+  remediation: Serialize the tickets or resolve the conflict through an approved integration plan.
+GOV-DEPENDENCY-002 ERROR: Active ticket ticket-019 has unfinished or missing dependency ticket-018. [project/ticket-019/intent.json]
+  remediation: Complete the prerequisite or return the dependent ticket to a non-active planning backlog.
+GOV-WORKSTREAM-003 ERROR: Ticket ticket-019 claims concrete paths outside workstream 'sdk'. [Makefile, goal.yaml]
+  remediation: Narrow allowedPaths or route the concrete files to their owning workstream/integration ticket and obtain fresh approval.
+GOV-WORKSTREAM-004 ERROR: Active ticket scopes overlap: ticket-018 and ticket-019. [Makefile]
+  remediation: Narrow one allowedPaths declaration, serialize the work, or route the shared contract through integration.
+GOV-FAIL: failed (4 errors, 0 warnings)
+
+$ python3 [Draft 2020-12 intent validation and workstream ownership probe]
+ticket-020 intent: JSON Schema PASS
+ticket-020 workstream paths: PASS
+human role files unchanged: PASS
+
+$ git diff --check
+PASS (no output)

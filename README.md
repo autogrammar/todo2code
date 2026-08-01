@@ -27,14 +27,16 @@ Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
 ## Governance policy-as-code
 
-Repozytorium stosuje `wellmanifest/new-project` 0.7.0. Każda wieloetapowa
-zmiana wymaga jednego aktywnego `project/ticket-{NNN}`, planu przedstawionego
-przed implementacją oraz maszynowego `intent.json` ograniczającego dozwolone
-ścieżki. `make governance` emituje stabilne kody `GOV-*` i sprawdza integralność
-przypiętych plików, własność `user-*.md`, stan ticketu, zakres, Docker i profile
-Node/Docker. W Pull Request CI wymaga niezależnego GitHub Review; wpis agenta w
-Markdown nie jest zaufanym zatwierdzeniem merge. Trwałe instrukcje dla agentów
-zawiera [`AGENTS.md`](AGENTS.md).
+Repozytorium stosuje `wellmanifest/new-project` 0.8.0. Każda wieloetapowa
+zmiana wymaga aktywnego `project/ticket-{NNN}`, planu przedstawionego przed
+implementacją oraz intent v2 ograniczającego workstream, dozwolone ścieżki,
+zależności, konflikty i integrację. Kilka ticketów może być aktywnych wyłącznie
+w różnych workstreamach i bez nakładania zakresu zapisu; jeden branch/PR musi
+rozwiązać się do dokładnie jednego ticketu. `make governance` emituje stabilne
+kody `GOV-*` i sprawdza integralność przypiętych plików, własność `user-*.md`,
+graf zależności, zakres, Docker oraz profile Node/Docker. W Pull Request CI
+wymaga niezależnego GitHub Review; wpis agenta w Markdown nie jest zaufanym
+zatwierdzeniem merge. Trwałe instrukcje zawiera [`AGENTS.md`](AGENTS.md).
 
 ## Stan projektu
 

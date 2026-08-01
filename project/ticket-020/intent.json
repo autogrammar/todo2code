@@ -1,0 +1,27 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-020",
+  "summary": "Role-bound trusted intake with CQRS ES Protobuf MCP and A2A",
+  "workstream": "interfaces",
+  "allowedPaths": [
+    "src/communication/**",
+    "src/interfaces/**",
+    "src/cli.ts",
+    "test/communication*.test.ts",
+    "test/cli*.test.ts",
+    "test/mcp*.test.ts",
+    "test/a2a*.test.ts",
+    "project/ticket-020/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/manager-*.md",
+    "project/ticket-*/user-*.md",
+    "project/ticket-*/dev-*.md"
+  ],
+  "stacks": ["node", "python", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}

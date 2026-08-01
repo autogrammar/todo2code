@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Status**: BLOCKED
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -96,22 +96,22 @@ existing ticket.
       sequence used here.
 - [x] AC-10: Relevant checks run in Docker where required, raw evidence is
       recorded, diffs are reviewed and no commit or push occurs unless requested.
-- [ ] AC-11: The manifest defines named workstreams, their path ownership,
+- [x] AC-11: The manifest defines named workstreams, their path ownership,
       per-workstream active-ticket limits and a fail-closed overlap policy.
-- [ ] AC-12: The versioned intent schema represents workstream, dependencies,
+- [x] AC-12: The versioned intent schema represents workstream, dependencies,
       conflicts and integration routing without invalidating archived v1
       tickets or silently upgrading their meaning.
-- [ ] AC-13: Stable diagnostics reject unknown workstreams, two active tickets
+- [x] AC-13: Stable diagnostics reject unknown workstreams, two active tickets
       in one workstream, overlapping active write scopes, dependency cycles,
       unfinished prerequisites and unresolved cross-workstream changes.
-- [ ] AC-14: Fixture tests cover safe parallel tickets and every rejection
+- [x] AC-14: Fixture tests cover safe parallel tickets and every rejection
       above, including path patterns whose apparent non-overlap still resolves
       to a shared concrete file.
-- [ ] AC-15: CI validates every active intent together, emits JSON/SARIF
+- [x] AC-15: CI validates every active intent together, emits JSON/SARIF
       evidence and documents worktree/branch isolation, CODEOWNERS and merge
       queue requirements without treating those local declarations as trusted
       server configuration.
-- [ ] AC-16: `todo2code` adopts the workstream map and demonstrates at least
+- [x] AC-16: `todo2code` adopts the workstream map and demonstrates at least
       two parallel non-overlapping intents plus one rejected overlap in Docker.
 - [ ] AC-17: Existing application and Docker E2E checks still pass; unrelated
       concurrent changes in `.env.example`, `src/`, `test/` and
@@ -161,3 +161,18 @@ remain historical evidence, not evidence for AC-11..AC-17.
   reference an immutable central workflow revision.
 - Repository Ruleset/CODEOWNERS configuration is external state and remains
   unverified. A trusted GitHub owner/team must be selected without guessing.
+- `new-project` 0.8.0 central schema, fixture and catalog checks pass. The
+  catalog contains 27 stable codes and exactly covers every emitted `GOV-*`
+  finding. Target manifest/intent Draft 2020-12 validation and its scoped
+  governance gate pass.
+- Docker workstream E2E accepts two active, non-overlapping `core-dsl` and `sdk`
+  tickets, then rejects their concrete overlap on `src/core/graph.ts` with
+  `GOV-WORKSTREAM-004`.
+- Fresh core E2E passes; the focused Node result is 329 tests, 322 passed, zero
+  failed and 7 optional-toolchain skips.
+- AC-17 remains blocked outside this governance diff. Concurrent commit
+  `9928699` changed `sdk/rust/Cargo.toml` from 0.5.0 to 0.5.1 while the ignored
+  local `sdk/rust/Cargo.lock` still records 0.5.0. `make e2e-full` therefore
+  stops at `cargo fetch --locked` with exit 101 before the full tests start.
+  Resolving it belongs to the `sdk`/`integration` workstream and requires its
+  own approved ticket; ticket-018 does not rewrite or claim that artifact.

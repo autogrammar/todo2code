@@ -50,7 +50,7 @@ jobs:
                 return /^-\s+\*\*Status\*\*:\s*(PLAN|IN_PROGRESS|BLOCKED)\s*$/mi.test(readme);
               }).map(item => item.name);
             core.setOutput('source', approved ? 'github-review' : 'none');
-            core.setOutput('ticket', active.length === 1 ? active[0] : 'none');
+            core.setOutput('ticket', active.length > 0 ? active.sort().join(',') : 'none');
       - name: Validate ticket, intent, scope, ownership and pinned files
         shell: bash
         env:

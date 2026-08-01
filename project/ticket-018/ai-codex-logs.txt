@@ -91,3 +91,53 @@ User response: ZATWIERDZAM
 Transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT.
 Scope approved: multi-workstream acceptance criteria recorded in ticket-018.
 Note: interactive approval is not external trusted merge evidence.
+
+2026-08-01 MULTI-WORKSTREAM IMPLEMENTATION VALIDATION
+$ bash tests/governance-scripts.test.sh
+governance scripts: PASS
+
+$ bash tests/governance-validator.test.sh
+governance validator: PASS
+
+$ validate Draft 2020-12 schemas and instances
+central-jsonschema=PASS
+target-jsonschema=PASS
+
+$ compare emitted diagnostics with governance/diagnostics.json
+diagnostics-catalog=PASS codes=27
+
+$ bash project/governance-check.sh <ticket-018 scoped changed files>
+GOV-PASS: passed (0 errors, 0 warnings)
+
+$ docker workstream fixture
+GOV-PASS: passed (0 errors, 0 warnings)
+GOV-WORKSTREAM-004 ERROR: Active ticket scopes overlap: ticket-001 and
+ticket-002. [src/core/graph.ts]
+T2C-GOV-E2E-000: PASS parallel non-overlap accepted; concrete overlap rejected
+
+$ make e2e-core
+T2C-E2E-000: PASS suite=core
+
+$ focused Node test summary in current e2e-core image
+1..329
+# tests 329
+# pass 322
+# fail 0
+# skipped 7
+
+$ make e2e-full
+exit=2 (Docker build command failed)
+cargo fetch --locked: lock file needs to be updated but --locked prevents it
+causal evidence: concurrent commit 9928699 changes sdk/rust/Cargo.toml package
+version 0.5.0 -> 0.5.1; ignored sdk/rust/Cargo.lock still records 0.5.0.
+Full tests did not start; no full-suite PASS is claimed.
+
+2026-08-01 CONCURRENT WORKSTREAM OBSERVATION
+Another process created untracked ticket-019 in PLAN / WAIT_FOR_APPROVAL with
+workstream=sdk while ticket-018 remained active in workstream=governance.
+No ticket-019 file or project/TICKETS.md entry was created or edited by this
+agent. The scopes do not overlap on implementation paths.
+
+$ bash project/governance-check.sh --actor agent
+GOV-PASS: passed (0 errors, 0 warnings)
+This final workspace check included the concurrently created untracked ticket.
