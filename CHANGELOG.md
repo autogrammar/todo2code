@@ -107,6 +107,14 @@
 
 ### Fixed
 
+- The A2A server binds `127.0.0.1` by default instead of `0.0.0.0`. The Bearer
+  token is optional, so the previous default served repository analysis to
+  every reachable client of anyone who never set one: measured by starting
+  `t2c a2a` with defaults and receiving 8,806 bytes of commit data over an
+  unauthenticated `SendMessage` from this host's LAN address. Network
+  deployment is now an explicit choice, which `docker-compose.yml` and
+  `scripts/examples-check.sh` already make, and a non-loopback bind without a
+  token prints a startup warning.
 - Generated-analysis normalization removes detached `/tmp/t2c-analysis.*`
   roots embedded inside historical tracked logs as well as the current source
   root, preventing a fresh `project/index.html` from failing its isolation gate.

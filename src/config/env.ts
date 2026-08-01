@@ -197,7 +197,11 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
       serverVersion: envString('T2C_MCP_SERVER_VERSION', T2C_VERSION),
     },
     a2a: {
-      host: envString('T2C_A2A_HOST', '0.0.0.0'),
+      // Loopback by default: the Bearer token is optional, so a non-loopback
+      // bind would serve repository analysis to the whole network to anyone
+      // who never set one. Network deployment opts in explicitly, as
+      // `docker-compose.yml` already does.
+      host: envString('T2C_A2A_HOST', '127.0.0.1'),
       port: envNumber('T2C_A2A_PORT', 8787, 1, 65_535),
       publicUrl: envString('T2C_A2A_PUBLIC_URL', 'http://localhost:8787/a2a'),
       token: envOptional('T2C_A2A_TOKEN'),

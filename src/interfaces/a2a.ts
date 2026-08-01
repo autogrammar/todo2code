@@ -29,6 +29,12 @@ export async function startA2aServer(config?: T2CConfig): Promise<http.Server> {
   const address = server.address();
   const port = address && typeof address === 'object' ? address.port : resolvedConfig.a2a.port;
   process.stderr.write(`[t2c:a2a] listening on ${resolvedConfig.a2a.host}:${port}\n`);
+  if (!resolvedConfig.a2a.token && !isLoopbackHost(resolvedConfig.a2a.host)) {
+    process.stderr.write(
+      `[t2c:a2a] warning: bound to ${resolvedConfig.a2a.host} without T2C_A2A_TOKEN;`
+      + ' every reachable client can analyse T2C_ROOT unauthenticated\n',
+    );
+  }
   return server;
 }
 
@@ -200,6 +206,12 @@ function a2aVersion(headers: IncomingHttpHeaders, url: URL): string {
   const raw = headers['a2a-version'];
   const headerVersion = Array.isArray(raw) ? raw[0] : raw;
   return (headerVersion ?? url.searchParams.get('A2A-Version') ?? '0.3').trim() || '0.3';
+}
+
+/** `::` and `0.0.0.0` are wildcards, so a reachable interface is not loopback. */
+export function isLoopbackHost(host: string): boolean {
+  const value = host.trim().replace(/^\[|\]$/g, '').toLowerCase();
+  return value === 'localhost' || value === '::1' || value === '127.0.0.1' || value.startsWith('127.');
 }
 
 function authorized(request: IncomingMessage, config: T2CConfig): boolean {

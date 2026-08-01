@@ -4,7 +4,7 @@ import type { Server } from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { clearA2aTaskStoreForTests, startA2aServer } from '../src/interfaces/a2a.js';
+import { clearA2aTaskStoreForTests, isLoopbackHost, startA2aServer } from '../src/interfaces/a2a.js';
 import { makeConfig } from './helpers.js';
 
 interface RpcEnvelope {
@@ -291,5 +291,27 @@ test('A2A file task store survives restart and preserves idempotency across repl
     if (thirdServer?.listening) await closeServer(thirdServer);
     if (firstServer.listening) await closeServer(firstServer);
     clearA2aTaskStoreForTests();
+  }
+});
+
+test('the A2A bind default is loopback and a wildcard bind is not mistaken for it', async () => {
+  // The Bearer token is optional, so an accidental non-loopback bind would
+  // serve repository analysis to every reachable client. Network deployment
+  // must be an explicit choice; `docker-compose.yml` makes it.
+  const { getConfig } = await import('../src/config/env.js');
+  const previous = process.env.T2C_A2A_HOST;
+  delete process.env.T2C_A2A_HOST;
+  try {
+    assert.equal(getConfig().a2a.host, '127.0.0.1');
+  } finally {
+    if (previous === undefined) delete process.env.T2C_A2A_HOST;
+    else process.env.T2C_A2A_HOST = previous;
+  }
+
+  for (const host of ['127.0.0.1', 'localhost', '::1', '[::1]', '127.0.1.1']) {
+    assert.equal(isLoopbackHost(host), true, host);
+  }
+  for (const host of ['0.0.0.0', '::', '192.168.1.10', 'example.internal']) {
+    assert.equal(isLoopbackHost(host), false, host);
   }
 });
