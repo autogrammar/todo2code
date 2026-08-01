@@ -1,4 +1,6 @@
 import { execFile } from 'node:child_process';
+import { promises as fs } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import { promisify } from 'node:util';
 import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
@@ -8,6 +10,13 @@ import type { ExtractionResult, IntentRecord, JsonValue } from '../core/types.js
 import { classifyAction } from '../tf/classifier.js';
 
 const execFileAsync = promisify(execFile);
+const MAX_DISCOVERED_REPOSITORIES = 100;
+const MAX_DISCOVERY_DIRECTORIES = 10_000;
+const REPOSITORY_READ_CONCURRENCY = 4;
+const DISCOVERY_EXCLUDED_DIRECTORIES = new Set([
+  '.cache', '.intent', '.venv', 'backups', 'build', 'coverage', 'dist',
+  'node_modules', 'tmp', 'vendor', 'work',
+]);
 
 interface GitCommit {
   sha: string;
@@ -31,13 +40,44 @@ export interface GitExtractionOptions {
 export async function extractGitIntent(options: GitExtractionOptions, config: T2CConfig): Promise<ExtractionResult> {
   const root = path.resolve(options.root);
   const count = options.count ?? config.gitCommitCount;
-  const warnings: string[] = [];
-  try {
-    const inside = (await runGit(root, ['rev-parse', '--is-inside-work-tree'])).trim();
-    if (inside !== 'true') return { records: [], warnings: [`${root} is not a Git work tree`] };
-  } catch {
+  if (await isGitWorkTree(root)) {
+    return extractRepositoryGitIntent(root, count, config, '');
+  }
+
+  const discovery = await discoverGitRepositories(root);
+  if (!discovery.repositories.length) {
     return { records: [], warnings: [`Git repository not available at ${root}`] };
   }
+
+  const results = await mapWithConcurrency(
+    discovery.repositories,
+    REPOSITORY_READ_CONCURRENCY,
+    async (repository): Promise<ExtractionResult> => {
+      try {
+        return await extractRepositoryGitIntent(repository.root, count, config, repository.prefix);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return {
+          records: [],
+          warnings: [`Git history unavailable at ${repository.root}: ${message}`],
+        };
+      }
+    },
+  );
+
+  return {
+    records: results.flatMap((result) => result.records),
+    warnings: [...discovery.warnings, ...results.flatMap((result) => result.warnings)],
+  };
+}
+
+async function extractRepositoryGitIntent(
+  root: string,
+  count: number,
+  config: T2CConfig,
+  repositoryPrefix: string,
+): Promise<ExtractionResult> {
+  const warnings: string[] = [];
 
   // A repository with no commits yet — the state `t2c init` leaves behind, and
   // the one `t2c watch` hits first — makes `git log` exit non-zero. That is an
@@ -63,7 +103,8 @@ export async function extractGitIntent(options: GitExtractionOptions, config: T2
     const text = `${commit.subject}\n${commit.body}`.trim();
     const classified = await classifyAction(text, config);
     const inferredSymbols = extractChangedSymbols(diff);
-    const targetPaths = [...new Set(changedFiles.map((item) => item.path))].sort();
+    const scopedFiles = changedFiles.map((item) => scopeChangedFile(item, repositoryPrefix));
+    const targetPaths = [...new Set(scopedFiles.map((item) => item.path))].sort();
     const docOnly = targetPaths.length > 0 && targetPaths.every(isDocumentationPath);
     records.push(buildRecord({
       kind: 'commit_intent_claim',
@@ -83,7 +124,7 @@ export async function extractGitIntent(options: GitExtractionOptions, config: T2
       sourceKind: 'git',
       revision: commit.sha,
       commitIndex: index + 1,
-      extractor: 't2c/git@1',
+      extractor: 't2c/git@2',
       rawExcerpt: text,
       epistemicClass: 'claim',
       confidence: Math.min(0.94, classified.confidence + (targetPaths.length > 0 ? 0.08 : 0)),
@@ -93,7 +134,8 @@ export async function extractGitIntent(options: GitExtractionOptions, config: T2
         author: commit.author,
         body: commit.body,
         docOnly,
-        changedFiles: changedFiles as unknown as JsonValue,
+        repositoryRoot: repositoryPrefix || '.',
+        changedFiles: scopedFiles as unknown as JsonValue,
         additions: stats.additions,
         deletions: stats.deletions,
         filesChanged: targetPaths.length,
@@ -101,8 +143,126 @@ export async function extractGitIntent(options: GitExtractionOptions, config: T2
       },
     }));
   }
-  if (commits.length < count) warnings.push(`Requested ${count} commits, repository contains ${commits.length}`);
+  if (commits.length < count) {
+    warnings.push(`${root}: requested ${count} commits, repository contains ${commits.length}`);
+  }
   return { records, warnings };
+}
+
+interface DiscoveredRepository {
+  root: string;
+  prefix: string;
+}
+
+interface RepositoryDiscoveryResult {
+  repositories: DiscoveredRepository[];
+  warnings: string[];
+}
+
+async function discoverGitRepositories(root: string): Promise<RepositoryDiscoveryResult> {
+  const repositories: DiscoveredRepository[] = [];
+  const warnings: string[] = [];
+  const queue: DiscoveredRepository[] = [{ root, prefix: '' }];
+  let cursor = 0;
+  let directoriesVisited = 0;
+
+  while (cursor < queue.length
+    && repositories.length < MAX_DISCOVERED_REPOSITORIES
+    && directoriesVisited < MAX_DISCOVERY_DIRECTORIES) {
+    const current = queue[cursor];
+    cursor += 1;
+    if (!current) continue;
+    directoriesVisited += 1;
+
+    let entries: Dirent<string>[];
+    try {
+      entries = await fs.readdir(current.root, { withFileTypes: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      warnings.push(`Git repository discovery unavailable at ${current.root}: ${message}`);
+      continue;
+    }
+
+    const directories = entries
+      .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink())
+      .filter((entry) => !entry.name.startsWith('.') && !DISCOVERY_EXCLUDED_DIRECTORIES.has(entry.name))
+      .sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0);
+
+    for (const entry of directories) {
+      const absolute = path.join(current.root, entry.name);
+      const prefix = current.prefix ? path.posix.join(current.prefix, entry.name) : entry.name;
+      const marker = await gitMarkerState(absolute);
+      if (marker === 'unsafe') {
+        warnings.push(`Git repository marker is a symlink at ${absolute}`);
+        continue;
+      }
+      if (marker === 'candidate') {
+        if (await isGitWorkTree(absolute)) repositories.push({ root: absolute, prefix });
+        else warnings.push(`Git repository marker is invalid at ${absolute}`);
+        if (repositories.length >= MAX_DISCOVERED_REPOSITORIES) break;
+        // A checkout owns everything below it, including submodules, vendored
+        // repositories and temporary coding-agent worktrees.
+        continue;
+      }
+      queue.push({ root: absolute, prefix });
+    }
+  }
+
+  if (repositories.length >= MAX_DISCOVERED_REPOSITORIES) {
+    warnings.push(`Git repository discovery stopped at ${MAX_DISCOVERED_REPOSITORIES} repositories under ${root}`);
+  } else if (directoriesVisited >= MAX_DISCOVERY_DIRECTORIES && cursor < queue.length) {
+    warnings.push(`Git repository discovery stopped after ${MAX_DISCOVERY_DIRECTORIES} directories under ${root}`);
+  }
+
+  return { repositories, warnings };
+}
+
+async function gitMarkerState(root: string): Promise<'none' | 'candidate' | 'unsafe'> {
+  try {
+    const marker = await fs.lstat(path.join(root, '.git'));
+    if (marker.isSymbolicLink()) return 'unsafe';
+    return marker.isDirectory() || marker.isFile() ? 'candidate' : 'none';
+  } catch {
+    return 'none';
+  }
+}
+
+async function isGitWorkTree(root: string): Promise<boolean> {
+  try {
+    return (await runGit(root, ['rev-parse', '--is-inside-work-tree'])).trim() === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function scopeChangedFile(file: ChangedFile, repositoryPrefix: string): ChangedFile {
+  if (!repositoryPrefix) return file;
+  return {
+    ...file,
+    path: path.posix.join(repositoryPrefix, file.path.replace(/\\/g, '/')),
+    ...(file.previousPath
+      ? { previousPath: path.posix.join(repositoryPrefix, file.previousPath.replace(/\\/g, '/')) }
+      : {}),
+  };
+}
+
+async function mapWithConcurrency<T, Result>(
+  values: T[],
+  concurrency: number,
+  action: (value: T) => Promise<Result>,
+): Promise<Result[]> {
+  const results = new Array<Result>(values.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(concurrency, values.length) }, async () => {
+    while (cursor < values.length) {
+      const index = cursor;
+      cursor += 1;
+      const value = values[index];
+      if (value !== undefined) results[index] = await action(value);
+    }
+  });
+  await Promise.all(workers);
+  return results;
 }
 
 async function runGit(root: string, args: string[], maxBuffer = 4 * 1024 * 1024): Promise<string> {

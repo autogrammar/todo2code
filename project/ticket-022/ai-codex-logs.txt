@@ -1,0 +1,14 @@
+2026-08-01T14:25:00Z ticket-022 planned on isolated branch ticket-022-umbrella-git
+2026-08-01T14:25:00Z measured Subactor root: not a Git work tree; 41 real nested repository roots observed
+2026-08-01T14:25:00Z state: PLAN / WAIT_FOR_APPROVAL; no source/test edits
+2026-08-01T14:27:00Z user approval: "zatwierdzam ticket 022 i kolejne"; state: IN_PROGRESS / EDIT
+2026-08-01T14:29:00Z focused baseline failed as expected: umbrella records 0; repositoryRoot absent
+2026-08-01T14:31:00Z bounded umbrella discovery, path namespacing and t2c/git@2 implemented
+2026-08-01T14:32:00Z focused Git tests PASS 5/5
+2026-08-01T14:33:00Z npm run verify PASS: 338 tests, 337 passed, 1 optional JDK skip, 0 failed
+2026-08-01T14:33:00Z make docker-smoke PASS
+2026-08-01T14:33:00Z make governance: ticket-022 clean; 4 inherited ticket-018/019 errors remain
+2026-08-01T14:36:00Z comparable Subactor pipeline succeeded: 326 Git records from 39 member repositories
+2026-08-01T14:39:00Z same-snapshot delta: +41792 relations, -275 diagnostics; 268/326 Git records linked
+2026-08-01T14:40:00Z composed ticket-021 planner check: 44 plans, 43 Resolve, 0 unsafe
+2026-08-01T14:41:00Z state: BLOCKED / VALIDATION pending global governance reconciliation and protected review

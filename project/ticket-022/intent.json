@@ -1,0 +1,22 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-022",
+  "summary": "Git evidence for umbrella workspaces",
+  "workstream": "extractors",
+  "allowedPaths": [
+    "src/extractors/git.ts",
+    "test/diff-git-umbrella.test.ts",
+    "project/ticket-022/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/manager-*.md",
+    "project/ticket-*/user-*.md",
+    "project/ticket-*/dev-*.md"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
