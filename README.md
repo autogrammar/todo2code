@@ -10,6 +10,17 @@ Compiler Tree API), Rust (`syn`) i PHP (`token_get_all` z `TOKEN_PARSE`). Toolch
 narzędzia daje jawne ostrzeżenie tylko wtedy, gdy repo zawiera pasujące źródła.
 Integracje są dostępne przez CLI, MCP/stdio i A2A v1.0/JSON-RPC.
 
+## Governance policy-as-code
+
+Repozytorium stosuje `wellmanifest/new-project` 0.7.0. Każda wieloetapowa
+zmiana wymaga jednego aktywnego `project/ticket-{NNN}`, planu przedstawionego
+przed implementacją oraz maszynowego `intent.json` ograniczającego dozwolone
+ścieżki. `make governance` emituje stabilne kody `GOV-*` i sprawdza integralność
+przypiętych plików, własność `user-*.md`, stan ticketu, zakres, Docker i profile
+Node/Docker. W Pull Request CI wymaga niezależnego GitHub Review; wpis agenta w
+Markdown nie jest zaufanym zatwierdzeniem merge. Trwałe instrukcje dla agentów
+zawiera [`AGENTS.md`](AGENTS.md).
+
 ## Stan projektu
 
 Wersja `0.5.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →

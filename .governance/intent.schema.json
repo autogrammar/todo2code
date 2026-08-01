@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/wellmanifest/new-project/governance/intent.schema.json",
+  "title": "new-project ticket intent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "ticket", "summary", "allowedPaths", "forbiddenPaths", "stacks"],
+  "properties": {
+    "schema": { "const": "new-project.intent/v1" },
+    "ticket": { "type": "string", "pattern": "^ticket-[0-9]{3}$" },
+    "summary": { "type": "string", "minLength": 1 },
+    "allowedPaths": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1, "uniqueItems": true },
+    "forbiddenPaths": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "stacks": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+  }
+}

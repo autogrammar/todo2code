@@ -16,6 +16,7 @@ import type {
 } from '../core/types.js';
 import { extractAstIntent } from '../extractors/ast.js';
 import { extractConfigurationIntent } from '../extractors/configuration.js';
+import { extractRuntimeCycleIntent } from '../extractors/runtime-cycle.js';
 import { DocumentationLlmRequiredError, extractDocumentationIntent } from '../extractors/docs-llm.js';
 import { extractDocumentationBaseline } from '../extractors/docs-deterministic.js';
 import { extractGitIntent } from '../extractors/git.js';
@@ -73,6 +74,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     changelog: [],
     document: [],
     configuration: [],
+    runtime: [],
     communication: [],
   };
 
@@ -182,6 +184,19 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const configurationExtraction = await extractConfigurationIntent(root, config);
   bySource.configuration = configurationExtraction.records;
   warnings.push(...configurationExtraction.warnings);
+
+  // Runtime evidence is optional: most repositories have no observer running,
+  // and a missing cycle must degrade the run rather than fail it.
+  activeStage = 'runtimeExtraction';
+  if (options.cycleFile) {
+    try {
+      const runtime = await extractRuntimeCycleIntent(options.cycleFile, config, root);
+      bySource.runtime = runtime.records;
+      warnings.push(...runtime.warnings);
+    } catch (error) {
+      warnings.push(`runtime cycle ignored: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 
   const includeCommunication = options.includeCommunication !== false;
   const communicationStartedAt = Date.now();

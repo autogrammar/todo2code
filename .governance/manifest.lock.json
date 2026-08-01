@@ -1,0 +1,23 @@
+{
+  "schema": "new-project.lock/v1",
+  "standard": {
+    "id": "wellmanifest/new-project",
+    "version": "0.7.0",
+    "sourceRepository": "wellmanifest/new-project",
+    "sourceRevision": null,
+    "sourceBaseRevision": "72e5f6c9cf91998615e2342f02b2af650be81cea",
+    "publicationStatus": "uncommitted"
+  },
+  "managedFiles": {
+    ".governance/diagnostics.json": "067513b5e89d26f77f78856c6976ec417d772ae1275e65f3931ab8b88080292e",
+    ".governance/governance_check.py": "7bb3627b24a074fa6c1b034377fb9bcf3e6ff963f5b32a6599ef0b8ed5bcc8a7",
+    ".governance/intent.schema.json": "26ecb31e6f9c48d3b5309df6642d2408e39e0d98f3b718c6f14b28f7dc45ef1d",
+    ".governance/manifest.json": "8141de491c8a06c436e71a18c8ed6d0806b03c459831c5c5cd8b81b744824407",
+    ".governance/manifest.schema.json": "172064c74ae3ceb81a47a74545d21268f8d8f80bbf120bd05dc90921d456ca7f",
+    ".governance/stack-profiles.json": "6fa3f8f44e50cfd0539413a85092817d3fab4e82fe376405f1e443120724dff2",
+    "project/governance-check.bat": "7207bc499483d7a7a1ab2c230ad288c2484cdf02f3a773ba69f4b760b67a3388",
+    "project/governance-check.sh": "158ca61531b8e51ba484de8eb6f91f4e4fbba908ae3c8db678b63bf6bab49923",
+    "project/new-ticket.sh": "5e3899a0781995c79ef1e33af81d2e2fe85b997103db1b4c603b072d56779cd3",
+    "project/readme.sh": "8a19819ab97fff26dbca179ead831d697f785c48774d8154714d768968fcfaf0"
+  }
+}

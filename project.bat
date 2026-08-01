@@ -6,6 +6,11 @@ setlocal EnableDelayedExpansion
 
 cls
 
+if not "%T2C_SKIP_GOVERNANCE%"=="1" (
+    call "%~dp0project\governance-check.bat" --actor agent
+    if errorlevel 1 exit /b %ERRORLEVEL%
+)
+
 set PIP_DISABLE_PIP_VERSION_CHECK=1
 
 set VENV=venv

@@ -14,7 +14,7 @@ PACKAGE ?= todo2code.zip
 PYTHON_WHEEL_DIR ?= .intent-packages/python
 E2E_COMPOSE ?= compose.e2e.yml
 
-.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env smoke doctor mcp-probe a2a-probe protocol-smoke validate live-contract-check live-model-comparison demo demollm examples-check pipeline compare-workspace mcp a2a docker-build docker-smoke docker-up docker-down e2e-core e2e-full e2e-clean python-wheel package clean
+.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env governance smoke doctor mcp-probe a2a-probe protocol-smoke validate live-contract-check live-model-comparison demo demollm examples-check pipeline compare-workspace mcp a2a docker-build docker-smoke docker-up docker-down e2e-core e2e-full e2e-clean python-wheel package clean
 
 help: ## Pokaż dostępne cele
 	@awk 'BEGIN {FS = ":.*## "; printf "todo2code targets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -49,6 +49,9 @@ verify-env: ## Sprawdź kompletność i brak duplikatów kontraktu .env
 
 verify: ## Typy, granica LLM, build i testy
 	$(NPM) run verify
+
+governance: ## Sprawdź aktywny ticket, intencję, zakres i integralność standardu
+	bash project/governance-check.sh --actor agent
 
 smoke: build ## Uruchom pełny offline smoke test na tymczasowym repo Git
 	bash scripts/smoke.sh

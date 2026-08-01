@@ -14,6 +14,10 @@ PIP="$VENV/bin/pip"
 
 cd "$PROJECT_ROOT"
 
+if [ "${T2C_SKIP_GOVERNANCE:-0}" != "1" ]; then
+    bash "$PROJECT_ROOT/project/governance-check.sh" --actor agent
+fi
+
 if [ ! -f "$PIP" ]; then
     echo "Creating virtual environment..."
     python3 -m venv "$VENV"

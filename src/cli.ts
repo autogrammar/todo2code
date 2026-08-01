@@ -25,6 +25,7 @@ import { extractDocumentationIntent } from './extractors/docs-llm.js';
 import { extractGitIntent } from './extractors/git.js';
 import { extractMarkdownIntentAudited } from './extractors/markdown-llm.js';
 import { extractNlIntentAudited } from './extractors/nl-llm.js';
+import { extractRuntimeCycleIntent } from './extractors/runtime-cycle.js';
 import { diagnoseGraph } from './graph/diagnostics.js';
 import { diffIntentGraphs, renderGraphDiffSvg } from './graph/diff.js';
 import { linkIntentRecords } from './graph/linker.js';
@@ -354,6 +355,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       includeCommunication: !optionBoolean(parsed, 'no-communication', false),
       projectDirectory: optionString(parsed, 'project-dir') ?? 'project',
       communicationTicket: optionNullableString(parsed, 'communication-ticket', null),
+      cycleFile: optionNullableString(parsed, 'cycle', null),
     };
     const result = await runPipeline(options, config);
     reportPipelineDegradation(result.manifest);
@@ -387,6 +389,7 @@ async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConf
     includeCommunication: !optionBoolean(parsed, 'no-communication', false),
     projectDirectory: optionString(parsed, 'project-dir') ?? 'project',
     communicationTicket: optionNullableString(parsed, 'communication-ticket', null),
+    cycleFile: optionNullableString(parsed, 'cycle', null),
   };
 
   const controller = new AbortController();
@@ -547,6 +550,13 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     await emitExtraction(result, out);
     return;
   }
+  if (extractor === 'runtime') {
+    const cycle = parsed.positionals[0];
+    if (!cycle) throw new Error('Usage: t2c extract runtime <cycle.json> [--out runtime.intent.jsonl]');
+    const result = await extractRuntimeCycleIntent(cycle, config, root);
+    await emitExtraction(result, out);
+    return;
+  }
   if (extractor === 'markdown') {
     const result = await extractMarkdownIntentAudited({
       root,
@@ -577,7 +587,7 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     process.stderr.write(`communication -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
     return;
   }
-  throw new Error('Usage: t2c extract <nl|git|ast|config|markdown|docs|communication> ...');
+  throw new Error('Usage: t2c extract <nl|git|ast|config|runtime|markdown|docs|communication> ...');
 }
 
 async function handleCommunication(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
@@ -782,6 +792,7 @@ function printHelp(): void {
   process.stdout.write(`  t2c extract nl <file> [--nl-mode deterministic|prefer-llm|require-llm] [--out nl.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract git [--root .] [--count 10] [--out git.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract ast [root] [--out ast.intent.jsonl]\n`);
+  process.stdout.write(`  t2c extract runtime <cycle.json> [--out runtime.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--markdown-mode require-llm] [--out records.jsonl]\n`);
   process.stdout.write(`  t2c extract docs [--patterns 'README.md,docs/**/*.md'] [--out docs.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract communication [--root .] [--project-dir project] [--ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--out communication.intent.jsonl]\n`);
@@ -810,7 +821,7 @@ function printHelp(): void {
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--nl-mode require-llm] [--markdown-mode require-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
   process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm]\n`);
-  process.stdout.write(`               [--project-dir project] [--communication-ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-communication] [--out .intent]\n`);
+  process.stdout.write(`               [--cycle cycle.json] [--project-dir project] [--communication-ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-communication] [--out .intent]\n`);
   process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode require-llm] [--docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);

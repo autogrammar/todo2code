@@ -6,7 +6,7 @@
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; implementation has not started.
+  `IN_PROGRESS / EDIT`; plan explicitly approved before implementation.
 
 ## Completed tickets
 

@@ -134,6 +134,27 @@ render_template() {
     "$source" > "$target"
 }
 
+json_escape() {
+  local value="$1"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//$'\t'/\\t}"
+  printf '%s' "$value"
+}
+
+render_json_template() {
+  local source="$1"
+  local target="$2"
+  sed \
+    -e "s|{TICKET_ID}|$(escape_sed "$(json_escape "$ticket_id")")|g" \
+    -e "s|{NNN}|$(escape_sed "$(json_escape "$ticket_num")")|g" \
+    -e "s|{SHORT_TITLE}|$(escape_sed "$(json_escape "$TITLE")")|g" \
+    -e "s|{TIMESTAMP}|$(escape_sed "$(json_escape "$timestamp")")|g" \
+    -e "s|{YYYY-MM-DD}|$(escape_sed "$(json_escape "$date_only")")|g" \
+    -e "s|{PROVIDER}|$(escape_sed "$(json_escape "$AGENT")")|g" \
+    "$source" > "$target"
+}
+
 if [[ -f template/files/ticket.template.md ]]; then
   render_template template/files/ticket.template.md "$ticket_dir/README.md"
 else
@@ -173,6 +194,21 @@ else
 
 Keep executable implementation outside this governance/evidence directory.
 Read a human-owned user-*.md file only when one exists.
+EOF
+fi
+
+if [[ -f template/files/intent.template.json ]]; then
+  render_json_template template/files/intent.template.json "$ticket_dir/intent.json"
+else
+  cat > "$ticket_dir/intent.json" <<EOF
+{
+  "schema": "new-project.intent/v1",
+  "ticket": "$ticket_id",
+  "summary": "$(json_escape "$TITLE")",
+  "allowedPaths": ["project/$ticket_id/**", "TODO.md", "project/TICKETS.md"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": []
+}
 EOF
 fi
 

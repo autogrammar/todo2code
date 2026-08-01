@@ -1,11 +1,16 @@
 flowchart TD
-%% generated in 0.03s
-    python__ast_extract["python.ast_extract<br/>13 funcs"]
+%% generated in 0.04s
+    python__ast_extract["python.ast_extract<br/>18 funcs"]
+    scripts__research["scripts.research<br/>71 funcs"]
     sdk__python["sdk.python<br/>68 funcs"]
-    src__diff["src.diff<br/>181 funcs"]
-    src__graph["src.graph<br/>133 funcs"]
-    src__synthesis["src.synthesis<br/>290 funcs"]
+    src__diff["src.diff<br/>182 funcs"]
+    src__graph["src.graph<br/>192 funcs"]
+    src__live["src.live<br/>60 funcs"]
+    src__synthesis["src.synthesis<br/>292 funcs"]
+    scripts__research ==>|7| src__live
     sdk__python ==>|6| src__synthesis
     python__ast_extract ==>|4| src__diff
     sdk__python -->|2| src__graph
+    scripts__research -->|2| src__synthesis
+    scripts__research -->|2| src__diff
     python__ast_extract -->|1| src__synthesis

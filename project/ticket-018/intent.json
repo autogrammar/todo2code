@@ -1,0 +1,28 @@
+{
+  "schema": "new-project.intent/v1",
+  "ticket": "ticket-018",
+  "summary": "Adopt deterministic new-project governance policy-as-code",
+  "allowedPaths": [
+    ".governance/**",
+    ".github/workflows/**",
+    "AGENTS.md",
+    "Makefile",
+    "README.md",
+    "TODO.md",
+    "project.sh",
+    "project.bat",
+    "project/TICKETS.md",
+    "project/governance-check.sh",
+    "project/governance-check.bat",
+    "project/new-ticket.sh",
+    "project/readme.sh",
+    "project/ticket-018/**"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [
+    "node",
+    "docker"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "manifest.schema.json",
+  "schema": "new-project.governance/v1",
+  "standard": {
+    "id": "wellmanifest/new-project",
+    "version": "0.7.0"
+  },
+  "requiredFiles": [
+    "README.md",
+    "VERSION",
+    "CHANGELOG.md",
+    "TODO.md",
+    "AGENTS.md",
+    "Dockerfile",
+    "project/TICKETS.md",
+    "project/new-ticket.sh",
+    "project/readme.sh",
+    "project/governance-check.sh"
+  ],
+  "governancePaths": [
+    "TODO.md",
+    "project/TICKETS.md",
+    "project/ticket-*/**"
+  ],
+  "trustedApprovalSources": [
+    "github-review",
+    "signed-attestation"
+  ],
+  "ticket": {
+    "root": "project",
+    "directoryPattern": "^ticket-[0-9]{3}$",
+    "requiredFiles": [
+      "README.md",
+      "preprompt.md",
+      "changelog.md",
+      "intent.json"
+    ],
+    "requiredAgentFiles": [
+      "ai-*.md",
+      "ai-*-logs.txt"
+    ],
+    "activeStatuses": [
+      "PLAN",
+      "IN_PROGRESS",
+      "BLOCKED"
+    ],
+    "closedStatuses": [
+      "DONE",
+      "CANCELLED"
+    ],
+    "implementationStates": [
+      "EDIT",
+      "VALIDATION",
+      "PUBLICATION"
+    ],
+    "intentFile": "intent.json"
+  },
+  "docker": {
+    "required": true,
+    "dockerfiles": ["Dockerfile", "Dockerfile.e2e"],
+    "composeFiles": ["docker-compose.yml", "compose.yml", "compose.e2e.yml"]
+  },
+  "stacks": ["node", "docker"]
+}

@@ -1,0 +1,23 @@
+2026-08-01T09:54:58Z PLAN-ONLY BASELINE
+$ git status --short
+Result: dirty worktree detected with existing/concurrent changes; preserved as
+out of scope for ticket-018 except ticket governance files.
+
+$ command -v docker
+/usr/bin/docker
+
+$ docker info --format '{{.ServerVersion}}'
+29.1.3
+
+$ bash project/new-ticket.sh --title 'Enforce new-project governance as policy-as-code' --agent codex
+Updated project/TICKETS.md ticket index successfully.
+Successfully scaffolded project/ticket-018 for 'Enforce new-project governance as policy-as-code'.
+
+STATE: WAIT_FOR_APPROVAL
+No implementation or validation claim made.
+
+2026-08-01 APPROVAL TRANSITION
+User response: explicit approval of the presented ticket-018 plan.
+Transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT.
+Note: chat approval authorizes this local implementation; it is not represented
+as trusted GitHub merge approval.

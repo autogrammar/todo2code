@@ -533,6 +533,7 @@ export type PipelineFailureStage =
   | 'markdownExtraction'
   | 'documentationExtraction'
   | 'configurationExtraction'
+  | 'runtimeExtraction'
   | 'communicationAnalysis'
   | 'linking'
   | 'diagnostics'
@@ -588,6 +589,8 @@ export interface PipelineOptions {
   includeCommunication?: boolean;
   projectDirectory?: string;
   communicationTicket?: string | null;
+  /** autonom cycle document; runtime evidence is skipped when absent. */
+  cycleFile?: string | null;
 }
 
 export interface PipelineManifest {
