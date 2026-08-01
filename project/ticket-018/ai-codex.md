@@ -161,6 +161,11 @@ Current verified baseline:
   path, then fails closed on the unchanged 401. It also proves Vallm 0.1.94
   cannot resolve its uppercase TypeScript language enum; AC-21 was reopened and
   no successful syntax/semantic verdict is claimed.
+- After explicit user authorization, set the working local OpenRouter key as a
+  repository-scoped Actions secret via stdin. Dispatch `30714664770` reached
+  Gemini with no credential/provider error and returned `pass` for both files;
+  aggregate enforcement still rejected the parser warning and advisory
+  whole-file findings. No secret value was read back or logged.
 
 ## Blockers
 

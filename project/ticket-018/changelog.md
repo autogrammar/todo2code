@@ -17,6 +17,10 @@
   preserving fail-closed 401 and Vallm uppercase-language parser evidence.
 - Reopened AC-21 instead of claiming successful Koru syntax/semantic evidence;
   the required `verify` job continues to own TypeScript compilation/regression.
+- Rotated the repository-scoped Actions credential after explicit user
+  authorization and proved it with live dispatch `30714664770`: Gemini ran for
+  both files without a provider error. Remaining rejection is attributable to
+  Vallm parser/context findings, not authentication or provider limits.
 
 ## [0.2.0] - 2026-08-01
 

@@ -269,6 +269,17 @@ remain historical evidence, not evidence for AC-11..AC-17.
   artifact upload and provenance attestation passed. AC-21 therefore remains
   open until the secret is rotated and the upstream parser defect is fixed or
   replaced with equivalent deterministic Koru-job evidence.
+- The user subsequently authorized repository-secret rotation. A fresh
+  repository-level `OPENROUTER_API_KEY` was written through `gh` stdin on
+  2026-08-01 without exposing its value; it takes precedence over the stale
+  organization secret only for `semcod/todo2code`. Dispatch `30714664770`
+  proves the credential and increased provider limit now work: Gemini reviewed
+  both TypeScript files with no provider error. Both file-level verdicts are
+  `pass`, but Koru correctly remains non-passing under the current fail-on-any-
+  finding policy because Vallm emits its known uppercase-language parser
+  warning plus advisory whole-file findings unrelated to the model-default
+  diff. The remaining AC-21 blockers are review context/parser policy, not the
+  GitHub credential.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,

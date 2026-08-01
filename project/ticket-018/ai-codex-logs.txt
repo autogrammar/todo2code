@@ -308,3 +308,27 @@ Decision: reopen AC-21. The required verify job supplies passing TypeScript
 compilation and regression evidence, but Koru syntax and live semantic review
 cannot be claimed until the upstream parser defect and external credential are
 fixed.
+
+2026-08-01 KORU REPOSITORY SECRET ROTATION AND LIVE RERUN
+User authorization: explicit instruction to configure the GitHub credential.
+$ set local OPENROUTER_API_KEY through gh secret set stdin
+scope: repository semcod/todo2code
+value in command/logs: absent
+repository secret updated: 2026-08-01T19:23:43Z
+
+$ workflow_dispatch run 30714664770
+workflow ref: ticket-018-koru-review at 4de71f9
+reviewed base: 2e87205dcd0b06286529ca9fa8ab9518694e9068
+reviewed head: eb9414cc34bd33e357d5ff9075604bdd68052438
+selected: src/config/env.ts, test/config-env.test.ts
+reported model: openrouter/google/gemini-3.1-pro-preview
+credential presence check: PASS
+provider authentication/limit error: none
+file-level verdicts: pass, pass
+aggregate Koru verdict: reject
+remaining findings: Vallm TYPESCRIPT parser warning and advisory whole-file
+review findings; none concern provider authentication.
+report/artifact/provenance attestation: PASS
+
+Interpretation: GitHub credential rotation is complete. AC-21 remains open for
+the Vallm parser defect and diff-context/finding-enforcement policy.
