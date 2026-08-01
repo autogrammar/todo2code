@@ -145,6 +145,10 @@ function isPlannablePath(value: string): boolean {
   ) return false;
   const segments = normalized.split('/').filter(Boolean);
   if (!segments.length || segments.includes('.') || segments.includes('..')) return false;
+  // A home-relative or variable-expanded location is not in the repository. A
+  // release note describing runtime state at `~/.urirun-host/mesh.json` would
+  // otherwise plan a literal `~` directory inside the analysed tree.
+  if (/^[~$%]/.test(segments[0] ?? '') || segments.includes('~')) return false;
   const lowerSegments = segments.map((segment) => segment.toLowerCase());
   // Shell/glob wildcards are never concrete implementation targets.
   if (/[*?[\]{}]/.test(normalized)) return false;

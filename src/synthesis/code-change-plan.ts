@@ -395,17 +395,26 @@ function buildChanges(
     : diagnostic.detail || `Address ${diagnostic.code}.`;
 
   if (target.paths.length) {
-    return uniqueSorted(target.paths).map((path) => {
-      const normalized = path.replace(/\\/g, '/');
+    const changes: CodeChangeFile[] = [];
+    for (const declared of uniqueSorted(target.paths)) {
+      const normalized = declared.replace(/\\/g, '/');
+      const exists = pathExistsInRepository?.(normalized);
+      // A path without a directory is shorthand that never said *where* the
+      // file belongs. Creating one at the repository root invents a location:
+      // measured across seven foreign repositories this proposed `__init__.py`
+      // beside 22 real ones, `pyproject.toml` beside 32, and files named after
+      // prose fragments such as `it.md`. The diagnostic still reports the gap;
+      // only the invented instruction is withheld.
+      if (exists === false && !normalized.includes('/')) continue;
       // Documentation routinely plans files that do not exist yet (a target
-      // repository's `docs/ARCHITECTURE.md`, a ticket's `preprompt.md`).
-      // Telling an executor to modify them is an instruction it cannot follow,
-      // and `apply-source-patch` rejects a create edit whose target already
-      // exists, so the two actions must not be guessed.
-      const action: CodeChangeFileAction = pathExistsInRepository
-        && !pathExistsInRepository(normalized) ? 'create' : 'modify';
-      return { path: normalized, action, symbols, rationale };
-    });
+      // repository's `docs/ARCHITECTURE.md`). Telling an executor to modify
+      // them is an instruction it cannot follow, and `apply-source-patch`
+      // rejects a create edit whose target already exists, so the two actions
+      // must not be guessed.
+      const action: CodeChangeFileAction = exists === false ? 'create' : 'modify';
+      changes.push({ path: normalized, action, symbols, rationale });
+    }
+    return changes;
   }
 
   // Without a path the plan cannot safely name a source file. Skip rather than invent.

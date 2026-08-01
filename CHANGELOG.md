@@ -110,6 +110,19 @@
   to modify a missing file, which `apply-source-patch` could not accept.
   Plan synthesis stays pure: the caller injects the repository probe, and
   without one the conservative `modify` is kept.
+- A code-change plan no longer invents a repository-root file from a bare
+  filename, and never targets a home-relative or variable-expanded location.
+  A path without a directory is shorthand that never said where the file
+  belongs: across seven foreign repositories this proposed creating
+  `__init__.py` beside 22 real ones, `pyproject.toml` beside 32, prose
+  fragments such as `it.md` and `potr.md`, and — from a release note about
+  runtime state — a literal `~` directory via `~/.urirun-host/mesh.json`.
+  Removing 18 such instructions on `if-uri/urirun`, `semcod/goal`,
+  `semcod/code2llm` and `wellmanifest/new-project` freed bounded plan slots
+  for directory-qualified targets. A bare name that does exist at the root
+  is still planned as `modify`, and the diagnostic continues to report every
+  gap the plan withholds. The cost is real: a plausible root-level
+  `compose.yml` is withheld too, because the source never said where it goes.
 - Bounded code-change planning prioritizes active
   `PLANNED_NOT_IMPLEMENTED` work over historical changelog audit findings and
   derives each file rationale from the source intent rather than a generic

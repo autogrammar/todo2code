@@ -191,6 +191,60 @@ test('a plan creates a missing file and modifies an existing one', async () => {
   assert.equal(unprobed.plans[0]?.changes[0]?.action, 'modify');
 });
 
+test('a plan never invents a repository-root file from a bare filename', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-plan-bare-'));
+  await fs.mkdir(path.join(root, 'pkg'), { recursive: true });
+  await fs.writeFile(path.join(root, 'pkg', '__init__.py'), '\n');
+  await fs.writeFile(path.join(root, 'setup.cfg'), '\n');
+  const plan = buildRecord({
+    kind: 'todo_item', action: 'add', object: 'version sync',
+    // `__init__.py` exists 1x under pkg/ but not at the root, `it.md` is a
+    // prose fragment, `docs/GUIDE.md` names a real location, `setup.cfg` is
+    // a real root file.
+    target: { paths: ['__init__.py', 'it.md', 'docs/GUIDE.md', 'setup.cfg'] },
+    text: 'Sync `__version__` across `__init__.py` files and document it.',
+    lifecycle: 'planned', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test/code-change',
+    epistemicClass: 'plan', confidence: 0.95, basis: ['fixture'],
+  });
+  const graph = linkIntentRecords([plan], AT);
+  const diagnostics = diagnoseGraph(graph, AT);
+  const result = proposeCodeChangePlans({
+    graph, diagnostics, generatedAt: AT, pathExists: createRepositoryPathProbe(root),
+  });
+  assert.deepEqual(
+    result.plans[0]?.changes.map((change) => `${change.action} ${change.path}`),
+    ['create docs/GUIDE.md', 'modify setup.cfg'],
+  );
+});
+
+test('a plan whose every path is bare and missing is withheld entirely', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-plan-withheld-'));
+  const plan = buildRecord({
+    kind: 'todo_item', action: 'add', object: 'unit tests',
+    target: { paths: ['it.md', 'potr.md'] },
+    text: 'Update "TODO/uruchamiać unit testy z pytest, it.md".',
+    lifecycle: 'planned', sourceKind: 'todo', sourcePath: 'TODO.md',
+    sourceLines: { start: 1, end: 1 }, extractor: 'test/code-change',
+    epistemicClass: 'plan', confidence: 0.95, basis: ['fixture'],
+  });
+  const graph = linkIntentRecords([plan], AT);
+  const diagnostics = diagnoseGraph(graph, AT);
+  assert.ok(diagnostics.diagnostics.some((item) => item.code === 'PLANNED_NOT_IMPLEMENTED'));
+  const result = proposeCodeChangePlans({
+    graph, diagnostics, generatedAt: AT, pathExists: createRepositoryPathProbe(root),
+  });
+  assert.equal(result.plans.length, 0);
+});
+
+test('a plan never targets a location outside the repository tree', () => {
+  assert.equal(isUsefulCodeChangePath('~/.urirun-host/mesh.json'), false);
+  assert.equal(isUsefulCodeChangePath('~root/mesh.json'), false);
+  assert.equal(isUsefulCodeChangePath('$HOME/mesh.json'), false);
+  assert.equal(isUsefulCodeChangePath('%APPDATA%/mesh.json'), false);
+  assert.equal(isUsefulCodeChangePath('src/mesh.json'), true);
+});
+
 test('the repository probe never proposes creating a file outside the root', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-plan-escape-'));
   const probe = createRepositoryPathProbe(root);
