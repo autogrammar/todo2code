@@ -141,3 +141,66 @@ agent. The scopes do not overlap on implementation paths.
 $ bash project/governance-check.sh --actor agent
 GOV-PASS: passed (0 errors, 0 warnings)
 This final workspace check included the concurrently created untracked ticket.
+
+2026-08-01 KORU CODE-REVIEW PLAN
+$ koru --version
+installed PATH version: 0.1.398
+local Koru development venv: 0.1.443
+published pinned target: 0.1.444
+
+$ python -m pip index versions vallm
+installed version: 0.1.92
+published pinned target: 0.1.94
+
+$ koru --doctor --project . --format json
+result: project is not initialised for planfile queue mode; loop mode remains
+available without repository mutation. Two expected setup failures were
+reported for missing .planfile config/sprints.
+
+$ gh secret list --org semcod
+The organization-level OpenRouter credential is available to all repositories;
+its value was not read or logged.
+
+$ inspect GitHub repository controls for semcod/todo2code
+main branch protection: absent
+repository rulesets: none
+PR/review for commit 06a2faa: none
+CI verify/JDK/build/deploy: PASS
+CI governance/enforce: FAIL on ticket-019 state
+
+Decision: reuse unfinished governance ticket-018. Plan AC-18..AC-25 only and
+stop in WAIT_FOR_APPROVAL. No CI, source, test, ruleset or human-owned content
+was changed.
+
+2026-08-01 KORU CODE-REVIEW APPROVAL
+User response: tak, wykonaj
+Transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT.
+Scope approved: AC-18..AC-25 recorded in ticket-018.
+
+2026-08-01 KORU CODE-REVIEW LOCAL IMPLEMENTATION
+$ uvx --from koru==0.1.444 --with vallm[llm,security]==0.1.94 koru --version
+koru 0.1.444
+
+$ Koru loop positive probe (one repository, one round, command=true)
+koru: repos=1 succeeded=1 failed=0 rounds=1
+exit=0
+
+$ Koru loop negative Vallm probe (intake-service.ts, security, fail on review)
+koru: repos=1 succeeded=0 failed=1 rounds=1
+exit=1
+
+$ query current OpenRouter model catalog
+deepseek/deepseek-v4-pro: available
+
+$ npm run verify:workflows
+Workflow YAML verified: 2 file(s), no duplicate top-level keys.
+
+$ npm run verify
+tests 335; pass 334; fail 0; skipped 1 (local JDK unavailable)
+module boundaries: 114 modules, 521 internal imports, no cycles
+workflow, schema, no-LLM and generated-analysis gates: PASS
+
+$ make governance
+Four existing ticket-019 findings remain: GOV-CONFLICT-001,
+GOV-DEPENDENCY-002, GOV-WORKSTREAM-003 and GOV-WORKSTREAM-004.
+No new ticket-018 secret, path or scope finding was emitted.

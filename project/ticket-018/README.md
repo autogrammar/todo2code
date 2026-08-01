@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: BLOCKED
-- **Workflow state**: VALIDATION
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -66,6 +66,30 @@ existing ticket.
 - Preserve deterministic enforcement. LLM analysis may explain a divergence,
   but cannot classify it away or approve a scope expansion.
 
+## Planned Koru code-review extension
+
+The user requested automated code review through Koru. The implementation will
+add a read-only GitHub check named `koru / code-review`, run for pull requests
+and explicit historical-review dispatches. It will pin Koru 0.1.444 and Vallm
+0.1.94, select only changed supported source files, and let Koru execute one
+bounded Vallm review round. The review combines deterministic syntax,
+complexity and security checks with an OpenRouter semantic judge supplied by
+the existing organization-level `OPENROUTER_API_KEY` secret.
+
+The workflow will never use `pull_request_target`, check out untrusted code
+with a write-capable token, modify source, auto-fix, commit, push or submit a
+GitHub `APPROVE` review. A missing secret or semantic-provider failure is an
+explicit non-passing outcome rather than a silent deterministic fallback.
+Forked pull requests therefore require a trusted maintainer rerun in a safe
+context instead of receiving organization secrets.
+
+The machine-readable report will be bound to repository, base SHA, head SHA,
+tool versions and verdict, uploaded as a CI artifact and covered by a GitHub
+artifact attestation. A repository ruleset will require both the existing
+governance check and `koru / code-review`; the Koru attestation is independent
+read-only review evidence, not evidence that the implementation author or this
+agent self-approved.
+
 ## Acceptance criteria
 
 - [x] AC-01: A human approves this understanding and execution checklist before
@@ -116,6 +140,30 @@ existing ticket.
 - [ ] AC-17: Existing application and Docker E2E checks still pass; unrelated
       concurrent changes in `.env.example`, `src/`, `test/` and
       `tests/fixtures/` are neither modified nor attributed to this ticket.
+- [x] AC-18: A human approves the Koru review design, bounded scope and
+      AC-18..AC-25 before the workflow or repository rules are changed.
+- [x] AC-19: A pinned pull-request/workflow-dispatch job exposes the stable
+      required-check name `koru / code-review` and resolves exact base/head
+      SHAs without evaluating a merge-ambiguous working tree.
+- [x] AC-20: Koru 0.1.444 runs exactly one read-only Vallm 0.1.94 review round
+      over changed supported source files; auto-fix, commit, push and mutable
+      dependency versions are absent.
+- [ ] AC-21: Deterministic syntax/complexity/security checks and semantic
+      LLM-as-judge review fail closed on findings, missing credentials,
+      malformed output or provider failure, with no secret value in logs.
+- [ ] AC-22: The structured report records repository, base/head SHA, selected
+      files, tool/model versions and verdict, is uploaded with fixed retention,
+      and receives GitHub artifact provenance attestation.
+- [ ] AC-23: The workflow uses least-privilege read permissions, never uses
+      `pull_request_target`, and treats fork PRs without secrets as requiring a
+      trusted rerun rather than exposing organization credentials.
+- [ ] AC-24: A repository ruleset requires `governance / enforce` and
+      `koru / code-review`, blocks direct updates to `main`, dismisses stale
+      evidence after new commits and cannot be bypassed by the implementation
+      agent.
+- [ ] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
+      `npm run verify`, governance and relevant Docker checks pass; the
+      pre-existing ticket-019 findings remain separately attributed.
 
 ## Participants
 
