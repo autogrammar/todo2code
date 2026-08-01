@@ -1,7 +1,7 @@
 {
   "schema": "new-project.intent/v2",
   "ticket": "ticket-018",
-  "summary": "Adopt deterministic governance policy-as-code with concurrent workstreams, dependency-aware tickets and non-overlapping write scopes",
+  "summary": "Adopt deterministic governance policy-as-code with concurrent workstreams and an attested Koru code-review gate",
   "workstream": "governance",
   "allowedPaths": [
     ".governance/**",
@@ -24,6 +24,7 @@
   ],
   "stacks": [
     "node",
+    "python",
     "docker"
   ],
   "dependsOn": [],

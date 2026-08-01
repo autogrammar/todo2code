@@ -15,6 +15,14 @@
   E2E pass.
 - Transitioned to `BLOCKED` because concurrent Rust SDK version drift prevents
   official full E2E before tests; no out-of-scope Cargo artifact was rewritten.
+- Planned an AC-18..AC-25 extension for pinned Koru/Vallm pull-request review,
+  fail-closed semantic validation, an attested review artifact and a required
+  `main` ruleset; no CI or external repository setting changed in this phase.
+- Recorded explicit human approval of AC-18..AC-25 and transitioned to
+  `IN_PROGRESS / EDIT` before changing CI or repository rules.
+- Added the pinned `koru / code-review` workflow with exact diff selection,
+  one bounded semantic/security review round, structured evidence, artifact
+  upload and GitHub provenance attestation.
 
 ## [0.1.0] - 2026-08-01
 

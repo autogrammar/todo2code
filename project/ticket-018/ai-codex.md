@@ -29,6 +29,12 @@ ticket dependency DAG. Divergence that changes a shared contract is routed to
 an explicit integration ticket and fresh approval; it is never absorbed by
 retroactively widening one agent's scope.
 
+The current follow-up asks Koru to provide automated code review. This is a
+read-only second-AI boundary: Koru orchestrates pinned Vallm checks for the
+exact PR diff, produces a commit-bound attested report, and exposes a required
+GitHub status. It may reject a change but may not edit it, push it or impersonate
+a human `APPROVE` review.
+
 Current verified baseline:
 
 - Docker CLI and engine are available; engine version reported `29.1.3`.
@@ -77,6 +83,21 @@ Current verified baseline:
     in `todo2code` and prove parallel non-overlap plus rejected overlap.
 14. Validate in Docker, run existing E2E gates, review only ticket-018 paths and
     preserve all concurrent application changes.
+15. Return to `PLAN / WAIT_FOR_APPROVAL` for the Koru review extension before
+    changing workflows or external rules; record AC-18..AC-25 and the current
+    tool/secret/ruleset baseline.
+16. Add a least-privilege `pull_request` plus `workflow_dispatch` workflow with
+    stable check name `koru / code-review`, exact base/head resolution and
+    immutable action/tool pins.
+17. Use Koru 0.1.444 loop mode for one read-only Vallm 0.1.94 round over changed
+    supported source files, with deterministic and OpenRouter semantic checks.
+18. Generate a sanitized structured review report, upload it with bounded
+    retention and create a GitHub provenance attestation bound to the reviewed
+    commit.
+19. Exercise passing and failing review probes, missing-secret/provider failure,
+    workflow validation, existing Node/Docker gates and scoped governance.
+20. Configure a `main` ruleset requiring governance and Koru review only after
+    the check exists; verify direct pushes and stale evidence are rejected.
 
 ## Actual changes
 
@@ -108,6 +129,17 @@ Current verified baseline:
   non-overlapping and remains untouched; the final whole-workspace gate accepts
   ticket-018 (`governance`) and ticket-019 (`sdk`) as parallel PLAN/VALIDATION
   records while routing this implementation diff uniquely to ticket-018.
+- Planned only the Koru code-review extension requested by the user. Verified
+  published Koru 0.1.444 and Vallm 0.1.94, an organization-level OpenRouter
+  secret visible to this repository, and the absence of branch protection,
+  rulesets or an existing PR review for commit `06a2faa`. No workflow, source,
+  test, external ruleset or human-owned file was changed in this plan phase.
+- After explicit approval, added `.github/workflows/koru-code-review.yml` with
+  immutable action pins, exact base/head selection, changed-source filtering,
+  one Koru/Vallm round, fail-closed credential handling, structured evidence,
+  bounded artifact retention and GitHub provenance attestation. The job is
+  read-only with respect to repository contents and cannot approve or mutate a
+  pull request.
 
 ## Blockers
 
@@ -121,6 +153,8 @@ Current verified baseline:
   reusable-workflow SHA exists yet.
 - GitHub Ruleset and CODEOWNERS need a trusted human/team identity and external
   repository configuration.
+- AC-18 requires explicit approval of the new Koru design after this plan is
+  visible. Until then, CI and external repository rules remain unchanged.
 - AC-17: concurrent commit `9928699` bumped the Rust SDK manifest to 0.5.1, but
   the ignored local Cargo lock still identifies the root package as 0.5.0.
   Official full Docker E2E fails closed at `cargo fetch --locked` (exit 101).
@@ -129,10 +163,8 @@ Current verified baseline:
 
 ## Approval boundary
 
-- Current state: `BLOCKED / VALIDATION`. AC-11..AC-16 are implemented and verified; AC-17,
-  immutable central publication and external Ruleset/CODEOWNERS remain open.
+- Current state: `IN_PROGRESS / EDIT` for approved AC-18..AC-25. AC-11..AC-16 are
+  implemented; AC-17 and the earlier publication/external blockers remain open.
 - Required response from: `unresolved:human`.
-- The user supplied the requested fresh explicit approval in chat. It
-  authorizes local implementation for this session; merge-time trust still
-  requires an external GitHub review/ruleset and is not inferred from this
-  agent-written record.
+- The user explicitly approved AC-18..AC-25 in chat. This authorizes the
+  implementation workflow but is not itself merge-time review evidence.
