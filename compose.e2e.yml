@@ -1,0 +1,27 @@
+name: todo2code-e2e
+
+services:
+  e2e-core:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+      target: e2e-core
+    image: todo2code:e2e-core
+    network_mode: none
+    environment:
+      T2C_ROOT: /workspace
+      OPENROUTER_API_KEY: ""
+    command: ["bash", "scripts/e2e.sh", "core"]
+
+  e2e-full:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+      target: e2e-full
+    image: todo2code:e2e-full
+    network_mode: none
+    environment:
+      T2C_ROOT: /workspace
+      OPENROUTER_API_KEY: ""
+      T2C_REQUIRE_JAVA_TEST: "1"
+    command: ["bash", "scripts/e2e.sh", "full"]

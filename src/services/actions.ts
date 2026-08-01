@@ -492,7 +492,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
         includeDocumentationLlm: booleanValue(input.includeDocsLlm, true),
         outputDir: await scopedPath(input.output, config.outputDir, root, config),
         gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
-        allowSummaryFallback: booleanValue(input.summaryFallback, true),
+        allowSummaryFallback: booleanValue(input.summaryFallback, false),
         includeSummaryLlm: booleanValue(input.includeSummaryLlm, true),
         nlMode: nlModeValue(input.nlMode, config.nlMode),
         markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
@@ -536,15 +536,15 @@ function llmModeValue(value: unknown, fallback: LlmExtractionMode, name: string)
 }
 
 function taskSynthesisMode(value: unknown): TaskSynthesisMode {
-  if (value === undefined || value === 'prefer-llm') return 'prefer-llm';
-  if (value === 'require-llm') return 'require-llm';
+  if (value === undefined || value === 'require-llm') return 'require-llm';
+  if (value === 'prefer-llm') return 'prefer-llm';
   throw new Error('mode must be prefer-llm or require-llm');
 }
 
 function summaryModeValue(value: unknown, legacyFallback: unknown): LlmExtractionMode {
-  if (value !== undefined) return llmModeValue(value, 'prefer-llm', 'mode');
+  if (value !== undefined) return llmModeValue(value, 'require-llm', 'mode');
   if (legacyFallback !== undefined) return booleanValue(legacyFallback, false) ? 'prefer-llm' : 'require-llm';
-  return 'prefer-llm';
+  return 'require-llm';
 }
 
 function pipelineTaskMode(value: unknown): 'disabled' | 'prefer-llm' | 'require-llm' {

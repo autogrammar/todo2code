@@ -62,12 +62,19 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
   const parsed = parseArgs(argv);
   const command = parsed.positionals.shift() ?? 'help';
-  const config = getConfig();
 
   if (command === 'help' || command === '--help' || command === '-h') {
     printHelp();
     return;
   }
+  // `parseArgs` removes options from positionals, so `pipeline --help` would
+  // otherwise look exactly like `pipeline` and execute a mutating run. Help is
+  // global until command-specific help exists: it must never reach a handler.
+  if (parsed.options.has('help')) {
+    printHelp();
+    return;
+  }
+  const config = getConfig();
   if (command === 'version' || command === '--version' || command === '-v') {
     process.stdout.write(`todo2code ${T2C_VERSION}\n`);
     return;
@@ -141,7 +148,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     const diagnosticsPath = optionString(parsed, 'diagnostics');
     const output = optionString(parsed, 'out');
     if (!graphPath || !diagnosticsPath || !output) {
-      throw new Error('Usage: t2c propose-todo <graph.json> --diagnostics diagnostics.json --mode prefer-llm|require-llm --out synthesis.json');
+      throw new Error('Usage: t2c propose-todo <graph.json> --diagnostics diagnostics.json [--mode prefer-llm|require-llm] --out synthesis.json');
     }
     const result = await executeAction('propose_todo', {
       root: optionString(parsed, 'root') ?? config.root,
@@ -337,7 +344,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       includeDocumentationLlm: !optionBoolean(parsed, 'no-docs-llm', false),
       outputDir: optionString(parsed, 'out') ?? config.outputDir,
       gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
-      allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', true),
+      allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', false),
       includeSummaryLlm: !optionBoolean(parsed, 'no-summary-llm', false),
       nlMode: optionNlMode(parsed, config.nlMode),
       markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
@@ -370,7 +377,7 @@ async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConf
     includeDocumentationLlm: !optionBoolean(parsed, 'no-docs-llm', false),
     outputDir: optionString(parsed, 'out') ?? config.outputDir,
     gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
-    allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', true),
+    allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', false),
     includeSummaryLlm: !optionBoolean(parsed, 'no-summary-llm', false),
     nlMode: optionNlMode(parsed, config.nlMode),
     markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
@@ -738,19 +745,19 @@ function optionLlmMode(parsed: ParsedArgs, name: string, fallback: LlmExtraction
 }
 
 function optionTaskMode(parsed: ParsedArgs): 'prefer-llm' | 'require-llm' {
-  const value = optionString(parsed, 'mode')?.toLowerCase() ?? 'prefer-llm';
+  const value = optionString(parsed, 'mode')?.toLowerCase() ?? 'require-llm';
   if (value === 'prefer-llm' || value === 'require-llm') return value;
   throw new Error('--mode must be prefer-llm or require-llm');
 }
 
 function optionSummaryMode(parsed: ParsedArgs): LlmExtractionMode {
-  if (parsed.options.has('mode')) return optionLlmMode(parsed, 'mode', 'prefer-llm');
-  // Preserve the old flag as a compatibility alias while making the same
-  // prefer-llm default used by NL and Markdown explicit for new invocations.
+  if (parsed.options.has('mode')) return optionLlmMode(parsed, 'mode', 'require-llm');
+  // Preserve the old flag as a compatibility alias; new invocations fail
+  // closed unless they explicitly request deterministic or prefer-llm.
   if (parsed.options.has('fallback')) {
     return optionBoolean(parsed, 'fallback', false) ? 'prefer-llm' : 'require-llm';
   }
-  return 'prefer-llm';
+  return 'require-llm';
 }
 
 function optionPipelineTaskMode(parsed: ParsedArgs): 'disabled' | 'prefer-llm' | 'require-llm' {
@@ -775,7 +782,7 @@ function printHelp(): void {
   process.stdout.write(`  t2c extract nl <file> [--nl-mode deterministic|prefer-llm|require-llm] [--out nl.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract git [--root .] [--count 10] [--out git.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract ast [root] [--out ast.intent.jsonl]\n`);
-  process.stdout.write(`  t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--markdown-mode prefer-llm] [--out records.jsonl]\n`);
+  process.stdout.write(`  t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--markdown-mode require-llm] [--out records.jsonl]\n`);
   process.stdout.write(`  t2c extract docs [--patterns 'README.md,docs/**/*.md'] [--out docs.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract communication [--root .] [--project-dir project] [--ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--out communication.intent.jsonl]\n`);
   process.stdout.write(`  t2c communication [root] [--project-dir project] [--ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-ast]\n`);
@@ -784,7 +791,7 @@ function printHelp(): void {
   process.stdout.write(`  t2c diagnose <intent.graph.json> [--out diagnostics.json]\n`);
   process.stdout.write(`  t2c diff <before.graph.json> <after.graph.json> [--out diff.json] [--svg diff.svg]\n`);
   process.stdout.write(`  t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--mode deterministic|prefer-llm|require-llm] [--out team-summary.md]\n`);
-  process.stdout.write(`  t2c propose-todo <graph.json> --diagnostics diagnostics.json --mode prefer-llm|require-llm --out synthesis.json\n`);
+  process.stdout.write(`  t2c propose-todo <graph.json> --diagnostics diagnostics.json [--mode prefer-llm|require-llm] --out synthesis.json\n`);
   process.stdout.write(`  t2c render-todo <synthesis.json> --graph graph.json --diagnostics diagnostics.json --todo TODO.md --patch TODO.patch --audit TODO.patch.json\n`);
   process.stdout.write(`  t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>\n`);
   process.stdout.write(`  t2c propose-code-change <graph.json> --diagnostics diagnostics.json [--proposals proposals.json] --out plans.json\n`);
@@ -798,13 +805,13 @@ function printHelp(): void {
   process.stdout.write(`  t2c reality <intent.graph.json> [--diagnostics diagnostics.json] [--svg reality.svg]\n`);
   process.stdout.write(`               [--md reality.md] [--gaps-only] [--max-rows 30]\n`);
   process.stdout.write(`  t2c watch [root] [--interval 60] [--scan-interval 2] [--no-initial-report]\n`);
-  process.stdout.write(`               [--task TASK.md|none] [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--todo TODO.md]\n`);
+  process.stdout.write(`               [--task TASK.md|none] [--nl-mode require-llm] [--markdown-mode require-llm] [--todo TODO.md]\n`);
   process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
-  process.stdout.write(`               [--nl-mode prefer-llm] [--markdown-mode prefer-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
+  process.stdout.write(`               [--nl-mode require-llm] [--markdown-mode require-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
   process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm]\n`);
   process.stdout.write(`               [--project-dir project] [--communication-ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-communication] [--out .intent]\n`);
-  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode prefer-llm] [--docs-llm]\n`);
+  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode require-llm] [--docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);
   process.stdout.write(`  t2c a2a\n\n`);

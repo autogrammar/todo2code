@@ -64,13 +64,13 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 
 | Etap | Mechanizm | LLM |
 |---|---|---:|
-| NL → DSL | OpenRouter structured output; jawny fallback heurystyczny/TensorFlow | **tak, domyślnie preferowany** |
+| NL → DSL | OpenRouter structured output; jawny fallback heurystyczny/TensorFlow | **tak, domyślnie wymagany** |
 | 10 commitów Git → DSL | `git log`, diff, heurystyki symboli | nie |
 | TypeScript/JavaScript/Python/Go/Java/Rust/PHP → DSL | natywne parsery języków; Java Tree API, Rust `syn`, PHP syntax tokens | nie |
-| TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie preferowany** |
+| TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie wymagany** |
 | Dokumentacja → DSL | deterministyczny baseline + opcjonalne OpenRouter structured outputs | **opcjonalnie** |
 | JSON/YAML/TOML, Docker i CI → DSL | deterministyczny konwerter struktury konfiguracji | nie |
-| `project/<ticket>/` komunikacja → DSL + synteza per uczestnik | deterministyczny kontrakt; opcjonalne audytowane wzbogacanie OpenRouter | **opcjonalnie, domyślnie nie** |
+| `project/<ticket>/` komunikacja → DSL + synteza per uczestnik | deterministyczny kontrakt; audytowane wzbogacanie OpenRouter | **tak, domyślnie wymagany** |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
 | Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
 | Propozycje → patch → approved apply | deterministyczna walidacja, renderer i atomowy zapis | nie |
@@ -305,9 +305,9 @@ Pełny pipeline z OpenRouter:
 ```bash
 # w .env:
 # OPENROUTER_API_KEY=...
-# T2C_NL_MODE=prefer-llm
-# T2C_MARKDOWN_MODE=prefer-llm
-# T2C_COMMUNICATION_MODE=prefer-llm
+# T2C_NL_MODE=require-llm
+# T2C_MARKDOWN_MODE=require-llm
+# T2C_COMMUNICATION_MODE=require-llm
 # OPENROUTER_MODEL=mistralai/codestral-2508
 # Stage-specific OPENROUTER_*_MODEL variables may override this default.
 
@@ -353,7 +353,7 @@ t2c diff before.graph.json after.graph.json --out graph.diff.json --svg graph.di
 t2c diff --mode files before.ts after.ts --svg files.diff.svg --html files.diff.html
 t2c diff --mode git . --rev HEAD --svg worktree.diff.svg
 t2c reality intent.graph.json --diagnostics diagnostics.json --svg reality.svg --md reality.md
-t2c summarize intent.graph.json --diagnostics diagnostics.json --mode prefer-llm --out team-summary.md
+t2c summarize intent.graph.json --diagnostics diagnostics.json --mode require-llm --out team-summary.md
 t2c watch [root] [--interval 60] [--scan-interval 2] [--task TASK.md|none] [--no-summary-llm] [--no-initial-report]
 t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]
 t2c propose-code-change intent.graph.json --diagnostics diagnostics.json --out plans.json
@@ -367,12 +367,13 @@ t2c a2a
 ```
 
 `extract nl`, `extract markdown`, `extract communication`, `extract docs` i `summarize` mogą korzystać z
-OpenRouter. Dla NL, Markdown oraz `summarize` `prefer-llm` jest trybem domyślnym: awaria daje
-oznaczony fallback; `require-llm` kończy operację błędem, a `deterministic`
-świadomie pomija sieć. W Markdown LLM nie może zmienić checkboxa, lifecycle,
+OpenRouter. Dla NL, Markdown, komunikacji, `summarize` i bezpośredniej syntezy
+TODO domyślny `require-llm` kończy operację błędem przy braku klucza, timeoutcie
+lub odrzuconej odpowiedzi. `prefer-llm` trzeba wybrać jawnie, aby dopuścić
+oznaczony fallback, a `deterministic` świadomie pomija sieć. W Markdown LLM nie może zmienić checkboxa, lifecycle,
 wersji, daty, kategorii ani provenance — wzbogaca wyłącznie semantykę wpisu.
-Komunikacja jest domyślnie deterministyczna; `--communication-mode prefer-llm`
-tworzy uziemioną syntezę per uczestnik bez oddawania modelowi kontroli nad
+`--communication-mode deterministic` zachowuje komunikację lokalnie bez sieci;
+tryby LLM tworzą uziemioną syntezę per uczestnik bez oddawania modelowi kontroli nad
 identity, rolą, ticketem, źródłem, lifecycle lub klasą epistemiczną.
 Dokumentacja bez klucza jest pomijana, a `t2c summarize --mode deterministic`
 świadomie nie wykonuje żądania sieciowego. Dawne `--fallback` pozostaje aliasem
@@ -818,14 +819,22 @@ make demo
 make docker-build
 make docker-smoke
 make docker-up
+make e2e-core
+make e2e-full
 ```
 
-Jedynym plikiem Compose jest `docker-compose.yml`. Montuje repozytorium
+Produkcyjny `docker-compose.yml` montuje repozytorium
 `T2C_WORKSPACE` pod `/workspace`, wystawia kontenerowy port `8787` jako
 `T2C_DOCKER_HOST_PORT` i zachowuje `.intent` w analizowanym workspace. Przy
 zmianie portu hosta należy odpowiednio ustawić również publiczny
 `T2C_A2A_PUBLIC_URL` oraz kliencki `T2C_A2A_URL`.
 `DOCKER_SMOKE_IMAGE` pozwala zmienić lokalny tag używany przez smoke test.
+
+Osobny `compose.e2e.yml` używa `Dockerfile.e2e` i nie montuje hosta. Profil
+`core` testuje Node/Python, a `full` dodaje Go 1.23, JDK 17, Rust 1.85 i PHP,
+odrzuca skipy oraz wymaga zgodności przykładów wszystkich pięciu SDK. Stabilne
+kody `T2C-E2E-*`, zakres bramek i sposoby naprawy opisuje
+[`docs/E2E.md`](docs/E2E.md).
 
 ## Diagnostyka
 

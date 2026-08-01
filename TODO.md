@@ -2,10 +2,18 @@
 
 ## Active ticket
 
-No ticket is currently active.
+- [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
+  `wellmanifest/new-project` manifest as policy-as-code through a deterministic
+  validator, trusted approval boundary, reusable governance CI, stack-specific
+  gates and pinned adoption in `todo2code`. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`; implementation has not started.
 
 ## Completed tickets
 
+- [x] [`ticket-017`](project/ticket-017/README.md) — repaired mutating command
+  help, Polish prohibition polarity and repository-bound path resolution;
+  independently audited the concurrent path/action-planning baseline and added
+  isolated Docker E2E `core` and full-toolchain gates. Current state: `DONE`.
 - [x] [`ticket-009`](project/ticket-009/README.md) — canonical structured
   response contracts. All seven production OpenRouter boundaries now generate
   their provider schema and runtime parser from one typed source, retain
@@ -130,6 +138,9 @@ No ticket is currently active.
 
 ## P2 — modularity and operations
 
+- [x] Split the task-synthesis god module into provider orchestration,
+  structured-response contract, grounded materialization and bounded payload
+  selection without changing its public API or fail-closed behavior.
 - [x] Make `project.sh` correct and validate generated README metadata against
   `package.json`; external `code2docs` fallback values (`0.1.0`, MIT and a
   TypeScript runtime badge) can no longer be published silently.

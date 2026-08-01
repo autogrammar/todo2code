@@ -171,9 +171,9 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
     tensorflowLabels: envList('T2C_TF_LABELS', ['add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'unknown']),
     documentPatterns: envList('T2C_DOC_PATTERNS', ['README.md', 'docs/**/*.md', 'project/**/*.md', 'packages/**/MODULE.md']),
     documentExcludes: envList('T2C_DOC_EXCLUDES', ['node_modules/**', '.git/**', 'dist/**', '.intent/**', 'TODO.md', 'CHANGELOG.md']),
-    nlMode: envLlmMode('T2C_NL_MODE', 'prefer-llm'),
-    markdownMode: envLlmMode('T2C_MARKDOWN_MODE', 'prefer-llm'),
-    communicationMode: envLlmMode('T2C_COMMUNICATION_MODE', 'deterministic'),
+    nlMode: envLlmMode('T2C_NL_MODE', 'require-llm'),
+    markdownMode: envLlmMode('T2C_MARKDOWN_MODE', 'require-llm'),
+    communicationMode: envLlmMode('T2C_COMMUNICATION_MODE', 'require-llm'),
     openRouter: {
       apiKey: envOptional('OPENROUTER_API_KEY'),
       baseUrl: envString('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1').replace(/\/$/, ''),

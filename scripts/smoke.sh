@@ -27,6 +27,9 @@ done < <(git -C "$PROJECT_ROOT" ls-files --cached --others --exclude-standard -z
 
 T2C_ROOT="$TMP" \
 T2C_ENABLE_TF=false \
+T2C_NL_MODE=deterministic \
+T2C_MARKDOWN_MODE=deterministic \
+T2C_COMMUNICATION_MODE=deterministic \
 OPENROUTER_API_KEY= \
 node "$PROJECT_ROOT/dist/src/cli.js" pipeline "$TMP" \
   --task task.md \
@@ -34,6 +37,7 @@ node "$PROJECT_ROOT/dist/src/cli.js" pipeline "$TMP" \
   --changelog CHANGELOG.md \
   --docs 'docs/**/*.md' \
   --no-docs-llm \
+  --no-summary-llm \
   --out .intent-test >/tmp/t2c-smoke-result.json
 
 node - "$TMP" <<'NODE'

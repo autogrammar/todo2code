@@ -39,6 +39,41 @@ test('deterministic documentation baseline records headings, code blocks and exp
   assert.deepEqual(reference?.statement.target.tickets, ['T2C-14']);
 });
 
+test('deterministic documentation preserves Polish prohibition polarity', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-prohibition-'));
+  const readme = path.join(root, 'README.md');
+  await fs.writeFile(readme, [
+    '# Ownership',
+    '',
+    'Agentowi zabrania się modyfikowania `user-{github_username}.md`.',
+    '',
+  ].join('\n'));
+
+  const result = await extractDocumentationBaseline({ root, files: [readme] }, makeConfig(root));
+  const prohibition = result.records.find((record) => record.metadata.documentationOrigin === 'reference');
+  assert.equal(prohibition?.statement.modality, 'required');
+  assert.equal(prohibition?.statement.polarity, 'negative');
+  assert.deepEqual(prohibition?.statement.target.paths, ['user-{github_username}.md']);
+});
+
+test('deterministic documentation resolves a unique bare filename against the repository', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-path-resolution-'));
+  const docs = path.join(root, 'docs');
+  const readme = path.join(root, 'README.md');
+  await fs.mkdir(docs, { recursive: true });
+  await fs.writeFile(path.join(docs, 'ARCHITECTURE.md'), '# Architecture\n');
+  await fs.writeFile(readme, [
+    '# Documentation',
+    '',
+    '- Keep ARCHITECTURE.md synchronized with the implemented module boundaries.',
+    '',
+  ].join('\n'));
+
+  const result = await extractDocumentationBaseline({ root, files: [readme] }, makeConfig(root));
+  const statement = result.records.find((record) => record.metadata.documentationOrigin === 'reference');
+  assert.deepEqual(statement?.statement.target.paths, ['docs/ARCHITECTURE.md']);
+});
+
 test('documentation prose resolves a bare filename to its repository location', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-path-'));
   await fs.mkdir(path.join(root, 'docs'), { recursive: true });

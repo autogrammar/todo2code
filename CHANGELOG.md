@@ -2,7 +2,26 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Split task synthesis into provider orchestration, structured-response
+  contract, grounded materialization and bounded payload modules. The public
+  `tasks-llm` API, one-retry policy, provenance and fail-closed validation stay
+  unchanged while the orchestrator drops from 554 to 266 lines.
+- Audited semantic stages now default to fail-closed `require-llm`: NL,
+  TODO/CHANGELOG enrichment, communication enrichment, standalone summaries
+  and direct TODO synthesis no longer fall back unless the caller explicitly
+  selects `prefer-llm`. Offline demos, tests and smoke checks select
+  `deterministic` explicitly; optional documentation LLM and pipeline task
+  synthesis remain separately enabled features.
+
 ### Added
+
+- Isolated Docker E2E environments in `Dockerfile.e2e` and `compose.e2e.yml`.
+  The core suite covers deterministic Node/Python behavior; the full suite adds
+  Go 1.23, JDK 17, Rust 1.85 and PHP, rejects skipped tests and requires parity
+  across all five SDK examples. `T2C-E2E-*` codes identify the failed gate and
+  provide a documented repair route without hiding command output.
 
 - A dependency-free PHP syntax adapter based on PHP 8
   `token_get_all(..., TOKEN_PARSE)`. It emits namespace, import, type,
@@ -88,6 +107,16 @@
 
 ### Fixed
 
+- CLI `--help` after a command is non-mutating. In particular,
+  `t2c pipeline --help` no longer executes a pipeline or writes `.intent`.
+- Polish `zabrania się` and `zabraniają` forms are recognized as required,
+  negative prohibitions, avoiding false `CONFLICTING_INTENT` diagnostics
+  against equivalent TODO statements.
+- The shared Markdown path resolver rejects absolute, Windows-absolute and
+  parent-traversal inputs, including traversal introduced by a heading scope.
+  Existing, missing, unique and ambiguous repository-relative paths preserve
+  their deterministic behavior.
+
 - Python AST extraction records bounded module/class named constants and the
   canonical `if __name__ == "__main__"` entrypoint without promoting ordinary
   local variables. Module aggregates expose constant identifiers instead of a
@@ -123,19 +152,6 @@
   is still planned as `modify`, and the diagnostic continues to report every
   gap the plan withholds. The cost is real: a plausible root-level
   `compose.yml` is withheld too, because the source never said where it goes.
-- Deterministic documentation extraction (`t2c/markdown-documentation@2`) shares
-  the Markdown path resolver with TODO and CHANGELOG. It was the one converter
-  that kept a bare filename, so prose naming `ARCHITECTURE.md` produced a
-  root-level path that does not exist while `docs/ARCHITECTURE.md` does. On
-  `if-uri/urirun` this cut bare non-existent path tokens from 375 to 100 and on
-  `wronai/contract` from 160 to 79, with no record lost and slightly more
-  relations, because a resolved path can link to the Git and AST evidence for
-  that file.
-- The repository basename index skips a directory carrying its own `.git`. A
-  nested checkout or agent worktree duplicates every basename and blocks
-  resolution repository-wide: on `if-uri/urirun`, 63 worktrees under
-  `.claude/worktrees/` shadowed the real `docs/ARCHITECTURE.md`, which 24
-  documentation records can now name.
 - Bounded code-change planning prioritizes active
   `PLANNED_NOT_IMPLEMENTED` work over historical changelog audit findings and
   derives each file rationale from the source intent rather than a generic

@@ -165,15 +165,16 @@ node /home/tom/github/semcod/todo2code/dist/src/cli.js extract communication \
   --out .intent/communication.intent.jsonl
 ```
 
-Domyślny `T2C_COMMUNICATION_MODE=deterministic` nie wysyła komunikacji poza
-runtime. Tryb `prefer-llm` wzbogaca wyłącznie semantykę i tworzy osobną,
+Domyślny `T2C_COMMUNICATION_MODE=require-llm` wymaga poprawnej odpowiedzi LLM
+i kończy etap błędem bez fallbacku. Dla danych, które nie mogą opuścić runtime,
+należy jawnie ustawić `deterministic`. Tryb `prefer-llm` wzbogaca wyłącznie semantykę i tworzy osobną,
 uziemioną syntezę dla każdego uczestnika; awaria jest jawnym fallbackiem.
 `require-llm` kończy etap błędem. Przykład:
 
 ```bash
 node dist/src/cli.js communication . \
   --project-dir project --ticket WM-101 \
-  --communication-mode prefer-llm
+  --communication-mode require-llm
 ```
 
 Odpowiedź modelu nie zawiera pól participant/role/ticket/source/lifecycle ani

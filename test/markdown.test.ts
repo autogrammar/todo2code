@@ -10,6 +10,7 @@ import {
 } from '../src/extractors/markdown-llm.js';
 import { extractMarkdownIntent } from '../src/extractors/markdown.js';
 import { extractChangelog } from '../src/extractors/changelog.js';
+import { createMarkdownPathResolver } from '../src/extractors/markdown-paths.js';
 import { extractTodo } from '../src/extractors/todo.js';
 import { makeConfig } from './helpers.js';
 import { T2C_VERSION } from '../src/version.js';
@@ -151,6 +152,23 @@ test('CHANGELOG keeps an ambiguous bare filename unresolved', async () => {
 
   const result = await extractChangelog(root, 'CHANGELOG.md', makeConfig(root));
   assert.deepEqual(result.records[0]?.statement.target.paths, ['server.ts']);
+});
+
+test('Markdown path resolution drops paths and heading scopes outside the repository', async () => {
+  const parent = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-md-path-boundary-'));
+  const root = path.join(parent, 'repository');
+  const outside = path.join(parent, 'outside');
+  await fs.mkdir(root);
+  await fs.mkdir(outside);
+  await fs.writeFile(path.join(outside, 'secret.ts'), 'export const secret = true;\n');
+
+  const resolver = createMarkdownPathResolver(root);
+  assert.deepEqual(await resolver.resolve([
+    '../outside/secret.ts',
+    path.join(outside, 'secret.ts'),
+    'C:\\outside\\secret.ts',
+  ]), []);
+  assert.deepEqual(await resolver.resolve(['secret.ts'], ['Scope: ../outside']), ['secret.ts']);
 });
 
 test('TODO and CHANGELOG receive audited LLM enrichment without changing structural facts', async () => {

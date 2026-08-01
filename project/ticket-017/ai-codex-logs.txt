@@ -1,0 +1,2755 @@
+[2026-08-01T09:15:46Z] [EXEC] [provider:codex] $ ./project/new-ticket.sh --title 'Audit and repair confirmed todo2code errors' --agent codex
+[2026-08-01T09:15:46Z] [STDOUT] Updated project/TICKETS.md ticket index successfully.
+[2026-08-01T09:15:46Z] [STDOUT] Successfully scaffolded project/ticket-017 for 'Audit and repair confirmed todo2code errors'.
+[2026-08-01T09:15:46Z] [EXIT] Command exited with code 0
+[2026-08-01T09:17:00Z] [OBSERVED] HEAD moved concurrently to 1ebad96beb2724d2b4296ad2b5a1b5c187f92139.
+[2026-08-01T09:17:00Z] [OBSERVED] Commit subject: fix: give Markdown paths one identity and plan create vs modify
+[2026-08-01T09:18:00Z] [DECISION] [provider:codex] User approved ticket-017 with: kontynuuj
+[2026-08-01T09:26:00Z] [DECISION] [provider:codex] User extended ticket-017: create Docker environments for E2E testing.
+[2026-08-01T09:18:54Z] [EXEC] [provider:codex] $ T2C_SKIP_TOOL_INSTALL=1 T2C_ANALYSIS_SOURCE=tracked ./project.sh
+Preparing worktree (detached HEAD 1ebad96)
+📖 code2docs analyzing todo2code...
+Analyzing:   0%|          | 0/377 [00:00<?, ?it/s]Analyzing:  28%|██▊       | 105/377 [00:00<00:00, 1012.29it/s]Analyzing:  67%|██████▋   | 253/377 [00:00<00:00, 1282.43it/s]Analyzing: 100%|██████████| 377/377 [00:00<00:00, 421.61it/s]
+  ✅ docs/README.md
+✨ Done!
+{"readme":"docs/README.md","version":"0.5.0","license":"Apache-2.0","nodeVersion":">=20","changed":true}
+🔍 Scanning: /tmp/t2c-analysis.mltSXt/todo2code
+📁 Extensions: .py, .pyw, .js, .jsx, .mjs, .cjs, .ts, .tsx, .mts, .php, .phtml, .go, .rs, .java, .c, .h, .cpp, .cc, .cxx, .hpp, .cs, .scala, .kt, .swift, .m, .mm, .lua, .rb, .rake, .gemspec, .sql, .sh, .bash, .zsh, .fish, .html, .htm, .xhtml, .css, .scss, .sass, .less, .svelte, .vue
+📏 Min lines: 3
+🎯 Min similarity: 0.85
+
+Duplicate finding completed in 679.0ms
+📊 Scanned 168 files (30600 lines, 1207ms)
+Found 17 duplicate groups (44 fragments, 120 lines recoverable)
+
+  → project/duplication.toon.yaml
+Using .gitignore from .
+Excluded 7 files by .gitignore
+✓ Results saved to project/validation.toon.yaml
+{"filesChecked":18,"filesChanged":8}
+{"filesChecked":19,"untrackedInputsChecked":8,"status":"ok"}
+Skipping source refactoring; set T2C_APPLY_PREFACT=1 to apply prefact changes.
+[2026-08-01T09:19:11Z] [EXIT] Command exited with code 0
+[2026-08-01T09:20:29Z] [EXEC] [provider:codex] $ docker build -t todo2code:ticket017-baseline .
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.58kB done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.7
+#2 DONE 1.0s
+
+#3 docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/node:22-bookworm-slim
+#4 DONE 0.8s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 121B done
+#5 DONE 0.0s
+
+#6 [runtime  1/14] FROM docker.io/library/node:22-bookworm-slim@sha256:f32b81066cde10a75dbac96646099533316d94bac4150c55da1636e1f0ffdc46
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 850.88kB 0.3s done
+#7 DONE 0.3s
+
+#8 [build  2/15] WORKDIR /app
+#8 CACHED
+
+#9 [build  3/15] COPY package.json package-lock.json tsconfig.json .intentignore ./
+#9 DONE 0.1s
+
+#10 [build  4/15] RUN npm ci --include=dev
+#10 1.867
+#10 1.867 added 3 packages, and audited 4 packages in 1s
+#10 1.868
+#10 1.868 found 0 vulnerabilities
+#10 1.870 npm notice
+#10 1.870 npm notice New major version of npm available! 10.9.8 -> 12.0.2
+#10 1.870 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+#10 1.870 npm notice To update run: npm install -g npm@12.0.2
+#10 1.870 npm notice
+#10 DONE 2.0s
+
+#11 [build  5/15] COPY src ./src
+#11 DONE 0.1s
+
+#12 [build  6/15] COPY sdk/typescript/src ./sdk/typescript/src
+#12 DONE 0.1s
+
+#13 [build  7/15] COPY test ./test
+#13 DONE 0.1s
+
+#14 [build  8/15] COPY python ./python
+#14 DONE 0.1s
+
+#15 [build  9/15] COPY golang ./golang
+#15 DONE 0.1s
+
+#16 [build 10/15] COPY java ./java
+#16 DONE 0.1s
+
+#17 [build 11/15] COPY rust-ast ./rust-ast
+#17 DONE 0.1s
+
+#18 [build 12/15] COPY prompts ./prompts
+#18 DONE 0.1s
+
+#19 [build 13/15] COPY schemas ./schemas
+#19 DONE 0.1s
+
+#20 [build 14/15] COPY scripts ./scripts
+#20 DONE 0.1s
+
+#21 [build 15/15] RUN npm run build && npm prune --omit=dev --omit=optional
+#21 0.382
+#21 0.382 > todo2code@0.5.0 build
+#21 0.382 > tsc -p tsconfig.json
+#21 0.382
+#21 6.644
+#21 6.644 up to date, audited 2 packages in 876ms
+#21 6.645
+#21 6.645 found 0 vulnerabilities
+#21 DONE 6.8s
+
+#22 [runtime  2/14] RUN apt-get update     && apt-get install -y --no-install-recommends git python3 ca-certificates     && rm -rf /var/lib/apt/lists/*
+#22 CACHED
+
+#23 [runtime  3/14] WORKDIR /app
+#23 CACHED
+
+#24 [runtime  4/14] COPY --from=build /app/node_modules ./node_modules
+#24 CACHED
+
+#25 [runtime  5/14] COPY --from=build /app/dist ./dist
+#25 DONE 0.1s
+
+#26 [runtime  6/14] COPY package.json LICENSE .env.example .intentignore ./
+#26 DONE 0.1s
+
+#27 [runtime  7/14] COPY python ./python
+#27 DONE 0.1s
+
+#28 [runtime  8/14] COPY golang ./golang
+#28 DONE 0.1s
+
+#29 [runtime  9/14] COPY java ./java
+#29 DONE 0.1s
+
+#30 [runtime 10/14] COPY rust-ast ./rust-ast
+#30 DONE 0.1s
+
+#31 [runtime 11/14] COPY adapters/tensorflow/package*.json ./adapters/tensorflow/
+#31 DONE 0.1s
+
+#32 [runtime 12/14] COPY prompts ./prompts
+#32 DONE 0.1s
+
+#33 [runtime 13/14] COPY schemas ./schemas
+#33 DONE 0.1s
+
+#34 [runtime 14/14] RUN mkdir -p /workspace && chown -R node:node /app /workspace
+#34 DONE 2.1s
+
+#35 exporting to image
+#35 exporting layers
+#35 exporting layers 0.2s done
+#35 writing image sha256:8afd8ad4b5b1b64f2929b94bd3f0aeb1b125c9ac191ee9483f88d555239ea0a3 done
+#35 naming to docker.io/library/todo2code:ticket017-baseline done
+#35 DONE 0.3s
+[2026-08-01T09:20:45Z] [EXIT] Command exited with code 0
+[2026-08-01T09:21:03Z] [EXEC] [provider:codex] baseline CLI help and polarity probes in Docker
+help_exit=0 artifact_files=1
+help_stdout_first={
+help_stderr_first=DEGRADED: one or more pipeline stages did not complete in the requested mode
+./.intent
+./.intent/latest.json
+./.intent/runs
+{"prohibition":"positive","explicitBan":"negative"}
+[2026-08-01T09:21:04Z] [EXIT] Baseline probes completed
+[2026-08-01T09:22:22Z] [EXEC] [provider:codex] $ docker build -t todo2code:ticket017-fix .
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.58kB done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.7
+#2 DONE 0.5s
+
+#3 docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/node:22-bookworm-slim
+#4 DONE 0.5s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 121B done
+#5 DONE 0.0s
+
+#6 [build  1/15] FROM docker.io/library/node:22-bookworm-slim@sha256:f32b81066cde10a75dbac96646099533316d94bac4150c55da1636e1f0ffdc46
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 93.15kB 0.3s done
+#7 DONE 0.4s
+
+#8 [build  2/15] WORKDIR /app
+#8 CACHED
+
+#9 [build  3/15] COPY package.json package-lock.json tsconfig.json .intentignore ./
+#9 CACHED
+
+#10 [build  4/15] RUN npm ci --include=dev
+#10 CACHED
+
+#11 [build  5/15] COPY src ./src
+#11 DONE 0.1s
+
+#12 [build  6/15] COPY sdk/typescript/src ./sdk/typescript/src
+#12 DONE 0.1s
+
+#13 [build  7/15] COPY test ./test
+#13 DONE 0.1s
+
+#14 [build  8/15] COPY python ./python
+#14 DONE 0.1s
+
+#15 [build  9/15] COPY golang ./golang
+#15 DONE 0.1s
+
+#16 [build 10/15] COPY java ./java
+#16 DONE 0.1s
+
+#17 [build 11/15] COPY rust-ast ./rust-ast
+#17 DONE 0.1s
+
+#18 [build 12/15] COPY prompts ./prompts
+#18 DONE 0.1s
+
+#19 [build 13/15] COPY schemas ./schemas
+#19 DONE 0.1s
+
+#20 [build 14/15] COPY scripts ./scripts
+#20 DONE 0.1s
+
+#21 [build 15/15] RUN npm run build && npm prune --omit=dev --omit=optional
+#21 0.356
+#21 0.356 > todo2code@0.5.0 build
+#21 0.356 > tsc -p tsconfig.json
+#21 0.356
+#21 7.938
+#21 7.938 up to date, audited 2 packages in 2s
+#21 7.939
+#21 7.939 found 0 vulnerabilities
+#21 DONE 8.0s
+
+#22 [runtime  2/14] RUN apt-get update     && apt-get install -y --no-install-recommends git python3 ca-certificates     && rm -rf /var/lib/apt/lists/*
+#22 CACHED
+
+#23 [runtime  3/14] WORKDIR /app
+#23 CACHED
+
+#24 [runtime  4/14] COPY --from=build /app/node_modules ./node_modules
+#24 CACHED
+
+#25 [runtime  5/14] COPY --from=build /app/dist ./dist
+#25 DONE 0.1s
+
+#26 [runtime  6/14] COPY package.json LICENSE .env.example .intentignore ./
+#26 DONE 0.1s
+
+#27 [runtime  7/14] COPY python ./python
+#27 DONE 0.1s
+
+#28 [runtime  8/14] COPY golang ./golang
+#28 DONE 0.1s
+
+#29 [runtime  9/14] COPY java ./java
+#29 DONE 0.1s
+
+#30 [runtime 10/14] COPY rust-ast ./rust-ast
+#30 DONE 0.1s
+
+#31 [runtime 11/14] COPY adapters/tensorflow/package*.json ./adapters/tensorflow/
+#31 DONE 0.1s
+
+#32 [runtime 12/14] COPY prompts ./prompts
+#32 DONE 0.1s
+
+#33 [runtime 13/14] COPY schemas ./schemas
+#33 DONE 0.1s
+
+#34 [runtime 14/14] RUN mkdir -p /workspace && chown -R node:node /app /workspace
+#34 DONE 2.2s
+
+#35 exporting to image
+#35 exporting layers
+#35 exporting layers 0.3s done
+#35 writing image sha256:900c8aa442049887da73c9c97e296518be16e0649ea2b35394bbdc9074b51d62
+#35 writing image sha256:900c8aa442049887da73c9c97e296518be16e0649ea2b35394bbdc9074b51d62 0.2s done
+#35 naming to docker.io/library/todo2code:ticket017-fix
+#35 naming to docker.io/library/todo2code:ticket017-fix 0.0s done
+#35 DONE 0.6s
+[2026-08-01T09:22:37Z] [EXIT] Command exited with code 0
+[2026-08-01T09:22:52Z] [EXEC] [provider:codex] focused regression tests and fixed probes in Docker
+TAP version 13
+# Subtest: CLI command help is successful and non-mutating
+ok 1 - CLI command help is successful and non-mutating
+  ---
+  duration_ms: 1522.092528
+  type: 'test'
+  ...
+# Subtest: proposeCodeChangePlans materialises grounded plans from PLANNED_NOT_IMPLEMENTED
+ok 2 - proposeCodeChangePlans materialises grounded plans from PLANNED_NOT_IMPLEMENTED
+  ---
+  duration_ms: 17.777143
+  type: 'test'
+  ...
+# Subtest: code-change title preserves the leading action of a compound intent
+ok 3 - code-change title preserves the leading action of a compound intent
+  ---
+  duration_ms: 2.356781
+  type: 'test'
+  ...
+# Subtest: proposeCodeChangePlans is deterministic for the same evidence
+ok 4 - proposeCodeChangePlans is deterministic for the same evidence
+  ---
+  duration_ms: 3.081802
+  type: 'test'
+  ...
+# Subtest: a plan creates a missing file and modifies an existing one
+ok 5 - a plan creates a missing file and modifies an existing one
+  ---
+  duration_ms: 10.365874
+  type: 'test'
+  ...
+# Subtest: the repository probe never proposes creating a file outside the root
+ok 6 - the repository probe never proposes creating a file outside the root
+  ---
+  duration_ms: 0.822336
+  type: 'test'
+  ...
+# Subtest: bounded plan sets prefer explicit TODO work over historical changelog audit
+ok 7 - bounded plan sets prefer explicit TODO work over historical changelog audit
+  ---
+  duration_ms: 3.202845
+  type: 'test'
+  ...
+# Subtest: evaluateCodeChangeAcceptance passes when targeted diagnostics clear
+ok 8 - evaluateCodeChangeAcceptance passes when targeted diagnostics clear
+  ---
+  duration_ms: 5.012056
+  type: 'test'
+  ...
+# Subtest: evaluateCodeChangeAcceptance fails while the plan is still open
+ok 9 - evaluateCodeChangeAcceptance fails while the plan is still open
+  ---
+  duration_ms: 1.637813
+  type: 'test'
+  ...
+# Subtest: Plans without repository paths are not invented
+ok 10 - Plans without repository paths are not invented
+  ---
+  duration_ms: 0.823864
+  type: 'test'
+  ...
+# Subtest: Non-repository paths are ignored instead of aborting code-change planning
+ok 11 - Non-repository paths are ignored instead of aborting code-change planning
+  ---
+  duration_ms: 1.077878
+  type: 'test'
+  ...
+# Subtest: Acceptance rejects ungrounded paths, missing provenance and inconsistent verdicts
+ok 12 - Acceptance rejects ungrounded paths, missing provenance and inconsistent verdicts
+  ---
+  duration_ms: 3.925064
+  type: 'test'
+  ...
+# Subtest: createCodeChangeSourcePatch is deterministic and path-bound
+ok 13 - createCodeChangeSourcePatch is deterministic and path-bound
+  ---
+  duration_ms: 4.391045
+  type: 'test'
+  ...
+# Subtest: applyUnifiedDiffToText creates and modifies files from hunks
+ok 14 - applyUnifiedDiffToText creates and modifies files from hunks
+  ---
+  duration_ms: 0.537999
+  type: 'test'
+  ...
+# Subtest: applyCodeChangeSourcePatch requires approval and is idempotent
+ok 15 - applyCodeChangeSourcePatch requires approval and is idempotent
+  ---
+  duration_ms: 14.567562
+  type: 'test'
+  ...
+# Subtest: applyCodeChangeSourcePatch preflights diffs and refuses symlink escapes
+ok 16 - applyCodeChangeSourcePatch preflights diffs and refuses symlink escapes
+  ---
+  duration_ms: 3.806494
+  type: 'test'
+  ...
+# Subtest: createCodeChangeSourcePatchSet covers every plan
+ok 17 - createCodeChangeSourcePatchSet covers every plan
+  ---
+  duration_ms: 1.715203
+  type: 'test'
+  ...
+# Subtest: createCodeChangeReviewPatch is hash-stable and lists grounded paths
+ok 18 - createCodeChangeReviewPatch is hash-stable and lists grounded paths
+  ---
+  duration_ms: 2.748772
+  type: 'test'
+  ...
+# Subtest: CLI proposes and evaluates a grounded code-change plan through persisted JSON
+ok 19 - CLI proposes and evaluates a grounded code-change plan through persisted JSON
+  ---
+  duration_ms: 2076.856443
+  type: 'test'
+  ...
+# Subtest: isUsefulCodeChangePath rejects vendored, binary and analysis dump paths
+ok 20 - isUsefulCodeChangePath rejects vendored, binary and analysis dump paths
+  ---
+  duration_ms: 0.467711
+  type: 'test'
+  ...
+# Subtest: proposeCodeChangePlans skips diagnostics that only name junk paths
+ok 21 - proposeCodeChangePlans skips diagnostics that only name junk paths
+  ---
+  duration_ms: 0.860219
+  type: 'test'
+  ...
+# Subtest: Published code-change JSON schemas require provenance, risk and rollback
+ok 22 - Published code-change JSON schemas require provenance, risk and rollback
+  ---
+  duration_ms: 2.900834
+  type: 'test'
+  ...
+# Subtest: deterministic documentation baseline records headings, code blocks and explicit references
+ok 23 - deterministic documentation baseline records headings, code blocks and explicit references
+  ---
+  duration_ms: 14.42927
+  type: 'test'
+  ...
+# Subtest: deterministic documentation preserves Polish prohibition polarity
+ok 24 - deterministic documentation preserves Polish prohibition polarity
+  ---
+  duration_ms: 4.785258
+  type: 'test'
+  ...
+# Subtest: Markdown extractor separates TODO plans and changelog claims
+ok 25 - Markdown extractor separates TODO plans and changelog claims
+  ---
+  duration_ms: 18.528748
+  type: 'test'
+  ...
+# Subtest: Markdown extractor preserves indented continuation lines and their source range
+ok 26 - Markdown extractor preserves indented continuation lines and their source range
+  ---
+  duration_ms: 4.696856
+  type: 'test'
+  ...
+# Subtest: TODO bare filenames inherit an existing directory from the heading scope
+ok 27 - TODO bare filenames inherit an existing directory from the heading scope
+  ---
+  duration_ms: 2.14091
+  type: 'test'
+  ...
+# Subtest: TODO resolves a bare filename only when its repository basename is unique
+ok 28 - TODO resolves a bare filename only when its repository basename is unique
+  ---
+  duration_ms: 2.393646
+  type: 'test'
+  ...
+# Subtest: TODO and CHANGELOG resolve the same bare filename to one repository path
+ok 29 - TODO and CHANGELOG resolve the same bare filename to one repository path
+  ---
+  duration_ms: 4.282139
+  type: 'test'
+  ...
+# Subtest: CHANGELOG keeps an ambiguous bare filename unresolved
+ok 30 - CHANGELOG keeps an ambiguous bare filename unresolved
+  ---
+  duration_ms: 2.17068
+  type: 'test'
+  ...
+# Subtest: TODO and CHANGELOG receive audited LLM enrichment without changing structural facts
+ok 31 - TODO and CHANGELOG receive audited LLM enrichment without changing structural facts
+  ---
+  duration_ms: 25.588506
+  type: 'test'
+  ...
+# Subtest: Markdown enrichment corrects one rejected response and audits both attempts
+ok 32 - Markdown enrichment corrects one rejected response and audits both attempts
+  ---
+  duration_ms: 3.690729
+  type: 'test'
+  ...
+# Subtest: large Markdown enrichment uses bounded concurrency and keeps provider audits ordered
+ok 33 - large Markdown enrichment uses bounded concurrency and keeps provider audits ordered
+  ---
+  duration_ms: 51.711469
+  type: 'test'
+  ...
+# Subtest: TODO and CHANGELOG LLM fallback and require mode are explicit
+ok 34 - TODO and CHANGELOG LLM fallback and require mode are explicit
+  ---
+  duration_ms: 2.852228
+  type: 'test'
+  ...
+# Subtest: TODO and CHANGELOG reject structurally invalid LLM enrichments
+ok 35 - TODO and CHANGELOG reject structurally invalid LLM enrichments
+  ---
+  duration_ms: 3.356339
+  type: 'test'
+  ...
+# Subtest: a truncated batch is split and every record keeps its own response provenance
+ok 36 - a truncated batch is split and every record keeps its own response provenance
+  ---
+  duration_ms: 5.015455
+  type: 'test'
+  ...
+# Subtest: a malformed batch response splits instead of failing the whole stage
+ok 37 - a malformed batch response splits instead of failing the whole stage
+  ---
+  duration_ms: 4.885324
+  type: 'test'
+  ...
+# Subtest: NL extractor produces deterministic non-LLM records
+ok 38 - NL extractor produces deterministic non-LLM records
+  ---
+  duration_ms: 9.446016
+  type: 'test'
+  ...
+# Subtest: NL public extraction boundary names a missing sourcePath before path resolution
+ok 39 - NL public extraction boundary names a missing sourcePath before path resolution
+  ---
+  duration_ms: 0.804404
+  type: 'test'
+  ...
+# Subtest: deterministic NL fallback skips Markdown headings and recognizes comparison intent
+ok 40 - deterministic NL fallback skips Markdown headings and recognizes comparison intent
+  ---
+  duration_ms: 3.112411
+  type: 'test'
+  ...
+# Subtest: path extraction rejects lowercase prose alternations without losing repository paths
+ok 41 - path extraction rejects lowercase prose alternations without losing repository paths
+  ---
+  duration_ms: 1.005619
+  type: 'test'
+  ...
+# Subtest: path extraction rejects dotted DSL fields but keeps known file extensions
+ok 42 - path extraction rejects dotted DSL fields but keeps known file extensions
+  ---
+  duration_ms: 0.803532
+  type: 'test'
+  ...
+# Subtest: detectModality ignores parenthetical labels and bare adjectives
+ok 43 - detectModality ignores parenthetical labels and bare adjectives
+  ---
+  duration_ms: 0.429784
+  type: 'test'
+  ...
+# Subtest: detectModality reads prohibitions and periphrastic obligation as requirements
+ok 44 - detectModality reads prohibitions and periphrastic obligation as requirements
+  ---
+  duration_ms: 0.675938
+  type: 'test'
+  ...
+# Subtest: detectPolarity does not treat without-complements as sentence negation
+ok 45 - detectPolarity does not treat without-complements as sentence negation
+  ---
+  duration_ms: 0.18631
+  type: 'test'
+  ...
+# Subtest: path extraction rejects HTTP routes, host paths and parent traversal
+ok 46 - path extraction rejects HTTP routes, host paths and parent traversal
+  ---
+  duration_ms: 0.388588
+  type: 'test'
+  ...
+# Subtest: symbol extraction rejects hostnames without losing qualified code symbols
+ok 47 - symbol extraction rejects hostnames without losing qualified code symbols
+  ---
+  duration_ms: 0.468356
+  type: 'test'
+  ...
+# Subtest: symbol extraction separates repository files and all-caps prose from code identifiers
+ok 48 - symbol extraction separates repository files and all-caps prose from code identifiers
+  ---
+  duration_ms: 0.284159
+  type: 'test'
+  ...
+# Subtest: topic keywords normalize paths, camelCase and documentation word forms
+ok 49 - topic keywords normalize paths, camelCase and documentation word forms
+  ---
+  duration_ms: 0.332673
+  type: 'test'
+  ...
+# Subtest: NL LLM extraction emits audited provenance and bounded DSL records
+ok 50 - NL LLM extraction emits audited provenance and bounded DSL records
+  ---
+  duration_ms: 31.179852
+  type: 'test'
+  ...
+# Subtest: NL LLM failure is explicit when deterministic fallback is used
+ok 51 - NL LLM failure is explicit when deterministic fallback is used
+  ---
+  duration_ms: 2.915055
+  type: 'test'
+  ...
+# Subtest: require-llm rejects instead of silently falling back
+ok 52 - require-llm rejects instead of silently falling back
+  ---
+  duration_ms: 0.369677
+  type: 'test'
+  ...
+1..52
+# tests 52
+# suites 0
+# pass 52
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4198.632614
+help_exit=0 artifact_files=0 stderr_bytes=0
+todo2code (t2c)
+
+{"prohibition":"negative","explicitBan":"negative"}
+[2026-08-01T09:22:58Z] [EXIT] Focused regression validation completed
+[2026-08-01T09:23:28Z] [EXEC] [provider:codex] full offline verification in isolated Docker workspace
+
+added 3 packages, and audited 4 packages in 2s
+
+found 0 vulnerabilities
+npm notice
+npm notice New major version of npm available! 10.9.8 -> 12.0.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+npm notice To update run: npm install -g npm@12.0.2
+npm notice
+
+> todo2code@0.5.0 verify
+> npm run check && npm run verify:no-llm && npm run verify:modules && npm run verify:env && npm run verify:workflows && npm run verify:generated-analysis && npm run verify:structured-responses && npm run build && npm run verify:schemas && npm test
+
+
+> todo2code@0.5.0 check
+> tsc -p tsconfig.json --noEmit
+
+
+> todo2code@0.5.0 verify:no-llm
+> node scripts/verify-no-llm-imports.mjs
+
+LLM boundary verified transitively from 9 deterministic entrypoints across 37 modules.
+
+> todo2code@0.5.0 verify:modules
+> node scripts/verify-module-boundaries.mjs
+
+Module boundaries verified: 105 modules, 488 internal imports, no cycles, core is independent.
+
+> todo2code@0.5.0 verify:env
+> node scripts/verify-env-contract.mjs
+
+Environment contract verified: 75 code/Docker variables, 75 documented keys, no duplicates.
+
+> todo2code@0.5.0 verify:workflows
+> node scripts/verify-workflow-yaml.mjs
+
+Workflow YAML verified: 1 file(s), no duplicate top-level keys.
+
+> todo2code@0.5.0 verify:generated-analysis
+> node scripts/verify-generated-analysis.mjs
+
+{"filesChecked":19,"untrackedInputsChecked":9,"status":"ok"}
+
+> todo2code@0.5.0 verify:structured-responses
+> node scripts/verify-structured-responses.mjs
+
+{"structuredCalls":7,"rawCalls":0,"status":"ok"}
+
+> todo2code@0.5.0 build
+> tsc -p tsconfig.json
+
+
+> todo2code@0.5.0 verify:schemas
+> node scripts/generate-response-schemas.mjs --check
+
+{"schema":"schemas/document-extraction-response.schema.json","status":"ok"}
+
+> todo2code@0.5.0 test
+> node --test --test-concurrency=4 dist/test/*.test.js
+
+TAP version 13
+# [t2c:a2a] listening on 127.0.0.1:43811
+# Subtest: A2A v1.0 card, versioning, task methods and cursor pagination are coherent
+ok 1 - A2A v1.0 card, versioning, task methods and cursor pagination are coherent
+  ---
+  duration_ms: 146.659601
+  type: 'test'
+  ...
+# [t2c:a2a] listening on 127.0.0.1:41107
+# Subtest: A2A bearer authentication is declared with v1 security objects and enforced
+ok 2 - A2A bearer authentication is declared with v1 security objects and enforced
+  ---
+  duration_ms: 69.742017
+  type: 'test'
+  ...
+# [t2c:a2a] listening on 127.0.0.1:42861
+# [t2c:a2a] listening on 127.0.0.1:45907
+# [t2c:a2a] listening on 127.0.0.1:34193
+# Subtest: A2A file task store survives restart and preserves idempotency across replicas
+ok 3 - A2A file task store survives restart and preserves idempotency across replicas
+  ---
+  duration_ms: 99.66827
+  type: 'test'
+  ...
+# Subtest: Go adapter records package, imports, types, functions and methods
+ok 4 - Go adapter records package, imports, types, functions and methods # SKIP Go toolchain not installed
+  ---
+  duration_ms: 10.21674
+  type: 'test'
+  ...
+# Subtest: Go facts are deterministic observations, not inferences
+ok 5 - Go facts are deterministic observations, not inferences # SKIP Go toolchain not installed
+  ---
+  duration_ms: 4.574502
+  type: 'test'
+  ...
+# Subtest: Go adapter marks exported symbols and reports calls in scope
+ok 6 - Go adapter marks exported symbols and reports calls in scope # SKIP Go toolchain not installed
+  ---
+  duration_ms: 11.430686
+  type: 'test'
+  ...
+# Subtest: Go extraction is skipped without cost when a tree holds no Go sources
+ok 7 - Go extraction is skipped without cost when a tree holds no Go sources
+  ---
+  duration_ms: 43.258221
+  type: 'test'
+  ...
+# Subtest: A missing Go toolchain degrades to a warning instead of failing the run
+ok 8 - A missing Go toolchain degrades to a warning instead of failing the run
+  ---
+  duration_ms: 19.340262
+  type: 'test'
+  ...
+# Subtest: Rust adapter records uses, types, functions, methods, values and calls
+ok 9 - Rust adapter records uses, types, functions, methods, values and calls # SKIP Rust toolchain not installed
+  ---
+  duration_ms: 9.306034
+  type: 'test'
+  ...
+# Subtest: Java adapter records packages, imports, types, fields, methods and calls
+ok 10 - Java adapter records packages, imports, types, fields, methods and calls # SKIP JDK not installed
+  ---
+  duration_ms: 6.646334
+  type: 'test'
+  ...
+# Subtest: Java and Rust adapters skip toolchain startup when no matching sources exist
+ok 11 - Java and Rust adapters skip toolchain startup when no matching sources exist
+  ---
+  duration_ms: 33.693113
+  type: 'test'
+  ...
+# Subtest: Missing Java and Rust toolchains degrade to explicit warnings
+ok 12 - Missing Java and Rust toolchains degrade to explicit warnings
+  ---
+  duration_ms: 15.762286
+  type: 'test'
+  ...
+# Subtest: PHP syntax adapter records namespaces, imports, types, functions, methods and calls
+ok 13 - PHP syntax adapter records namespaces, imports, types, functions, methods and calls # SKIP PHP runtime not installed
+  ---
+  duration_ms: 6.798455
+  type: 'test'
+  ...
+# Subtest: PHP adapter skips runtime startup when no PHP source exists
+ok 14 - PHP adapter skips runtime startup when no PHP source exists
+  ---
+  duration_ms: 33.006487
+  type: 'test'
+  ...
+# Subtest: Missing PHP runtime degrades to an explicit warning
+ok 15 - Missing PHP runtime degrades to an explicit warning
+  ---
+  duration_ms: 13.66148
+  type: 'test'
+  ...
+# Subtest: Invalid PHP syntax is reported without aborting extraction
+ok 16 - Invalid PHP syntax is reported without aborting extraction # SKIP PHP runtime not installed
+  ---
+  duration_ms: 7.505501
+  type: 'test'
+  ...
+# Subtest: AST extractor reads TypeScript and Python facts
+ok 17 - AST extractor reads TypeScript and Python facts
+  ---
+  duration_ms: 193.913571
+  type: 'test'
+  ...
+# Subtest: CLI command help is successful and non-mutating
+ok 18 - CLI command help is successful and non-mutating
+  ---
+  duration_ms: 1871.346239
+  type: 'test'
+  ...
+# Subtest: CLI summarize exposes deterministic, prefer-llm and require-llm modes
+ok 19 - CLI summarize exposes deterministic, prefer-llm and require-llm modes
+  ---
+  duration_ms: 2489.134911
+  type: 'test'
+  ...
+# Subtest: CLI propose-todo, render-todo and apply-todo return JSON and preserve a no-op TODO
+ok 20 - CLI propose-todo, render-todo and apply-todo return JSON and preserve a no-op TODO
+  ---
+  duration_ms: 1923.685426
+  type: 'test'
+  ...
+# Subtest: CLI watch reads TASK.md by default, disables summary LLM and reacts to a live file change
+ok 21 - CLI watch reads TASK.md by default, disables summary LLM and reacts to a live file change
+  ---
+  duration_ms: 1890.190181
+  type: 'test'
+  ...
+# Subtest: proposeCodeChangePlans materialises grounded plans from PLANNED_NOT_IMPLEMENTED
+ok 22 - proposeCodeChangePlans materialises grounded plans from PLANNED_NOT_IMPLEMENTED
+  ---
+  duration_ms: 22.348339
+  type: 'test'
+  ...
+# Subtest: code-change title preserves the leading action of a compound intent
+ok 23 - code-change title preserves the leading action of a compound intent
+  ---
+  duration_ms: 6.136311
+  type: 'test'
+  ...
+# Subtest: proposeCodeChangePlans is deterministic for the same evidence
+ok 24 - proposeCodeChangePlans is deterministic for the same evidence
+  ---
+  duration_ms: 6.802655
+  type: 'test'
+  ...
+# Subtest: a plan creates a missing file and modifies an existing one
+ok 25 - a plan creates a missing file and modifies an existing one
+  ---
+  duration_ms: 18.406348
+  type: 'test'
+  ...
+# Subtest: the repository probe never proposes creating a file outside the root
+ok 26 - the repository probe never proposes creating a file outside the root
+  ---
+  duration_ms: 4.902866
+  type: 'test'
+  ...
+# Subtest: bounded plan sets prefer explicit TODO work over historical changelog audit
+ok 27 - bounded plan sets prefer explicit TODO work over historical changelog audit
+  ---
+  duration_ms: 4.707445
+  type: 'test'
+  ...
+# Subtest: evaluateCodeChangeAcceptance passes when targeted diagnostics clear
+ok 28 - evaluateCodeChangeAcceptance passes when targeted diagnostics clear
+  ---
+  duration_ms: 6.700415
+  type: 'test'
+  ...
+# Subtest: evaluateCodeChangeAcceptance fails while the plan is still open
+ok 29 - evaluateCodeChangeAcceptance fails while the plan is still open
+  ---
+  duration_ms: 2.450987
+  type: 'test'
+  ...
+# Subtest: Plans without repository paths are not invented
+ok 30 - Plans without repository paths are not invented
+  ---
+  duration_ms: 1.209589
+  type: 'test'
+  ...
+# Subtest: Non-repository paths are ignored instead of aborting code-change planning
+ok 31 - Non-repository paths are ignored instead of aborting code-change planning
+  ---
+  duration_ms: 1.577214
+  type: 'test'
+  ...
+# Subtest: Acceptance rejects ungrounded paths, missing provenance and inconsistent verdicts
+ok 32 - Acceptance rejects ungrounded paths, missing provenance and inconsistent verdicts
+  ---
+  duration_ms: 6.867752
+  type: 'test'
+  ...
+# Subtest: createCodeChangeSourcePatch is deterministic and path-bound
+ok 33 - createCodeChangeSourcePatch is deterministic and path-bound
+  ---
+  duration_ms: 6.525621
+  type: 'test'
+  ...
+# Subtest: applyUnifiedDiffToText creates and modifies files from hunks
+ok 34 - applyUnifiedDiffToText creates and modifies files from hunks
+  ---
+  duration_ms: 0.785959
+  type: 'test'
+  ...
+# Subtest: applyCodeChangeSourcePatch requires approval and is idempotent
+ok 35 - applyCodeChangeSourcePatch requires approval and is idempotent
+  ---
+  duration_ms: 22.951774
+  type: 'test'
+  ...
+# Subtest: applyCodeChangeSourcePatch preflights diffs and refuses symlink escapes
+ok 36 - applyCodeChangeSourcePatch preflights diffs and refuses symlink escapes
+  ---
+  duration_ms: 8.337881
+  type: 'test'
+  ...
+# Subtest: createCodeChangeSourcePatchSet covers every plan
+ok 37 - createCodeChangeSourcePatchSet covers every plan
+  ---
+  duration_ms: 1.828291
+  type: 'test'
+  ...
+# Subtest: createCodeChangeReviewPatch is hash-stable and lists grounded paths
+ok 38 - createCodeChangeReviewPatch is hash-stable and lists grounded paths
+  ---
+  duration_ms: 4.22132
+  type: 'test'
+  ...
+# Subtest: CLI proposes and evaluates a grounded code-change plan through persisted JSON
+ok 39 - CLI proposes and evaluates a grounded code-change plan through persisted JSON
+  ---
+  duration_ms: 2502.286629
+  type: 'test'
+  ...
+# Subtest: isUsefulCodeChangePath rejects vendored, binary and analysis dump paths
+ok 40 - isUsefulCodeChangePath rejects vendored, binary and analysis dump paths
+  ---
+  duration_ms: 0.384323
+  type: 'test'
+  ...
+# Subtest: proposeCodeChangePlans skips diagnostics that only name junk paths
+ok 41 - proposeCodeChangePlans skips diagnostics that only name junk paths
+  ---
+  duration_ms: 0.923391
+  type: 'test'
+  ...
+# Subtest: Published code-change JSON schemas require provenance, risk and rollback
+ok 42 - Published code-change JSON schemas require provenance, risk and rollback
+  ---
+  duration_ms: 3.252129
+  type: 'test'
+  ...
+# Subtest: participant registry maps stable IDs to Git/A2A identifiers without display-name guessing
+ok 43 - participant registry maps stable IDs to Git/A2A identifiers without display-name guessing
+  ---
+  duration_ms: 42.813306
+  type: 'test'
+  ...
+# Subtest: participant registry rejects ambiguous external identifiers
+ok 44 - participant registry rejects ambiguous external identifiers
+  ---
+  duration_ms: 0.69938
+  type: 'test'
+  ...
+# Subtest: communication enrichment preserves runtime identity, source, ticket and epistemic class
+ok 45 - communication enrichment preserves runtime identity, source, ticket and epistemic class
+  ---
+  duration_ms: 55.824642
+  type: 'test'
+  ...
+# Subtest: communication enrichment corrects one rejected structured response without weakening validation
+ok 46 - communication enrichment corrects one rejected structured response without weakening validation
+  ---
+  duration_ms: 6.699169
+  type: 'test'
+  ...
+# Subtest: communication prefer-llm fallback is explicit and require-llm rejects
+ok 47 - communication prefer-llm fallback is explicit and require-llm rejects
+  ---
+  duration_ms: 10.495437
+  type: 'test'
+  ...
+# Subtest: project/<ticket> communication is attributed per human and agent and checked against Git evidence
+ok 48 - project/<ticket> communication is attributed per human and agent and checked against Git evidence
+  ---
+  duration_ms: 169.382039
+  type: 'test'
+  ...
+# Subtest: governance user-* and ai-* files become typed participant intent without ingesting ticket evidence
+ok 49 - governance user-* and ai-* files become typed participant intent without ingesting ticket evidence
+  ---
+  duration_ms: 13.753574
+  type: 'test'
+  ...
+# Subtest: unstructured governance participant content is rejected with an owner-specific migration warning
+ok 50 - unstructured governance participant content is rejected with an owner-specific migration warning
+  ---
+  duration_ms: 2.184966
+  type: 'test'
+  ...
+# Subtest: opposite wording about different explicit files is not treated as an intent conflict
+ok 51 - opposite wording about different explicit files is not treated as an intent conflict
+  ---
+  duration_ms: 4.01347
+  type: 'test'
+  ...
+# Subtest: missing response owners use explicit role sentinels without inventing participants
+ok 52 - missing response owners use explicit role sentinels without inventing participants
+  ---
+  duration_ms: 7.747825
+  type: 'test'
+  ...
+# Subtest: communication extractor reports unresolved identity instead of inventing an actor
+ok 53 - communication extractor reports unresolved identity instead of inventing an actor
+  ---
+  duration_ms: 3.301451
+  type: 'test'
+  ...
+# Subtest: communication extractor ignores generic generated analysis under project/
+ok 54 - communication extractor ignores generic generated analysis under project/
+  ---
+  duration_ms: 6.515334
+  type: 'test'
+  ...
+# Subtest: configuration converter covers JSON, TOML, Docker and CI workflow declarations
+ok 55 - configuration converter covers JSON, TOML, Docker and CI workflow declarations
+  ---
+  duration_ms: 24.61101
+  type: 'test'
+  ...
+# Subtest: configuration converter emits a deterministic file aggregate for an empty configuration
+ok 56 - configuration converter emits a deterministic file aggregate for an empty configuration
+  ---
+  duration_ms: 5.345404
+  type: 'test'
+  ...
+# Subtest: splitLines treats a trailing newline as a terminator, not an extra line
+ok 57 - splitLines treats a trailing newline as a terminator, not an extra line
+  ---
+  duration_ms: 1.721202
+  type: 'test'
+  ...
+# Subtest: Identical inputs produce no hunks
+ok 58 - Identical inputs produce no hunks
+  ---
+  duration_ms: 0.614422
+  type: 'test'
+  ...
+# Subtest: A modified line keeps both sides addressable by original line number
+ok 59 - A modified line keeps both sides addressable by original line number
+  ---
+  duration_ms: 0.361535
+  type: 'test'
+  ...
+# Subtest: Pure insertion and pure deletion are not reported as replacements
+ok 60 - Pure insertion and pure deletion are not reported as replacements
+  ---
+  duration_ms: 0.424901
+  type: 'test'
+  ...
+# Subtest: Empty-to-content and content-to-empty are handled as block changes
+ok 61 - Empty-to-content and content-to-empty are handled as block changes
+  ---
+  duration_ms: 0.339297
+  type: 'test'
+  ...
+# Subtest: Context width controls hunk size
+ok 62 - Context width controls hunk size
+  ---
+  duration_ms: 0.286648
+  type: 'test'
+  ...
+# Subtest: Nearby changes merge into a single hunk
+ok 63 - Nearby changes merge into a single hunk
+  ---
+  duration_ms: 1.129351
+  type: 'test'
+  ...
+# Subtest: Distant changes stay in separate hunks
+ok 64 - Distant changes stay in separate hunks
+  ---
+  duration_ms: 0.265357
+  type: 'test'
+  ...
+# Subtest: Oversized inputs fall back to a bounded block replace
+ok 65 - Oversized inputs fall back to a bounded block replace
+  ---
+  duration_ms: 0.69384
+  type: 'test'
+  ...
+# Subtest: Unified output carries a well formed hunk header
+ok 66 - Unified output carries a well formed hunk header
+  ---
+  duration_ms: 0.671622
+  type: 'test'
+  ...
+# Subtest: Side-by-side rows pair deletions with insertions
+ok 67 - Side-by-side rows pair deletions with insertions
+  ---
+  duration_ms: 0.330858
+  type: 'test'
+  ...
+# Subtest: Unbalanced change runs leave one side empty rather than misaligning
+ok 68 - Unbalanced change runs leave one side empty rather than misaligning
+  ---
+  duration_ms: 0.190374
+  type: 'test'
+  ...
+# Subtest: Renderers escape source markup
+ok 69 - Renderers escape source markup
+  ---
+  duration_ms: 1.1167
+  type: 'test'
+  ...
+# Subtest: SVG rendering caps rows and reports the remainder
+ok 70 - SVG rendering caps rows and reports the remainder
+  ---
+  duration_ms: 1.795926
+  type: 'test'
+  ...
+# Subtest: Reality view keys topics by target and records lane presence
+ok 71 - Reality view keys topics by target and records lane presence
+  ---
+  duration_ms: 19.431233
+  type: 'test'
+  ...
+# Subtest: A topic holding declared and observed records is never reported as planned-only
+ok 72 - A topic holding declared and observed records is never reported as planned-only
+  ---
+  duration_ms: 3.630486
+  type: 'test'
+  ...
+# Subtest: Reality coverage stays open when a shared path has unrelated capabilities
+ok 73 - Reality coverage stays open when a shared path has unrelated capabilities
+  ---
+  duration_ms: 1.853836
+  type: 'test'
+  ...
+# Subtest: Shared-path relations do not collapse unrelated files into one topic
+ok 74 - Shared-path relations do not collapse unrelated files into one topic
+  ---
+  duration_ms: 2.975218
+  type: 'test'
+  ...
+# Subtest: Reality view is deterministic for identical input
+ok 75 - Reality view is deterministic for identical input
+  ---
+  duration_ms: 1.986556
+  type: 'test'
+  ...
+# Subtest: Reality SVG escapes topic labels
+ok 76 - Reality SVG escapes topic labels
+  ---
+  duration_ms: 1.434425
+  type: 'test'
+  ...
+# Subtest: graph diff detects changed source identities, additions and SVG-safe labels
+ok 77 - graph diff detects changed source identities, additions and SVG-safe labels
+  ---
+  duration_ms: 17.059667
+  type: 'test'
+  ...
+# Subtest: graph diff is empty for graphs with identical evidence
+ok 78 - graph diff is empty for graphs with identical evidence
+  ---
+  duration_ms: 1.421934
+  type: 'test'
+  ...
+# Subtest: file diff emits deterministic unified, SVG and HTML views
+ok 79 - file diff emits deterministic unified, SVG and HTML views
+  ---
+  duration_ms: 1.832308
+  type: 'test'
+  ...
+# Subtest: intent-vs-reality builds an explainable SVG and Markdown projection
+ok 80 - intent-vs-reality builds an explainable SVG and Markdown projection
+  ---
+  duration_ms: 4.462089
+  type: 'test'
+  ...
+# Subtest: a targetless declaration is filed under the single module it links to
+ok 81 - a targetless declaration is filed under the single module it links to
+  ---
+  duration_ms: 2.746545
+  type: 'test'
+  ...
+# Subtest: a declaration touching several modules keeps its own topic
+ok 82 - a declaration touching several modules keeps its own topic
+  ---
+  duration_ms: 2.561579
+  type: 'test'
+  ...
+# Subtest: semantically aligned configuration topics retain their evidence grade
+ok 83 - semantically aligned configuration topics retain their evidence grade
+  ---
+  duration_ms: 2.587257
+  type: 'test'
+  ...
+# Subtest: A record claiming line 1 is re-anchored to the line carrying its statement
+ok 84 - A record claiming line 1 is re-anchored to the line carrying its statement
+  ---
+  duration_ms: 51.025911
+  type: 'test'
+  ...
+# Subtest: An already correct line is kept and not reported as re-anchored
+ok 85 - An already correct line is kept and not reported as re-anchored
+  ---
+  duration_ms: 7.036979
+  type: 'test'
+  ...
+# Subtest: An empty target is backfilled from the statement text
+ok 86 - An empty target is backfilled from the statement text
+  ---
+  duration_ms: 5.568668
+  type: 'test'
+  ...
+# Subtest: A target supplied by the model is never overwritten
+ok 87 - A target supplied by the model is never overwritten
+  ---
+  duration_ms: 6.514116
+  type: 'test'
+  ...
+# Subtest: An unclassified action and modality are derived from the statement
+ok 88 - An unclassified action and modality are derived from the statement
+  ---
+  duration_ms: 3.8372
+  type: 'test'
+  ...
+# Subtest: A classified action from the model wins over the heuristic
+ok 89 - A classified action from the model wins over the heuristic
+  ---
+  duration_ms: 3.501148
+  type: 'test'
+  ...
+# Subtest: An action that stays unclassifiable is reported as a missing field
+ok 90 - An action that stays unclassifiable is reported as a missing field
+  ---
+  duration_ms: 3.11411
+  type: 'test'
+  ...
+# Subtest: A placeholder object is treated as a gap, not as content
+ok 91 - A placeholder object is treated as a gap, not as content
+  ---
+  duration_ms: 5.066897
+  type: 'test'
+  ...
+# Subtest: Every repair is attributable through epistemic.basis
+ok 92 - Every repair is attributable through epistemic.basis
+  ---
+  duration_ms: 4.50343
+  type: 'test'
+  ...
+# Subtest: deterministic documentation baseline records headings, code blocks and explicit references
+ok 93 - deterministic documentation baseline records headings, code blocks and explicit references
+  ---
+  duration_ms: 19.116796
+  type: 'test'
+  ...
+# Subtest: deterministic documentation preserves Polish prohibition polarity
+ok 94 - deterministic documentation preserves Polish prohibition polarity
+  ---
+  duration_ms: 5.823547
+  type: 'test'
+  ...
+# Subtest: AST cache is incremental by path and source content hash
+ok 95 - AST cache is incremental by path and source content hash
+  ---
+  duration_ms: 32.037932
+  type: 'test'
+  ...
+# Subtest: AST cache rejects corrupt entries and recomputes authoritative records
+ok 96 - AST cache rejects corrupt entries and recomputes authoritative records
+  ---
+  duration_ms: 10.053204
+  type: 'test'
+  ...
+# Subtest: AST cache can be bypassed without changing extraction output
+ok 97 - AST cache can be bypassed without changing extraction output
+  ---
+  duration_ms: 5.477589
+  type: 'test'
+  ...
+# Subtest: successful external AST adapter is skipped on a warm manifest hit
+ok 98 - successful external AST adapter is skipped on a warm manifest hit
+  ---
+  duration_ms: 61.236136
+  type: 'test'
+  ...
+# Subtest: documentation chunks cache independently while provider calls remain live
+ok 99 - documentation chunks cache independently while provider calls remain live
+  ---
+  duration_ms: 49.74158
+  type: 'test'
+  ...
+# Subtest: generated analysis replaces its source root with a stable token
+ok 100 - generated analysis replaces its source root with a stable token
+  ---
+  duration_ms: 55.230582
+  type: 'test'
+  ...
+# Subtest: generated analysis root normalization refuses the filesystem root
+ok 101 - generated analysis root normalization refuses the filesystem root
+  ---
+  duration_ms: 56.49376
+  type: 'test'
+  ...
+# Subtest: generated analysis rejects references to untracked input
+ok 102 - generated analysis rejects references to untracked input
+  ---
+  duration_ms: 79.960895
+  type: 'test'
+  ...
+# Subtest: generated analysis accepts outputs independent of untracked input
+ok 103 - generated analysis accepts outputs independent of untracked input
+  ---
+  duration_ms: 68.70097
+  type: 'test'
+  ...
+# Subtest: generated analysis accepts an untracked filename already quoted by tracked evidence
+ok 104 - generated analysis accepts an untracked filename already quoted by tracked evidence
+  ---
+  duration_ms: 70.261314
+  type: 'test'
+  ...
+# Subtest: generated analysis rejects temporary paths and unavailable validators
+ok 105 - generated analysis rejects temporary paths and unavailable validators
+  ---
+  duration_ms: 60.354863
+  type: 'test'
+  ...
+# Subtest: generated README metadata is synchronized from package.json and stays idempotent
+ok 106 - generated README metadata is synchronized from package.json and stays idempotent
+  ---
+  duration_ms: 78.424858
+  type: 'test'
+  ...
+# Subtest: generated README synchronization fails closed when the template drifts
+ok 107 - generated README synchronization fails closed when the template drifts
+  ---
+  duration_ms: 37.269712
+  type: 'test'
+  ...
+# Subtest: generated README synchronization rejects output outside the project root
+ok 108 - generated README synchronization rejects output outside the project root
+  ---
+  duration_ms: 40.393568
+  type: 'test'
+  ...
+# Subtest: Git extractor emits one record per requested commit
+ok 109 - Git extractor emits one record per requested commit
+  ---
+  duration_ms: 208.991485
+  type: 'test'
+  ...
+# Subtest: An empty repository degrades to a warning instead of failing the run
+ok 110 - An empty repository degrades to a warning instead of failing the run
+  ---
+  duration_ms: 13.055836
+  type: 'test'
+  ...
+# Subtest: versioned gold dataset reports perfect offline quality and repeated-run stability
+ok 111 - versioned gold dataset reports perfect offline quality and repeated-run stability
+  ---
+  duration_ms: 178.434202
+  type: 'test'
+  ...
+# Subtest: gold linking reports exact-target and capability-topic quality separately
+ok 112 - gold linking reports exact-target and capability-topic quality separately
+  ---
+  duration_ms: 77.448091
+  type: 'test'
+  ...
+# Subtest: gold capability-topic support is large enough to detect a floor regression
+ok 113 - gold capability-topic support is large enough to detect a floor regression
+  ---
+  duration_ms: 87.650775
+  type: 'test'
+  ...
+# Subtest: gold known gaps are measured and kept out of precision and recall
+ok 114 - gold known gaps are measured and kept out of precision and recall
+  ---
+  duration_ms: 86.357938
+  type: 'test'
+  ...
+# Subtest: gold reports cross-language positives and hard negatives as a separate cohort
+ok 115 - gold reports cross-language positives and hard negatives as a separate cohort
+  ---
+  duration_ms: 88.263761
+  type: 'test'
+  ...
+# Subtest: gold diagnostics separate a false DONE claim from an evidenced one
+ok 116 - gold diagnostics separate a false DONE claim from an evidenced one
+  ---
+  duration_ms: 115.859524
+  type: 'test'
+  ...
+# Subtest: gold v1 stays evaluable after the v2 contract extension
+ok 117 - gold v1 stays evaluable after the v2 contract extension
+  ---
+  duration_ms: 57.195328
+  type: 'test'
+  ...
+# Subtest: gold loader rejects unsupported dataset versions
+ok 118 - gold loader rejects unsupported dataset versions
+  ---
+  duration_ms: 0.615741
+  type: 'test'
+  ...
+# Subtest: gold evaluator rejects unknown linking cohorts
+ok 119 - gold evaluator rejects unknown linking cohorts
+  ---
+  duration_ms: 2.053517
+  type: 'test'
+  ...
+# Subtest: gold v2 must declare diagnostics coverage
+ok 120 - gold v2 must declare diagnostics coverage
+  ---
+  duration_ms: 2.828194
+  type: 'test'
+  ...
+# Subtest: published gold schema matches the runtime contract
+ok 121 - published gold schema matches the runtime contract
+  ---
+  duration_ms: 4.429943
+  type: 'test'
+  ...
+# Subtest: gold evaluator rejects fixture files outside its temporary workspace
+ok 122 - gold evaluator rejects fixture files outside its temporary workspace
+  ---
+  duration_ms: 16.438552
+  type: 'test'
+  ...
+# Subtest: Linker connects plan, Git claim and AST fact
+ok 123 - Linker connects plan, Git claim and AST fact
+  ---
+  duration_ms: 16.311255
+  type: 'test'
+  ...
+# Subtest: Linker connects prose intent to a module through three grounded capability topics
+ok 124 - Linker connects prose intent to a module through three grounded capability topics
+  ---
+  duration_ms: 1.86707
+  type: 'test'
+  ...
+# Subtest: Linker does not connect a module on one generic topic alone
+ok 125 - Linker does not connect a module on one generic topic alone
+  ---
+  duration_ms: 0.959537
+  type: 'test'
+  ...
+# Subtest: An existing target path does not prove an unrelated capability
+ok 126 - An existing target path does not prove an unrelated capability
+  ---
+  duration_ms: 2.146738
+  type: 'test'
+  ...
+# Subtest: An existing target path plus an AST capability proves implementation
+ok 127 - An existing target path plus an AST capability proves implementation
+  ---
+  duration_ms: 1.393026
+  type: 'test'
+  ...
+# Subtest: Diagnostics distinguish descriptive documentation from prescriptive requirements
+ok 128 - Diagnostics distinguish descriptive documentation from prescriptive requirements
+  ---
+  duration_ms: 1.838234
+  type: 'test'
+  ...
+# Subtest: A changelog entry naming an extracted documentation file has release evidence
+ok 129 - A changelog entry naming an extracted documentation file has release evidence
+  ---
+  duration_ms: 1.289025
+  type: 'test'
+  ...
+# Subtest: Diagnostics ignore non-actionable changelog mechanics but retain release claims
+ok 130 - Diagnostics ignore non-actionable changelog mechanics but retain release claims
+  ---
+  duration_ms: 4.907215
+  type: 'test'
+  ...
+# Subtest: Grounded conclusion and TODO proposal contracts accept traceable values
+ok 131 - Grounded conclusion and TODO proposal contracts accept traceable values
+  ---
+  duration_ms: 7.362316
+  type: 'test'
+  ...
+# Subtest: Stable IDs ignore ordering noise but change with semantic content
+ok 132 - Stable IDs ignore ordering noise but change with semantic content
+  ---
+  duration_ms: 0.776994
+  type: 'test'
+  ...
+# Subtest: Validators reject ungrounded citations and stale semantic IDs
+ok 133 - Validators reject ungrounded citations and stale semantic IDs
+  ---
+  duration_ms: 2.605247
+  type: 'test'
+  ...
+# Subtest: Generation metadata exposes LLM failures instead of silently masking them
+ok 134 - Generation metadata exposes LLM failures instead of silently masking them
+  ---
+  duration_ms: 1.242535
+  type: 'test'
+  ...
+# Subtest: TODO proposal collections enforce dependency integrity
+ok 135 - TODO proposal collections enforce dependency integrity
+  ---
+  duration_ms: 1.25968
+  type: 'test'
+  ...
+# Subtest: Published JSON schemas identify all grounded output contract versions
+ok 136 - Published JSON schemas identify all grounded output contract versions
+  ---
+  duration_ms: 7.932424
+  type: 'test'
+  ...
+# Subtest: Blank lines and comments produce no rules
+ok 137 - Blank lines and comments produce no rules
+  ---
+  duration_ms: 1.470632
+  type: 'test'
+  ...
+# Subtest: A pattern without a slash matches at any depth
+ok 138 - A pattern without a slash matches at any depth
+  ---
+  duration_ms: 0.498243
+  type: 'test'
+  ...
+# Subtest: A leading slash anchors the pattern to the root
+ok 139 - A leading slash anchors the pattern to the root
+  ---
+  duration_ms: 0.189613
+  type: 'test'
+  ...
+# Subtest: A trailing slash restricts the rule to directories
+ok 140 - A trailing slash restricts the rule to directories
+  ---
+  duration_ms: 0.183035
+  type: 'test'
+  ...
+# Subtest: Wildcards respect path separators
+ok 141 - Wildcards respect path separators
+  ---
+  duration_ms: 0.488332
+  type: 'test'
+  ...
+# Subtest: Every dot-directory is excluded by `.*/`
+ok 142 - Every dot-directory is excluded by `.*/`
+  ---
+  duration_ms: 0.249175
+  type: 'test'
+  ...
+# Subtest: Negation re-includes a previously excluded path
+ok 143 - Negation re-includes a previously excluded path
+  ---
+  duration_ms: 0.310822
+  type: 'test'
+  ...
+# Subtest: Negation cannot resurrect a file inside an excluded directory
+ok 144 - Negation cannot resurrect a file inside an excluded directory
+  ---
+  duration_ms: 0.193751
+  type: 'test'
+  ...
+# Subtest: Last matching rule wins
+ok 145 - Last matching rule wins
+  ---
+  duration_ms: 0.428899
+  type: 'test'
+  ...
+# Subtest: Character classes are supported
+ok 146 - Character classes are supported
+  ---
+  duration_ms: 0.517494
+  type: 'test'
+  ...
+# Subtest: Paths are normalised before matching
+ok 147 - Paths are normalised before matching
+  ---
+  duration_ms: 0.305464
+  type: 'test'
+  ...
+# Subtest: loadIgnoreMatcher merges the three ignore files and skips missing ones
+ok 148 - loadIgnoreMatcher merges the three ignore files and skips missing ones
+  ---
+  duration_ms: 15.360004
+  type: 'test'
+  ...
+# Subtest: A repository without ignore files excludes nothing
+ok 149 - A repository without ignore files excludes nothing
+  ---
+  duration_ms: 1.118205
+  type: 'test'
+  ...
+# Subtest: The shipped .intentignore excludes build output but keeps sources
+ok 150 - The shipped .intentignore excludes build output but keeps sources
+  ---
+  duration_ms: 2.221497
+  type: 'test'
+  ...
+# Subtest: resolveGlobs permits one explicit .intent report without recursively scanning generated runs
+ok 151 - resolveGlobs permits one explicit .intent report without recursively scanning generated runs
+  ---
+  duration_ms: 9.340646
+  type: 'test'
+  ...
+# Subtest: Two unrelated AST facts sharing only a file are not linked
+ok 152 - Two unrelated AST facts sharing only a file are not linked
+  ---
+  duration_ms: 13.063091
+  type: 'test'
+  ...
+# Subtest: AST facts sharing a symbol are still linked despite the path rule
+ok 153 - AST facts sharing a symbol are still linked despite the path rule
+  ---
+  duration_ms: 1.869002
+  type: 'test'
+  ...
+# Subtest: AST details sharing only a file and generic tokens do not create a quadratic subgraph
+ok 154 - AST details sharing only a file and generic tokens do not create a quadratic subgraph
+  ---
+  duration_ms: 3.748139
+  type: 'test'
+  ...
+# Subtest: A file-level plan links once to the AST module aggregate instead of every detail
+ok 155 - A file-level plan links once to the AST module aggregate instead of every detail
+  ---
+  duration_ms: 5.105415
+  type: 'test'
+  ...
+# Subtest: A shared path still links a plan to an AST fact
+ok 156 - A shared path still links a plan to an AST fact
+  ---
+  duration_ms: 0.871933
+  type: 'test'
+  ...
+# Subtest: A bare filename links to a module only when its repository path is unique
+ok 157 - A bare filename links to a module only when its repository path is unique
+  ---
+  duration_ms: 1.030049
+  type: 'test'
+  ...
+# Subtest: A bare filename refuses ambiguous module paths
+ok 158 - A bare filename refuses ambiguous module paths
+  ---
+  duration_ms: 0.676256
+  type: 'test'
+  ...
+# Subtest: Relations that carry a conclusion survive alongside suppressed noise
+ok 159 - Relations that carry a conclusion survive alongside suppressed noise
+  ---
+  duration_ms: 2.142349
+  type: 'test'
+  ...
+# Subtest: Pair ordering stays deterministic across rebuilds
+ok 160 - Pair ordering stays deterministic across rebuilds
+  ---
+  duration_ms: 2.95758
+  type: 'test'
+  ...
+# Subtest: Two configuration declarations sharing only a key name are not linked
+ok 161 - Two configuration declarations sharing only a key name are not linked
+  ---
+  duration_ms: 0.957038
+  type: 'test'
+  ...
+# Subtest: A shared ticket still connects two configuration declarations
+ok 162 - A shared ticket still connects two configuration declarations
+  ---
+  duration_ms: 0.521796
+  type: 'test'
+  ...
+# Subtest: Configuration still links to documentation that describes it
+ok 163 - Configuration still links to documentation that describes it
+  ---
+  duration_ms: 0.705998
+  type: 'test'
+  ...
+# Subtest: Configuration file aggregate is the file-level target for an explicit documentation path
+ok 164 - Configuration file aggregate is the file-level target for an explicit documentation path
+  ---
+  duration_ms: 0.566322
+  type: 'test'
+  ...
+# Subtest: Configuration aggregates do not create broad capability-topic links
+ok 165 - Configuration aggregates do not create broad capability-topic links
+  ---
+  duration_ms: 0.336685
+  type: 'test'
+  ...
+# Subtest: a full six-stage live run passes and reports every stage
+ok 166 - a full six-stage live run passes and reports every stage
+  ---
+  duration_ms: 3.400207
+  type: 'test'
+  ...
+# Subtest: a stage that silently fell back to deterministic fails the check
+ok 167 - a stage that silently fell back to deterministic fails the check
+  ---
+  duration_ms: 0.480476
+  type: 'test'
+  ...
+# Subtest: a missing stage cannot pass as covered
+ok 168 - a missing stage cannot pass as covered
+  ---
+  duration_ms: 0.266115
+  type: 'test'
+  ...
+# Subtest: per-stage and total budgets are enforced separately
+ok 169 - per-stage and total budgets are enforced separately
+  ---
+  duration_ms: 0.478901
+  type: 'test'
+  ...
+# Subtest: live request timeout reaches the stage budget without shortening a larger override
+ok 170 - live request timeout reaches the stage budget without shortening a larger override
+  ---
+  duration_ms: 0.161498
+  type: 'test'
+  ...
+# Subtest: a stage reason is recorded with provider text redacted
+ok 171 - a stage reason is recorded with provider text redacted
+  ---
+  duration_ms: 0.687637
+  type: 'test'
+  ...
+# Subtest: history records the trend without gating on it
+ok 172 - history records the trend without gating on it
+  ---
+  duration_ms: 0.466782
+  type: 'test'
+  ...
+# Subtest: recorded audit history includes the current run exactly once
+ok 173 - recorded audit history includes the current run exactly once
+  ---
+  duration_ms: 0.68664
+  type: 'test'
+  ...
+# Subtest: history stays chronological, bounded and free of duplicate runs
+ok 174 - history stays chronological, bounded and free of duplicate runs
+  ---
+  duration_ms: 10.591798
+  type: 'test'
+  ...
+# Subtest: an audit converts to exactly the redacted fields history keeps
+ok 175 - an audit converts to exactly the redacted fields history keeps
+  ---
+  duration_ms: 1.312886
+  type: 'test'
+  ...
+# Subtest: an empty history summarizes without pretending to have measured anything
+ok 176 - an empty history summarizes without pretending to have measured anything
+  ---
+  duration_ms: 0.233883
+  type: 'test'
+  ...
+# Subtest: a batched run is measured per record, not per request
+ok 177 - a batched run is measured per record, not per request
+  ---
+  duration_ms: 4.266202
+  type: 'test'
+  ...
+# Subtest: a model whose response the validator rejected is not counted as enriched
+ok 178 - a model whose response the validator rejected is not counted as enriched
+  ---
+  duration_ms: 0.320007
+  type: 'test'
+  ...
+# Subtest: a failed model is a comparison result rather than a crash
+ok 179 - a failed model is a comparison result rather than a crash
+  ---
+  duration_ms: 1.113558
+  type: 'test'
+  ...
+# Subtest: agreement compares only records both models enriched
+ok 180 - agreement compares only records both models enriched
+  ---
+  duration_ms: 0.342102
+  type: 'test'
+  ...
+# Subtest: agreement is absent rather than perfect when nothing overlaps
+ok 181 - agreement is absent rather than perfect when nothing overlaps
+  ---
+  duration_ms: 0.570713
+  type: 'test'
+  ...
+# Subtest: the rendered comparison names the cheapest and fastest passing model
+ok 182 - the rendered comparison names the cheapest and fastest passing model
+  ---
+  duration_ms: 0.293888
+  type: 'test'
+  ...
+# Subtest: Markdown extractor separates TODO plans and changelog claims
+ok 183 - Markdown extractor separates TODO plans and changelog claims
+  ---
+  duration_ms: 19.681114
+  type: 'test'
+  ...
+# Subtest: Markdown extractor preserves indented continuation lines and their source range
+ok 184 - Markdown extractor preserves indented continuation lines and their source range
+  ---
+  duration_ms: 4.638224
+  type: 'test'
+  ...
+# Subtest: TODO bare filenames inherit an existing directory from the heading scope
+ok 185 - TODO bare filenames inherit an existing directory from the heading scope
+  ---
+  duration_ms: 3.269558
+  type: 'test'
+  ...
+# Subtest: TODO resolves a bare filename only when its repository basename is unique
+ok 186 - TODO resolves a bare filename only when its repository basename is unique
+  ---
+  duration_ms: 3.480799
+  type: 'test'
+  ...
+# Subtest: TODO and CHANGELOG resolve the same bare filename to one repository path
+ok 187 - TODO and CHANGELOG resolve the same bare filename to one repository path
+  ---
+  duration_ms: 5.255302
+  type: 'test'
+  ...
+# Subtest: CHANGELOG keeps an ambiguous bare filename unresolved
+ok 188 - CHANGELOG keeps an ambiguous bare filename unresolved
+  ---
+  duration_ms: 2.541252
+  type: 'test'
+  ...
+# Subtest: Markdown path resolution drops paths and heading scopes outside the repository
+ok 189 - Markdown path resolution drops paths and heading scopes outside the repository
+  ---
+  duration_ms: 1.485173
+  type: 'test'
+  ...
+# Subtest: TODO and CHANGELOG receive audited LLM enrichment without changing structural facts
+ok 190 - TODO and CHANGELOG receive audited LLM enrichment without changing structural facts
+  ---
+  duration_ms: 29.826445
+  type: 'test'
+  ...
+# Subtest: Markdown enrichment corrects one rejected response and audits both attempts
+ok 191 - Markdown enrichment corrects one rejected response and audits both attempts
+  ---
+  duration_ms: 4.841234
+  type: 'test'
+  ...
+# Subtest: large Markdown enrichment uses bounded concurrency and keeps provider audits ordered
+ok 192 - large Markdown enrichment uses bounded concurrency and keeps provider audits ordered
+  ---
+  duration_ms: 59.491613
+  type: 'test'
+  ...
+# Subtest: TODO and CHANGELOG LLM fallback and require mode are explicit
+ok 193 - TODO and CHANGELOG LLM fallback and require mode are explicit
+  ---
+  duration_ms: 5.765547
+  type: 'test'
+  ...
+# Subtest: TODO and CHANGELOG reject structurally invalid LLM enrichments
+ok 194 - TODO and CHANGELOG reject structurally invalid LLM enrichments
+  ---
+  duration_ms: 4.748193
+  type: 'test'
+  ...
+# Subtest: a truncated batch is split and every record keeps its own response provenance
+ok 195 - a truncated batch is split and every record keeps its own response provenance
+  ---
+  duration_ms: 5.712745
+  type: 'test'
+  ...
+# Subtest: a malformed batch response splits instead of failing the whole stage
+ok 196 - a malformed batch response splits instead of failing the whole stage
+  ---
+  duration_ms: 4.76502
+  type: 'test'
+  ...
+# Subtest: MCP 2026 profile is stateless and exposes discovery plus complete results
+ok 197 - MCP 2026 profile is stateless and exposes discovery plus complete results
+  ---
+  duration_ms: 1.863859
+  type: 'test'
+  ...
+# Subtest: MCP 2026 rejects missing metadata and unsupported versions with protocol errors
+ok 198 - MCP 2026 rejects missing metadata and unsupported versions with protocol errors
+  ---
+  duration_ms: 0.668179
+  type: 'test'
+  ...
+# Subtest: MCP legacy profile negotiates 2025-11-25 and requires initialize
+ok 199 - MCP legacy profile negotiates 2025-11-25 and requires initialize
+  ---
+  duration_ms: 0.392681
+  type: 'test'
+  ...
+# Subtest: An LLM record is marked as inference and keeps runtime-owned provenance
+ok 200 - An LLM record is marked as inference and keeps runtime-owned provenance
+  ---
+  duration_ms: 51.091491
+  type: 'test'
+  ...
+# Subtest: NL extraction corrects one rejected structured response and audits both attempts
+ok 201 - NL extraction corrects one rejected structured response and audits both attempts
+  ---
+  duration_ms: 8.587963
+  type: 'test'
+  ...
+# Subtest: Confidence must satisfy the provider schema instead of being silently clamped
+ok 202 - Confidence must satisfy the provider schema instead of being silently clamped
+  ---
+  duration_ms: 16.121062
+  type: 'test'
+  ...
+# Subtest: Source lines are clamped to the real file
+ok 203 - Source lines are clamped to the real file
+  ---
+  duration_ms: 6.09681
+  type: 'test'
+  ...
+# Subtest: A placeholder object is recorded as a missing field, not as content
+ok 204 - A placeholder object is recorded as a missing field, not as content
+  ---
+  duration_ms: 31.306295
+  type: 'test'
+  ...
+# Subtest: A real object is kept verbatim and reports no missing field
+ok 205 - A real object is kept verbatim and reports no missing field
+  ---
+  duration_ms: 7.577851
+  type: 'test'
+  ...
+# Subtest: The explicit unknown action is reported as a missing field
+ok 206 - The explicit unknown action is reported as a missing field
+  ---
+  duration_ms: 6.952579
+  type: 'test'
+  ...
+# Subtest: Both gaps are reported together
+ok 207 - Both gaps are reported together
+  ---
+  duration_ms: 2.763589
+  type: 'test'
+  ...
+# Subtest: Out-of-vocabulary enums are rejected instead of changing the provider intent
+ok 208 - Out-of-vocabulary enums are rejected instead of changing the provider intent
+  ---
+  duration_ms: 16.185404
+  type: 'test'
+  ...
+# Subtest: Rejected NL output keeps provider metadata in the failed audit
+ok 209 - Rejected NL output keeps provider metadata in the failed audit
+  ---
+  duration_ms: 8.156053
+  type: 'test'
+  ...
+# Subtest: The documented confidence hierarchy holds across LLM extractors
+ok 210 - The documented confidence hierarchy holds across LLM extractors
+  ---
+  duration_ms: 7.207435
+  type: 'test'
+  ...
+# Subtest: NL extractor produces deterministic non-LLM records
+ok 211 - NL extractor produces deterministic non-LLM records
+  ---
+  duration_ms: 10.390925
+  type: 'test'
+  ...
+# Subtest: NL public extraction boundary names a missing sourcePath before path resolution
+ok 212 - NL public extraction boundary names a missing sourcePath before path resolution
+  ---
+  duration_ms: 0.807538
+  type: 'test'
+  ...
+# Subtest: deterministic NL fallback skips Markdown headings and recognizes comparison intent
+ok 213 - deterministic NL fallback skips Markdown headings and recognizes comparison intent
+  ---
+  duration_ms: 2.695106
+  type: 'test'
+  ...
+# Subtest: path extraction rejects lowercase prose alternations without losing repository paths
+ok 214 - path extraction rejects lowercase prose alternations without losing repository paths
+  ---
+  duration_ms: 0.860091
+  type: 'test'
+  ...
+# Subtest: path extraction rejects dotted DSL fields but keeps known file extensions
+ok 215 - path extraction rejects dotted DSL fields but keeps known file extensions
+  ---
+  duration_ms: 0.221942
+  type: 'test'
+  ...
+# Subtest: detectModality ignores parenthetical labels and bare adjectives
+ok 216 - detectModality ignores parenthetical labels and bare adjectives
+  ---
+  duration_ms: 0.371034
+  type: 'test'
+  ...
+# Subtest: detectModality reads prohibitions and periphrastic obligation as requirements
+ok 217 - detectModality reads prohibitions and periphrastic obligation as requirements
+  ---
+  duration_ms: 0.824303
+  type: 'test'
+  ...
+# Subtest: detectPolarity does not treat without-complements as sentence negation
+ok 218 - detectPolarity does not treat without-complements as sentence negation
+  ---
+  duration_ms: 0.17564
+  type: 'test'
+  ...
+# Subtest: path extraction rejects HTTP routes, host paths and parent traversal
+ok 219 - path extraction rejects HTTP routes, host paths and parent traversal
+  ---
+  duration_ms: 0.371191
+  type: 'test'
+  ...
+# Subtest: symbol extraction rejects hostnames without losing qualified code symbols
+ok 220 - symbol extraction rejects hostnames without losing qualified code symbols
+  ---
+  duration_ms: 0.717701
+  type: 'test'
+  ...
+# Subtest: symbol extraction separates repository files and all-caps prose from code identifiers
+ok 221 - symbol extraction separates repository files and all-caps prose from code identifiers
+  ---
+  duration_ms: 0.531449
+  type: 'test'
+  ...
+# Subtest: topic keywords normalize paths, camelCase and documentation word forms
+ok 222 - topic keywords normalize paths, camelCase and documentation word forms
+  ---
+  duration_ms: 0.557194
+  type: 'test'
+  ...
+# Subtest: NL LLM extraction emits audited provenance and bounded DSL records
+ok 223 - NL LLM extraction emits audited provenance and bounded DSL records
+  ---
+  duration_ms: 55.760113
+  type: 'test'
+  ...
+# Subtest: NL LLM failure is explicit when deterministic fallback is used
+ok 224 - NL LLM failure is explicit when deterministic fallback is used
+  ---
+  duration_ms: 4.75006
+  type: 'test'
+  ...
+# Subtest: require-llm rejects instead of silently falling back
+ok 225 - require-llm rejects instead of silently falling back
+  ---
+  duration_ms: 0.401417
+  type: 'test'
+  ...
+# Subtest: OpenRouter client parses structured JSON without exposing key
+ok 226 - OpenRouter client parses structured JSON without exposing key
+  ---
+  duration_ms: 31.088675
+  type: 'test'
+  ...
+# Subtest: OpenRouter client preserves metadata when runtime rejects structured output
+ok 227 - OpenRouter client preserves metadata when runtime rejects structured output
+  ---
+  duration_ms: 4.977532
+  type: 'test'
+  ...
+# Subtest: OpenRouter client lists available models after an invalid model ID
+ok 228 - OpenRouter client lists available models after an invalid model ID
+  ---
+  duration_ms: 17.693243
+  type: 'test'
+  ...
+# Subtest: OpenRouter JSON timeout is not repeated as a schema fallback request
+ok 229 - OpenRouter JSON timeout is not repeated as a schema fallback request
+  ---
+  duration_ms: 0.77187
+  type: 'test'
+  ...
+# Subtest: OpenRouter request obeys a shared pipeline deadline without retrying
+ok 230 - OpenRouter request obeys a shared pipeline deadline without retrying
+  ---
+  duration_ms: 0.999307
+  type: 'test'
+  ...
+# Subtest: Documentation extractor converts OpenRouter structured output to bounded LLM records
+ok 231 - Documentation extractor converts OpenRouter structured output to bounded LLM records
+  ---
+  duration_ms: 29.455286
+  type: 'test'
+  ...
+# Subtest: Documentation extractor reports and enforces its chunk budget
+ok 232 - Documentation extractor reports and enforces its chunk budget
+  ---
+  duration_ms: 10.600139
+  type: 'test'
+  ...
+# Subtest: Documentation extractor corrects one rejected chunk and audits both responses
+ok 233 - Documentation extractor corrects one rejected chunk and audits both responses
+  ---
+  duration_ms: 5.462681
+  type: 'test'
+  ...
+# Subtest: Documentation extractor does not spend its correction retry on a timeout
+ok 234 - Documentation extractor does not spend its correction retry on a timeout
+  ---
+  duration_ms: 4.769507
+  type: 'test'
+  ...
+# Subtest: Documentation extractor exposes an audited configuration failure
+ok 235 - Documentation extractor exposes an audited configuration failure
+  ---
+  duration_ms: 1.008426
+  type: 'test'
+  ...
+# Subtest: Documentation extractor uses bounded concurrent OpenRouter requests
+ok 236 - Documentation extractor uses bounded concurrent OpenRouter requests
+  ---
+  duration_ms: 43.640863
+  type: 'test'
+  ...
+# Subtest: LLM summarizer receives graph data and preserves grounded record citations
+ok 237 - LLM summarizer receives graph data and preserves grounded record citations
+  ---
+  duration_ms: 9.249042
+  type: 'test'
+  ...
+# Subtest: LLM summarizer validates provider fields before creating semantic IDs
+ok 238 - LLM summarizer validates provider fields before creating semantic IDs
+  ---
+  duration_ms: 8.000478
+  type: 'test'
+  ...
+# Subtest: LLM summarizer diagnoses a provider that ignores the response envelope
+ok 239 - LLM summarizer diagnoses a provider that ignores the response envelope
+  ---
+  duration_ms: 4.953126
+  type: 'test'
+  ...
+# Subtest: LLM summarizer rejects diagnostic citations outside the supplied graph
+ok 240 - LLM summarizer rejects diagnostic citations outside the supplied graph
+  ---
+  duration_ms: 6.537866
+  type: 'test'
+  ...
+# Subtest: LLM summarizer prioritizes documentation over the AST payload budget
+ok 241 - LLM summarizer prioritizes documentation over the AST payload budget
+  ---
+  duration_ms: 212.231366
+  type: 'test'
+  ...
+# Subtest: deterministic summary presents AST module aggregates instead of low-level calls
+ok 242 - deterministic summary presents AST module aggregates instead of low-level calls
+  ---
+  duration_ms: 3.568471
+  type: 'test'
+  ...
+# Subtest: The summarizer grounds a fabricated record citation from its diagnostic
+ok 243 - The summarizer grounds a fabricated record citation from its diagnostic
+  ---
+  duration_ms: 3.322774
+  type: 'test'
+  ...
+# Subtest: The summarizer still fails when the retry fabricates a diagnostic again
+ok 244 - The summarizer still fails when the retry fabricates a diagnostic again
+  ---
+  duration_ms: 4.212772
+  type: 'test'
+  ...
+# Subtest: variable contracts and operation plans have deterministic content-bound IDs
+ok 245 - variable contracts and operation plans have deterministic content-bound IDs
+  ---
+  duration_ms: 8.536635
+  type: 'test'
+  ...
+# Subtest: every variable grants Founder read/write authority and immutable variables reject other writers
+ok 246 - every variable grants Founder read/write authority and immutable variables reject other writers
+  ---
+  duration_ms: 1.166723
+  type: 'test'
+  ...
+# Subtest: plans reject undeclared parameters, actor visibility gaps and payload secrets
+ok 247 - plans reject undeclared parameters, actor visibility gaps and payload secrets
+  ---
+  duration_ms: 1.95067
+  type: 'test'
+  ...
+# Subtest: safety-sensitive commands require a Founder decision, a human boundary and verification
+ok 248 - safety-sensitive commands require a Founder decision, a human boundary and verification
+  ---
+  duration_ms: 1.434
+  type: 'test'
+  ...
+# Subtest: plan hash detects semantic tampering
+ok 249 - plan hash detects semantic tampering
+  ---
+  duration_ms: 1.926311
+  type: 'test'
+  ...
+# Subtest: compiler emits the exact governed envelope without an execution surface
+ok 250 - compiler emits the exact governed envelope without an execution surface
+  ---
+  duration_ms: 1.668421
+  type: 'test'
+  ...
+# Subtest: runtime draft boundaries ignore lifecycle and identity fields injected by untyped callers
+ok 251 - runtime draft boundaries ignore lifecycle and identity fields injected by untyped callers
+  ---
+  duration_ms: 0.831727
+  type: 'test'
+  ...
+# Subtest: compiler fails closed on extra, stale, wrong-source and wrong-type bindings
+ok 252 - compiler fails closed on extra, stale, wrong-source and wrong-type bindings
+  ---
+  duration_ms: 1.831983
+  type: 'test'
+  ...
+# Subtest: file boundary writes one private envelope atomically and refuses overwrite
+ok 253 - file boundary writes one private envelope atomically and refuses overwrite
+  ---
+  duration_ms: 20.535351
+  type: 'test'
+  ...
+# Subtest: Offline pipeline writes a complete run
+ok 254 - Offline pipeline writes a complete run
+  ---
+  duration_ms: 246.331443
+  type: 'test'
+  ...
+# Subtest: Pipeline persists synthesis, validation and review patch, then registers approval receipt
+ok 255 - Pipeline persists synthesis, validation and review patch, then registers approval receipt
+  ---
+  duration_ms: 67.202194
+  type: 'test'
+  ...
+# Subtest: Pipeline integrates multi-participant communication into graph, diagnostics, reality and run artifacts
+ok 256 - Pipeline integrates multi-participant communication into graph, diagnostics, reality and run artifacts
+  ---
+  duration_ms: 59.453988
+  type: 'test'
+  ...
+# Subtest: Pipeline require-llm task synthesis failure is audited and never publishes latest
+ok 257 - Pipeline require-llm task synthesis failure is audited and never publishes latest
+  ---
+  duration_ms: 16.283976
+  type: 'test'
+  ...
+# Subtest: Pipeline persists an audited failure when communication require-llm cannot run
+ok 258 - Pipeline persists an audited failure when communication require-llm cannot run
+  ---
+  duration_ms: 20.47493
+  type: 'test'
+  ...
+# Subtest: Pipeline persists communication stage failure and does not publish latest
+ok 259 - Pipeline persists communication stage failure and does not publish latest
+  ---
+  duration_ms: 14.665912
+  type: 'test'
+  ...
+# Subtest: Pipeline persists a failed manifest when NL require-llm aborts
+ok 260 - Pipeline persists a failed manifest when NL require-llm aborts
+  ---
+  duration_ms: 10.440662
+  type: 'test'
+  ...
+# Subtest: Pipeline persists a failed manifest when Markdown require-llm aborts
+ok 261 - Pipeline persists a failed manifest when Markdown require-llm aborts
+  ---
+  duration_ms: 17.297888
+  type: 'test'
+  ...
+# Subtest: Pipeline persists a failed manifest for an unexpected summary failure
+ok 262 - Pipeline persists a failed manifest for an unexpected summary failure
+  ---
+  duration_ms: 17.350083
+  type: 'test'
+  ...
+# Subtest: Proposal validation reports existing TODO duplicates and orders dependencies before priority
+ok 263 - Proposal validation reports existing TODO duplicates and orders dependencies before priority
+  ---
+  duration_ms: 26.224678
+  type: 'test'
+  ...
+# Subtest: Proposal validation rejects dependency cycles and whitespace-only criterion duplicates
+ok 264 - Proposal validation rejects dependency cycles and whitespace-only criterion duplicates
+  ---
+  duration_ms: 3.465658
+  type: 'test'
+  ...
+# Subtest: Python package executes the local TypeScript reality runtime without a server
+ok 265 - Python package executes the local TypeScript reality runtime without a server
+  ---
+  duration_ms: 2253.194748
+  type: 'test'
+  ...
+# Subtest: Runtime validator enforces the complete Intent DSL enum and object contract
+ok 266 - Runtime validator enforces the complete Intent DSL enum and object contract
+  ---
+  duration_ms: 8.202176
+  type: 'test'
+  ...
+# Subtest: Linker and remote action boundary reject malformed records before graph construction
+ok 267 - Linker and remote action boundary reject malformed records before graph construction
+  ---
+  duration_ms: 24.226056
+  type: 'test'
+  ...
+# Subtest: Graph validator rejects invalid relations and inconsistent statistics
+ok 268 - Graph validator rejects invalid relations and inconsistent statistics
+  ---
+  duration_ms: 5.197137
+  type: 'test'
+  ...
+# [t2c:a2a] listening on 127.0.0.1:33391
+# Subtest: diff UI and TypeScript/Python SDKs use the live backend runtime
+ok 269 - diff UI and TypeScript/Python SDKs use the live backend runtime
+  ---
+  duration_ms: 261.606224
+  type: 'test'
+  ...
+# Subtest: MCP/A2A action boundary rejects traversal and symlink escapes
+ok 270 - MCP/A2A action boundary rejects traversal and symlink escapes
+  ---
+  duration_ms: 34.084228
+  type: 'test'
+  ...
+# Subtest: bounded retrieval cannot create a relation until a grounded reranker accepts it
+ok 271 - bounded retrieval cannot create a relation until a grounded reranker accepts it
+  ---
+  duration_ms: 23.585772
+  type: 'test'
+  ...
+# Subtest: reranker fails closed on ungrounded quotes and more than one accepted module
+ok 272 - reranker fails closed on ungrounded quotes and more than one accepted module
+  ---
+  duration_ms: 7.570661
+  type: 'test'
+  ...
+# Subtest: OpenRouter reranking is required, structured and reusable only through an identity-bound cache
+ok 273 - OpenRouter reranking is required, structured and reusable only through an identity-bound cache
+  ---
+  duration_ms: 91.892511
+  type: 'test'
+  ...
+# Subtest: published semantic reranker schemas expose the versioned bounded contracts
+ok 274 - published semantic reranker schemas expose the versioned bounded contracts
+  ---
+  duration_ms: 2.010945
+  type: 'test'
+  ...
+# Subtest: provider response validation diagnoses the exact property without coercion
+ok 275 - provider response validation diagnoses the exact property without coercion
+  ---
+  duration_ms: 0.661055
+  type: 'test'
+  ...
+# Subtest: one structured contract emits the provider schema and parses the same value
+ok 276 - one structured contract emits the provider schema and parses the same value
+  ---
+  duration_ms: 2.255355
+  type: 'test'
+  ...
+# Subtest: structured parsing fails closed with the exact response path
+ok 277 - structured parsing fails closed with the exact response path
+  ---
+  duration_ms: 0.867795
+  type: 'test'
+  ...
+# Subtest: object uniqueness uses canonical JSON identity rather than property order
+ok 278 - object uniqueness uses canonical JSON identity rather than property order
+  ---
+  duration_ms: 0.371224
+  type: 'test'
+  ...
+# Subtest: a short NL symbol resolves to its only AST owner
+ok 279 - a short NL symbol resolves to its only AST owner
+  ---
+  duration_ms: 15.377856
+  type: 'test'
+  ...
+# Subtest: an ambiguous short NL symbol does not pretend that either AST owner is selected
+ok 280 - an ambiguous short NL symbol does not pretend that either AST owner is selected
+  ---
+  duration_ms: 4.471802
+  type: 'test'
+  ...
+# Subtest: an explicit path selects one owner of an otherwise ambiguous symbol
+ok 281 - an explicit path selects one owner of an otherwise ambiguous symbol
+  ---
+  duration_ms: 1.499082
+  type: 'test'
+  ...
+# Subtest: a qualified symbol selects its exact AST declaration without a path
+ok 282 - a qualified symbol selects its exact AST declaration without a path
+  ---
+  duration_ms: 1.084444
+  type: 'test'
+  ...
+# Subtest: a symbol and explicit path conflict reports the observed AST location
+ok 283 - a symbol and explicit path conflict reports the observed AST location
+  ---
+  duration_ms: 0.996764
+  type: 'test'
+  ...
+# Subtest: missingFields diagnostics prescribe a concrete edit for every known gap
+ok 284 - missingFields diagnostics prescribe a concrete edit for every known gap
+  ---
+  duration_ms: 0.72931
+  type: 'test'
+  ...
+# Subtest: Target normalization canonicalizes paths, symbols and cross-language separators
+ok 285 - Target normalization canonicalizes paths, symbols and cross-language separators
+  ---
+  duration_ms: 2.888074
+  type: 'test'
+  ...
+# Subtest: Qualified AST symbols align with short plan and documentation targets
+ok 286 - Qualified AST symbols align with short plan and documentation targets
+  ---
+  duration_ms: 26.630405
+  type: 'test'
+  ...
+# Subtest: Structured task synthesis materializes stable, grounded contracts with a complete audit
+ok 287 - Structured task synthesis materializes stable, grounded contracts with a complete audit
+  ---
+  duration_ms: 65.587885
+  type: 'test'
+  ...
+# Subtest: blank response-local proposal keys are rejected instead of invented by the runtime
+ok 288 - blank response-local proposal keys are rejected instead of invented by the runtime
+  ---
+  duration_ms: 9.129888
+  type: 'test'
+  ...
+# Subtest: prefer-llm exposes raw diagnostic actions without claiming semantic task generation
+ok 289 - prefer-llm exposes raw diagnostic actions without claiming semantic task generation
+  ---
+  duration_ms: 1.883861
+  type: 'test'
+  ...
+# Subtest: communication divergence is grounded in task synthesis without treating agent claims as facts
+ok 290 - communication divergence is grounded in task synthesis without treating agent claims as facts
+  ---
+  duration_ms: 9.879268
+  type: 'test'
+  ...
+# Subtest: require-llm fails explicitly when task synthesis cannot call the provider
+ok 291 - require-llm fails explicitly when task synthesis cannot call the provider
+  ---
+  duration_ms: 1.012865
+  type: 'test'
+  ...
+# Subtest: invalid structured LLM citations are rejected or visibly degraded according to mode
+ok 292 - invalid structured LLM citations are rejected or visibly degraded according to mode
+  ---
+  duration_ms: 10.101037
+  type: 'test'
+  ...
+# Subtest: task synthesis timeout is audited and never retried as a format fallback
+ok 293 - task synthesis timeout is audited and never retried as a format fallback
+  ---
+  duration_ms: 16.120688
+  type: 'test'
+  ...
+# Subtest: A fabricated record citation is grounded from its cited diagnostic without a retry
+ok 294 - A fabricated record citation is grounded from its cited diagnostic without a retry
+  ---
+  duration_ms: 5.084101
+  type: 'test'
+  ...
+# Subtest: A fabricated diagnostic still fails after the corrective retry
+ok 295 - A fabricated diagnostic still fails after the corrective retry
+  ---
+  duration_ms: 4.725713
+  type: 'test'
+  ...
+# Subtest: TensorFlow remains an explicit fallback when the isolated adapter is not installed
+ok 296 - TensorFlow remains an explicit fallback when the isolated adapter is not installed
+  ---
+  duration_ms: 6.864405
+  type: 'test'
+  ...
+# Subtest: TODO patch rendering is stable, dependency-first and excludes classified duplicates
+ok 297 - TODO patch rendering is stable, dependency-first and excludes classified duplicates
+  ---
+  duration_ms: 22.998463
+  type: 'test'
+  ...
+# Subtest: empty and duplicate-only results render an explicit no-op patch
+ok 298 - empty and duplicate-only results render an explicit no-op patch
+  ---
+  duration_ms: 2.704325
+  type: 'test'
+  ...
+# Subtest: apply rejects missing or wrong approval, stale TODO and a tampered patch
+ok 299 - apply rejects missing or wrong approval, stale TODO and a tampered patch
+  ---
+  duration_ms: 19.546566
+  type: 'test'
+  ...
+# Subtest: approved apply is atomic, receipt-backed and idempotent
+ok 300 - approved apply is atomic, receipt-backed and idempotent
+  ---
+  duration_ms: 30.289843
+  type: 'test'
+  ...
+# Subtest: service actions execute LLM propose -> render -> approved apply with scoped artifacts
+ok 301 - service actions execute LLM propose -> render -> approved apply with scoped artifacts
+  ---
+  duration_ms: 58.741418
+  type: 'test'
+  ...
+# Subtest: scanTree prunes ignored directories and records file signatures
+ok 302 - scanTree prunes ignored directories and records file signatures
+  ---
+  duration_ms: 19.888131
+  type: 'test'
+  ...
+# Subtest: diffSnapshots classifies additions, modifications and removals
+ok 303 - diffSnapshots classifies additions, modifications and removals
+  ---
+  duration_ms: 0.498634
+  type: 'test'
+  ...
+# Subtest: describeDelta truncates long change lists
+ok 304 - describeDelta truncates long change lists
+  ---
+  duration_ms: 0.168912
+  type: 'test'
+  ...
+# Subtest: An unchanged tree produces exactly one report and then stays quiet
+ok 305 - An unchanged tree produces exactly one report and then stays quiet
+  ---
+  duration_ms: 5.425216
+  type: 'test'
+  ...
+# Subtest: Reports are rate limited to one per interval no matter how often files change
+ok 306 - Reports are rate limited to one per interval no matter how often files change
+  ---
+  duration_ms: 73.367872
+  type: 'test'
+  ...
+# Subtest: A change is reported once the interval has elapsed
+ok 307 - A change is reported once the interval has elapsed
+  ---
+  duration_ms: 5.445187
+  type: 'test'
+  ...
+# Subtest: Ignored files never trigger a report
+ok 308 - Ignored files never trigger a report
+  ---
+  duration_ms: 5.75999
+  type: 'test'
+  ...
+# Subtest: A failing report is surfaced and does not stop the watcher
+ok 309 - A failing report is surfaced and does not stop the watcher
+  ---
+  duration_ms: 2.468465
+  type: 'test'
+  ...
+# Subtest: --no-initial-report waits for a real change
+ok 310 - --no-initial-report waits for a real change
+  ---
+  duration_ms: 3.497512
+  type: 'test'
+  ...
+# Subtest: Communication changes trigger watch and coalesce under the existing report rate limit
+ok 311 - Communication changes trigger watch and coalesce under the existing report rate limit
+  ---
+  duration_ms: 8.331281
+  type: 'test'
+  ...
+# Subtest: workflow verifier rejects duplicate top-level YAML keys
+ok 312 - workflow verifier rejects duplicate top-level YAML keys
+  ---
+  duration_ms: 108.911482
+  type: 'test'
+  ...
+# Subtest: workspace headline trend ignores AST-only topic and source churn
+ok 313 - workspace headline trend ignores AST-only topic and source churn
+  ---
+  duration_ms: 0.948171
+  type: 'test'
+  ...
+# Subtest: workspace comparison measures origin/main against uncommitted filesystem intent
+ok 314 - workspace comparison measures origin/main against uncommitted filesystem intent
+  ---
+  duration_ms: 246.81654
+  type: 'test'
+  ...
+1..314
+# tests 314
+# suites 0
+# pass 307
+# fail 0
+# cancelled 0
+# skipped 7
+# todo 0
+# duration_ms 8133.098817
+
+> todo2code@0.5.0 evaluate:gold
+> npm run build && node dist/src/evaluation/gold-cli.js evaluation/gold/v2/dataset.json --require-perfect
+
+
+> todo2code@0.5.0 build
+> tsc -p tsconfig.json
+
+# Gold evaluation: todo2code core semantic benchmark v2
+
+Dataset: `t2c.gold-dataset/v2` · `61191fe8717db205`
+
+| Scope | Precision | Recall | TP / FP / FN |
+|---|---:|---:|---:|
+| Extraction: nl | 100.0% | 100.0% | 8 / 0 / 0 |
+| Extraction: documentation | 100.0% | 100.0% | 2 / 0 / 0 |
+| Extraction: documentation-deterministic | 100.0% | 100.0% | 8 / 0 / 0 |
+| Extraction: markdown | 100.0% | 100.0% | 3 / 0 / 0 |
+| Extraction: overall | 100.0% | 100.0% | 21 / 0 / 0 |
+| Linking: overall | 100.0% | 100.0% | 18 / 0 / 0 |
+| Linking: exact target | 100.0% | 100.0% | 10 / 0 / 0 |
+| Linking: capability topic | 100.0% | 100.0% | 8 / 0 / 0 |
+| DSL2TODO deduplication | 100.0% | 100.0% | 1 / 0 / 0 |
+| Diagnostics: codes | 100.0% | 100.0% | 14 / 0 / 0 |
+
+Diagnostics cases: **7** (forbidden codes raised: 0).
+
+Known linking gaps: **0/6** relations reached across 6 documented case(s); excluded from precision and recall.
+
+Cross-language linking: **0/6** expected relations and **0/6** forbidden violations across 7 case(s).
+
+Cross-language reranking: **6/6** expected relations and **0/6** forbidden violations across 7 captured case(s); accepted 6, abstained 1.
+
+Citation completeness: **100.0%** (14/14).
+
+Deduplication rate: **50.0%** (1/2 proposals).
+
+Repeated-run stability: **PASS** (100.0%; 5e6c88e139a88705 / 5e6c88e139a88705).
+
+> todo2code@0.5.0 evaluate:gold:v1
+> npm run build && node dist/src/evaluation/gold-cli.js evaluation/gold/v1/dataset.json --require-perfect
+
+
+> todo2code@0.5.0 build
+> tsc -p tsconfig.json
+
+# Gold evaluation: todo2code core semantic benchmark v1
+
+Dataset: `t2c.gold-dataset/v1` · `ff2d9908f374da48`
+
+| Scope | Precision | Recall | TP / FP / FN |
+|---|---:|---:|---:|
+| Extraction: nl | 100.0% | 100.0% | 4 / 0 / 0 |
+| Extraction: documentation | 100.0% | 100.0% | 2 / 0 / 0 |
+| Extraction: documentation-deterministic | 100.0% | 100.0% | 0 / 0 / 0 |
+| Extraction: markdown | 100.0% | 100.0% | 3 / 0 / 0 |
+| Extraction: overall | 100.0% | 100.0% | 9 / 0 / 0 |
+| Linking: overall | 100.0% | 100.0% | 7 / 0 / 0 |
+| Linking: exact target | 100.0% | 100.0% | 6 / 0 / 0 |
+| Linking: capability topic | 100.0% | 100.0% | 1 / 0 / 0 |
+| DSL2TODO deduplication | 100.0% | 100.0% | 1 / 0 / 0 |
+| Diagnostics: codes | 100.0% | 100.0% | 0 / 0 / 0 |
+
+Diagnostics cases: **0** (forbidden codes raised: 0).
+
+Known linking gaps: **0/0** relations reached across 0 documented case(s); excluded from precision and recall.
+
+Cross-language linking: **0/0** expected relations and **0/0** forbidden violations across 0 case(s).
+
+Cross-language reranking: **0/0** expected relations and **0/0** forbidden violations across 0 captured case(s); accepted 0, abstained 0.
+
+Citation completeness: **100.0%** (14/14).
+
+Deduplication rate: **50.0%** (1/2 proposals).
+
+Repeated-run stability: **PASS** (100.0%; 5f928c74d5a6c8e3 / 5f928c74d5a6c8e3).
+
+> todo2code@0.5.0 examples:check
+> npm run build && bash scripts/examples-check.sh
+
+
+> todo2code@0.5.0 build
+> tsc -p tsconfig.json
+
+demo: 227 records, 92 relations; communication: 3 blocking, 1 warning
+rejected event: agent is required
+backend/frontend: strict compilation and HTTP integration passed
+example failed: Task 9cb29036-f81b-4d7d-97ec-efe9812a1699 ended in TASK_STATE_FAILED: Configured T2C_ROOT does not exist: /workspace/examples/backend
+[2026-08-01T09:24:25Z] [EXIT] Full Docker verification exited with code 1
+[2026-08-01T09:24:41Z] [EXEC] [provider:codex] compact authoritative Docker gates
+npm_ci=PASS
+verify=PASS
+  duration_ms: 212.620174
+  type: 'test'
+  ...
+1..314
+# tests 314
+# suites 0
+# pass 307
+# fail 0
+# cancelled 0
+# skipped 7
+# todo 0
+# duration_ms 7286.318175
+gold_v2=PASS
+
+Known linking gaps: **0/6** relations reached across 6 documented case(s); excluded from precision and recall.
+
+Cross-language linking: **0/6** expected relations and **0/6** forbidden violations across 7 case(s).
+
+Cross-language reranking: **6/6** expected relations and **0/6** forbidden violations across 7 captured case(s); accepted 6, abstained 1.
+
+Citation completeness: **100.0%** (14/14).
+
+Deduplication rate: **50.0%** (1/2 proposals).
+
+Repeated-run stability: **PASS** (100.0%; 5e6c88e139a88705 / 5e6c88e139a88705).
+gold_v1=PASS
+
+Known linking gaps: **0/0** relations reached across 0 documented case(s); excluded from precision and recall.
+
+Cross-language linking: **0/0** expected relations and **0/0** forbidden violations across 0 case(s).
+
+Cross-language reranking: **0/0** expected relations and **0/0** forbidden violations across 0 captured case(s); accepted 0, abstained 0.
+
+Citation completeness: **100.0%** (14/14).
+
+Deduplication rate: **50.0%** (1/2 proposals).
+
+Repeated-run stability: **PASS** (100.0%; 5f928c74d5a6c8e3 / 5f928c74d5a6c8e3).
+examples=FAIL:1
+
+> todo2code@0.5.0 examples:check
+> npm run build && bash scripts/examples-check.sh
+
+
+> todo2code@0.5.0 build
+> tsc -p tsconfig.json
+
+demo: 227 records, 92 relations; communication: 3 blocking, 1 warning
+rejected event: agent is required
+backend/frontend: strict compilation and HTTP integration passed
+example failed: Task c842f452-1bb5-4837-b133-c1f2f3ce9eb8 ended in TASK_STATE_FAILED: Configured T2C_ROOT does not exist: /workspace/examples/backend
+[2026-08-01T09:25:28Z] [EXIT] Compact Docker gates exited with code 1
+[2026-08-01T09:30:00Z] [RESULT] [provider:codex] final host and Docker gates
+host_verify=PASS tests=314 pass=313 skip=1 fail=0
+docker_verify=PASS tests=314 pass=307 skip=7 fail=0
+gold_v2=PASS gold_v1=PASS gated_precision_recall=100%
+host_examples=PASS docker_examples=PASS
+[2026-08-01T09:31:00Z] [RESULT] [provider:codex] Governance Hub tracked A/B
+repository=wellmanifest/new-project commit=72e5f6c9cf91998615e2342f02b2af650be81cea
+before_graph=322d2d1ca075a3cdd7060e88dcf3c7e5621f987ba0a5a8b4c3a43824c1e4d4c0
+after_graph=6ac01af718a3a32c18a98d44b5751bcccc33ad1edb4696a30f59da948563950e
+before_conflicting_intent=1 after_conflicting_intent=0
+before_planned_not_implemented=31 after_planned_not_implemented=32
+before_total_diagnostics=183 after_total_diagnostics=183
+target_before=unknown/positive target_after=required/negative
+[2026-08-01T09:32:00Z] [RESULT] [provider:codex] generated analysis refresh
+source=tracked-file overlay on 1ebad96 (unrelated untracked inputs excluded)
+verification={"filesChecked":19,"untrackedInputsChecked":5,"status":"ok"}
+prefact=skipped
+[2026-08-01T09:40:00Z] [RESULT] [provider:codex] isolated Docker core E2E
+suite=core result=T2C-E2E-000:PASS tests=318 pass=311 skip=7 fail=0
+gold_v2=PASS gold_v1=PASS cli_smoke=PASS mcp_smoke=PASS a2a_smoke=PASS examples=PASS
+[2026-08-01T09:44:00Z] [RESULT] [provider:codex] isolated Docker full-toolchain E2E
+suite=full result=T2C-E2E-000:PASS tests=318 pass=318 skip=0 fail=0
+gold_v2=PASS gold_v1=PASS cli_smoke=PASS mcp_smoke=PASS a2a_smoke=PASS
+sdk_examples=PASS languages=5 fingerprint=1b5dbbf867286090

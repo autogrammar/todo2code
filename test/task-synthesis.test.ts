@@ -204,11 +204,11 @@ test('communication divergence is grounded in task synthesis without treating ag
   assert.equal(graph.records.some((record) => record.source.kind === 'agent_log' && record.epistemic.class === 'fact'), false);
 });
 
-test('require-llm fails explicitly when task synthesis cannot call the provider', async () => {
+test('task synthesis defaults to require-llm and fails explicitly without a provider', async () => {
   const { graph, diagnostics } = fixture();
   const config = makeConfig(process.cwd());
   await assert.rejects(
-    () => synthesizeTodoProposals(graph, diagnostics, config, 'require-llm'),
+    () => synthesizeTodoProposals(graph, diagnostics, config),
     (error: unknown) => error instanceof TaskSynthesisRequiredError
       && error.audit.status === 'failed'
       && error.audit.effectiveMode === 'none'

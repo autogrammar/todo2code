@@ -26,6 +26,14 @@ test('CLI propose-todo, render-todo and apply-todo return JSON and preserve a no
   await fs.writeFile(path.join(root, 'diagnostics.json'), `${JSON.stringify(diagnostics)}\n`);
   const environment = { ...process.env, T2C_ROOT: root, OPENROUTER_API_KEY: '' };
 
+  await assert.rejects(
+    () => runCli(root, environment, [
+      'propose-todo', 'graph.json', '--diagnostics', 'diagnostics.json',
+      '--out', 'run/default-synthesis.json', '--root', root,
+    ]),
+    (error: unknown) => error instanceof Error && /tasks requires LLM/.test(String(error)),
+  );
+
   const proposed = await runCli(root, environment, [
     'propose-todo', 'graph.json', '--diagnostics', 'diagnostics.json', '--mode', 'prefer-llm',
     '--out', 'run/synthesis.json', '--root', root,

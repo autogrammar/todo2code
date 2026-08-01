@@ -80,6 +80,8 @@ test('detectModality reads prohibitions and periphrastic obligation as requireme
   assert.equal(detectModality('Nie wolno publikować wyniku bez zgody operatora.'), 'required');
   assert.equal(detectModality('Runtime nie może nadpisać zatwierdzonego patcha.'), 'required');
   assert.equal(detectModality('Zapisywanie sekretów jest zabronione.'), 'required');
+  assert.equal(detectModality('Agentowi zabrania się modyfikowania plików człowieka.'), 'required');
+  assert.equal(detectModality('Reguły zabraniają agentom zgadywać właściciela.'), 'required');
   assert.equal(detectModality('The client is not allowed to retry a rejected patch.'), 'required');
   assert.equal(detectModality('Every approval has to cite the diagnostic it closes.'), 'required');
   assert.equal(detectModality('Agenci mają obowiązek zapisać prowenienację.'), 'required');
@@ -93,6 +95,8 @@ test('detectPolarity does not treat without-complements as sentence negation', (
   assert.equal(detectPolarity('Do not invent repository files.'), 'negative');
   assert.equal(detectPolarity('Never skip validation.'), 'negative');
   assert.equal(detectPolarity('Zachowaj kontrakt bez zgadywania ścieżek.'), 'positive');
+  assert.equal(detectPolarity('Agentowi zabrania się modyfikowania plików człowieka.'), 'negative');
+  assert.equal(detectPolarity('Reguły zabraniają agentom zgadywać właściciela.'), 'negative');
 });
 
 test('path extraction rejects HTTP routes, host paths and parent traversal', () => {

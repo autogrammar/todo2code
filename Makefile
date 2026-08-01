@@ -12,8 +12,9 @@ DOCS ?= README.md,docs/**/*.md,project/**/*.md
 OUT ?= .intent
 PACKAGE ?= todo2code.zip
 PYTHON_WHEEL_DIR ?= .intent-packages/python
+E2E_COMPOSE ?= compose.e2e.yml
 
-.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env smoke doctor mcp-probe a2a-probe protocol-smoke validate live-contract-check live-model-comparison demo demollm examples-check pipeline compare-workspace mcp a2a docker-build docker-smoke docker-up docker-down python-wheel package clean
+.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env smoke doctor mcp-probe a2a-probe protocol-smoke validate live-contract-check live-model-comparison demo demollm examples-check pipeline compare-workspace mcp a2a docker-build docker-smoke docker-up docker-down e2e-core e2e-full e2e-clean python-wheel package clean
 
 help: ## Pokaż dostępne cele
 	@awk 'BEGIN {FS = ":.*## "; printf "todo2code targets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -105,6 +106,17 @@ docker-up: ## Uruchom A2A w Docker Compose (make setup najpierw)
 
 docker-down: ## Zatrzymaj Docker Compose
 	docker compose -f docker-compose.yml down
+
+e2e-core: ## Uruchom izolowane Docker E2E dla rdzenia Node/Python
+	docker compose -f $(E2E_COMPOSE) build e2e-core
+	docker compose -f $(E2E_COMPOSE) run --rm --no-deps e2e-core
+
+e2e-full: ## Uruchom Docker E2E z Go, JDK 17, Rust i PHP
+	docker compose -f $(E2E_COMPOSE) build e2e-full
+	docker compose -f $(E2E_COMPOSE) run --rm --no-deps e2e-full
+
+e2e-clean: ## Usuń kontenery i lokalne obrazy środowisk E2E
+	docker compose -f $(E2E_COMPOSE) down --remove-orphans --rmi all
 
 python-wheel: build ## Zbuduj wheel SDK z lokalnym mostem do runtime TypeScript
 	mkdir -p "$(PYTHON_WHEEL_DIR)"

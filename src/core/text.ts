@@ -64,7 +64,7 @@ export function classifyActionHeuristically(text: string): IntentAction {
  * prohibition would resurrect the false-plan noise the modality rules exist to
  * suppress.
  */
-const PROHIBITION = /\bnie\s+wolno\b|\bnie\s+moz[ea]\b|\bnie\s+moga\b|\bzabronion[ey]\b|\bzakazan[ey]\b|\b(?:is|are)\s+not\s+allowed\b|\b(?:is|are)\s+forbidden\b/i;
+const PROHIBITION = /\bnie\s+wolno\b|\bnie\s+moz[ea]\b|\bnie\s+moga\b|\bzabrania(?:\s+sie|ja)?\b|\bzabronion[ey]\b|\bzakazan[ey]\b|\b(?:is|are)\s+not\s+allowed\b|\b(?:is|are)\s+forbidden\b/i;
 
 /** Periphrastic obligation: as binding as `must`, and common in documentation. */
 const OBLIGATION = /\b(?:has|have|had)\s+to\b|\bma(?:ja)?\s+obowiazek\b|\bjest\s+zobowiazan[ya]\b/i;
@@ -128,6 +128,8 @@ export function detectPolarity(text: string): Polarity {
   const stripped = prose
     .replace(/\bwithout\b\s+(?:[\w'-]+(?:\s+[\w'-]+){0,6})/gi, ' ')
     .replace(/\bbez\b\s+(?:[\wąćęłńóśźż'-]+(?:\s+[\wąćęłńóśźż'-]+){0,6})/gi, ' ');
+  const normalized = normalizeToken(stripped);
+  if (PROHIBITION.test(stripped) || PROHIBITION.test(normalized)) return 'negative';
   if (/\b(no|not|never|nie|zakaz|zabronion)\b/i.test(stripped)) return 'negative';
   return 'positive';
 }

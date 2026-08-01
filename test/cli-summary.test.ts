@@ -32,7 +32,12 @@ test('CLI summarize exposes deterministic, prefer-llm and require-llm modes', as
   assert.match(deterministic.stdout, /Wygenerowano deterministycznie/);
   assert.equal(deterministic.stderr, '');
 
-  const preferred = await exec(process.execPath, [cli, ...base], { cwd: root, env: environment });
+  await assert.rejects(
+    () => exec(process.execPath, [cli, ...base], { cwd: root, env: environment }),
+    (error: unknown) => error instanceof Error && /OPENROUTER_API_KEY is required/.test(String(error)),
+  );
+
+  const preferred = await exec(process.execPath, [cli, ...base, '--mode', 'prefer-llm'], { cwd: root, env: environment });
   assert.match(preferred.stdout, /podsumowanie OpenRouter nie było dostępne/);
   assert.match(preferred.stderr, /OPENROUTER_API_KEY is not configured/);
 

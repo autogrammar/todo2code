@@ -31,8 +31,9 @@ const PATH_SEARCH_EXCLUDES = new Set([
 const MAX_INDEXED_FILES = 20_000;
 
 export function createMarkdownPathResolver(root: string): MarkdownPathResolver {
+  const repositoryRoot = path.resolve(root);
   let index: Promise<Map<string, string[]>> | null = null;
-  const basenames = (): Promise<Map<string, string[]>> => (index ??= buildBasenameIndex(root));
+  const basenames = (): Promise<Map<string, string[]>> => (index ??= buildBasenameIndex(repositoryRoot));
 
   return {
     async resolve(paths: string[], headings: string[] = []): Promise<string[]> {
@@ -40,14 +41,16 @@ export function createMarkdownPathResolver(root: string): MarkdownPathResolver {
       const output: string[] = [];
       for (const declared of paths) {
         const normalized = declared.replace(/\\/g, '/').replace(/^\.\//, '');
-        if (normalized.includes('/') || await pathExists(path.resolve(root, normalized))) {
+        if (!isRepositoryPath(repositoryRoot, normalized)) continue;
+        if (normalized.includes('/') || await pathExists(path.resolve(repositoryRoot, normalized))) {
           output.push(normalized);
           continue;
         }
         const scoped: string[] = [];
         for (const directory of headingDirectories) {
           const candidate = path.posix.join(directory, normalized);
-          if (await pathExists(path.resolve(root, candidate))) scoped.push(candidate);
+          if (isRepositoryPath(repositoryRoot, candidate)
+            && await pathExists(path.resolve(repositoryRoot, candidate))) scoped.push(candidate);
         }
         if (scoped.length === 1) {
           output.push(scoped[0]!);
@@ -61,6 +64,13 @@ export function createMarkdownPathResolver(root: string): MarkdownPathResolver {
       return [...new Set(output)];
     },
   };
+}
+
+/** Accept only non-empty repository-relative paths, including on POSIX hosts. */
+function isRepositoryPath(root: string, candidate: string): boolean {
+  if (!candidate || path.posix.isAbsolute(candidate) || path.win32.isAbsolute(candidate)) return false;
+  const absolute = path.resolve(root, candidate);
+  return absolute !== root && absolute.startsWith(root + path.sep);
 }
 
 /** Directory-looking tokens in the heading trail, for example `examples/todo-app-ts`. */

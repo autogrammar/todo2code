@@ -14,7 +14,7 @@ export const MCP_TOOLS: McpTool[] = [
     root: stringProp('Repository root under T2C_ROOT.'),
     file: stringProp('Source file path. Defaults to TASK.md.'),
     text: stringProp('Optional inline text. When present, file is used only as source identity.'),
-    nlMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    nlMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
   }),
   tool('extract_git', 'Extract the last N Git commits to Intent DSL without an LLM.', {
     root: stringProp('Repository root under T2C_ROOT.'),
@@ -30,7 +30,7 @@ export const MCP_TOOLS: McpTool[] = [
     root: stringProp('Repository root under T2C_ROOT.'),
     todo: nullableStringProp('TODO path or null.'),
     changelog: nullableStringProp('CHANGELOG path or null.'),
-    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    markdownMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
   }),
   tool('extract_docs', 'Extract documentation to Intent DSL through OpenRouter structured outputs.', {
     root: stringProp('Repository root under T2C_ROOT.'),
@@ -41,13 +41,13 @@ export const MCP_TOOLS: McpTool[] = [
     root: stringProp('Repository root under T2C_ROOT.'),
     projectDir: stringProp('Communication root, default project.'),
     ticket: nullableStringProp('Optional ticket filter.'),
-    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
+    communicationMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
   }),
   tool('analyze_communication', 'Analyze every human/agent separately and detect communication-to-work divergences.', {
     root: stringProp('Repository root under T2C_ROOT.'),
     projectDir: stringProp('Communication root, default project.'),
     ticket: nullableStringProp('Optional ticket filter.'),
-    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
+    communicationMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
     graph: { type: 'object', description: 'Optional existing t2c.graph/v1 object.' },
     gitCount: numberProp('Commit evidence count, default 10.', 1, 100),
     includeAst: { type: 'boolean', description: 'Include AST evidence, default true.' },
@@ -64,7 +64,7 @@ export const MCP_TOOLS: McpTool[] = [
   tool('summarize', 'Generate grounded Polish NL summary from graph and diagnostics through OpenRouter.', {
     graph: { type: 'object' },
     diagnostics: { type: 'object' },
-    mode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    mode: stringProp('deterministic, prefer-llm or require-llm (default).'),
     fallback: { type: 'boolean', description: 'Deprecated alias: true selects prefer-llm, false selects require-llm.' },
   }, ['graph']),
   tool('diff', 'Compare two Intent graphs and return canonical t2c.diff/v1 JSON plus an SVG view.', {
@@ -114,8 +114,8 @@ export const MCP_TOOLS: McpTool[] = [
     changelog: nullableStringProp('CHANGELOG file.'),
     docs: stringArrayProp('Documentation patterns.'),
     docExcludes: stringArrayProp('Documentation exclusion patterns.'),
-    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
-    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
+    markdownMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
+    communicationMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
     includeDocsLlm: { type: 'boolean', description: 'Run the same LLM documentation extraction on both sides.' },
     output: stringProp('Comparison artifact root, default .intent.'),
     gitCount: numberProp('Number of commit claims included per side.', 1, 100),
@@ -126,7 +126,7 @@ export const MCP_TOOLS: McpTool[] = [
     graphPath: stringProp('Alternative graph JSON path under root.'),
     diagnostics: { type: 'object', description: 'Inline t2c.diagnostics/v1 report; derived when omitted.' },
     diagnosticsPath: stringProp('Alternative diagnostics JSON path under root.'),
-    mode: stringProp('prefer-llm (default) or require-llm.'),
+    mode: stringProp('prefer-llm or require-llm (default).'),
     output: stringProp('Optional synthesis JSON output path under root.'),
   }),
   tool('render_todo', 'Render validated new proposals to a reviewable TODO.patch and adjacent JSON audit without changing TODO.md.', {
@@ -226,8 +226,8 @@ export const MCP_TOOLS: McpTool[] = [
     changelog: nullableStringProp('CHANGELOG file.'),
     docs: stringArrayProp('Documentation glob patterns.'),
     docExcludes: stringArrayProp('Documentation exclusion patterns; override to include one historical .intent report.'),
-    nlMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
-    markdownMode: stringProp('deterministic, prefer-llm (default) or require-llm.'),
+    nlMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
+    markdownMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
     includeDocsLlm: { type: 'boolean' },
     output: stringProp('Output directory, default .intent.'),
     gitCount: numberProp('Number of commits, default 10.', 1, 100),
@@ -237,7 +237,7 @@ export const MCP_TOOLS: McpTool[] = [
     includeCommunication: { type: 'boolean', description: 'Analyze project/<ticket> communication in the main run; default true.' },
     projectDir: stringProp('Communication directory under root, default project.'),
     communicationTicket: nullableStringProp('Optional ticket filter for communication input.'),
-    communicationMode: stringProp('deterministic (default), prefer-llm or require-llm.'),
+    communicationMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
   }),
 ];
 

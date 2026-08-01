@@ -210,7 +210,7 @@ function serverMeta(config: T2CConfig): Record<string, unknown> {
 }
 
 function serverInstructions(): string {
-  return 'NL and TODO/CHANGELOG semantic extraction are audited and default to prefer-llm; deterministic extraction remains available. OpenRouter is limited to extract_nl, extract_markdown, extract_docs and summarize.';
+  return 'Audited semantic LLM stages default to require-llm and fail closed; deterministic and prefer-llm remain explicit alternatives. OpenRouter access is isolated from deterministic extraction, linking, diagnostics and diff.';
 }
 
 function isLegacyProtocol(value: string): value is typeof MCP_LEGACY_PROTOCOLS[number] {

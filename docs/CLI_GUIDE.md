@@ -102,9 +102,9 @@ node dist/src/cli.js pipeline . \
   --todo TODO.md \
   --changelog CHANGELOG.md \
   --docs 'README.md,docs/**/*.md,project/**/*.md' \
-  --nl-mode prefer-llm \
-  --markdown-mode prefer-llm \
-  --task-mode prefer-llm \
+  --nl-mode require-llm \
+  --markdown-mode require-llm \
+  --task-mode require-llm \
   --out .intent
 ```
 
@@ -169,18 +169,18 @@ Nie należy używać live check jako wymaganej kontroli offline — zależy od
 dostępności zewnętrznego providera. `make demo`, `npm run verify` i
 `npm run examples:check` pozostają deterministyczne.
 
-`prefer-llm` pozwala na jawnie audytowany fallback. Gdy wynik bez modelu jest
-niedopuszczalny, należy użyć `require-llm`. Wtedy brak klucza, timeout, błędny
+`require-llm` jest domyślny dla etapów semantycznych. Brak klucza, timeout, błędny
 model lub niepoprawna odpowiedź kończą proces błędem i tworzą manifest
 `status=failed` bez publikowania nieistniejącego grafu jako `latest`.
+`prefer-llm` pozostaje jawnym opt-in do audytowanego fallbacku.
 
 Standalone podsumowanie używa tego samego jawnego kontraktu trybów (domyślnie
-`prefer-llm`):
+`require-llm`):
 
 ```bash
 t2c summarize intent.graph.json \
   --diagnostics diagnostics.json \
-  --mode prefer-llm \
+  --mode require-llm \
   --out team-summary.md
 ```
 
