@@ -132,6 +132,13 @@
   resolution repository-wide: on `if-uri/urirun`, 63 worktrees under
   `.claude/worktrees/` shadowed the real `docs/ARCHITECTURE.md`, which 24
   documentation records can now name.
+- `compare-workspace` honours `T2C_ALLOW_OUTSIDE_ROOT` for its `--out`
+  directory. Every other scoping call site takes the configured value; this one
+  hard coded the restriction, so analysing a third-party checkout while keeping
+  its artifacts out of that tree failed with `outside configured T2C_ROOT`
+  where the same `--out` works for `pipeline`. The default stays closed and an
+  escaping directory keeps its absolute form in the manifest; recorded
+  `artifacts` paths stay root-relative, which is how consumers resolve them.
 - Intent-vs-Reality separates a topic *about* a document from the statements
   merely *written in* it. A declaration that names nothing fell back to its own
   source file inside the `path:` namespace, so unattributable prose joined the

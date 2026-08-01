@@ -85,7 +85,7 @@ export async function compareWorkspaceIntent(
   if (relativeAnalysisRoot.startsWith('..') || path.isAbsolute(relativeAnalysisRoot)) {
     throw new Error(`Analysis root is outside the Git repository: ${root}`);
   }
-  const outputDir = await scopedOutputDirectory(root, options.outputDir ?? config.outputDir);
+  const outputDir = await scopedOutputDirectory(root, options.outputDir ?? config.outputDir, config.allowOutsideRoot);
   const baseRef = options.baseRef?.trim() || defaultBaseRef();
   const baseCommit = (await git(repositoryRoot, ['rev-parse', '--verify', `${baseRef}^{commit}`])).trim();
   const headCommit = (await git(repositoryRoot, ['rev-parse', '--verify', 'HEAD^{commit}'])).trim();
@@ -184,9 +184,24 @@ export async function compareWorkspaceIntent(
   }
 }
 
-async function scopedOutputDirectory(root: string, requested: string): Promise<string> {
-  const absolute = await assertPathWithinRoot(root, path.resolve(root, requested));
-  return path.relative(root, absolute) || '.';
+/**
+ * Every other scoping call site honours `T2C_ALLOW_OUTSIDE_ROOT`; this one hard
+ * coded the restriction, so comparing a third-party checkout while keeping its
+ * artifacts out of the tree failed where the same `--out` works for `pipeline`.
+ * The default stays closed.
+ */
+async function scopedOutputDirectory(
+  root: string,
+  requested: string,
+  allowOutsideRoot: boolean,
+): Promise<string> {
+  const absolute = await assertPathWithinRoot(root, path.resolve(root, requested), allowOutsideRoot);
+  const relative = path.relative(root, absolute);
+  if (!relative) return '.';
+  // A directory deliberately placed outside the analysed tree keeps its
+  // absolute form: a `../..` chain resolves correctly but reads as a defect
+  // in the manifest.
+  return relative.startsWith('..') ? absolute : relative;
 }
 
 function commonPipelineOptions(options: WorkspaceComparisonOptions, config: T2CConfig): PipelineOptions {

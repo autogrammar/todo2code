@@ -96,4 +96,16 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
     /outside configured T2C_ROOT/,
   );
   assert.equal(await pathExists(outside), false, 'an absolute --out must not be rewritten under or outside the repo');
+
+  // The restriction is configurable everywhere else, so an operator analysing a
+  // third-party checkout can keep its artifacts out of that tree.
+  const permitted = await compareWorkspaceIntent(
+    { root, outputDir: outside, includeDocumentationLlm: false },
+    { ...config, allowOutsideRoot: true },
+  );
+  // `artifacts` stays root-relative, which is how every consumer resolves it.
+  const comparisonFile = path.resolve(root, permitted.artifacts.comparison ?? '');
+  assert.ok(await pathExists(comparisonFile));
+  assert.equal(path.relative(outside, comparisonFile).startsWith('..'), false, 'artifacts land under the requested directory');
+  assert.equal(await pathExists(path.join(root, 'outside-comparison')), false);
 });
