@@ -166,6 +166,10 @@ Current verified baseline:
   Gemini with no credential/provider error and returned `pass` for both files;
   aggregate enforcement still rejected the parser warning and advisory
   whole-file findings. No secret value was read back or logged.
+- Repaired the integration boundary without dropping evidence: 10-minute job,
+  420-second active review, 8192 output tokens, no HTTP retries, lowercase Vallm
+  language IDs and explicit advisory/blocking normalization persisted in the
+  structured report.
 
 ## Blockers
 

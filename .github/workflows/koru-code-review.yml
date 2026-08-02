@@ -28,11 +28,13 @@ jobs:
     name: koru / code-review
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     env:
       KORU_VERSION: '0.1.444'
       VALLM_VERSION: '0.1.94'
       REVIEW_MODEL: openrouter/google/gemini-3.1-pro-preview
+      VALLM_REVIEW_MAX_TOKENS: '8192'
+      VALLM_REVIEW_TIMEOUT_SECONDS: '420'
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       BASE_SHA: ${{ inputs.base_sha || github.event.pull_request.base.sha }}
       HEAD_SHA: ${{ inputs.head_sha || github.event.pull_request.head.sha }}
@@ -105,6 +107,40 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          compat_dir="$RUNNER_TEMP/vallm-compat"
+          mkdir -p "$compat_dir"
+          cat > "$compat_dir/sitecustomize.py" <<'PY'
+          """Pinned compatibility boundary for Vallm 0.1.94."""
+
+          from __future__ import annotations
+
+          import os
+
+          import litellm
+          import tree_sitter_language_pack
+
+
+          _original_completion = litellm.completion
+          _original_get_parser = tree_sitter_language_pack.get_parser
+
+
+          def _bounded_completion(*args, **kwargs):
+              kwargs["max_tokens"] = int(os.environ["VALLM_REVIEW_MAX_TOKENS"])
+              kwargs["timeout"] = float(os.environ["VALLM_REVIEW_TIMEOUT_SECONDS"])
+              # Provider HTTP errors, including 404, must fail immediately.
+              kwargs["num_retries"] = 0
+              return _original_completion(*args, **kwargs)
+
+
+          def _normalized_get_parser(language):
+              if isinstance(language, str):
+                  language = language.lower()
+              return _original_get_parser(language)
+
+
+          litellm.completion = _bounded_completion
+          tree_sitter_language_pack.get_parser = _normalized_get_parser
+          PY
           command_path="$RUNNER_TEMP/koru-review-command"
           cat > "$command_path" <<'BASH'
           #!/usr/bin/env bash
@@ -118,12 +154,97 @@ jobs:
           export VALLM_LLM_PROVIDER=litellm
           export VALLM_LLM_MODEL="$REVIEW_MODEL"
           export VALLM_LLM_BASE_URL=https://openrouter.ai/api/v1
-          vallm batch "${files[@]}" \
+          export PYTHONPATH="${VALLM_COMPAT_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
+          set +e
+          timeout --signal=TERM "${VALLM_REVIEW_TIMEOUT_SECONDS}s" \
+            vallm batch "${files[@]}" \
             --semantic --security \
             --model "$REVIEW_MODEL" \
             --format json --output .koru-review/vallm --show-issues
+          vallm_exit="$?"
+          set -e
+          if [[ "$vallm_exit" == '124' || "$vallm_exit" == '137' ]]; then
+            printf '{"summary":{"total_files":%s,"passed":0,"failed":%s,"success_rate":0.0},"files":[],"failed_files":[{"error":"review timed out after %s seconds"}]}\n' \
+              "${#files[@]}" "${#files[@]}" "$VALLM_REVIEW_TIMEOUT_SECONDS" \
+              > .koru-review/vallm/validation.json
+            exit "$vallm_exit"
+          fi
+          if [[ ! -f .koru-review/vallm/validation.json ]]; then
+            echo "KORU-REVIEW-003: Vallm exited ${vallm_exit} without a report." >&2
+            exit 1
+          fi
+          python - "$vallm_exit" <<'PY'
+          from __future__ import annotations
+
+          import json
+          from pathlib import Path
+          import sys
+
+
+          report_path = Path(".koru-review/vallm/validation.json")
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          expected_paths = {
+              line.strip()
+              for line in Path(".koru-review/files.txt").read_text(encoding="utf-8").splitlines()
+              if line.strip()
+          }
+          files = report.get("files") if isinstance(report.get("files"), list) else []
+          reviewed_paths = {
+              item.get("path") for item in files if isinstance(item, dict) and item.get("path")
+          }
+          failed_files = []
+          passed = 0
+          for item in files:
+              if not isinstance(item, dict):
+                  failed_files.append({"error": "malformed Vallm file result"})
+                  continue
+              issues = item.get("issues") if isinstance(item.get("issues"), list) else []
+              blocking = []
+              advisory = []
+              for issue in issues:
+                  if not isinstance(issue, dict):
+                      blocking.append({"rule": "report.malformed", "severity": "error"})
+                      continue
+                  rule = str(issue.get("rule", ""))
+                  severity = str(issue.get("severity", "")).lower()
+                  if rule == "semantic.llm_judge" and severity in {"info", "warning"}:
+                      advisory.append(issue)
+                  else:
+                      blocking.append(issue)
+              item["blocking_issues_count"] = len(blocking)
+              item["advisory_issues_count"] = len(advisory)
+              if item.get("verdict") == "pass" and not blocking:
+                  passed += 1
+              else:
+                  failed_files.append({
+                      "path": item.get("path"),
+                      "error": f"blocking verdict/findings: {len(blocking)}",
+                  })
+          missing_paths = sorted(expected_paths - reviewed_paths)
+          failed_files.extend({"path": path, "error": "missing Vallm result"} for path in missing_paths)
+          unexpected_paths = sorted(reviewed_paths - expected_paths)
+          failed_files.extend({"path": path, "error": "unexpected Vallm result"} for path in unexpected_paths)
+          total = len(expected_paths)
+          failed = total - passed
+          report["summary"] = {
+              "total_files": total,
+              "passed": passed,
+              "failed": failed,
+              "success_rate": passed / total if total else 1.0,
+          }
+          report["failed_files"] = failed_files
+          report["policy"] = {
+              "semanticInfoAndWarnings": "advisory when file verdict is pass",
+              "allOtherFindings": "blocking",
+              "providerErrors": "blocking without retry",
+              "originalVallmExitCode": int(sys.argv[1]),
+          }
+          report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+          raise SystemExit(0 if failed == 0 and not failed_files else 1)
+          PY
           BASH
           chmod 0700 "$command_path"
+          printf 'VALLM_COMPAT_DIR=%s\n' "$compat_dir" >> "$GITHUB_ENV"
           printf 'KORU_REVIEW_COMMAND=%s\n' "$command_path" >> "$GITHUB_ENV"
 
       - name: Run one bounded Koru review round

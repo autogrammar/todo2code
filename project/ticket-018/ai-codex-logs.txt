@@ -332,3 +332,41 @@ report/artifact/provenance attestation: PASS
 
 Interpretation: GitHub credential rotation is complete. AC-21 remains open for
 the Vallm parser defect and diff-context/finding-enforcement policy.
+
+2026-08-02 KORU TIMEOUT AND POLICY REPAIR
+User requirement: the review may take at most 10 minutes, except HTTP errors
+such as 404 must not wait for that timeout.
+
+Configured boundaries:
+- GitHub job timeout: 10 minutes;
+- Vallm process and LiteLLM request timeout: 420 seconds;
+- evidence reserve: approximately 3 minutes;
+- response ceiling: 8192 tokens;
+- provider retries: 0, so 401/402/403/404 fail immediately;
+- Vallm 0.1.94 TYPESCRIPT ID: normalized to lowercase for tree-sitter;
+- semantic info/warning + file verdict pass: retained advisory;
+- semantic error and every non-semantic finding: blocking;
+- timeout, provider error, malformed/missing/unexpected result: blocking.
+
+Local validation:
+$ npm run verify:workflows
+Workflow YAML verified: 2 files, no duplicate top-level keys.
+
+$ generate the Prepare-step command from parsed workflow YAML
+generated Koru command Bash syntax: PASS
+sitecustomize Python syntax: PASS
+
+$ compatibility wrapper probe
+simulated provider HTTP 404: one call, failure in approximately 2 ms
+max_tokens=8192, timeout=420, num_retries=0: PASS
+TYPESCRIPT -> lowercase tree-sitter parser: PASS
+
+$ deterministic policy fixtures
+semantic warning/info + file verdict pass: exit 0, 2/2 passed
+semantic.llm_error (simulated 404): exit 1, blocking
+syntax.unsupported: exit 1, blocking
+timeout fixture with one-second test ceiling: exit 124 after approximately 1 s
+
+$ npm run verify
+tests 335; pass 334; fail 0; skipped 1 (local JDK unavailable)
+module boundaries, workflows, schemas and structured-output gates: PASS

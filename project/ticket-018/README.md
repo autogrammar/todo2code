@@ -85,9 +85,22 @@ mode is intentionally not used for TypeScript: the separate required `verify`
 job owns TypeScript compilation and the repository's 335-test regression
 suite. Koru remains the read-only semantic, complexity and security review
 boundary. Vallm still attempts syntax analysis, but 0.1.94 passes the uppercase
-language enum `TYPESCRIPT` to a parser that accepts lowercase `typescript`; its
-`syntax.unsupported` warning is retained as an open upstream defect rather than
-being presented as successful syntax evidence.
+language enum `TYPESCRIPT` to a parser that accepts lowercase `typescript`.
+The workflow now applies a pinned lowercase compatibility boundary before
+parsing and still blocks if any `syntax.unsupported` finding remains.
+
+The repaired execution budget is explicit and layered. GitHub terminates the
+whole job after 10 minutes; Vallm and its LiteLLM request are bounded to 420
+seconds so report construction, artifact upload and attestation retain roughly
+three minutes of the job budget after an active-review timeout (less the setup
+time already consumed). Responses are capped at 8192 tokens. LiteLLM retries are
+disabled, therefore provider HTTP errors such as 401, 402, 403 or 404 fail
+immediately rather than consuming the timeout. A pinned compatibility boundary
+lowercases Vallm 0.1.94's language ID before tree-sitter parsing. Semantic
+`info` and `warning` findings remain in the attested report as advisory when
+Vallm's file-level verdict is `pass`; semantic errors and every syntax,
+complexity, security, provider, malformed/missing-result or timeout finding
+remain blocking.
 
 The workflow will never use `pull_request_target`, check out untrusted code
 with a write-capable token, modify source, auto-fix, commit, push or submit a
@@ -280,6 +293,11 @@ remain historical evidence, not evidence for AC-11..AC-17.
   warning plus advisory whole-file findings unrelated to the model-default
   diff. The remaining AC-21 blockers are review context/parser policy, not the
   GitHub credential.
+- The timeout/policy repair bounds the complete job to 10 minutes and the
+  active review to 420 seconds, caps output at 8192 tokens, disables retries
+  (including 404), normalizes the Vallm TypeScript language ID and separates
+  advisory semantic warnings from blocking deterministic/provider/semantic
+  errors without removing any finding from the attested JSON.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,

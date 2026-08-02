@@ -21,6 +21,12 @@
   authorization and proved it with live dispatch `30714664770`: Gemini ran for
   both files without a provider error. Remaining rejection is attributable to
   Vallm parser/context findings, not authentication or provider limits.
+- Reduced the GitHub job ceiling from 20 to 10 minutes and bounded the active
+  Vallm/LiteLLM round at 420 seconds, leaving time for fail-closed evidence.
+- Added an 8192-token response cap, zero provider retries so 404 fails
+  immediately, lowercase tree-sitter language normalization, and deterministic
+  post-policy that keeps semantic pass-level warnings advisory while every
+  other finding remains blocking and visible.
 
 ## [0.2.0] - 2026-08-01
 
