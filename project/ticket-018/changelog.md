@@ -31,6 +31,10 @@
   #3's exact two-file source diff: Gemini completed in 1 minute 24 seconds,
   both files passed, no parser/provider finding remained, and the attested
   report retained five advisory observations with zero blocking findings.
+- Revalidated failure timing through LiteLLM's actual HTTP stack: a local 404
+  and a deliberately slow endpoint each generated exactly one request and
+  failed promptly. Revalidated all 335 Node tests and Docker `e2e-core`; the
+  full image continues to fail only on the pre-existing stale Rust lock.
 
 ## [0.2.0] - 2026-08-01
 

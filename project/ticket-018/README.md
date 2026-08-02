@@ -304,6 +304,13 @@ remain historical evidence, not evidence for AC-11..AC-17.
   passed, no failed files, no parser/provider finding and exit 0. All five
   whole-file semantic observations remain visible as advisory; the policy
   records Vallm's original exit 2 before deterministic normalization.
+- A follow-up exact-stack LiteLLM probe used a local HTTP endpoint: HTTP 404
+  produced `NotFoundError` after about 705 ms with exactly one request and the
+  8192-token ceiling intact. A slow endpoint with a 0.5-second probe ceiling
+  produced `Timeout` after about 799 ms with exactly one request. Fresh local
+  `npm run verify` and Docker `e2e-core` pass; Docker `e2e-full` still stops at
+  the separately attributed stale Rust lock with `cargo fetch --locked` exit
+  101, without any ticket-018 change to the SDK.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,

@@ -385,3 +385,31 @@ Advisory semantic findings retained: 5
 syntax.unsupported findings: 0
 semantic.llm_error findings: 0
 Original Vallm exit before policy normalization: 2
+
+2026-08-02 FOLLOW-UP TIMEOUT AND E2E VALIDATION
+$ LiteLLM against a local HTTP 404 endpoint
+exception: NotFoundError
+elapsed: approximately 705 ms
+HTTP requests: exactly 1
+request max_tokens: 8192
+result: PASS (404 did not wait for the review timeout and was not retried)
+
+$ LiteLLM against a local endpoint delayed for two seconds
+probe timeout: 0.5 seconds
+exception: Timeout
+elapsed: approximately 799 ms
+HTTP requests: exactly 1
+result: PASS (request timeout was enforced without retry)
+
+$ npm run verify
+tests 335; pass 334; fail 0; skipped 1 (local JDK unavailable)
+all type, module, workflow, schema and structured-response checks: PASS
+
+$ make e2e-core
+fresh Docker build and core suite: PASS (exit 0)
+
+$ make e2e-full
+fresh Docker build: expected inherited failure at cargo fetch --locked
+exit: 101
+cause: sdk/rust/Cargo.lock requires an update after the independently owned
+sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
