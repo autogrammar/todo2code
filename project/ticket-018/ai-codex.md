@@ -170,6 +170,10 @@ Current verified baseline:
   420-second active review, 8192 output tokens, no HTTP retries, lowercase Vallm
   language IDs and explicit advisory/blocking normalization persisted in the
   structured report.
+- Dispatch `30746421293` then passed the exact pull request #3 range in 1 minute
+  24 seconds. The attested Gemini report records both expected files, 2/2 pass,
+  zero blocking/parser/provider findings and all five semantic observations as
+  advisory; its final Koru exit is 0 while preserving Vallm's original exit 2.
 
 ## Blockers
 

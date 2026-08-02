@@ -370,3 +370,18 @@ timeout fixture with one-second test ceiling: exit 124 after approximately 1 s
 $ npm run verify
 tests 335; pass 334; fail 0; skipped 1 (local JDK unavailable)
 module boundaries, workflows, schemas and structured-output gates: PASS
+
+2026-08-02 LIVE REPAIRED KORU EVIDENCE
+Workflow dispatch: 30746421293
+Workflow ref: ticket-018-koru-review @ fb03583
+Reviewed range: 2e87205dcd0b06286529ca9fa8ab9518694e9068..
+                6b7952741e57856343c2385b48929f1cf4f0eb17
+Duration: 1 minute 24 seconds
+Model: openrouter/google/gemini-3.1-pro-preview
+Selected files: src/config/env.ts, test/config-env.test.ts
+Attested verdict: pass; final exit 0; 2/2 files; failed files 0
+Blocking findings: 0
+Advisory semantic findings retained: 5
+syntax.unsupported findings: 0
+semantic.llm_error findings: 0
+Original Vallm exit before policy normalization: 2

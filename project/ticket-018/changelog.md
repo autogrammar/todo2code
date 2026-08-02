@@ -27,6 +27,10 @@
   immediately, lowercase tree-sitter language normalization, and deterministic
   post-policy that keeps semantic pass-level warnings advisory while every
   other finding remains blocking and visible.
+- Proved the repair with workflow dispatch `30746421293` against pull request
+  #3's exact two-file source diff: Gemini completed in 1 minute 24 seconds,
+  both files passed, no parser/provider finding remained, and the attested
+  report retained five advisory observations with zero blocking findings.
 
 ## [0.2.0] - 2026-08-01
 

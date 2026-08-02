@@ -298,6 +298,12 @@ remain historical evidence, not evidence for AC-11..AC-17.
   (including 404), normalizes the Vallm TypeScript language ID and separates
   advisory semantic warnings from blocking deterministic/provider/semantic
   errors without removing any finding from the attested JSON.
+- Repaired workflow dispatch `30746421293` reviewed the exact pull request #3
+  range `2e87205..6b79527` with Gemini in 1 minute 24 seconds. Its attested
+  report selects `src/config/env.ts` and `test/config-env.test.ts`, records 2/2
+  passed, no failed files, no parser/provider finding and exit 0. All five
+  whole-file semantic observations remain visible as advisory; the policy
+  records Vallm's original exit 2 before deterministic normalization.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,
