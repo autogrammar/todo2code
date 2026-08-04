@@ -69,62 +69,41 @@ export type T2CAction =
   | 'evaluate_code_change'
   | 'close_code_change';
 
+type ActionInputHandler = (input: Record<string, unknown>, root: string, config: T2CConfig) => unknown | Promise<unknown>;
+
+const ACTION_HANDLERS: Record<T2CAction, ActionInputHandler> = {
+  extract_nl: executeExtractNlAction,
+  extract_git: executeExtractGitAction,
+  extract_ast: executeExtractAstAction,
+  extract_config: executeExtractConfigAction,
+  extract_markdown: executeExtractMarkdownAction,
+  extract_docs: executeExtractDocsAction,
+  extract_communication: executeExtractCommunicationAction,
+  analyze_communication: executeAnalyzeCommunicationAction,
+  link: executeLinkAction,
+  diagnose: executeDiagnoseAction,
+  summarize: executeSummarizeAction,
+  diff: executeDiffAction,
+  diff_files: executeDiffFilesAction,
+  diff_git: executeDiffGitAction,
+  reality: executeRealityAction,
+  pipeline: executePipelineAction,
+  compare_workspace: executeCompareWorkspaceAction,
+  propose_todo: executeProposeTodoAction,
+  render_todo: executeRenderTodoAction,
+  apply_todo: executeApplyTodoAction,
+  propose_code_change: executeProposeCodeChangeAction,
+  render_code_change: executeRenderCodeChangeAction,
+  propose_source_patch: executeProposeSourcePatchAction,
+  apply_source_patch: executeApplySourcePatchAction,
+  evaluate_code_change: executeEvaluateCodeChangeAction,
+  close_code_change: executeCloseCodeChangeAction,
+};
+
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
   const root = await resolveRoot(input.root, config);
-  switch (action) {
-    case 'extract_nl':
-      return executeExtractNlAction(input, root, config);
-    case 'extract_git':
-      return executeExtractGitAction(root, input, config);
-    case 'extract_ast':
-      return executeExtractAstAction(root, config);
-    case 'extract_config':
-      return executeExtractConfigAction(root, config);
-    case 'extract_markdown':
-      return executeExtractMarkdownAction(input, root, config);
-    case 'extract_docs':
-      return executeExtractDocsAction(input, root, config);
-    case 'extract_communication':
-      return executeExtractCommunicationAction(input, root, config);
-    case 'analyze_communication':
-      return executeAnalyzeCommunicationAction(input, root, config);
-    case 'link':
-      return executeLinkAction(input, root, config);
-    case 'diagnose':
-      return executeDiagnoseAction(input);
-    case 'summarize':
-      return executeSummarizeAction(input, root, config);
-    case 'propose_todo':
-      return executeProposeTodoAction(input, root, config);
-    case 'render_todo':
-      return executeRenderTodoAction(input, root, config);
-    case 'apply_todo':
-      return executeApplyTodoAction(input, root, config);
-    case 'propose_code_change':
-      return executeProposeCodeChangeAction(input, root, config);
-    case 'render_code_change':
-      return executeRenderCodeChangeAction(input, root, config);
-    case 'propose_source_patch':
-      return executeProposeSourcePatchAction(input, root, config);
-    case 'apply_source_patch':
-      return executeApplySourcePatchAction(input, root, config);
-    case 'evaluate_code_change':
-      return executeEvaluateCodeChangeAction(input, root, config);
-    case 'close_code_change':
-      return executeCloseCodeChangeAction(input, root, config);
-    case 'diff':
-      return executeDiffAction(input, root, config);
-    case 'diff_files':
-      return executeDiffFilesAction(input, root, config);
-    case 'diff_git':
-      return executeDiffGitAction(input, root, config);
-    case 'reality':
-      return executeRealityAction(input, config);
-    case 'pipeline':
-      return executePipelineAction(input, root, config);
-    case 'compare_workspace':
-      return executeCompareWorkspaceAction(input, root, config);
-  }
+  const handler = ACTION_HANDLERS[action];
+  return handler(input, root, config);
 }
 
 async function executeExtractNlAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
@@ -137,15 +116,15 @@ async function executeExtractNlAction(input: Record<string, unknown>, root: stri
   );
 }
 
-function executeExtractGitAction(root: string, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
+function executeExtractGitAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
   return extractGitIntent({ root, count: numberValue(input.count, config.gitCommitCount, 1, 100) }, config);
 }
 
-function executeExtractAstAction(root: string, config: T2CConfig): Promise<unknown> {
+function executeExtractAstAction(_input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
   return extractAstIntent({ root }, config);
 }
 
-function executeExtractConfigAction(root: string, config: T2CConfig): Promise<unknown> {
+function executeExtractConfigAction(_input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
   return extractConfigurationIntent(root, config);
 }
 
@@ -523,7 +502,7 @@ async function executeDiffFilesAction(input: Record<string, unknown>, root: stri
   return withTextDiffViews([diff], input);
 }
 
-async function executeDiffGitAction(input: Record<string, unknown>, root: string): Promise<unknown> {
+async function executeDiffGitAction(input: Record<string, unknown>, root: string, _config: T2CConfig): Promise<unknown> {
   const result = await collectGitDiff({
     root,
     revision: stringValue(input.revision, 'HEAD'),
@@ -534,7 +513,7 @@ async function executeDiffGitAction(input: Record<string, unknown>, root: string
   return { ...withTextDiffViews(result.diffs, input), revision: result.revision, staged: result.staged, warnings: result.warnings };
 }
 
-function executeRealityAction(input: Record<string, unknown>, config: T2CConfig): unknown {
+function executeRealityAction(_input: Record<string, unknown>, _root: string, config: T2CConfig): unknown {
   const graph = objectValue<IntentGraph>(input.graph, 'graph');
   const diagnostics = input.diagnostics
     ? objectValue<DiagnosticReport>(input.diagnostics, 'diagnostics')
