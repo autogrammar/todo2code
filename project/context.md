@@ -5,27 +5,27 @@
 
 - **Project**: /home/tom/github/semcod/todo2code
 - **Primary Language**: typescript
-- **Languages**: typescript: 143, json: 40, python: 16, javascript: 15, shell: 8
+- **Languages**: typescript: 144, json: 40, python: 16, javascript: 15, shell: 8
 - **Analysis Mode**: static
-- **Total Functions**: 3683
-- **Total Classes**: 373
-- **Modules**: 251
-- **Entry Points**: 2620
+- **Total Functions**: 3900
+- **Total Classes**: 390
+- **Modules**: 252
+- **Entry Points**: 2662
 
 ## Architecture by Module
+
+### src.synthesis.code-change-plan.implementation-helpers
+- **Functions**: 308
+- **Classes**: 25
+- **File**: `implementation-helpers.ts`
 
 ### src.cli
 - **Functions**: 202
 - **Classes**: 1
 - **File**: `cli.ts`
 
-### src.synthesis.code-change-plan.implementation
-- **Functions**: 148
-- **Classes**: 10
-- **File**: `implementation.ts`
-
 ### src.services.actions
-- **Functions**: 118
+- **Functions**: 145
 - **Classes**: 1
 - **File**: `actions.ts`
 
@@ -54,6 +54,10 @@
 - **Classes**: 3
 - **File**: `reality.ts`
 
+### src.core.text
+- **Functions**: 66
+- **File**: `text.ts`
+
 ### src.pipeline.run
 - **Functions**: 65
 - **Classes**: 1
@@ -63,10 +67,6 @@
 - **Functions**: 64
 - **Classes**: 6
 - **File**: `git.ts`
-
-### src.core.text
-- **Functions**: 62
-- **File**: `text.ts`
 
 ### src.graph.diagnostics
 - **Functions**: 61
@@ -116,12 +116,6 @@
 
 Main execution flows into the system:
 
-### src.services.actions.executeAction
-- **Calls**: src.services.actions.resolveRoot, src.services.actions.scopedPath, src.services.actions.extractNlIntentAudited, src.services.actions.nlModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.extractAstIntent, src.services.actions.extractConfigurationIntent
-
-### src.services.actions.root
-- **Calls**: src.services.actions.scopedPath, src.services.actions.extractNlIntentAudited, src.services.actions.nlModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.extractAstIntent, src.services.actions.extractConfigurationIntent, src.services.actions.extractMarkdownIntentAudited
-
 ### sdk.python.examples.basic.main
 - **Calls**: os.environ.get, os.environ.get, os.environ.get, T2CClient, print, client.agent_card, print, client.extract_nl_result
 
@@ -131,32 +125,17 @@ Main execution flows into the system:
 ### scripts.research.rank-intent-graph-embeddings.main
 - **Calls**: scripts.research.rank-intent-graph-embeddings.parse_args, args.graph.read_bytes, json.loads, sorted, sorted, time.monotonic, SentenceTransformer, model.encode
 
-### src.web.diff-ui.diffUiHtml
-- **Calls**: src.web.diff-ui.gradient, src.web.diff-ui.min, src.web.diff-ui.clamp, src.web.diff-ui.not, src.web.diff-ui.media, src.web.diff-ui.token, src.web.diff-ui.getElementById, src.web.diff-ui.byId
-
 ### src.comparison.workspace.compareWorkspaceIntent
 - **Calls**: src.comparison.workspace.resolve, src.comparison.workspace.git, src.comparison.workspace.trim, src.comparison.workspace.relative, src.comparison.workspace.startsWith, src.comparison.workspace.isAbsolute, src.comparison.workspace.Error, src.comparison.workspace.scopedOutputDirectory
-
-### src.synthesis.code-change-plan.implementation.applyCodeChangeSourcePatch
-- **Calls**: src.synthesis.code-change-plan.implementation.assertCodeChangeSourcePatch, src.synthesis.code-change-plan.implementation.trim, src.synthesis.code-change-plan.implementation.Error, src.synthesis.code-change-plan.implementation.resolve, src.synthesis.code-change-plan.implementation.assertPathWithinRoot, src.synthesis.code-change-plan.implementation.ensureDir, src.synthesis.code-change-plan.implementation.dirname, src.synthesis.code-change-plan.implementation.open
 
 ### src.communication.analyzer.analyzeCommunication
 - **Calls**: src.communication.analyzer.assertIntentGraph, src.communication.analyzer.filter, src.communication.analyzer.validateSyntheses, src.communication.analyzer.evidenceNeighbors, src.communication.analyzer.participantOf, src.communication.analyzer.get, src.communication.analyzer.push, src.communication.analyzer.set
 
-### src.synthesis.code-change-plan.implementation.proposeCodeChangePlans
-- **Calls**: src.synthesis.code-change-plan.implementation.assertIntentGraph, src.synthesis.code-change-plan.implementation.assertConclusions, src.synthesis.code-change-plan.implementation.Date, src.synthesis.code-change-plan.implementation.toISOString, src.synthesis.code-change-plan.implementation.isNaN, src.synthesis.code-change-plan.implementation.parse, src.synthesis.code-change-plan.implementation.Error, src.synthesis.code-change-plan.implementation.isInteger
-
 ### src.interfaces.a2a-message.parseCommand
 - **Calls**: src.interfaces.a2a-message.find, src.interfaces.a2a-message.from, src.interfaces.a2a-message.decodeIntakeEnvelope, src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.commandFromData, src.interfaces.a2a-message.map, src.interfaces.a2a-message.join, src.interfaces.a2a-message.trim
 
-### src.core.text.inferObject
-- **Calls**: src.core.text.replace, src.core.text.trim, src.core.text.b, src.core.text.utworzy, src.core.text.doda, src.core.text.zaimplementowa, src.core.text.stworzy, src.core.text.zbudowa
-
 ### scripts.research.evaluate-embedding-pairs.main
-- **Calls**: scripts.research.evaluate-embedding-pairs.parse_args, json.loads, src.synthesis.code-change-plan.implementation.list, time.monotonic, SentenceTransformer, model.encode, dict, args.output.write_text
-
-### src.core.text.normalized
-- **Calls**: src.core.text.b, src.core.text.utworzy, src.core.text.doda, src.core.text.zaimplementowa, src.core.text.stworzy, src.core.text.zbudowa, src.core.text.napraw, src.core.text.popraw
+- **Calls**: scripts.research.evaluate-embedding-pairs.parse_args, json.loads, src.synthesis.code-change-plan.implementation-helpers.list, time.monotonic, SentenceTransformer, model.encode, dict, args.output.write_text
 
 ### src.interfaces.intake_cli.main
 - **Calls**: argparse.ArgumentParser, parser.add_subparsers, sub.add_parser, encode.add_argument, encode.add_argument, sub.add_parser, decode.add_argument, decode.add_argument
@@ -206,66 +185,87 @@ Main execution flows into the system:
 ### sdk.typescript.examples.basic.main
 - **Calls**: sdk.typescript.examples.basic.T2CClient, sdk.typescript.examples.basic.health, sdk.typescript.examples.basic.log, sdk.typescript.examples.basic.agentCard, sdk.typescript.examples.basic.map, sdk.typescript.examples.basic.join, sdk.typescript.examples.basic.extractNl, sdk.typescript.examples.basic.Error
 
+### sdk.python.todo2code.runtime.TypeScriptRuntime.reality
+- **Calls**: tempfile.TemporaryDirectory, self.invoke, Path, Path, Path, str, str, str
+
+### src.extractors.nl.extractNlIntent
+- **Calls**: src.extractors.nl.assertNlExtractionOptions, src.extractors.nl.resolve, src.extractors.nl.readText, src.extractors.nl.isAbsolute, src.extractors.nl.relativePosix, src.extractors.nl.replace, src.extractors.nl.splitIntentLines, src.extractors.nl.classifyAction
+
+### src.extractors.ast.extractAstIntent
+- **Calls**: src.extractors.ast.resolve, src.extractors.ast.ContentCache, src.extractors.ast.loadIgnoreMatcher, src.extractors.ast.walkFiles, src.extractors.ast.readText, src.extractors.ast.relativePosix, src.extractors.ast.getOrCompute, src.extractors.ast.sha256
+
+### src.extractors.todo.body
+- **Calls**: src.extractors.todo.match, src.extractors.todo.splice, src.extractors.todo.trim, src.extractors.todo.toLowerCase, src.extractors.todo.readListBlock, src.extractors.todo.classifyAction, src.extractors.todo.resolve, src.extractors.todo.extractPaths
+
+### src.extractors.todo.relative
+- **Calls**: src.extractors.todo.match, src.extractors.todo.splice, src.extractors.todo.trim, src.extractors.todo.toLowerCase, src.extractors.todo.readListBlock, src.extractors.todo.classifyAction, src.extractors.todo.resolve, src.extractors.todo.extractPaths
+
+### src.extractors.todo.lines
+- **Calls**: src.extractors.todo.match, src.extractors.todo.splice, src.extractors.todo.trim, src.extractors.todo.toLowerCase, src.extractors.todo.readListBlock, src.extractors.todo.classifyAction, src.extractors.todo.resolve, src.extractors.todo.extractPaths
+
+### src.synthesis.todo-patch.applyTodoPatch
+- **Calls**: src.synthesis.todo-patch.all, src.synthesis.todo-patch.readText, src.synthesis.todo-patch.assertTodoPatchArtifact, src.synthesis.todo-patch.sha256, src.synthesis.todo-patch.Error, src.synthesis.todo-patch.assertApproval, src.synthesis.todo-patch.ensureDir, src.synthesis.todo-patch.dirname
+
 ## Process Flows
 
 Key execution flows identified:
 
-### Flow 1: executeAction
-```
-executeAction [src.services.actions]
-  └─> resolveRoot
-  └─> scopedPath
-      └─> stringValue
-```
-
-### Flow 2: root
-```
-root [src.services.actions]
-  └─> scopedPath
-      └─> stringValue
-```
-
-### Flow 3: main
+### Flow 1: main
 ```
 main [sdk.python.examples.basic]
 ```
 
-### Flow 4: runPipeline
+### Flow 2: runPipeline
 ```
 runPipeline [src.pipeline.run]
 ```
 
-### Flow 5: diffUiHtml
-```
-diffUiHtml [src.web.diff-ui]
-```
-
-### Flow 6: compareWorkspaceIntent
+### Flow 3: compareWorkspaceIntent
 ```
 compareWorkspaceIntent [src.comparison.workspace]
   └─> git
       └─> execFileAsync
 ```
 
-### Flow 7: applyCodeChangeSourcePatch
-```
-applyCodeChangeSourcePatch [src.synthesis.code-change-plan.implementation]
-  └─> assertCodeChangeSourcePatch
-```
-
-### Flow 8: analyzeCommunication
+### Flow 4: analyzeCommunication
 ```
 analyzeCommunication [src.communication.analyzer]
 ```
 
-### Flow 9: proposeCodeChangePlans
-```
-proposeCodeChangePlans [src.synthesis.code-change-plan.implementation]
-```
-
-### Flow 10: parseCommand
+### Flow 5: parseCommand
 ```
 parseCommand [src.interfaces.a2a-message]
+```
+
+### Flow 6: assertOperationPlan
+```
+assertOperationPlan [src.operations.validation]
+  └─> objectValue
+  └─> exactKeys
+```
+
+### Flow 7: temporaryParent
+```
+temporaryParent [src.comparison.workspace]
+  └─> git
+      └─> execFileAsync
+```
+
+### Flow 8: baseWorktree
+```
+baseWorktree [src.comparison.workspace]
+  └─> git
+      └─> execFileAsync
+```
+
+### Flow 9: extractTodo
+```
+extractTodo [src.extractors.todo]
+```
+
+### Flow 10: makefile
+```
+makefile [scripts.verify-env-contract]
 ```
 
 ## Key Classes
@@ -286,6 +286,10 @@ parseCommand [src.interfaces.a2a-message]
 - **Methods**: 44
 - **Key Methods**: src.communication.intake-contract.IntakeError.super, src.communication.intake-contract.IntakeError.payloadHash, src.communication.intake-contract.IntakeError.canonicalJson, src.communication.intake-contract.IntakeError.record, src.communication.intake-contract.IntakeError.assertIntakeEnvelope, src.communication.intake-contract.IntakeError.envelope, src.communication.intake-contract.IntakeError.invalid, src.communication.intake-contract.IntakeError.invalid, src.communication.intake-contract.IntakeError.assertCommand, src.communication.intake-contract.IntakeError.base
 
+### src.semantic.reranker-llm.SemanticRerankerRequiredError
+- **Methods**: 43
+- **Key Methods**: src.semantic.reranker-llm.SemanticRerankerRequiredError.super, src.semantic.reranker-llm.SemanticRerankerRequiredError.rerankSemanticCandidates, src.semantic.reranker-llm.SemanticRerankerRequiredError.assertSemanticCandidateSet, src.semantic.reranker-llm.SemanticRerankerRequiredError.validateCandidateSetSize, src.semantic.reranker-llm.SemanticRerankerRequiredError.model, src.semantic.reranker-llm.SemanticRerankerRequiredError.modelRevision, src.semantic.reranker-llm.SemanticRerankerRequiredError.cached, src.semantic.reranker-llm.SemanticRerankerRequiredError.client, src.semantic.reranker-llm.SemanticRerankerRequiredError.payload, src.semantic.reranker-llm.SemanticRerankerRequiredError.response
+
 ### src.llm.structured-schema.StructuredResponseError
 - **Methods**: 37
 - **Key Methods**: src.llm.structured-schema.StructuredResponseError.super, src.llm.structured-schema.StructuredResponseError.schema, src.llm.structured-schema.StructuredResponseError.parse, src.llm.structured-schema.StructuredResponseError.string, src.llm.structured-schema.StructuredResponseError.pattern, src.llm.structured-schema.StructuredResponseError.fail, src.llm.structured-schema.StructuredResponseError.fail, src.llm.structured-schema.StructuredResponseError.nullableString, src.llm.structured-schema.StructuredResponseError.base, src.llm.structured-schema.StructuredResponseError.number
@@ -305,10 +309,6 @@ Example:
 ### src.extractors.docs-llm.DocumentationLlmRequiredError
 - **Methods**: 29
 - **Key Methods**: src.extractors.docs-llm.DocumentationLlmRequiredError.super, src.extractors.docs-llm.DocumentationLlmRequiredError.extractDocumentationIntent, src.extractors.docs-llm.DocumentationLlmRequiredError.startedAt, src.extractors.docs-llm.DocumentationLlmRequiredError.client, src.extractors.docs-llm.DocumentationLlmRequiredError.requireConfiguredClient, src.extractors.docs-llm.DocumentationLlmRequiredError.cache, src.extractors.docs-llm.DocumentationLlmRequiredError.chunks, src.extractors.docs-llm.DocumentationLlmRequiredError.selectedChunks, src.extractors.docs-llm.DocumentationLlmRequiredError.systemPrompt, src.extractors.docs-llm.DocumentationLlmRequiredError.results
-
-### src.semantic.reranker-llm.SemanticRerankerRequiredError
-- **Methods**: 29
-- **Key Methods**: src.semantic.reranker-llm.SemanticRerankerRequiredError.super, src.semantic.reranker-llm.SemanticRerankerRequiredError.rerankSemanticCandidates, src.semantic.reranker-llm.SemanticRerankerRequiredError.assertSemanticCandidateSet, src.semantic.reranker-llm.SemanticRerankerRequiredError.model, src.semantic.reranker-llm.SemanticRerankerRequiredError.modelRevision, src.semantic.reranker-llm.SemanticRerankerRequiredError.assertSemanticRerankResult, src.semantic.reranker-llm.SemanticRerankerRequiredError.client, src.semantic.reranker-llm.SemanticRerankerRequiredError.records, src.semantic.reranker-llm.SemanticRerankerRequiredError.payload, src.semantic.reranker-llm.SemanticRerankerRequiredError.response
 
 ### src.extractors.nl-llm-helpers.NlAttemptError
 - **Methods**: 28
@@ -448,25 +448,19 @@ Key functions that process and transform data:
 
 Functions exposed as public API (no underscore prefix):
 
-- `src.services.actions.executeAction` - 65 calls
-- `src.services.actions.root` - 64 calls
 - `sdk.python.examples.basic.main` - 62 calls
 - `src.pipeline.run.runPipeline` - 56 calls
 - `scripts.research.rank-intent-graph-embeddings.main` - 43 calls
-- `src.web.diff-ui.diffUiHtml` - 42 calls
 - `src.comparison.workspace.compareWorkspaceIntent` - 40 calls
+- `src.semantic.reranker.result.assertSemanticRerankResult` - 37 calls
 - `sdk.rust.src.client.parse_http_response` - 37 calls
-- `src.synthesis.code-change-plan.implementation.applyCodeChangeSourcePatch` - 35 calls
+- `src.web.diff-ui.diffUiScriptMarkup` - 36 calls
 - `src.communication.analyzer.analyzeCommunication` - 35 calls
-- `src.synthesis.code-change-plan.implementation.proposeCodeChangePlans` - 34 calls
 - `src.interfaces.a2a-message.parseCommand` - 33 calls
 - `sdk.rust.examples.basic.run` - 33 calls
-- `src.core.text.inferObject` - 31 calls
 - `scripts.research.evaluate-embedding-pairs.main` - 30 calls
-- `src.core.text.normalized` - 29 calls
 - `src.interfaces.intake_cli.main` - 29 calls
 - `src.operations.validation.assertOperationPlan` - 28 calls
-- `src.synthesis.code-change-plan.implementation.assertCodeChangeSourcePatch` - 26 calls
 - `src.comparison.workspace.temporaryParent` - 25 calls
 - `src.comparison.workspace.baseWorktree` - 25 calls
 - `sdk.go.examples.basic.main.run` - 25 calls
@@ -479,7 +473,6 @@ Functions exposed as public API (no underscore prefix):
 - `scripts.live-model-comparison.main` - 22 calls
 - `rust-ast.src.main.main` - 21 calls
 - `src.extractors.git.extractRepositoryGitIntent` - 21 calls
-- `src.semantic.reranker.result.assertSemanticRerankResult` - 21 calls
 - `python.ast_extract.iter_python_files` - 21 calls
 - `sdk.typescript.examples.basic.baseUrl` - 21 calls
 - `sdk.typescript.examples.basic.token` - 21 calls
@@ -488,6 +481,13 @@ Functions exposed as public API (no underscore prefix):
 - `sdk.python.todo2code.runtime.TypeScriptRuntime.reality` - 21 calls
 - `rust-ast.src.main.collect_files` - 20 calls
 - `src.extractors.nl.extractNlIntent` - 20 calls
+- `src.extractors.ast.extractAstIntent` - 20 calls
+- `src.extractors.todo.body` - 20 calls
+- `src.extractors.todo.relative` - 20 calls
+- `src.extractors.todo.lines` - 20 calls
+- `src.synthesis.todo-patch.createTodoPatch` - 20 calls
+- `src.synthesis.todo-patch.applyTodoPatch` - 20 calls
+- `src.llm.openrouter.OpenRouterClient.request` - 20 calls
 
 ## System Interactions
 
@@ -495,16 +495,6 @@ How components interact:
 
 ```mermaid
 graph TD
-    executeAction --> resolveRoot
-    executeAction --> scopedPath
-    executeAction --> extractNlIntentAudit
-    executeAction --> nlModeValue
-    executeAction --> extractGitIntent
-    root --> scopedPath
-    root --> extractNlIntentAudit
-    root --> nlModeValue
-    root --> extractGitIntent
-    root --> numberValue
     main --> get
     main --> T2CClient
     main --> print
@@ -517,14 +507,24 @@ graph TD
     main --> read_bytes
     main --> loads
     main --> sorted
-    diffUiHtml --> gradient
-    diffUiHtml --> min
-    diffUiHtml --> clamp
-    diffUiHtml --> not
-    diffUiHtml --> media
     compareWorkspaceInte --> resolve
     compareWorkspaceInte --> git
     compareWorkspaceInte --> trim
+    compareWorkspaceInte --> relative
+    compareWorkspaceInte --> startsWith
+    analyzeCommunication --> assertIntentGraph
+    analyzeCommunication --> filter
+    analyzeCommunication --> validateSyntheses
+    analyzeCommunication --> evidenceNeighbors
+    analyzeCommunication --> participantOf
+    parseCommand --> find
+    parseCommand --> from
+    parseCommand --> decodeIntakeEnvelope
+    parseCommand --> isRecord
+    parseCommand --> commandFromData
+    main --> list
+    main --> monotonic
+    main --> SentenceTransformer
 ```
 
 ## Reverse Engineering Guidelines
