@@ -22,12 +22,6 @@
   `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
   with protected merge review still required.
 
-- [ ] [`ticket-023`](project/ticket-023/README.md) — repair the current-HEAD
-  core artifact contracts, semantic reranker parser guard and canonical runtime
-  version without reverting parallel refactors. Current state:
-  `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
-  with protected merge review still required.
-
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
@@ -53,6 +47,10 @@
   release the overlapping `Makefile` path.
 
 ## Completed tickets
+
+- [x] [`ticket-023`](project/ticket-023/README.md) — restored current core and
+  semantic contracts, strict validation and linker scoring. Current state:
+  `DONE`; all local, gold and Docker gates pass.
 
 - [x] [`ticket-020`](project/ticket-020/README.md) — add deterministic
   trusted intake boundary with CQRS/event sourcing, strict schemas, Protobuf,

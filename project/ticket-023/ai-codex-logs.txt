@@ -35,3 +35,4 @@ npm run verify: PASS (338 tests; 337 pass, 0 fail, 1 local JDK skip)
 gold v1/v2: 100% precision and recall; stability PASS
 Docker core: PASS (331 pass, 7 explicit toolchain skips)
 Docker full: PASS (338 pass, 0 fail, 0 skip)
+2026-08-04 ticket completion: DONE after aggregate validation; publication review remains external

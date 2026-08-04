@@ -7,3 +7,4 @@
 - Restored current core/type contracts, strict validator narrowing, semantic
   parser structure and raw linker similarity scoring.
 - Full verification, gold v1/v2 and Docker core/full pass.
+- Marked the fully validated implementation DONE before protected publication.

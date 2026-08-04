@@ -38,5 +38,4 @@ core/semantic edits will be reapplied on current HEAD.
 
 ## Blockers
 
-- Implementation and validation are complete; protected merge approval remains
-  external.
+- None for ticket completion. Publication remains subject to protected review.
