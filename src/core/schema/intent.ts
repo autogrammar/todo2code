@@ -69,7 +69,8 @@ export function assertIntentRecord(value: unknown): asserts value is IntentRecor
   exactKeys(record, ['schemaVersion', 'id', 'statement', 'lifecycle', 'source', 'epistemic', 'observedAt', 'metadata'], 'Intent record');
   if (record.schemaVersion !== 't2c.intent/v1') throw new Error('Unsupported intent schemaVersion');
   if (typeof record.id !== 'string' || !RECORD_ID.test(record.id)) throw new Error('Intent record id must match INT-<SOURCE>-<20 hex>');
-  const recordId = nonEmptyString(record.id, 'Intent record: id');
+  nonEmptyString(record.id, 'Intent record: id');
+  const recordId = record.id;
   const statement = assertIntentStatement(recordId, record);
   const lifecycle = assertIntentLifecycle(recordId, record);
   const source = assertIntentSource(recordId, record);
@@ -79,7 +80,7 @@ export function assertIntentRecord(value: unknown): asserts value is IntentRecor
 }
 
 function assertIntentStatement(recordId: string, record: Record<string, unknown>): IntentRecord['statement'] {
-  const statement = objectValue(record.statement, `Intent ${recordId}: statement`);
+  const statement = objectValue(record.statement, `Intent ${recordId}: statement`) as IntentRecord['statement'];
   exactKeys(statement, ['kind', 'actor', 'action', 'subject', 'object', 'target', 'modality', 'polarity', 'text'], `Intent ${recordId}: statement`);
   nonEmptyString(statement.kind, `Intent ${recordId}: statement.kind`);
   nullableString(statement.actor, `Intent ${recordId}: statement.actor`);
@@ -94,7 +95,7 @@ function assertIntentStatement(recordId: string, record: Record<string, unknown>
 }
 
 function assertIntentTarget(recordId: string, targetValue: unknown): IntentRecord['statement']['target'] {
-  const target = objectValue(targetValue, `Intent ${recordId}: statement.target`);
+  const target = objectValue(targetValue, `Intent ${recordId}: statement.target`) as IntentRecord['statement']['target'];
   exactKeys(target, ['paths', 'symbols', 'tickets', 'versions'], `Intent ${recordId}: statement.target`);
   for (const key of ['paths', 'symbols', 'tickets', 'versions'] as const) {
     stringArray(target[key], `Intent ${recordId}: statement.target.${key}`, true);
@@ -103,14 +104,14 @@ function assertIntentTarget(recordId: string, targetValue: unknown): IntentRecor
 }
 
 function assertIntentLifecycle(recordId: string, record: Record<string, unknown>): IntentRecord['lifecycle'] {
-  const lifecycle = objectValue(record.lifecycle, `Intent ${recordId}: lifecycle`);
+  const lifecycle = objectValue(record.lifecycle, `Intent ${recordId}: lifecycle`) as IntentRecord['lifecycle'];
   exactKeys(lifecycle, ['status'], `Intent ${recordId}: lifecycle`);
   enumValue(lifecycle.status, LIFECYCLES, `Intent ${recordId}: lifecycle.status`);
   return lifecycle;
 }
 
 function assertIntentSource(recordId: string, record: Record<string, unknown>): IntentRecord['source'] {
-  const source = objectValue(record.source, `Intent ${recordId}: source`);
+  const source = objectValue(record.source, `Intent ${recordId}: source`) as IntentRecord['source'];
   exactKeys(source, ['kind', 'path', 'lines', 'revision', 'symbol', 'commitIndex', 'extractor', 'contentHash', 'rawExcerpt'], `Intent ${recordId}: source`);
   enumValue(source.kind, SOURCE_KINDS, `Intent ${recordId}: source.kind`);
   nullableString(source.path, `Intent ${recordId}: source.path`);
@@ -136,7 +137,7 @@ function assertIntentSource(recordId: string, record: Record<string, unknown>): 
 }
 
 function assertIntentEpistemic(recordId: string, record: Record<string, unknown>): IntentRecord['epistemic'] {
-  const epistemic = objectValue(record.epistemic, `Intent ${recordId}: epistemic`);
+  const epistemic = objectValue(record.epistemic, `Intent ${recordId}: epistemic`) as IntentRecord['epistemic'];
   exactKeys(epistemic, ['class', 'confidence', 'basis'], `Intent ${recordId}: epistemic`);
   enumValue(epistemic.class, EPISTEMIC_CLASSES, `Intent ${recordId}: epistemic.class`);
   if (typeof epistemic.confidence !== 'number' || !Number.isFinite(epistemic.confidence)
