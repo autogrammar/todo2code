@@ -2,9 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-038`](project/ticket-038/README.md) — reconcile the stale
-  ticket-036 blocker narrative with its protected completion evidence. Current
-  state: `VALIDATION`.
+None.
 
 ## Planned tickets
 
@@ -18,6 +16,11 @@
 None.
 
 ## Completed tickets
+- [x] [`ticket-038`](project/ticket-038/README.md) — reconciled ticket-036's
+  stale pending-review narrative with protected completion evidence. Koru and
+  Validator approved exact head `670894d` using
+  `openrouter/z-ai/glm-5.2`; PR #40 merged as `main@ed35d3f`. Current state:
+  `DONE`.
 - [x] [`ticket-036`](project/ticket-036/README.md) — deterministic,
   provenance-preserving `t2c.truth-map/v1` core projection. Koru and Validator
   approved exact head `65b4bc1` with `openrouter/z-ai/glm-5.2`; PR #35 merged

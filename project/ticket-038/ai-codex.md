@@ -28,6 +28,10 @@ rewrite historical validation evidence.
   state while retaining the separate dependent-ticket boundary.
 - Full offline verification passed with 349 tests, one environment-dependent
   skip and no failures.
+- Koru and Validator approved exact head `670894d` with no findings; Validator
+  used `openrouter/z-ai/glm-5.2`.
+- PR #40 merged through branch protection as `main@ed35d3f` and closed issue
+  #37.
 
 ## Blockers
 
