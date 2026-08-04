@@ -1,0 +1,27 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-034",
+  "summary": "Scale each OpenRouter request timeout from bounded input and complexity pressure",
+  "workstream": "llm",
+  "allowedPaths": [
+    "src/llm/openrouter-timeout.ts",
+    "src/llm/openrouter.ts",
+    "src/llm/audit.ts",
+    "test/openrouter-timeout.test.ts",
+    "project/ticket-034/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/config/**",
+    "src/pipeline/**",
+    "src/extractors/**",
+    "src/communication/**",
+    "src/summary/**"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-027"],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
