@@ -37,6 +37,8 @@
   interactive GitHub App installation rather than a code or secret defect.
 - Recorded the user's completed App installation and returned ticket-018 to
   `IN_PROGRESS` before producing the new current-head validation request.
+- Advanced the immutable standard pin to `d082373` after its push-event fix
+  excluded only the injected standard checkout through `.git/info/exclude`.
 
 ## [0.5.0] - 2026-08-04
 

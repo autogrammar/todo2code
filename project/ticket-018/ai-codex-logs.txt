@@ -337,3 +337,8 @@ installation; interactive installation remains required at the App settings boun
 target: semcod/todo2code
 transition: BLOCKED -> IN_PROGRESS / VALIDATION
 next boundary: publish a new head, require exact-head hosted checks, then live review
+2026-08-04 CENTRAL PUSH-EVENT FOLLOW-UP
+old standard: 78b365272b5b258931f9a66d7124122ec19d7814
+new standard: d082373f314191dba794aba58aca2d4475ea497a
+change: workflow-owned .new-project-standard/ excluded through .git/info/exclude
+security property: tracked target paths remain visible to governance diff checks

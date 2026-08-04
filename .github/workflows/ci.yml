@@ -19,9 +19,9 @@ jobs:
   governance:
     name: governance / enforce
     if: github.event_name != 'schedule'
-    uses: wellmanifest/new-project/.github/workflows/governance.yml@78b365272b5b258931f9a66d7124122ec19d7814
+    uses: wellmanifest/new-project/.github/workflows/governance.yml@d082373f314191dba794aba58aca2d4475ea497a
     with:
-      standard-ref: 78b365272b5b258931f9a66d7124122ec19d7814
+      standard-ref: d082373f314191dba794aba58aca2d4475ea497a
       trusted-validator-apps: ifuri-validator-agent[bot]
 
   verify:
