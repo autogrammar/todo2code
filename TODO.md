@@ -2,14 +2,16 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-036`](project/ticket-036/README.md) — implemented and locally
+  validated the deterministic, provenance-preserving `t2c.truth-map/v1` core
+  projection. Current state: `IN_PROGRESS / VALIDATION`; the hosted CC=21
+  finding is remediated and the exact-head checks must be repeated.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
-
 - [x] [`ticket-034`](project/ticket-034/README.md) — scales each OpenRouter
   request timeout from bounded input, output and structural-complexity pressure,
   retaining the configured default at baseline and increasing by `2x` steps up
