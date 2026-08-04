@@ -297,7 +297,7 @@ export function audit(
 }
 
 export async function readPrompt(): Promise<string> {
-  const promptPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../prompts', 'communication-to-intent.system.md');
+  const promptPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../prompts', 'communication-to-intent.system.md');
   if (!(await pathExists(promptPath))) throw new Error(`Prompt not found: ${promptPath}`);
   return fs.readFile(promptPath, 'utf8');
 }
