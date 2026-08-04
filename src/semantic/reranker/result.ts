@@ -99,7 +99,6 @@ export function assertSemanticRerankResult(
   const acceptedDeclarations = new Set<string>();
 
   assertSemanticRerankHeader(value, candidateSet, graph);
-  if (value.schemaVersion !== 't2c.semantic-rerank/v1') {
   for (const decision of value.decisions) {
     const candidate = validateSemanticDecisionCandidate(decision, candidates, seenDecisions);
     validateSemanticDecisionDecision(decision);
