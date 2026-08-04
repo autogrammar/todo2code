@@ -1,0 +1,124 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-039",
+  "summary": "Materialize bounded immutable local Git branch topology without repository mutation",
+  "workstream": "runtime",
+  "allowedPaths": [
+    "src/services/branch-snapshot.ts",
+    "test/git-branch-snapshot.test.ts",
+    "project/ticket-039/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/**",
+    "src/pipeline/**",
+    "src/interfaces/**",
+    "src/cli.ts",
+    "src/sdk/**",
+    "sdk/**",
+    "schemas/**",
+    "docs/**",
+    ".github/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-037"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "3b7fdc17076da9c73db2fadaa6aa99742d6e7505",
+    "targetBranch": "main",
+    "outcome": "Provide exact, deterministic and read-only Git topology evidence for later t2c.branch/v1 semantic assembly",
+    "nonGoals": [
+      "No semantic comparison or completeness claim",
+      "No pipeline artifact or per-tree todo2code analysis",
+      "No CLI, MCP, A2A, SDK or published schema",
+      "No GitHub API, PR metadata, remote fetch or LLM",
+      "No ref, index, worktree or repository object mutation",
+      "No Goal, Koru or Validator adapter"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Separate immutable local Git observation from semantic evidence assembly and expose no public interface in this ticket",
+      "components": [
+        {
+          "name": "branch-git-snapshot-materializer",
+          "paths": [
+            "src/services/branch-snapshot.ts",
+            "test/git-branch-snapshot.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Add an in-memory internal Git materialization; no persisted or public schema"
+      ],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Remove the two additive runtime files; ticket-037 core behavior and every existing interface remain unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/git-branch-snapshot.test.js"],
+        "evidence": "Strict repository/ref/count input rejection tests pass"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["npm run build", "node --test dist/test/git-branch-snapshot.test.js"],
+        "evidence": "Captured immutable topology matches independent Git fixture queries"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["npm run build", "node --test dist/test/git-branch-snapshot.test.js"],
+        "evidence": "Cherry-equivalent and empty patch identity tests pass"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["npm run build", "node --test dist/test/git-branch-snapshot.test.js"],
+        "evidence": "Disjoint, conflict and unknown textual outcomes are covered"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["npm run build", "node --test dist/test/git-branch-snapshot.test.js"],
+        "evidence": "Ordering invariance and stale-ref rejection tests pass"
+      },
+      {
+        "criterion": "AC-07",
+        "commands": ["npm run build", "node --test dist/test/git-branch-snapshot.test.js"],
+        "evidence": "Before/after repository state and cleanup assertions pass"
+      },
+      {
+        "criterion": "AC-08",
+        "commands": ["npm run build", "node --test dist/test/git-branch-snapshot.test.js"],
+        "evidence": "Artifact shape excludes paths, secrets, authority and mutation fields"
+      },
+      {
+        "criterion": "AC-09",
+        "commands": ["npm run verify", "make governance", "make e2e-core", "git diff --check"],
+        "evidence": "Offline regression, governance, complexity and Docker gates pass"
+      },
+      {
+        "criterion": "AC-10",
+        "commands": ["./project/governance-check.sh"],
+        "evidence": "Follow-up workstreams remain excluded by allowedPaths and forbiddenPaths"
+      }
+    ]
+  }
+}
