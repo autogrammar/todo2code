@@ -2,27 +2,23 @@
 
 ## Active tickets
 
-- [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
-  `wellmanifest/new-project` manifest as policy-as-code through a deterministic
-  validator, trusted approval boundary, reusable governance CI, stack-specific
-  gates and pinned adoption in `todo2code`; extend it with safe concurrent
-  workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current state: `BLOCKED / PUBLICATION`; AC-01..AC-40, governance and Docker
-  core/full pass, including exact-head Validator App reviews accepted by the
-  reusable gate. Central `wellmanifest/new-project` PR #2 is green and
-  mergeable but still needs an independent review; `wellmanifest` currently
-  has no Validator App installation. The governance workstream reservation is
-  released while waiting.
+No active tickets.
 
 ## Backlog tickets
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
   one root `pyproject.toml` and SDK-only artifacts. Current state:
-  `BACKLOG / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
-  release the overlapping `Makefile` path.
+  `BACKLOG / WAIT_FOR_APPROVAL`; ticket-018 has released the overlapping
+  `Makefile` path, so the remaining boundary is approval of ticket-019 itself.
 
 ## Completed tickets
+
+- [x] [`ticket-018`](project/ticket-018/README.md) — enforced the central
+  governance manifest as policy-as-code with concurrent workstreams, pinned
+  reusable CI, Koru evidence and exact-head Validator App approvals. Current
+  state: `DONE`; todo2code and central Governance Hub publication reviews,
+  deterministic checks and human-controlled merges are complete.
 
 - [x] [`ticket-034`](project/ticket-034/README.md) — scaled each OpenRouter chat
   deadline deterministically from input size, output budget and structural
