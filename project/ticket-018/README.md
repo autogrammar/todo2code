@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -284,7 +284,7 @@ to this migration.
 - [x] AC-33: Central fixtures cover an accepted 10-minute fix, an accepted
       30-minute slice, over-budget decomposition, file-budget overflow,
       unresolved architecture, stale base and overlapping branch scenarios.
-- [ ] AC-34: `todo2code` adopts the pinned contract in `AGENTS.md`, managed
+- [x] AC-34: `todo2code` adopts the pinned contract in `AGENTS.md`, managed
       governance files and ticket templates without changing application code
       or claiming existing unrelated PRs.
 - [x] AC-35: Central tests, target governance fixtures and documentation
@@ -299,10 +299,10 @@ to this migration.
 - [x] AC-38: Bounded delivery remains available while only `IN_PROGRESS`
       reserves scope; planning/backlog/blocked tickets do not create active
       conflict, dependency, ownership or overlap diagnostics.
-- [ ] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
+- [x] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
       current guidance contain no Gemini 3.1 Pro Preview default, while
       historical evidence remains explicitly historical.
-- [ ] AC-40: Adoption preflight, governance fixtures, workflow validation,
+- [x] AC-40: Adoption preflight, governance fixtures, workflow validation,
       `npm run verify`, Docker-relevant checks and `git diff --check` pass
       without a live LLM request or application-source edit.
 
@@ -329,12 +329,15 @@ to this migration.
 
 ## Approval boundary
 
-- Current follow-up state: `IN_PROGRESS / EDIT`; AC-37 and AC-38 pass.
-  Upstream PR #1 was independently approved for exact head `346895b` and
-  published as merge commit `5267cf3b365959770e070e96e9157573a5d8c04b`;
-  the target lock uses that immutable source revision. Exact-head Koru run
-  `30934859353` reached GLM 5.2 but correctly failed closed because Vallm did
-  not receive parsable JSON. AC-39/AC-40 require a structured rerun.
+- Current follow-up state: `IN_PROGRESS / PUBLICATION`; AC-34 and AC-37..AC-40
+  pass locally. Upstream hardening PR #4 was independently approved for exact
+  head `898041d` and published as merge commit
+  `9706e63d5f121323e9087d0db47a16acdbd276bb`; the target lock and reusable
+  governance workflow use that same immutable source revision. Hosted Koru run
+  `30935659179` is bound to GLM 5.2 and exact head `a01816b`; its semantic
+  status is honestly `unavailable` because the provider key reached its weekly
+  limit, while all deterministic blocking gates passed. The next commit
+  intentionally invalidates that review and requires a fresh App approval.
 - A changed upstream SHA, managed-file plan or workflow model returns this
   phase to planning.
 - Required response from: `unresolved:human`.
@@ -342,6 +345,23 @@ to this migration.
   implementation session but is not merge-time evidence.
 - The user explicitly approved AC-36..AC-40 on 2026-08-04. Independent upstream
   merge evidence is now present and was verified before resuming edits.
+
+## Current hardening and validation evidence
+
+- Validator App review of `a01816b` exposed an approval-evidence defence gap;
+  the advisory finding was independently confirmed before any merge.
+- `wellmanifest/new-project` ticket-005 added fail-closed binding/authority
+  projection and a no-follow regular-file read boundary. Its three central
+  suites passed locally and twice in hosted CI before PR #4 merged.
+- Immutable adoption check for `9706e63` reports `up-to-date`; only the managed
+  validator and lock changed in the target.
+- Target CI now calls the pinned reusable governance workflow. The trusted App
+  login is stored in repository variable `TRUSTED_VALIDATOR_APPS`, outside the
+  pull-request checkout; arbitrary User or Bot reviews are not accepted.
+- `make governance`, workflow verification, full `npm run verify`, Docker smoke
+  and `git diff --check` pass. Node: 335 total, 334 passed, zero failed, one
+  explicit local JDK skip. No application source or live LLM request was added
+  by this hardening slice.
 
 ## Validation result and publication blockers
 

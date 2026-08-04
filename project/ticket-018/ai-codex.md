@@ -272,8 +272,23 @@ Current verified baseline:
   prose, not through the provider response contract. Reopened AC-39/AC-40 and
   will constrain the existing compatibility boundary to JSON output with
   optional reasoning disabled, then require a successful exact-head rerun.
+- Exact-head App review of `a01816b` identified two approval-evidence hardening
+  concerns. Confirmed the trust-projection concern and treated the path-race
+  concern as defence-in-depth instead of merging on a formal approval alone.
+- Published the fix through `wellmanifest/new-project` ticket-005 and PR #4;
+  exact reviewed head `898041d` merged as `9706e63` after both hosted CI runs.
+- Adopted `9706e63` into the target lock and replaced the local duplicated
+  approval resolver with the reusable workflow from the same SHA.
+  `TRUSTED_VALIDATOR_APPS` is now a protected repository variable containing
+  the exact App login; the PR cannot expand its own authority set.
+- Local governance, workflow YAML, all Node verification and Docker smoke pass.
+  The old App approval is correctly stale after this change; a fresh review of
+  the new exact HEAD remains the only publication blocker.
 
 ## Blockers
+
+- Fresh Validator App approval and hosted governance for the new exact HEAD are
+  required before merge. Earlier approval `a01816b` is intentionally stale.
 
 - `GOV-INTENT-003`: concurrent commit `5f1f4bd` placed the ticket intent and
   implementation in the same commit; correcting this requires an authorized

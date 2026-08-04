@@ -2,7 +2,7 @@
   "managedFiles": {
     ".governance/approval-evidence.schema.json": "488dee5a4bfbf221206acc45947fce5283eb5e80614ec0ef478b5d618cc4eb83",
     ".governance/diagnostics.json": "19a90eee30bb84827379c731bb7c688f39d3124a1408226116dec1631ee67a5a",
-    ".governance/governance_check.py": "50ded6098ea7e13067da3301314823522806e6a0ab2551488aa0515709b16d90",
+    ".governance/governance_check.py": "aabd710d8c273faa59e6fd26b6d5d9c04f55b084cb9fd3df3c26c5ba0cbc56ea",
     ".governance/intent.schema.json": "d618a2c7ef4b4a24fbf95d516bf8c8231836e7752b28f0450cc96f02f07b6780",
     ".governance/lock.schema.json": "fc6f1143ef713c993b61270dd2d7545a52cb0b8501aadb188e6d0152a208b207",
     ".governance/manifest.json": "23500060bf061b96f8259a3cdbed6e542946ecf4f33079cfbbb7dd74fd05a22e",
@@ -21,7 +21,7 @@
     "id": "wellmanifest/new-project",
     "publicationStatus": "published",
     "sourceRepository": "wellmanifest/new-project",
-    "sourceRevision": "5267cf3b365959770e070e96e9157573a5d8c04b",
+    "sourceRevision": "9706e63d5f121323e9087d0db47a16acdbd276bb",
     "version": "0.10.0"
   }
 }

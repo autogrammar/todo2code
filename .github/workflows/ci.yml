@@ -17,52 +17,15 @@ permissions:
 
 jobs:
   governance:
-    name: governance / enforce
     if: github.event_name != 'schedule'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Resolve independent human approval
-        id: approval
-        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_review'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const reviews = await github.paginate(github.rest.pulls.listReviews, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-            });
-            const latest = new Map();
-            for (const review of reviews) latest.set(review.user.login, review);
-            const author = context.payload.pull_request.user.login;
-            const approved = [...latest.values()].some(review =>
-              review.state === 'APPROVED' && review.user.login !== author && review.user.type === 'User');
-            const active = fs.readdirSync('project', {withFileTypes: true})
-              .filter(item => item.isDirectory() && /^ticket-[0-9]{3}$/.test(item.name))
-              .filter(item => {
-                const readme = fs.readFileSync(path.join('project', item.name, 'README.md'), 'utf8');
-                return /^-\s+\*\*Status\*\*:\s*(PLAN|IN_PROGRESS|BLOCKED)\s*$/mi.test(readme);
-              }).map(item => item.name);
-            core.setOutput('source', approved ? 'github-review' : 'none');
-            core.setOutput('ticket', active.length > 0 ? active.sort().join(',') : 'none');
-      - name: Validate ticket, intent, scope, ownership and pinned files
-        shell: bash
-        env:
-          APPROVAL_SOURCE: ${{ steps.approval.outputs.source }}
-          APPROVED_TICKET: ${{ steps.approval.outputs.ticket }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          args=(--actor ci --format text)
-          if [[ "${{ github.event_name }}" == pull_request || "${{ github.event_name }}" == pull_request_review ]]; then
-            args+=(--base "$BASE_SHA" --enforce-approval --approval-source "$APPROVAL_SOURCE" --approved-ticket "$APPROVED_TICKET")
-          fi
-          bash project/governance-check.sh "${args[@]}"
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: wellmanifest/new-project/.github/workflows/governance.yml@9706e63d5f121323e9087d0db47a16acdbd276bb
+    with:
+      standard-ref: 9706e63d5f121323e9087d0db47a16acdbd276bb
+      trusted-reviewers: ${{ vars.TRUSTED_REVIEWERS }}
+      trusted-validator-apps: ${{ vars.TRUSTED_VALIDATOR_APPS }}
 
   verify:
     runs-on: ubuntu-latest

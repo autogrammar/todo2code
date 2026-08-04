@@ -30,6 +30,16 @@
 - Exact-head GLM run `30934859353` failed closed on Vallm
   `semantic.parse_error`; reopened AC-39/AC-40 to require provider-enforced
   JSON rather than accepting an advisory verdict without parseable evidence.
+- Verified and fixed the App review findings in canonical upstream ticket-005:
+  invalid authority/binding evidence no longer projects trust, and external
+  evidence uses a no-follow regular-file read boundary.
+- Adopted independently reviewed upstream merge `9706e63`, pinning both the
+  target governance lock and reusable CI workflow to the same published SHA.
+- Moved the exact Validator App login to protected repository variable
+  `TRUSTED_VALIDATOR_APPS`; removed the local resolver that accepted any
+  non-author User and ignored App reviews.
+- Revalidated governance, workflow YAML, 335 Node tests and Docker smoke; all
+  required local checks pass with one explicit JDK skip.
 
 ## [0.4.1] - 2026-08-04
 

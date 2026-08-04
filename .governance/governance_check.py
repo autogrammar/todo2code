@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
@@ -1856,7 +1857,17 @@ def load_external_approval_evidence(
 ) -> Any | None:
     if not raw_path:
         return None
-    path = Path(raw_path).expanduser().resolve()
+    expanded = Path(raw_path).expanduser()
+    if not expanded.is_absolute():
+        expanded = Path.cwd() / expanded
+    try:
+        path = expanded.parent.resolve(strict=True) / expanded.name
+    except OSError as error:
+        report.add(
+            "GOV-APPROVAL-003", f"Approval evidence path is unreadable: {error}",
+            "Have the protected approval resolver create a valid v1 evidence document outside the checkout.",
+        )
+        return None
     if path.is_relative_to(root):
         report.add(
             "GOV-APPROVAL-003",
@@ -1865,14 +1876,33 @@ def load_external_approval_evidence(
             [rel(root, path)],
         )
         return None
+    no_follow = getattr(os, "O_NOFOLLOW", None)
+    if no_follow is None:
+        report.add(
+            "GOV-APPROVAL-003",
+            "Approval evidence cannot be opened safely on this platform.",
+            "Use a validator platform that supports no-follow file opens for external approval evidence.",
+        )
+        return None
+    descriptor = -1
     try:
-        evidence = load_json(path)
+        flags = os.O_RDONLY | no_follow | getattr(os, "O_CLOEXEC", 0)
+        descriptor = os.open(path, flags)
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise OSError("approval evidence is not a regular file")
+        with os.fdopen(descriptor, "r", encoding="utf-8") as handle:
+            descriptor = -1
+            evidence = json.load(handle)
     except (OSError, json.JSONDecodeError) as error:
         report.add(
             "GOV-APPROVAL-003", f"Approval evidence is unreadable: {error}",
             "Have the protected approval resolver create a valid v1 evidence document outside the checkout.",
         )
         return None
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
     return evidence
 
 
@@ -1910,6 +1940,7 @@ def approval_evidence(
             "Pass the current protected event bindings and request a fresh approval for the exact HEAD.",
             evidence={"missingExpectedBinding": missing, "mismatches": mismatches},
         )
+        return None
     if not approval_authority_valid(evidence, manifest):
         report.add(
             "GOV-APPROVAL-005",
@@ -1921,6 +1952,7 @@ def approval_evidence(
                 "verification": evidence["verification"],
             },
         )
+        return None
     return evidence
 
 
