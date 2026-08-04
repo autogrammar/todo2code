@@ -2,8 +2,8 @@
 
 - **ID**: ticket-019
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -67,15 +67,17 @@ ticket can perform the atomic change under the `integration` workstream.
 - Human participant: unresolved; no user-* file was created by this script.
 - Agent participant: [ai-codex.md](ai-codex.md)
 
-## Approval boundary
+## Completion boundary
 
-- Current state: `IN_PROGRESS / VALIDATION`.
-- Required response from: `unresolved:human`.
-- The current user instruction authorizes implementation for this session but is not trusted
-  merge evidence; the repository still requires its external governance gate.
+- Current state: `DONE`.
+- Required response from: none.
+- Validator App approved exact head
+  `16c2276960abf3bd521f335c7c7f7d36b2e2f5c1` using the configured
+  `openrouter/z-ai/glm-5.2` advisory review.
 - Tickets 018 and 035 are DONE, so there is no active dependency or ownership
   conflict. The scope update was committed separately as `19b164f`; the
-  implementation is now active in the bounded paths above.
+  implementation and evidence were merged through PR #28 as
+  `main@e333acefb24ee878754510416efb9e5a4aedda7b`.
 
 ## Validation result
 

@@ -57,8 +57,10 @@ contracts. Ticket-019 is therefore routed to the `integration` workstream.
   `--dry-run` flag. The bounded Python artifacts were therefore published as
   PyPI 0.5.1; npm rejected the subsequent operation with `ENEEDAUTH`, and an
   independent lookup found no npm release.
+- Submitted PR #28, obtained deterministic Validator App approval for the exact
+  head after all required checks passed, reran the initially circular
+  governance check, and merged the implementation as `main@e333ace`.
 
 ## Blockers
 
-- None for implementation or local validation. Exact-head external review remains
-  required before merge.
+- None. Ticket acceptance and protected merge requirements are complete.

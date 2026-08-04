@@ -2,11 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
-  Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
-  one root `pyproject.toml` and SDK-only artifacts. Current state:
-  `IN_PROGRESS / VALIDATION`; all local package, application, SDK, Docker and
-  governance checks pass, with exact-head external review still required.
+None.
 
 ## Backlog tickets
 
@@ -14,6 +10,10 @@ None.
 
 ## Completed tickets
 
+- [x] [`ticket-019`](project/ticket-019/README.md) — published the
+  dependency-free Python SDK from one root `pyproject.toml`, passed package,
+  application, SDK, Docker and protected exact-head validation, and merged PR
+  #28 as `main@e333ace`. Current state: `DONE`.
 - [x] [`ticket-035`](project/ticket-035/README.md) — declared the five atomic
   Python publication paths as integration-owned shared contracts, preserved the
   immutable standard provenance and passed exact-head Validator review plus all
