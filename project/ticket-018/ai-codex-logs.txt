@@ -257,3 +257,5 @@ project2.sh: NOT RUN
 full aggregate verification exposed a stale 0.5.0 assertion in
 test/python-runtime.test.ts; plan AC-29 routes this runtime adapter test to the
 runtime workstream before repair. User authorization remains: kontynuuj.
+manifest ownership updated and lock refreshed; focused governance gate pending
+aggregate ticket scopes.
