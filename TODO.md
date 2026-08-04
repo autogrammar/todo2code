@@ -7,20 +7,12 @@
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current state: `IN_PROGRESS / EDIT` for approved AC-30..AC-40:
-  allowlisted independent Validator App reviews bound to the exact PR head SHA
-  plus a non-mutating `direct-pr` strategy in `subactor/validator-agent`.
-  No governance, workflow, source or test implementation file has changed for
-  this follow-up. Earlier AC-11..AC-29 remain complete:
-  pinned, read-only and attested `koru / code-review` PR check plus a required
-  ruleset. `koru / code-review` and `governance / enforce` now run as required
-  checks on `main`; the ruleset is active with no bypass actors.
-  Current follow-up state: `IN_PROGRESS / VALIDATION` for AC-26..AC-29, normalizing
-  the three tracked generated-analysis
-  artifacts after `npm run verify` detected a volatile `/tmp` worktree root;
-  no analysis regeneration and no `project2.sh` execution are in scope.
-  AC-11..AC-29, governance and Docker core/full pass; only the pre-existing
-  publication/external governance blockers remain recorded separately.
+  Current state: `BLOCKED / PUBLICATION`; AC-01..AC-40, governance and Docker
+  core/full pass, including exact-head Validator App reviews accepted by the
+  reusable gate. Central `wellmanifest/new-project` PR #2 is green and
+  mergeable but still needs an independent review; `wellmanifest` currently
+  has no Validator App installation. The governance workstream reservation is
+  released while waiting.
 
 ## Backlog tickets
 
