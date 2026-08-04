@@ -1,6 +1,8 @@
 import type { BuildRecordGenerationInput, IntentGenerationMetadata } from './types.js';
 import { T2C_VERSION } from './version.js';
 
+const DEFAULT_GENERATION_MODE = 'deterministic';
+
 export function generationMetadata(
   extractor: string,
   input: BuildRecordGenerationInput | undefined,
@@ -8,14 +10,23 @@ export function generationMetadata(
   return {
     ...generationIdentity(extractor),
     runtimeVersion: T2C_VERSION,
-    requested: input?.requested ?? (input?.used ?? 'deterministic'),
-    used: input?.used ?? 'deterministic',
+    requested: requestedGenerationMode(input),
+    used: usedGenerationMode(input),
     degraded: input?.degraded ?? false,
     fallbackReason: input?.fallbackReason ?? null,
     provider: input?.provider ?? null,
     model: input?.model ?? null,
     responseId: input?.responseId ?? null,
   };
+}
+
+function requestedGenerationMode(input: BuildRecordGenerationInput | undefined): string {
+  if (input?.requested !== undefined) return input.requested;
+  return usedGenerationMode(input);
+}
+
+function usedGenerationMode(input: BuildRecordGenerationInput | undefined): string {
+  return input?.used ?? DEFAULT_GENERATION_MODE;
 }
 
 function generationIdentity(extractor: string): { generator: string; generatorVersion: string } {

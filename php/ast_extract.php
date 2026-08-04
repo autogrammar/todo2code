@@ -79,14 +79,7 @@ function parseFile(string $absolutePath, string $relativePath): array
     $body = file_get_contents($absolutePath);
     if ($body === false) throw new RuntimeException('cannot read file');
     $lines = preg_split('/\R/u', $body) ?: [];
-    $rawTokens = token_get_all($body, TOKEN_PARSE);
-    $tokens = [];
-    $line = 1;
-    foreach ($rawTokens as $rawToken) {
-        $token = normalizedToken($rawToken, $line);
-        $tokens[] = $token;
-        $line = $token['line'] + substr_count($token['text'], "\n");
-    }
+    $tokens = parsePhpTokens($body);
 
     $facts = [];
     $braceDepth = 0;
@@ -98,88 +91,173 @@ function parseFile(string $absolutePath, string $relativePath): array
     if (defined('T_ENUM')) $typeIds[] = constant('T_ENUM');
 
     foreach ($tokens as $index => $token) {
-        $id = $token['id'];
-        $text = $token['text'];
-        $currentClass = empty($classAtDepth) ? null : end($classAtDepth);
-        $currentFunction = empty($functionAtDepth) ? null : end($functionAtDepth);
-
-        if ($text === '{') {
-            $braceDepth++;
-            if ($pendingClass !== null) {
-                $classAtDepth[$braceDepth] = $pendingClass;
-                $pendingClass = null;
-            }
-            if ($pendingFunction !== null) {
-                $functionAtDepth[$braceDepth] = $pendingFunction;
-                $pendingFunction = null;
-            }
-            continue;
-        }
-        if ($text === '}') {
-            unset($classAtDepth[$braceDepth], $functionAtDepth[$braceDepth]);
-            $braceDepth = max(0, $braceDepth - 1);
-            continue;
-        }
-
-        if ($id === T_NAMESPACE) {
-            $next = significant($tokens, $index, 1);
-            if ($next !== null) {
-                [$name] = qualifiedName($tokens, $next);
-                if ($name !== '') addFact($facts, $relativePath, $lines, $token['line'], 'php_namespace_fact', 'declare', $name, null, null);
-            }
-            continue;
-        }
-
-        if ($id === T_USE && $currentFunction === null) {
-            $next = significant($tokens, $index, 1);
-            if ($next !== null) {
-                [$name] = qualifiedName($tokens, $next);
-                if ($name !== '') addFact($facts, $relativePath, $lines, $token['line'], 'php_import_fact', 'depend_on', $name, null, $currentClass);
-            }
-            continue;
-        }
-
-        if (in_array($id, $typeIds, true)) {
-            $previous = significant($tokens, $index, -1);
-            if ($id === T_CLASS && $previous !== null && $tokens[$previous]['id'] === T_DOUBLE_COLON) continue;
-            $next = significant($tokens, $index, 1);
-            if ($next !== null && $tokens[$next]['id'] === T_STRING) {
-                $name = $tokens[$next]['text'];
-                $kind = strtolower(token_name($id));
-                addFact($facts, $relativePath, $lines, $token['line'], 'php_type_fact', 'declare', $name, $name, null, ['symbolKind' => $kind]);
-                $pendingClass = $name;
-            }
-            continue;
-        }
-
-        if ($id === T_FUNCTION) {
-            $next = significant($tokens, $index, 1);
-            if ($next !== null && $tokens[$next]['text'] === '&') $next = significant($tokens, $next, 1);
-            if ($next !== null && $tokens[$next]['id'] === T_STRING) {
-                $name = $tokens[$next]['text'];
-                $qualified = $currentClass ? $currentClass . '.' . $name : $name;
-                addFact($facts, $relativePath, $lines, $token['line'], 'php_symbol_fact', 'declare', $qualified, $qualified, $currentClass, [
-                    'symbolKind' => $currentClass ? 'method' : 'function',
-                ]);
-                $pendingFunction = $qualified;
-            }
-            continue;
-        }
-
-        if ($id === T_STRING) {
-            $next = significant($tokens, $index, 1);
-            if ($next === null || $tokens[$next]['text'] !== '(') continue;
-            $previous = significant($tokens, $index, -1);
-            if ($previous !== null && in_array($tokens[$previous]['id'], [T_FUNCTION, T_NEW], true)) continue;
-            $callee = $text;
-            if ($previous !== null && in_array($tokens[$previous]['id'], [T_DOUBLE_COLON, T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR], true)) {
-                $owner = significant($tokens, $previous, -1);
-                if ($owner !== null) $callee = $tokens[$owner]['text'] . '.' . $callee;
-            }
-            addFact($facts, $relativePath, $lines, $token['line'], 'php_call_fact', 'call', $callee, $currentFunction, $currentClass, ['callee' => $callee]);
-        }
+        processPhpToken(
+            $token,
+            $tokens,
+            $index,
+            $relativePath,
+            $lines,
+            $typeIds,
+            $braceDepth,
+            $classAtDepth,
+            $functionAtDepth,
+            $pendingClass,
+            $pendingFunction,
+            $facts,
+        );
     }
     return $facts;
+}
+
+function parsePhpTokens(string $body): array
+{
+    $line = 1;
+    $tokens = [];
+    foreach (token_get_all($body, TOKEN_PARSE) as $rawToken) {
+        $token = normalizedToken($rawToken, $line);
+        $tokens[] = $token;
+        $line = $token['line'] + substr_count($token['text'], "\n");
+    }
+    return $tokens;
+}
+
+function processPhpToken(
+    array $token,
+    array $tokens,
+    int $index,
+    string $relativePath,
+    array $lines,
+    array $typeIds,
+    int &$braceDepth,
+    array &$classAtDepth,
+    array &$functionAtDepth,
+    ?string &$pendingClass,
+    ?string &$pendingFunction,
+    array &$facts,
+): void {
+    $id = $token['id'];
+    $text = $token['text'];
+    $currentClass = empty($classAtDepth) ? null : end($classAtDepth);
+    $currentFunction = empty($functionAtDepth) ? null : end($functionAtDepth);
+
+    if ($text === '{') {
+        $braceDepth++;
+        if ($pendingClass !== null) {
+            $classAtDepth[$braceDepth] = $pendingClass;
+            $pendingClass = null;
+        }
+        if ($pendingFunction !== null) {
+            $functionAtDepth[$braceDepth] = $pendingFunction;
+            $pendingFunction = null;
+        }
+        return;
+    }
+    if ($text === '}') {
+        unset($classAtDepth[$braceDepth], $functionAtDepth[$braceDepth]);
+        $braceDepth = max(0, $braceDepth - 1);
+        return;
+    }
+    if ($id === T_NAMESPACE) {
+        collectNamespaceFact($token, $tokens, $index, $relativePath, $lines, $facts);
+        return;
+    }
+    if ($id === T_USE && $currentFunction === null) {
+        collectUseFact($token, $tokens, $index, $relativePath, $lines, $facts, $currentClass);
+        return;
+    }
+    if (in_array($id, $typeIds, true)) {
+        collectTypeDeclaration($token, $tokens, $index, $relativePath, $lines, $facts, $id, $pendingClass);
+        return;
+    }
+    if ($id === T_FUNCTION) {
+        collectFunctionDeclaration($token, $tokens, $index, $relativePath, $lines, $facts, $currentClass, $pendingFunction);
+        return;
+    }
+    if ($id === T_STRING) {
+        collectCallFact($token, $tokens, $index, $relativePath, $lines, $facts, $currentFunction, $currentClass);
+    }
+}
+
+function collectNamespaceFact(array $token, array $tokens, int $index, string $relativePath, array $lines, array &$facts): void
+{
+    $next = significant($tokens, $index, 1);
+    if ($next === null) return;
+    [$name] = qualifiedName($tokens, $next);
+    if ($name === '') return;
+    addFact($facts, $relativePath, $lines, $token['line'], 'php_namespace_fact', 'declare', $name, null, null);
+}
+
+function collectUseFact(array $token, array $tokens, int $index, string $relativePath, array $lines, array &$facts, ?string $currentClass): void
+{
+    $next = significant($tokens, $index, 1);
+    if ($next === null) return;
+    [$name] = qualifiedName($tokens, $next);
+    if ($name === '') return;
+    addFact($facts, $relativePath, $lines, $token['line'], 'php_import_fact', 'depend_on', $name, null, $currentClass);
+}
+
+function collectTypeDeclaration(
+    array $token,
+    array $tokens,
+    int $index,
+    string $relativePath,
+    array $lines,
+    array &$facts,
+    int $id,
+    ?string &$pendingClass,
+): void {
+    $previous = significant($tokens, $index, -1);
+    if ($id === T_CLASS && $previous !== null && $tokens[$previous]['id'] === T_DOUBLE_COLON) return;
+    $next = significant($tokens, $index, 1);
+    if ($next === null || $tokens[$next]['id'] !== T_STRING) return;
+    $name = $tokens[$next]['text'];
+    $kind = strtolower(token_name($id));
+    addFact($facts, $relativePath, $lines, $token['line'], 'php_type_fact', 'declare', $name, $name, null, ['symbolKind' => $kind]);
+    $pendingClass = $name;
+}
+
+function collectFunctionDeclaration(
+    array $token,
+    array $tokens,
+    int $index,
+    string $relativePath,
+    array $lines,
+    array &$facts,
+    ?string $currentClass,
+    ?string &$pendingFunction,
+): void {
+    $next = significant($tokens, $index, 1);
+    if ($next === null) return;
+    if ($tokens[$next]['text'] === '&') $next = significant($tokens, $next, 1);
+    if ($next === null || $tokens[$next]['id'] !== T_STRING) return;
+    $name = $tokens[$next]['text'];
+    $qualified = $currentClass ? $currentClass . '.' . $name : $name;
+    addFact($facts, $relativePath, $lines, $token['line'], 'php_symbol_fact', 'declare', $qualified, $qualified, $currentClass, [
+        'symbolKind' => $currentClass ? 'method' : 'function',
+    ]);
+    $pendingFunction = $qualified;
+}
+
+function collectCallFact(
+    array $token,
+    array $tokens,
+    int $index,
+    string $relativePath,
+    array $lines,
+    array &$facts,
+    ?string $currentFunction,
+    ?string $currentClass,
+): void {
+    $next = significant($tokens, $index, 1);
+    if ($next === null || $tokens[$next]['text'] !== '(') return;
+    $previous = significant($tokens, $index, -1);
+    if ($previous !== null && in_array($tokens[$previous]['id'], [T_FUNCTION, T_NEW], true)) return;
+    $callee = $token['text'];
+    if ($previous !== null && in_array($tokens[$previous]['id'], [T_DOUBLE_COLON, T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR], true)) {
+        $owner = significant($tokens, $previous, -1);
+        if ($owner !== null) $callee = $tokens[$owner]['text'] . '.' . $callee;
+    }
+    addFact($facts, $relativePath, $lines, $token['line'], 'php_call_fact', 'call', $callee, $currentFunction, $currentClass, ['callee' => $callee]);
 }
 
 $arguments = array_slice($argv, 1);

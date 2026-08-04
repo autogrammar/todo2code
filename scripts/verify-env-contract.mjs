@@ -138,9 +138,17 @@ function collectMakefileReferences(makefileBody) {
 
 function collectDockerReferences(body) {
   return [
-    ...extractMatches(body, /\$\{([A-Z][A-Z0-9_]+)/g),
-    ...extractMatches(body, /\b((?:T2C|OPENROUTER)_[A-Z0-9_]+)\s*(?::|=)/g),
+    ...collectDockerTemplateReferences(body),
+    ...collectDockerAssignmentReferences(body),
   ];
+}
+
+function collectDockerTemplateReferences(body) {
+  return extractMatches(body, /\$\{([A-Z][A-Z0-9_]+)/g);
+}
+
+function collectDockerAssignmentReferences(body) {
+  return extractMatches(body, /\b((?:T2C|OPENROUTER)_[A-Z0-9_]+)\s*(?::|=)/g);
 }
 
 function extractMatches(body, pattern) {
