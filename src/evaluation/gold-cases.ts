@@ -69,40 +69,73 @@ export interface RerankingCaseResult {
 }
 
 export function evaluateRerankingCase(fixture: GoldLinkingCase): RerankingCaseResult {
-  if (!fixture.reranker) throw new Error(`Gold case ${fixture.id} has no reranker fixture`);
+  const reranker = resolveRerankerFixture(fixture);
   const { records, labels } = buildFixtureRecords(fixture.id, fixture.records);
   const idToLabel = new Map([...labels].map(([label, id]) => [id, label]));
-  const declarationRecordId = labels.get('declaration');
-  if (!declarationRecordId) throw new Error(`Gold reranker case ${fixture.id} has no declaration label`);
+  const declarationRecordId = resolveDeclarationRecordId(fixture.id, labels);
   const graph = linkIntentRecords(records, GOLD_FIXED_TIME);
-  const candidates = createSemanticCandidateSet(
+  const candidates = buildRerankerCandidates(fixture.id, graph, labels, declarationRecordId, reranker);
+  const decisions = buildRerankerDecisions(fixture.id, reranker, labels, candidates, declarationRecordId);
+  const rerank = buildRerankResult(graph, fixture, reranker, candidates, decisions);
+  const observed = buildObservedRerankRelations(graph, candidates, rerank, idToLabel);
+  const forbiddenViolations = countForbiddenRelations(observed, fixture.forbidden);
+  return {
+    counts: compareSets(observed, buildRerankExpected(fixture.expected)),
+    forbiddenViolations,
+    accepted: countVerdictDecisions(rerank.decisions, 'accept'),
+    abstained: countVerdictDecisions(rerank.decisions, 'abstain'),
+    actual: observed,
+    snapshot: buildRerankSnapshot(fixture.id, candidates, rerank, observed),
+  };
+}
+
+function buildRerankerCandidates(
+  caseId: string,
+  graph: ReturnType<typeof linkIntentRecords>,
+  labels: Map<string, string>,
+  declarationRecordId: string,
+  reranker: NonNullable<GoldLinkingCase['reranker']>,
+): ReturnType<typeof createSemanticCandidateSet> {
+  const requestedCandidates = reranker.decisions.map((decision) => ({
+    declarationRecordId,
+    moduleRecordId: resolveFixtureLabelToRecordId(caseId, labels, decision.module),
+    score: decision.score,
+  }));
+  return createSemanticCandidateSet(
     graph,
-    fixture.reranker.decisions.map((decision) => {
-      const moduleRecordId = labels.get(decision.module);
-      if (!moduleRecordId) {
-        throw new Error(`Gold reranker case ${fixture.id} references unknown module label ${decision.module}`);
-      }
-      return {
-        declarationRecordId,
-        moduleRecordId,
-        score: decision.score,
-      };
-    }),
+    requestedCandidates,
     {
       provider: 'captured-gold-retrieval',
       model: 'intfloat/multilingual-e5-base',
       revision: '18fcae5',
       metric: 'cosine',
     },
-    Math.max(1, fixture.reranker.decisions.length),
+    Math.max(1, requestedCandidates.length),
     GOLD_FIXED_TIME,
   );
+}
+
+function buildRerankerDecisions(
+  caseId: string,
+  reranker: NonNullable<GoldLinkingCase['reranker']>,
+  labels: Map<string, string>,
+  candidates: ReturnType<typeof createSemanticCandidateSet>,
+  declarationRecordId: string,
+): Array<{
+  candidateId: string;
+  verdict: 'accept' | 'reject' | 'abstain';
+  confidence: number;
+  reasonCode: string;
+  rationale: string;
+  citedRecordIds: [string, string];
+  evidence: Array<{ recordId: string; quote: string }>;
+}> {
   const candidateByModule = new Map(candidates.candidates.map((candidate) => [candidate.moduleRecordId, candidate]));
-  const decisions = fixture.reranker.decisions.map((decision) => {
-    const moduleRecordId = labels.get(decision.module);
-    const candidate = moduleRecordId ? candidateByModule.get(moduleRecordId) : undefined;
-    if (!moduleRecordId || !candidate) {
-      throw new Error(`Gold reranker case ${fixture.id} cannot resolve candidate ${decision.module}`);
+  return reranker.decisions.map((decision) => {
+    const moduleRecordId = resolveFixtureLabelToRecordId(caseId, labels, decision.module);
+    const candidate = candidateByModule.get(moduleRecordId);
+    if (!candidate) {
+      throw new Error(`Gold reranker case ${caseId} cannot resolve candidate ${decision.module}`);
     }
     return {
       candidateId: candidate.id,
@@ -117,39 +150,101 @@ export function evaluateRerankingCase(fixture: GoldLinkingCase): RerankingCaseRe
       ],
     };
   });
-  const rerank = createSemanticRerankResult(graph, candidates, decisions, {
+}
+
+function buildRerankResult(
+  graph: ReturnType<typeof linkIntentRecords>,
+  fixture: GoldLinkingCase,
+  reranker: NonNullable<GoldLinkingCase['reranker']>,
+  candidates: ReturnType<typeof createSemanticCandidateSet>,
+  decisions: ReturnType<typeof buildRerankerDecisions>,
+): ReturnType<typeof createSemanticRerankResult> {
+  return createSemanticRerankResult(graph, candidates, decisions, {
     provider: 'captured-gold-response',
-    requestedModel: fixture.reranker.model,
-    model: fixture.reranker.model,
-    modelRevision: fixture.reranker.modelRevision,
+    requestedModel: reranker.model,
+    model: reranker.model,
+    modelRevision: reranker.modelRevision,
     responseId: `gold-${fixture.id}`,
   }, GOLD_FIXED_TIME);
+}
+
+function buildObservedRerankRelations(
+  graph: ReturnType<typeof linkIntentRecords>,
+  candidates: ReturnType<typeof createSemanticCandidateSet>,
+  rerank: ReturnType<typeof createSemanticRerankResult>,
+  idToLabel: Map<string, string>,
+): Array<{ from: string; to: string; type: string }> {
   const augmented = applyAcceptedSemanticRelations(graph, candidates, rerank, GOLD_FIXED_TIME);
-  const observed = augmented.relations
+  return augmented.relations
     .filter((relation) => relation.basis.includes('cross_language_reranker'))
     .map((relation) => ({
       from: idToLabel.get(relation.from) ?? relation.from,
       to: idToLabel.get(relation.to) ?? relation.to,
       type: relation.type,
     }));
-  const expected = fixture.expected.map(({ from, to, type }) => ({ from, to, type }));
-  const forbidden = fixture.forbidden ?? [];
-  const forbiddenViolations = forbidden.filter((pair) => observed.some((relation) =>
-    (relation.from === pair.from && relation.to === pair.to)
-    || (relation.from === pair.to && relation.to === pair.from))).length;
+}
+
+function countForbiddenRelations<T extends { from: string; to: string }>(
+  observed: T[],
+  forbidden?: Array<{ from: string; to: string }>,
+): number {
+  const restricted = forbidden ?? [];
+  return restricted.filter((pair) => observed.some((item) => (
+    (item.from === pair.from && item.to === pair.to)
+    || (item.from === pair.to && item.to === pair.from)
+  ))).length;
+}
+
+function buildRerankExpected(expected: GoldLinkingCase['expected']): Array<{ from: string; to: string; type: string }> {
+  return expected.map(({ from, to, type }) => ({ from, to, type }));
+}
+
+function buildRerankSnapshot(
+  caseId: string,
+  candidates: ReturnType<typeof createSemanticCandidateSet>,
+  rerank: ReturnType<typeof createSemanticRerankResult>,
+  observed: ReturnType<typeof buildObservedRerankRelations>,
+): { caseId: string; candidateSetHash: string; resultHash: string; actual: typeof observed } {
   return {
-    counts: compareSets(observed, expected),
-    forbiddenViolations,
-    accepted: rerank.decisions.filter((decision) => decision.verdict === 'accept').length,
-    abstained: rerank.decisions.filter((decision) => decision.verdict === 'abstain').length,
+    caseId,
+    candidateSetHash: candidates.candidateSetHash,
+    resultHash: rerank.resultHash,
     actual: observed,
-    snapshot: {
-      caseId: fixture.id,
-      candidateSetHash: candidates.candidateSetHash,
-      resultHash: rerank.resultHash,
-      actual: observed,
-    },
   };
+}
+
+function countVerdictDecisions(
+  decisions: Array<{ verdict: 'accept' | 'reject' | 'abstain' }>,
+  verdict: 'accept' | 'abstain',
+): number {
+  return decisions.filter((decision) => decision.verdict === verdict).length;
+}
+
+function resolveRerankerFixture(fixture: GoldLinkingCase): NonNullable<GoldLinkingCase['reranker']> {
+  if (!fixture.reranker) {
+    throw new Error(`Gold case ${fixture.id} has no reranker fixture`);
+  }
+  return fixture.reranker;
+}
+
+function resolveDeclarationRecordId(caseId: string, labels: Map<string, string>): string {
+  const declarationRecordId = labels.get('declaration');
+  if (!declarationRecordId) {
+    throw new Error(`Gold reranker case ${caseId} has no declaration label`);
+  }
+  return declarationRecordId;
+}
+
+function resolveFixtureLabelToRecordId(
+  caseId: string,
+  labels: Map<string, string>,
+  label: string,
+): string {
+  const recordId = labels.get(label);
+  if (!recordId) {
+    throw new Error(`Gold reranker case ${caseId} references unknown module label ${label}`);
+  }
+  return recordId;
 }
 
 /**
@@ -318,34 +413,62 @@ function buildFixtureRecords(
 ): { records: IntentRecord[]; labels: Map<string, string> } {
   const labels = new Map<string, string>();
   const records = fixtures.map((fixture, index) => {
-    const record = buildRecord({
-      kind: fixture.statementKind ?? 'gold_fixture',
-      action: fixture.action,
-      object: fixture.text,
-      text: fixture.text,
-      ...(fixture.target ? { target: fixture.target } : {}),
-      polarity: fixture.polarity ?? 'positive',
-      modality: fixture.modality ?? (fixture.sourceKind === 'todo' ? 'required' : 'observed'),
-      lifecycle: fixture.lifecycle,
-      sourceKind: fixture.sourceKind,
-      sourcePath: fixture.sourceKind === 'ast' && fixture.target?.paths?.length === 1
-        ? fixture.target.paths[0] as string
-        : `evaluation/${caseId}/${fixture.label}-${index + 1}.md`,
-      sourceLines: { start: 1, end: 1 },
-      extractor: 't2c/gold-fixture@1',
-      ...(fixture.sourceKind === 'ast' && fixture.target?.symbols?.length === 1
-        ? { symbol: fixture.target.symbols[0] as string }
-        : {}),
-      epistemicClass: fixture.sourceKind === 'todo' ? 'plan' : fixture.sourceKind === 'git' ? 'fact' : 'declaration',
-      confidence: 1,
-      basis: ['versioned_gold_fixture'],
-      ...(fixture.metadata ? { metadata: fixture.metadata as Record<string, never> } : {}),
-    });
     if (labels.has(fixture.label)) throw new Error(`Duplicate gold fixture label: ${fixture.label}`);
+    const record = buildFixtureRecord(caseId, fixture, index);
     labels.set(fixture.label, record.id);
     return record;
   });
   return { records, labels };
+}
+
+function buildFixtureRecord(
+  caseId: string,
+  fixture: GoldFixtureRecord,
+  index: number,
+): IntentRecord {
+  return buildRecord({
+    kind: fixture.statementKind ?? 'gold_fixture',
+    action: fixture.action,
+    object: fixture.text,
+    text: fixture.text,
+    ...(fixture.target ? { target: fixture.target } : {}),
+    polarity: fixture.polarity ?? 'positive',
+    modality: fixture.modality ?? resolveDefaultFixtureModality(fixture),
+    lifecycle: fixture.lifecycle,
+    sourceKind: fixture.sourceKind,
+    sourcePath: resolveFixtureSourcePath(caseId, fixture, index),
+    sourceLines: { start: 1, end: 1 },
+    extractor: 't2c/gold-fixture@1',
+    ...(resolveFixtureSymbol(fixture) ? { symbol: resolveFixtureSymbol(fixture) } : {}),
+    epistemicClass: resolveFixtureEpistemicClass(fixture),
+    confidence: 1,
+    basis: ['versioned_gold_fixture'],
+    ...(fixture.metadata ? { metadata: fixture.metadata as Record<string, never> } : {}),
+  });
+}
+
+function resolveDefaultFixtureModality(fixture: GoldFixtureRecord): IntentRecord['modality'] {
+  return fixture.sourceKind === 'todo' ? 'required' : 'observed';
+}
+
+function resolveFixtureSourcePath(
+  caseId: string,
+  fixture: GoldFixtureRecord,
+  index: number,
+): string {
+  return fixture.sourceKind === 'ast' && fixture.target?.paths?.length === 1
+    ? fixture.target.paths[0] as string
+    : `evaluation/${caseId}/${fixture.label}-${index + 1}.md`;
+}
+
+function resolveFixtureSymbol(fixture: GoldFixtureRecord): string | undefined {
+  return fixture.sourceKind === 'ast' && fixture.target?.symbols?.length === 1
+    ? fixture.target.symbols[0] as string
+    : undefined;
+}
+
+function resolveFixtureEpistemicClass(fixture: GoldFixtureRecord): IntentRecord['epistemicClass'] {
+  return fixture.sourceKind === 'todo' ? 'plan' : fixture.sourceKind === 'git' ? 'fact' : 'declaration';
 }
 
 function deterministicGeneration(): GroundedGenerationMetadata {

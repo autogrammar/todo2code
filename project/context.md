@@ -5,12 +5,12 @@
 
 - **Project**: /home/tom/github/semcod/todo2code
 - **Primary Language**: typescript
-- **Languages**: typescript: 152, json: 40, python: 16, javascript: 15, shell: 8
+- **Languages**: typescript: 173, json: 40, python: 16, javascript: 15, shell: 8
 - **Analysis Mode**: static
-- **Total Functions**: 3918
-- **Total Classes**: 392
-- **Modules**: 260
-- **Entry Points**: 2687
+- **Total Functions**: 4129
+- **Total Classes**: 404
+- **Modules**: 281
+- **Entry Points**: 2776
 
 ## Architecture by Module
 
@@ -19,49 +19,48 @@
 - **Classes**: 1
 - **File**: `cli.ts`
 
-### src.synthesis.code-change-plan.implementation-helpers
-- **Functions**: 147
-- **Classes**: 16
-- **File**: `implementation-helpers.ts`
-
 ### src.services.actions
 - **Functions**: 145
 - **Classes**: 1
 - **File**: `actions.ts`
-
-### src.synthesis.code-change-plan.implementation-source-patch
-- **Functions**: 103
-- **Classes**: 5
-- **File**: `implementation-source-patch.ts`
 
 ### src.interfaces.a2a-task-store
 - **Functions**: 101
 - **Classes**: 3
 - **File**: `a2a-task-store.ts`
 
+### src.diff.reality
+- **Functions**: 97
+- **Classes**: 4
+- **File**: `reality.ts`
+
+### src.communication.analyzer
+- **Functions**: 88
+- **Classes**: 3
+- **File**: `analyzer.ts`
+
 ### src.communication.intake-service
 - **Functions**: 82
 - **Classes**: 2
 - **File**: `intake-service.ts`
 
-### src.communication.analyzer
-- **Functions**: 79
-- **Classes**: 3
-- **File**: `analyzer.ts`
+### src.communication.intake-contract
+- **Functions**: 76
+- **Classes**: 7
+- **File**: `intake-contract.ts`
 
-### src.diff.reality
-- **Functions**: 78
-- **Classes**: 3
-- **File**: `reality.ts`
+### src.evaluation.gold-cases
+- **Functions**: 75
+- **Classes**: 4
+- **File**: `gold-cases.ts`
+
+### src.operations.validation
+- **Functions**: 75
+- **File**: `validation.ts`
 
 ### src.core.text
 - **Functions**: 66
 - **File**: `text.ts`
-
-### src.pipeline.run
-- **Functions**: 65
-- **Classes**: 1
-- **File**: `run.ts`
 
 ### src.extractors.git
 - **Functions**: 64
@@ -73,11 +72,6 @@
 - **Classes**: 1
 - **File**: `diagnostics.ts`
 
-### src.evaluation.gold-cases
-- **Functions**: 57
-- **Classes**: 4
-- **File**: `gold-cases.ts`
-
 ### src.comparison.workspace
 - **Functions**: 56
 - **Classes**: 3
@@ -88,29 +82,34 @@
 - **Classes**: 1
 - **File**: `linker.ts`
 
+### src.synthesis.code-change-plan.implementation-source-patch-assert
+- **Functions**: 55
+- **Classes**: 2
+- **File**: `implementation-source-patch-assert.ts`
+
+### src.synthesis.code-change-plan.implementation-source-patch-apply-core
+- **Functions**: 54
+- **Classes**: 6
+- **File**: `implementation-source-patch-apply-core.ts`
+
 ### src.synthesis.todo-patch
 - **Functions**: 53
 - **Classes**: 5
 - **File**: `todo-patch.ts`
-
-### src.diff.text
-- **Functions**: 53
-- **Classes**: 1
-- **File**: `text.ts`
 
 ### src.extractors.communication-helpers
 - **Functions**: 49
 - **Classes**: 3
 - **File**: `communication-helpers.ts`
 
-### src.llm.openrouter
-- **Functions**: 49
-- **Classes**: 7
-- **File**: `openrouter.ts`
-
 ### src.interfaces.a2a
 - **Functions**: 48
 - **File**: `a2a.ts`
+
+### sdk.typescript.src
+- **Functions**: 48
+- **Classes**: 14
+- **File**: `index.ts`
 
 ## Key Entry Points
 
@@ -119,29 +118,17 @@ Main execution flows into the system:
 ### sdk.python.examples.basic.main
 - **Calls**: os.environ.get, os.environ.get, os.environ.get, T2CClient, print, client.agent_card, print, client.extract_nl_result
 
-### src.pipeline.run.runPipeline
-- **Calls**: src.pipeline.run.resolve, src.pipeline.run.pathExists, src.pipeline.run.Error, src.pipeline.run.newRunId, src.pipeline.run.join, src.pipeline.run.ensureDir, src.pipeline.run.skippedAudit, src.pipeline.run.extractNlIntentAudited
-
 ### scripts.research.rank-intent-graph-embeddings.main
 - **Calls**: scripts.research.rank-intent-graph-embeddings.parse_args, args.graph.read_bytes, json.loads, sorted, sorted, time.monotonic, SentenceTransformer, model.encode
 
 ### src.comparison.workspace.compareWorkspaceIntent
 - **Calls**: src.comparison.workspace.resolve, src.comparison.workspace.git, src.comparison.workspace.trim, src.comparison.workspace.relative, src.comparison.workspace.startsWith, src.comparison.workspace.isAbsolute, src.comparison.workspace.Error, src.comparison.workspace.scopedOutputDirectory
 
-### src.communication.analyzer.analyzeCommunication
-- **Calls**: src.communication.analyzer.assertIntentGraph, src.communication.analyzer.filter, src.communication.analyzer.validateSyntheses, src.communication.analyzer.evidenceNeighbors, src.communication.analyzer.participantOf, src.communication.analyzer.get, src.communication.analyzer.push, src.communication.analyzer.set
-
-### src.interfaces.a2a-message.parseCommand
-- **Calls**: src.interfaces.a2a-message.find, src.interfaces.a2a-message.from, src.interfaces.a2a-message.decodeIntakeEnvelope, src.interfaces.a2a-message.isRecord, src.interfaces.a2a-message.commandFromData, src.interfaces.a2a-message.map, src.interfaces.a2a-message.join, src.interfaces.a2a-message.trim
-
 ### scripts.research.evaluate-embedding-pairs.main
 - **Calls**: scripts.research.evaluate-embedding-pairs.parse_args, json.loads, src.synthesis.code-change-plan.implementation-indexing.list, time.monotonic, SentenceTransformer, model.encode, dict, args.output.write_text
 
 ### src.interfaces.intake_cli.main
 - **Calls**: argparse.ArgumentParser, parser.add_subparsers, sub.add_parser, encode.add_argument, encode.add_argument, sub.add_parser, decode.add_argument, decode.add_argument
-
-### src.operations.validation.assertOperationPlan
-- **Calls**: src.operations.validation.objectValue, src.operations.validation.exactKeys, src.operations.validation.Error, src.operations.validation.test, src.operations.validation.dateString, src.operations.validation.nonBlank, src.operations.validation.uniqueStrings, src.operations.validation.assertGeneration
 
 ### src.comparison.workspace.temporaryParent
 - **Calls**: src.comparison.workspace.git, src.comparison.workspace.join, src.comparison.workspace.commonPipelineOptions, src.comparison.workspace.optionsForRoot, src.comparison.workspace.runPipeline, src.comparison.workspace.all, src.comparison.workspace.buildRealityView, src.comparison.workspace.diffIntentGraphs
@@ -206,6 +193,18 @@ Main execution flows into the system:
 ### src.synthesis.todo-patch.applyTodoPatch
 - **Calls**: src.synthesis.todo-patch.all, src.synthesis.todo-patch.readText, src.synthesis.todo-patch.assertTodoPatchArtifact, src.synthesis.todo-patch.sha256, src.synthesis.todo-patch.Error, src.synthesis.todo-patch.assertApproval, src.synthesis.todo-patch.ensureDir, src.synthesis.todo-patch.dirname
 
+### src.extractors.changelog.extractChangelog
+- **Calls**: src.extractors.changelog.resolve, src.extractors.changelog.pathExists, src.extractors.changelog.readText, src.extractors.changelog.relativePosix, src.extractors.changelog.split, src.extractors.changelog.match, src.extractors.changelog.trim, src.extractors.changelog.readListBlock
+
+### src.graph.diff.diffIntentGraphs
+- **Calls**: src.graph.diff.assertGraph, src.graph.diff.Map, src.graph.diff.map, src.graph.diff.has, src.graph.diff.push, src.graph.diff.groupRecords, src.graph.diff.Set, src.graph.diff.keys
+
+### php.ast_extract.parseFile
+- **Calls**: php.ast_extract.file_get_contents, php.ast_extract.RuntimeException, php.ast_extract.preg_split, php.ast_extract.token_get_all, php.ast_extract.foreach, php.ast_extract.normalizedToken, php.ast_extract.substr_count, php.ast_extract.defined
+
+### src.cli.handleCommunication
+- **Calls**: src.cli.resolve, src.cli.all, src.cli.extractCommunicationIntentAudited, src.cli.optionString, src.cli.optionNullableString, src.cli.optionLlmMode, src.cli.extractGitIntent, src.cli.optionNumber
+
 ## Process Flows
 
 Key execution flows identified:
@@ -215,57 +214,57 @@ Key execution flows identified:
 main [sdk.python.examples.basic]
 ```
 
-### Flow 2: runPipeline
-```
-runPipeline [src.pipeline.run]
-```
-
-### Flow 3: compareWorkspaceIntent
+### Flow 2: compareWorkspaceIntent
 ```
 compareWorkspaceIntent [src.comparison.workspace]
   └─> git
       └─> execFileAsync
 ```
 
-### Flow 4: analyzeCommunication
-```
-analyzeCommunication [src.communication.analyzer]
-```
-
-### Flow 5: parseCommand
-```
-parseCommand [src.interfaces.a2a-message]
-```
-
-### Flow 6: assertOperationPlan
-```
-assertOperationPlan [src.operations.validation]
-  └─> objectValue
-  └─> exactKeys
-```
-
-### Flow 7: temporaryParent
+### Flow 3: temporaryParent
 ```
 temporaryParent [src.comparison.workspace]
   └─> git
       └─> execFileAsync
 ```
 
-### Flow 8: baseWorktree
+### Flow 4: baseWorktree
 ```
 baseWorktree [src.comparison.workspace]
   └─> git
       └─> execFileAsync
 ```
 
-### Flow 9: extractTodo
+### Flow 5: extractTodo
 ```
 extractTodo [src.extractors.todo]
 ```
 
-### Flow 10: makefile
+### Flow 6: makefile
 ```
 makefile [scripts.verify-env-contract]
+```
+
+### Flow 7: extractCommunicationIntentAudited
+```
+extractCommunicationIntentAudited [src.communication.llm.implementation.CommunicationLlmRequiredError]
+```
+
+### Flow 8: extractNlIntentAudited
+```
+extractNlIntentAudited [src.extractors.nl-llm.NlLlmRequiredError]
+  └─> assertNlExtractionOptions
+```
+
+### Flow 9: linkIntentRecords
+```
+linkIntentRecords [src.graph.linker]
+```
+
+### Flow 10: baseUrl
+```
+baseUrl [sdk.typescript.examples.basic]
+  └─> health
 ```
 
 ## Key Classes
@@ -274,17 +273,13 @@ makefile [scripts.verify-env-contract]
 - **Methods**: 82
 - **Key Methods**: src.communication.intake-service.GovernedIntakeService.command, src.communication.intake-service.GovernedIntakeService.duplicate, src.communication.intake-service.GovernedIntakeService.state, src.communication.intake-service.GovernedIntakeService.actor, src.communication.intake-service.GovernedIntakeService.event, src.communication.intake-service.GovernedIntakeService.appended, src.communication.intake-service.GovernedIntakeService.actual, src.communication.intake-service.GovernedIntakeService.updated, src.communication.intake-service.GovernedIntakeService.participantId, src.communication.intake-service.GovernedIntakeService.ticketId
 
-### src.llm.openrouter.OpenRouterClient
-- **Methods**: 48
-- **Key Methods**: src.llm.openrouter.OpenRouterClient.isConfigured, src.llm.openrouter.OpenRouterClient.listAvailableModels, src.llm.openrouter.OpenRouterClient.controller, src.llm.openrouter.OpenRouterClient.timeout, src.llm.openrouter.OpenRouterClient.response, src.llm.openrouter.OpenRouterClient.text, src.llm.openrouter.OpenRouterClient.clearTimeout, src.llm.openrouter.OpenRouterClient.chatText, src.llm.openrouter.OpenRouterClient.chatTextWithMetadata, src.llm.openrouter.OpenRouterClient.response
+### src.communication.intake-contract.IntakeError
+- **Methods**: 76
+- **Key Methods**: src.communication.intake-contract.IntakeError.super, src.communication.intake-contract.IntakeError.payloadHash, src.communication.intake-contract.IntakeError.canonicalJson, src.communication.intake-contract.IntakeError.record, src.communication.intake-contract.IntakeError.assertIntakeEnvelope, src.communication.intake-contract.IntakeError.envelope, src.communication.intake-contract.IntakeError.validateIntakeEnvelopeHeader, src.communication.intake-contract.IntakeError.validateIntakeEnvelopeTimestamp, src.communication.intake-contract.IntakeError.assertCommand, src.communication.intake-contract.IntakeError.assertQuery
 
 ### sdk.typescript.src.T2CClient
 - **Methods**: 46
 - **Key Methods**: sdk.typescript.src.T2CClient.health, sdk.typescript.src.T2CClient.agentCard, sdk.typescript.src.T2CClient.send, sdk.typescript.src.T2CClient.result, sdk.typescript.src.T2CClient.call, sdk.typescript.src.T2CClient.task, sdk.typescript.src.T2CClient.detail, sdk.typescript.src.T2CClient.part, sdk.typescript.src.T2CClient.getTask, sdk.typescript.src.T2CClient.cancelTask
-
-### src.communication.intake-contract.IntakeError
-- **Methods**: 44
-- **Key Methods**: src.communication.intake-contract.IntakeError.super, src.communication.intake-contract.IntakeError.payloadHash, src.communication.intake-contract.IntakeError.canonicalJson, src.communication.intake-contract.IntakeError.record, src.communication.intake-contract.IntakeError.assertIntakeEnvelope, src.communication.intake-contract.IntakeError.envelope, src.communication.intake-contract.IntakeError.invalid, src.communication.intake-contract.IntakeError.invalid, src.communication.intake-contract.IntakeError.assertCommand, src.communication.intake-contract.IntakeError.base
 
 ### src.semantic.reranker-llm.SemanticRerankerRequiredError
 - **Methods**: 43
@@ -302,6 +297,14 @@ Example:
 - **Methods**: 34
 - **Key Methods**: sdk.python.todo2code.client.T2CClient.__init__, sdk.python.todo2code.client.T2CClient._headers, sdk.python.todo2code.client.T2CClient._open, sdk.python.todo2code.client.T2CClient._rpc, sdk.python.todo2code.client.T2CClient._get, sdk.python.todo2code.client.T2CClient.health, sdk.python.todo2code.client.T2CClient.agent_card, sdk.python.todo2code.client.T2CClient.send, sdk.python.todo2code.client.T2CClient.call, sdk.python.todo2code.client.T2CClient.compare_workspace
 
+### src.llm.openrouter.OpenRouterClient
+- **Methods**: 33
+- **Key Methods**: src.llm.openrouter.OpenRouterClient.isConfigured, src.llm.openrouter.OpenRouterClient.listAvailableModels, src.llm.openrouter.OpenRouterClient.controller, src.llm.openrouter.OpenRouterClient.timeout, src.llm.openrouter.OpenRouterClient.response, src.llm.openrouter.OpenRouterClient.text, src.llm.openrouter.OpenRouterClient.clearTimeout, src.llm.openrouter.OpenRouterClient.chatText, src.llm.openrouter.OpenRouterClient.chatTextWithMetadata, src.llm.openrouter.OpenRouterClient.response
+
+### src.extractors.nl-llm-helpers.NlAttemptError
+- **Methods**: 31
+- **Key Methods**: src.extractors.nl-llm-helpers.NlAttemptError.super, src.extractors.nl-llm-helpers.NlAttemptError.extractNlWithCorrection, src.extractors.nl-llm-helpers.NlAttemptError.completion, src.extractors.nl-llm-helpers.NlAttemptError.markDeterministicNlRecords, src.extractors.nl-llm-helpers.NlAttemptError.toIntentRecord, src.extractors.nl-llm-helpers.NlAttemptError.lines, src.extractors.nl-llm-helpers.NlAttemptError.action, src.extractors.nl-llm-helpers.NlAttemptError.normalizedText, src.extractors.nl-llm-helpers.NlAttemptError.statementText, src.extractors.nl-llm-helpers.NlAttemptError.nlStageAudit
+
 ### src.extractors.markdown-llm-helpers.MarkdownAttemptError
 - **Methods**: 30
 - **Key Methods**: src.extractors.markdown-llm-helpers.MarkdownAttemptError.super, src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichMarkdownRecords, src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichments, src.extractors.markdown-llm-helpers.MarkdownAttemptError.responseByRecord, src.extractors.markdown-llm-helpers.MarkdownAttemptError.outcomes, src.extractors.markdown-llm-helpers.MarkdownAttemptError.corrected, src.extractors.markdown-llm-helpers.MarkdownAttemptError.failed, src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichment, src.extractors.markdown-llm-helpers.MarkdownAttemptError.metadata, src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichBatchCovering
@@ -309,10 +312,6 @@ Example:
 ### src.extractors.docs-llm.DocumentationLlmRequiredError
 - **Methods**: 29
 - **Key Methods**: src.extractors.docs-llm.DocumentationLlmRequiredError.super, src.extractors.docs-llm.DocumentationLlmRequiredError.extractDocumentationIntent, src.extractors.docs-llm.DocumentationLlmRequiredError.startedAt, src.extractors.docs-llm.DocumentationLlmRequiredError.client, src.extractors.docs-llm.DocumentationLlmRequiredError.requireConfiguredClient, src.extractors.docs-llm.DocumentationLlmRequiredError.cache, src.extractors.docs-llm.DocumentationLlmRequiredError.chunks, src.extractors.docs-llm.DocumentationLlmRequiredError.selectedChunks, src.extractors.docs-llm.DocumentationLlmRequiredError.systemPrompt, src.extractors.docs-llm.DocumentationLlmRequiredError.results
-
-### src.extractors.nl-llm-helpers.NlAttemptError
-- **Methods**: 28
-- **Key Methods**: src.extractors.nl-llm-helpers.NlAttemptError.super, src.extractors.nl-llm-helpers.NlAttemptError.extractNlWithCorrection, src.extractors.nl-llm-helpers.NlAttemptError.completion, src.extractors.nl-llm-helpers.NlAttemptError.markDeterministicNlRecords, src.extractors.nl-llm-helpers.NlAttemptError.toIntentRecord, src.extractors.nl-llm-helpers.NlAttemptError.lines, src.extractors.nl-llm-helpers.NlAttemptError.action, src.extractors.nl-llm-helpers.NlAttemptError.normalizedText, src.extractors.nl-llm-helpers.NlAttemptError.statementText, src.extractors.nl-llm-helpers.NlAttemptError.nlStageAudit
 
 ### sdk.php.src.Client.Todo2Code.Client
 - **Methods**: 27
@@ -358,6 +357,14 @@ Example:
 ## Data Transformation Functions
 
 Key functions that process and transform data:
+
+### examples.backend.src.request-handlers.parseOffset
+- **Output to**: examples.backend.src.request-handlers.Number, examples.backend.src.request-handlers.isFinite
+
+### examples.backend.src.request-handlers.parsed
+
+### examples.backend.src.request-handlers.parseLimit
+- **Output to**: examples.backend.src.request-handlers.Number, examples.backend.src.request-handlers.isFinite
 
 ### examples.backend.src.validation.validateEventPayload
 - **Output to**: examples.backend.src.validation.isArray, examples.backend.src.validation.invalid, examples.backend.src.validation.trim, examples.backend.src.validation.has, examples.backend.src.validation.join
@@ -423,15 +430,6 @@ Key functions that process and transform data:
 ### src.services.actions.parseCommunicationGraphFilter
 - **Output to**: src.services.actions.stringValue, src.services.actions.toLowerCase, src.services.actions.booleanValue
 
-### src.core.ignore.parseIgnoreFile
-- **Output to**: src.core.ignore.split, src.core.ignore.map, src.core.ignore.compileIgnorePattern, src.core.ignore.filter
-
-### src.core.schema.code-change.validateCodeChangePlanContext
-- **Output to**: src.core.schema.code-change.validateGroundedContext, src.core.schema.code-change.assertConclusions, src.core.schema.code-change.assertTodoProposals, src.core.schema.code-change.entries, src.core.schema.code-change.objectValue
-
-### src.core.schema.conclusions.validateGroundedContext
-- **Output to**: src.core.schema.conclusions.assertIntentGraph, src.core.schema.conclusions.objectValue, src.core.schema.conclusions.Error, src.core.schema.conclusions.isArray, src.core.schema.conclusions.test
-
 ## Behavioral Patterns
 
 ### recursion_dotted_name
@@ -449,21 +447,18 @@ Key functions that process and transform data:
 Functions exposed as public API (no underscore prefix):
 
 - `sdk.python.examples.basic.main` - 62 calls
-- `src.pipeline.run.runPipeline` - 56 calls
 - `scripts.research.rank-intent-graph-embeddings.main` - 43 calls
 - `src.comparison.workspace.compareWorkspaceIntent` - 40 calls
 - `sdk.rust.src.client.parse_http_response` - 37 calls
-- `src.web.diff-ui.diffUiScriptMarkup` - 36 calls
-- `src.communication.analyzer.analyzeCommunication` - 35 calls
-- `src.interfaces.a2a-message.parseCommand` - 33 calls
 - `sdk.rust.examples.basic.run` - 33 calls
+- `src.pipeline.run.executePipeline` - 31 calls
 - `scripts.research.evaluate-embedding-pairs.main` - 30 calls
 - `src.interfaces.intake_cli.main` - 29 calls
-- `src.operations.validation.assertOperationPlan` - 28 calls
 - `src.comparison.workspace.temporaryParent` - 25 calls
 - `src.comparison.workspace.baseWorktree` - 25 calls
 - `sdk.go.examples.basic.main.run` - 25 calls
 - `src.extractors.todo.extractTodo` - 24 calls
+- `src.interfaces.a2a-message-command.looksLikeJson` - 24 calls
 - `scripts.verify-env-contract.makefile` - 24 calls
 - `python.ast_extract.main` - 24 calls
 - `src.communication.llm.implementation.CommunicationLlmRequiredError.extractCommunicationIntentAudited` - 23 calls
@@ -486,8 +481,11 @@ Functions exposed as public API (no underscore prefix):
 - `src.extractors.todo.lines` - 20 calls
 - `src.synthesis.todo-patch.createTodoPatch` - 20 calls
 - `src.synthesis.todo-patch.applyTodoPatch` - 20 calls
-- `src.llm.openrouter.OpenRouterClient.request` - 20 calls
-- `src.diff.reality.buildRealityView` - 20 calls
+- `src.communication.intake-service.GovernedIntakeService.validateProjection` - 20 calls
+- `src.extractors.changelog.extractChangelog` - 19 calls
+- `src.graph.diff.diffIntentGraphs` - 19 calls
+- `php.ast_extract.parseFile` - 19 calls
+- `src.cli.handleCommunication` - 18 calls
 
 ## System Interactions
 
@@ -498,11 +496,6 @@ graph TD
     main --> get
     main --> T2CClient
     main --> print
-    runPipeline --> resolve
-    runPipeline --> pathExists
-    runPipeline --> Error
-    runPipeline --> newRunId
-    runPipeline --> join
     main --> parse_args
     main --> read_bytes
     main --> loads
@@ -512,19 +505,24 @@ graph TD
     compareWorkspaceInte --> trim
     compareWorkspaceInte --> relative
     compareWorkspaceInte --> startsWith
-    analyzeCommunication --> assertIntentGraph
-    analyzeCommunication --> filter
-    analyzeCommunication --> validateSyntheses
-    analyzeCommunication --> evidenceNeighbors
-    analyzeCommunication --> participantOf
-    parseCommand --> find
-    parseCommand --> from
-    parseCommand --> decodeIntakeEnvelope
-    parseCommand --> isRecord
-    parseCommand --> commandFromData
     main --> list
     main --> monotonic
     main --> SentenceTransformer
+    main --> ArgumentParser
+    main --> add_subparsers
+    main --> add_parser
+    main --> add_argument
+    temporaryParent --> git
+    temporaryParent --> join
+    temporaryParent --> commonPipelineOption
+    temporaryParent --> optionsForRoot
+    temporaryParent --> runPipeline
+    baseWorktree --> git
+    baseWorktree --> join
+    baseWorktree --> commonPipelineOption
+    baseWorktree --> optionsForRoot
+    baseWorktree --> runPipeline
+    extractTodo --> resolve
 ```
 
 ## Reverse Engineering Guidelines

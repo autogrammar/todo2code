@@ -11,6 +11,7 @@ export type {
 } from './text-types.js';
 
 import type { DiffHunk, DiffLine, DiffTextOptions, FileDiff, LineChangeType } from './text-types.js';
+import { blockReplace, myers } from './text-myers.js';
 
 const DEFAULT_CONTEXT = 3;
 const DEFAULT_MAX_COMPARE_LINES = 4000;
@@ -120,93 +121,6 @@ function suffixLines(before: string[], after: string[], suffix: number): DiffLin
     });
   }
   return lines;
-}
-
-interface RawOp {
-  type: LineChangeType;
-  beforeIndex: number | null;
-  afterIndex: number | null;
-  text: string;
-}
-
-function blockReplace(before: string[], after: string[]): RawOp[] {
-  return [
-    ...before.map((text, index) => ({ type: 'delete' as const, beforeIndex: index, afterIndex: null, text })),
-    ...after.map((text, index) => ({ type: 'insert' as const, beforeIndex: null, afterIndex: index, text })),
-  ];
-}
-
-/** Myers' greedy O(ND) diff with a stored trace for backtracking. */
-function myers(before: string[], after: string[]): RawOp[] {
-  const n = before.length;
-  const m = after.length;
-  if (n === 0 && m === 0) return [];
-  if (n === 0 || m === 0) return blockReplace(before, after);
-  const max = n + m;
-  const offset = max;
-  const trace: Int32Array[] = [];
-  let v = new Int32Array(2 * max + 1);
-
-  for (let d = 0; d <= max; d += 1) {
-    trace.push(v.slice());
-    for (let k = -d; k <= d; k += 2) {
-      let x: number;
-      if (k === -d || (k !== d && (v[offset + k - 1] ?? 0) < (v[offset + k + 1] ?? 0))) {
-        x = v[offset + k + 1] ?? 0;
-      } else {
-        x = (v[offset + k - 1] ?? 0) + 1;
-      }
-      let y = x - k;
-      while (x < n && y < m && before[x] === after[y]) {
-        x += 1;
-        y += 1;
-      }
-      v[offset + k] = x;
-      if (x >= n && y >= m) return backtrack(trace, before, after, d, offset);
-    }
-  }
-  /* c8 ignore next -- unreachable: d === n + m always terminates above */
-  return blockReplace(before, after);
-}
-
-function backtrack(
-  trace: Int32Array[],
-  before: string[],
-  after: string[],
-  d: number,
-  offset: number,
-): RawOp[] {
-  const ops: RawOp[] = [];
-  let x = before.length;
-  let y = after.length;
-  for (let step = d; step > 0; step -= 1) {
-    const v = trace[step];
-    if (!v) break;
-    const k = x - y;
-    const previousK = k === -step || (k !== step && (v[offset + k - 1] ?? 0) < (v[offset + k + 1] ?? 0))
-      ? k + 1
-      : k - 1;
-    const previousX = v[offset + previousK] ?? 0;
-    const previousY = previousX - previousK;
-    while (x > previousX && y > previousY) {
-      x -= 1;
-      y -= 1;
-      ops.push({ type: 'equal', beforeIndex: x, afterIndex: y, text: before[x] ?? '' });
-    }
-    if (x === previousX) {
-      y -= 1;
-      ops.push({ type: 'insert', beforeIndex: null, afterIndex: y, text: after[y] ?? '' });
-    } else {
-      x -= 1;
-      ops.push({ type: 'delete', beforeIndex: x, afterIndex: null, text: before[x] ?? '' });
-    }
-  }
-  while (x > 0 && y > 0) {
-    x -= 1;
-    y -= 1;
-    ops.push({ type: 'equal', beforeIndex: x, afterIndex: y, text: before[x] ?? '' });
-  }
-  return ops.reverse();
 }
 
 function buildHunks(lines: DiffLine[], context: number): DiffHunk[] {

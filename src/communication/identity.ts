@@ -97,43 +97,113 @@ function normalizeV2Entry(raw: unknown): ParticipantIdentityEntry {
 export function assertParticipantIdentityRegistry(value: unknown): asserts value is ParticipantIdentityRegistry {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Participant registry must be an object');
   const registry = value as Record<string, unknown>;
-  exactKeys(registry, ['schemaVersion', 'participants'], 'Participant registry');
-  if (registry.schemaVersion !== 't2c.participant-registry/v1') throw new Error('Unsupported participant registry schemaVersion');
-  if (!Array.isArray(registry.participants)) throw new Error('Participant registry participants must be an array');
+  validateRegistryShape(registry);
   const ids = new Set<string>();
   const external = new Map<string, string>();
-  for (const raw of registry.participants) {
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Participant registry entry must be an object');
-    const entry = raw as Record<string, unknown>;
-    exactKeys(entry, ['id', 'role', 'displayName', 'gitAuthors', 'a2aAgentIds', 'humanAliases'], 'Participant registry entry');
-    if (typeof entry.id !== 'string' || !/^(human|agent):[a-z0-9][a-z0-9._-]*$/.test(entry.id)) {
-      throw new Error('Participant registry id must be canonical human:<id> or agent:<id>');
+  const participants = registry.participants;
+  for (const raw of participants) {
+    assertParticipantIdentityEntry(raw, ids, external);
+  }
+}
+
+function validateRegistryShape(registry: Record<string, unknown>): asserts registry is { schemaVersion: string; participants: unknown[] } {
+  exactKeys(registry, ['schemaVersion', 'participants'], 'Participant registry');
+  if (registry.schemaVersion !== 't2c.participant-registry/v1') {
+    throw new Error('Unsupported participant registry schemaVersion');
+  }
+  if (!Array.isArray(registry.participants)) {
+    throw new Error('Participant registry participants must be an array');
+  }
+}
+
+function assertParticipantIdentityEntry(
+  raw: unknown,
+  ids: Set<string>,
+  external: Map<string, string>,
+): void {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Participant registry entry must be an object');
+  const entry = raw as Record<string, unknown>;
+  exactKeys(entry, ['id', 'role', 'displayName', 'gitAuthors', 'a2aAgentIds', 'humanAliases'], 'Participant registry entry');
+  const participantId = assertParticipantIdentityId(entry);
+  const role = assertParticipantIdentityRole(entry);
+  assertDisplayName(participantId, entry);
+  assertDuplicateId(participantId, ids);
+  ids.add(participantId);
+  for (const field of ['gitAuthors', 'a2aAgentIds', 'humanAliases'] as const) {
+    const values = assertParticipantIdentityField(entry, participantId, field);
+    assertParticipantIdentityFieldUnique(participantId, field, values, external);
+  }
+  assertRoleCompatibility(participantId, role, entry);
+}
+
+function assertParticipantIdentityId(entry: Record<string, unknown>): string {
+  if (typeof entry.id !== 'string' || !/^(human|agent):[a-z0-9][a-z0-9._-]*$/.test(entry.id)) {
+    throw new Error('Participant registry id must be canonical human:<id> or agent:<id>');
+  }
+  return entry.id;
+}
+
+function assertParticipantIdentityRole(entry: Record<string, unknown>): 'human' | 'agent' {
+  if (entry.role !== 'human' && entry.role !== 'agent') {
+    throw new Error(`Participant ${(entry.id as string)} role must be human or agent`);
+  }
+  if (!(typeof entry.id === 'string' && entry.id.startsWith(`${entry.role}:`))) {
+    throw new Error(`Participant ${(entry.id as string)} role does not match its stable ID prefix`);
+  }
+  return entry.role;
+}
+
+function assertDisplayName(participantId: string, entry: Record<string, unknown>): void {
+  if (typeof entry.displayName !== 'string' || !entry.displayName.trim()) {
+    throw new Error(`Participant ${participantId} displayName must be non-blank`);
+  }
+}
+
+function assertDuplicateId(participantId: string, ids: Set<string>): void {
+  if (ids.has(participantId)) throw new Error(`Duplicate participant registry id: ${participantId}`);
+}
+
+function assertParticipantIdentityField(
+  entry: Record<string, unknown>,
+  participantId: string,
+  field: 'gitAuthors' | 'a2aAgentIds' | 'humanAliases',
+): string[] {
+  const values = entry[field];
+  if (!Array.isArray(values) || values.some((item) => typeof item !== 'string' || !item.trim())) {
+    throw new Error(`Participant ${participantId} ${field} must contain non-blank strings`);
+  }
+  return values.map((item) => (item as string).trim().toLowerCase());
+}
+
+function assertParticipantIdentityFieldUnique(
+  participantId: string,
+  field: 'gitAuthors' | 'a2aAgentIds' | 'humanAliases',
+  normalized: string[],
+  external: Map<string, string>,
+): void {
+  if (new Set(normalized).size !== normalized.length) {
+    throw new Error(`Participant ${participantId} ${field} must be unique`);
+  }
+  for (const identifier of normalized) {
+    const key = `${field}:${identifier}`;
+    const owner = external.get(key);
+    if (owner && owner !== participantId) {
+      throw new Error(`${field} identifier ${identifier} is assigned to both ${owner} and ${participantId}`);
     }
-    if (entry.role !== 'human' && entry.role !== 'agent') throw new Error(`Participant ${entry.id} role must be human or agent`);
-    if (!entry.id.startsWith(`${entry.role}:`)) throw new Error(`Participant ${entry.id} role does not match its stable ID prefix`);
-    if (typeof entry.displayName !== 'string' || !entry.displayName.trim()) throw new Error(`Participant ${entry.id} displayName must be non-blank`);
-    if (ids.has(entry.id)) throw new Error(`Duplicate participant registry id: ${entry.id}`);
-    ids.add(entry.id);
-    for (const field of ['gitAuthors', 'a2aAgentIds', 'humanAliases'] as const) {
-      const values = entry[field];
-      if (!Array.isArray(values) || values.some((item) => typeof item !== 'string' || !item.trim())) {
-        throw new Error(`Participant ${entry.id} ${field} must contain non-blank strings`);
-      }
-      const normalized = values.map((item) => (item as string).trim().toLowerCase());
-      if (new Set(normalized).size !== normalized.length) throw new Error(`Participant ${entry.id} ${field} must be unique`);
-      for (const identifier of normalized) {
-        const key = `${field}:${identifier}`;
-        const owner = external.get(key);
-        if (owner && owner !== entry.id) throw new Error(`${field} identifier ${identifier} is assigned to both ${owner} and ${entry.id}`);
-        external.set(key, entry.id);
-      }
-    }
-    if (entry.role === 'human' && (entry.a2aAgentIds as unknown[]).length) {
-      throw new Error(`Human participant ${entry.id} cannot declare a2aAgentIds`);
-    }
-    if (entry.role === 'agent' && (entry.humanAliases as unknown[]).length) {
-      throw new Error(`Agent participant ${entry.id} cannot declare humanAliases`);
-    }
+    external.set(key, participantId);
+  }
+}
+
+function assertRoleCompatibility(
+  participantId: string,
+  role: 'human' | 'agent',
+  entry: Record<string, unknown>,
+): void {
+  if (role === 'human' && (entry.a2aAgentIds as unknown[]).length) {
+    throw new Error(`Human participant ${participantId} cannot declare a2aAgentIds`);
+  }
+  if (role === 'agent' && (entry.humanAliases as unknown[]).length) {
+    throw new Error(`Agent participant ${participantId} cannot declare humanAliases`);
   }
 }
 

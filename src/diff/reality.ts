@@ -158,47 +158,70 @@ export function buildRealityView(
   assertIntentGraph(graph);
   const components = groupIntoTopics(graph);
   const diagnosticsByRecord = indexDiagnostics(diagnostics);
+  const rows = buildRealityRows(components, diagnosticsByRecord);
+  return {
+    schemaVersion: 't2c.reality/v1',
+    generatedAt,
+    graphFingerprint: graph.fingerprint,
+    fingerprint: sha256(stableStringify(rows.map((row) => [row.key, row.status, row.recordIds]))),
+    rows,
+    totals: buildRealityTotals(graph, rows),
+  };
+}
 
-  const rows: RealityRow[] = components.map(({ key, records }) => {
-    const lanes: Record<string, number> = {};
-    for (const kind of LANE_ORDER) lanes[kind] = 0;
-    for (const record of records) {
-      lanes[record.source.kind] = (lanes[record.source.kind] ?? 0) + 1;
+function buildRealityRows(
+  components: Array<{ key: string; records: IntentRecord[] }>,
+  diagnosticsByRecord: Map<string, DiagnosticReport['diagnostics']>,
+): RealityRow[] {
+  const rows = components.map(({ key, records }) => buildRealityRow(key, records, diagnosticsByRecord));
+  rows.sort(compareRealityRows);
+  return rows;
+}
+
+function buildRealityRow(
+  key: string,
+  records: IntentRecord[],
+  diagnosticsByRecord: Map<string, DiagnosticReport['diagnostics']>,
+): RealityRow {
+  const lanes: Record<string, number> = {};
+  for (const kind of LANE_ORDER) lanes[kind] = 0;
+  for (const record of records) {
+    lanes[record.source.kind] = (lanes[record.source.kind] ?? 0) + 1;
+  }
+
+  const codes = new Set<DiagnosticCode>();
+  let severity: DiagnosticSeverity = 'info';
+  for (const record of records) {
+    for (const diagnostic of diagnosticsByRecord.get(record.id) ?? []) {
+      codes.add(diagnostic.code);
+      if (SEVERITY_RANK[diagnostic.severity] > SEVERITY_RANK[severity]) severity = diagnostic.severity;
     }
+  }
 
-    const codes = new Set<DiagnosticCode>();
-    let severity: DiagnosticSeverity = 'info';
-    for (const record of records) {
-      for (const diagnostic of diagnosticsByRecord.get(record.id) ?? []) {
-        codes.add(diagnostic.code);
-        if (SEVERITY_RANK[diagnostic.severity] > SEVERITY_RANK[severity]) severity = diagnostic.severity;
-      }
-    }
+  const status = resolveStatus(codes, lanes);
+  return {
+    key,
+    label: topicLabel(key, records),
+    lanes,
+    status,
+    severity: status === 'aligned' ? 'info' : severity,
+    recordIds: records.map((record) => record.id).sort(),
+    diagnosticCodes: [...codes].sort(),
+    evidence: resolveEvidence(lanes),
+  };
+}
 
-    const status = resolveStatus(codes, lanes);
-    return {
-      key,
-      label: topicLabel(key, records),
-      lanes,
-      status,
-      severity: status === 'aligned' ? 'info' : severity,
-      recordIds: records.map((record) => record.id).sort(),
-      diagnosticCodes: [...codes].sort(),
-      evidence: resolveEvidence(lanes),
-    };
-  });
+function compareRealityRows(left: RealityRow, right: RealityRow): number {
+  const bySeverity = SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity];
+  if (bySeverity !== 0) return bySeverity;
+  const alignment = Number(left.status === 'aligned') - Number(right.status === 'aligned');
+  if (alignment !== 0) return alignment;
+  const bySize = right.recordIds.length - left.recordIds.length;
+  if (bySize !== 0) return bySize;
+  return left.key.localeCompare(right.key);
+}
 
-  // Most severe first, then largest topic, then stable by key.
-  rows.sort((left, right) => {
-    const bySeverity = SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity];
-    if (bySeverity !== 0) return bySeverity;
-    const alignment = Number(left.status === 'aligned') - Number(right.status === 'aligned');
-    if (alignment !== 0) return alignment;
-    const bySize = right.recordIds.length - left.recordIds.length;
-    if (bySize !== 0) return bySize;
-    return left.key.localeCompare(right.key);
-  });
-
+function buildRealityTotals(graph: IntentGraph, rows: RealityRow[]): IntentRealityView['totals'] {
   const byStatus: Record<string, number> = {};
   for (const row of rows) byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
 
@@ -215,31 +238,24 @@ export function buildRealityView(
     && OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
 
   return {
-    schemaVersion: 't2c.reality/v1',
-    generatedAt,
-    graphFingerprint: graph.fingerprint,
-    fingerprint: sha256(stableStringify(rows.map((row) => [row.key, row.status, row.recordIds]))),
-    rows,
-    totals: {
-      topics: rows.length,
-      aligned,
-      gaps: rows.length - aligned,
-      alignedByEvidence: {
-        code: rows.filter((row) => row.status === 'aligned' && row.evidence === 'code').length,
-        configuration: rows.filter((row) => row.status === 'aligned' && row.evidence === 'configuration').length,
-        none: rows.filter((row) => row.status === 'aligned' && row.evidence === 'none').length,
-      },
-      byStatus: Object.fromEntries(Object.entries(byStatus).sort(([a], [b]) => a.localeCompare(b))),
-      declaredRecords,
-      observedRecords,
-      declaredTopics,
-      observedTopics,
-      implementationAlignedTopics,
-      implementationCoverage: ratio(implementationAlignedTopics, declaredTopics),
-      plannedCodeCoverage: ratio(implementationAlignedTopics, observedTopics),
-      documentedCodeCoverage: ratio(documentedObservedTopics, observedTopics),
-      documentationMeasured: graph.records.some((record) => record.source.kind === 'document'),
+    topics: rows.length,
+    aligned,
+    gaps: rows.length - aligned,
+    alignedByEvidence: {
+      code: rows.filter((row) => row.status === 'aligned' && row.evidence === 'code').length,
+      configuration: rows.filter((row) => row.status === 'aligned' && row.evidence === 'configuration').length,
+      none: rows.filter((row) => row.status === 'aligned' && row.evidence === 'none').length,
     },
+    byStatus: Object.fromEntries(Object.entries(byStatus).sort(([a], [b]) => a.localeCompare(b))),
+    declaredRecords,
+    observedRecords,
+    declaredTopics,
+    observedTopics,
+    implementationAlignedTopics,
+    implementationCoverage: ratio(implementationAlignedTopics, declaredTopics),
+    plannedCodeCoverage: ratio(implementationAlignedTopics, observedTopics),
+    documentedCodeCoverage: ratio(documentedObservedTopics, observedTopics),
+    documentationMeasured: graph.records.some((record) => record.source.kind === 'document'),
   };
 }
 
@@ -444,9 +460,7 @@ function resolveEvidence(lanes: Record<string, number>): RealityEvidence {
 }
 
 function resolveStatus(codes: Set<DiagnosticCode>, lanes: Record<string, number>): RealityStatus {
-  const declared = DECLARED_KINDS.reduce((total, kind) => total + (lanes[kind] ?? 0), 0);
-  const observed = OBSERVED_KINDS.reduce((total, kind) => total + (lanes[kind] ?? 0), 0);
-  const changelog = lanes.changelog ?? 0;
+  const { declared, observed, changelog } = summarizeLaneTotals(lanes);
 
   // A contradiction outranks every structural reading of the same topic.
   if (codes.has('CONFLICTING_INTENT')) return 'conflicting';
@@ -470,6 +484,17 @@ function resolveStatus(codes: Set<DiagnosticCode>, lanes: Record<string, number>
   // the row; requiring a document lane here made `aligned` impossible in a
   // fully offline run because semantic document records are LLM-only.
   return 'aligned';
+}
+
+function summarizeLaneTotals(lanes: Record<string, number>): {
+  declared: number;
+  observed: number;
+  changelog: number;
+} {
+  const declared = DECLARED_KINDS.reduce((total, kind) => total + (lanes[kind] ?? 0), 0);
+  const observed = OBSERVED_KINDS.reduce((total, kind) => total + (lanes[kind] ?? 0), 0);
+  const changelog = lanes.changelog ?? 0;
+  return { declared, observed, changelog };
 }
 
 /**
@@ -506,74 +531,17 @@ export function renderRealitySvg(view: IntentRealityView, options: RealitySvgOpt
   const title = options.title?.trim() || 'todo2code Intent vs Reality';
   const rows = (options.gapsOnly ? view.rows.filter((row) => row.status !== 'aligned') : view.rows);
   const visible = rows.slice(0, maxRows);
-
-  // The lane columns and the status column are sized from their own content.
-  // Both were hardcoded for six lanes, so adding `agent_log` made the headers
-  // overlap and pushed "CHANGELOG, NO CODE" past the right edge of the
-  // viewBox. Deriving the geometry keeps the table readable when a lane is
-  // added again.
-  const laneX = 720;
-  const laneStep = Math.max(62, Math.ceil(widestLabel(LANE_ORDER.map((kind) => kind.toUpperCase())) * LABEL_CHAR + 14));
-  const statusX = laneX + LANE_ORDER.length * laneStep + 30;
-  const statusWidth = Math.ceil(widestLabel(Object.values(STATUS_LABEL).map((label) => label.toUpperCase())) * BADGE_CHAR);
-  const width = statusX + statusWidth + 40;
-  const rowHeight = 30;
-  const headerY = 214;
-  let y = headerY + 28;
-
-  const body: string[] = [];
-
-  // Lane column headers.
-  body.push(`<text x="40" y="${headerY}" class="label">TOPIC</text>`);
-  LANE_ORDER.forEach((kind, index) => {
-    const isDeclared = DECLARED_KINDS.includes(kind);
-    body.push(
-      `<text x="${laneX + index * laneStep}" y="${headerY}" class="label" text-anchor="middle"`
-      + ` fill="${isDeclared ? theme.muted : theme.accent}">${escapeXml(kind.toUpperCase())}</text>`,
-    );
-  });
-  body.push(`<text x="${statusX}" y="${headerY}" class="label">STATUS</text>`);
-  body.push(`<line x1="40" y1="${headerY + 10}" x2="${width - 40}" y2="${headerY + 10}" stroke="${theme.panelStroke}"/>`);
-
-  for (const row of visible) {
-    const color = STATUS_COLOR[row.status];
-    body.push(`<rect x="40" y="${y - 20}" width="${width - 80}" height="${rowHeight - 4}" rx="6" fill="${theme.panel}" opacity="0.55"/>`);
-    body.push(`<rect x="40" y="${y - 20}" width="4" height="${rowHeight - 4}" rx="2" fill="${color}"/>`);
-    body.push(`<text x="56" y="${y}" class="item">${escapeXml(truncate(row.label, 76))}</text>`);
-
-    LANE_ORDER.forEach((kind, index) => {
-      const count = row.lanes[kind] ?? 0;
-      const cx = laneX + index * laneStep;
-      if (count > 0) {
-        // A 16px circle fits two digits; a file with 161 AST facts overflowed
-        // it, so wider counts get a pill sized to their own text.
-        const fill = DECLARED_KINDS.includes(kind) ? theme.changed : theme.accent;
-        const label = String(count);
-        const pillWidth = Math.max(16, Math.ceil(label.length * BADGE_CHAR) + 8);
-        body.push(
-          `<rect x="${cx - pillWidth / 2}" y="${y - 13}" width="${pillWidth}" height="16" rx="8" fill="${fill}"/>`,
-        );
-        body.push(`<text x="${cx}" y="${y - 1}" class="badge" text-anchor="middle" fill="${theme.background}">${label}</text>`);
-      } else {
-        body.push(`<circle cx="${cx}" cy="${y - 5}" r="7" fill="none" stroke="${theme.neutral}" stroke-width="1.5" stroke-dasharray="2 2"/>`);
-      }
-    });
-
-    body.push(
-      `<text x="${statusX}" y="${y}" class="badge" fill="${color}">`
-      + `${escapeXml(STATUS_LABEL[row.status].toUpperCase())}</text>`,
-    );
-    y += rowHeight;
-  }
-
-  if (rows.length > visible.length) {
-    body.push(`<text x="56" y="${y + 6}" class="more">… ${rows.length - visible.length} more topics</text>`);
-    y += 30;
-  }
+  const layout = buildRealityLayout();
+  const header = renderRealityLaneHeaders(theme, layout);
+  const body = visible.map((row, index) => renderRealityRow(row, index, layout, theme)).join('');
+  const overflow = rows.length > visible.length
+    ? renderMoreTopicsLabel(rows.length - visible.length, visible.length, layout)
+    : '';
+  const height = Math.max(400, renderRealityHeight(visible.length, rows.length, layout));
 
   return svgDocument({
-    width,
-    height: Math.max(400, y + 30),
+    width: layout.width,
+    height,
     title,
     description: `Intent versus reality across ${view.totals.topics} topics: `
       + `${view.totals.aligned} aligned, ${view.totals.gaps} divergent.`,
@@ -587,9 +555,112 @@ export function renderRealitySvg(view: IntentRealityView, options: RealitySvgOpt
       `  ${metricCard(610, 92, 'Planned, no code', view.totals.byStatus.planned_not_implemented ?? 0, STATUS_COLOR.planned_not_implemented, 200)}`,
       `  ${metricCard(830, 92, 'Code, no plan', view.totals.byStatus.implemented_not_planned ?? 0, STATUS_COLOR.implemented_not_planned, 200)}`,
       `  ${metricCard(1050, 92, 'Conflicting', view.totals.byStatus.conflicting ?? 0, STATUS_COLOR.conflicting, 190)}`,
-      `  <g>${body.join('')}</g>`,
+      `  <g>${header}${body}${overflow}</g>`,
     ].join('\n'),
   });
+}
+
+interface RealitySvgLayout {
+  laneX: number;
+  laneStep: number;
+  statusX: number;
+  width: number;
+  rowHeight: number;
+  headerY: number;
+  yStart: number;
+}
+
+function buildRealityLayout(): RealitySvgLayout {
+  const laneX = 720;
+  const laneStep = Math.max(62, Math.ceil(widestLabel(LANE_ORDER.map((kind) => kind.toUpperCase())) * LABEL_CHAR + 14));
+  const statusX = laneX + LANE_ORDER.length * laneStep + 30;
+  const statusWidth = Math.ceil(widestLabel(Object.values(STATUS_LABEL).map((label) => label.toUpperCase())) * BADGE_CHAR);
+  return {
+    laneX,
+    laneStep,
+    statusX,
+    width: statusX + statusWidth + 40,
+    rowHeight: 30,
+    headerY: 214,
+    yStart: 242,
+  };
+}
+
+function renderRealityLaneHeaders(theme: typeof DARK_THEME, layout: RealitySvgLayout): string {
+  return [
+    `<text x="40" y="${layout.headerY}" class="label">TOPIC</text>`,
+    ...LANE_ORDER.map((kind, index) => {
+      const isDeclared = DECLARED_KINDS.includes(kind);
+      return `<text x="${layout.laneX + index * layout.laneStep}" y="${layout.headerY}" class="label" text-anchor="middle"`
+        + ` fill="${isDeclared ? theme.muted : theme.accent}">${escapeXml(kind.toUpperCase())}</text>`;
+    }),
+    `<text x="${layout.statusX}" y="${layout.headerY}" class="label">STATUS</text>`,
+    `<line x1="40" y1="${layout.headerY + 10}" x2="${layout.width - 40}" y2="${layout.headerY + 10}" stroke="${theme.panelStroke}"/>`,
+  ].join('');
+}
+
+function renderRealityRow(
+  row: RealityRow,
+  index: number,
+  layout: RealitySvgLayout,
+  theme: typeof DARK_THEME,
+): string {
+  const y = layout.yStart + index * layout.rowHeight;
+  const color = STATUS_COLOR[row.status];
+  return [
+    `<rect x="40" y="${y - 20}" width="${layout.width - 80}" height="${layout.rowHeight - 4}" rx="6" fill="${theme.panel}" opacity="0.55"/>`,
+    `<rect x="40" y="${y - 20}" width="4" height="${layout.rowHeight - 4}" rx="2" fill="${color}"/>`,
+    `<text x="56" y="${y}" class="item">${escapeXml(truncate(row.label, 76))}</text>`,
+    renderRealityLanes(row, y, layout, theme),
+    `<text x="${layout.statusX}" y="${y}" class="badge" fill="${color}">`
+      + `${escapeXml(STATUS_LABEL[row.status].toUpperCase())}</text>`,
+  ].join('');
+}
+
+function renderRealityLanes(
+  row: RealityRow,
+  y: number,
+  layout: RealitySvgLayout,
+  theme: typeof DARK_THEME,
+): string {
+  return LANE_ORDER.map((kind, index) => {
+    const count = row.lanes[kind] ?? 0;
+    const cx = layout.laneX + index * layout.laneStep;
+    return renderRealityLaneCell(kind, count, cx, y, theme);
+  }).join('');
+}
+
+function renderRealityLaneCell(
+  kind: SourceKind,
+  count: number,
+  cx: number,
+  y: number,
+  theme: typeof DARK_THEME,
+): string {
+  if (count > 0) {
+    // A 16px circle fits two digits; a file with 161 AST facts overflowed
+    // it, so wider counts get a pill sized to their own text.
+    const fill = DECLARED_KINDS.includes(kind) ? theme.changed : theme.accent;
+    const label = String(count);
+    const pillWidth = Math.max(16, Math.ceil(label.length * BADGE_CHAR) + 8);
+    return [
+      `<rect x="${cx - pillWidth / 2}" y="${y - 13}" width="${pillWidth}" height="16" rx="8" fill="${fill}"/>`,
+      `<text x="${cx}" y="${y - 1}" class="badge" text-anchor="middle" fill="${theme.background}">${label}</text>`,
+    ].join('');
+  }
+  return `<circle cx="${cx}" cy="${y - 5}" r="7" fill="none" stroke="${theme.neutral}" stroke-width="1.5" stroke-dasharray="2 2"/>`;
+}
+
+function renderMoreTopicsLabel(remaining: number, visibleRows: number, layout: RealitySvgLayout): string {
+  if (remaining <= 0) return '';
+  const y = layout.yStart + visibleRows * layout.rowHeight + 6;
+  return `<text x="56" y="${y}" class="more">… ${remaining} more topics</text>`;
+}
+
+function renderRealityHeight(visibleCount: number, totalCount: number, layout: RealitySvgLayout): number {
+  const footer = totalCount > visibleCount ? 30 : 0;
+  const y = layout.yStart + visibleCount * layout.rowHeight;
+  return y + footer + 30;
 }
 
 /** Compact Markdown rendering for pull-request comments and terminals. */

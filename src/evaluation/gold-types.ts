@@ -340,39 +340,66 @@ function assertExtractionCoverage(dataset: GoldDataset): void {
 
 function assertLinkingCohorts(dataset: GoldDataset): void {
   for (const fixture of dataset.linking) {
-    if (fixture.cohort !== undefined && fixture.cohort !== 'cross-language') {
-      throw new Error(`Unsupported gold linking cohort: ${String(fixture.cohort)}`);
-    }
-    if (dataset.schemaVersion === 't2c.gold-dataset/v2'
-      && fixture.cohort === 'cross-language'
-      && !fixture.reranker) {
-      throw new Error(`Cross-language gold case ${fixture.id} is missing a captured reranker fixture`);
-    }
-    if (fixture.reranker) {
-      if (!fixture.reranker.model.trim() || !fixture.reranker.modelRevision.trim()) {
-        throw new Error(`Gold reranker case ${fixture.id} has a blank model identity`);
-      }
-      if (!fixture.reranker.decisions.length || fixture.reranker.decisions.length > 10) {
-        throw new Error(`Gold reranker case ${fixture.id} must contain 1-10 bounded decisions`);
-      }
-      const labels = new Set(fixture.records.map((record) => record.label));
-      const modules = new Set<string>();
-      for (const decision of fixture.reranker.decisions) {
-        if (!labels.has(decision.module) || decision.module === 'declaration') {
-          throw new Error(`Gold reranker case ${fixture.id} references unknown module ${decision.module}`);
-        }
-        if (modules.has(decision.module)) {
-          throw new Error(`Gold reranker case ${fixture.id} repeats module ${decision.module}`);
-        }
-        modules.add(decision.module);
-        if (!Number.isFinite(decision.score) || decision.score < -1 || decision.score > 1
-          || !Number.isFinite(decision.confidence) || decision.confidence < 0 || decision.confidence > 1) {
-          throw new Error(`Gold reranker case ${fixture.id} has an invalid score or confidence`);
-        }
-        if (!decision.rationale.trim() || !decision.declarationQuote.trim() || !decision.moduleQuote.trim()) {
-          throw new Error(`Gold reranker case ${fixture.id} has blank grounded decision content`);
-        }
-      }
-    }
+    assertGoldLinkingCohort(dataset.schemaVersion, fixture);
+    assertRerankerFixture(fixture);
+  }
+}
+
+function assertGoldLinkingCohort(schemaVersion: GoldDatasetVersion, fixture: GoldLinkingCase): void {
+  if (fixture.cohort !== undefined && fixture.cohort !== 'cross-language') {
+    throw new Error(`Unsupported gold linking cohort: ${String(fixture.cohort)}`);
+  }
+  if (schemaVersion === 't2c.gold-dataset/v2'
+    && fixture.cohort === 'cross-language'
+    && !fixture.reranker) {
+    throw new Error(`Cross-language gold case ${fixture.id} is missing a captured reranker fixture`);
+  }
+}
+
+function assertRerankerFixture(fixture: GoldLinkingCase): void {
+  if (!fixture.reranker) return;
+  assertRerankerModelIdentity(fixture);
+  assertRerankerDecisions(fixture);
+}
+
+function assertRerankerModelIdentity(fixture: GoldLinkingCase): void {
+  if (!fixture.reranker?.model.trim() || !fixture.reranker.modelRevision.trim()) {
+    throw new Error(`Gold reranker case ${fixture.id} has a blank model identity`);
+  }
+}
+
+function assertRerankerDecisions(fixture: GoldLinkingCase): void {
+  const decisions = fixture.reranker?.decisions ?? [];
+  if (!decisions.length || decisions.length > 10) {
+    throw new Error(`Gold reranker case ${fixture.id} must contain 1-10 bounded decisions`);
+  }
+  const recordLabels = new Set(fixture.records.map((record) => record.label));
+  const seenModules = new Set<string>();
+  for (const decision of decisions) {
+    assertRerankerDecision(fixture.id, decision, seenModules, recordLabels);
+  }
+}
+
+function assertRerankerDecision(
+  caseId: string,
+  decision: GoldRerankerDecisionFixture,
+  seenModules: Set<string>,
+  recordLabels: Set<string>,
+): void {
+  if (!recordLabels.has(decision.module) || decision.module === 'declaration') {
+    throw new Error(`Gold reranker case ${caseId} references unknown module ${decision.module}`);
+  }
+  if (seenModules.has(decision.module)) {
+    throw new Error(`Gold reranker case ${caseId} repeats module ${decision.module}`);
+  }
+  seenModules.add(decision.module);
+  if (
+    !Number.isFinite(decision.score) || decision.score < -1 || decision.score > 1
+    || !Number.isFinite(decision.confidence) || decision.confidence < 0 || decision.confidence > 1
+  ) {
+    throw new Error(`Gold reranker case ${caseId} has an invalid score or confidence`);
+  }
+  if (!decision.rationale.trim() || !decision.declarationQuote.trim() || !decision.moduleQuote.trim()) {
+    throw new Error(`Gold reranker case ${caseId} has blank grounded decision content`);
   }
 }

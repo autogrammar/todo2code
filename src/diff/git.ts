@@ -10,6 +10,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { diffText, type DiffTextOptions, type FileDiff } from './text.js';
+import { isProbablyBinary } from './git-binary.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -38,74 +39,124 @@ interface ChangedEntry {
   previousPath: string | null;
 }
 
-const BINARY_EXTENSIONS = new Set([
-  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.pdf', '.zip', '.gz', '.tar',
-  '.woff', '.woff2', '.ttf', '.eot', '.mp4', '.mp3', '.wasm', '.so', '.dylib', '.dll',
-]);
+interface ResolvedGitDiffOptions {
+  root: string;
+  revision: string;
+  staged: boolean;
+  maxFiles: number;
+}
 
 export async function collectGitDiff(options: GitDiffOptions): Promise<GitDiffResult> {
-  const root = path.resolve(options.root);
-  const revision = options.revision?.trim() || 'HEAD';
-  const staged = options.staged ?? false;
-  const maxFiles = Math.max(1, Math.min(500, Math.trunc(options.maxFiles ?? 50)));
+  const normalized = resolveGitDiffOptions(options);
   const warnings: string[] = [];
 
-  try {
-    const inside = (await runGit(root, ['rev-parse', '--is-inside-work-tree'])).trim();
-    if (inside !== 'true') return { revision, staged, diffs: [], warnings: [`${root} is not a Git work tree`] };
-  } catch {
-    return { revision, staged, diffs: [], warnings: [`Git repository not available at ${root}`] };
+  const worktree = await getWorktreeStatus(normalized.root);
+  if (!worktree.available) {
+    return { ...normalized, diffs: [], warnings: [`Git repository not available at ${normalized.root}`] };
+  }
+  if (!worktree.inside) {
+    return { ...normalized, diffs: [], warnings: [`${normalized.root} is not a Git work tree`] };
   }
 
-  const args = ['diff', '--name-status', '-M', '--no-ext-diff'];
-  if (staged) args.push('--cached');
-  args.push(revision);
-  if (options.paths?.length) args.push('--', ...options.paths);
-
+  const args = buildNameStatusArgs(normalized, options.paths);
   let entries: ChangedEntry[];
   try {
-    entries = parseNameStatus(await runGit(root, args));
+    entries = parseNameStatus(await runGit(normalized.root, args));
   } catch (error) {
     return {
-      revision,
-      staged,
+      ...normalized,
       diffs: [],
       warnings: [`git diff failed: ${error instanceof Error ? error.message : String(error)}`],
     };
   }
 
-  if (entries.length > maxFiles) {
-    warnings.push(`Showing ${maxFiles} of ${entries.length} changed files; raise --max-files to widen the view`);
-    entries = entries.slice(0, maxFiles);
-  }
+  const selected = capEntries(entries, normalized.maxFiles, warnings);
+  const diffs = await collectFileDiffs(selected, normalized, options, warnings);
+  return { ...normalized, diffs, warnings };
+}
 
+function resolveGitDiffOptions(options: GitDiffOptions): ResolvedGitDiffOptions {
+  return {
+    root: path.resolve(options.root),
+    revision: options.revision?.trim() || 'HEAD',
+    staged: options.staged ?? false,
+    maxFiles: Math.max(1, Math.min(500, Math.trunc(options.maxFiles ?? 50))),
+  };
+}
+
+function getWorktreeStatus(root: string): Promise<{ available: boolean; inside: boolean }> {
+  return runGit(root, ['rev-parse', '--is-inside-work-tree'])
+    .then((inside) => ({ available: true, inside: inside.trim() === 'true' }))
+    .catch(() => ({ available: false, inside: false }));
+}
+
+function buildNameStatusArgs(options: ResolvedGitDiffOptions, paths?: string[]): string[] {
+  const args = ['diff', '--name-status', '-M', '--no-ext-diff'];
+  if (options.staged) args.push('--cached');
+  args.push(options.revision);
+  if (paths?.length) args.push('--', ...paths);
+  return args;
+}
+
+function capEntries(entries: ChangedEntry[], maxFiles: number, warnings: string[]): ChangedEntry[] {
+  if (entries.length <= maxFiles) return entries;
+  warnings.push(`Showing ${maxFiles} of ${entries.length} changed files; raise --max-files to widen the view`);
+  return entries.slice(0, maxFiles);
+}
+
+async function collectFileDiffs(
+  entries: ChangedEntry[],
+  options: ResolvedGitDiffOptions,
+  requestOptions: GitDiffOptions,
+  warnings: string[],
+): Promise<FileDiff[]> {
   const diffs: FileDiff[] = [];
   for (const entry of entries) {
-    if (isProbablyBinary(entry.path)) {
-      warnings.push(`Skipped binary file ${entry.path}`);
-      continue;
-    }
-    const beforePath = entry.previousPath ?? entry.path;
-    const before = entry.status.startsWith('A')
-      ? ''
-      : await readBlob(root, revision, beforePath);
-    const after = entry.status.startsWith('D')
-      ? ''
-      : staged
-        ? await readStagedBlob(root, entry.path, warnings)
-        : await readWorkingFile(root, entry.path, warnings);
+    const diff = await buildFileDiff(entry, options, requestOptions, warnings);
+    if (diff) diffs.push(diff);
+  }
+  return diffs;
+}
 
-    const diff = diffText(before, after, {
-      path: entry.path,
-      beforePath,
-      afterPath: entry.path,
-      ...(options.context !== undefined ? { context: options.context } : {}),
-      ...(options.maxCompareLines !== undefined ? { maxCompareLines: options.maxCompareLines } : {}),
-    });
-    if (diff.hunks.length > 0) diffs.push(diff);
+async function buildFileDiff(
+  entry: ChangedEntry,
+  options: ResolvedGitDiffOptions,
+  requestOptions: GitDiffOptions,
+  warnings: string[],
+): Promise<FileDiff | null> {
+  if (isProbablyBinary(entry.path)) {
+    warnings.push(`Skipped binary file ${entry.path}`);
+    return null;
   }
 
-  return { revision, staged, diffs, warnings };
+  const beforePath = entry.previousPath ?? entry.path;
+  const before = await loadBeforeSnapshot(options.root, options.revision, entry);
+  const after = await loadAfterSnapshot(options.root, entry, options.staged, warnings);
+
+  const diff = diffText(before, after, {
+    path: entry.path,
+    beforePath,
+    afterPath: entry.path,
+    ...(requestOptions.context !== undefined ? { context: requestOptions.context } : {}),
+    ...(requestOptions.maxCompareLines !== undefined ? { maxCompareLines: requestOptions.maxCompareLines } : {}),
+  });
+  return diff.hunks.length > 0 ? diff : null;
+}
+
+async function loadBeforeSnapshot(root: string, revision: string, entry: ChangedEntry): Promise<string> {
+  if (entry.status.startsWith('A')) return '';
+  return readBlob(root, revision, entry.previousPath ?? entry.path);
+}
+
+async function loadAfterSnapshot(
+  root: string,
+  entry: ChangedEntry,
+  staged: boolean,
+  warnings: string[],
+): Promise<string> {
+  if (entry.status.startsWith('D')) return '';
+  if (staged) return readStagedBlob(root, entry.path, warnings);
+  return readWorkingFile(root, entry.path, warnings);
 }
 
 function parseNameStatus(output: string): ChangedEntry[] {
@@ -122,10 +173,6 @@ function parseNameStatus(output: string): ChangedEntry[] {
     })
     .filter((entry) => Boolean(entry.path))
     .sort((left, right) => left.path.localeCompare(right.path));
-}
-
-function isProbablyBinary(filePath: string): boolean {
-  return BINARY_EXTENSIONS.has(path.extname(filePath).toLowerCase());
 }
 
 async function readBlob(root: string, revision: string, filePath: string): Promise<string> {

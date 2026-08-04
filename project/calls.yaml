@@ -1,143 +1,59 @@
 project: /home/tom/github/semcod/todo2code
 generated_from: code2llm call graph analysis
 stats:
-  total_nodes: 402
+  total_nodes: 399
   total_edges: 500
   modules_count: 30
 nodes:
-  src.extractors.docs-record.isPlaceholder:
-    name: isPlaceholder
-    module: src.extractors.docs-record
-    line: 75
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 2
-  src.extractors.communication-helpers.listValue:
-    name: listValue
-    module: src.extractors.communication-helpers
-    line: 259
+  src.extractors.docs-llm.DocumentationLlmRequiredError.errorMessage:
+    name: errorMessage
+    module: src.extractors.docs-llm
+    line: 267
     cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 3
+  examples.backend.src.request-handlers.handleHealth:
+    name: handleHealth
+    module: examples.backend.src.request-handlers
+    line: 25
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 2
+  src.extractors.nl.absolute:
+    name: absolute
+    module: src.extractors.nl
+    line: 40
+    cyclomatic_complexity: 2
+    calls_out: 14
+    calls_in: 0
+  rust-ast.src.main.visit_item_use:
+    name: visit_item_use
+    module: rust-ast.src.main
+    line: 216
+    cyclomatic_complexity: 1
     calls_out: 8
     calls_in: 0
-  examples.backend.src.server.readBody:
-    name: readBody
-    module: examples.backend.src.server
-    line: 70
+  src.extractors.markdown-paths.addBasenameIndexMatch:
+    name: addBasenameIndexMatch
+    module: src.extractors.markdown-paths
+    line: 148
     cyclomatic_complexity: 3
-    calls_out: 5
+    calls_out: 4
     calls_in: 1
-  src.cli.optionNlMode:
-    name: optionNlMode
-    module: src.cli
-    line: 850
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 2
-  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichSplitBatch:
-    name: enrichSplitBatch
-    module: src.extractors.markdown-llm-helpers
-    line: 153
-    cyclomatic_complexity: 2
-    calls_out: 7
-    calls_in: 1
-  src.extractors.communication-helpers.normalize:
-    name: normalize
-    module: src.extractors.communication-helpers
-    line: 282
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  examples.src.runtime.validateContract:
-    name: validateContract
-    module: examples.src.runtime
-    line: 6
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 1
-  src.cli.result:
-    name: result
-    module: src.cli
-    line: 770
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.cli.parseDiffMode:
-    name: parseDiffMode
-    module: src.cli
-    line: 488
-    cyclomatic_complexity: 5
-    calls_out: 3
-    calls_in: 1
-  src.extractors.ast.records.end:
-    name: end
-    module: src.extractors.ast.records
-    line: 48
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.extractors.docs-deterministic.match:
-    name: match
-    module: src.extractors.docs-deterministic
-    line: 160
-    cyclomatic_complexity: 2
-    calls_out: 0
-    calls_in: 4
-  src.extractors.git.execFileAsync:
-    name: execFileAsync
-    module: src.extractors.git
-    line: 12
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 2
-  src.extractors.git.resolveDiscoveryPrefix:
-    name: resolveDiscoveryPrefix
-    module: src.extractors.git
-    line: 264
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 1
-  src.extractors.communication-helpers.nestedParticipant:
-    name: nestedParticipant
-    module: src.extractors.communication-helpers
-    line: 157
-    cyclomatic_complexity: 5
-    calls_out: 2
-    calls_in: 0
-  src.extractors.ast.typescript.createTypeScriptExtractionContext:
-    name: createTypeScriptExtractionContext
-    module: src.extractors.ast.typescript
-    line: 35
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 2
-  java.JavaAstExtract.JavaAstExtract.add:
-    name: add
+  java.JavaAstExtract.JavaAstExtract.slash:
+    name: slash
     module: java.JavaAstExtract
-    line: 181
+    line: 259
     cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  src.extractors.nl.missing:
-    name: missing
-    module: src.extractors.nl
-    line: 52
-    cyclomatic_complexity: 1
-    calls_out: 9
-    calls_in: 0
-  rust-ast.src.main.visit_item_type:
-    name: visit_item_type
-    module: rust-ast.src.main
-    line: 238
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.cli.handleProposeCodeChange:
-    name: handleProposeCodeChange
+    calls_out: 1
+    calls_in: 2
+  src.cli.main:
+    name: main
     module: src.cli
-    line: 222
-    cyclomatic_complexity: 5
-    calls_out: 5
-    calls_in: 0
+    line: 61
+    cyclomatic_complexity: 9
+    calls_out: 12
+    calls_in: 1
   src.extractors.markdown-llm-helpers.MarkdownAttemptError.markdownResponseContract:
     name: markdownResponseContract
     module: src.extractors.markdown-llm-helpers
@@ -145,75 +61,131 @@ nodes:
     cyclomatic_complexity: 1
     calls_out: 7
     calls_in: 1
-  src.extractors.docs-llm.DocumentationLlmRequiredError.files:
-    name: files
-    module: src.extractors.docs-llm
-    line: 110
-    cyclomatic_complexity: 3
-    calls_out: 7
-    calls_in: 0
-  src.extractors.communication-helpers.match:
-    name: match
-    module: src.extractors.communication-helpers
-    line: 125
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 5
-  src.extractors.nl.body:
-    name: body
-    module: src.extractors.nl
-    line: 41
+  examples.backend.src.validation.agent:
+    name: agent
+    module: examples.backend.src.validation
+    line: 22
     cyclomatic_complexity: 2
-    calls_out: 14
+    calls_out: 3
     calls_in: 0
-  src.extractors.docs-record.hasTarget:
-    name: hasTarget
-    module: src.extractors.docs-record
-    line: 152
-    cyclomatic_complexity: 4
-    calls_out: 1
+  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichment:
+    name: enrichment
+    module: src.extractors.markdown-llm-helpers
+    line: 371
+    cyclomatic_complexity: 1
+    calls_out: 6
+    calls_in: 0
+  src.extractors.git.extractChangedSymbols:
+    name: extractChangedSymbols
+    module: src.extractors.git
+    line: 376
+    cyclomatic_complexity: 9
+    calls_out: 3
     calls_in: 1
-  examples.frontend.src.app.reload:
-    name: reload
-    module: examples.frontend.src.app
-    line: 38
+  src.extractors.docs-llm.DocumentationLlmRequiredError.extractDocumentationIntent:
+    name: extractDocumentationIntent
+    module: src.extractors.docs-llm
+    line: 45
+    cyclomatic_complexity: 3
+    calls_out: 12
+    calls_in: 0
+  src.cli.svg:
+    name: svg
+    module: src.cli
+    line: 564
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.cli.handleExtractAst:
+    name: handleExtractAst
+    module: src.cli
+    line: 619
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.cli.handleDiagnose:
+    name: handleDiagnose
+    module: src.cli
+    line: 139
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.cli.handleExtract:
+    name: handleExtract
+    module: src.cli
+    line: 577
+    cyclomatic_complexity: 4
+    calls_out: 5
+    calls_in: 0
+  src.cli.result:
+    name: result
+    module: src.cli
+    line: 770
     cyclomatic_complexity: 1
     calls_out: 1
-    calls_in: 1
-  rust-ast.src.main.visit_item_static:
-    name: visit_item_static
-    module: rust-ast.src.main
-    line: 250
+    calls_in: 0
+  src.extractors.nl.confidence:
+    name: confidence
+    module: src.extractors.nl
+    line: 53
     cyclomatic_complexity: 1
     calls_out: 9
     calls_in: 0
-  src.cli.formatWatchEvent:
-    name: formatWatchEvent
-    module: src.cli
-    line: 448
-    cyclomatic_complexity: 10
-    calls_out: 7
-    calls_in: 5
-  src.extractors.communication-file-helpers.shouldSkipCommunicationFile:
-    name: shouldSkipCommunicationFile
-    module: src.extractors.communication-file-helpers
-    line: 102
-    cyclomatic_complexity: 8
+  src.extractors.runtime-cycle.sourcePathFor:
+    name: sourcePathFor
+    module: src.extractors.runtime-cycle
+    line: 89
+    cyclomatic_complexity: 2
     calls_out: 3
     calls_in: 2
-  src.extractors.nl-llm-helpers.NlAttemptError.resolveObject:
-    name: resolveObject
-    module: src.extractors.nl-llm-helpers
-    line: 194
-    cyclomatic_complexity: 6
-    calls_out: 3
-    calls_in: 3
-  src.cli.handleProposeSourcePatch:
-    name: handleProposeSourcePatch
-    module: src.cli
-    line: 257
-    cyclomatic_complexity: 6
+  src.extractors.docs-deterministic.primePathMapper:
+    name: primePathMapper
+    module: src.extractors.docs-deterministic
+    line: 87
+    cyclomatic_complexity: 5
     calls_out: 6
+    calls_in: 3
+  src.extractors.markdown-paths.buildBasenameIndex:
+    name: buildBasenameIndex
+    module: src.extractors.markdown-paths
+    line: 90
+    cyclomatic_complexity: 7
+    calls_out: 7
+    calls_in: 1
+  src.extractors.docs-chunks.sectionText:
+    name: sectionText
+    module: src.extractors.docs-chunks
+    line: 76
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.cli.taskFile:
+    name: taskFile
+    module: src.cli
+    line: 348
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.cli.handleCommunication:
+    name: handleCommunication
+    module: src.cli
+    line: 666
+    cyclomatic_complexity: 11
+    calls_out: 18
+    calls_in: 0
+  src.extractors.docs-deterministic.heading:
+    name: heading
+    module: src.extractors.docs-deterministic
+    line: 180
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.extractors.communication-helpers.nestedRoleIndex:
+    name: nestedRoleIndex
+    module: src.extractors.communication-helpers
+    line: 155
+    cyclomatic_complexity: 5
+    calls_out: 2
     calls_in: 0
   src.cli.isPlanSet:
     name: isPlanSet
@@ -222,13 +194,20 @@ nodes:
     cyclomatic_complexity: 3
     calls_out: 2
     calls_in: 0
-  src.cli.reportPipelineDegradation:
-    name: reportPipelineDegradation
-    module: src.cli
-    line: 882
-    cyclomatic_complexity: 6
-    calls_out: 2
+  src.extractors.ast.isIntentRecords:
+    name: isIntentRecords
+    module: src.extractors.ast
+    line: 153
+    cyclomatic_complexity: 2
+    calls_out: 1
     calls_in: 1
+  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichMarkdownRecords:
+    name: enrichMarkdownRecords
+    module: src.extractors.markdown-llm-helpers
+    line: 57
+    cyclomatic_complexity: 13
+    calls_out: 9
+    calls_in: 0
   src.extractors.todo.body:
     name: body
     module: src.extractors.todo
@@ -236,76 +215,181 @@ nodes:
     cyclomatic_complexity: 5
     calls_out: 20
     calls_in: 0
-  src.cli.emitJson:
-    name: emitJson
-    module: src.cli
-    line: 701
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 2
-  src.extractors.todo.heading:
-    name: heading
-    module: src.extractors.todo
-    line: 36
-    cyclomatic_complexity: 1
-    calls_out: 1
+  src.extractors.communication-file-helpers.buildLocalWarnings:
+    name: buildLocalWarnings
+    module: src.extractors.communication-file-helpers
+    line: 254
+    cyclomatic_complexity: 3
+    calls_out: 5
     calls_in: 0
-  src.extractors.configuration.dockerEntries:
-    name: dockerEntries
-    module: src.extractors.configuration
-    line: 173
+  src.cli.doctor:
+    name: doctor
+    module: src.cli
+    line: 757
     cyclomatic_complexity: 6
-    calls_out: 6
+    calls_out: 7
     calls_in: 1
-  src.extractors.communication-helpers.inferGovernanceIdentityFromFilename:
-    name: inferGovernanceIdentityFromFilename
-    module: src.extractors.communication-helpers
-    line: 141
-    cyclomatic_complexity: 7
+  examples.backend.src.request-handlers.size:
+    name: size
+    module: examples.backend.src.request-handlers
+    line: 71
+    cyclomatic_complexity: 3
     calls_out: 3
     calls_in: 1
-  rust-ast.src.main.visit_item_mod:
-    name: visit_item_mod
-    module: rust-ast.src.main
-    line: 206
+  examples.backend.src.server.createBackend:
+    name: createBackend
+    module: examples.backend.src.server
+    line: 16
+    cyclomatic_complexity: 4
+    calls_out: 5
+    calls_in: 1
+  src.extractors.runtime-cycle.MAX_PER_SECTION:
+    name: MAX_PER_SECTION
+    module: src.extractors.runtime-cycle
+    line: 15
+    cyclomatic_complexity: 8
+    calls_out: 12
+    calls_in: 0
+  src.extractors.markdown-paths.createMarkdownPathResolver:
+    name: createMarkdownPathResolver
+    module: src.extractors.markdown-paths
+    line: 39
+    cyclomatic_complexity: 12
+    calls_out: 12
+    calls_in: 0
+  examples.frontend.src.app.state:
+    name: state
+    module: examples.frontend.src.app
+    line: 37
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.cli.handleLink:
+    name: handleLink
+    module: src.cli
+    line: 131
+    cyclomatic_complexity: 2
+    calls_out: 9
+    calls_in: 0
+  src.extractors.docs-deterministic.parseBulletStatement:
+    name: parseBulletStatement
+    module: src.extractors.docs-deterministic
+    line: 191
+    cyclomatic_complexity: 6
+    calls_out: 3
+    calls_in: 1
+  java.JavaAstExtract.JavaAstExtract.collect:
+    name: collect
+    module: java.JavaAstExtract
+    line: 58
     cyclomatic_complexity: 1
     calls_out: 11
+    calls_in: 1
+  src.extractors.docs-record.anchorToSource:
+    name: anchorToSource
+    module: src.extractors.docs-record
+    line: 93
+    cyclomatic_complexity: 7
+    calls_out: 10
+    calls_in: 2
+  src.extractors.docs-record.allowedAction:
+    name: allowedAction
+    module: src.extractors.docs-record
+    line: 183
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.extractors.communication-helpers.listValue:
+    name: listValue
+    module: src.extractors.communication-helpers
+    line: 259
+    cyclomatic_complexity: 2
+    calls_out: 8
     calls_in: 0
-  src.extractors.todo.classified:
-    name: classified
+  src.extractors.todo.resolvedPaths:
+    name: resolvedPaths
     module: src.extractors.todo
-    line: 49
+    line: 51
     cyclomatic_complexity: 2
     calls_out: 12
     calls_in: 0
-  src.extractors.todo.extractTodo:
-    name: extractTodo
-    module: src.extractors.todo
-    line: 19
-    cyclomatic_complexity: 5
-    calls_out: 24
+  rust-ast.src.main.visit_impl_item_fn:
+    name: visit_impl_item_fn
+    module: rust-ast.src.main
+    line: 275
+    cyclomatic_complexity: 2
+    calls_out: 10
     calls_in: 0
-  src.extractors.docs-schema.strings:
-    name: strings
-    module: src.extractors.docs-schema
-    line: 12
+  examples.backend.src.request-handlers.handleEventList:
+    name: handleEventList
+    module: examples.backend.src.request-handlers
+    line: 50
     cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 2
-  src.extractors.runtime-cycle.parseCycle:
-    name: parseCycle
-    module: src.extractors.runtime-cycle
-    line: 68
-    cyclomatic_complexity: 7
     calls_out: 5
     calls_in: 2
-  src.extractors.markdown-paths.isNestedCheckout:
-    name: isNestedCheckout
-    module: src.extractors.markdown-paths
-    line: 121
+  src.cli.emitExtraction:
+    name: emitExtraction
+    module: src.cli
+    line: 691
+    cyclomatic_complexity: 4
+    calls_out: 4
+    calls_in: 8
+  src.extractors.communication-file-helpers.appendRegistryAlignmentWarnings:
+    name: appendRegistryAlignmentWarnings
+    module: src.extractors.communication-file-helpers
+    line: 299
+    cyclomatic_complexity: 7
+    calls_out: 2
+    calls_in: 1
+  src.extractors.markdown-llm.MarkdownLlmRequiredError.client:
+    name: client
+    module: src.extractors.markdown-llm
+    line: 78
     cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  rust-ast.src.main.visit_item_static:
+    name: visit_item_static
+    module: rust-ast.src.main
+    line: 250
+    cyclomatic_complexity: 1
+    calls_out: 9
+    calls_in: 0
+  rust-ast.src.main.visit_item_const:
+    name: visit_item_const
+    module: rust-ast.src.main
+    line: 243
+    cyclomatic_complexity: 1
+    calls_out: 9
+    calls_in: 0
+  java.JavaAstExtract.JavaAstExtract.json:
+    name: json
+    module: java.JavaAstExtract
+    line: 237
+    cyclomatic_complexity: 1
     calls_out: 1
-    calls_in: 3
+    calls_in: 1
+  src.extractors.runtime-cycle.proposalAction:
+    name: proposalAction
+    module: src.extractors.runtime-cycle
+    line: 285
+    cyclomatic_complexity: 5
+    calls_out: 0
+    calls_in: 1
+  src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited:
+    name: extractNlIntentAudited
+    module: src.extractors.nl-llm
+    line: 33
+    cyclomatic_complexity: 10
+    calls_out: 22
+    calls_in: 0
+  src.extractors.docs-deterministic.qualifyingStatement:
+    name: qualifyingStatement
+    module: src.extractors.docs-deterministic
+    line: 270
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 2
   src.extractors.runtime-cycle.results:
     name: results
     module: src.extractors.runtime-cycle
@@ -313,81 +397,151 @@ nodes:
     cyclomatic_complexity: 3
     calls_out: 5
     calls_in: 0
-  src.extractors.ast.records.moduleTopicText:
-    name: moduleTopicText
-    module: src.extractors.ast.records
-    line: 93
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 4
-  src.cli.optionLlmMode:
-    name: optionLlmMode
-    module: src.cli
-    line: 854
-    cyclomatic_complexity: 6
-    calls_out: 3
-    calls_in: 8
-  src.extractors.docs-llm.DocumentationLlmRequiredError.errorMessage:
-    name: errorMessage
-    module: src.extractors.docs-llm
-    line: 267
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 3
-  src.extractors.nl-llm.NlLlmRequiredError.client:
-    name: client
-    module: src.extractors.nl-llm
-    line: 61
-    cyclomatic_complexity: 2
-    calls_out: 2
+  src.extractors.docs-deterministic.resolver:
+    name: resolver
+    module: src.extractors.docs-deterministic
+    line: 63
+    cyclomatic_complexity: 4
+    calls_out: 6
     calls_in: 0
-  src.extractors.docs-record.allowedModality:
-    name: allowedModality
-    module: src.extractors.docs-record
-    line: 187
+  src.extractors.docs-llm.DocumentationLlmRequiredError.loadDocumentChunks:
+    name: loadDocumentChunks
+    module: src.extractors.docs-llm
+    line: 104
+    cyclomatic_complexity: 4
+    calls_out: 8
+    calls_in: 1
+  src.cli.parseArgs:
+    name: parseArgs
+    module: src.cli
+    line: 779
+    cyclomatic_complexity: 13
+    calls_out: 5
+    calls_in: 1
+  src.extractors.docs-schema.documentRecord:
+    name: documentRecord
+    module: src.extractors.docs-schema
+    line: 15
+    cyclomatic_complexity: 1
+    calls_out: 8
+    calls_in: 0
+  examples.frontend.src.render.renderTable:
+    name: renderTable
+    module: examples.frontend.src.render
+    line: 23
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.extractors.configuration.uniqueEntries:
+    name: uniqueEntries
+    module: src.extractors.configuration
+    line: 195
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 2
+  examples.src.runtime.executeContract:
+    name: executeContract
+    module: examples.src.runtime
+    line: 10
     cyclomatic_complexity: 1
     calls_out: 1
-    calls_in: 1
-  src.extractors.docs-chunks.mapConcurrent:
-    name: mapConcurrent
-    module: src.extractors.docs-chunks
-    line: 33
-    cyclomatic_complexity: 3
-    calls_out: 7
     calls_in: 0
-  src.extractors.git.finishDiscovery:
-    name: finishDiscovery
+  src.extractors.runtime-cycle.tags:
+    name: tags
+    module: src.extractors.runtime-cycle
+    line: 119
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 3
+  src.extractors.nl-llm-helpers.NlAttemptError.action:
+    name: action
+    module: src.extractors.nl-llm-helpers
+    line: 88
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.extractors.git.resolveDiscoveryPrefix:
+    name: resolveDiscoveryPrefix
     module: src.extractors.git
-    line: 268
+    line: 264
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 1
+  src.extractors.docs-record.hasTarget:
+    name: hasTarget
+    module: src.extractors.docs-record
+    line: 152
     cyclomatic_complexity: 4
     calls_out: 1
     calls_in: 1
-  src.cli.printHelp:
-    name: printHelp
+  src.extractors.configuration.yamlOrAssignmentEntries:
+    name: yamlOrAssignmentEntries
+    module: src.extractors.configuration
+    line: 162
+    cyclomatic_complexity: 7
+    calls_out: 6
+    calls_in: 1
+  src.cli.handleDiff:
+    name: handleDiff
     module: src.cli
-    line: 890
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 3
-  src.extractors.runtime-cycle.extractRuntimeCycleIntent:
-    name: extractRuntimeCycleIntent
-    module: src.extractors.runtime-cycle
-    line: 29
-    cyclomatic_complexity: 8
+    line: 468
+    cyclomatic_complexity: 9
     calls_out: 12
     calls_in: 0
-  java.JavaAstExtract.JavaAstExtract.emit:
-    name: emit
-    module: java.JavaAstExtract
-    line: 219
-    cyclomatic_complexity: 1
+  src.cli.optionTaskMode:
+    name: optionTaskMode
+    module: src.cli
+    line: 860
+    cyclomatic_complexity: 5
     calls_out: 3
     calls_in: 1
-  src.extractors.configuration.line:
-    name: line
-    module: src.extractors.configuration
-    line: 149
+  src.cli.handleCompareWorkspace:
+    name: handleCompareWorkspace
+    module: src.cli
+    line: 330
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.extractors.docs-deterministic.extractDocumentationBaseline:
+    name: extractDocumentationBaseline
+    module: src.extractors.docs-deterministic
+    line: 56
     cyclomatic_complexity: 4
+    calls_out: 8
+    calls_in: 0
+  rust-ast.src.main.add:
+    name: add
+    module: rust-ast.src.main
+    line: 158
+    cyclomatic_complexity: 1
+    calls_out: 10
+    calls_in: 9
+  src.cli.handleEvaluateCodeChange:
+    name: handleEvaluateCodeChange
+    module: src.cli
+    line: 290
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 0
+  src.extractors.configuration.entry:
+    name: entry
+    module: src.extractors.configuration
+    line: 191
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 5
+  src.extractors.todo.match:
+    name: match
+    module: src.extractors.todo
+    line: 87
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 8
+  src.extractors.docs-chunks.workerCount:
+    name: workerCount
+    module: src.extractors.docs-chunks
+    line: 50
+    cyclomatic_complexity: 1
     calls_out: 3
     calls_in: 0
   examples.frontend.src.app.refresh:
@@ -397,500 +551,122 @@ nodes:
     cyclomatic_complexity: 4
     calls_out: 6
     calls_in: 3
-  src.extractors.nl.classified:
-    name: classified
+  src.extractors.git.registerDiscoveredRepository:
+    name: registerDiscoveredRepository
+    module: src.extractors.git
+    line: 252
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 1
+  src.extractors.communication-helpers.match:
+    name: match
+    module: src.extractors.communication-helpers
+    line: 125
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 5
+  src.extractors.todo.checked:
+    name: checked
+    module: src.extractors.todo
+    line: 45
+    cyclomatic_complexity: 2
+    calls_out: 12
+    calls_in: 0
+  src.cli.handleWatch:
+    name: handleWatch
+    module: src.cli
+    line: 346
+    cyclomatic_complexity: 1
+    calls_out: 11
+    calls_in: 0
+  src.extractors.ast.records.moduleRecords:
+    name: moduleRecords
+    module: src.extractors.ast.records
+    line: 34
+    cyclomatic_complexity: 6
+    calls_out: 14
+    calls_in: 1
+  src.extractors.runtime-cycle.proposalRecord:
+    name: proposalRecord
+    module: src.extractors.runtime-cycle
+    line: 250
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 2
+  rust-ast.src.main.visit_item_mod:
+    name: visit_item_mod
+    module: rust-ast.src.main
+    line: 206
+    cyclomatic_complexity: 1
+    calls_out: 11
+    calls_in: 0
+  src.cli.handleExtractCommunication:
+    name: handleExtractCommunication
+    module: src.cli
+    line: 656
+    cyclomatic_complexity: 2
+    calls_out: 6
+    calls_in: 0
+  src.extractors.runtime-cycle.factsMetadata:
+    name: factsMetadata
+    module: src.extractors.runtime-cycle
+    line: 293
+    cyclomatic_complexity: 5
+    calls_out: 3
+    calls_in: 1
+  src.extractors.git.extractGitIntent:
+    name: extractGitIntent
+    module: src.extractors.git
+    line: 40
+    cyclomatic_complexity: 6
+    calls_out: 7
+    calls_in: 0
+  src.extractors.docs-schema.target:
+    name: target
+    module: src.extractors.docs-schema
+    line: 13
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.extractors.nl.object:
+    name: object
     module: src.extractors.nl
-    line: 49
+    line: 51
     cyclomatic_complexity: 1
     calls_out: 9
     calls_in: 0
-  src.extractors.runtime-cycle.MAX_PER_SECTION:
-    name: MAX_PER_SECTION
-    module: src.extractors.runtime-cycle
-    line: 15
-    cyclomatic_complexity: 8
-    calls_out: 12
+  rust-ast.src.main.visit_item_fn:
+    name: visit_item_fn
+    module: rust-ast.src.main
+    line: 257
+    cyclomatic_complexity: 1
+    calls_out: 13
     calls_in: 0
-  src.cli.execFileAsync:
+  src.extractors.communication-helpers.heading:
+    name: heading
+    module: src.extractors.communication-helpers
+    line: 207
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 0
+  src.extractors.configuration.bounded:
+    name: bounded
+    module: src.extractors.configuration
+    line: 50
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 0
+  src.extractors.ast.external.execFileAsync:
     name: execFileAsync
-    module: src.cli
-    line: 41
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 2
-  src.extractors.communication-file-helpers.appendRoleAndParticipantWarnings:
-    name: appendRoleAndParticipantWarnings
-    module: src.extractors.communication-file-helpers
-    line: 273
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 1
-  src.extractors.communication-helpers.communicationSegments:
-    name: communicationSegments
-    module: src.extractors.communication-helpers
-    line: 181
-    cyclomatic_complexity: 14
-    calls_out: 12
-    calls_in: 0
-  src.cli.handleDiagnose:
-    name: handleDiagnose
-    module: src.cli
-    line: 139
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 0
-  src.extractors.docs-chunks.needles:
-    name: needles
-    module: src.extractors.docs-chunks
-    line: 7
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.extractors.docs-record.anchorToSource:
-    name: anchorToSource
-    module: src.extractors.docs-record
-    line: 93
-    cyclomatic_complexity: 7
-    calls_out: 10
-    calls_in: 2
-  examples.frontend.src.app.mountPanel:
-    name: mountPanel
-    module: examples.frontend.src.app
-    line: 36
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 0
-  src.extractors.docs-deterministic.root:
-    name: root
-    module: src.extractors.docs-deterministic
-    line: 60
-    cyclomatic_complexity: 4
-    calls_out: 6
-    calls_in: 0
-  examples.backend.src.server.createBackend:
-    name: createBackend
-    module: examples.backend.src.server
-    line: 18
-    cyclomatic_complexity: 4
-    calls_out: 5
-    calls_in: 1
-  java.JavaAstExtract.JavaAstExtract.escape:
-    name: escape
-    module: java.JavaAstExtract
-    line: 240
-    cyclomatic_complexity: 9
-    calls_out: 6
-    calls_in: 1
-  src.extractors.markdown-paths.buildBasenameIndex:
-    name: buildBasenameIndex
-    module: src.extractors.markdown-paths
-    line: 90
-    cyclomatic_complexity: 7
-    calls_out: 7
-    calls_in: 1
-  src.extractors.nl.detectMissingFields:
-    name: detectMissingFields
-    module: src.extractors.nl
-    line: 95
-    cyclomatic_complexity: 10
-    calls_out: 5
-    calls_in: 4
-  src.extractors.docs-record.resolveTarget:
-    name: resolveTarget
-    module: src.extractors.docs-record
-    line: 128
-    cyclomatic_complexity: 12
-    calls_out: 7
-    calls_in: 2
-  src.extractors.docs-record.action:
-    name: action
-    module: src.extractors.docs-record
-    line: 36
-    cyclomatic_complexity: 11
-    calls_out: 7
-    calls_in: 0
-  examples.frontend.src.render.toRows:
-    name: toRows
-    module: examples.frontend.src.render
-    line: 19
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.extractors.ast.records.boundedCapabilities:
-    name: boundedCapabilities
-    module: src.extractors.ast.records
-    line: 86
-    cyclomatic_complexity: 1
-    calls_out: 6
-    calls_in: 1
-  src.extractors.markdown-llm-helpers.MarkdownAttemptError.strings:
-    name: strings
-    module: src.extractors.markdown-llm-helpers
-    line: 370
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 2
-  src.extractors.docs-chunks.item:
-    name: item
-    module: src.extractors.docs-chunks
-    line: 45
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 0
-  examples.backend.src.validation.action:
-    name: action
-    module: examples.backend.src.validation
-    line: 23
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.extractors.docs-deterministic.readParagraph:
-    name: readParagraph
-    module: src.extractors.docs-deterministic
-    line: 235
-    cyclomatic_complexity: 11
-    calls_out: 5
-    calls_in: 1
-  src.extractors.markdown-paths.basenames:
-    name: basenames
-    module: src.extractors.markdown-paths
-    line: 42
-    cyclomatic_complexity: 11
-    calls_out: 10
-    calls_in: 3
-  src.cli.handleDiff:
-    name: handleDiff
-    module: src.cli
-    line: 468
-    cyclomatic_complexity: 9
-    calls_out: 12
-    calls_in: 0
-  rust-ast.src.main.type_item:
-    name: type_item
-    module: rust-ast.src.main
-    line: 306
-    cyclomatic_complexity: 1
-    calls_out: 8
-    calls_in: 4
-  src.extractors.runtime-cycle.tags:
-    name: tags
-    module: src.extractors.runtime-cycle
-    line: 119
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 3
-  src.cli.parseArgs:
-    name: parseArgs
-    module: src.cli
-    line: 779
-    cyclomatic_complexity: 13
-    calls_out: 5
-    calls_in: 1
-  src.extractors.ast.isExtractionResult:
-    name: isExtractionResult
-    module: src.extractors.ast
-    line: 162
-    cyclomatic_complexity: 5
-    calls_out: 3
-    calls_in: 0
-  src.extractors.docs-llm.DocumentationLlmRequiredError.loadDocumentChunks:
-    name: loadDocumentChunks
-    module: src.extractors.docs-llm
-    line: 104
-    cyclomatic_complexity: 4
-    calls_out: 8
-    calls_in: 1
-  src.extractors.configuration.isConfigurationPath:
-    name: isConfigurationPath
-    module: src.extractors.configuration
-    line: 30
-    cyclomatic_complexity: 10
-    calls_out: 6
-    calls_in: 2
-  src.extractors.ast.typescript.visitTypeScriptNode:
-    name: visitTypeScriptNode
-    module: src.extractors.ast.typescript
-    line: 46
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 2
-  src.extractors.configuration.tomlEntries:
-    name: tomlEntries
-    module: src.extractors.configuration
-    line: 145
-    cyclomatic_complexity: 3
-    calls_out: 7
-    calls_in: 1
-  src.cli.handleExtractRuntime:
-    name: handleExtractRuntime
-    module: src.cli
-    line: 629
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.extractors.runtime-cycle.label:
-    name: label
-    module: src.extractors.runtime-cycle
-    line: 111
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 5
-  src.extractors.nl-llm-helpers.NlAttemptError.resolveAction:
-    name: resolveAction
-    module: src.extractors.nl-llm-helpers
-    line: 168
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 1
-  src.extractors.docs-deterministic.primePathMapper:
-    name: primePathMapper
-    module: src.extractors.docs-deterministic
-    line: 87
-    cyclomatic_complexity: 5
-    calls_out: 6
-    calls_in: 3
-  src.extractors.markdown-paths.headingScopes:
-    name: headingScopes
-    module: src.extractors.markdown-paths
-    line: 83
-    cyclomatic_complexity: 4
-    calls_out: 6
-    calls_in: 3
-  src.extractors.communication-file-helpers.appendIdentityWarnings:
-    name: appendIdentityWarnings
-    module: src.extractors.communication-file-helpers
-    line: 282
-    cyclomatic_complexity: 4
-    calls_out: 2
-    calls_in: 1
-  src.extractors.ast.external.result:
-    name: result
     module: src.extractors.ast.external
-    line: 32
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 0
-  examples.frontend.src.render.classifyEvent:
-    name: classifyEvent
-    module: examples.frontend.src.render
-    line: 13
-    cyclomatic_complexity: 4
-    calls_out: 0
-    calls_in: 1
-  src.extractors.communication-file-helpers.appendA2aAgentWarnings:
-    name: appendA2aAgentWarnings
-    module: src.extractors.communication-file-helpers
-    line: 314
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 1
-  src.extractors.nl-llm-helpers.NlAttemptError.toIntentRecord:
-    name: toIntentRecord
-    module: src.extractors.nl-llm-helpers
-    line: 86
-    cyclomatic_complexity: 12
-    calls_out: 11
-    calls_in: 0
-  src.extractors.runtime-cycle.jsonScalar:
-    name: jsonScalar
-    module: src.extractors.runtime-cycle
-    line: 302
-    cyclomatic_complexity: 6
-    calls_out: 1
-    calls_in: 3
-  src.cli.handleExtractNl:
-    name: handleExtractNl
-    module: src.cli
-    line: 601
-    cyclomatic_complexity: 5
-    calls_out: 6
-    calls_in: 0
-  src.extractors.configuration.extractConfigurationIntent:
-    name: extractConfigurationIntent
-    module: src.extractors.configuration
-    line: 11
-    cyclomatic_complexity: 4
-    calls_out: 10
-    calls_in: 0
-  examples.backend.src.validation.agent:
-    name: agent
-    module: examples.backend.src.validation
-    line: 22
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.extractors.docs-deterministic.resolver:
-    name: resolver
-    module: src.extractors.docs-deterministic
-    line: 63
-    cyclomatic_complexity: 4
-    calls_out: 6
-    calls_in: 0
-  src.extractors.communication-helpers.inferIdentityFromPathAndFilename:
-    name: inferIdentityFromPathAndFilename
-    module: src.extractors.communication-helpers
-    line: 153
-    cyclomatic_complexity: 9
-    calls_out: 5
-    calls_in: 1
-  src.extractors.communication-helpers.fileParts:
-    name: fileParts
-    module: src.extractors.communication-helpers
-    line: 154
-    cyclomatic_complexity: 5
-    calls_out: 2
-    calls_in: 0
-  src.cli.parsed:
-    name: parsed
-    module: src.cli
-    line: 71
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 0
-  src.extractors.docs-record.fallback:
-    name: fallback
-    module: src.extractors.docs-record
-    line: 81
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 0
-  src.extractors.ast.typescript.scriptKind:
-    name: scriptKind
-    module: src.extractors.ast.typescript
-    line: 255
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 2
-  examples.backend.src.server.sendJson:
-    name: sendJson
-    module: examples.backend.src.server
-    line: 82
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 8
-  src.cli.optionTaskMode:
-    name: optionTaskMode
-    module: src.cli
-    line: 860
-    cyclomatic_complexity: 5
-    calls_out: 3
-    calls_in: 1
-  src.extractors.ast.records.adapterRecords:
-    name: adapterRecords
-    module: src.extractors.ast.records
-    line: 5
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.cli.handler:
-    name: handler
-    module: src.cli
-    line: 594
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 2
-  src.extractors.configuration.files:
-    name: files
-    module: src.extractors.configuration
-    line: 15
-    cyclomatic_complexity: 4
-    calls_out: 5
-    calls_in: 0
-  src.extractors.markdown-llm-helpers.MarkdownAttemptError.outcomes:
-    name: outcomes
-    module: src.extractors.markdown-llm-helpers
-    line: 71
-    cyclomatic_complexity: 4
-    calls_out: 2
-    calls_in: 0
-  src.extractors.git.count:
-    name: count
-    module: src.extractors.git
-    line: 42
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.cli.commandHandlers:
-    name: commandHandlers
-    module: src.cli
-    line: 89
-    cyclomatic_complexity: 2
-    calls_out: 6
-    calls_in: 1
-  src.cli.view:
-    name: view
-    module: src.cli
-    line: 561
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 0
-  src.cli.handleExtractConfig:
-    name: handleExtractConfig
-    module: src.cli
-    line: 624
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.extractors.configuration.MAX_ENTRIES_PER_FILE:
-    name: MAX_ENTRIES_PER_FILE
-    module: src.extractors.configuration
     line: 8
-    cyclomatic_complexity: 4
-    calls_out: 10
-    calls_in: 0
-  examples.frontend.src.app.state:
-    name: state
-    module: examples.frontend.src.app
-    line: 37
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 1
-  rust-ast.src.main.excerpt:
-    name: excerpt
-    module: rust-ast.src.main
-    line: 186
-    cyclomatic_complexity: 1
-    calls_out: 7
-    calls_in: 1
-  src.cli.buildFileDiff:
-    name: buildFileDiff
-    module: src.cli
-    line: 517
     cyclomatic_complexity: 3
-    calls_out: 6
-    calls_in: 1
-  src.extractors.configuration.uniqueEntries:
-    name: uniqueEntries
-    module: src.extractors.configuration
-    line: 195
-    cyclomatic_complexity: 3
-    calls_out: 3
+    calls_out: 0
     calls_in: 2
-  examples.backend.src.server.startBackend:
-    name: startBackend
-    module: examples.backend.src.server
-    line: 91
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 0
-  rust-ast.src.main.visit_item_enum:
-    name: visit_item_enum
-    module: rust-ast.src.main
-    line: 228
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.extractors.docs-chunks.sectionLines:
-    name: sectionLines
-    module: src.extractors.docs-chunks
-    line: 75
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.extractors.docs-schema.documentResponseContract:
-    name: documentResponseContract
-    module: src.extractors.docs-schema
-    line: 31
+  src.extractors.communication-file-helpers.hasExplicitEnvelopeMetadata:
+    name: hasExplicitEnvelopeMetadata
+    module: src.extractors.communication-file-helpers
+    line: 116
     cyclomatic_complexity: 1
     calls_out: 2
     calls_in: 1
@@ -901,145 +677,250 @@ nodes:
     cyclomatic_complexity: 2
     calls_out: 3
     calls_in: 5
-  src.extractors.docs-llm.DocumentationLlmRequiredError.selectWithinBudget:
-    name: selectWithinBudget
-    module: src.extractors.docs-llm
-    line: 147
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 1
-  rust-ast.src.main.slash:
-    name: slash
-    module: rust-ast.src.main
-    line: 320
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 2
-  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichMarkdownBatchWithCorrection:
-    name: enrichMarkdownBatchWithCorrection
-    module: src.extractors.markdown-llm-helpers
-    line: 187
+  java.JavaAstExtract.JavaAstExtract.map:
+    name: map
+    module: java.JavaAstExtract
+    line: 182
     cyclomatic_complexity: 1
     calls_out: 0
+    calls_in: 3
+  src.cli.handleGraphDiff:
+    name: handleGraphDiff
+    module: src.cli
+    line: 494
+    cyclomatic_complexity: 7
+    calls_out: 11
     calls_in: 1
-  src.extractors.docs-record.modality:
-    name: modality
-    module: src.extractors.docs-record
-    line: 37
-    cyclomatic_complexity: 11
-    calls_out: 7
+  src.extractors.nl-llm.NlLlmRequiredError.client:
+    name: client
+    module: src.extractors.nl-llm
+    line: 61
+    cyclomatic_complexity: 2
+    calls_out: 2
     calls_in: 0
-  rust-ast.src.main.add:
-    name: add
-    module: rust-ast.src.main
-    line: 158
-    cyclomatic_complexity: 1
-    calls_out: 10
-    calls_in: 9
-  src.cli.absolute:
-    name: absolute
-    module: src.cli
-    line: 712
-    cyclomatic_complexity: 3
-    calls_out: 1
+  src.extractors.git.root:
+    name: root
+    module: src.extractors.git
+    line: 41
+    cyclomatic_complexity: 2
+    calls_out: 2
     calls_in: 0
-  src.cli.buildPipelineOptions:
-    name: buildPipelineOptions
-    module: src.cli
-    line: 371
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 2
-  src.extractors.docs-deterministic.heading:
-    name: heading
-    module: src.extractors.docs-deterministic
-    line: 180
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.extractors.communication-file-helpers.buildLocalWarnings:
-    name: buildLocalWarnings
-    module: src.extractors.communication-file-helpers
-    line: 254
-    cyclomatic_complexity: 3
+  examples.backend.src.request-handlers.handleRequest:
+    name: handleRequest
+    module: examples.backend.src.request-handlers
+    line: 7
+    cyclomatic_complexity: 9
     calls_out: 5
     calls_in: 0
-  src.cli.handleSummarize:
-    name: handleSummarize
-    module: src.cli
-    line: 146
-    cyclomatic_complexity: 5
-    calls_out: 8
-    calls_in: 0
-  src.extractors.git.mapWithConcurrency:
-    name: mapWithConcurrency
-    module: src.extractors.git
-    line: 306
+  rust-ast.src.main.modifiers:
+    name: modifiers
+    module: rust-ast.src.main
+    line: 193
     cyclomatic_complexity: 3
     calls_out: 4
-    calls_in: 1
-  src.extractors.nl-llm-helpers.NlAttemptError.NL_RECORD_CONTRACT:
-    name: NL_RECORD_CONTRACT
-    module: src.extractors.nl-llm-helpers
-    line: 237
-    cyclomatic_complexity: 1
+    calls_in: 4
+  src.extractors.runtime-cycle.violationRecord:
+    name: violationRecord
+    module: src.extractors.runtime-cycle
+    line: 173
+    cyclomatic_complexity: 4
     calls_out: 7
-    calls_in: 0
-  examples.backend.src.server.size:
-    name: size
-    module: examples.backend.src.server
-    line: 72
+    calls_in: 3
+  java.JavaAstExtract.JavaAstExtract.try:
+    name: try
+    module: java.JavaAstExtract
+    line: 83
     cyclomatic_complexity: 3
-    calls_out: 3
+    calls_out: 13
     calls_in: 1
-  src.extractors.communication-helpers.heading:
-    name: heading
-    module: src.extractors.communication-helpers
-    line: 207
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 0
-  src.cli.resolveMainCommand:
-    name: resolveMainCommand
-    module: src.cli
-    line: 125
-    cyclomatic_complexity: 5
-    calls_out: 0
-    calls_in: 1
-  examples.backend.src.server.server:
-    name: server
-    module: examples.backend.src.server
-    line: 20
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 0
-  src.extractors.todo.task:
-    name: task
+  src.extractors.todo.text:
+    name: text
     module: src.extractors.todo
-    line: 43
+    line: 48
     cyclomatic_complexity: 2
     calls_out: 12
     calls_in: 0
-  src.extractors.ast.external.execFileAsync:
-    name: execFileAsync
-    module: src.extractors.ast.external
-    line: 8
-    cyclomatic_complexity: 3
+  examples.backend.src.validation.invalid:
+    name: invalid
+    module: examples.backend.src.validation
+    line: 14
+    cyclomatic_complexity: 1
     calls_out: 0
-    calls_in: 2
-  src.cli.handleExtractCommunication:
-    name: handleExtractCommunication
-    module: src.cli
-    line: 656
+    calls_in: 6
+  src.extractors.communication-helpers.inferGovernanceIdentityFromFilename:
+    name: inferGovernanceIdentityFromFilename
+    module: src.extractors.communication-helpers
+    line: 141
+    cyclomatic_complexity: 7
+    calls_out: 3
+    calls_in: 1
+  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichSplitBatch:
+    name: enrichSplitBatch
+    module: src.extractors.markdown-llm-helpers
+    line: 153
     cyclomatic_complexity: 2
-    calls_out: 6
+    calls_out: 7
+    calls_in: 1
+  java.JavaAstExtract.JavaAstExtract.containsIgnored:
+    name: containsIgnored
+    module: java.JavaAstExtract
+    line: 70
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 1
+  src.cli.emitJson:
+    name: emitJson
+    module: src.cli
+    line: 701
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 2
+  src.extractors.configuration.tomlEntries:
+    name: tomlEntries
+    module: src.extractors.configuration
+    line: 145
+    cyclomatic_complexity: 3
+    calls_out: 7
+    calls_in: 1
+  src.extractors.ast.records.adapterRecords:
+    name: adapterRecords
+    module: src.extractors.ast.records
+    line: 5
+    cyclomatic_complexity: 2
+    calls_out: 3
     calls_in: 0
+  src.cli.view:
+    name: view
+    module: src.cli
+    line: 561
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.cli.controller:
+    name: controller
+    module: src.cli
+    line: 351
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.extractors.communication-helpers.raw:
+    name: raw
+    module: src.extractors.communication-helpers
+    line: 206
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 0
+  examples.frontend.src.render.headerRow:
+    name: headerRow
+    module: examples.frontend.src.render
+    line: 55
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 1
+  examples.backend.src.server.sendJson:
+    name: sendJson
+    module: examples.backend.src.server
+    line: 26
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 3
+  rust-ast.src.main.visit_item_type:
+    name: visit_item_type
+    module: rust-ast.src.main
+    line: 238
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.cli.handleApplySourcePatch:
+    name: handleApplySourcePatch
+    module: src.cli
+    line: 272
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 0
+  src.extractors.markdown-paths.basenames:
+    name: basenames
+    module: src.extractors.markdown-paths
+    line: 42
+    cyclomatic_complexity: 11
+    calls_out: 10
+    calls_in: 3
+  src.extractors.changelog.relative:
+    name: relative
+    module: src.extractors.changelog
+    line: 28
+    cyclomatic_complexity: 7
+    calls_out: 15
+    calls_in: 0
+  src.extractors.git.readStats:
+    name: readStats
+    module: src.extractors.git
+    line: 364
+    cyclomatic_complexity: 6
+    calls_out: 4
+    calls_in: 1
+  src.extractors.runtime-cycle.jsonScalar:
+    name: jsonScalar
+    module: src.extractors.runtime-cycle
+    line: 302
+    cyclomatic_complexity: 6
+    calls_out: 1
+    calls_in: 3
+  src.extractors.docs-deterministic.match:
+    name: match
+    module: src.extractors.docs-deterministic
+    line: 160
+    cyclomatic_complexity: 2
+    calls_out: 0
+    calls_in: 4
+  src.extractors.docs-record.OBJECT_PLACEHOLDERS:
+    name: OBJECT_PLACEHOLDERS
+    module: src.extractors.docs-record
+    line: 21
+    cyclomatic_complexity: 14
+    calls_out: 13
+    calls_in: 0
+  src.cli.buildDiffPayload:
+    name: buildDiffPayload
+    module: src.cli
+    line: 512
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 1
+  src.extractors.git.runGit:
+    name: runGit
+    module: src.extractors.git
+    line: 325
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 5
+  src.extractors.git.readCommits:
+    name: readCommits
+    module: src.extractors.git
+    line: 334
+    cyclomatic_complexity: 1
+    calls_out: 7
+    calls_in: 1
   src.cli.context:
     name: context
     module: src.cli
     line: 535
     cyclomatic_complexity: 2
     calls_out: 4
+    calls_in: 0
+  src.extractors.markdown-paths.headingScopes:
+    name: headingScopes
+    module: src.extractors.markdown-paths
+    line: 83
+    cyclomatic_complexity: 4
+    calls_out: 6
+    calls_in: 3
+  src.extractors.ast.isExtractionResult:
+    name: isExtractionResult
+    module: src.extractors.ast
+    line: 162
+    cyclomatic_complexity: 5
+    calls_out: 3
     calls_in: 0
   src.cli.handleRenderTodo:
     name: handleRenderTodo
@@ -1048,41 +929,104 @@ nodes:
     cyclomatic_complexity: 8
     calls_out: 5
     calls_in: 0
-  src.cli.diagnosticsPath:
-    name: diagnosticsPath
+  src.extractors.markdown-paths.index:
+    name: index
+    module: src.extractors.markdown-paths
+    line: 91
+    cyclomatic_complexity: 6
+    calls_out: 4
+    calls_in: 0
+  examples.backend.src.request-handlers.handleEventPublish:
+    name: handleEventPublish
+    module: examples.backend.src.request-handlers
+    line: 29
+    cyclomatic_complexity: 4
+    calls_out: 6
+    calls_in: 2
+  src.cli.handleExtractDocs:
+    name: handleExtractDocs
     module: src.cli
-    line: 557
+    line: 646
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 0
+  src.extractors.communication-file-helpers.envelope:
+    name: envelope
+    module: src.extractors.communication-file-helpers
+    line: 51
     cyclomatic_complexity: 2
-    calls_out: 5
+    calls_out: 1
     calls_in: 0
-  src.cli.handleReality:
-    name: handleReality
+  src.cli.printHelp:
+    name: printHelp
     module: src.cli
-    line: 551
-    cyclomatic_complexity: 9
-    calls_out: 12
-    calls_in: 0
-  src.extractors.docs-schema.target:
-    name: target
-    module: src.extractors.docs-schema
-    line: 13
+    line: 890
     cyclomatic_complexity: 1
     calls_out: 2
-    calls_in: 1
-  src.extractors.nl-llm-helpers.NlAttemptError.allowedModality:
-    name: allowedModality
+    calls_in: 3
+  src.extractors.nl-llm-helpers.NlAttemptError.NL_RECORD_CONTRACT:
+    name: NL_RECORD_CONTRACT
     module: src.extractors.nl-llm-helpers
-    line: 223
+    line: 242
+    cyclomatic_complexity: 1
+    calls_out: 7
+    calls_in: 0
+  src.extractors.todo.block:
+    name: block
+    module: src.extractors.todo
+    line: 46
+    cyclomatic_complexity: 2
+    calls_out: 12
+    calls_in: 0
+  src.cli.optionNullableString:
+    name: optionNullableString
+    module: src.cli
+    line: 823
+    cyclomatic_complexity: 6
+    calls_out: 3
+    calls_in: 8
+  src.extractors.nl-llm-helpers.NlAttemptError.resolveAction:
+    name: resolveAction
+    module: src.extractors.nl-llm-helpers
+    line: 167
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 1
+  src.extractors.configuration.lines:
+    name: lines
+    module: src.extractors.configuration
+    line: 134
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.extractors.docs-chunks.markdownSections:
+    name: markdownSections
+    module: src.extractors.docs-chunks
+    line: 94
+    cyclomatic_complexity: 4
+    calls_out: 2
+    calls_in: 1
+  src.extractors.markdown-paths.readBasenameDirectoryEntries:
+    name: readBasenameDirectoryEntries
+    module: src.extractors.markdown-paths
+    line: 113
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 3
+  src.extractors.git.extractRepositoryGitIntent:
+    name: extractRepositoryGitIntent
+    module: src.extractors.git
+    line: 74
+    cyclomatic_complexity: 11
+    calls_out: 21
+    calls_in: 3
+  src.extractors.todo.raw:
+    name: raw
+    module: src.extractors.todo
+    line: 35
     cyclomatic_complexity: 1
     calls_out: 1
-    calls_in: 2
-  src.cli.optionSummaryMode:
-    name: optionSummaryMode
-    module: src.cli
-    line: 866
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 1
+    calls_in: 0
   src.extractors.runtime-cycle.text:
     name: text
     module: src.extractors.runtime-cycle
@@ -1090,68 +1034,831 @@ nodes:
     cyclomatic_complexity: 2
     calls_out: 1
     calls_in: 5
-  rust-ast.src.main.visit_item_use:
-    name: visit_item_use
-    module: rust-ast.src.main
-    line: 216
+  src.extractors.communication-helpers.basename:
+    name: basename
+    module: src.extractors.communication-helpers
+    line: 168
     cyclomatic_complexity: 1
-    calls_out: 8
-    calls_in: 0
-  src.cli.handleRenderCodeChange:
-    name: handleRenderCodeChange
-    module: src.cli
-    line: 241
-    cyclomatic_complexity: 5
-    calls_out: 5
-    calls_in: 0
-  src.extractors.ast.records.start:
-    name: start
-    module: src.extractors.ast.records
-    line: 47
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.extractors.git.discoverGitRepositories:
-    name: discoverGitRepositories
+    calls_out: 0
+    calls_in: 2
+  src.extractors.git.filterDiscoveryChildren:
+    name: filterDiscoveryChildren
     module: src.extractors.git
-    line: 171
-    cyclomatic_complexity: 4
-    calls_out: 7
+    line: 221
+    cyclomatic_complexity: 5
+    calls_out: 6
+    calls_in: 2
+  src.extractors.configuration.parsed:
+    name: parsed
+    module: src.extractors.configuration
+    line: 132
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.extractors.docs-schema.documentResponseSchema:
+    name: documentResponseSchema
+    module: src.extractors.docs-schema
+    line: 41
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.cli.optionPipelineTaskMode:
+    name: optionPipelineTaskMode
+    module: src.cli
+    line: 876
+    cyclomatic_complexity: 6
+    calls_out: 3
     calls_in: 1
-  src.extractors.docs-chunks.sectionText:
-    name: sectionText
-    module: src.extractors.docs-chunks
-    line: 76
+  src.extractors.configuration.isConfigurationPath:
+    name: isConfigurationPath
+    module: src.extractors.configuration
+    line: 30
+    cyclomatic_complexity: 10
+    calls_out: 6
+    calls_in: 2
+  src.extractors.docs-record.resolveAction:
+    name: resolveAction
+    module: src.extractors.docs-record
+    line: 156
+    cyclomatic_complexity: 5
+    calls_out: 4
+    calls_in: 2
+  src.extractors.nl-llm-helpers.NlAttemptError.resolveModality:
+    name: resolveModality
+    module: src.extractors.nl-llm-helpers
+    line: 171
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 2
+  src.cli.handleReality:
+    name: handleReality
+    module: src.cli
+    line: 551
+    cyclomatic_complexity: 9
+    calls_out: 12
+    calls_in: 0
+  examples.backend.src.request-handlers.parseOffset:
+    name: parseOffset
+    module: examples.backend.src.request-handlers
+    line: 59
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 1
+  src.extractors.git.readChangedFiles:
+    name: readChangedFiles
+    module: src.extractors.git
+    line: 352
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 1
+  src.cli.optionString:
+    name: optionString
+    module: src.cli
+    line: 818
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 33
+  src.cli.handleProposeTodo:
+    name: handleProposeTodo
+    module: src.cli
+    line: 163
+    cyclomatic_complexity: 5
+    calls_out: 6
+    calls_in: 0
+  src.extractors.docs-record.modality:
+    name: modality
+    module: src.extractors.docs-record
+    line: 37
+    cyclomatic_complexity: 11
+    calls_out: 7
+    calls_in: 0
+  examples.backend.src.validation.record:
+    name: record
+    module: examples.backend.src.validation
+    line: 21
     cyclomatic_complexity: 2
     calls_out: 3
     calls_in: 0
-  src.extractors.nl.absolute:
-    name: absolute
+  src.extractors.git.processDiscoveryDirectory:
+    name: processDiscoveryDirectory
+    module: src.extractors.git
+    line: 228
+    cyclomatic_complexity: 5
+    calls_out: 5
+    calls_in: 2
+  src.extractors.docs-deterministic.parseParagraphStatement:
+    name: parseParagraphStatement
+    module: src.extractors.docs-deterministic
+    line: 212
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 1
+  examples.backend.src.request-handlers.event:
+    name: event
+    module: examples.backend.src.request-handlers
+    line: 46
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.extractors.docs-llm.DocumentationLlmRequiredError.selectWithinBudget:
+    name: selectWithinBudget
+    module: src.extractors.docs-llm
+    line: 147
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 1
+  src.extractors.communication-helpers.item:
+    name: item
+    module: src.extractors.communication-helpers
+    line: 197
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 0
+  src.extractors.docs-deterministic.parseFenceBlock:
+    name: parseFenceBlock
+    module: src.extractors.docs-deterministic
+    line: 154
+    cyclomatic_complexity: 7
+    calls_out: 5
+    calls_in: 1
+  src.extractors.configuration.fileAggregate:
+    name: fileAggregate
+    module: src.extractors.configuration
+    line: 82
+    cyclomatic_complexity: 3
+    calls_out: 10
+    calls_in: 3
+  src.extractors.nl-llm-helpers.NlAttemptError.clampLine:
+    name: clampLine
+    module: src.extractors.nl-llm-helpers
+    line: 218
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 1
+  src.extractors.markdown-paths.createBasenameIndexState:
+    name: createBasenameIndexState
+    module: src.extractors.markdown-paths
+    line: 105
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.extractors.nl.sourcePath:
+    name: sourcePath
     module: src.extractors.nl
-    line: 40
+    line: 42
     cyclomatic_complexity: 2
     calls_out: 14
     calls_in: 0
-  src.cli.resolveWatchTaskFile:
-    name: resolveWatchTaskFile
+  src.cli.resolveMainCommand:
+    name: resolveMainCommand
     module: src.cli
-    line: 409
+    line: 125
+    cyclomatic_complexity: 5
+    calls_out: 0
+    calls_in: 1
+  src.extractors.git.readDiscoveryEntries:
+    name: readDiscoveryEntries
+    module: src.extractors.git
+    line: 209
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 2
+  rust-ast.src.main.visit_item_enum:
+    name: visit_item_enum
+    module: rust-ast.src.main
+    line: 228
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.extractors.nl-llm-helpers.NlAttemptError.nonEmptyText:
+    name: nonEmptyText
+    module: src.extractors.nl-llm-helpers
+    line: 188
+    cyclomatic_complexity: 3
+    calls_out: 1
+    calls_in: 3
+  src.extractors.git.mapWithConcurrency:
+    name: mapWithConcurrency
+    module: src.extractors.git
+    line: 306
     cyclomatic_complexity: 3
     calls_out: 4
     calls_in: 1
-  src.extractors.configuration.entries:
-    name: entries
-    module: src.extractors.configuration
-    line: 43
+  src.extractors.docs-chunks.prioritizeDocumentChunks:
+    name: prioritizeDocumentChunks
+    module: src.extractors.docs-chunks
+    line: 3
+    cyclomatic_complexity: 3
+    calls_out: 6
+    calls_in: 0
+  src.extractors.nl.assertNlExtractionOptions:
+    name: assertNlExtractionOptions
+    module: src.extractors.nl
+    line: 25
+    cyclomatic_complexity: 9
+    calls_out: 2
+    calls_in: 1
+  src.extractors.nl-llm-helpers.NlAttemptError.NL_ACTION_SET:
+    name: NL_ACTION_SET
+    module: src.extractors.nl-llm-helpers
+    line: 234
     cyclomatic_complexity: 1
+    calls_out: 7
+    calls_in: 0
+  src.extractors.nl-llm.NlLlmRequiredError.fallbackOrThrow:
+    name: fallbackOrThrow
+    module: src.extractors.nl-llm
+    line: 116
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 2
+  examples.backend.src.request-handlers.parseLimit:
+    name: parseLimit
+    module: examples.backend.src.request-handlers
+    line: 64
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 1
+  src.extractors.configuration.pair:
+    name: pair
+    module: src.extractors.configuration
+    line: 156
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 0
+  src.extractors.nl.action:
+    name: action
+    module: src.extractors.nl
+    line: 50
+    cyclomatic_complexity: 1
+    calls_out: 9
+    calls_in: 0
+  src.extractors.docs-deterministic.action:
+    name: action
+    module: src.extractors.docs-deterministic
+    line: 296
+    cyclomatic_complexity: 3
+    calls_out: 6
+    calls_in: 0
+  rust-ast.src.main.slash:
+    name: slash
+    module: rust-ast.src.main
+    line: 320
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 2
+  src.extractors.runtime-cycle.extractRuntimeCycleIntent:
+    name: extractRuntimeCycleIntent
+    module: src.extractors.runtime-cycle
+    line: 29
+    cyclomatic_complexity: 8
+    calls_out: 12
+    calls_in: 0
+  src.extractors.configuration.jsonEntries:
+    name: jsonEntries
+    module: src.extractors.configuration
+    line: 131
+    cyclomatic_complexity: 7
+    calls_out: 7
+    calls_in: 1
+  src.extractors.nl-llm-helpers.NlAttemptError.statementText:
+    name: statementText
+    module: src.extractors.nl-llm-helpers
+    line: 91
+    cyclomatic_complexity: 10
+    calls_out: 6
+    calls_in: 0
+  src.extractors.runtime-cycle.watched:
+    name: watched
+    module: src.extractors.runtime-cycle
+    line: 129
+    cyclomatic_complexity: 3
     calls_out: 3
     calls_in: 2
-  src.extractors.git.extractRepositoryGitIntent:
-    name: extractRepositoryGitIntent
+  src.extractors.docs-record.fallback:
+    name: fallback
+    module: src.extractors.docs-record
+    line: 81
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 0
+  src.extractors.communication-helpers.fileParts:
+    name: fileParts
+    module: src.extractors.communication-helpers
+    line: 154
+    cyclomatic_complexity: 5
+    calls_out: 2
+    calls_in: 0
+  src.extractors.changelog.extractChangelog:
+    name: extractChangelog
+    module: src.extractors.changelog
+    line: 18
+    cyclomatic_complexity: 10
+    calls_out: 19
+    calls_in: 0
+  src.extractors.nl-llm-helpers.NlAttemptError.allowedAction:
+    name: allowedAction
+    module: src.extractors.nl-llm-helpers
+    line: 222
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.extractors.docs-chunks.needles:
+    name: needles
+    module: src.extractors.docs-chunks
+    line: 7
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.cli.handleExtractConfig:
+    name: handleExtractConfig
+    module: src.cli
+    line: 624
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.extractors.docs-chunks.chunkPriority:
+    name: chunkPriority
+    module: src.extractors.docs-chunks
+    line: 23
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 2
+  src.extractors.configuration.heading:
+    name: heading
+    module: src.extractors.configuration
+    line: 150
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 0
+  src.extractors.git.count:
+    name: count
     module: src.extractors.git
-    line: 74
+    line: 42
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.extractors.nl.extractNlIntent:
+    name: extractNlIntent
+    module: src.extractors.nl
+    line: 38
+    cyclomatic_complexity: 5
+    calls_out: 20
+    calls_in: 0
+  src.extractors.communication-file-helpers.appendIdentityWarnings:
+    name: appendIdentityWarnings
+    module: src.extractors.communication-file-helpers
+    line: 282
+    cyclomatic_complexity: 4
+    calls_out: 2
+    calls_in: 1
+  examples.frontend.src.app.mountPanel:
+    name: mountPanel
+    module: examples.frontend.src.app
+    line: 36
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 0
+  src.extractors.nl-llm-helpers.NlAttemptError.isPlaceholder:
+    name: isPlaceholder
+    module: src.extractors.nl-llm-helpers
+    line: 192
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 1
+  src.cli.buildCommonPipelineOptions:
+    name: buildCommonPipelineOptions
+    module: src.cli
+    line: 384
+    cyclomatic_complexity: 3
+    calls_out: 8
+    calls_in: 1
+  examples.backend.src.request-handlers.validation:
+    name: validation
+    module: examples.backend.src.request-handlers
+    line: 39
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.cli.diff:
+    name: diff
+    module: src.cli
+    line: 504
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 0
+  src.extractors.nl-llm-helpers.NlAttemptError.NL_MODALITY_SET:
+    name: NL_MODALITY_SET
+    module: src.extractors.nl-llm-helpers
+    line: 236
+    cyclomatic_complexity: 1
+    calls_out: 7
+    calls_in: 0
+  src.cli.optionNumber:
+    name: optionNumber
+    module: src.cli
+    line: 837
+    cyclomatic_complexity: 5
+    calls_out: 5
+    calls_in: 20
+  src.cli.handler:
+    name: handler
+    module: src.cli
+    line: 594
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 2
+  src.cli.resolvePipelineRoot:
+    name: resolvePipelineRoot
+    module: src.cli
+    line: 367
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 3
+  src.extractors.communication-helpers.nestedParticipant:
+    name: nestedParticipant
+    module: src.extractors.communication-helpers
+    line: 157
+    cyclomatic_complexity: 5
+    calls_out: 2
+    calls_in: 0
+  src.extractors.docs-deterministic.codeBlockRecord:
+    name: codeBlockRecord
+    module: src.extractors.docs-deterministic
+    line: 325
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 2
+  src.extractors.nl-llm-helpers.NlAttemptError.resolveObject:
+    name: resolveObject
+    module: src.extractors.nl-llm-helpers
+    line: 197
+    cyclomatic_complexity: 6
+    calls_out: 3
+    calls_in: 3
+  src.extractors.docs-deterministic.handleDocumentationLine:
+    name: handleDocumentationLine
+    module: src.extractors.docs-deterministic
+    line: 132
+    cyclomatic_complexity: 5
+    calls_out: 4
+    calls_in: 1
+  src.extractors.docs-chunks.sectionLines:
+    name: sectionLines
+    module: src.extractors.docs-chunks
+    line: 75
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  java.JavaAstExtract.JavaAstExtract.escape:
+    name: escape
+    module: java.JavaAstExtract
+    line: 240
+    cyclomatic_complexity: 9
+    calls_out: 6
+    calls_in: 1
+  src.extractors.configuration.relative:
+    name: relative
+    module: src.extractors.configuration
+    line: 19
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.extractors.communication-helpers.nestedRole:
+    name: nestedRole
+    module: src.extractors.communication-helpers
+    line: 156
+    cyclomatic_complexity: 5
+    calls_out: 2
+    calls_in: 0
+  src.extractors.docs-chunks.takeLineBatch:
+    name: takeLineBatch
+    module: src.extractors.docs-chunks
+    line: 128
+    cyclomatic_complexity: 8
+    calls_out: 2
+    calls_in: 1
+  src.extractors.configuration.match:
+    name: match
+    module: src.extractors.configuration
+    line: 175
+    cyclomatic_complexity: 5
+    calls_out: 2
+    calls_in: 3
+  java.JavaAstExtract.JavaAstExtract.add:
+    name: add
+    module: java.JavaAstExtract
+    line: 181
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  src.cli.root:
+    name: root
+    module: src.cli
+    line: 667
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 0
+  src.extractors.changelog.lines:
+    name: lines
+    module: src.extractors.changelog
+    line: 30
+    cyclomatic_complexity: 7
+    calls_out: 15
+    calls_in: 0
+  src.cli.handleIntake:
+    name: handleIntake
+    module: src.cli
+    line: 706
+    cyclomatic_complexity: 13
+    calls_out: 13
+    calls_in: 0
+  examples.backend.src.server.startBackend:
+    name: startBackend
+    module: examples.backend.src.server
+    line: 35
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 0
+  src.cli.handleProposeSourcePatch:
+    name: handleProposeSourcePatch
+    module: src.cli
+    line: 257
+    cyclomatic_complexity: 6
+    calls_out: 6
+    calls_in: 0
+  src.extractors.docs-record.isPlaceholder:
+    name: isPlaceholder
+    module: src.extractors.docs-record
+    line: 75
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 2
+  src.extractors.docs-record.allowedLifecycle:
+    name: allowedLifecycle
+    module: src.extractors.docs-record
+    line: 191
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 5
+  src.extractors.nl-llm-helpers.NlAttemptError.nlStrings:
+    name: nlStrings
+    module: src.extractors.nl-llm-helpers
+    line: 241
+    cyclomatic_complexity: 1
+    calls_out: 6
+    calls_in: 3
+  src.cli.handleProposeCodeChange:
+    name: handleProposeCodeChange
+    module: src.cli
+    line: 222
+    cyclomatic_complexity: 5
+    calls_out: 5
+    calls_in: 0
+  rust-ast.src.main.visit_expr_call:
+    name: visit_expr_call
+    module: rust-ast.src.main
+    line: 288
+    cyclomatic_complexity: 1
+    calls_out: 9
+    calls_in: 0
+  rust-ast.src.main.visit_item_trait:
+    name: visit_item_trait
+    module: rust-ast.src.main
+    line: 233
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.extractors.markdown-paths.isRepositoryPath:
+    name: isRepositoryPath
+    module: src.extractors.markdown-paths
+    line: 76
+    cyclomatic_complexity: 5
+    calls_out: 3
+    calls_in: 4
+  src.extractors.git.result:
+    name: result
+    module: src.extractors.git
+    line: 326
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.extractors.todo.lines:
+    name: lines
+    module: src.extractors.todo
+    line: 32
+    cyclomatic_complexity: 5
+    calls_out: 20
+    calls_in: 0
+  src.extractors.communication-helpers.normalize:
+    name: normalize
+    module: src.extractors.communication-helpers
+    line: 282
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  examples.backend.src.server.store:
+    name: store
+    module: examples.backend.src.server
+    line: 17
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.extractors.git.execFileAsync:
+    name: execFileAsync
+    module: src.extractors.git
+    line: 12
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 2
+  src.cli.optionNlMode:
+    name: optionNlMode
+    module: src.cli
+    line: 850
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 2
+  src.extractors.configuration.extractConfigurationIntent:
+    name: extractConfigurationIntent
+    module: src.extractors.configuration
+    line: 11
+    cyclomatic_complexity: 4
+    calls_out: 10
+    calls_in: 0
+  src.extractors.docs-deterministic.statementRecord:
+    name: statementRecord
+    module: src.extractors.docs-deterministic
+    line: 288
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  src.extractors.docs-deterministic.root:
+    name: root
+    module: src.extractors.docs-deterministic
+    line: 60
+    cyclomatic_complexity: 4
+    calls_out: 6
+    calls_in: 0
+  src.extractors.markdown-paths.repositoryRoot:
+    name: repositoryRoot
+    module: src.extractors.markdown-paths
+    line: 40
     cyclomatic_complexity: 11
+    calls_out: 11
+    calls_in: 0
+  src.extractors.nl.detectMissingFields:
+    name: detectMissingFields
+    module: src.extractors.nl
+    line: 95
+    cyclomatic_complexity: 10
+    calls_out: 5
+    calls_in: 4
+  src.cli.commandHandlers:
+    name: commandHandlers
+    module: src.cli
+    line: 89
+    cyclomatic_complexity: 2
+    calls_out: 6
+    calls_in: 1
+  rust-ast.src.main.excerpt:
+    name: excerpt
+    module: rust-ast.src.main
+    line: 186
+    cyclomatic_complexity: 1
+    calls_out: 7
+    calls_in: 1
+  src.extractors.nl-llm-helpers.NlAttemptError.toIntentRecord:
+    name: toIntentRecord
+    module: src.extractors.nl-llm-helpers
+    line: 85
+    cyclomatic_complexity: 11
+    calls_out: 11
+    calls_in: 0
+  src.extractors.ast.external.result:
+    name: result
+    module: src.extractors.ast.external
+    line: 32
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 0
+  src.cli.execFileAsync:
+    name: execFileAsync
+    module: src.cli
+    line: 41
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 2
+  src.extractors.todo.extractTodo:
+    name: extractTodo
+    module: src.extractors.todo
+    line: 19
+    cyclomatic_complexity: 5
+    calls_out: 24
+    calls_in: 0
+  src.extractors.communication-helpers.parseEnvelope:
+    name: parseEnvelope
+    module: src.extractors.communication-helpers
+    line: 118
+    cyclomatic_complexity: 5
+    calls_out: 8
+    calls_in: 0
+  src.extractors.docs-record.resolveModality:
+    name: resolveModality
+    module: src.extractors.docs-record
+    line: 164
+    cyclomatic_complexity: 5
+    calls_out: 4
+    calls_in: 2
+  src.extractors.todo.task:
+    name: task
+    module: src.extractors.todo
+    line: 43
+    cyclomatic_complexity: 2
+    calls_out: 12
+    calls_in: 0
+  examples.backend.src.request-handlers.readBody:
+    name: readBody
+    module: examples.backend.src.request-handlers
+    line: 69
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 1
+  src.extractors.communication-helpers.inferIdentityFromPathAndFilename:
+    name: inferIdentityFromPathAndFilename
+    module: src.extractors.communication-helpers
+    line: 153
+    cyclomatic_complexity: 9
+    calls_out: 5
+    calls_in: 1
+  src.extractors.docs-deterministic.targetsOf:
+    name: targetsOf
+    module: src.extractors.docs-deterministic
+    line: 359
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 1
+  src.extractors.markdown-paths.isNestedCheckout:
+    name: isNestedCheckout
+    module: src.extractors.markdown-paths
+    line: 121
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 3
+  rust-ast.src.main.main:
+    name: main
+    module: rust-ast.src.main
+    line: 36
+    cyclomatic_complexity: 6
     calls_out: 21
+    calls_in: 0
+  src.extractors.communication-helpers.unquote:
+    name: unquote
+    module: src.extractors.communication-helpers
+    line: 318
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 2
+  src.extractors.docs-chunks.item:
+    name: item
+    module: src.extractors.docs-chunks
+    line: 45
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 0
+  examples.frontend.src.app.reload:
+    name: reload
+    module: examples.frontend.src.app
+    line: 38
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.extractors.markdown-llm-helpers.MarkdownAttemptError.outcomes:
+    name: outcomes
+    module: src.extractors.markdown-llm-helpers
+    line: 71
+    cyclomatic_complexity: 4
+    calls_out: 2
+    calls_in: 0
+  src.extractors.markdown-paths.scanDirectoryForBasenames:
+    name: scanDirectoryForBasenames
+    module: src.extractors.markdown-paths
+    line: 125
+    cyclomatic_complexity: 8
+    calls_out: 8
+    calls_in: 3
+  java.JavaAstExtract.JavaAstExtract.emit:
+    name: emit
+    module: java.JavaAstExtract
+    line: 219
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 1
+  src.extractors.docs-deterministic.convertDocument:
+    name: convertDocument
+    module: src.extractors.docs-deterministic
+    line: 100
+    cyclomatic_complexity: 4
+    calls_out: 4
     calls_in: 3
   src.extractors.ast.external.runExternalAstAdapter:
     name: runExternalAstAdapter
@@ -1160,24 +1867,374 @@ nodes:
     cyclomatic_complexity: 9
     calls_out: 6
     calls_in: 0
-  src.extractors.git.readDiscoveryEntries:
-    name: readDiscoveryEntries
-    module: src.extractors.git
-    line: 209
+  src.extractors.docs-llm.DocumentationLlmRequiredError.extractChunk:
+    name: extractChunk
+    module: src.extractors.docs-llm
+    line: 161
+    cyclomatic_complexity: 12
+    calls_out: 8
+    calls_in: 1
+  src.extractors.docs-schema.strings:
+    name: strings
+    module: src.extractors.docs-schema
+    line: 12
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 2
+  src.extractors.runtime-cycle.label:
+    name: label
+    module: src.extractors.runtime-cycle
+    line: 111
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 5
+  examples.backend.src.request-handlers.sendJson:
+    name: sendJson
+    module: examples.backend.src.request-handlers
+    line: 81
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 7
+  src.cli.optionList:
+    name: optionList
+    module: src.cli
+    line: 845
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 3
+  src.cli.handleExtractGit:
+    name: handleExtractGit
+    module: src.cli
+    line: 614
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 0
+  src.extractors.todo.extractExplicitId:
+    name: extractExplicitId
+    module: src.extractors.todo
+    line: 91
+    cyclomatic_complexity: 5
+    calls_out: 3
+    calls_in: 11
+  src.cli.handleExtractNl:
+    name: handleExtractNl
+    module: src.cli
+    line: 601
+    cyclomatic_complexity: 5
+    calls_out: 6
+    calls_in: 0
+  src.cli.command:
+    name: command
+    module: src.cli
+    line: 72
     cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 0
+  src.cli.formatWatchEvent:
+    name: formatWatchEvent
+    module: src.cli
+    line: 448
+    cyclomatic_complexity: 10
+    calls_out: 7
+    calls_in: 5
+  src.extractors.nl-llm-helpers.NlAttemptError.normalizedText:
+    name: normalizedText
+    module: src.extractors.nl-llm-helpers
+    line: 89
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.cli.diagnosticsPath:
+    name: diagnosticsPath
+    module: src.cli
+    line: 557
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.extractors.communication-helpers.sameStrings:
+    name: sameStrings
+    module: src.extractors.communication-helpers
+    line: 281
+    cyclomatic_complexity: 1
+    calls_out: 6
+    calls_in: 0
+  examples.backend.src.validation.ALLOWED_ACTIONS:
+    name: ALLOWED_ACTIONS
+    module: examples.backend.src.validation
+    line: 11
+    cyclomatic_complexity: 10
+    calls_out: 5
+    calls_in: 0
+  src.extractors.communication-file-helpers.appendTimestampWarnings:
+    name: appendTimestampWarnings
+    module: src.extractors.communication-file-helpers
+    line: 328
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 1
+  rust-ast.src.main.type_item:
+    name: type_item
+    module: rust-ast.src.main
+    line: 306
+    cyclomatic_complexity: 1
+    calls_out: 8
+    calls_in: 4
+  src.extractors.docs-llm.DocumentationLlmRequiredError.requireConfiguredClient:
+    name: requireConfiguredClient
+    module: src.extractors.docs-llm
+    line: 85
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 1
+  src.cli.handleRenderCodeChange:
+    name: handleRenderCodeChange
+    module: src.cli
+    line: 241
+    cyclomatic_complexity: 5
+    calls_out: 5
+    calls_in: 0
+  src.extractors.nl-llm-helpers.NlAttemptError.sourceExcerpt:
+    name: sourceExcerpt
+    module: src.extractors.nl-llm-helpers
+    line: 157
+    cyclomatic_complexity: 5
     calls_out: 3
     calls_in: 2
-  src.cli.handleCommunication:
-    name: handleCommunication
-    module: src.cli
-    line: 666
-    cyclomatic_complexity: 11
-    calls_out: 18
+  src.extractors.docs-deterministic.parseSectionHeading:
+    name: parseSectionHeading
+    module: src.extractors.docs-deterministic
+    line: 173
+    cyclomatic_complexity: 9
+    calls_out: 4
+    calls_in: 1
+  src.extractors.communication-helpers.inferIdentity:
+    name: inferIdentity
+    module: src.extractors.communication-helpers
+    line: 132
+    cyclomatic_complexity: 2
+    calls_out: 5
     calls_in: 0
-  examples.backend.src.validation.object:
-    name: object
+  src.extractors.git.takeNextDiscoveryDirectory:
+    name: takeNextDiscoveryDirectory
+    module: src.extractors.git
+    line: 201
+    cyclomatic_complexity: 2
+    calls_out: 0
+    calls_in: 2
+  src.cli.handleSummarize:
+    name: handleSummarize
+    module: src.cli
+    line: 146
+    cyclomatic_complexity: 5
+    calls_out: 8
+    calls_in: 0
+  src.cli.reportPipelineDegradation:
+    name: reportPipelineDegradation
+    module: src.cli
+    line: 882
+    cyclomatic_complexity: 6
+    calls_out: 2
+    calls_in: 1
+  src.extractors.communication-helpers.isTicketEvidenceFile:
+    name: isTicketEvidenceFile
+    module: src.extractors.communication-helpers
+    line: 167
+    cyclomatic_complexity: 4
+    calls_out: 4
+    calls_in: 0
+  src.extractors.markdown-paths.headingDirectories:
+    name: headingDirectories
+    module: src.extractors.markdown-paths
+    line: 46
+    cyclomatic_complexity: 11
+    calls_out: 9
+    calls_in: 0
+  src.cli.file:
+    name: file
+    module: src.cli
+    line: 602
+    cyclomatic_complexity: 3
+    calls_out: 0
+    calls_in: 2
+  examples.backend.src.validation.validateEventPayload:
+    name: validateEventPayload
     module: examples.backend.src.validation
-    line: 24
+    line: 13
+    cyclomatic_complexity: 10
+    calls_out: 5
+    calls_in: 0
+  src.extractors.communication-file-helpers.appendA2aAgentWarnings:
+    name: appendA2aAgentWarnings
+    module: src.extractors.communication-file-helpers
+    line: 314
+    cyclomatic_complexity: 5
+    calls_out: 4
+    calls_in: 1
+  src.extractors.todo.inferOwner:
+    name: inferOwner
+    module: src.extractors.todo
+    line: 86
+    cyclomatic_complexity: 4
+    calls_out: 1
+    calls_in: 11
+  src.extractors.runtime-cycle.probeRecord:
+    name: probeRecord
+    module: src.extractors.runtime-cycle
+    line: 134
+    cyclomatic_complexity: 9
+    calls_out: 8
+    calls_in: 3
+  src.extractors.docs-record.target:
+    name: target
+    module: src.extractors.docs-record
+    line: 35
+    cyclomatic_complexity: 11
+    calls_out: 7
+    calls_in: 0
+  src.extractors.git.createDiscoveryState:
+    name: createDiscoveryState
+    module: src.extractors.git
+    line: 184
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichBatchCovering:
+    name: enrichBatchCovering
+    module: src.extractors.markdown-llm-helpers
+    line: 112
+    cyclomatic_complexity: 6
+    calls_out: 11
+    calls_in: 3
+  rust-ast.src.main.collect_files:
+    name: collect_files
+    module: rust-ast.src.main
+    line: 101
+    cyclomatic_complexity: 9
+    calls_out: 20
+    calls_in: 1
+  src.extractors.docs-chunks.worker:
+    name: worker
+    module: src.extractors.docs-chunks
+    line: 41
+    cyclomatic_complexity: 3
+    calls_out: 1
+    calls_in: 4
+  examples.frontend.src.render.classifyEvent:
+    name: classifyEvent
+    module: examples.frontend.src.render
+    line: 13
+    cyclomatic_complexity: 4
+    calls_out: 0
+    calls_in: 1
+  src.cli.handleExtractMarkdown:
+    name: handleExtractMarkdown
+    module: src.cli
+    line: 636
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.extractors.nl-llm.NlLlmRequiredError.assertNlExtractionOptions:
+    name: assertNlExtractionOptions
+    module: src.extractors.nl-llm
+    line: 38
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 1
+  src.extractors.docs-llm.DocumentationLlmRequiredError.files:
+    name: files
+    module: src.extractors.docs-llm
+    line: 110
+    cyclomatic_complexity: 3
+    calls_out: 7
+    calls_in: 0
+  src.extractors.markdown-llm.MarkdownLlmRequiredError.extractMarkdownIntentAudited:
+    name: extractMarkdownIntentAudited
+    module: src.extractors.markdown-llm
+    line: 34
+    cyclomatic_complexity: 9
+    calls_out: 14
+    calls_in: 0
+  src.extractors.git.gitMarkerState:
+    name: gitMarkerState
+    module: src.extractors.git
+    line: 277
+    cyclomatic_complexity: 5
+    calls_out: 5
+    calls_in: 1
+  src.extractors.runtime-cycle.parseCycle:
+    name: parseCycle
+    module: src.extractors.runtime-cycle
+    line: 68
+    cyclomatic_complexity: 7
+    calls_out: 5
+    calls_in: 2
+  src.extractors.communication-file-helpers.shouldSkipCommunicationFile:
+    name: shouldSkipCommunicationFile
+    module: src.extractors.communication-file-helpers
+    line: 102
+    cyclomatic_complexity: 8
+    calls_out: 3
+    calls_in: 2
+  rust-ast.src.main.visit_expr_method_call:
+    name: visit_expr_method_call
+    module: rust-ast.src.main
+    line: 296
+    cyclomatic_complexity: 1
+    calls_out: 7
+    calls_in: 0
+  src.extractors.configuration.dockerEntries:
+    name: dockerEntries
+    module: src.extractors.configuration
+    line: 173
+    cyclomatic_complexity: 6
+    calls_out: 6
+    calls_in: 1
+  src.cli.pipeline:
+    name: pipeline
+    module: src.cli
+    line: 349
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.extractors.git.isGitWorkTree:
+    name: isGitWorkTree
+    module: src.extractors.git
+    line: 287
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 4
+  src.extractors.communication-helpers.communicationSegments:
+    name: communicationSegments
+    module: src.extractors.communication-helpers
+    line: 181
+    cyclomatic_complexity: 14
+    calls_out: 12
+    calls_in: 0
+  src.extractors.changelog.body:
+    name: body
+    module: src.extractors.changelog
+    line: 27
+    cyclomatic_complexity: 7
+    calls_out: 15
+    calls_in: 0
+  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichMarkdownBatchWithCorrection:
+    name: enrichMarkdownBatchWithCorrection
+    module: src.extractors.markdown-llm-helpers
+    line: 187
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  src.cli.buildWorkspaceComparisonOptions:
+    name: buildWorkspaceComparisonOptions
+    module: src.cli
+    line: 414
+    cyclomatic_complexity: 3
+    calls_out: 6
+    calls_in: 1
+  src.cli.handleExtractRuntime:
+    name: handleExtractRuntime
+    module: src.cli
+    line: 629
     cyclomatic_complexity: 2
     calls_out: 3
     calls_in: 0
@@ -1188,1524 +2245,12 @@ nodes:
     cyclomatic_complexity: 6
     calls_out: 4
     calls_in: 1
-  src.extractors.todo.raw:
-    name: raw
-    module: src.extractors.todo
-    line: 35
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.cli.optionNullableString:
-    name: optionNullableString
-    module: src.cli
-    line: 823
-    cyclomatic_complexity: 6
-    calls_out: 3
-    calls_in: 8
-  src.extractors.docs-deterministic.parseSectionHeading:
-    name: parseSectionHeading
-    module: src.extractors.docs-deterministic
-    line: 173
-    cyclomatic_complexity: 9
-    calls_out: 4
-    calls_in: 1
-  src.extractors.nl.inferActor:
-    name: inferActor
-    module: src.extractors.nl
-    line: 87
-    cyclomatic_complexity: 5
-    calls_out: 2
-    calls_in: 9
-  src.extractors.git.registerDiscoveredRepository:
-    name: registerDiscoveredRepository
-    module: src.extractors.git
-    line: 252
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 1
-  src.extractors.nl-llm-helpers.NlAttemptError.sourceExcerpt:
-    name: sourceExcerpt
-    module: src.extractors.nl-llm-helpers
-    line: 158
-    cyclomatic_complexity: 5
-    calls_out: 3
-    calls_in: 2
-  src.extractors.configuration.entry:
-    name: entry
-    module: src.extractors.configuration
-    line: 191
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 5
-  src.extractors.docs-record.OBJECT_PLACEHOLDERS:
-    name: OBJECT_PLACEHOLDERS
-    module: src.extractors.docs-record
-    line: 21
-    cyclomatic_complexity: 14
-    calls_out: 13
-    calls_in: 0
-  src.extractors.nl-llm-helpers.NlAttemptError.normalizedText:
-    name: normalizedText
-    module: src.extractors.nl-llm-helpers
-    line: 90
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.cli.diagnostics:
-    name: diagnostics
-    module: src.cli
-    line: 558
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 0
-  src.extractors.docs-llm.DocumentationLlmRequiredError.extractChunk:
-    name: extractChunk
-    module: src.extractors.docs-llm
-    line: 161
-    cyclomatic_complexity: 12
-    calls_out: 8
-    calls_in: 1
-  src.extractors.nl-llm.NlLlmRequiredError.assertNlExtractionOptions:
-    name: assertNlExtractionOptions
-    module: src.extractors.nl-llm
-    line: 38
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 1
-  src.extractors.docs-llm.DocumentationLlmRequiredError.extractDocumentationIntent:
-    name: extractDocumentationIntent
-    module: src.extractors.docs-llm
-    line: 45
-    cyclomatic_complexity: 3
-    calls_out: 12
-    calls_in: 0
-  src.extractors.git.readCommits:
-    name: readCommits
-    module: src.extractors.git
-    line: 334
-    cyclomatic_complexity: 1
-    calls_out: 7
-    calls_in: 1
-  src.extractors.docs-record.target:
-    name: target
-    module: src.extractors.docs-record
-    line: 35
-    cyclomatic_complexity: 11
-    calls_out: 7
-    calls_in: 0
-  src.cli.main:
-    name: main
-    module: src.cli
-    line: 61
-    cyclomatic_complexity: 9
-    calls_out: 12
-    calls_in: 1
-  src.extractors.docs-chunks.workerCount:
-    name: workerCount
-    module: src.extractors.docs-chunks
-    line: 50
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 0
-  src.extractors.docs-llm.DocumentationLlmRequiredError.requireConfiguredClient:
-    name: requireConfiguredClient
-    module: src.extractors.docs-llm
-    line: 85
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 1
-  src.extractors.communication-helpers.unquote:
-    name: unquote
-    module: src.extractors.communication-helpers
-    line: 318
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 2
-  src.cli.handleExtractGit:
-    name: handleExtractGit
-    module: src.cli
-    line: 614
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 0
-  src.extractors.runtime-cycle.boundedArray:
-    name: boundedArray
-    module: src.extractors.runtime-cycle
-    line: 94
-    cyclomatic_complexity: 8
-    calls_out: 4
-    calls_in: 3
-  src.extractors.docs-deterministic.handleDocumentationLine:
-    name: handleDocumentationLine
-    module: src.extractors.docs-deterministic
-    line: 132
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 1
-  src.extractors.docs-record.resolveAction:
-    name: resolveAction
-    module: src.extractors.docs-record
-    line: 156
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 2
-  src.extractors.ast.typescript.recordModuleFact:
-    name: recordModuleFact
-    module: src.extractors.ast.typescript
-    line: 229
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 1
-  src.extractors.markdown-paths.index:
-    name: index
-    module: src.extractors.markdown-paths
-    line: 91
-    cyclomatic_complexity: 6
-    calls_out: 4
-    calls_in: 0
-  src.extractors.git.isGitWorkTree:
-    name: isGitWorkTree
-    module: src.extractors.git
-    line: 287
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 4
-  src.extractors.communication-helpers.nestedRoleIndex:
-    name: nestedRoleIndex
-    module: src.extractors.communication-helpers
-    line: 155
-    cyclomatic_complexity: 5
-    calls_out: 2
-    calls_in: 0
-  src.extractors.changelog.body:
-    name: body
-    module: src.extractors.changelog
-    line: 27
-    cyclomatic_complexity: 7
-    calls_out: 15
-    calls_in: 0
-  src.extractors.changelog.relative:
-    name: relative
-    module: src.extractors.changelog
-    line: 28
-    cyclomatic_complexity: 7
-    calls_out: 15
-    calls_in: 0
-  src.extractors.nl-llm-helpers.NlAttemptError.lines:
-    name: lines
-    module: src.extractors.nl-llm-helpers
-    line: 87
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.extractors.configuration.heading:
-    name: heading
-    module: src.extractors.configuration
-    line: 150
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 0
-  examples.backend.src.validation.ALLOWED_ACTIONS:
-    name: ALLOWED_ACTIONS
-    module: examples.backend.src.validation
-    line: 11
-    cyclomatic_complexity: 10
-    calls_out: 5
-    calls_in: 0
-  src.extractors.todo.text:
-    name: text
-    module: src.extractors.todo
-    line: 48
-    cyclomatic_complexity: 2
-    calls_out: 12
-    calls_in: 0
-  src.cli.optionNumber:
-    name: optionNumber
-    module: src.cli
-    line: 837
-    cyclomatic_complexity: 5
-    calls_out: 5
-    calls_in: 20
-  src.extractors.docs-record.clampLine:
-    name: clampLine
-    module: src.extractors.docs-record
-    line: 179
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 1
-  src.extractors.nl.confidence:
-    name: confidence
-    module: src.extractors.nl
-    line: 53
-    cyclomatic_complexity: 1
-    calls_out: 9
-    calls_in: 0
-  src.extractors.markdown-paths.scanDirectoryForBasenames:
-    name: scanDirectoryForBasenames
-    module: src.extractors.markdown-paths
-    line: 125
-    cyclomatic_complexity: 8
-    calls_out: 8
-    calls_in: 3
-  src.extractors.configuration.parsed:
-    name: parsed
-    module: src.extractors.configuration
-    line: 132
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 0
-  src.extractors.todo.checked:
-    name: checked
-    module: src.extractors.todo
-    line: 45
-    cyclomatic_complexity: 2
-    calls_out: 12
-    calls_in: 0
-  src.extractors.docs-deterministic.statementRecord:
-    name: statementRecord
-    module: src.extractors.docs-deterministic
-    line: 288
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  src.extractors.markdown-paths.readBasenameDirectoryEntries:
-    name: readBasenameDirectoryEntries
-    module: src.extractors.markdown-paths
-    line: 113
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 3
-  src.extractors.nl-llm-helpers.NlAttemptError.action:
-    name: action
-    module: src.extractors.nl-llm-helpers
-    line: 89
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.cli.handleExtractAst:
-    name: handleExtractAst
-    module: src.cli
-    line: 619
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  examples.backend.src.server.store:
-    name: store
-    module: examples.backend.src.server
-    line: 19
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 0
-  src.cli.pipeline:
-    name: pipeline
-    module: src.cli
-    line: 349
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 0
-  src.extractors.docs-deterministic.qualifyingStatement:
-    name: qualifyingStatement
-    module: src.extractors.docs-deterministic
-    line: 270
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 2
-  src.cli.buildDiffPayload:
-    name: buildDiffPayload
-    module: src.cli
-    line: 512
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 1
-  src.cli.handleExtractDocs:
-    name: handleExtractDocs
-    module: src.cli
-    line: 646
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 0
-  src.cli.handleLink:
-    name: handleLink
-    module: src.cli
-    line: 131
-    cyclomatic_complexity: 2
-    calls_out: 9
-    calls_in: 0
-  src.extractors.configuration.bounded:
-    name: bounded
-    module: src.extractors.configuration
-    line: 50
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 0
-  src.cli.handleExtractMarkdown:
-    name: handleExtractMarkdown
-    module: src.cli
-    line: 636
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 0
-  examples.frontend.src.render.headerRow:
-    name: headerRow
-    module: examples.frontend.src.render
-    line: 55
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 1
-  src.extractors.todo.block:
-    name: block
-    module: src.extractors.todo
-    line: 46
-    cyclomatic_complexity: 2
-    calls_out: 12
-    calls_in: 0
-  src.cli.handleExtract:
-    name: handleExtract
-    module: src.cli
-    line: 577
-    cyclomatic_complexity: 4
-    calls_out: 5
-    calls_in: 0
-  src.extractors.configuration.relative:
-    name: relative
-    module: src.extractors.configuration
-    line: 19
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 0
-  java.JavaAstExtract.JavaAstExtract.json:
-    name: json
-    module: java.JavaAstExtract
-    line: 237
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 1
-  src.extractors.communication-file-helpers.inferred:
-    name: inferred
-    module: src.extractors.communication-file-helpers
-    line: 52
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 0
-  src.cli.root:
-    name: root
-    module: src.cli
-    line: 667
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 0
-  examples.frontend.src.render.renderTable:
-    name: renderTable
-    module: examples.frontend.src.render
-    line: 23
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 0
-  src.cli.optionBoolean:
-    name: optionBoolean
-    module: src.cli
-    line: 830
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 17
-  src.extractors.configuration.fileAggregate:
-    name: fileAggregate
-    module: src.extractors.configuration
-    line: 82
-    cyclomatic_complexity: 3
-    calls_out: 10
-    calls_in: 3
-  src.cli.handleCompareWorkspace:
-    name: handleCompareWorkspace
-    module: src.cli
-    line: 330
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 0
-  src.extractors.docs-chunks.markdownSections:
-    name: markdownSections
-    module: src.extractors.docs-chunks
-    line: 94
-    cyclomatic_complexity: 4
-    calls_out: 2
-    calls_in: 1
-  src.extractors.docs-record.statementText:
-    name: statementText
-    module: src.extractors.docs-record
-    line: 32
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichment:
-    name: enrichment
-    module: src.extractors.markdown-llm-helpers
-    line: 371
-    cyclomatic_complexity: 1
-    calls_out: 6
-    calls_in: 0
-  src.extractors.communication-helpers.inferIdentity:
-    name: inferIdentity
-    module: src.extractors.communication-helpers
-    line: 132
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 0
-  src.extractors.todo.match:
-    name: match
-    module: src.extractors.todo
-    line: 87
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 8
-  src.cli.svg:
-    name: svg
-    module: src.cli
-    line: 564
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 0
-  src.extractors.docs-record.keywordOverlap:
-    name: keywordOverlap
-    module: src.extractors.docs-record
-    line: 119
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 1
-  src.cli.handleApplyTodo:
-    name: handleApplyTodo
-    module: src.cli
-    line: 201
-    cyclomatic_complexity: 8
-    calls_out: 5
-    calls_in: 0
-  src.extractors.docs-chunks.chunkMarkdown:
-    name: chunkMarkdown
-    module: src.extractors.docs-chunks
-    line: 55
-    cyclomatic_complexity: 8
-    calls_out: 9
-    calls_in: 0
-  examples.backend.src.validation.invalid:
-    name: invalid
-    module: examples.backend.src.validation
-    line: 14
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 6
-  src.cli.controller:
-    name: controller
-    module: src.cli
-    line: 351
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 0
-  src.extractors.runtime-cycle.factsMetadata:
-    name: factsMetadata
-    module: src.extractors.runtime-cycle
-    line: 293
-    cyclomatic_complexity: 5
-    calls_out: 3
-    calls_in: 1
-  src.extractors.nl.extractNlIntent:
-    name: extractNlIntent
-    module: src.extractors.nl
-    line: 38
-    cyclomatic_complexity: 5
-    calls_out: 20
-    calls_in: 0
-  src.extractors.docs-record.allowedAction:
-    name: allowedAction
-    module: src.extractors.docs-record
-    line: 183
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 1
-  src.extractors.todo.resolvedPaths:
-    name: resolvedPaths
-    module: src.extractors.todo
-    line: 51
-    cyclomatic_complexity: 2
-    calls_out: 12
-    calls_in: 0
-  examples.backend.src.validation.record:
-    name: record
-    module: examples.backend.src.validation
-    line: 21
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 0
-  src.extractors.ast.typescript.extractTypeScriptFile:
-    name: extractTypeScriptFile
-    module: src.extractors.ast.typescript
-    line: 11
-    cyclomatic_complexity: 1
-    calls_out: 7
-    calls_in: 0
-  rust-ast.src.main.visit_expr_method_call:
-    name: visit_expr_method_call
-    module: rust-ast.src.main
-    line: 296
-    cyclomatic_complexity: 1
-    calls_out: 7
-    calls_in: 0
-  rust-ast.src.main.collect_files:
-    name: collect_files
-    module: rust-ast.src.main
-    line: 101
-    cyclomatic_complexity: 9
-    calls_out: 20
-    calls_in: 1
-  src.extractors.docs-chunks.flush:
-    name: flush
-    module: src.extractors.docs-chunks
-    line: 63
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 3
-  rust-ast.src.main.modifiers:
-    name: modifiers
-    module: rust-ast.src.main
-    line: 193
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 4
-  src.extractors.runtime-cycle.watched:
-    name: watched
-    module: src.extractors.runtime-cycle
-    line: 129
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 2
-  src.extractors.changelog.changelogAction:
-    name: changelogAction
-    module: src.extractors.changelog
-    line: 87
-    cyclomatic_complexity: 11
-    calls_out: 3
-    calls_in: 4
-  java.JavaAstExtract.JavaAstExtract.try:
-    name: try
-    module: java.JavaAstExtract
-    line: 83
-    cyclomatic_complexity: 3
-    calls_out: 13
-    calls_in: 1
-  src.extractors.docs-record.toDocumentIntentRecord:
-    name: toDocumentIntentRecord
-    module: src.extractors.docs-record
-    line: 25
-    cyclomatic_complexity: 14
-    calls_out: 13
-    calls_in: 0
-  examples.backend.src.server.handleRequest:
-    name: handleRequest
-    module: examples.backend.src.server
-    line: 28
-    cyclomatic_complexity: 16
-    calls_out: 12
-    calls_in: 3
-  src.extractors.docs-record.resolveModality:
-    name: resolveModality
-    module: src.extractors.docs-record
-    line: 164
-    cyclomatic_complexity: 5
-    calls_out: 4
-    calls_in: 2
-  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichMarkdownRecords:
-    name: enrichMarkdownRecords
-    module: src.extractors.markdown-llm-helpers
-    line: 57
-    cyclomatic_complexity: 13
-    calls_out: 9
-    calls_in: 0
-  rust-ast.src.main.visit_item_const:
-    name: visit_item_const
-    module: rust-ast.src.main
-    line: 243
-    cyclomatic_complexity: 1
-    calls_out: 9
-    calls_in: 0
-  src.extractors.runtime-cycle.proposalAction:
-    name: proposalAction
-    module: src.extractors.runtime-cycle
-    line: 285
-    cyclomatic_complexity: 5
-    calls_out: 0
-    calls_in: 1
-  src.extractors.markdown-paths.isRepositoryPath:
-    name: isRepositoryPath
-    module: src.extractors.markdown-paths
-    line: 76
-    cyclomatic_complexity: 5
-    calls_out: 3
-    calls_in: 4
-  rust-ast.src.main.visit_impl_item_fn:
-    name: visit_impl_item_fn
-    module: rust-ast.src.main
-    line: 275
-    cyclomatic_complexity: 2
-    calls_out: 10
-    calls_in: 0
-  src.cli.initProject:
-    name: initProject
-    module: src.cli
-    line: 736
-    cyclomatic_complexity: 6
-    calls_out: 9
-    calls_in: 1
-  src.extractors.communication-helpers.basename:
-    name: basename
-    module: src.extractors.communication-helpers
-    line: 168
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 2
-  src.extractors.docs-deterministic.parseParagraphStatement:
-    name: parseParagraphStatement
-    module: src.extractors.docs-deterministic
-    line: 212
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 1
-  src.extractors.configuration.pair:
-    name: pair
-    module: src.extractors.configuration
-    line: 156
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 0
-  src.extractors.nl-llm-helpers.NlAttemptError.nonEmptyText:
-    name: nonEmptyText
-    module: src.extractors.nl-llm-helpers
-    line: 185
-    cyclomatic_complexity: 3
-    calls_out: 1
-    calls_in: 3
-  src.extractors.configuration.lines:
-    name: lines
-    module: src.extractors.configuration
-    line: 134
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 0
-  src.extractors.markdown-llm-helpers.MarkdownAttemptError.emptyCoverage:
-    name: emptyCoverage
-    module: src.extractors.markdown-llm-helpers
-    line: 179
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 1
-  src.extractors.git.runGit:
-    name: runGit
-    module: src.extractors.git
-    line: 325
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 5
-  src.cli.handleWatch:
-    name: handleWatch
-    module: src.cli
-    line: 346
-    cyclomatic_complexity: 1
-    calls_out: 11
-    calls_in: 0
-  src.extractors.markdown-paths.headingDirectories:
-    name: headingDirectories
-    module: src.extractors.markdown-paths
-    line: 46
-    cyclomatic_complexity: 11
-    calls_out: 9
-    calls_in: 0
-  src.extractors.nl-llm-helpers.NlAttemptError.isPlaceholder:
-    name: isPlaceholder
-    module: src.extractors.nl-llm-helpers
-    line: 189
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 1
-  src.cli.handleEvaluateCodeChange:
-    name: handleEvaluateCodeChange
-    module: src.cli
-    line: 290
-    cyclomatic_complexity: 6
-    calls_out: 5
-    calls_in: 0
-  src.extractors.markdown-paths.createBasenameIndexState:
-    name: createBasenameIndexState
-    module: src.extractors.markdown-paths
-    line: 105
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 1
-  src.extractors.markdown-llm.MarkdownLlmRequiredError.client:
-    name: client
-    module: src.extractors.markdown-llm
-    line: 78
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.extractors.nl.object:
-    name: object
-    module: src.extractors.nl
-    line: 51
-    cyclomatic_complexity: 1
-    calls_out: 9
-    calls_in: 0
-  src.extractors.todo.relative:
-    name: relative
-    module: src.extractors.todo
-    line: 29
-    cyclomatic_complexity: 5
-    calls_out: 20
-    calls_in: 0
-  src.cli.buildWorkspaceComparisonOptions:
-    name: buildWorkspaceComparisonOptions
-    module: src.cli
-    line: 414
-    cyclomatic_complexity: 3
-    calls_out: 6
-    calls_in: 1
-  src.extractors.changelog.extractChangelog:
-    name: extractChangelog
-    module: src.extractors.changelog
-    line: 18
-    cyclomatic_complexity: 10
-    calls_out: 19
-    calls_in: 0
-  src.cli.handleCloseCodeChange:
-    name: handleCloseCodeChange
-    module: src.cli
-    line: 310
-    cyclomatic_complexity: 6
-    calls_out: 5
-    calls_in: 0
-  src.extractors.communication-helpers.isCommunicationType:
-    name: isCommunicationType
-    module: src.extractors.communication-helpers
-    line: 251
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 6
-  src.cli.handleGraphDiff:
-    name: handleGraphDiff
-    module: src.cli
-    line: 494
-    cyclomatic_complexity: 7
-    calls_out: 11
-    calls_in: 1
-  src.extractors.docs-chunks.worker:
-    name: worker
-    module: src.extractors.docs-chunks
-    line: 41
-    cyclomatic_complexity: 3
-    calls_out: 1
-    calls_in: 4
-  src.extractors.docs-deterministic.targetsOf:
-    name: targetsOf
-    module: src.extractors.docs-deterministic
-    line: 359
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 1
-  src.extractors.docs-chunks.splitLongSection:
-    name: splitLongSection
-    module: src.extractors.docs-chunks
-    line: 107
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 3
-  examples.backend.src.server.event:
-    name: event
-    module: examples.backend.src.server
-    line: 52
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.extractors.git.extractChangedSymbols:
-    name: extractChangedSymbols
-    module: src.extractors.git
-    line: 376
-    cyclomatic_complexity: 9
-    calls_out: 3
-    calls_in: 1
-  src.extractors.markdown-paths.state:
-    name: state
-    module: src.extractors.markdown-paths
-    line: 92
-    cyclomatic_complexity: 6
-    calls_out: 4
-    calls_in: 0
-  src.extractors.markdown-llm.MarkdownLlmRequiredError.extractMarkdownIntentAudited:
-    name: extractMarkdownIntentAudited
-    module: src.extractors.markdown-llm
-    line: 34
-    cyclomatic_complexity: 9
-    calls_out: 14
-    calls_in: 0
-  src.extractors.docs-llm.DocumentationLlmRequiredError.readPrompt:
-    name: readPrompt
-    module: src.extractors.docs-llm
-    line: 261
-    cyclomatic_complexity: 2
-    calls_out: 6
-    calls_in: 1
-  src.extractors.configuration.findKeyLine:
-    name: findKeyLine
-    module: src.extractors.configuration
-    line: 204
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 3
-  src.extractors.markdown-llm.MarkdownLlmRequiredError.fallbackOrThrow:
-    name: fallbackOrThrow
-    module: src.extractors.markdown-llm
-    line: 135
-    cyclomatic_complexity: 2
-    calls_out: 5
-    calls_in: 2
-  src.extractors.communication-helpers.parseEnvelope:
-    name: parseEnvelope
-    module: src.extractors.communication-helpers
-    line: 118
-    cyclomatic_complexity: 5
-    calls_out: 8
-    calls_in: 0
-  src.extractors.nl-llm-helpers.NlAttemptError.statementText:
-    name: statementText
-    module: src.extractors.nl-llm-helpers
-    line: 92
-    cyclomatic_complexity: 11
-    calls_out: 6
-    calls_in: 0
-  src.extractors.git.extractGitIntent:
-    name: extractGitIntent
-    module: src.extractors.git
-    line: 40
-    cyclomatic_complexity: 6
-    calls_out: 7
-    calls_in: 0
-  src.cli.optionPipelineTaskMode:
-    name: optionPipelineTaskMode
-    module: src.cli
-    line: 876
-    cyclomatic_complexity: 6
-    calls_out: 3
-    calls_in: 1
-  src.extractors.nl-llm-helpers.NlAttemptError.nlStrings:
-    name: nlStrings
-    module: src.extractors.nl-llm-helpers
-    line: 236
-    cyclomatic_complexity: 1
-    calls_out: 6
-    calls_in: 1
-  src.cli.handlePipeline:
-    name: handlePipeline
-    module: src.cli
-    line: 338
-    cyclomatic_complexity: 1
-    calls_out: 7
-    calls_in: 0
-  examples.backend.src.validation.validateEventPayload:
-    name: validateEventPayload
-    module: examples.backend.src.validation
-    line: 13
-    cyclomatic_complexity: 10
-    calls_out: 5
-    calls_in: 0
-  src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited:
-    name: extractNlIntentAudited
-    module: src.extractors.nl-llm
-    line: 33
-    cyclomatic_complexity: 10
-    calls_out: 22
-    calls_in: 0
-  src.extractors.docs-deterministic.convertDocument:
-    name: convertDocument
-    module: src.extractors.docs-deterministic
-    line: 100
-    cyclomatic_complexity: 4
-    calls_out: 4
-    calls_in: 3
-  src.extractors.todo.inferOwner:
-    name: inferOwner
-    module: src.extractors.todo
-    line: 86
-    cyclomatic_complexity: 4
-    calls_out: 1
-    calls_in: 11
-  src.extractors.git.createDiscoveryState:
-    name: createDiscoveryState
-    module: src.extractors.git
-    line: 184
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  src.extractors.configuration.yamlOrAssignmentEntries:
-    name: yamlOrAssignmentEntries
-    module: src.extractors.configuration
-    line: 162
-    cyclomatic_complexity: 7
-    calls_out: 6
-    calls_in: 1
-  src.extractors.docs-record.resolveObject:
-    name: resolveObject
-    module: src.extractors.docs-record
-    line: 79
-    cyclomatic_complexity: 4
-    calls_out: 2
-    calls_in: 3
-  src.extractors.communication-file-helpers.envelope:
-    name: envelope
-    module: src.extractors.communication-file-helpers
-    line: 51
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 0
-  src.extractors.git.takeNextDiscoveryDirectory:
-    name: takeNextDiscoveryDirectory
-    module: src.extractors.git
-    line: 201
-    cyclomatic_complexity: 2
-    calls_out: 0
-    calls_in: 2
-  src.extractors.docs-deterministic.extractDocumentationBaseline:
-    name: extractDocumentationBaseline
-    module: src.extractors.docs-deterministic
-    line: 56
-    cyclomatic_complexity: 4
-    calls_out: 8
-    calls_in: 0
-  java.JavaAstExtract.JavaAstExtract.main:
-    name: main
-    module: java.JavaAstExtract
-    line: 21
-    cyclomatic_complexity: 10
-    calls_out: 16
-    calls_in: 0
-  src.cli.diff:
-    name: diff
-    module: src.cli
-    line: 504
-    cyclomatic_complexity: 2
-    calls_out: 4
-    calls_in: 0
-  src.cli.stamp:
-    name: stamp
-    module: src.cli
-    line: 449
-    cyclomatic_complexity: 10
-    calls_out: 5
-    calls_in: 0
-  src.extractors.git.readChangedFiles:
-    name: readChangedFiles
-    module: src.extractors.git
-    line: 352
-    cyclomatic_complexity: 6
-    calls_out: 5
-    calls_in: 1
-  src.extractors.docs-chunks.prioritizeDocumentChunks:
-    name: prioritizeDocumentChunks
-    module: src.extractors.docs-chunks
-    line: 3
-    cyclomatic_complexity: 3
-    calls_out: 6
-    calls_in: 0
-  src.extractors.runtime-cycle.proposalRecord:
-    name: proposalRecord
-    module: src.extractors.runtime-cycle
-    line: 250
-    cyclomatic_complexity: 4
-    calls_out: 3
-    calls_in: 2
-  src.extractors.ast.records.moduleRecords:
-    name: moduleRecords
-    module: src.extractors.ast.records
-    line: 34
-    cyclomatic_complexity: 6
-    calls_out: 14
-    calls_in: 1
-  src.cli.file:
-    name: file
-    module: src.cli
-    line: 602
-    cyclomatic_complexity: 3
-    calls_out: 0
-    calls_in: 2
-  rust-ast.src.main.main:
-    name: main
-    module: rust-ast.src.main
-    line: 36
-    cyclomatic_complexity: 6
-    calls_out: 21
-    calls_in: 0
-  src.cli.buildCommonPipelineOptions:
-    name: buildCommonPipelineOptions
-    module: src.cli
-    line: 384
-    cyclomatic_complexity: 3
-    calls_out: 8
-    calls_in: 1
-  src.extractors.ast.isIntentRecords:
-    name: isIntentRecords
-    module: src.extractors.ast
-    line: 153
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 1
-  java.JavaAstExtract.JavaAstExtract.slash:
-    name: slash
-    module: java.JavaAstExtract
-    line: 259
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 2
-  src.extractors.docs-schema.documentRecord:
-    name: documentRecord
-    module: src.extractors.docs-schema
-    line: 15
-    cyclomatic_complexity: 1
-    calls_out: 8
-    calls_in: 0
-  java.JavaAstExtract.JavaAstExtract.containsIgnored:
-    name: containsIgnored
-    module: java.JavaAstExtract
-    line: 70
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 1
-  src.cli.command:
-    name: command
-    module: src.cli
-    line: 72
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 0
-  src.extractors.communication-helpers.nestedRole:
-    name: nestedRole
-    module: src.extractors.communication-helpers
-    line: 156
-    cyclomatic_complexity: 5
-    calls_out: 2
-    calls_in: 0
-  src.extractors.git.processDiscoveryDirectory:
-    name: processDiscoveryDirectory
-    module: src.extractors.git
-    line: 228
-    cyclomatic_complexity: 5
-    calls_out: 5
-    calls_in: 2
-  examples.backend.src.server.offset:
-    name: offset
-    module: examples.backend.src.server
-    line: 58
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.cli.handleApplySourcePatch:
-    name: handleApplySourcePatch
-    module: src.cli
-    line: 272
-    cyclomatic_complexity: 6
-    calls_out: 5
-    calls_in: 0
-  src.extractors.configuration.jsonEntries:
-    name: jsonEntries
-    module: src.extractors.configuration
-    line: 131
-    cyclomatic_complexity: 7
-    calls_out: 7
-    calls_in: 1
-  src.extractors.runtime-cycle.sourcePathFor:
-    name: sourcePathFor
-    module: src.extractors.runtime-cycle
-    line: 89
-    cyclomatic_complexity: 2
-    calls_out: 3
-    calls_in: 2
-  src.extractors.communication-file-helpers.appendTimestampWarnings:
-    name: appendTimestampWarnings
-    module: src.extractors.communication-file-helpers
-    line: 328
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 1
-  src.extractors.communication-helpers.item:
-    name: item
-    module: src.extractors.communication-helpers
-    line: 197
-    cyclomatic_complexity: 3
-    calls_out: 3
-    calls_in: 0
-  src.extractors.docs-deterministic.codeBlockRecord:
-    name: codeBlockRecord
-    module: src.extractors.docs-deterministic
-    line: 325
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 2
-  src.extractors.runtime-cycle.probeRecord:
-    name: probeRecord
-    module: src.extractors.runtime-cycle
-    line: 134
-    cyclomatic_complexity: 9
-    calls_out: 8
-    calls_in: 3
-  rust-ast.src.main.visit_item_struct:
-    name: visit_item_struct
-    module: rust-ast.src.main
-    line: 223
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.cli.handleProposeTodo:
-    name: handleProposeTodo
-    module: src.cli
-    line: 163
-    cyclomatic_complexity: 5
-    calls_out: 6
-    calls_in: 0
-  src.extractors.nl-llm-helpers.NlAttemptError.allowedAction:
-    name: allowedAction
-    module: src.extractors.nl-llm-helpers
-    line: 219
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 1
-  src.extractors.git.hasMoreDiscoveryWork:
-    name: hasMoreDiscoveryWork
-    module: src.extractors.git
-    line: 195
-    cyclomatic_complexity: 3
-    calls_out: 0
-    calls_in: 2
-  src.extractors.ast.records.capabilities:
-    name: capabilities
-    module: src.extractors.ast.records
-    line: 49
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.cli.doctor:
-    name: doctor
-    module: src.cli
-    line: 757
-    cyclomatic_complexity: 6
-    calls_out: 7
-    calls_in: 1
-  src.extractors.todo.action:
-    name: action
-    module: src.extractors.todo
-    line: 50
-    cyclomatic_complexity: 2
-    calls_out: 12
-    calls_in: 0
-  src.cli.taskFile:
-    name: taskFile
-    module: src.cli
-    line: 348
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 0
-  src.extractors.nl.sourcePath:
-    name: sourcePath
-    module: src.extractors.nl
-    line: 42
-    cyclomatic_complexity: 2
-    calls_out: 14
-    calls_in: 0
-  src.extractors.changelog.lines:
-    name: lines
-    module: src.extractors.changelog
-    line: 30
-    cyclomatic_complexity: 7
-    calls_out: 15
-    calls_in: 0
-  src.extractors.docs-deterministic.action:
-    name: action
-    module: src.extractors.docs-deterministic
-    line: 296
-    cyclomatic_complexity: 3
-    calls_out: 6
-    calls_in: 0
-  src.extractors.communication-file-helpers.hasExplicitEnvelopeMetadata:
-    name: hasExplicitEnvelopeMetadata
-    module: src.extractors.communication-file-helpers
-    line: 116
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 1
-  src.extractors.git.gitMarkerState:
-    name: gitMarkerState
-    module: src.extractors.git
-    line: 277
-    cyclomatic_complexity: 5
-    calls_out: 5
-    calls_in: 1
-  java.JavaAstExtract.JavaAstExtract.collect:
-    name: collect
-    module: java.JavaAstExtract
-    line: 58
-    cyclomatic_complexity: 1
-    calls_out: 11
-    calls_in: 1
-  src.extractors.ast.typescript.context:
-    name: context
-    module: src.extractors.ast.typescript
-    line: 12
-    cyclomatic_complexity: 1
-    calls_out: 4
-    calls_in: 0
-  src.extractors.nl-llm-helpers.NlAttemptError.clampLine:
-    name: clampLine
-    module: src.extractors.nl-llm-helpers
-    line: 215
-    cyclomatic_complexity: 1
-    calls_out: 3
-    calls_in: 1
-  src.extractors.nl.assertNlExtractionOptions:
-    name: assertNlExtractionOptions
-    module: src.extractors.nl
-    line: 25
-    cyclomatic_complexity: 9
-    calls_out: 2
-    calls_in: 1
-  src.cli.handleIntake:
-    name: handleIntake
-    module: src.cli
-    line: 706
-    cyclomatic_complexity: 13
-    calls_out: 13
-    calls_in: 0
-  src.cli.invokedPath:
-    name: invokedPath
-    module: src.cli
-    line: 936
-    cyclomatic_complexity: 4
-    calls_out: 4
-    calls_in: 0
-  src.extractors.markdown-paths.addBasenameIndexMatch:
-    name: addBasenameIndexMatch
-    module: src.extractors.markdown-paths
-    line: 148
-    cyclomatic_complexity: 3
-    calls_out: 4
-    calls_in: 1
-  src.cli.emitExtraction:
-    name: emitExtraction
-    module: src.cli
-    line: 691
-    cyclomatic_complexity: 4
-    calls_out: 4
-    calls_in: 8
-  src.extractors.docs-schema.documentResponseSchema:
-    name: documentResponseSchema
-    module: src.extractors.docs-schema
-    line: 41
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.extractors.docs-record.allowedLifecycle:
-    name: allowedLifecycle
-    module: src.extractors.docs-record
-    line: 191
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 5
   rust-ast.src.main.arguments:
     name: arguments
     module: rust-ast.src.main
     line: 82
     cyclomatic_complexity: 5
     calls_out: 9
-    calls_in: 1
-  src.extractors.communication-file-helpers.appendRegistryAlignmentWarnings:
-    name: appendRegistryAlignmentWarnings
-    module: src.extractors.communication-file-helpers
-    line: 299
-    cyclomatic_complexity: 7
-    calls_out: 2
-    calls_in: 1
-  examples.backend.src.server.validation:
-    name: validation
-    module: examples.backend.src.server
-    line: 45
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.extractors.runtime-cycle.violationRecord:
-    name: violationRecord
-    module: src.extractors.runtime-cycle
-    line: 173
-    cyclomatic_complexity: 4
-    calls_out: 7
-    calls_in: 3
-  src.extractors.markdown-paths.createMarkdownPathResolver:
-    name: createMarkdownPathResolver
-    module: src.extractors.markdown-paths
-    line: 39
-    cyclomatic_complexity: 12
-    calls_out: 12
-    calls_in: 0
-  src.extractors.todo.lines:
-    name: lines
-    module: src.extractors.todo
-    line: 32
-    cyclomatic_complexity: 5
-    calls_out: 20
-    calls_in: 0
-  java.JavaAstExtract.JavaAstExtract.map:
-    name: map
-    module: java.JavaAstExtract
-    line: 182
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 3
-  src.extractors.runtime-cycle.driftRecord:
-    name: driftRecord
-    module: src.extractors.runtime-cycle
-    line: 211
-    cyclomatic_complexity: 5
-    calls_out: 5
-    calls_in: 2
-  src.extractors.docs-record.linesFromChunk:
-    name: linesFromChunk
-    module: src.extractors.docs-record
-    line: 172
-    cyclomatic_complexity: 1
-    calls_out: 5
-    calls_in: 5
-  src.extractors.configuration.configurationRecords:
-    name: configurationRecords
-    module: src.extractors.configuration
-    line: 41
-    cyclomatic_complexity: 4
-    calls_out: 12
-    calls_in: 4
-  src.extractors.configuration.match:
-    name: match
-    module: src.extractors.configuration
-    line: 175
-    cyclomatic_complexity: 5
-    calls_out: 2
-    calls_in: 3
-  src.extractors.nl.action:
-    name: action
-    module: src.extractors.nl
-    line: 50
-    cyclomatic_complexity: 1
-    calls_out: 9
-    calls_in: 0
-  src.extractors.git.result:
-    name: result
-    module: src.extractors.git
-    line: 326
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  rust-ast.src.main.visit_item_trait:
-    name: visit_item_trait
-    module: rust-ast.src.main
-    line: 233
-    cyclomatic_complexity: 1
-    calls_out: 2
-    calls_in: 0
-  src.extractors.communication-helpers.isTicketEvidenceFile:
-    name: isTicketEvidenceFile
-    module: src.extractors.communication-helpers
-    line: 167
-    cyclomatic_complexity: 4
-    calls_out: 4
-    calls_in: 0
-  examples.backend.src.server.limit:
-    name: limit
-    module: examples.backend.src.server
-    line: 59
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  src.extractors.communication-helpers.sameStrings:
-    name: sameStrings
-    module: src.extractors.communication-helpers
-    line: 281
-    cyclomatic_complexity: 1
-    calls_out: 6
-    calls_in: 0
-  src.extractors.git.state:
-    name: state
-    module: src.extractors.git
-    line: 172
-    cyclomatic_complexity: 4
-    calls_out: 5
-    calls_in: 0
-  rust-ast.src.main.visit_item_fn:
-    name: visit_item_fn
-    module: rust-ast.src.main
-    line: 257
-    cyclomatic_complexity: 1
-    calls_out: 13
-    calls_in: 0
-  src.extractors.markdown-llm-helpers.MarkdownAttemptError.enrichBatchCovering:
-    name: enrichBatchCovering
-    module: src.extractors.markdown-llm-helpers
-    line: 112
-    cyclomatic_complexity: 6
-    calls_out: 11
-    calls_in: 3
-  src.extractors.communication-helpers.flush:
-    name: flush
-    module: src.extractors.communication-helpers
-    line: 195
-    cyclomatic_complexity: 5
-    calls_out: 5
-    calls_in: 1
-  src.extractors.git.filterDiscoveryChildren:
-    name: filterDiscoveryChildren
-    module: src.extractors.git
-    line: 221
-    cyclomatic_complexity: 5
-    calls_out: 6
-    calls_in: 2
-  src.extractors.communication-helpers.raw:
-    name: raw
-    module: src.extractors.communication-helpers
-    line: 206
-    cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 0
-  src.extractors.todo.extractExplicitId:
-    name: extractExplicitId
-    module: src.extractors.todo
-    line: 91
-    cyclomatic_complexity: 5
-    calls_out: 3
-    calls_in: 11
-  src.extractors.communication-helpers.isCommunicationNoise:
-    name: isCommunicationNoise
-    module: src.extractors.communication-helpers
-    line: 286
-    cyclomatic_complexity: 3
-    calls_out: 2
-    calls_in: 3
-  src.extractors.git.root:
-    name: root
-    module: src.extractors.git
-    line: 41
-    cyclomatic_complexity: 2
-    calls_out: 2
-    calls_in: 0
-  src.extractors.communication-helpers.normalizeType:
-    name: normalizeType
-    module: src.extractors.communication-helpers
-    line: 246
-    cyclomatic_complexity: 4
-    calls_out: 2
-    calls_in: 0
-  src.extractors.docs-chunks.takeLineBatch:
-    name: takeLineBatch
-    module: src.extractors.docs-chunks
-    line: 128
-    cyclomatic_complexity: 8
-    calls_out: 2
     calls_in: 1
   src.extractors.docs-deterministic.marker:
     name: marker
@@ -2714,13 +2259,237 @@ nodes:
     cyclomatic_complexity: 4
     calls_out: 2
     calls_in: 0
-  src.cli.optionList:
-    name: optionList
+  src.cli.absolute:
+    name: absolute
     module: src.cli
-    line: 845
+    line: 712
+    cyclomatic_complexity: 3
+    calls_out: 1
+    calls_in: 0
+  src.extractors.configuration.findKeyLine:
+    name: findKeyLine
+    module: src.extractors.configuration
+    line: 204
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 3
+  src.cli.resolveWatchTaskFile:
+    name: resolveWatchTaskFile
+    module: src.cli
+    line: 409
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 1
+  src.extractors.communication-file-helpers.inferred:
+    name: inferred
+    module: src.extractors.communication-file-helpers
+    line: 52
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 0
+  src.extractors.todo.heading:
+    name: heading
+    module: src.extractors.todo
+    line: 36
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.extractors.docs-chunks.flush:
+    name: flush
+    module: src.extractors.docs-chunks
+    line: 63
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 3
+  src.extractors.communication-helpers.isCommunicationType:
+    name: isCommunicationType
+    module: src.extractors.communication-helpers
+    line: 251
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 6
+  examples.backend.src.validation.action:
+    name: action
+    module: examples.backend.src.validation
+    line: 23
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.extractors.communication-helpers.normalizeType:
+    name: normalizeType
+    module: src.extractors.communication-helpers
+    line: 246
+    cyclomatic_complexity: 4
+    calls_out: 2
+    calls_in: 0
+  src.cli.diagnostics:
+    name: diagnostics
+    module: src.cli
+    line: 558
     cyclomatic_complexity: 2
     calls_out: 5
+    calls_in: 0
+  examples.backend.src.request-handlers.MAX_BODY_BYTES:
+    name: MAX_BODY_BYTES
+    module: examples.backend.src.request-handlers
+    line: 5
+    cyclomatic_complexity: 9
+    calls_out: 5
+    calls_in: 0
+  examples.backend.src.server.server:
+    name: server
+    module: examples.backend.src.server
+    line: 18
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.extractors.configuration.files:
+    name: files
+    module: src.extractors.configuration
+    line: 15
+    cyclomatic_complexity: 4
+    calls_out: 5
+    calls_in: 0
+  src.extractors.docs-deterministic.readParagraph:
+    name: readParagraph
+    module: src.extractors.docs-deterministic
+    line: 235
+    cyclomatic_complexity: 11
+    calls_out: 5
+    calls_in: 1
+  src.extractors.docs-record.linesFromChunk:
+    name: linesFromChunk
+    module: src.extractors.docs-record
+    line: 172
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 5
+  src.extractors.nl.inferActor:
+    name: inferActor
+    module: src.extractors.nl
+    line: 87
+    cyclomatic_complexity: 5
+    calls_out: 2
+    calls_in: 9
+  src.extractors.docs-record.action:
+    name: action
+    module: src.extractors.docs-record
+    line: 36
+    cyclomatic_complexity: 11
+    calls_out: 7
+    calls_in: 0
+  src.extractors.docs-record.clampLine:
+    name: clampLine
+    module: src.extractors.docs-record
+    line: 179
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 1
+  src.extractors.runtime-cycle.boundedArray:
+    name: boundedArray
+    module: src.extractors.runtime-cycle
+    line: 94
+    cyclomatic_complexity: 8
+    calls_out: 4
     calls_in: 3
+  src.extractors.docs-chunks.splitLongSection:
+    name: splitLongSection
+    module: src.extractors.docs-chunks
+    line: 107
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 3
+  src.extractors.todo.classified:
+    name: classified
+    module: src.extractors.todo
+    line: 49
+    cyclomatic_complexity: 2
+    calls_out: 12
+    calls_in: 0
+  src.extractors.git.state:
+    name: state
+    module: src.extractors.git
+    line: 172
+    cyclomatic_complexity: 4
+    calls_out: 5
+    calls_in: 0
+  src.extractors.runtime-cycle.driftRecord:
+    name: driftRecord
+    module: src.extractors.runtime-cycle
+    line: 211
+    cyclomatic_complexity: 5
+    calls_out: 5
+    calls_in: 2
+  src.extractors.configuration.entries:
+    name: entries
+    module: src.extractors.configuration
+    line: 43
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 2
+  examples.src.runtime.validateContract:
+    name: validateContract
+    module: examples.src.runtime
+    line: 6
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 1
+  src.cli.parsed:
+    name: parsed
+    module: src.cli
+    line: 71
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 0
+  src.extractors.markdown-llm-helpers.MarkdownAttemptError.emptyCoverage:
+    name: emptyCoverage
+    module: src.extractors.markdown-llm-helpers
+    line: 179
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 1
+  src.extractors.todo.relative:
+    name: relative
+    module: src.extractors.todo
+    line: 29
+    cyclomatic_complexity: 5
+    calls_out: 20
+    calls_in: 0
+  src.extractors.docs-chunks.chunkMarkdown:
+    name: chunkMarkdown
+    module: src.extractors.docs-chunks
+    line: 55
+    cyclomatic_complexity: 8
+    calls_out: 9
+    calls_in: 0
+  rust-ast.src.main.visit_item_struct:
+    name: visit_item_struct
+    module: rust-ast.src.main
+    line: 223
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.extractors.communication-file-helpers.appendRoleAndParticipantWarnings:
+    name: appendRoleAndParticipantWarnings
+    module: src.extractors.communication-file-helpers
+    line: 273
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 1
+  examples.backend.src.validation.object:
+    name: object
+    module: examples.backend.src.validation
+    line: 24
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.extractors.nl.classified:
+    name: classified
+    module: src.extractors.nl
+    line: 49
+    cyclomatic_complexity: 1
+    calls_out: 9
+    calls_in: 0
   src.extractors.docs-chunks.index:
     name: index
     module: src.extractors.docs-chunks
@@ -2728,48 +2497,62 @@ nodes:
     cyclomatic_complexity: 1
     calls_out: 3
     calls_in: 0
-  src.extractors.docs-deterministic.parseFenceBlock:
-    name: parseFenceBlock
-    module: src.extractors.docs-deterministic
-    line: 154
-    cyclomatic_complexity: 7
-    calls_out: 5
-    calls_in: 1
-  src.extractors.markdown-paths.repositoryRoot:
-    name: repositoryRoot
-    module: src.extractors.markdown-paths
-    line: 40
-    cyclomatic_complexity: 11
-    calls_out: 11
-    calls_in: 0
-  examples.src.runtime.executeContract:
-    name: executeContract
-    module: examples.src.runtime
-    line: 10
-    cyclomatic_complexity: 1
-    calls_out: 1
-    calls_in: 0
-  examples.frontend.src.app.createState:
-    name: createState
-    module: examples.frontend.src.app
-    line: 14
-    cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 1
-  src.cli.optionString:
-    name: optionString
-    module: src.cli
-    line: 818
+  src.extractors.todo.action:
+    name: action
+    module: src.extractors.todo
+    line: 50
     cyclomatic_complexity: 2
-    calls_out: 1
-    calls_in: 33
-  src.extractors.docs-chunks.chunkPriority:
-    name: chunkPriority
-    module: src.extractors.docs-chunks
-    line: 23
-    cyclomatic_complexity: 3
-    calls_out: 4
+    calls_out: 12
+    calls_in: 0
+  src.extractors.markdown-llm.MarkdownLlmRequiredError.fallbackOrThrow:
+    name: fallbackOrThrow
+    module: src.extractors.markdown-llm
+    line: 135
+    cyclomatic_complexity: 2
+    calls_out: 5
     calls_in: 2
+  src.extractors.communication-helpers.isCommunicationNoise:
+    name: isCommunicationNoise
+    module: src.extractors.communication-helpers
+    line: 286
+    cyclomatic_complexity: 3
+    calls_out: 2
+    calls_in: 3
+  src.cli.initProject:
+    name: initProject
+    module: src.cli
+    line: 736
+    cyclomatic_complexity: 6
+    calls_out: 9
+    calls_in: 1
+  src.extractors.nl-llm-helpers.NlAttemptError.lines:
+    name: lines
+    module: src.extractors.nl-llm-helpers
+    line: 86
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.cli.invokedPath:
+    name: invokedPath
+    module: src.cli
+    line: 936
+    cyclomatic_complexity: 4
+    calls_out: 4
+    calls_in: 0
+  src.extractors.configuration.configurationRecords:
+    name: configurationRecords
+    module: src.extractors.configuration
+    line: 41
+    cyclomatic_complexity: 4
+    calls_out: 12
+    calls_in: 4
+  src.cli.handleCloseCodeChange:
+    name: handleCloseCodeChange
+    module: src.cli
+    line: 310
+    cyclomatic_complexity: 6
+    calls_out: 5
+    calls_in: 0
   src.cli.buildGitDiff:
     name: buildGitDiff
     module: src.cli
@@ -2784,41 +2567,237 @@ nodes:
     cyclomatic_complexity: 1
     calls_out: 5
     calls_in: 0
-  src.extractors.nl-llm.NlLlmRequiredError.fallbackOrThrow:
-    name: fallbackOrThrow
-    module: src.extractors.nl-llm
-    line: 116
+  src.extractors.docs-record.toDocumentIntentRecord:
+    name: toDocumentIntentRecord
+    module: src.extractors.docs-record
+    line: 25
+    cyclomatic_complexity: 14
+    calls_out: 13
+    calls_in: 0
+  src.extractors.docs-record.allowedModality:
+    name: allowedModality
+    module: src.extractors.docs-record
+    line: 187
     cyclomatic_complexity: 1
-    calls_out: 0
-    calls_in: 2
-  src.extractors.docs-deterministic.parseBulletStatement:
-    name: parseBulletStatement
-    module: src.extractors.docs-deterministic
-    line: 191
+    calls_out: 1
+    calls_in: 1
+  src.cli.handleApplyTodo:
+    name: handleApplyTodo
+    module: src.cli
+    line: 201
+    cyclomatic_complexity: 8
+    calls_out: 5
+    calls_in: 0
+  src.cli.optionBoolean:
+    name: optionBoolean
+    module: src.cli
+    line: 830
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 17
+  src.cli.optionLlmMode:
+    name: optionLlmMode
+    module: src.cli
+    line: 854
     cyclomatic_complexity: 6
     calls_out: 3
+    calls_in: 8
+  src.cli.parseDiffMode:
+    name: parseDiffMode
+    module: src.cli
+    line: 488
+    cyclomatic_complexity: 5
+    calls_out: 3
     calls_in: 1
-  rust-ast.src.main.visit_expr_call:
-    name: visit_expr_call
-    module: rust-ast.src.main
-    line: 288
+  src.cli.stamp:
+    name: stamp
+    module: src.cli
+    line: 449
+    cyclomatic_complexity: 10
+    calls_out: 5
+    calls_in: 0
+  src.cli.optionSummaryMode:
+    name: optionSummaryMode
+    module: src.cli
+    line: 866
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 1
+  src.cli.buildFileDiff:
+    name: buildFileDiff
+    module: src.cli
+    line: 517
+    cyclomatic_complexity: 3
+    calls_out: 6
+    calls_in: 1
+  src.extractors.docs-llm.DocumentationLlmRequiredError.readPrompt:
+    name: readPrompt
+    module: src.extractors.docs-llm
+    line: 261
+    cyclomatic_complexity: 2
+    calls_out: 6
+    calls_in: 1
+  src.extractors.communication-helpers.flush:
+    name: flush
+    module: src.extractors.communication-helpers
+    line: 195
+    cyclomatic_complexity: 5
+    calls_out: 5
+    calls_in: 1
+  src.extractors.docs-record.keywordOverlap:
+    name: keywordOverlap
+    module: src.extractors.docs-record
+    line: 119
+    cyclomatic_complexity: 3
+    calls_out: 3
+    calls_in: 1
+  src.extractors.changelog.changelogAction:
+    name: changelogAction
+    module: src.extractors.changelog
+    line: 87
+    cyclomatic_complexity: 11
+    calls_out: 3
+    calls_in: 4
+  src.extractors.configuration.MAX_ENTRIES_PER_FILE:
+    name: MAX_ENTRIES_PER_FILE
+    module: src.extractors.configuration
+    line: 8
+    cyclomatic_complexity: 4
+    calls_out: 10
+    calls_in: 0
+  examples.frontend.src.render.toRows:
+    name: toRows
+    module: examples.frontend.src.render
+    line: 19
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.extractors.git.hasMoreDiscoveryWork:
+    name: hasMoreDiscoveryWork
+    module: src.extractors.git
+    line: 195
+    cyclomatic_complexity: 3
+    calls_out: 0
+    calls_in: 2
+  src.cli.handlePipeline:
+    name: handlePipeline
+    module: src.cli
+    line: 338
+    cyclomatic_complexity: 1
+    calls_out: 7
+    calls_in: 0
+  examples.frontend.src.app.createState:
+    name: createState
+    module: examples.frontend.src.app
+    line: 14
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 1
+  src.extractors.configuration.line:
+    name: line
+    module: src.extractors.configuration
+    line: 149
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 0
+  src.extractors.docs-record.statementText:
+    name: statementText
+    module: src.extractors.docs-record
+    line: 32
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.extractors.markdown-llm-helpers.MarkdownAttemptError.strings:
+    name: strings
+    module: src.extractors.markdown-llm-helpers
+    line: 370
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 2
+  src.extractors.nl.body:
+    name: body
+    module: src.extractors.nl
+    line: 41
+    cyclomatic_complexity: 2
+    calls_out: 14
+    calls_in: 0
+  src.extractors.docs-record.resolveTarget:
+    name: resolveTarget
+    module: src.extractors.docs-record
+    line: 128
+    cyclomatic_complexity: 12
+    calls_out: 7
+    calls_in: 2
+  src.extractors.git.discoverGitRepositories:
+    name: discoverGitRepositories
+    module: src.extractors.git
+    line: 171
+    cyclomatic_complexity: 4
+    calls_out: 7
+    calls_in: 1
+  src.extractors.git.finishDiscovery:
+    name: finishDiscovery
+    module: src.extractors.git
+    line: 268
+    cyclomatic_complexity: 4
+    calls_out: 1
+    calls_in: 1
+  src.cli.buildPipelineOptions:
+    name: buildPipelineOptions
+    module: src.cli
+    line: 371
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 2
+  src.extractors.nl.missing:
+    name: missing
+    module: src.extractors.nl
+    line: 52
     cyclomatic_complexity: 1
     calls_out: 9
     calls_in: 0
-  src.extractors.git.readStats:
-    name: readStats
-    module: src.extractors.git
-    line: 364
+  src.extractors.docs-chunks.mapConcurrent:
+    name: mapConcurrent
+    module: src.extractors.docs-chunks
+    line: 33
+    cyclomatic_complexity: 3
+    calls_out: 7
+    calls_in: 0
+  src.extractors.docs-schema.documentResponseContract:
+    name: documentResponseContract
+    module: src.extractors.docs-schema
+    line: 31
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.extractors.nl-llm-helpers.NlAttemptError.allowedModality:
+    name: allowedModality
+    module: src.extractors.nl-llm-helpers
+    line: 226
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.extractors.markdown-paths.state:
+    name: state
+    module: src.extractors.markdown-paths
+    line: 92
     cyclomatic_complexity: 6
     calls_out: 4
-    calls_in: 1
-  src.cli.resolvePipelineRoot:
-    name: resolvePipelineRoot
-    module: src.cli
-    line: 367
-    cyclomatic_complexity: 2
-    calls_out: 1
+    calls_in: 0
+  src.extractors.docs-record.resolveObject:
+    name: resolveObject
+    module: src.extractors.docs-record
+    line: 79
+    cyclomatic_complexity: 4
+    calls_out: 2
     calls_in: 3
+  java.JavaAstExtract.JavaAstExtract.main:
+    name: main
+    module: java.JavaAstExtract
+    line: 21
+    cyclomatic_complexity: 10
+    calls_out: 16
+    calls_in: 0
 edges:
 - caller: rust-ast.src.main.main
   callee: rust-ast.src.main.arguments
@@ -2898,6 +2877,57 @@ edges:
 - caller: rust-ast.src.main.type_item
   callee: rust-ast.src.main.modifiers
   call_type: resolved
+- caller: examples.backend.src.request-handlers.MAX_BODY_BYTES
+  callee: examples.backend.src.request-handlers.handleHealth
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.MAX_BODY_BYTES
+  callee: examples.backend.src.request-handlers.handleEventPublish
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.MAX_BODY_BYTES
+  callee: examples.backend.src.request-handlers.handleEventList
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.MAX_BODY_BYTES
+  callee: examples.backend.src.request-handlers.sendJson
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleRequest
+  callee: examples.backend.src.request-handlers.handleHealth
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleRequest
+  callee: examples.backend.src.request-handlers.handleEventPublish
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleRequest
+  callee: examples.backend.src.request-handlers.handleEventList
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleRequest
+  callee: examples.backend.src.request-handlers.sendJson
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleHealth
+  callee: examples.backend.src.request-handlers.sendJson
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleHealth
+  callee: examples.backend.src.request-handlers.size
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleEventPublish
+  callee: examples.backend.src.request-handlers.readBody
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleEventPublish
+  callee: examples.backend.src.request-handlers.sendJson
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.validation
+  callee: examples.backend.src.request-handlers.sendJson
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.event
+  callee: examples.backend.src.request-handlers.sendJson
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleEventList
+  callee: examples.backend.src.request-handlers.parseOffset
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleEventList
+  callee: examples.backend.src.request-handlers.parseLimit
+  call_type: resolved
+- caller: examples.backend.src.request-handlers.handleEventList
+  callee: examples.backend.src.request-handlers.sendJson
+  call_type: resolved
 - caller: examples.backend.src.validation.ALLOWED_ACTIONS
   callee: examples.backend.src.validation.invalid
   call_type: resolved
@@ -2917,42 +2947,12 @@ edges:
   callee: examples.backend.src.validation.invalid
   call_type: resolved
 - caller: examples.backend.src.server.createBackend
-  callee: examples.backend.src.server.handleRequest
-  call_type: resolved
-- caller: examples.backend.src.server.createBackend
   callee: examples.backend.src.server.sendJson
-  call_type: resolved
-- caller: examples.backend.src.server.store
-  callee: examples.backend.src.server.handleRequest
   call_type: resolved
 - caller: examples.backend.src.server.store
   callee: examples.backend.src.server.sendJson
   call_type: resolved
 - caller: examples.backend.src.server.server
-  callee: examples.backend.src.server.handleRequest
-  call_type: resolved
-- caller: examples.backend.src.server.server
-  callee: examples.backend.src.server.sendJson
-  call_type: resolved
-- caller: examples.backend.src.server.handleRequest
-  callee: examples.backend.src.server.sendJson
-  call_type: resolved
-- caller: examples.backend.src.server.handleRequest
-  callee: examples.backend.src.server.size
-  call_type: resolved
-- caller: examples.backend.src.server.handleRequest
-  callee: examples.backend.src.server.readBody
-  call_type: resolved
-- caller: examples.backend.src.server.validation
-  callee: examples.backend.src.server.sendJson
-  call_type: resolved
-- caller: examples.backend.src.server.event
-  callee: examples.backend.src.server.sendJson
-  call_type: resolved
-- caller: examples.backend.src.server.offset
-  callee: examples.backend.src.server.sendJson
-  call_type: resolved
-- caller: examples.backend.src.server.limit
   callee: examples.backend.src.server.sendJson
   call_type: resolved
 - caller: examples.backend.src.server.startBackend
@@ -4249,7 +4249,7 @@ edges:
   callee: src.extractors.nl-llm-helpers.NlAttemptError.resolveObject
   call_type: resolved
 - caller: src.extractors.nl-llm-helpers.NlAttemptError.toIntentRecord
-  callee: src.extractors.nl-llm-helpers.NlAttemptError.allowedModality
+  callee: src.extractors.nl-llm-helpers.NlAttemptError.resolveModality
   call_type: resolved
 - caller: src.extractors.nl-llm-helpers.NlAttemptError.lines
   callee: src.extractors.nl-llm-helpers.NlAttemptError.sourceExcerpt
@@ -4261,13 +4261,16 @@ edges:
   callee: src.extractors.nl-llm-helpers.NlAttemptError.resolveObject
   call_type: resolved
 - caller: src.extractors.nl-llm-helpers.NlAttemptError.statementText
-  callee: src.extractors.nl-llm-helpers.NlAttemptError.allowedModality
+  callee: src.extractors.nl-llm-helpers.NlAttemptError.resolveModality
   call_type: resolved
 - caller: src.extractors.nl-llm-helpers.NlAttemptError.sourceExcerpt
   callee: src.extractors.nl-llm-helpers.NlAttemptError.clampLine
   call_type: resolved
 - caller: src.extractors.nl-llm-helpers.NlAttemptError.resolveAction
   callee: src.extractors.nl-llm-helpers.NlAttemptError.allowedAction
+  call_type: resolved
+- caller: src.extractors.nl-llm-helpers.NlAttemptError.resolveModality
+  callee: src.extractors.nl-llm-helpers.NlAttemptError.allowedModality
   call_type: resolved
 - caller: src.extractors.nl-llm-helpers.NlAttemptError.isPlaceholder
   callee: src.extractors.nl-llm-helpers.NlAttemptError.nonEmptyText
@@ -4277,6 +4280,12 @@ edges:
   call_type: resolved
 - caller: src.extractors.nl-llm-helpers.NlAttemptError.resolveObject
   callee: src.extractors.nl-llm-helpers.NlAttemptError.nonEmptyText
+  call_type: resolved
+- caller: src.extractors.nl-llm-helpers.NlAttemptError.NL_ACTION_SET
+  callee: src.extractors.nl-llm-helpers.NlAttemptError.nlStrings
+  call_type: resolved
+- caller: src.extractors.nl-llm-helpers.NlAttemptError.NL_MODALITY_SET
+  callee: src.extractors.nl-llm-helpers.NlAttemptError.nlStrings
   call_type: resolved
 - caller: src.extractors.nl-llm-helpers.NlAttemptError.NL_RECORD_CONTRACT
   callee: src.extractors.nl-llm-helpers.NlAttemptError.nlStrings
@@ -4290,50 +4299,26 @@ edges:
 - caller: src.extractors.ast.records.adapterRecords
   callee: src.extractors.ast.records.moduleRecords
   call_type: resolved
-- caller: src.extractors.ast.records.moduleRecords
-  callee: src.extractors.ast.records.boundedCapabilities
-  call_type: resolved
-- caller: src.extractors.ast.records.start
-  callee: src.extractors.ast.records.moduleTopicText
-  call_type: resolved
-- caller: src.extractors.ast.records.end
-  callee: src.extractors.ast.records.moduleTopicText
-  call_type: resolved
-- caller: src.extractors.ast.records.capabilities
-  callee: src.extractors.ast.records.moduleTopicText
-  call_type: resolved
-- caller: src.extractors.ast.typescript.extractTypeScriptFile
-  callee: src.extractors.ast.typescript.createTypeScriptExtractionContext
-  call_type: resolved
-- caller: src.extractors.ast.typescript.extractTypeScriptFile
-  callee: src.extractors.ast.typescript.scriptKind
-  call_type: resolved
-- caller: src.extractors.ast.typescript.extractTypeScriptFile
-  callee: src.extractors.ast.typescript.visitTypeScriptNode
-  call_type: resolved
-- caller: src.extractors.ast.typescript.extractTypeScriptFile
-  callee: src.extractors.ast.typescript.recordModuleFact
-  call_type: resolved
-- caller: src.extractors.ast.typescript.context
-  callee: src.extractors.ast.typescript.createTypeScriptExtractionContext
-  call_type: resolved
-- caller: src.extractors.ast.typescript.context
-  callee: src.extractors.ast.typescript.scriptKind
-  call_type: resolved
 modules:
+  examples.backend.src.request-handlers:
+  - examples.backend.src.request-handlers.MAX_BODY_BYTES
+  - examples.backend.src.request-handlers.event
+  - examples.backend.src.request-handlers.handleEventList
+  - examples.backend.src.request-handlers.handleEventPublish
+  - examples.backend.src.request-handlers.handleHealth
+  - examples.backend.src.request-handlers.handleRequest
+  - examples.backend.src.request-handlers.parseLimit
+  - examples.backend.src.request-handlers.parseOffset
+  - examples.backend.src.request-handlers.readBody
+  - examples.backend.src.request-handlers.sendJson
+  - examples.backend.src.request-handlers.size
+  - examples.backend.src.request-handlers.validation
   examples.backend.src.server:
   - examples.backend.src.server.createBackend
-  - examples.backend.src.server.event
-  - examples.backend.src.server.handleRequest
-  - examples.backend.src.server.limit
-  - examples.backend.src.server.offset
-  - examples.backend.src.server.readBody
   - examples.backend.src.server.sendJson
   - examples.backend.src.server.server
-  - examples.backend.src.server.size
   - examples.backend.src.server.startBackend
   - examples.backend.src.server.store
-  - examples.backend.src.server.validation
   examples.backend.src.validation:
   - examples.backend.src.validation.ALLOWED_ACTIONS
   - examples.backend.src.validation.action
@@ -4479,19 +4464,7 @@ modules:
   - src.extractors.ast.external.runExternalAstAdapter
   src.extractors.ast.records:
   - src.extractors.ast.records.adapterRecords
-  - src.extractors.ast.records.boundedCapabilities
-  - src.extractors.ast.records.capabilities
-  - src.extractors.ast.records.end
   - src.extractors.ast.records.moduleRecords
-  - src.extractors.ast.records.moduleTopicText
-  - src.extractors.ast.records.start
-  src.extractors.ast.typescript:
-  - src.extractors.ast.typescript.context
-  - src.extractors.ast.typescript.createTypeScriptExtractionContext
-  - src.extractors.ast.typescript.extractTypeScriptFile
-  - src.extractors.ast.typescript.recordModuleFact
-  - src.extractors.ast.typescript.scriptKind
-  - src.extractors.ast.typescript.visitTypeScriptNode
   src.extractors.changelog:
   - src.extractors.changelog.body
   - src.extractors.changelog.changelogAction
@@ -4703,6 +4676,8 @@ modules:
   - src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
   - src.extractors.nl-llm.NlLlmRequiredError.fallbackOrThrow
   src.extractors.nl-llm-helpers:
+  - src.extractors.nl-llm-helpers.NlAttemptError.NL_ACTION_SET
+  - src.extractors.nl-llm-helpers.NlAttemptError.NL_MODALITY_SET
   - src.extractors.nl-llm-helpers.NlAttemptError.NL_RECORD_CONTRACT
   - src.extractors.nl-llm-helpers.NlAttemptError.action
   - src.extractors.nl-llm-helpers.NlAttemptError.allowedAction
@@ -4714,6 +4689,7 @@ modules:
   - src.extractors.nl-llm-helpers.NlAttemptError.nonEmptyText
   - src.extractors.nl-llm-helpers.NlAttemptError.normalizedText
   - src.extractors.nl-llm-helpers.NlAttemptError.resolveAction
+  - src.extractors.nl-llm-helpers.NlAttemptError.resolveModality
   - src.extractors.nl-llm-helpers.NlAttemptError.resolveObject
   - src.extractors.nl-llm-helpers.NlAttemptError.sourceExcerpt
   - src.extractors.nl-llm-helpers.NlAttemptError.statementText
@@ -4754,19 +4730,22 @@ modules:
   - src.extractors.todo.task
   - src.extractors.todo.text
 entry_points:
-- examples.backend.src.server.MAX_BODY_BYTES
+- examples.backend.src.request-handlers.MAX_BODY_BYTES
+- examples.backend.src.request-handlers.body
+- examples.backend.src.request-handlers.buffer
+- examples.backend.src.request-handlers.event
+- examples.backend.src.request-handlers.handleRequest
+- examples.backend.src.request-handlers.limit
+- examples.backend.src.request-handlers.offset
+- examples.backend.src.request-handlers.parsed
+- examples.backend.src.request-handlers.url
+- examples.backend.src.request-handlers.validation
 - examples.backend.src.server.body
-- examples.backend.src.server.buffer
-- examples.backend.src.server.event
 - examples.backend.src.server.host
-- examples.backend.src.server.limit
-- examples.backend.src.server.offset
 - examples.backend.src.server.port
 - examples.backend.src.server.server
 - examples.backend.src.server.startBackend
 - examples.backend.src.server.store
-- examples.backend.src.server.url
-- examples.backend.src.server.validation
 - examples.backend.src.store.EventStore.enqueueEvent
 - examples.backend.src.store.EventStore.listEvents
 - examples.backend.src.store.EventStore.size
@@ -5315,6 +5294,7 @@ entry_points:
 - src.communication.analyzer.output
 - src.communication.analyzer.participant
 - src.communication.analyzer.participantGit
+- src.communication.analyzer.participantRows
 - src.communication.analyzer.participants
 - src.communication.analyzer.plans
 - src.communication.analyzer.record
@@ -5331,6 +5311,7 @@ entry_points:
 - src.communication.analyzer.sortedRespondents
 - src.communication.analyzer.sourceRecords
 - src.communication.analyzer.type
+- src.communication.analyzer.uniqueIssues
 - src.communication.analyzer.value
 - src.communication.identity.allowed
 - src.communication.identity.entry
@@ -5343,15 +5324,19 @@ entry_points:
 - src.communication.identity.missing
 - src.communication.identity.normalized
 - src.communication.identity.owner
+- src.communication.identity.participantId
 - src.communication.identity.participants
 - src.communication.identity.principals
 - src.communication.identity.registry
 - src.communication.identity.registryPath
+- src.communication.identity.role
 - src.communication.identity.v1Path
 - src.communication.identity.v2Path
 - src.communication.identity.values
 - src.communication.intake-contract.IntakeError.allowed
 - src.communication.intake-contract.IntakeError.assertIntakeEnvelope
+- src.communication.intake-contract.IntakeError.assertParticipant
+- src.communication.intake-contract.IntakeError.assertPrincipal
 - src.communication.intake-contract.IntakeError.base
 - src.communication.intake-contract.IntakeError.diagnostic
 - src.communication.intake-contract.IntakeError.entry
@@ -5363,6 +5348,7 @@ entry_points:
 - src.communication.intake-contract.IntakeError.principalKey
 - src.communication.intake-contract.IntakeError.record
 - src.communication.intake-contract.IntakeError.super
+- src.communication.intake-contract.IntakeError.ticketId
 - src.communication.intake-contract.IntakeError.type
 - src.communication.intake-protobuf.byte
 - src.communication.intake-protobuf.data
@@ -5370,16 +5356,18 @@ entry_points:
 - src.communication.intake-protobuf.decodeIntakeResult
 - src.communication.intake-protobuf.encodeIntakeEnvelope
 - src.communication.intake-protobuf.encodeIntakeResult
+- src.communication.intake-protobuf.envelope
 - src.communication.intake-protobuf.field
 - src.communication.intake-protobuf.fieldStart
-- src.communication.intake-protobuf.number
 - src.communication.intake-protobuf.numbers
 - src.communication.intake-protobuf.offset
 - src.communication.intake-protobuf.operation
+- src.communication.intake-protobuf.parsed
 - src.communication.intake-protobuf.payload
 - src.communication.intake-protobuf.raw
 - src.communication.intake-protobuf.remaining
 - src.communication.intake-protobuf.strings
+- src.communication.intake-protobuf.unknownFields
 - src.communication.intake-protobuf.value
 - src.communication.intake-protobuf.values
 - src.communication.intake-protobuf.wire
@@ -5582,10 +5570,11 @@ entry_points:
 - src.core.io.writeJson
 - src.core.io.writeJsonl
 - src.core.io.writeText
+- src.core.record-metadata.generationMetadata
+- src.core.record-metadata.separator
 - src.core.record.buildRecord
 - src.core.record.rawExcerpt
 - src.core.record.seed
-- src.core.record.separator
 - src.core.record.withRecordGeneration
 - src.core.schema.code-change.acceptance
 - src.core.schema.code-change.afterKnown
@@ -5659,6 +5648,7 @@ entry_points:
 - src.core.schema.intent.lines
 - src.core.schema.intent.metadata
 - src.core.schema.intent.record
+- src.core.schema.intent.recordId
 - src.core.schema.intent.recordIds
 - src.core.schema.intent.records
 - src.core.schema.intent.relation
@@ -5761,27 +5751,30 @@ entry_points:
 - src.core.text.value
 - src.core.text.values
 - src.core.text.withoutAction
-- src.diff.git.BINARY_EXTENSIONS
+- src.diff.git-binary.BINARY_EXTENSIONS
+- src.diff.git-binary.isProbablyBinary
 - src.diff.git.after
+- src.diff.git.args
 - src.diff.git.before
 - src.diff.git.beforePath
 - src.diff.git.collectGitDiff
 - src.diff.git.diff
-- src.diff.git.inside
-- src.diff.git.maxFiles
+- src.diff.git.diffs
+- src.diff.git.normalized
 - src.diff.git.parts
 - src.diff.git.result
-- src.diff.git.revision
-- src.diff.git.root
-- src.diff.git.staged
+- src.diff.git.selected
 - src.diff.git.status
+- src.diff.git.worktree
 - src.diff.reality.BADGE_CHAR
 - src.diff.reality.LABEL_CHAR
 - src.diff.reality.aligned
 - src.diff.reality.alignment
 - src.diff.reality.anchor
 - src.diff.reality.anchors
+- src.diff.reality.body
 - src.diff.reality.bucket
+- src.diff.reality.buildRealityRow
 - src.diff.reality.buildRealityView
 - src.diff.reality.bySeverity
 - src.diff.reality.bySize
@@ -5789,6 +5782,7 @@ entry_points:
 - src.diff.reality.changelog
 - src.diff.reality.codes
 - src.diff.reality.color
+- src.diff.reality.compareRealityRows
 - src.diff.reality.components
 - src.diff.reality.count
 - src.diff.reality.cx
@@ -5798,8 +5792,10 @@ entry_points:
 - src.diff.reality.diagnosticsByRecord
 - src.diff.reality.documentedObservedTopics
 - src.diff.reality.fill
+- src.diff.reality.footer
 - src.diff.reality.groups
-- src.diff.reality.headerY
+- src.diff.reality.header
+- src.diff.reality.height
 - src.diff.reality.implementationAlignedTopics
 - src.diff.reality.index
 - src.diff.reality.isDeclared
@@ -5808,12 +5804,14 @@ entry_points:
 - src.diff.reality.laneStep
 - src.diff.reality.laneX
 - src.diff.reality.lanes
+- src.diff.reality.layout
 - src.diff.reality.maxRows
 - src.diff.reality.modulePaths
 - src.diff.reality.object
 - src.diff.reality.observed
 - src.diff.reality.observedRecords
 - src.diff.reality.observedTopics
+- src.diff.reality.overflow
 - src.diff.reality.path
 - src.diff.reality.paths
 - src.diff.reality.pillWidth
@@ -5821,7 +5819,6 @@ entry_points:
 - src.diff.reality.renderRealityMarkdown
 - src.diff.reality.renderRealitySvg
 - src.diff.reality.resolved
-- src.diff.reality.rowHeight
 - src.diff.reality.rows
 - src.diff.reality.separator
 - src.diff.reality.status
@@ -5833,13 +5830,31 @@ entry_points:
 - src.diff.reality.title
 - src.diff.reality.value
 - src.diff.reality.visible
-- src.diff.reality.width
 - src.diff.reality.y
 - src.diff.svg.metricCard
 - src.diff.svg.sanitizeSourceLine
 - src.diff.svg.svgDocument
 - src.diff.svg.theme
 - src.diff.svg.truncate
+- src.diff.text-myers.afterEqualX
+- src.diff.text-myers.afterEqualY
+- src.diff.text-myers.diag
+- src.diff.text-myers.k
+- src.diff.text-myers.m
+- src.diff.text-myers.myers
+- src.diff.text-myers.n
+- src.diff.text-myers.nextX
+- src.diff.text-myers.nextY
+- src.diff.text-myers.point
+- src.diff.text-myers.previous
+- src.diff.text-myers.previousK
+- src.diff.text-myers.previousX
+- src.diff.text-myers.previousY
+- src.diff.text-myers.startX
+- src.diff.text-myers.state
+- src.diff.text-myers.v
+- src.diff.text-myers.x
+- src.diff.text-myers.y
 - src.diff.text-render.changed
 - src.diff.text-render.charWidth
 - src.diff.text-render.columnWidth
@@ -5880,28 +5895,18 @@ entry_points:
 - src.diff.text.context
 - src.diff.text.diffText
 - src.diff.text.end
-- src.diff.text.k
 - src.diff.text.last
 - src.diff.text.lines
-- src.diff.text.m
 - src.diff.text.maxCompareLines
 - src.diff.text.middleAfter
 - src.diff.text.middleBefore
 - src.diff.text.middleOps
-- src.diff.text.n
 - src.diff.text.normalized
-- src.diff.text.offset
 - src.diff.text.prefix
-- src.diff.text.previousK
-- src.diff.text.previousX
-- src.diff.text.previousY
 - src.diff.text.start
 - src.diff.text.suffix
 - src.diff.text.summarizeLines
 - src.diff.text.truncated
-- src.diff.text.v
-- src.diff.text.x
-- src.diff.text.y
 - src.evaluation.gold-cases.actual
 - src.evaluation.gold-cases.augmented
 - src.evaluation.gold-cases.byClass
@@ -5933,10 +5938,14 @@ entry_points:
 - src.evaluation.gold-cases.observed
 - src.evaluation.gold-cases.proposals
 - src.evaluation.gold-cases.record
+- src.evaluation.gold-cases.recordId
 - src.evaluation.gold-cases.recordIds
 - src.evaluation.gold-cases.records
 - src.evaluation.gold-cases.report
+- src.evaluation.gold-cases.requestedCandidates
 - src.evaluation.gold-cases.rerank
+- src.evaluation.gold-cases.reranker
+- src.evaluation.gold-cases.restricted
 - src.evaluation.gold-cases.validation
 - src.evaluation.gold-cli.arg
 - src.evaluation.gold-cli.args
@@ -5966,8 +5975,9 @@ entry_points:
 - src.evaluation.gold-types.assertGoldDataset
 - src.evaluation.gold-types.channels
 - src.evaluation.gold-types.dataset
-- src.evaluation.gold-types.labels
-- src.evaluation.gold-types.modules
+- src.evaluation.gold-types.decisions
+- src.evaluation.gold-types.recordLabels
+- src.evaluation.gold-types.seenModules
 - src.evaluation.gold.actual
 - src.evaluation.gold.byChannel
 - src.evaluation.gold.byClass
@@ -6355,6 +6365,8 @@ entry_points:
 - src.extractors.markdown.extractMarkdownIntent
 - src.extractors.markdown.pathResolver
 - src.extractors.markdown.todo
+- src.extractors.nl-llm-helpers.NlAttemptError.NL_ACTION_SET
+- src.extractors.nl-llm-helpers.NlAttemptError.NL_MODALITY_SET
 - src.extractors.nl-llm-helpers.NlAttemptError.NL_RECORD_CONTRACT
 - src.extractors.nl-llm-helpers.NlAttemptError.NL_RESPONSE_CONTRACT
 - src.extractors.nl-llm-helpers.NlAttemptError.OBJECT_PLACEHOLDERS
@@ -6462,6 +6474,7 @@ entry_points:
 - src.graph.diagnostics.detail
 - src.graph.diagnostics.diagnoseGraph
 - src.graph.diagnostics.grounded
+- src.graph.diagnostics.hasDocumentedTargetEvidence
 - src.graph.diagnostics.hasLocationOnlyEvidence
 - src.graph.diagnostics.isEvidence
 - src.graph.diagnostics.left
@@ -6571,53 +6584,58 @@ entry_points:
 - src.interfaces.a2a-card.payload
 - src.interfaces.a2a-card.sendAgentCard
 - src.interfaces.a2a-card.serialized
-- src.interfaces.a2a-history.absolute
-- src.interfaces.a2a-history.filePath
-- src.interfaces.a2a-history.files
+- src.interfaces.a2a-history.entries
 - src.interfaces.a2a-history.graphPath
-- src.interfaces.a2a-history.issues
 - src.interfaces.a2a-history.items
 - src.interfaces.a2a-history.listIntentRuns
-- src.interfaces.a2a-history.llm
 - src.interfaces.a2a-history.manifest
 - src.interfaces.a2a-history.manifestPath
 - src.interfaces.a2a-history.participant
-- src.interfaces.a2a-history.participantSummary
-- src.interfaces.a2a-history.participants
 - src.interfaces.a2a-history.role
 - src.interfaces.a2a-history.runDirectory
 - src.interfaces.a2a-history.runsDirectory
-- src.interfaces.a2a-history.runtime
 - src.interfaces.a2a-history.severity
 - src.interfaces.a2a-history.ticket
-- src.interfaces.a2a-history.value
-- src.interfaces.a2a-history.warnings
-- src.interfaces.a2a-message.action
+- src.interfaces.a2a-message-command.action
+- src.interfaces.a2a-message-command.first
+- src.interfaces.a2a-message-command.key
+- src.interfaces.a2a-message-command.nested
+- src.interfaces.a2a-message-command.normalized
+- src.interfaces.a2a-message-command.objectCommand
+- src.interfaces.a2a-message-command.objectData
+- src.interfaces.a2a-message-command.parseCommand
+- src.interfaces.a2a-message-command.protobuf
+- src.interfaces.a2a-message-command.protobufCommand
+- src.interfaces.a2a-message-command.raw
+- src.interfaces.a2a-message-command.stringValue
+- src.interfaces.a2a-message-command.text
 - src.interfaces.a2a-message.clonePart
 - src.interfaces.a2a-message.content
 - src.interfaces.a2a-message.contextId
 - src.interfaces.a2a-message.ensureSupportedMessageContent
 - src.interfaces.a2a-message.extensions
-- src.interfaces.a2a-message.first
-- src.interfaces.a2a-message.key
 - src.interfaces.a2a-message.messageId
 - src.interfaces.a2a-message.metadata
-- src.interfaces.a2a-message.nested
 - src.interfaces.a2a-message.normalizeUserMessage
-- src.interfaces.a2a-message.normalized
-- src.interfaces.a2a-message.objectData
 - src.interfaces.a2a-message.output
-- src.interfaces.a2a-message.parseCommand
 - src.interfaces.a2a-message.parseMessage
 - src.interfaces.a2a-message.parseSendConfiguration
-- src.interfaces.a2a-message.protobuf
 - src.interfaces.a2a-message.qualifier
-- src.interfaces.a2a-message.raw
 - src.interfaces.a2a-message.referenceTaskIds
-- src.interfaces.a2a-message.stringValue
 - src.interfaces.a2a-message.supported
 - src.interfaces.a2a-message.taskId
-- src.interfaces.a2a-message.text
+- src.interfaces.a2a-run-list-item.absolute
+- src.interfaces.a2a-run-list-item.filePath
+- src.interfaces.a2a-run-list-item.files
+- src.interfaces.a2a-run-list-item.issues
+- src.interfaces.a2a-run-list-item.llm
+- src.interfaces.a2a-run-list-item.participantSummary
+- src.interfaces.a2a-run-list-item.participants
+- src.interfaces.a2a-run-list-item.runListItem
+- src.interfaces.a2a-run-list-item.runtime
+- src.interfaces.a2a-run-list-item.safePath
+- src.interfaces.a2a-run-list-item.value
+- src.interfaces.a2a-run-list-item.warnings
 - src.interfaces.a2a-task-store.cloneArtifact
 - src.interfaces.a2a-task-store.command
 - src.interfaces.a2a-task-store.compareTasksByUpdate
@@ -6795,17 +6813,24 @@ entry_points:
 - src.llm.failure.classifyLlmFailure
 - src.llm.failure.message
 - src.llm.failure.rejectedLlmResponseMetadata
-- src.llm.openrouter.OpenRouterClient.abortFromExternal
-- src.llm.openrouter.OpenRouterClient.apiKey
-- src.llm.openrouter.OpenRouterClient.availableModels
+- src.llm.openrouter-request.abortFromExternal
+- src.llm.openrouter-request.availableModels
+- src.llm.openrouter-request.controller
+- src.llm.openrouter-request.error
+- src.llm.openrouter-request.listErrorMessage
+- src.llm.openrouter-request.message
+- src.llm.openrouter-request.parsed
+- src.llm.openrouter-request.requestOpenRouter
+- src.llm.openrouter-request.resolution
+- src.llm.openrouter-request.response
+- src.llm.openrouter-request.shouldRetryRequestWithoutSchema
+- src.llm.openrouter-request.timeout
 - src.llm.openrouter.OpenRouterClient.chatJson
 - src.llm.openrouter.OpenRouterClient.chatJsonWithMetadata
-- src.llm.openrouter.OpenRouterClient.chatText
 - src.llm.openrouter.OpenRouterClient.content
 - src.llm.openrouter.OpenRouterClient.controller
+- src.llm.openrouter.OpenRouterClient.createModelError
 - src.llm.openrouter.OpenRouterClient.end
-- src.llm.openrouter.OpenRouterClient.error
-- src.llm.openrouter.OpenRouterClient.externalSignal
 - src.llm.openrouter.OpenRouterClient.fallback
 - src.llm.openrouter.OpenRouterClient.isConfigured
 - src.llm.openrouter.OpenRouterClient.message
@@ -6868,6 +6893,7 @@ entry_points:
 - src.operations.validation.assertOperationPlan
 - src.operations.validation.assertVariableContract
 - src.operations.validation.byId
+- src.operations.validation.castPlan
 - src.operations.validation.contract
 - src.operations.validation.coveredSteps
 - src.operations.validation.decision
@@ -6875,8 +6901,10 @@ entry_points:
 - src.operations.validation.expectation
 - src.operations.validation.expectationIds
 - src.operations.validation.expectedHash
+- src.operations.validation.expectedId
 - src.operations.validation.founderDecisionRequired
 - src.operations.validation.generation
+- src.operations.validation.hasCommandStep
 - src.operations.validation.ids
 - src.operations.validation.parameters
 - src.operations.validation.plan
@@ -6896,61 +6924,78 @@ entry_points:
 - src.operations.validation.visited
 - src.operations.validation.visiting
 - src.operations.validation.writers
+- src.pipeline.run-helpers.appendLlmNotConfigured
+- src.pipeline.run-helpers.codeChangePlans
+- src.pipeline.run-helpers.codeChangeReview
+- src.pipeline.run-helpers.codeChangeSourcePatches
+- src.pipeline.run-helpers.collectCommunicationAnalysis
+- src.pipeline.run-helpers.collectTargetHints
+- src.pipeline.run-helpers.collectTaskSynthesis
+- src.pipeline.run-helpers.communication
+- src.pipeline.run-helpers.communicationStartedAt
+- src.pipeline.run-helpers.createCodeChangeArtifacts
+- src.pipeline.run-helpers.foundMissingDirectory
+- src.pipeline.run-helpers.includeCommunication
+- src.pipeline.run-helpers.missingDirectory
+- src.pipeline.run-helpers.taskSynthesisAudit
+- src.pipeline.run-helpers.taskSynthesisMode
+- src.pipeline.run-helpers.todoContent
+- src.pipeline.run-persistence.codeChangePlansPath
+- src.pipeline.run-persistence.codeChangeReviewAuditPath
+- src.pipeline.run-persistence.codeChangeReviewPath
+- src.pipeline.run-persistence.codeChangeSourcePatchesPath
+- src.pipeline.run-persistence.communicationAnalysisPath
+- src.pipeline.run-persistence.communicationMarkdownPath
+- src.pipeline.run-persistence.diagnosticsPath
+- src.pipeline.run-persistence.filePath
+- src.pipeline.run-persistence.graphPath
+- src.pipeline.run-persistence.knownAudit
+- src.pipeline.run-persistence.makePipelineManifest
+- src.pipeline.run-persistence.message
+- src.pipeline.run-persistence.persistFailedRun
+- src.pipeline.run-persistence.persistPipelineArtifacts
+- src.pipeline.run-persistence.reason
+- src.pipeline.run-persistence.summaryConclusionsPath
+- src.pipeline.run-persistence.summaryPath
+- src.pipeline.run-persistence.taskSynthesisPath
+- src.pipeline.run-persistence.todoPatchAuditPath
+- src.pipeline.run-persistence.todoPatchPath
+- src.pipeline.run-persistence.todoValidationPath
+- src.pipeline.run-summary.collectSummary
+- src.pipeline.run-summary.includeSummaryLlm
+- src.pipeline.run-summary.summary
+- src.pipeline.run-summary.summaryStartedAt
 - src.pipeline.run.allRecords
 - src.pipeline.run.ast
 - src.pipeline.run.baseOutput
-- src.pipeline.run.codeChangePlans
-- src.pipeline.run.codeChangePlansPath
-- src.pipeline.run.codeChangeReview
-- src.pipeline.run.codeChangeReviewAuditPath
-- src.pipeline.run.codeChangeReviewPath
-- src.pipeline.run.codeChangeSourcePatches
-- src.pipeline.run.codeChangeSourcePatchesPath
-- src.pipeline.run.communication
 - src.pipeline.run.communicationAnalysis
-- src.pipeline.run.communicationAnalysisPath
 - src.pipeline.run.communicationAudit
-- src.pipeline.run.communicationInputPresent
-- src.pipeline.run.communicationMarkdownPath
-- src.pipeline.run.communicationStartedAt
-- src.pipeline.run.configuration
+- src.pipeline.run.communicationInput
+- src.pipeline.run.communicationSyntheses
 - src.pipeline.run.configurationExtraction
+- src.pipeline.run.context
 - src.pipeline.run.deterministicDocs
 - src.pipeline.run.deterministicDocumentFiles
 - src.pipeline.run.diagnostics
-- src.pipeline.run.diagnosticsPath
 - src.pipeline.run.docs
 - src.pipeline.run.documentationStartedAt
-- src.pipeline.run.filePath
+- src.pipeline.run.execution
 - src.pipeline.run.generatedAt
 - src.pipeline.run.git
 - src.pipeline.run.graph
-- src.pipeline.run.graphPath
-- src.pipeline.run.includeCommunication
-- src.pipeline.run.includeSummaryLlm
-- src.pipeline.run.knownAudit
+- src.pipeline.run.manifest
+- src.pipeline.run.manifestPath
 - src.pipeline.run.markdown
-- src.pipeline.run.message
-- src.pipeline.run.missingDirectory
+- src.pipeline.run.markdownAudit
 - src.pipeline.run.naturalLanguageAudit
-- src.pipeline.run.reason
+- src.pipeline.run.persisted
 - src.pipeline.run.result
 - src.pipeline.run.root
 - src.pipeline.run.runDirectory
 - src.pipeline.run.runId
 - src.pipeline.run.runPipeline
 - src.pipeline.run.runtime
-- src.pipeline.run.summary
-- src.pipeline.run.summaryConclusionsPath
-- src.pipeline.run.summaryPath
-- src.pipeline.run.summaryStartedAt
-- src.pipeline.run.taskSynthesisAudit
-- src.pipeline.run.taskSynthesisMode
-- src.pipeline.run.taskSynthesisPath
-- src.pipeline.run.todoContent
-- src.pipeline.run.todoPatchAuditPath
-- src.pipeline.run.todoPatchPath
-- src.pipeline.run.todoValidationPath
+- src.pipeline.run.taskSynthesis
 - src.sdk.typescript.Todo2CodeClient.a2a
 - src.sdk.typescript.Todo2CodeClient.applySourcePatch
 - src.sdk.typescript.Todo2CodeClient.applyTodo
@@ -7157,74 +7202,50 @@ entry_points:
 - src.synthesis.code-change-path.normalized
 - src.synthesis.code-change-path.segments
 - src.synthesis.code-change-plan.implementation-diagnostics.collectImplementationDiagnostics
-- src.synthesis.code-change-plan.implementation-helpers.absolute
-- src.synthesis.code-change-plan.implementation-helpers.acceptance
-- src.synthesis.code-change-plan.implementation-helpers.acceptances
-- src.synthesis.code-change-plan.implementation-helpers.accepted
-- src.synthesis.code-change-plan.implementation-helpers.acceptedCount
-- src.synthesis.code-change-plan.implementation-helpers.after
-- src.synthesis.code-change-plan.implementation-helpers.afterById
-- src.synthesis.code-change-plan.implementation-helpers.afterDiagnostics
-- src.synthesis.code-change-plan.implementation-helpers.applyCodeChangeSourcePatch
-- src.synthesis.code-change-plan.implementation-helpers.base
-- src.synthesis.code-change-plan.implementation-helpers.baseLines
-- src.synthesis.code-change-plan.implementation-helpers.before
-- src.synthesis.code-change-plan.implementation-helpers.beforeDiagnosticIds
-- src.synthesis.code-change-plan.implementation-helpers.body
-- src.synthesis.code-change-plan.implementation-helpers.candidates
-- src.synthesis.code-change-plan.implementation-helpers.changes
-- src.synthesis.code-change-plan.implementation-helpers.closeCodeChanges
-- src.synthesis.code-change-plan.implementation-helpers.conclusions
-- src.synthesis.code-change-plan.implementation-helpers.confidence
-- src.synthesis.code-change-plan.implementation-helpers.context
-- src.synthesis.code-change-plan.implementation-helpers.createRepositoryPathProbe
-- src.synthesis.code-change-plan.implementation-helpers.current
-- src.synthesis.code-change-plan.implementation-helpers.evaluatedAt
-- src.synthesis.code-change-plan.implementation-helpers.evidence
-- src.synthesis.code-change-plan.implementation-helpers.existed
-- src.synthesis.code-change-plan.implementation-helpers.existing
-- src.synthesis.code-change-plan.implementation-helpers.exists
-- src.synthesis.code-change-plan.implementation-helpers.expectedPaths
-- src.synthesis.code-change-plan.implementation-helpers.fileHashesAfter
-- src.synthesis.code-change-plan.implementation-helpers.generatedAt
-- src.synthesis.code-change-plan.implementation-helpers.hashPaths
-- src.synthesis.code-change-plan.implementation-helpers.header
-- src.synthesis.code-change-plan.implementation-helpers.hunks
-- src.synthesis.code-change-plan.implementation-helpers.idempotentResult
-- src.synthesis.code-change-plan.implementation-helpers.lines
-- src.synthesis.code-change-plan.implementation-helpers.lock
-- src.synthesis.code-change-plan.implementation-helpers.mark
-- src.synthesis.code-change-plan.implementation-helpers.matchingConclusions
-- src.synthesis.code-change-plan.implementation-helpers.matchingProposals
-- src.synthesis.code-change-plan.implementation-helpers.maxPlans
-- src.synthesis.code-change-plan.implementation-helpers.newCount
-- src.synthesis.code-change-plan.implementation-helpers.normalized
-- src.synthesis.code-change-plan.implementation-helpers.normalizedDiff
-- src.synthesis.code-change-plan.implementation-helpers.now
-- src.synthesis.code-change-plan.implementation-helpers.oldCount
-- src.synthesis.code-change-plan.implementation-helpers.oldIndex
-- src.synthesis.code-change-plan.implementation-helpers.output
-- src.synthesis.code-change-plan.implementation-helpers.patch
-- src.synthesis.code-change-plan.implementation-helpers.plan
-- src.synthesis.code-change-plan.implementation-helpers.planIds
-- src.synthesis.code-change-plan.implementation-helpers.plans
-- src.synthesis.code-change-plan.implementation-helpers.prepared
-- src.synthesis.code-change-plan.implementation-helpers.proposals
-- src.synthesis.code-change-plan.implementation-helpers.proposeCodeChangePlans
-- src.synthesis.code-change-plan.implementation-helpers.rationale
-- src.synthesis.code-change-plan.implementation-helpers.reasons
-- src.synthesis.code-change-plan.implementation-helpers.receipt
-- src.synthesis.code-change-plan.implementation-helpers.receiptPath
-- src.synthesis.code-change-plan.implementation-helpers.relatedRecords
-- src.synthesis.code-change-plan.implementation-helpers.relative
-- src.synthesis.code-change-plan.implementation-helpers.request
-- src.synthesis.code-change-plan.implementation-helpers.rollbackErrors
-- src.synthesis.code-change-plan.implementation-helpers.root
-- src.synthesis.code-change-plan.implementation-helpers.semantic
-- src.synthesis.code-change-plan.implementation-helpers.sourceIntents
-- src.synthesis.code-change-plan.implementation-helpers.symbols
-- src.synthesis.code-change-plan.implementation-helpers.target
-- src.synthesis.code-change-plan.implementation-helpers.targetedDiagnosticIds
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.acceptance
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.accepted
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.afterById
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.afterDiagnostics
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.beforeDiagnosticIds
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.context
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.evaluateCodeChangeAcceptance
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.evaluatedAt
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.reasons
+- src.synthesis.code-change-plan.implementation-helpers-acceptance.targetedDiagnosticIds
+- src.synthesis.code-change-plan.implementation-helpers-close.acceptances
+- src.synthesis.code-change-plan.implementation-helpers-close.acceptedCount
+- src.synthesis.code-change-plan.implementation-helpers-close.afterDiagnostics
+- src.synthesis.code-change-plan.implementation-helpers-close.closeCodeChanges
+- src.synthesis.code-change-plan.implementation-helpers-close.context
+- src.synthesis.code-change-plan.implementation-helpers-close.evaluatedAt
+- src.synthesis.code-change-plan.implementation-helpers-close.planIds
+- src.synthesis.code-change-plan.implementation-helpers-plans.absolute
+- src.synthesis.code-change-plan.implementation-helpers-plans.base
+- src.synthesis.code-change-plan.implementation-helpers-plans.candidates
+- src.synthesis.code-change-plan.implementation-helpers-plans.changes
+- src.synthesis.code-change-plan.implementation-helpers-plans.conclusions
+- src.synthesis.code-change-plan.implementation-helpers-plans.confidence
+- src.synthesis.code-change-plan.implementation-helpers-plans.context
+- src.synthesis.code-change-plan.implementation-helpers-plans.createRepositoryPathProbe
+- src.synthesis.code-change-plan.implementation-helpers-plans.evidence
+- src.synthesis.code-change-plan.implementation-helpers-plans.exists
+- src.synthesis.code-change-plan.implementation-helpers-plans.generatedAt
+- src.synthesis.code-change-plan.implementation-helpers-plans.matchingConclusions
+- src.synthesis.code-change-plan.implementation-helpers-plans.matchingProposals
+- src.synthesis.code-change-plan.implementation-helpers-plans.maxPlans
+- src.synthesis.code-change-plan.implementation-helpers-plans.normalized
+- src.synthesis.code-change-plan.implementation-helpers-plans.plan
+- src.synthesis.code-change-plan.implementation-helpers-plans.plans
+- src.synthesis.code-change-plan.implementation-helpers-plans.proposals
+- src.synthesis.code-change-plan.implementation-helpers-plans.proposeCodeChangePlans
+- src.synthesis.code-change-plan.implementation-helpers-plans.rationale
+- src.synthesis.code-change-plan.implementation-helpers-plans.relatedRecords
+- src.synthesis.code-change-plan.implementation-helpers-plans.semantic
+- src.synthesis.code-change-plan.implementation-helpers-plans.sourceIntents
+- src.synthesis.code-change-plan.implementation-helpers-plans.symbols
+- src.synthesis.code-change-plan.implementation-helpers-plans.target
+- src.synthesis.code-change-plan.implementation-helpers-shared.deterministicGeneration
+- src.synthesis.code-change-plan.implementation-helpers-shared.uniqueSorted
 - src.synthesis.code-change-plan.implementation-indexing.index
 - src.synthesis.code-change-plan.implementation-indexing.indexConclusionsByDiagnostic
 - src.synthesis.code-change-plan.implementation-indexing.indexProposalsByDiagnostic
@@ -7235,49 +7256,93 @@ entry_points:
 - src.synthesis.code-change-plan.implementation-review.generation
 - src.synthesis.code-change-plan.implementation-review.lines
 - src.synthesis.code-change-plan.implementation-review.markdown
+- src.synthesis.code-change-plan.implementation-review.planHashes
+- src.synthesis.code-change-plan.implementation-review.planIds
 - src.synthesis.code-change-plan.implementation-review.symbols
 - src.synthesis.code-change-plan.implementation-semantic.buildPlanEvidence
 - src.synthesis.code-change-plan.implementation-semantic.buildPlanSemantic
 - src.synthesis.code-change-plan.implementation-semantic.level
 - src.synthesis.code-change-plan.implementation-semantic.object
 - src.synthesis.code-change-plan.implementation-semantic.record
-- src.synthesis.code-change-plan.implementation-source-patch.actual
-- src.synthesis.code-change-plan.implementation-source-patch.allowed
-- src.synthesis.code-change-plan.implementation-source-patch.allowedPaths
-- src.synthesis.code-change-plan.implementation-source-patch.assertSourcePatchObject
-- src.synthesis.code-change-plan.implementation-source-patch.bare
-- src.synthesis.code-change-plan.implementation-source-patch.context
-- src.synthesis.code-change-plan.implementation-source-patch.createCodeChangeSourcePatchSet
-- src.synthesis.code-change-plan.implementation-source-patch.createdAt
-- src.synthesis.code-change-plan.implementation-source-patch.criteria
-- src.synthesis.code-change-plan.implementation-source-patch.editContext
-- src.synthesis.code-change-plan.implementation-source-patch.editPath
-- src.synthesis.code-change-plan.implementation-source-patch.editPaths
-- src.synthesis.code-change-plan.implementation-source-patch.edits
-- src.synthesis.code-change-plan.implementation-source-patch.ensureSourcePatchEditAction
-- src.synthesis.code-change-plan.implementation-source-patch.ensureSourcePatchEditInstruction
-- src.synthesis.code-change-plan.implementation-source-patch.expectedChanges
-- src.synthesis.code-change-plan.implementation-source-patch.expectedHash
-- src.synthesis.code-change-plan.implementation-source-patch.expectedPlan
-- src.synthesis.code-change-plan.implementation-source-patch.expectedPlanIds
-- src.synthesis.code-change-plan.implementation-source-patch.generatedAt
-- src.synthesis.code-change-plan.implementation-source-patch.graphFingerprint
-- src.synthesis.code-change-plan.implementation-source-patch.normalized
-- src.synthesis.code-change-plan.implementation-source-patch.normalizedEdit
-- src.synthesis.code-change-plan.implementation-source-patch.normalizedPath
-- src.synthesis.code-change-plan.implementation-source-patch.patch
-- src.synthesis.code-change-plan.implementation-source-patch.patchHash
-- src.synthesis.code-change-plan.implementation-source-patch.patchIds
-- src.synthesis.code-change-plan.implementation-source-patch.patches
-- src.synthesis.code-change-plan.implementation-source-patch.path
-- src.synthesis.code-change-plan.implementation-source-patch.paths
-- src.synthesis.code-change-plan.implementation-source-patch.rawDiff
-- src.synthesis.code-change-plan.implementation-source-patch.result
-- src.synthesis.code-change-plan.implementation-source-patch.semantic
-- src.synthesis.code-change-plan.implementation-source-patch.set
-- src.synthesis.code-change-plan.implementation-source-patch.stripped
-- src.synthesis.code-change-plan.implementation-source-patch.symbols
-- src.synthesis.code-change-plan.implementation-source-patch.unifiedDiff
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.absolute
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.actual
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.after
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.applyCodeChangeSourcePatch
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.before
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.current
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.existed
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.existing
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.exists
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.expectedPaths
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.fileHashesAfter
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.hashPaths
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.idempotentResult
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.lock
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.now
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.patch
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.prepared
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.receipt
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.receiptPath
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.relative
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.request
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.rollbackErrors
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.root
+- src.synthesis.code-change-plan.implementation-source-patch-apply-core.target
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.applyUnifiedDiffToText
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.baseLines
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.body
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.context
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.header
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.hunks
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.lines
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.mark
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.newCount
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.normalizedDiff
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.oldCount
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.oldIndex
+- src.synthesis.code-change-plan.implementation-source-patch-apply-diff.output
+- src.synthesis.code-change-plan.implementation-source-patch-assert.actual
+- src.synthesis.code-change-plan.implementation-source-patch-assert.allowed
+- src.synthesis.code-change-plan.implementation-source-patch-assert.assertCodeChangeSourcePatchSet
+- src.synthesis.code-change-plan.implementation-source-patch-assert.context
+- src.synthesis.code-change-plan.implementation-source-patch-assert.editContext
+- src.synthesis.code-change-plan.implementation-source-patch-assert.editPath
+- src.synthesis.code-change-plan.implementation-source-patch-assert.editPaths
+- src.synthesis.code-change-plan.implementation-source-patch-assert.ensureSourcePatchEditAction
+- src.synthesis.code-change-plan.implementation-source-patch-assert.ensureSourcePatchEditInstruction
+- src.synthesis.code-change-plan.implementation-source-patch-assert.expectedChanges
+- src.synthesis.code-change-plan.implementation-source-patch-assert.expectedHash
+- src.synthesis.code-change-plan.implementation-source-patch-assert.expectedPlan
+- src.synthesis.code-change-plan.implementation-source-patch-assert.expectedPlanIds
+- src.synthesis.code-change-plan.implementation-source-patch-assert.marker
+- src.synthesis.code-change-plan.implementation-source-patch-assert.normalizedEdit
+- src.synthesis.code-change-plan.implementation-source-patch-assert.normalizedPath
+- src.synthesis.code-change-plan.implementation-source-patch-assert.patch
+- src.synthesis.code-change-plan.implementation-source-patch-assert.patchIds
+- src.synthesis.code-change-plan.implementation-source-patch-assert.paths
+- src.synthesis.code-change-plan.implementation-source-patch-assert.set
+- src.synthesis.code-change-plan.implementation-source-patch-create.allowedPaths
+- src.synthesis.code-change-plan.implementation-source-patch-create.context
+- src.synthesis.code-change-plan.implementation-source-patch-create.createCodeChangeSourcePatchSet
+- src.synthesis.code-change-plan.implementation-source-patch-create.createdAt
+- src.synthesis.code-change-plan.implementation-source-patch-create.criteria
+- src.synthesis.code-change-plan.implementation-source-patch-create.edits
+- src.synthesis.code-change-plan.implementation-source-patch-create.generatedAt
+- src.synthesis.code-change-plan.implementation-source-patch-create.graphFingerprint
+- src.synthesis.code-change-plan.implementation-source-patch-create.normalizedPath
+- src.synthesis.code-change-plan.implementation-source-patch-create.patchHash
+- src.synthesis.code-change-plan.implementation-source-patch-create.patches
+- src.synthesis.code-change-plan.implementation-source-patch-create.path
+- src.synthesis.code-change-plan.implementation-source-patch-create.rawDiff
+- src.synthesis.code-change-plan.implementation-source-patch-create.result
+- src.synthesis.code-change-plan.implementation-source-patch-create.semantic
+- src.synthesis.code-change-plan.implementation-source-patch-create.symbols
+- src.synthesis.code-change-plan.implementation-source-patch-create.unifiedDiff
+- src.synthesis.code-change-plan.implementation-source-patch-diff.bare
+- src.synthesis.code-change-plan.implementation-source-patch-diff.normalizeUnifiedDiff
+- src.synthesis.code-change-plan.implementation-source-patch-diff.normalized
+- src.synthesis.code-change-plan.implementation-source-patch-diff.normalizedPath
+- src.synthesis.code-change-plan.implementation-source-patch-diff.stripped
 - src.synthesis.code-change-plan.implementation-targets.collectTarget
 - src.synthesis.code-change-plan.implementation-targets.paths
 - src.synthesis.code-change-plan.implementation-targets.symbols
@@ -7419,25 +7484,25 @@ entry_points:
 - src.watch.watcher.DEFAULT_SCAN_INTERVAL_MS
 - src.watch.watcher.absolute
 - src.watch.watcher.absoluteRoot
+- src.watch.watcher.configuration
 - src.watch.watcher.current
 - src.watch.watcher.defaultSleep
 - src.watch.watcher.delta
-- src.watch.watcher.lastReportStartedAt
+- src.watch.watcher.initialSnapshot
 - src.watch.watcher.matcher
 - src.watch.watcher.maxFiles
 - src.watch.watcher.minIntervalMs
 - src.watch.watcher.onAbort
-- src.watch.watcher.pending
 - src.watch.watcher.previous
 - src.watch.watcher.rest
 - src.watch.watcher.result
 - src.watch.watcher.root
+- src.watch.watcher.runtime
 - src.watch.watcher.scanIntervalMs
 - src.watch.watcher.shown
-- src.watch.watcher.signal
-- src.watch.watcher.snapshot
 - src.watch.watcher.startedAt
 - src.watch.watcher.timer
 - src.watch.watcher.waitMs
 - src.watch.watcher.watchRepository
+- src.web.diff-ui-script.loadRuns
 - src.web.diff-ui.diffUiHtml

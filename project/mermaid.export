@@ -1,6 +1,24 @@
 flowchart TD
 %% generated in 0.02s
     subgraph examples__backend
+        examples__backend__src__request_handlers__MAX_BODY_BYTES("MAX_BODY_BYTES CC=9")
+        examples__backend__src__request_handlers__handleRequest("handleRequest CC=9")
+        examples__backend__src__request_handlers__url["url"]
+        examples__backend__src__request_handlers__handleHealth["handleHealth"]
+        examples__backend__src__request_handlers__handleEventPublish["handleEventPublish"]
+        examples__backend__src__request_handlers__body["body"]
+        examples__backend__src__request_handlers__validation["validation"]
+        examples__backend__src__request_handlers__event["event"]
+        examples__backend__src__request_handlers__handleEventList["handleEventList"]
+        examples__backend__src__request_handlers__offset["offset"]
+        examples__backend__src__request_handlers__limit["limit"]
+        examples__backend__src__request_handlers__parseOffset["parseOffset"]
+        examples__backend__src__request_handlers__parsed["parsed"]
+        examples__backend__src__request_handlers__parseLimit["parseLimit"]
+        examples__backend__src__request_handlers__readBody["readBody"]
+        examples__backend__src__request_handlers__size["size"]
+        examples__backend__src__request_handlers__buffer["buffer"]
+        examples__backend__src__request_handlers__sendJson["sendJson"]
         examples__backend__src__validation__ALLOWED_ACTIONS("ALLOWED_ACTIONS CC=10")
         examples__backend__src__validation__validateEventPayload("validateEventPayload CC=10")
         examples__backend__src__validation__invalid["invalid"]
@@ -12,21 +30,11 @@ flowchart TD
         examples__backend__src__store__EventStore__listEvents["listEvents"]
         examples__backend__src__store__EventStore__start["start"]
         examples__backend__src__store__EventStore__size["size"]
-        examples__backend__src__server__MAX_BODY_BYTES["MAX_BODY_BYTES"]
         examples__backend__src__server__createBackend["createBackend"]
         examples__backend__src__server__store["store"]
         examples__backend__src__server__server["server"]
-        examples__backend__src__server__handleRequest{{handleRequest CC=16}}
-        examples__backend__src__server__url["url"]
-        examples__backend__src__server__body["body"]
-        examples__backend__src__server__validation["validation"]
-        examples__backend__src__server__event["event"]
-        examples__backend__src__server__offset["offset"]
-        examples__backend__src__server__limit["limit"]
-        examples__backend__src__server__readBody["readBody"]
-        examples__backend__src__server__size["size"]
-        examples__backend__src__server__buffer["buffer"]
         examples__backend__src__server__sendJson["sendJson"]
+        examples__backend__src__server__body["body"]
         examples__backend__src__server__startBackend["startBackend"]
         examples__backend__src__server__port["port"]
         examples__backend__src__server__host["host"]
@@ -707,20 +715,26 @@ flowchart TD
         src__communication__intake_contract__IntakeError__payloadHash["payloadHash"]
         src__communication__intake_contract__IntakeError__canonicalJson["canonicalJson"]
         src__communication__intake_contract__IntakeError__record["record"]
-        src__communication__intake_contract__IntakeError__assertIntakeEnvelope{{assertIntakeEnvelope CC=18}}
+        src__communication__intake_contract__IntakeError__assertIntakeEnvelope["assertIntakeEnvelope"]
         src__communication__intake_contract__IntakeError__envelope["envelope"]
+        src__communication__intake_contract__IntakeError__validateIntakeEnvelopeHeader("validateIntakeEnvelopeHeader CC=14")
+        src__communication__intake_contract__IntakeError__validateIntakeEnvelopeTimestamp["validateIntakeEnvelopeTimestamp"]
+        src__communication__intake_contract__IntakeError__assertCommand["assertCommand"]
+        src__communication__intake_contract__IntakeError__assertQuery["assertQuery"]
         src__communication__intake_contract__IntakeError__invalid["invalid"]
-        src__communication__intake_contract__IntakeError__assertCommand("assertCommand CC=12")
         src__communication__intake_contract__IntakeError__base["base"]
-        src__communication__intake_contract__IntakeError__participantId["participantId"]
-        src__communication__intake_contract__IntakeError__assertQuery("assertQuery CC=8")
+        src__communication__intake_contract__IntakeError__validateCommandPayload["validateCommandPayload"]
         src__communication__intake_contract__IntakeError__assertParticipant("assertParticipant CC=9")
-        src__communication__intake_contract__IntakeError__entry["entry"]
-        src__communication__intake_contract__IntakeError__nonBlank["nonBlank"]
-        src__communication__intake_contract__IntakeError__capabilities["capabilities"]
-        src__communication__intake_contract__IntakeError__stringArray["stringArray"]
-        src__communication__intake_contract__IntakeError__principalKey["principalKey"]
+        src__communication__intake_contract__IntakeError__participantId["participantId"]
         src__communication__intake_contract__IntakeError__assertPrincipal["assertPrincipal"]
+        src__communication__intake_contract__IntakeError__role["role"]
+        src__communication__intake_contract__IntakeError__stringArray["stringArray"]
+        src__communication__intake_contract__IntakeError__capabilities["capabilities"]
+        src__communication__intake_contract__IntakeError__ticketId["ticketId"]
+        src__communication__intake_contract__IntakeError__validateQueryPayload["validateQueryPayload"]
+        src__communication__intake_contract__IntakeError__nonBlank["nonBlank"]
+        src__communication__intake_contract__IntakeError__entry["entry"]
+        src__communication__intake_contract__IntakeError__principalKey["principalKey"]
         src__communication__intake_contract__IntakeError__principal["principal"]
         src__communication__intake_contract__IntakeError__commandFields["commandFields"]
         src__communication__intake_contract__IntakeError__type["type"]
@@ -729,40 +743,34 @@ flowchart TD
         src__communication__intake_contract__IntakeError__allowed["allowed"]
         src__communication__intake_contract__IntakeError__extra["extra"]
         src__communication__intake_contract__IntakeError__missing["missing"]
-        src__communication__intake_contract__IntakeError__ticketId["ticketId"]
-        src__communication__intake_contract__IntakeError__role["role"]
         src__communication__intake_contract__IntakeError__diagnostic["diagnostic"]
         src__communication__intake_contract__IntakeError__known["known"]
         src__communication__intake_protobuf__encodeIntakeEnvelope["encodeIntakeEnvelope"]
         src__communication__intake_protobuf__operation["operation"]
-        src__communication__intake_protobuf__decodeIntakeEnvelope{{decodeIntakeEnvelope CC=16}}
-        src__communication__intake_protobuf__values("values CC=9")
-        src__communication__intake_protobuf__offset["offset"]
-        src__communication__intake_protobuf__fieldStart("fieldStart CC=8")
-        src__communication__intake_protobuf__number("number CC=8")
-        src__communication__intake_protobuf__wire("wire CC=8")
-        src__communication__intake_protobuf__raw["raw"]
+        src__communication__intake_protobuf__decodeIntakeEnvelope["decodeIntakeEnvelope"]
+        src__communication__intake_protobuf__parsed("parsed CC=10")
+        src__communication__intake_protobuf__values("values CC=13")
+        src__communication__intake_protobuf__unknownFields["unknownFields"]
         src__communication__intake_protobuf__payload["payload"]
+        src__communication__intake_protobuf__envelope["envelope"]
         src__communication__intake_protobuf__encodeIntakeResult["encodeIntakeResult"]
-        src__communication__intake_protobuf__decodeIntakeResult{{decodeIntakeResult CC=18}}
-        src__communication__intake_protobuf__strings["strings"]
-        src__communication__intake_protobuf__numbers["numbers"]
+        src__communication__intake_protobuf__decodeIntakeResult("decodeIntakeResult CC=12")
+        src__communication__intake_protobuf__strings("strings CC=13")
+        src__communication__intake_protobuf__numbers("numbers CC=13")
+        src__communication__intake_protobuf__decodeDelimitedFields("decodeDelimitedFields CC=13")
+        src__communication__intake_protobuf__offset("offset CC=13")
+        src__communication__intake_protobuf__fieldStart["fieldStart"]
         src__communication__intake_protobuf__field["field"]
+        src__communication__intake_protobuf__wire["wire"]
+        src__communication__intake_protobuf__raw["raw"]
+        src__communication__intake_protobuf__value["value"]
+        src__communication__intake_protobuf__parsePayloadJson["parsePayloadJson"]
+        src__communication__intake_protobuf__parseOptionalJson["parseOptionalJson"]
+        src__communication__intake_protobuf__buildIntakeEnvelope["buildIntakeEnvelope"]
         src__communication__intake_protobuf__bytesField["bytesField"]
         src__communication__intake_protobuf__data["data"]
         src__communication__intake_protobuf__varintField["varintField"]
         src__communication__intake_protobuf__writeVarint["writeVarint"]
-        src__communication__intake_protobuf__remaining["remaining"]
-        src__communication__intake_protobuf__readVarint["readVarint"]
-        src__communication__intake_protobuf__value["value"]
-        src__communication__intake_protobuf__byte["byte"]
-        src__communication__analyzer__analyzeCommunication{{analyzeCommunication CC=48}}
-        src__communication__analyzer__communication("communication CC=8")
-        src__communication__analyzer__evidenceByRecord("evidenceByRecord CC=8")
-        src__communication__analyzer__participants("participants CC=8")
-        src__communication__analyzer__participant["participant"]
-        src__communication__analyzer__values["values"]
-        src__communication__analyzer__left["left"]
     end
     subgraph src__comparison
         src__comparison__workspace__execFileAsync("execFileAsync CC=12")
@@ -912,6 +920,8 @@ flowchart TD
         src__diff__svg__svgStyles["svgStyles"]
         src__diff__svg__svgDocument["svgDocument"]
         src__diff__svg__theme["theme"]
+        src__diff__git_binary__BINARY_EXTENSIONS["BINARY_EXTENSIONS"]
+        src__diff__git_binary__isProbablyBinary["isProbablyBinary"]
         src__diff__text__DEFAULT_CONTEXT["DEFAULT_CONTEXT"]
         src__diff__text__DEFAULT_MAX_COMPARE_LINES["DEFAULT_MAX_COMPARE_LINES"]
         src__diff__text__splitLines["splitLines"]
@@ -937,20 +947,6 @@ flowchart TD
         src__diff__text__suffixLines["suffixLines"]
         src__diff__text__beforeIndex["beforeIndex"]
         src__diff__text__afterIndex["afterIndex"]
-        src__diff__text__blockReplace["blockReplace"]
-        src__diff__text__myers{{myers CC=19}}
-        src__diff__text__n{{n CC=15}}
-        src__diff__text__m{{m CC=15}}
-        src__diff__text__max{{max CC=15}}
-        src__diff__text__offset{{offset CC=15}}
-        src__diff__text__v["v"]
-        src__diff__text__y{{y CC=15}}
-        src__diff__text__backtrack{{backtrack CC=18}}
-        src__diff__text__x{{x CC=15}}
-        src__diff__text__k["k"]
-        src__diff__text__previousK["previousK"]
-        src__diff__text__previousX["previousX"]
-        src__diff__text__previousY["previousY"]
         src__diff__text__buildHunks["buildHunks"]
         src__diff__text__changeIndexes["changeIndexes"]
         src__diff__text__start["start"]
@@ -960,11 +956,23 @@ flowchart TD
         src__diff__text__slice["slice"]
         src__diff__text__beforeNumbers["beforeNumbers"]
         src__diff__text__afterNumbers["afterNumbers"]
-        src__diff__reality__buildRealityView{{buildRealityView CC=26}}
-        src__diff__reality__components("components CC=9")
-        src__diff__reality__diagnosticsByRecord("diagnosticsByRecord CC=9")
+        src__diff__reality__buildRealityView["buildRealityView"]
+        src__diff__reality__components["components"]
+        src__diff__reality__diagnosticsByRecord["diagnosticsByRecord"]
+        src__diff__reality__rows["rows"]
+        src__diff__reality__buildRealityRows["buildRealityRows"]
+        src__diff__reality__buildRealityRow("buildRealityRow CC=9")
         src__diff__reality__codes["codes"]
         src__diff__reality__status["status"]
+        src__diff__reality__compareRealityRows["compareRealityRows"]
+        src__diff__reality__bySeverity["bySeverity"]
+        src__diff__reality__alignment["alignment"]
+        src__diff__reality__bySize["bySize"]
+        src__diff__reality__buildRealityTotals{{buildRealityTotals CC=15}}
+        src__diff__reality__declaredRecords["declaredRecords"]
+        src__diff__reality__observedRecords["observedRecords"]
+        src__diff__reality__aligned["aligned"]
+        src__diff__reality__declaredTopics["declaredTopics"]
     end
     subgraph src__evaluation
         src__evaluation__gold_extraction__runExtractionCase["runExtractionCase"]
@@ -988,9 +996,15 @@ flowchart TD
         src__evaluation__gold_types__assertUniqueCaseIds["assertUniqueCaseIds"]
         src__evaluation__gold_types__assertExtractionCoverage["assertExtractionCoverage"]
         src__evaluation__gold_types__channels["channels"]
-        src__evaluation__gold_types__assertLinkingCohorts{{assertLinkingCohorts CC=32}}
-        src__evaluation__gold_types__labels{{labels CC=18}}
-        src__evaluation__gold_types__modules{{modules CC=18}}
+        src__evaluation__gold_types__assertLinkingCohorts["assertLinkingCohorts"]
+        src__evaluation__gold_types__assertGoldLinkingCohort["assertGoldLinkingCohort"]
+        src__evaluation__gold_types__assertRerankerFixture["assertRerankerFixture"]
+        src__evaluation__gold_types__assertRerankerModelIdentity["assertRerankerModelIdentity"]
+        src__evaluation__gold_types__assertRerankerDecisions["assertRerankerDecisions"]
+        src__evaluation__gold_types__decisions["decisions"]
+        src__evaluation__gold_types__recordLabels["recordLabels"]
+        src__evaluation__gold_types__seenModules["seenModules"]
+        src__evaluation__gold_types__assertRerankerDecision{{assertRerankerDecision CC=17}}
         src__evaluation__gold_cases__evaluateLinkingCase("evaluateLinkingCase CC=8")
         src__evaluation__gold_cases__idToLabel["idToLabel"]
         src__evaluation__gold_cases__graph["graph"]
@@ -1000,33 +1014,27 @@ flowchart TD
         src__evaluation__gold_cases__byClass["byClass"]
         src__evaluation__gold_cases__forbidden["forbidden"]
         src__evaluation__gold_cases__forbiddenViolations["forbiddenViolations"]
-        src__evaluation__gold_cases__evaluateRerankingCase{{evaluateRerankingCase CC=17}}
+        src__evaluation__gold_cases__evaluateRerankingCase["evaluateRerankingCase"]
+        src__evaluation__gold_cases__reranker["reranker"]
         src__evaluation__gold_cases__declarationRecordId["declarationRecordId"]
         src__evaluation__gold_cases__candidates["candidates"]
-        src__evaluation__gold_cases__moduleRecordId["moduleRecordId"]
-        src__evaluation__gold_cases__candidateByModule["candidateByModule"]
         src__evaluation__gold_cases__decisions["decisions"]
-        src__evaluation__gold_cases__candidate["candidate"]
         src__evaluation__gold_cases__rerank["rerank"]
+        src__evaluation__gold_cases__buildRerankerCandidates["buildRerankerCandidates"]
+        src__evaluation__gold_cases__requestedCandidates["requestedCandidates"]
+        src__evaluation__gold_cases__buildRerankerDecisions["buildRerankerDecisions"]
+        src__evaluation__gold_cases__candidateByModule["candidateByModule"]
+        src__evaluation__gold_cases__moduleRecordId["moduleRecordId"]
+        src__evaluation__gold_cases__candidate["candidate"]
+        src__evaluation__gold_cases__buildRerankResult["buildRerankResult"]
+        src__evaluation__gold_cases__buildObservedRerankRelations["buildObservedRerankRelations"]
         src__evaluation__gold_cases__augmented["augmented"]
-        src__evaluation__gold_cases__classifyRelation["classifyRelation"]
-        src__evaluation__gold_cases__exact["exact"]
-        src__evaluation__gold_cases__evaluateDiagnosticsCase["evaluateDiagnosticsCase"]
-        src__evaluation__gold_cases__report["report"]
-        src__evaluation__gold_cases__evaluateDsl2TodoCase["evaluateDsl2TodoCase"]
-        src__evaluation__gold_cases__diagnostics["diagnostics"]
-        src__evaluation__gold_cases__diagnosticIds["diagnosticIds"]
-        src__evaluation__gold_cases__conclusion["conclusion"]
-        src__evaluation__gold_cases__proposals["proposals"]
-        src__evaluation__gold_cases__validation["validation"]
-        src__evaluation__gold_cases__duplicateIds["duplicateIds"]
-        src__evaluation__gold_cases__citations["citations"]
-        src__evaluation__gold_cases__buildConclusion["buildConclusion"]
-        src__evaluation__gold_cases__buildProposal["buildProposal"]
-        src__evaluation__gold_cases__recordIds["recordIds"]
-        src__evaluation__gold_cases__id["id"]
-        src__evaluation__gold_cases__countCitations["countCitations"]
-        src__evaluation__gold_cases__citationRequired["citationRequired"]
+        src__evaluation__gold_cases__countForbiddenRelations["countForbiddenRelations"]
+        src__evaluation__gold_cases__restricted["restricted"]
+        src__evaluation__gold_cases__buildRerankExpected["buildRerankExpected"]
+        src__evaluation__gold_cases__buildRerankSnapshot["buildRerankSnapshot"]
+        src__evaluation__gold_cases__countVerdictDecisions["countVerdictDecisions"]
+        src__evaluation__gold_cases__resolveRerankerFixture["resolveRerankerFixture"]
     end
     subgraph src__extractors
         src__extractors__nl__assertNlExtractionOptions("assertNlExtractionOptions CC=9")
@@ -1163,20 +1171,6 @@ flowchart TD
         src__interfaces__a2a_message__parseSendConfiguration["parseSendConfiguration"]
         src__interfaces__a2a_message__validateOutputModes["validateOutputModes"]
         src__interfaces__a2a_message__supported["supported"]
-        src__interfaces__a2a_message__parseCommand{{parseCommand CC=63}}
-        src__interfaces__a2a_message__protobuf["protobuf"]
-        src__interfaces__a2a_message__bytes["bytes"]
-        src__interfaces__a2a_message__objectData["objectData"]
-        src__interfaces__a2a_message__text["text"]
-        src__interfaces__a2a_message__first["first"]
-        src__interfaces__a2a_message__commandFromData["commandFromData"]
-        src__interfaces__a2a_message__action["action"]
-        src__interfaces__a2a_message__nested["nested"]
-        src__interfaces__a2a_message__parseKeyValues["parseKeyValues"]
-        src__interfaces__a2a_message__key["key"]
-        src__interfaces__a2a_message__raw["raw"]
-        src__interfaces__a2a_message__stringValue["stringValue"]
-        src__interfaces__a2a_message__parseScalar["parseScalar"]
         src__interfaces__a2a_message__parseMessage("parseMessage CC=12")
         src__interfaces__a2a_message__messageId["messageId"]
         src__interfaces__a2a_message__contextId["contextId"]
@@ -1190,29 +1184,43 @@ flowchart TD
         src__interfaces__a2a_message__content["content"]
         src__interfaces__a2a_message__qualifier["qualifier"]
         src__interfaces__a2a_message__ensureSupportedMessageContent["ensureSupportedMessageContent"]
-        src__interfaces__a2a_message__normalizeAction["normalizeAction"]
-        src__interfaces__a2a_message__normalized["normalized"]
         src__interfaces__a2a_message__cloneMessage["cloneMessage"]
         src__interfaces__a2a_message__clonePart("clonePart CC=8")
         src__interfaces__a2a_message__normalizeUserMessage["normalizeUserMessage"]
+        src__interfaces__a2a_message_command__parseCommand["parseCommand"]
+        src__interfaces__a2a_message_command__protobufCommand["protobufCommand"]
+        src__interfaces__a2a_message_command__objectCommand["objectCommand"]
+        src__interfaces__a2a_message_command__parseCommandFromProtobuf["parseCommandFromProtobuf"]
+        src__interfaces__a2a_message_command__protobuf["protobuf"]
+        src__interfaces__a2a_message_command__bytes["bytes"]
+        src__interfaces__a2a_message_command__parseCommandFromObject["parseCommandFromObject"]
+        src__interfaces__a2a_message_command__objectData["objectData"]
+        src__interfaces__a2a_message_command__parseCommandFromText["parseCommandFromText"]
+        src__interfaces__a2a_message_command__text["text"]
+        src__interfaces__a2a_message_command__looksLikeJson{{looksLikeJson CC=20}}
+        src__interfaces__a2a_message_command__parseCommandFromJson["parseCommandFromJson"]
+        src__interfaces__a2a_message_command__parseCommandFromSentence["parseCommandFromSentence"]
+        src__interfaces__a2a_message_command__parseSentenceInput["parseSentenceInput"]
+        src__interfaces__a2a_message_command__defaultTextCommand["defaultTextCommand"]
+        src__interfaces__a2a_message_command__isSupportedAction["isSupportedAction"]
+        src__interfaces__a2a_message_command__commandInputFromSentence["commandInputFromSentence"]
+        src__interfaces__a2a_message_command__first["first"]
+        src__interfaces__a2a_message_command__parseText["parseText"]
+        src__interfaces__a2a_message_command__firstToken["firstToken"]
+        src__interfaces__a2a_message_command__commandFromData["commandFromData"]
+        src__interfaces__a2a_message_command__action["action"]
+        src__interfaces__a2a_message_command__nested["nested"]
+        src__interfaces__a2a_message_command__parseKeyValues["parseKeyValues"]
+        src__interfaces__a2a_message_command__key["key"]
+        src__interfaces__a2a_message_command__raw["raw"]
+        src__interfaces__a2a_message_command__stringValue["stringValue"]
+        src__interfaces__a2a_message_command__parseScalar["parseScalar"]
+        src__interfaces__a2a_message_command__normalizeAction["normalizeAction"]
+        src__interfaces__a2a_message_command__normalized["normalized"]
         src__interfaces__mcp_errors__McpRequestError__super["super"]
         src__interfaces__mcp_errors__McpRequestError__normalizeMcpError["normalizeMcpError"]
-        src__interfaces__mcp__DISCOVERY_TTL_MS["DISCOVERY_TTL_MS"]
-        src__interfaces__mcp__LIST_TTL_MS["LIST_TTL_MS"]
-        src__interfaces__mcp__RESOURCE_TTL_MS["RESOURCE_TTL_MS"]
-        src__interfaces__mcp__createMcpConnectionState["createMcpConnectionState"]
-        src__interfaces__mcp__startMcpServer("startMcpServer CC=8")
-        src__interfaces__mcp__resolvedConfig["resolvedConfig"]
-        src__interfaces__mcp__state["state"]
-        src__interfaces__mcp__input["input"]
-        src__interfaces__mcp__parsed["parsed"]
-        src__interfaces__mcp__request["request"]
-        src__interfaces__mcp__result["result"]
-        src__interfaces__mcp__handleMcpRequest["handleMcpRequest"]
-        src__interfaces__mcp__initializeLegacy["initializeLegacy"]
-        src__interfaces__mcp__params["params"]
-        src__interfaces__mcp__requested["requested"]
-        src__interfaces__mcp__protocolVersion["protocolVersion"]
+        src__interfaces__a2a_run_list_item__runListItem["runListItem"]
+        src__interfaces__a2a_run_list_item__files["files"]
     end
     subgraph src__live
         src__live__contract_check__LIVE_HISTORY_LIMIT["LIVE_HISTORY_LIMIT"]
@@ -1280,8 +1288,8 @@ flowchart TD
         src__llm__openrouter__OpenRouterModelError__super["super"]
         src__llm__openrouter__OpenRouterClient__isConfigured["isConfigured"]
         src__llm__openrouter__OpenRouterClient__listAvailableModels("listAvailableModels CC=13")
-        src__llm__openrouter__OpenRouterClient__controller["controller"]
-        src__llm__openrouter__OpenRouterClient__timeout{{timeout CC=26}}
+        src__llm__openrouter__OpenRouterClient__controller("controller CC=13")
+        src__llm__openrouter__OpenRouterClient__timeout("timeout CC=13")
         src__llm__openrouter__OpenRouterClient__response["response"]
         src__llm__openrouter__OpenRouterClient__text["text"]
         src__llm__openrouter__OpenRouterClient__clearTimeout["clearTimeout"]
@@ -1292,22 +1300,13 @@ flowchart TD
         src__llm__openrouter__OpenRouterClient__result["result"]
         src__llm__openrouter__OpenRouterClient__chatJsonWithMetadata("chatJsonWithMetadata CC=10")
         src__llm__openrouter__OpenRouterClient__fallback["fallback"]
-        src__llm__openrouter__OpenRouterClient__request{{request CC=31}}
-        src__llm__openrouter__OpenRouterClient__apiKey["apiKey"]
-        src__llm__openrouter__OpenRouterClient__externalSignal["externalSignal"]
-        src__llm__openrouter__OpenRouterClient__abortFromExternal["abortFromExternal"]
-        src__llm__openrouter__OpenRouterClient__message["message"]
-        src__llm__openrouter__OpenRouterClient__error["error"]
-        src__llm__openrouter__OpenRouterClient__model["model"]
-        src__llm__openrouter__OpenRouterClient__availableModels["availableModels"]
-        src__llm__openrouter__OpenRouterClient__formatInvalidModelError["formatInvalidModelError"]
+        src__llm__openrouter__OpenRouterClient__request["request"]
         src__llm__openrouter__OpenRouterClient__responseMetadata["responseMetadata"]
         src__llm__openrouter__OpenRouterClient__usage["usage"]
         src__llm__openrouter__OpenRouterClient__stringOrNull["stringOrNull"]
         src__llm__openrouter__OpenRouterClient__finiteOrNull["finiteOrNull"]
-        src__llm__openrouter__OpenRouterClient__shouldRetryWithoutJsonSchema["shouldRetryWithoutJsonSchema"]
-        src__llm__openrouter__OpenRouterClient__isInvalidModelError["isInvalidModelError"]
-        src__llm__openrouter__OpenRouterClient__removeUndefined["removeUndefined"]
+        src__llm__openrouter__OpenRouterClient__createModelError["createModelError"]
+        src__llm__openrouter__OpenRouterClient__formatInvalidModelError["formatInvalidModelError"]
         src__llm__openrouter__OpenRouterClient__extractContent["extractContent"]
         src__llm__openrouter__OpenRouterClient__parseJsonContent["parseJsonContent"]
         src__llm__openrouter__OpenRouterClient__trimmed["trimmed"]
@@ -1315,28 +1314,37 @@ flowchart TD
         src__llm__openrouter__OpenRouterClient__end["end"]
         src__llm__openrouter__OpenRouterClient__parseJsonResponse["parseJsonResponse"]
         src__llm__openrouter__OpenRouterClient__metadata["metadata"]
-        src__llm__openrouter__OpenRouterClient__sleep["sleep"]
+        src__llm__openrouter__OpenRouterClient__message["message"]
+        src__llm__openrouter__OpenRouterClient__shouldRetryWithoutJsonSchema["shouldRetryWithoutJsonSchema"]
         src__llm__failure__classifyLlmFailure["classifyLlmFailure"]
         src__llm__failure__message["message"]
         src__llm__failure__rejectedLlmResponseMetadata["rejectedLlmResponseMetadata"]
         src__llm__audit__openRouterAuditConfiguration["openRouterAuditConfiguration"]
-        src__llm__structured_schema__StructuredResponseError__super["super"]
-        src__llm__structured_schema__StructuredResponseError__schema["schema"]
-        src__llm__structured_schema__StructuredResponseError__parse["parse"]
-        src__llm__structured_schema__StructuredResponseError__string("string CC=10")
-        src__llm__structured_schema__StructuredResponseError__pattern["pattern"]
-        src__llm__structured_schema__StructuredResponseError__fail["fail"]
-        src__llm__structured_schema__StructuredResponseError__nullableString["nullableString"]
-        src__llm__structured_schema__StructuredResponseError__base["base"]
-        src__llm__structured_schema__StructuredResponseError__number["number"]
-        src__llm__structured_schema__StructuredResponseError__checkNumberBounds["checkNumberBounds"]
-        src__llm__structured_schema__StructuredResponseError__integer["integer"]
-        src__llm__structured_schema__StructuredResponseError__numeric["numeric"]
-        src__llm__structured_schema__StructuredResponseError__parsed["parsed"]
-        src__llm__structured_schema__StructuredResponseError__enumValue["enumValue"]
-        src__llm__structured_schema__StructuredResponseError__allowed["allowed"]
-        src__llm__structured_schema__StructuredResponseError__array("array CC=9")
-        src__llm__structured_schema__StructuredResponseError__identities["identities"]
+        src__llm__openrouter_request__requestOpenRouter["requestOpenRouter"]
+        src__llm__openrouter_request__controller["controller"]
+        src__llm__openrouter_request__detachAbort["detachAbort"]
+        src__llm__openrouter_request__timeout["timeout"]
+        src__llm__openrouter_request__response["response"]
+        src__llm__openrouter_request__parsed["parsed"]
+        src__llm__openrouter_request__resolution["resolution"]
+        src__llm__openrouter_request__ensureApiKeyConfigured["ensureApiKeyConfigured"]
+        src__llm__openrouter_request__connectAbortSignal["connectAbortSignal"]
+        src__llm__openrouter_request__abortFromExternal["abortFromExternal"]
+        src__llm__openrouter_request__sendRequest["sendRequest"]
+        src__llm__openrouter_request__resolveHttpResponse("resolveHttpResponse CC=8")
+        src__llm__openrouter_request__message["message"]
+        src__llm__openrouter_request__error["error"]
+        src__llm__openrouter_request__createModelErrorResponse["createModelErrorResponse"]
+        src__llm__openrouter_request__model["model"]
+        src__llm__openrouter_request__availableModels["availableModels"]
+        src__llm__openrouter_request__listErrorMessage["listErrorMessage"]
+        src__llm__openrouter_request__resolveTransportError("resolveTransportError CC=9")
+        src__llm__openrouter_request__retryDelay["retryDelay"]
+        src__llm__openrouter_request__buildRequestHeaders["buildRequestHeaders"]
+        src__llm__openrouter_request__shouldRetryWithoutJsonSchema["shouldRetryWithoutJsonSchema"]
+        src__llm__openrouter_request__shouldRetryRequestWithoutSchema["shouldRetryRequestWithoutSchema"]
+        src__llm__openrouter_request__isRetryableServerError["isRetryableServerError"]
+        src__llm__openrouter_request__isTransientNetworkError["isTransientNetworkError"]
     end
     subgraph src__operations
         src__operations__artifact__readJson["readJson"]
@@ -1371,12 +1379,20 @@ flowchart TD
         src__operations__validation__assertPrincipalList["assertPrincipalList"]
         src__operations__validation__principals["principals"]
         src__operations__validation__isJsonValue["isJsonValue"]
-        src__operations__validation__assertVariableContract{{assertVariableContract CC=20}}
+        src__operations__validation__assertVariableContract["assertVariableContract"]
         src__operations__validation__contract["contract"]
         src__operations__validation__source["source"]
         src__operations__validation__access["access"]
         src__operations__validation__readers["readers"]
         src__operations__validation__writers["writers"]
+        src__operations__validation__expectedId["expectedId"]
+        src__operations__validation__assertVariableContractShape["assertVariableContractShape"]
+        src__operations__validation__assertVariableContractCore("assertVariableContractCore CC=8")
+        src__operations__validation__assertVariableSource["assertVariableSource"]
+        src__operations__validation__assertVariableAccess["assertVariableAccess"]
+        src__operations__validation__assertVariableAuthoritativeness["assertVariableAuthoritativeness"]
+        src__operations__validation__assertVariableMutability["assertVariableMutability"]
+        src__operations__validation__buildVariableContractId["buildVariableContractId"]
         src__operations__validation__assertGeneration{{assertGeneration CC=16}}
         src__operations__validation__generation["generation"]
         src__operations__validation__assertAcyclic("assertAcyclic CC=8")
@@ -1385,82 +1401,74 @@ flowchart TD
         src__operations__validation__visited["visited"]
         src__operations__validation__byId["byId"]
         src__operations__validation__visit["visit"]
-        src__operations__validation__assertOperationPlan{{assertOperationPlan CC=84}}
+        src__operations__validation__assertOperationPlan["assertOperationPlan"]
         src__operations__validation__plan["plan"]
-        src__operations__validation__evidence["evidence"]
-        src__operations__validation__variables{{variables CC=44}}
-        src__operations__validation__variableById{{variableById CC=44}}
-        src__operations__validation__steps{{steps CC=44}}
-        src__operations__validation__stepIds{{stepIds CC=44}}
-        src__operations__validation__founderDecisionRequired{{founderDecisionRequired CC=44}}
-        src__operations__validation__step["step"]
-        src__operations__validation__parameters["parameters"]
-        src__operations__validation__reference["reference"]
-        src__operations__validation__variable["variable"]
-        src__operations__validation__rollback["rollback"]
-        src__operations__validation__coveredSteps("coveredSteps CC=8")
+        src__operations__validation__variables["variables"]
+        src__operations__validation__variableById["variableById"]
+        src__operations__validation__validateOperationPlanShape["validateOperationPlanShape"]
+        src__operations__validation__validateOperationPlanMetadata("validateOperationPlanMetadata CC=9")
     end
     subgraph src__pipeline
-        src__pipeline__run__runPipeline{{runPipeline CC=56}}
+        src__pipeline__run_helpers__collectCommunicationAnalysis("collectCommunicationAnalysis CC=11")
+        src__pipeline__run_helpers__includeCommunication["includeCommunication"]
+        src__pipeline__run_helpers__communicationStartedAt["communicationStartedAt"]
+        src__pipeline__run_helpers__missingDirectory["missingDirectory"]
+        src__pipeline__run_helpers__communication["communication"]
+        src__pipeline__run_helpers__foundMissingDirectory["foundMissingDirectory"]
+        src__pipeline__run_helpers__collectTaskSynthesis["collectTaskSynthesis"]
+        src__pipeline__run_helpers__taskSynthesisMode["taskSynthesisMode"]
+        src__pipeline__run_helpers__taskSynthesisAudit["taskSynthesisAudit"]
+        src__pipeline__run_helpers__todoContent["todoContent"]
+        src__pipeline__run_helpers__createCodeChangeArtifacts["createCodeChangeArtifacts"]
+        src__pipeline__run_helpers__codeChangePlans["codeChangePlans"]
+        src__pipeline__run_helpers__codeChangeReview["codeChangeReview"]
+        src__pipeline__run_helpers__codeChangeSourcePatches["codeChangeSourcePatches"]
+        src__pipeline__run_helpers__collectTargetHints["collectTargetHints"]
+        src__pipeline__run_helpers__values["values"]
+        src__pipeline__run_helpers__appendLlmNotConfigured["appendLlmNotConfigured"]
+        src__pipeline__run_helpers__skippedAudit["skippedAudit"]
+        src__pipeline__run_persistence__makePipelineManifest["makePipelineManifest"]
+        src__pipeline__run_persistence__persistPipelineArtifacts{{persistPipelineArtifacts CC=17}}
+        src__pipeline__run_persistence__filePath["filePath"]
+        src__pipeline__run_persistence__graphPath["graphPath"]
+        src__pipeline__run_persistence__diagnosticsPath["diagnosticsPath"]
+        src__pipeline__run_persistence__summaryPath["summaryPath"]
+        src__pipeline__run_persistence__summaryConclusionsPath["summaryConclusionsPath"]
+        src__pipeline__run_persistence__taskSynthesisPath["taskSynthesisPath"]
+        src__pipeline__run_persistence__todoValidationPath["todoValidationPath"]
+        src__pipeline__run_persistence__todoPatchPath["todoPatchPath"]
+        src__pipeline__run_persistence__todoPatchAuditPath["todoPatchAuditPath"]
+        src__pipeline__run_persistence__codeChangePlansPath["codeChangePlansPath"]
+        src__pipeline__run_persistence__codeChangeReviewPath["codeChangeReviewPath"]
+        src__pipeline__run_persistence__codeChangeReviewAuditPath["codeChangeReviewAuditPath"]
+        src__pipeline__run_persistence__codeChangeSourcePatchesPath["codeChangeSourcePatchesPath"]
+        src__pipeline__run_persistence__communicationAnalysisPath["communicationAnalysisPath"]
+        src__pipeline__run_persistence__communicationMarkdownPath["communicationMarkdownPath"]
+        src__pipeline__run_persistence__persistFailedRun["persistFailedRun"]
+        src__pipeline__run_persistence__manifestConfiguration("manifestConfiguration CC=8")
+        src__pipeline__run_persistence__persistFailedRunState{{persistFailedRunState CC=19}}
+        src__pipeline__run_persistence__aborted["aborted"]
+        src__pipeline__run_persistence__message("message CC=9")
+        src__pipeline__run_persistence__knownAudit("knownAudit CC=9")
+        src__pipeline__run_persistence__failedAudit("failedAudit CC=9")
+        src__pipeline__run_persistence__stageValue["stageValue"]
+        src__pipeline__run_persistence__reason["reason"]
+        src__pipeline__run_persistence__skippedAudit["skippedAudit"]
+        src__pipeline__run_persistence__failureCode["failureCode"]
+        src__pipeline__run_summary__collectSummary["collectSummary"]
+        src__pipeline__run_summary__summaryStartedAt["summaryStartedAt"]
+        src__pipeline__run_summary__includeSummaryLlm["includeSummaryLlm"]
+        src__pipeline__run_summary__summary["summary"]
+        src__pipeline__run__runPipeline["runPipeline"]
+        src__pipeline__run__context["context"]
+        src__pipeline__run__execution["execution"]
+        src__pipeline__run__persisted["persisted"]
+        src__pipeline__run__manifest["manifest"]
+        src__pipeline__run__manifestPath["manifestPath"]
+        src__pipeline__run__initializePipelineContext["initializePipelineContext"]
         src__pipeline__run__root["root"]
         src__pipeline__run__runId["runId"]
         src__pipeline__run__baseOutput["baseOutput"]
-        src__pipeline__run__runDirectory["runDirectory"]
-        src__pipeline__run__naturalLanguageAudit["naturalLanguageAudit"]
-        src__pipeline__run__result["result"]
-        src__pipeline__run__git["git"]
-        src__pipeline__run__ast["ast"]
-        src__pipeline__run__markdown["markdown"]
-        src__pipeline__run__deterministicDocumentFiles["deterministicDocumentFiles"]
-        src__pipeline__run__documentationStartedAt["documentationStartedAt"]
-        src__pipeline__run__deterministicDocs["deterministicDocs"]
-        src__pipeline__run__docs["docs"]
-        src__pipeline__run__configurationExtraction["configurationExtraction"]
-        src__pipeline__run__runtime["runtime"]
-        src__pipeline__run__includeCommunication("includeCommunication CC=10")
-        src__pipeline__run__communicationStartedAt("communicationStartedAt CC=10")
-        src__pipeline__run__communicationAudit("communicationAudit CC=10")
-        src__pipeline__run__communicationInputPresent("communicationInputPresent CC=10")
-        src__pipeline__run__communication["communication"]
-        src__pipeline__run__missingDirectory["missingDirectory"]
-        src__pipeline__run__allRecords["allRecords"]
-        src__pipeline__run__generatedAt["generatedAt"]
-        src__pipeline__run__graph["graph"]
-        src__pipeline__run__communicationAnalysis["communicationAnalysis"]
-        src__pipeline__run__diagnostics["diagnostics"]
-        src__pipeline__run__taskSynthesisMode["taskSynthesisMode"]
-        src__pipeline__run__taskSynthesisAudit["taskSynthesisAudit"]
-        src__pipeline__run__todoContent["todoContent"]
-        src__pipeline__run__codeChangePlans["codeChangePlans"]
-        src__pipeline__run__codeChangeReview["codeChangeReview"]
-        src__pipeline__run__codeChangeSourcePatches["codeChangeSourcePatches"]
-        src__pipeline__run__summaryStartedAt["summaryStartedAt"]
-        src__pipeline__run__includeSummaryLlm["includeSummaryLlm"]
-        src__pipeline__run__summary["summary"]
-        src__pipeline__run__filePath["filePath"]
-        src__pipeline__run__graphPath["graphPath"]
-        src__pipeline__run__diagnosticsPath["diagnosticsPath"]
-        src__pipeline__run__summaryPath["summaryPath"]
-        src__pipeline__run__summaryConclusionsPath["summaryConclusionsPath"]
-        src__pipeline__run__taskSynthesisPath["taskSynthesisPath"]
-        src__pipeline__run__todoValidationPath["todoValidationPath"]
-        src__pipeline__run__todoPatchPath["todoPatchPath"]
-        src__pipeline__run__todoPatchAuditPath["todoPatchAuditPath"]
-        src__pipeline__run__codeChangePlansPath["codeChangePlansPath"]
-        src__pipeline__run__codeChangeReviewPath["codeChangeReviewPath"]
-        src__pipeline__run__codeChangeReviewAuditPath["codeChangeReviewAuditPath"]
-        src__pipeline__run__codeChangeSourcePatchesPath["codeChangeSourcePatchesPath"]
-        src__pipeline__run__communicationAnalysisPath["communicationAnalysisPath"]
-        src__pipeline__run__communicationMarkdownPath["communicationMarkdownPath"]
-        src__pipeline__run__configuration["configuration"]
-        src__pipeline__run__manifestConfiguration("manifestConfiguration CC=8")
-        src__pipeline__run__collectTargetHints["collectTargetHints"]
-        src__pipeline__run__values["values"]
-        src__pipeline__run__persistFailedRun{{persistFailedRun CC=19}}
-        src__pipeline__run__aborted["aborted"]
-        src__pipeline__run__message("message CC=9")
-        src__pipeline__run__knownAudit("knownAudit CC=9")
-        src__pipeline__run__failedAudit("failedAudit CC=9")
     end
     subgraph src__sdk
         src__sdk__typescript__Todo2CodeClient__a2a["a2a"]
@@ -1763,46 +1771,51 @@ flowchart TD
         src__watch__watcher__describeDelta["describeDelta"]
         src__watch__watcher__shown["shown"]
         src__watch__watcher__rest["rest"]
-        src__watch__watcher__DEFAULT_MIN_INTERVAL_MS{{DEFAULT_MIN_INTERVAL_MS CC=19}}
-        src__watch__watcher__DEFAULT_SCAN_INTERVAL_MS{{DEFAULT_SCAN_INTERVAL_MS CC=19}}
-        src__watch__watcher__watchRepository{{watchRepository CC=19}}
+        src__watch__watcher__DEFAULT_MIN_INTERVAL_MS["DEFAULT_MIN_INTERVAL_MS"]
+        src__watch__watcher__DEFAULT_SCAN_INTERVAL_MS["DEFAULT_SCAN_INTERVAL_MS"]
+        src__watch__watcher__watchRepository["watchRepository"]
+        src__watch__watcher__configuration["configuration"]
+        src__watch__watcher__runtime["runtime"]
+        src__watch__watcher__defaultSleep["defaultSleep"]
+        src__watch__watcher__timer["timer"]
+        src__watch__watcher__onAbort["onAbort"]
+        src__watch__watcher__finish["finish"]
+        src__watch__watcher__createWatchConfiguration("createWatchConfiguration CC=9")
         src__watch__watcher__root["root"]
         src__watch__watcher__minIntervalMs["minIntervalMs"]
         src__watch__watcher__scanIntervalMs["scanIntervalMs"]
         src__watch__watcher__emit["emit"]
         src__watch__watcher__now["now"]
         src__watch__watcher__sleep["sleep"]
-        src__watch__watcher__signal["signal"]
         src__watch__watcher__matcher["matcher"]
         src__watch__watcher__runReport["runReport"]
         src__watch__watcher__result["result"]
-        src__watch__watcher__snapshot["snapshot"]
-        src__watch__watcher__lastReportStartedAt["lastReportStartedAt"]
-        src__watch__watcher__pending["pending"]
+        src__watch__watcher__createWatchRuntime["createWatchRuntime"]
+        src__watch__watcher__initialSnapshot["initialSnapshot"]
+        src__watch__watcher__scanTreeCurrent["scanTreeCurrent"]
+        src__watch__watcher__evaluateChangeCycle["evaluateChangeCycle"]
         src__watch__watcher__current["current"]
         src__watch__watcher__delta["delta"]
+        src__watch__watcher__handleDelta["handleDelta"]
+        src__watch__watcher__maybeGenerateReport["maybeGenerateReport"]
         src__watch__watcher__waitMs["waitMs"]
-        src__watch__watcher__generate["generate"]
+        src__watch__watcher__generateReportForReason["generateReportForReason"]
         src__watch__watcher__startedAt["startedAt"]
-        src__watch__watcher__defaultSleep["defaultSleep"]
-        src__watch__watcher__timer["timer"]
-        src__watch__watcher__onAbort["onAbort"]
-        src__watch__watcher__finish["finish"]
     end
     subgraph src__web
+        src__web__diff_ui_script__byId["byId"]
+        src__web__diff_ui_script__requestHeaders["requestHeaders"]
+        src__web__diff_ui_script__formatBytes["formatBytes"]
+        src__web__diff_ui_script__selectedRun["selectedRun"]
+        src__web__diff_ui_script__updateMeta["updateMeta"]
+        src__web__diff_ui_script__fillSelect["fillSelect"]
+        src__web__diff_ui_script__loadRuns("loadRuns CC=12")
+        src__web__diff_ui_script__compareGraphs{{compareGraphs CC=15}}
         src__web__diff_ui__diffUiStyles["diffUiStyles"]
         src__web__diff_ui__diffUiRunPanel["diffUiRunPanel"]
         src__web__diff_ui__diffUiFiltersPanel["diffUiFiltersPanel"]
         src__web__diff_ui__diffUiBodyMarkup["diffUiBodyMarkup"]
-        src__web__diff_ui__diffUiScriptMarkup{{diffUiScriptMarkup CC=46}}
-        src__web__diff_ui__byId["byId"]
-        src__web__diff_ui__requestHeaders["requestHeaders"]
-        src__web__diff_ui__formatBytes["formatBytes"]
-        src__web__diff_ui__selectedRun["selectedRun"]
-        src__web__diff_ui__updateMeta["updateMeta"]
-        src__web__diff_ui__fillSelect["fillSelect"]
-        src__web__diff_ui__loadRuns("loadRuns CC=12")
-        src__web__diff_ui__compareGraphs{{compareGraphs CC=15}}
+        src__web__diff_ui__diffUiScriptMarkup["diffUiScriptMarkup"]
         src__web__diff_ui__diffUiTemplate["diffUiTemplate"]
         src__web__diff_ui__diffUiHtml["diffUiHtml"]
     end
@@ -1833,25 +1846,32 @@ flowchart TD
     rust_ast__src__main__type_item --> rust_ast__src__main__qualified
     rust_ast__src__main__type_item --> rust_ast__src__main__add
     rust_ast__src__main__type_item --> rust_ast__src__main__modifiers
+    examples__backend__src__request_handlers__MAX_BODY_BYTES --> examples__backend__src__request_handlers__handleHealth
+    examples__backend__src__request_handlers__MAX_BODY_BYTES --> examples__backend__src__request_handlers__handleEventPublish
+    examples__backend__src__request_handlers__MAX_BODY_BYTES --> examples__backend__src__request_handlers__handleEventList
+    examples__backend__src__request_handlers__MAX_BODY_BYTES --> examples__backend__src__request_handlers__sendJson
+    examples__backend__src__request_handlers__handleRequest --> examples__backend__src__request_handlers__handleHealth
+    examples__backend__src__request_handlers__handleRequest --> examples__backend__src__request_handlers__handleEventPublish
+    examples__backend__src__request_handlers__handleRequest --> examples__backend__src__request_handlers__handleEventList
+    examples__backend__src__request_handlers__handleRequest --> examples__backend__src__request_handlers__sendJson
+    examples__backend__src__request_handlers__handleHealth --> examples__backend__src__request_handlers__sendJson
+    examples__backend__src__request_handlers__handleHealth --> examples__backend__src__request_handlers__size
+    examples__backend__src__request_handlers__handleEventPublish --> examples__backend__src__request_handlers__readBody
+    examples__backend__src__request_handlers__handleEventPublish --> examples__backend__src__request_handlers__sendJson
+    examples__backend__src__request_handlers__validation --> examples__backend__src__request_handlers__sendJson
+    examples__backend__src__request_handlers__event --> examples__backend__src__request_handlers__sendJson
+    examples__backend__src__request_handlers__handleEventList --> examples__backend__src__request_handlers__parseOffset
+    examples__backend__src__request_handlers__handleEventList --> examples__backend__src__request_handlers__parseLimit
+    examples__backend__src__request_handlers__handleEventList --> examples__backend__src__request_handlers__sendJson
     examples__backend__src__validation__ALLOWED_ACTIONS --> examples__backend__src__validation__invalid
     examples__backend__src__validation__validateEventPayload --> examples__backend__src__validation__invalid
     examples__backend__src__validation__record --> examples__backend__src__validation__invalid
     examples__backend__src__validation__agent --> examples__backend__src__validation__invalid
     examples__backend__src__validation__action --> examples__backend__src__validation__invalid
     examples__backend__src__validation__object --> examples__backend__src__validation__invalid
-    examples__backend__src__server__createBackend --> examples__backend__src__server__handleRequest
     examples__backend__src__server__createBackend --> examples__backend__src__server__sendJson
-    examples__backend__src__server__store --> examples__backend__src__server__handleRequest
     examples__backend__src__server__store --> examples__backend__src__server__sendJson
-    examples__backend__src__server__server --> examples__backend__src__server__handleRequest
     examples__backend__src__server__server --> examples__backend__src__server__sendJson
-    examples__backend__src__server__handleRequest --> examples__backend__src__server__sendJson
-    examples__backend__src__server__handleRequest --> examples__backend__src__server__size
-    examples__backend__src__server__handleRequest --> examples__backend__src__server__readBody
-    examples__backend__src__server__validation --> examples__backend__src__server__sendJson
-    examples__backend__src__server__event --> examples__backend__src__server__sendJson
-    examples__backend__src__server__offset --> examples__backend__src__server__sendJson
-    examples__backend__src__server__limit --> examples__backend__src__server__sendJson
     examples__backend__src__server__startBackend --> examples__backend__src__server__createBackend
     examples__frontend__src__render__toRows --> examples__frontend__src__render__classifyEvent
     examples__frontend__src__render__renderTable --> examples__frontend__src__render__headerRow
@@ -2309,16 +2329,19 @@ flowchart TD
     src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord --> src__extractors__nl_llm_helpers__NlAttemptError__resolveAction
     src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord --> src__extractors__nl_llm_helpers__NlAttemptError__nonEmptyText
     src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord --> src__extractors__nl_llm_helpers__NlAttemptError__resolveObject
-    src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord --> src__extractors__nl_llm_helpers__NlAttemptError__allowedModality
+    src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord --> src__extractors__nl_llm_helpers__NlAttemptError__resolveModality
     src__extractors__nl_llm_helpers__NlAttemptError__lines --> src__extractors__nl_llm_helpers__NlAttemptError__sourceExcerpt
     src__extractors__nl_llm_helpers__NlAttemptError__action --> src__extractors__nl_llm_helpers__NlAttemptError__resolveObject
     src__extractors__nl_llm_helpers__NlAttemptError__normalizedText --> src__extractors__nl_llm_helpers__NlAttemptError__resolveObject
-    src__extractors__nl_llm_helpers__NlAttemptError__statementText --> src__extractors__nl_llm_helpers__NlAttemptError__allowedModality
+    src__extractors__nl_llm_helpers__NlAttemptError__statementText --> src__extractors__nl_llm_helpers__NlAttemptError__resolveModality
     src__extractors__nl_llm_helpers__NlAttemptError__sourceExcerpt --> src__extractors__nl_llm_helpers__NlAttemptError__clampLine
     src__extractors__nl_llm_helpers__NlAttemptError__resolveAction --> src__extractors__nl_llm_helpers__NlAttemptError__allowedAction
+    src__extractors__nl_llm_helpers__NlAttemptError__resolveModality --> src__extractors__nl_llm_helpers__NlAttemptError__allowedModality
     src__extractors__nl_llm_helpers__NlAttemptError__isPlaceholder --> src__extractors__nl_llm_helpers__NlAttemptError__nonEmptyText
     src__extractors__nl_llm_helpers__NlAttemptError__resolveObject --> src__extractors__nl_llm_helpers__NlAttemptError__isPlaceholder
     src__extractors__nl_llm_helpers__NlAttemptError__resolveObject --> src__extractors__nl_llm_helpers__NlAttemptError__nonEmptyText
+    src__extractors__nl_llm_helpers__NlAttemptError__NL_ACTION_SET --> src__extractors__nl_llm_helpers__NlAttemptError__nlStrings
+    src__extractors__nl_llm_helpers__NlAttemptError__NL_MODALITY_SET --> src__extractors__nl_llm_helpers__NlAttemptError__nlStrings
     src__extractors__nl_llm_helpers__NlAttemptError__NL_RECORD_CONTRACT --> src__extractors__nl_llm_helpers__NlAttemptError__nlStrings
     src__extractors__ast__external__runExternalAstAdapter --> src__extractors__ast__external__execFileAsync
     src__extractors__ast__external__result --> src__extractors__ast__external__execFileAsync
@@ -2396,18 +2419,8 @@ flowchart TD
     src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__collectAstCandidates
     src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__sortCandidates
     src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__collectNlResolutions
-    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__isAstDeclaration
-    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__uniqueSymbols
-    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__buildAstCandidate
-    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__isAstDeclaration
-    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__uniqueSymbols
-    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__buildAstCandidate
-    src__graph__symbol_resolution__sortCandidates --> src__graph__symbol_resolution__values
-    src__graph__symbol_resolution__collectNlResolutions --> src__graph__symbol_resolution__resolveSymbol
-    src__graph__symbol_resolution__byNlRecord --> src__graph__symbol_resolution__resolveSymbol
-    src__graph__symbol_resolution__hasResolvedNlAstSymbolPair --> src__graph__symbol_resolution__isAstDeclaration
 
     classDef highCC fill:#ff6b6b,stroke:#c92a2a,color:#fff
     classDef medCC fill:#ffd43b,stroke:#f08c00,color:#000
-    class examples__backend__src__server__handleRequest,src__core__record__generationMetadata,src__web__diff_ui__diffUiScriptMarkup,src__web__diff_ui__compareGraphs,src__llm__openrouter__OpenRouterClient__timeout,src__llm__openrouter__OpenRouterClient__request,src__interfaces__a2a_message__parseCommand,src__interfaces__a2a_history__runListItem,src__diff__text__myers,src__diff__text__n,src__diff__text__m,src__diff__text__max,src__diff__text__offset,src__diff__text__y,src__diff__text__backtrack,src__diff__text__x,src__diff__reality__buildRealityView,src__diff__reality__resolveStatus,src__diff__reality__renderRealitySvg,src__diff__git__BINARY_EXTENSIONS,src__diff__git__collectGitDiff,src__pipeline__run__runPipeline,src__pipeline__run__persistFailedRun,src__evaluation__gold_types__assertLinkingCohorts,src__evaluation__gold_types__labels,src__evaluation__gold_types__modules,src__evaluation__gold_cases__evaluateRerankingCase,src__evaluation__gold_cases__buildFixtureRecords,src__evaluation__gold_cases__labels,src__evaluation__gold_cases__records highCC
-    class rust_ast__src__main__collect_files,examples__backend__src__validation__ALLOWED_ACTIONS,examples__backend__src__validation__validateEventPayload,java__JavaAstExtract__JavaAstExtract__main,java__JavaAstExtract__JavaAstExtract__escape,src__cli__main,src__cli__handleRenderTodo,src__cli__handleApplyTodo,src__cli__options,src__cli__formatWatchEvent,src__cli__stamp,src__cli__handleDiff,src__cli__handleReality,src__cli__handleCommunication,src__cli__handleIntake,src__cli__intakeExitCode,src__cli__parseArgs,src__extractors__nl__assertNlExtractionOptions,src__extractors__nl__detectMissingFields,src__extractors__ast__extractAstIntent,src__extractors__runtime_cycle__MAX_PER_SECTION,src__extractors__runtime_cycle__extractRuntimeCycleIntent,src__extractors__runtime_cycle__boundedArray,src__extractors__runtime_cycle__probeRecord,src__extractors__configuration__isConfigurationPath,src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited,src__extractors__docs_llm__DocumentationLlmRequiredError__isDocumentChunks,src__extractors__docs_llm__DocumentationLlmRequiredError__extractChunk,src__extractors__changelog__extractChangelog,src__extractors__changelog__changelogAction medCC
+    class src__core__record_metadata__generationMetadata,src__web__diff_ui_script__compareGraphs,src__interfaces__a2a_message_command__looksLikeJson,src__diff__reality__buildRealityTotals,src__pipeline__run_persistence__persistPipelineArtifacts,src__pipeline__run_persistence__persistFailedRunState,src__evaluation__gold_types__assertRerankerDecision,src__operations__validation__assertGeneration,src__operations__validation__validateOperationStep,src__communication__analyzer__collectAgentActionIssues,php__ast_extract__parseFile,scripts__verify_env_contract__makefile,scripts__verify_no_llm_imports__visited,scripts__verify_no_llm_imports__visit,scripts__research__rank_intent_graph_embeddings__main,python__ast_extract__iter_python_files,sdk__go__examples__basic__main__run,sdk__typescript__examples__basic__baseUrl,sdk__typescript__examples__basic__token,sdk__typescript__examples__basic__root,sdk__typescript__examples__basic__main,sdk__rust__examples__basic__run,sdk__rust__src__client__parse_http_response,src__pipeline__run__executePipeline highCC
+    class rust_ast__src__main__collect_files,examples__backend__src__request_handlers__MAX_BODY_BYTES,examples__backend__src__request_handlers__handleRequest,examples__backend__src__validation__ALLOWED_ACTIONS,examples__backend__src__validation__validateEventPayload,java__JavaAstExtract__JavaAstExtract__main,java__JavaAstExtract__JavaAstExtract__escape,src__cli__main,src__cli__handleRenderTodo,src__cli__handleApplyTodo,src__cli__options,src__cli__formatWatchEvent,src__cli__stamp,src__cli__handleDiff,src__cli__handleReality,src__cli__handleCommunication,src__cli__handleIntake,src__cli__intakeExitCode,src__cli__parseArgs,src__extractors__nl__assertNlExtractionOptions,src__extractors__nl__detectMissingFields,src__extractors__ast__extractAstIntent,src__extractors__runtime_cycle__MAX_PER_SECTION,src__extractors__runtime_cycle__extractRuntimeCycleIntent,src__extractors__runtime_cycle__boundedArray,src__extractors__runtime_cycle__probeRecord,src__extractors__configuration__isConfigurationPath,src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited,src__extractors__docs_llm__DocumentationLlmRequiredError__isDocumentChunks,src__extractors__docs_llm__DocumentationLlmRequiredError__extractChunk medCC
