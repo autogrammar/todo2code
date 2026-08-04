@@ -109,79 +109,23 @@ export interface CloseCodeChangesOptions {
 export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): ProposeCodeChangePlansResult {
   assertIntentGraph(options.graph);
   assertConclusions([], { graph: options.graph, diagnostics: options.diagnostics });
-  const generatedAt = options.generatedAt ?? new Date().toISOString();
-  if (Number.isNaN(Date.parse(generatedAt))) throw new Error('generatedAt must be an ISO date-time');
-  const maxPlans = options.maxPlans ?? 50;
-  if (!Number.isInteger(maxPlans) || maxPlans < 1 || maxPlans > 500) {
-    throw new Error('maxPlans must be an integer between 1 and 500');
-  }
-  const conclusions = options.conclusions ?? [];
-  const proposals = options.proposals ?? [];
-  const recordsById = new Map(options.graph.records.map((record) => [record.id, record]));
-  const proposalsByDiagnostic = indexProposalsByDiagnostic(proposals);
-  const conclusionsByDiagnostic = indexConclusionsByDiagnostic(conclusions);
-
-  const candidates = options.diagnostics.diagnostics
-    .filter((diagnostic) => IMPLEMENTATION_DIAGNOSTIC_CODES.has(diagnostic.code))
-    // A released CHANGELOG entry is an audit signal; an open TODO is an
-    // explicit request for work.  With a bounded plan set, sorting only by
-    // content id allowed historical release notes to consume every slot and
-    // hide the repository's actual backlog from autonomous executors.
-    .sort((left, right) => implementationDiagnosticRank(left)
-      - implementationDiagnosticRank(right) || left.id.localeCompare(right.id));
+  const generatedAt = parseIsoDateTime(options.generatedAt);
+  const maxPlans = parseMaxPlans(options.maxPlans);
+  const context = buildPlanContext(options);
+  const candidates = collectImplementationDiagnostics(options.diagnostics);
 
   const plans: CodeChangePlan[] = [];
   for (const diagnostic of candidates) {
     if (plans.length >= maxPlans) break;
-    const relatedRecords = diagnostic.recordIds
-      .map((id) => recordsById.get(id))
-      .filter((record): record is IntentRecord => Boolean(record));
-    if (!relatedRecords.length) continue;
-
-    const matchingProposals = proposalsByDiagnostic.get(diagnostic.id) ?? [];
-    const matchingConclusions = conclusionsByDiagnostic.get(diagnostic.id) ?? [];
-    const target = collectTarget(relatedRecords, matchingProposals);
-    const changes = buildChanges(target, relatedRecords, diagnostic, options.pathExists);
-    if (!changes.length) continue;
-
-    const generation = deterministicGeneration(generatedAt, 't2c/code-change-plan');
-    const evidence = {
-      graphFingerprint: options.graph.fingerprint,
-      recordIds: uniqueSorted(relatedRecords.map((record) => record.id)),
-      diagnosticIds: [diagnostic.id],
-      conclusionIds: uniqueSorted(matchingConclusions.map((item) => item.id)),
-      proposalIds: uniqueSorted(matchingProposals.map((item) => item.id)),
-    };
-    const semantic = {
-      title: titleFor(diagnostic, relatedRecords),
-      description: descriptionFor(diagnostic, relatedRecords, target),
-      priority: priorityFor(diagnostic),
-      target,
-      acceptanceCriteria: acceptanceCriteriaFor(diagnostic, target),
-      changes,
-      risk: riskFor(diagnostic, changes),
-      rollback: rollbackFor(changes),
-      evidence,
-    };
-    const planHash = createCodeChangePlanHash(semantic);
-    const plan: CodeChangePlan = {
-      schemaVersion: 't2c.code-change-plan/v1',
-      id: createCodeChangePlanId(semantic),
-      planHash,
-      status: 'proposed',
-      createdAt: generatedAt,
-      ...semantic,
-      confidence: confidenceFor(diagnostic, matchingProposals),
-      generation,
-    };
-    plans.push(plan);
+    const plan = createPlanForDiagnostic(diagnostic, context, generatedAt);
+    if (plan) plans.push(plan);
   }
 
   assertCodeChangePlans(plans, {
     graph: options.graph,
     diagnostics: options.diagnostics,
-    conclusions,
-    proposals,
+    conclusions: context.conclusions,
+    proposals: context.proposals,
   });
 
   return {
@@ -191,6 +135,112 @@ export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): 
     graphFingerprint: options.graph.fingerprint,
     sourceDiagnosticCount: candidates.length,
     generation: deterministicGeneration(generatedAt, 't2c/code-change-plan-set'),
+  };
+}
+
+function parseIsoDateTime(value?: string): string {
+  const generatedAt = value ?? new Date().toISOString();
+  if (Number.isNaN(Date.parse(generatedAt))) {
+    throw new Error('generatedAt must be an ISO date-time');
+  }
+  return generatedAt;
+}
+
+function parseMaxPlans(value: number | undefined): number {
+  const maxPlans = value ?? 50;
+  if (!Number.isInteger(maxPlans) || maxPlans < 1 || maxPlans > 500) {
+    throw new Error('maxPlans must be an integer between 1 and 500');
+  }
+  return maxPlans;
+}
+
+interface PlanContext {
+  graph: IntentGraph;
+  recordsById: Map<string, IntentRecord>;
+  proposalsByDiagnostic: Map<string, TodoProposal[]>;
+  conclusionsByDiagnostic: Map<string, Conclusion[]>;
+  conclusions: Conclusion[];
+  proposals: TodoProposal[];
+  pathExists?: (relativePath: string) => boolean;
+}
+
+function buildPlanContext(options: ProposeCodeChangePlansOptions): PlanContext {
+  const conclusions = options.conclusions ?? [];
+  const proposals = options.proposals ?? [];
+  return {
+    graph: options.graph,
+    recordsById: new Map(options.graph.records.map((record) => [record.id, record])),
+    proposalsByDiagnostic: indexProposalsByDiagnostic(proposals),
+    conclusionsByDiagnostic: indexConclusionsByDiagnostic(conclusions),
+    conclusions,
+    proposals,
+    pathExists: options.pathExists,
+  };
+}
+
+function collectImplementationDiagnostics(report: DiagnosticReport): Diagnostic[] {
+  return report.diagnostics
+    .filter((diagnostic) => IMPLEMENTATION_DIAGNOSTIC_CODES.has(diagnostic.code))
+    // A released CHANGELOG entry is an audit signal; an open TODO is an
+    // explicit request for work.  With a bounded plan set, sorting only by
+    // content id allowed historical release notes to consume every slot and
+    // hide the repository's actual backlog from autonomous executors.
+    .sort((left, right) => implementationDiagnosticRank(left)
+      - implementationDiagnosticRank(right) || left.id.localeCompare(right.id));
+}
+
+function findRelatedRecords(
+  diagnostic: Diagnostic,
+  recordsById: Map<string, IntentRecord>,
+): IntentRecord[] {
+  return diagnostic.recordIds
+    .map((id) => recordsById.get(id))
+    .filter((record): record is IntentRecord => Boolean(record));
+}
+
+function createPlanForDiagnostic(
+  diagnostic: Diagnostic,
+  context: PlanContext,
+  generatedAt: string,
+): CodeChangePlan | null {
+  const relatedRecords = findRelatedRecords(diagnostic, context.recordsById);
+  if (!relatedRecords.length) return null;
+
+  const matchingProposals = context.proposalsByDiagnostic.get(diagnostic.id) ?? [];
+  const matchingConclusions = context.conclusionsByDiagnostic.get(diagnostic.id) ?? [];
+  const target = collectTarget(relatedRecords, matchingProposals);
+  const changes = buildChanges(target, relatedRecords, diagnostic, context.pathExists);
+  if (!changes.length) return null;
+
+  const generation = deterministicGeneration(generatedAt, 't2c/code-change-plan');
+  const evidence = {
+    graphFingerprint: context.graph.fingerprint,
+    recordIds: uniqueSorted(relatedRecords.map((record) => record.id)),
+    diagnosticIds: [diagnostic.id],
+    conclusionIds: uniqueSorted(matchingConclusions.map((item) => item.id)),
+    proposalIds: uniqueSorted(matchingProposals.map((item) => item.id)),
+  };
+  const semantic = {
+    title: titleFor(diagnostic, relatedRecords),
+    description: descriptionFor(diagnostic, relatedRecords, target),
+    priority: priorityFor(diagnostic),
+    target,
+    acceptanceCriteria: acceptanceCriteriaFor(diagnostic, target),
+    changes,
+    risk: riskFor(diagnostic, changes),
+    rollback: rollbackFor(changes),
+    evidence,
+  };
+  const planHash = createCodeChangePlanHash(semantic);
+  return {
+    schemaVersion: 't2c.code-change-plan/v1',
+    id: createCodeChangePlanId(semantic),
+    planHash,
+    status: 'proposed',
+    createdAt: generatedAt,
+    ...semantic,
+    confidence: confidenceFor(diagnostic, matchingProposals),
+    generation,
   };
 }
 
