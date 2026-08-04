@@ -19,14 +19,14 @@ files. Publication is already bounded to `dist/todo2code-{version}*`, so neither
 the JavaScript tree nor unrelated artifacts are passed to Twine.
 
 Removing the nested manifest requires migrating `make python-wheel` from
-`pip wheel ./sdk/python` to the repository root. `Makefile` is currently in the
-allowed scope of active governance ticket-018; editing it from ticket-019 would
-violate the non-overlap contract.
+`pip wheel ./sdk/python` to the repository root. Tickets 018 and 035 are DONE;
+the latter now makes all five publication paths integration-owned shared
+contracts. Ticket-019 is therefore routed to the `integration` workstream.
 
 ## Execution plan
 
-1. Obtain explicit human approval for ticket-019 and resolve the Makefile scope
-   conflict with ticket-018.
+1. Record the resolved dependencies and integration workstream in a plan-only
+   commit before changing build metadata.
 2. Add root PEP 517/621 metadata mapping `todo2code` and `todo2code_sdk` from
    `sdk/python`, preserving Apache-2.0 metadata and Python >=3.10.
 3. Update Goal's project types/version file, remove the nested manifest, migrate
@@ -42,12 +42,12 @@ violate the non-overlap contract.
 
 ## Actual changes
 
-- Returned the unapproved plan to `BACKLOG / WAIT_FOR_APPROVAL` so it no longer
-  conflicts with active ticket-018 or claims its unfinished dependency.
+- Updated only governance scope: integration now owns the transaction,
+  ticket-018 and ticket-035 are explicit completed dependencies, and the stale
+  ticket-018 conflict was removed.
+- No package or build metadata changed in this plan commit.
 
 ## Blockers
 
-- Human approval is required before implementation.
-- Active ticket-018 currently claims `Makefile`; ticket-019 cannot safely
-  migrate `make python-wheel` until that overlap is released or routed through
-  an approved integration ticket.
+- None for interactive implementation. Exact-head external review remains
+  required before merge.

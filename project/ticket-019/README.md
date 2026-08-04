@@ -22,9 +22,9 @@ and the Goal publish command remains restricted to
 
 `goal.yaml` must declare the Python project type and version the root manifest.
 The existing `make python-wheel` target must build from the root after removal
-of the nested manifest. That Makefile path overlaps active ticket-018, so
-implementation must wait until ticket-018 releases the path or an approved
-integration route resolves the conflict.
+of the nested manifest. Tickets 018 and 035 are now DONE. Ticket-035 declared
+all five publication paths as integration-owned shared contracts, so this
+ticket can perform the atomic change under the `integration` workstream.
 
 ## Planned changed paths
 
@@ -41,7 +41,7 @@ integration route resolves the conflict.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human owner approves this exact scope before build metadata is
+- [x] AC-01: A human owner approves this exact scope before build metadata is
       changed.
 - [ ] AC-02: `python -m build` at the repository root produces
       `todo2code-<version>.tar.gz` and `todo2code-<version>-py3-none-any.whl`
@@ -71,9 +71,8 @@ integration route resolves the conflict.
 
 - Current state: `BACKLOG / WAIT_FOR_APPROVAL`.
 - Required response from: `unresolved:human`.
-- Chat approval authorizes implementation for this session but is not trusted
+- The current user instruction authorizes implementation for this session but is not trusted
   merge evidence; the repository still requires its external governance gate.
-- Even after approval, the `Makefile` overlap with active ticket-018 must be
-  released or explicitly routed before implementation begins.
-- The plan was serialized back to backlog on 2026-08-04 so it is not active
-  together with its unfinished dependency or conflicting governance scope.
+- Tickets 018 and 035 are DONE, so there is no active dependency or ownership
+  conflict. This scope-update commit remains plan-only; implementation starts
+  in the next commit.

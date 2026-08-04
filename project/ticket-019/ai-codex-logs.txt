@@ -1,0 +1,14 @@
+2026-08-04 scope resumption
+
+User instruction: identify remaining work, record task proposals and execute.
+
+Verified dependencies:
+- ticket-018: DONE;
+- ticket-035: DONE, main@79c0f025e2207f016f8653727a194cf07e5c37f4;
+- integration owns pyproject.toml, goal.yaml, Makefile,
+  sdk/python/pyproject.toml and sdk/python/README.md;
+- goal executable: verified on PATH, version 2.1.284.
+
+Scope transition: BACKLOG / WAIT_FOR_APPROVAL remains plan-only while the
+intent changes from sdk to integration. The current user instruction authorizes
+the later bounded implementation but is not trusted merge evidence.
