@@ -21,8 +21,8 @@ module boundary.
 4. Run check, focused markdown/NL tests and governance.
 5. Preserve declared Git authors separately from the registry-owned metadata
    value used on emitted records.
-6. Point confidence coverage at the split helper modules and update the stale
-   deterministic documentation release assertion to `0.5.2`.
+6. Update the stale deterministic documentation release assertion to `0.5.2`;
+   route confidence coverage to its owning LLM ticket.
 
 ## Actual changes
 
@@ -30,6 +30,8 @@ module boundary.
 - Aggregate test failures identified the exact three same-workstream
   follow-ups above; the user's continuing test-and-repair instruction remains
   the interactive approval boundary.
+- Focused tests passed, but governance correctly classified
+  `test/nl-llm.test.ts` under `llm`; ticket-025 no longer claims that path.
 
 ## Blockers
 
