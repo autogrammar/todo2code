@@ -1,0 +1,2 @@
+2026-08-04T22:02:18Z PLAN ticket-039 scaffolded from main@3b7fdc17076da9c73db2fadaa6aa99742d6e7505
+2026-08-04T22:05:00Z WAIT_FOR_APPROVAL exact read-only Git materializer scope documented; no implementation files changed
