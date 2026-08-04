@@ -21,7 +21,7 @@
     "src/summary/**"
   ],
   "stacks": ["node", "docker"],
-  "dependsOn": ["ticket-027"],
+  "dependsOn": [],
   "conflictsWith": [],
   "integrationTicket": null
 }

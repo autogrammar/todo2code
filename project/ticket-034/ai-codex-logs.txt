@@ -1,0 +1,3 @@
+2026-08-04 user approval: "kontynuuj"; state WAIT_FOR_APPROVAL -> EDIT
+2026-08-04 local OpenRouter model: z-ai/glm-5.2; ignored .env only, no secret changed
+2026-08-04 ticket-027 closure verified at c51bf19; equivalent split behavior present on current base

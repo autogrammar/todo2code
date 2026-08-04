@@ -1,6 +1,7 @@
 import type { T2CConfig } from '../config/env.js';
 import type { LlmResponseMetadata } from '../core/types.js';
 import { StructuredResponseError, type StructuredSchema } from './structured-schema.js';
+import { openRouterRequestTimeout } from './openrouter-timeout.js';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -169,20 +170,23 @@ export class OpenRouterClient {
   }
 
   private async request(body: Record<string, unknown>): Promise<OpenRouterResponse> {
-    const apiKey = this.config.apiKey;
-    if (!apiKey) throw new Error('OPENROUTER_API_KEY is required for this operation');
+    const configuredCredential = this.config.apiKey;
+    if (!configuredCredential) throw new Error('OPENROUTER_API_KEY is required for this operation');
+    const requestBody = removeUndefined(body) as Record<string, unknown>;
+    const timeoutDecision = openRouterRequestTimeout(requestBody, this.config.timeoutMs);
     const controller = new AbortController();
     const externalSignal = this.config.signal;
     const abortFromExternal = () => controller.abort();
     externalSignal?.addEventListener('abort', abortFromExternal, { once: true });
     if (externalSignal?.aborted) controller.abort();
-    const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
+    const timeout = setTimeout(() => controller.abort(), timeoutDecision.effectiveTimeoutMs);
     try {
+      if (externalSignal?.aborted) throw new Error('OpenRouter request aborted by pipeline deadline');
       let lastError: Error | null = null;
       for (let attempt = 0; attempt < 3; attempt += 1) {
         try {
           const headers: Record<string, string> = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${configuredCredential}`,
             'Content-Type': 'application/json',
             'X-OpenRouter-Title': this.config.appName,
           };
@@ -190,7 +194,7 @@ export class OpenRouterClient {
           const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
             method: 'POST',
             headers,
-            body: JSON.stringify(removeUndefined(body)),
+            body: JSON.stringify(requestBody),
             signal: controller.signal,
           });
           const text = await response.text();
@@ -205,7 +209,7 @@ export class OpenRouterClient {
             const error = new Error(`OpenRouter HTTP ${response.status}: ${message}`);
             if ((response.status === 429 || response.status >= 500) && attempt < 2) {
               lastError = error;
-              await sleep(300 * (2 ** attempt));
+              await sleep(300 * (2 ** attempt), controller.signal);
               continue;
             }
             if (isInvalidModelError(response.status, message)) {
@@ -232,11 +236,14 @@ export class OpenRouterClient {
         } catch (error) {
           if (error instanceof Error && error.name === 'AbortError') {
             if (externalSignal?.aborted) throw new Error('OpenRouter request aborted by pipeline deadline');
-            throw new Error(`OpenRouter request timed out after ${this.config.timeoutMs} ms`);
+            throw new Error(
+              `OpenRouter request timed out after ${timeoutDecision.effectiveTimeoutMs} ms `
+              + `(base ${timeoutDecision.baseTimeoutMs} ms, adaptive ${timeoutDecision.multiplier}x${timeoutDecision.capped ? ', capped' : ''})`,
+            );
           }
           lastError = error instanceof Error ? error : new Error(String(error));
           if (attempt < 2 && /fetch failed|ECONNRESET|ETIMEDOUT/i.test(lastError.message)) {
-            await sleep(300 * (2 ** attempt));
+            await sleep(300 * (2 ** attempt), controller.signal);
             continue;
           }
           throw lastError;
@@ -333,6 +340,17 @@ function parseJsonResponse<T>(response: OpenRouterResponse): OpenRouterResult<T>
   }
 }
 
-function sleep(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+function sleep(milliseconds: number, signal: AbortSignal): Promise<void> {
+  if (signal.aborted) return Promise.reject(new DOMException('aborted', 'AbortError'));
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      clearTimeout(timeout);
+      reject(new DOMException('aborted', 'AbortError'));
+    };
+    const timeout = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, milliseconds);
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
 }

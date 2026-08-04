@@ -2,8 +2,8 @@
 
 - **ID**: ticket-034
 - **Owner**: unresolved:human
-- **Status**: BACKLOG
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -52,7 +52,7 @@ fallback and the `/models` endpoint are out of scope.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves the formula and bounded paths after ticket-027 is
+- [x] AC-01: A human approves the formula and bounded paths after ticket-027 is
       integrated or closed.
 - [ ] AC-02: Requests at or below all baselines retain the exact configured base
       timeout.
@@ -71,19 +71,19 @@ fallback and the `/models` endpoint are out of scope.
 - [ ] AC-09: Focused tests, full `npm run verify`, Docker smoke and governance
       pass on the integrated base.
 
-## Blockers
+## Resolved blockers
 
-- Ticket-027 currently owns the active `llm` workstream and is in validation.
-  Governance permits only one active ticket per workstream.
-- The main development worktree has unrelated edits in `src/llm/openrouter.ts`
-  and an untracked `src/llm/openrouter-request.ts`; implementation must use a
-  clean, integrated base instead of overwriting those changes.
+- Ticket-027 was closed on the validated repair line at `c51bf19`. The current
+  refactored base already contains its array narrowing and total edit-path
+  handling in the split helper modules, so importing its full historical stack
+  would only introduce unrelated conflicts.
+- Implementation uses this clean ticket worktree. The unrelated edits in the
+  main development worktree remain untouched.
 
 ## Approval boundary
 
-The user's request authorizes creation of this plan. Executable edits remain
-blocked until the user explicitly approves ticket-034 after the blockers above
-are resolved.
+The user's `kontynuuj` on 2026-08-04 approves this formula and bounded scope.
+The ticket may enter `EDIT`; protected review remains required for merge.
 
 ## Participants
 
