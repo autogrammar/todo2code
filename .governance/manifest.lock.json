@@ -1,23 +1,27 @@
 {
+  "managedFiles": {
+    ".governance/approval-evidence.schema.json": "488dee5a4bfbf221206acc45947fce5283eb5e80614ec0ef478b5d618cc4eb83",
+    ".governance/diagnostics.json": "c8c3b8f6f618c103d67cb6e6c3221ec2980959041a1187f754c5f824cf7166b0",
+    ".governance/governance_check.py": "b5429a616a2c1a3f61c80aed7b4514e8b1a05f3c7ccae7e6cc3b05a2eee814b6",
+    ".governance/intent.schema.json": "b2dc37ee348ca33e2f0d33515dd79c2403ac8afb504257cdebb65edf472a2637",
+    ".governance/lock.schema.json": "fc6f1143ef713c993b61270dd2d7545a52cb0b8501aadb188e6d0152a208b207",
+    ".governance/manifest.json": "23763ce5ad1ba7bbcf0fe642b0d9b06b074eadf1df4c879d1388ae021c714d8f",
+    ".governance/manifest.schema.json": "33cb8154e363b2a147a1499eef116f329d8d513d3a3c8cc9c5ba5f67d5230c41",
+    ".governance/stack-profiles.json": "6fa3f8f44e50cfd0539413a85092817d3fab4e82fe376405f1e443120724dff2",
+    "AGENTS.md": "e3928661a4e3ede5e9e60d8c0b28d4f6bb08057994a290da10197170f38a108d",
+    "project.bat": "d707e014dba4d66e64ff6d4e212ceeedb8b65ec96ce76677cc3fc025875f45f6",
+    "project.sh": "90f82d9f0feea9bde34dca3e1c657604a65f3bfc938709e3cf69682f07dd1bc1",
+    "project/governance-check.bat": "7207bc499483d7a7a1ab2c230ad288c2484cdf02f3a773ba69f4b760b67a3388",
+    "project/governance-check.sh": "158ca61531b8e51ba484de8eb6f91f4e4fbba908ae3c8db678b63bf6bab49923",
+    "project/new-ticket.sh": "ee13b5a73afe18ff85ce36b00ae5b3d6811c96a336ce64dd55078061e77bfe29",
+    "project/readme.sh": "8a19819ab97fff26dbca179ead831d697f785c48774d8154714d768968fcfaf0"
+  },
   "schema": "new-project.lock/v1",
   "standard": {
     "id": "wellmanifest/new-project",
-    "version": "0.8.0",
+    "publicationStatus": "published",
     "sourceRepository": "wellmanifest/new-project",
-    "sourceRevision": null,
-    "sourceBaseRevision": "72e5f6c9cf91998615e2342f02b2af650be81cea",
-    "publicationStatus": "uncommitted"
-  },
-  "managedFiles": {
-    ".governance/diagnostics.json": "2a6d1e088a03badb75eef33cfeb9b6c9992fea4c6f7fa5ebec6257b1eea9e39f",
-    ".governance/governance_check.py": "1e45843a4efa5793547aa7e9a0fd629b495449c65ca6a4cf7b0990334545bbfa",
-    ".governance/intent.schema.json": "7e3157c1bf7c987541fc2182fc44d33bf53520672931a09bbd6b2b10b821aa3b",
-    ".governance/manifest.json": "8d3f8048f9112e467832d3c82121653ab976eeeb14f160348c0d24fd94230c27",
-    ".governance/manifest.schema.json": "185f041ffe3d9c40670765ff53fc7ef37dc4ee21121c67a8d7913bd8860435da",
-    ".governance/stack-profiles.json": "6fa3f8f44e50cfd0539413a85092817d3fab4e82fe376405f1e443120724dff2",
-    "project/governance-check.bat": "7207bc499483d7a7a1ab2c230ad288c2484cdf02f3a773ba69f4b760b67a3388",
-    "project/governance-check.sh": "158ca61531b8e51ba484de8eb6f91f4e4fbba908ae3c8db678b63bf6bab49923",
-    "project/new-ticket.sh": "0e6d199c535259bf1eebbc91f8eab68ae6457c3158230f55cf23d587fdb671ff",
-    "project/readme.sh": "8a19819ab97fff26dbca179ead831d697f785c48774d8154714d768968fcfaf0"
+    "sourceRevision": "d082373f314191dba794aba58aca2d4475ea497a",
+    "version": "0.9.0"
   }
 }

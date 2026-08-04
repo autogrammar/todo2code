@@ -15,8 +15,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
-RUNTIME_VERSION = "0.8.0"
-ACTIVE_DEFAULT = {"PLAN", "IN_PROGRESS", "BLOCKED"}
+RUNTIME_VERSION = "0.9.0"
+ACTIVE_DEFAULT = {"IN_PROGRESS"}
 EXECUTABLE_SUFFIXES = {
     ".bat", ".c", ".cc", ".cmd", ".cpp", ".go", ".java", ".js", ".jsx",
     ".mjs", ".php", ".ps1", ".py", ".rb", ".rs", ".sh", ".ts", ".tsx",
@@ -109,8 +109,156 @@ def safe_repo_path(root: Path, raw: str) -> Path:
     return candidate
 
 
+def string_list(value: Any, *, nonempty: bool = False) -> bool:
+    return (
+        isinstance(value, list)
+        and (not nonempty or bool(value))
+        and all(isinstance(item, str) and bool(item) for item in value)
+        and len(value) == len(set(value))
+    )
+
+
+def relative_pattern(value: str) -> bool:
+    normalized = value.replace("\\", "/")
+    return (
+        not normalized.startswith("/")
+        and not re.match(r"^[A-Za-z]:/", normalized)
+        and ".." not in normalized.split("/")
+    )
+
+
+def approval_evidence_config_valid(value: Any) -> bool:
+    if value is None:
+        return True
+    return (
+        isinstance(value, dict)
+        and set(value) == {
+            "schema", "requiredBindings", "reviewVerificationMethod",
+            "signedAttestationPredicateType",
+        }
+        and value.get("schema") == "new-project.approval-evidence/v1"
+        and value.get("requiredBindings") == [
+            "repository", "pullRequest", "headSha", "ticket", "actor",
+        ]
+        and value.get("reviewVerificationMethod") == "github-api-allowlist"
+        and value.get("signedAttestationPredicateType")
+        == "https://wellmanifest.dev/attestations/validator/v1"
+    )
+
+
 def matches(path: str, patterns: Iterable[str]) -> bool:
-    return any(fnmatch.fnmatchcase(path, pattern) for pattern in patterns)
+    path_parts = path.replace("\\", "/").strip("/").split("/")
+
+    def match_pattern(pattern: str) -> bool:
+        pattern_parts = pattern.replace("\\", "/").strip("/").split("/")
+        memo: dict[tuple[int, int], bool] = {}
+
+        def visit(path_index: int, pattern_index: int) -> bool:
+            key = (path_index, pattern_index)
+            if key in memo:
+                return memo[key]
+            if pattern_index == len(pattern_parts):
+                result = path_index == len(path_parts)
+            elif pattern_parts[pattern_index] == "**":
+                result = visit(path_index, pattern_index + 1) or (
+                    path_index < len(path_parts) and visit(path_index + 1, pattern_index)
+                )
+            else:
+                result = (
+                    path_index < len(path_parts)
+                    and fnmatch.fnmatchcase(path_parts[path_index], pattern_parts[pattern_index])
+                    and visit(path_index + 1, pattern_index + 1)
+                )
+            memo[key] = result
+            return result
+
+        return visit(0, 0)
+
+    return any(match_pattern(pattern) for pattern in patterns)
+
+
+def segment_literal_prefix(pattern: str) -> str:
+    index = min((pattern.find(char) for char in "*?[" if char in pattern), default=len(pattern))
+    return pattern[:index]
+
+
+def segment_literal_suffix(pattern: str) -> str:
+    indexes = [pattern.rfind(char) for char in "*?]" if char in pattern]
+    return pattern[max(indexes, default=-1) + 1:]
+
+
+def segments_may_overlap(first: str, second: str) -> bool:
+    first_magic = any(char in first for char in "*?[")
+    second_magic = any(char in second for char in "*?[")
+    if not first_magic and not second_magic:
+        return first == second
+    if not first_magic:
+        return fnmatch.fnmatchcase(first, second)
+    if not second_magic:
+        return fnmatch.fnmatchcase(second, first)
+    first_prefix = segment_literal_prefix(first)
+    second_prefix = segment_literal_prefix(second)
+    if first_prefix and second_prefix and not (
+        first_prefix.startswith(second_prefix) or second_prefix.startswith(first_prefix)
+    ):
+        return False
+    first_suffix = segment_literal_suffix(first)
+    second_suffix = segment_literal_suffix(second)
+    if first_suffix and second_suffix and not (
+        first_suffix.endswith(second_suffix) or second_suffix.endswith(first_suffix)
+    ):
+        return False
+    return True
+
+
+def patterns_may_overlap(first: str, second: str) -> bool:
+    first_parts = first.replace("\\", "/").strip("/").split("/")
+    second_parts = second.replace("\\", "/").strip("/").split("/")
+    memo: dict[tuple[int, int], bool] = {}
+
+    def visit(first_index: int, second_index: int) -> bool:
+        key = (first_index, second_index)
+        if key in memo:
+            return memo[key]
+        if first_index == len(first_parts) and second_index == len(second_parts):
+            result = True
+        elif first_index == len(first_parts):
+            result = all(part == "**" for part in second_parts[second_index:])
+        elif second_index == len(second_parts):
+            result = all(part == "**" for part in first_parts[first_index:])
+        elif first_parts[first_index] == "**" and second_parts[second_index] == "**":
+            result = visit(first_index + 1, second_index) or visit(first_index, second_index + 1)
+        elif first_parts[first_index] == "**":
+            result = visit(first_index + 1, second_index) or visit(first_index, second_index + 1)
+        elif second_parts[second_index] == "**":
+            result = visit(first_index, second_index + 1) or visit(first_index + 1, second_index)
+        else:
+            result = segments_may_overlap(first_parts[first_index], second_parts[second_index]) and visit(
+                first_index + 1, second_index + 1
+            )
+        memo[key] = result
+        return result
+
+    return visit(0, 0)
+
+
+def pattern_covered_by(pattern: str, owner_pattern: str) -> bool:
+    if pattern == owner_pattern:
+        return True
+    if not any(char in pattern for char in "*?["):
+        return matches(pattern, [owner_pattern])
+    pattern_parts = pattern.replace("\\", "/").strip("/").split("/")
+    owner_parts = owner_pattern.replace("\\", "/").strip("/").split("/")
+    if owner_parts and owner_parts[-1] == "**" and len(pattern_parts) >= len(owner_parts) - 1:
+        prefix = owner_parts[:-1]
+        return all(
+            allowed == owned or (
+                not any(char in allowed for char in "*?[")
+                and fnmatch.fnmatchcase(allowed, owned)
+            )
+            for allowed, owned in zip(pattern_parts, prefix)
+        )
+    return False
 
 
 def git_output(root: Path, args: list[str]) -> bytes:
@@ -121,7 +269,10 @@ def git_output(root: Path, args: list[str]) -> bytes:
 
 def changed_paths(root: Path, base: str | None, head: str, explicit: list[str]) -> list[str]:
     if explicit:
-        return sorted(set(path.replace("\\", "/").removeprefix("./") for path in explicit if path))
+        normalized = sorted(set(path.replace("\\", "/").removeprefix("./") for path in explicit if path))
+        for path in normalized:
+            safe_repo_path(root, path)
+        return normalized
     try:
         if base:
             raw = git_output(root, ["diff", "--name-only", "-z", f"{base}...{head}"])
@@ -131,8 +282,8 @@ def changed_paths(root: Path, base: str | None, head: str, explicit: list[str]) 
             untracked = git_output(root, ["ls-files", "--others", "--exclude-standard", "-z"])
             paths = (tracked + untracked).decode("utf-8", "surrogateescape").split("\0")
         return sorted(set(path for path in paths if path))
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return []
+    except (subprocess.CalledProcessError, FileNotFoundError) as error:
+        raise RuntimeError("Git could not determine the changed-path set") from error
 
 
 def check_history_order(
@@ -140,6 +291,7 @@ def check_history_order(
     base: str | None,
     head: str,
     ticket_name: str,
+    ticket_root: str,
     intent_path: str,
     governance_patterns: list[str],
     report: Report,
@@ -149,13 +301,23 @@ def check_history_order(
     try:
         commits = git_output(root, ["rev-list", "--reverse", f"{base}..{head}"]).decode().splitlines()
     except (subprocess.CalledProcessError, FileNotFoundError):
+        report.add(
+            "GOV-DIFF-001", "Git could not enumerate commits for history-order validation.",
+            "Fetch the complete base/head history and rerun the governance gate.",
+            evidence={"base": base, "head": head},
+        )
         return
     first_implementation: tuple[int, str] | None = None
     for index, commit in enumerate(commits):
         try:
             raw = git_output(root, ["diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "-z", commit])
         except subprocess.CalledProcessError:
-            continue
+            report.add(
+                "GOV-DIFF-001", f"Git could not inspect commit {commit}.",
+                "Fetch complete commit objects and rerun the governance gate.",
+                evidence={"commit": commit},
+            )
+            return
         paths = [path for path in raw.decode("utf-8", "surrogateescape").split("\0") if path]
         if any(not matches(path, governance_patterns) for path in paths):
             first_implementation = (index, commit)
@@ -164,7 +326,7 @@ def check_history_order(
         return
     index, commit = first_implementation
     parent = f"{commit}^" if index > 0 else base
-    ticket_intent = f"project/{ticket_name}/{intent_path}"
+    ticket_intent = f"{ticket_root.rstrip('/')}/{ticket_name}/{intent_path}"
     try:
         subprocess.run(
             ["git", "cat-file", "-e", f"{parent}:{ticket_intent}"], cwd=root,
@@ -187,46 +349,96 @@ def basic_manifest_valid(manifest: Any) -> bool:
     standard = manifest.get("standard")
     ticket = manifest.get("ticket")
     docker = manifest.get("docker")
+    expected_ticket_fields = {
+        "root", "directoryPattern", "requiredFiles", "requiredAgentFiles",
+        "activeStatuses", "closedStatuses", "implementationStates", "intentFile",
+    }
+    if manifest.get("schema") == "new-project.governance/v2":
+        expected_ticket_fields.add("nonActiveStatuses")
+    status_groups = [
+        set(ticket.get(name, [])) if isinstance(ticket, dict) else set()
+        for name in ("activeStatuses", "nonActiveStatuses", "closedStatuses")
+    ]
     common_valid = (
         isinstance(standard, dict)
+        and set(standard) == {"id", "version"}
         and standard.get("id") == "wellmanifest/new-project"
         and isinstance(standard.get("version"), str)
-        and isinstance(manifest.get("requiredFiles"), list)
-        and isinstance(manifest.get("governancePaths"), list)
-        and isinstance(manifest.get("trustedApprovalSources"), list)
+        and re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", standard["version"]) is not None
+        and string_list(manifest.get("requiredFiles"))
+        and string_list(manifest.get("governancePaths"))
+        and all(relative_pattern(item) for item in manifest["requiredFiles"])
+        and all(relative_pattern(item) for item in manifest["governancePaths"])
+        and string_list(manifest.get("trustedApprovalSources"), nonempty=True)
+        and set(manifest["trustedApprovalSources"]) <= {
+            "github-review", "github-app-review", "signed-attestation",
+        }
+        and approval_evidence_config_valid(manifest.get("approvalEvidence"))
         and isinstance(ticket, dict)
-        and all(key in ticket for key in (
-            "root", "directoryPattern", "requiredFiles", "requiredAgentFiles",
-            "activeStatuses", "closedStatuses", "implementationStates", "intentFile",
-        ))
+        and set(ticket) == expected_ticket_fields
+        and isinstance(ticket.get("root"), str) and bool(ticket["root"]) and relative_pattern(ticket["root"])
+        and isinstance(ticket.get("directoryPattern"), str) and bool(ticket["directoryPattern"])
+        and string_list(ticket.get("requiredFiles"))
+        and string_list(ticket.get("requiredAgentFiles"))
+        and all(relative_pattern(item) for item in [*ticket["requiredFiles"], *ticket["requiredAgentFiles"]])
+        and string_list(ticket.get("activeStatuses"), nonempty=True)
+        and (manifest.get("schema") != "new-project.governance/v2" or string_list(ticket.get("nonActiveStatuses"), nonempty=True))
+        and string_list(ticket.get("closedStatuses"), nonempty=True)
+        and all(left.isdisjoint(right) for index, left in enumerate(status_groups) for right in status_groups[index + 1:])
+        and string_list(ticket.get("implementationStates"), nonempty=True)
+        and isinstance(ticket.get("intentFile"), str) and bool(ticket["intentFile"]) and relative_pattern(ticket["intentFile"])
         and isinstance(docker, dict)
-        and all(key in docker for key in ("required", "dockerfiles", "composeFiles"))
+        and set(docker) == {"required", "dockerfiles", "composeFiles"}
+        and isinstance(docker.get("required"), bool)
+        and string_list(docker.get("dockerfiles"), nonempty=True)
+        and string_list(docker.get("composeFiles"), nonempty=True)
+        and all(relative_pattern(item) for item in [*docker["dockerfiles"], *docker["composeFiles"]])
     )
+    if common_valid:
+        try:
+            re.compile(ticket["directoryPattern"])
+        except re.error:
+            common_valid = False
     if not common_valid or manifest.get("schema") == "new-project.governance/v1":
         return common_valid
+    allowed_root_keys = {
+        "$schema", "schema", "standard", "requiredFiles", "governancePaths",
+        "trustedApprovalSources", "approvalEvidence", "ticket", "docker",
+        "coordination", "stacks",
+    }
     coordination = manifest.get("coordination")
     return (
-        isinstance(coordination, dict)
+        set(manifest) <= allowed_root_keys
+        and string_list(manifest.get("stacks", []))
+        and set(manifest.get("stacks", [])) <= {"node", "python", "go", "rust", "java", "docker", "frontend", "terraform", "kubernetes"}
+        and isinstance(coordination, dict)
+        and set(coordination) == {"mode", "maxActiveTicketsPerWorkstream", "rejectActiveScopeOverlap", "workstreams", "integration"}
         and coordination.get("mode") == "workstreams"
         and isinstance(coordination.get("maxActiveTicketsPerWorkstream"), int)
+        and not isinstance(coordination.get("maxActiveTicketsPerWorkstream"), bool)
         and coordination["maxActiveTicketsPerWorkstream"] >= 1
         and isinstance(coordination.get("rejectActiveScopeOverlap"), bool)
         and isinstance(coordination.get("workstreams"), dict)
         and bool(coordination["workstreams"])
         and all(
             isinstance(item, dict)
-            and isinstance(item.get("ownedPaths"), list)
-            and bool(item["ownedPaths"])
-            for item in coordination["workstreams"].values()
+            and set(item) == {"ownedPaths"}
+            and string_list(item.get("ownedPaths"), nonempty=True)
+            and all(relative_pattern(path) for path in item["ownedPaths"])
+            for name, item in coordination["workstreams"].items()
+            if isinstance(name, str) and re.fullmatch(r"[a-z0-9][a-z0-9-]*", name)
         )
+        and all(isinstance(name, str) and re.fullmatch(r"[a-z0-9][a-z0-9-]*", name) for name in coordination["workstreams"])
         and isinstance(coordination.get("integration"), dict)
+        and set(coordination["integration"]) == {"workstream", "requiredForPaths"}
         and isinstance(coordination["integration"].get("workstream"), str)
-        and isinstance(coordination["integration"].get("requiredForPaths"), list)
+        and string_list(coordination["integration"].get("requiredForPaths"))
+        and all(relative_pattern(item) for item in coordination["integration"]["requiredForPaths"])
         and coordination["integration"]["workstream"] in coordination["workstreams"]
     )
 
 
-def check_lock(root: Path, lock_path: Path | None, report: Report) -> None:
+def check_lock(root: Path, lock_path: Path | None, manifest: dict[str, Any], report: Report) -> None:
     if lock_path is None:
         return
     if not lock_path.is_file():
@@ -239,8 +451,28 @@ def check_lock(root: Path, lock_path: Path | None, report: Report) -> None:
     try:
         lock = load_json(lock_path)
         managed = lock["managedFiles"]
-        if lock.get("schema") != "new-project.lock/v1" or not isinstance(managed, dict):
+        standard = lock["standard"]
+        if lock.get("schema") != "new-project.lock/v1" or set(lock) != {"schema", "standard", "managedFiles"} or not isinstance(managed, dict):
             raise ValueError("unsupported lock schema")
+        if (
+            not isinstance(standard, dict)
+            or set(standard) != {"id", "version", "sourceRepository", "sourceRevision", "publicationStatus"}
+            or standard.get("id") != "wellmanifest/new-project"
+            or standard.get("version") != manifest["standard"]["version"]
+            or standard.get("sourceRepository") != "wellmanifest/new-project"
+            or not isinstance(standard.get("sourceRevision"), str)
+            or re.fullmatch(r"[0-9a-f]{40}", standard["sourceRevision"]) is None
+            or standard.get("publicationStatus") != "published"
+        ):
+            raise ValueError("lock must identify the published immutable standard revision")
+        if not all(
+            isinstance(raw_path, str)
+            and relative_pattern(raw_path)
+            and isinstance(digest, str)
+            and re.fullmatch(r"[a-f0-9]{64}", digest)
+            for raw_path, digest in managed.items()
+        ):
+            raise ValueError("managedFiles must map repository-relative paths to lowercase SHA-256 digests")
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
         report.add("GOV-SYNC-001", f"Governance lock is invalid: {error}", "Regenerate the lock from a trusted standard release.", [rel(root, lock_path)])
         return
@@ -277,7 +509,10 @@ def ticket_directories(root: Path, config: dict[str, Any]) -> list[Path]:
     pattern = re.compile(config["directoryPattern"])
     if not ticket_root.is_dir():
         return []
-    return sorted(path for path in ticket_root.iterdir() if path.is_dir() and pattern.fullmatch(path.name))
+    return sorted(
+        path for path in ticket_root.iterdir()
+        if path.is_dir() and not path.is_symlink() and pattern.fullmatch(path.name)
+    )
 
 
 def validate_intent(path: Path, ticket_name: str) -> tuple[dict[str, Any] | None, str | None]:
@@ -299,10 +534,13 @@ def validate_intent(path: Path, ticket_name: str) -> tuple[dict[str, Any] | None
     if not isinstance(intent.get("summary"), str) or not intent["summary"].strip():
         return None, "intent summary is blank"
     for field_name in ("allowedPaths", "forbiddenPaths", "stacks"):
-        if not isinstance(intent.get(field_name), list) or not all(isinstance(value, str) and value for value in intent[field_name]):
+        if not string_list(intent.get(field_name)):
             return None, f"intent {field_name} must be a list of non-blank strings"
     if not intent["allowedPaths"]:
         return None, "intent allowedPaths is empty"
+    for field_name in ("allowedPaths", "forbiddenPaths"):
+        if not all(relative_pattern(value) for value in intent[field_name]):
+            return None, f"intent {field_name} must contain repository-relative patterns"
     if intent["schema"] == "new-project.intent/v2":
         if not isinstance(intent.get("workstream"), str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]*", intent["workstream"]):
             return None, "intent workstream is invalid"
@@ -315,6 +553,8 @@ def validate_intent(path: Path, ticket_name: str) -> tuple[dict[str, Any] | None
         integration = intent.get("integrationTicket")
         if integration is not None and (not isinstance(integration, str) or not re.fullmatch(r"ticket-[0-9]{3}", integration)):
             return None, "intent integrationTicket must be null or a ticket ID"
+        if integration == ticket_name:
+            return None, "intent integrationTicket cannot reference its own ticket"
     return intent, None
 
 
@@ -348,7 +588,17 @@ def check_coordination(
         return
     config = manifest["ticket"]
     active_statuses = set(config.get("activeStatuses", ACTIVE_DEFAULT))
+    non_active_statuses = set(config.get("nonActiveStatuses", []))
     closed_statuses = set(config.get("closedStatuses", []))
+    allowed_statuses = active_statuses | non_active_statuses | closed_statuses
+    for record in records:
+        if record.status not in allowed_statuses:
+            report.add(
+                "GOV-STATUS-001", f"Ticket {record.directory.name} has unknown status '{record.status or 'MISSING'}'.",
+                "Use a status declared in activeStatuses, nonActiveStatuses or closedStatuses.",
+                [rel(root, record.directory / "README.md")],
+                {"ticket": record.directory.name, "status": record.status, "allowedStatuses": sorted(allowed_statuses)},
+            )
     active = [record for record in records if record.status in active_statuses]
     by_name = {record.directory.name: record for record in records}
     workstreams = coordination["workstreams"]
@@ -431,6 +681,7 @@ def check_coordination(
 
     active_names = {record.directory.name for record in active}
     conflict_pairs: set[tuple[str, str]] = set()
+    integration_config = coordination["integration"]
     for record in valid_active:
         assert record.intent is not None
         for dependency in record.intent["dependsOn"]:
@@ -445,6 +696,24 @@ def check_coordination(
         for conflict in record.intent["conflictsWith"]:
             if conflict in active_names:
                 conflict_pairs.add(tuple(sorted((record.directory.name, conflict))))
+        integration_name = record.intent["integrationTicket"]
+        if integration_name is not None:
+            integration_record = by_name.get(integration_name)
+            valid_integration = (
+                integration_record is not None
+                and integration_record.intent is not None
+                and integration_record.intent.get("schema") == "new-project.intent/v2"
+                and integration_record.intent.get("workstream") == integration_config["workstream"]
+                and integration_record.status != "CANCELLED"
+            )
+            if not valid_integration:
+                report.add(
+                    "GOV-INTEGRATION-001",
+                    f"Ticket {record.directory.name} references an invalid integration ticket {integration_name}.",
+                    "Reference an existing, non-cancelled ticket in the manifest-declared integration workstream.",
+                    [rel(root, record.directory / config["intentFile"])],
+                    {"ticket": record.directory.name, "integrationTicket": integration_name, "requiredWorkstream": integration_config["workstream"]},
+                )
     for first, second in sorted(conflict_pairs):
         report.add(
             "GOV-CONFLICT-001", f"Conflicting tickets {first} and {second} are active together.",
@@ -457,6 +726,14 @@ def check_coordination(
     for record in valid_active:
         assert record.intent is not None
         owned_paths = workstreams[record.intent["workstream"]]["ownedPaths"]
+        implementation_patterns = [
+            pattern for pattern in record.intent["allowedPaths"]
+            if not matches(pattern, governance_patterns)
+        ]
+        unowned_patterns = [
+            pattern for pattern in implementation_patterns
+            if not any(pattern_covered_by(pattern, owned) for owned in owned_paths)
+        ]
         unowned_claims = [
             path for path in files
             if not matches(path, governance_patterns)
@@ -464,12 +741,18 @@ def check_coordination(
             and not matches(path, record.intent["forbiddenPaths"])
             and not matches(path, owned_paths)
         ]
-        if unowned_claims:
+        if unowned_patterns or unowned_claims:
             report.add(
-                "GOV-WORKSTREAM-003", f"Ticket {record.directory.name} claims concrete paths outside workstream '{record.intent['workstream']}'.",
-                "Narrow allowedPaths or route the concrete files to their owning workstream/integration ticket and obtain fresh approval.",
-                unowned_claims[:20],
-                {"ticket": record.directory.name, "workstream": record.intent["workstream"], "ownedPaths": owned_paths, "concretePathCount": len(unowned_claims)},
+                "GOV-WORKSTREAM-003", f"Ticket {record.directory.name} claims paths outside workstream '{record.intent['workstream']}'.",
+                "Narrow allowedPaths or route the paths to their owning workstream/integration ticket and obtain fresh approval.",
+                sorted(set([*unowned_patterns, *unowned_claims]))[:20],
+                {
+                    "ticket": record.directory.name,
+                    "workstream": record.intent["workstream"],
+                    "ownedPaths": owned_paths,
+                    "unownedPatterns": unowned_patterns,
+                    "concretePathCount": len(unowned_claims),
+                },
             )
 
     if coordination["rejectActiveScopeOverlap"]:
@@ -485,17 +768,21 @@ def check_coordination(
                     and matches(path, second.intent["allowedPaths"])
                     and not matches(path, second.intent["forbiddenPaths"])
                 ]
-                common_patterns = sorted(
-                    (set(first.intent["allowedPaths"]) & set(second.intent["allowedPaths"]))
-                    - set(governance_patterns)
-                )
-                if shared_files or common_patterns:
+                first_patterns = [pattern for pattern in first.intent["allowedPaths"] if not matches(pattern, governance_patterns)]
+                second_patterns = [pattern for pattern in second.intent["allowedPaths"] if not matches(pattern, governance_patterns)]
+                overlapping_patterns = sorted({
+                    f"{first_pattern} <-> {second_pattern}"
+                    for first_pattern in first_patterns
+                    for second_pattern in second_patterns
+                    if patterns_may_overlap(first_pattern, second_pattern)
+                })
+                if shared_files or overlapping_patterns:
                     report.add(
                         "GOV-WORKSTREAM-004",
                         f"Active ticket scopes overlap: {first.directory.name} and {second.directory.name}.",
                         "Narrow one allowedPaths declaration, serialize the work, or route the shared contract through integration.",
                         shared_files[:20],
-                        {"tickets": [first.directory.name, second.directory.name], "commonPatterns": common_patterns, "concretePathCount": len(shared_files)},
+                        {"tickets": [first.directory.name, second.directory.name], "overlappingPatterns": overlapping_patterns, "concretePathCount": len(shared_files)},
                     )
 
 
@@ -512,8 +799,17 @@ def check_required_files(root: Path, manifest: dict[str, Any], report: Report) -
 
     docker = manifest["docker"]
     if docker["required"]:
-        dockerfile = next((name for name in docker["dockerfiles"] if safe_repo_path(root, name).is_file()), None)
-        compose = next((name for name in docker["composeFiles"] if safe_repo_path(root, name).is_file()), None)
+        def first_repo_file(names: list[str]) -> str | None:
+            for name in names:
+                try:
+                    if safe_repo_path(root, name).is_file():
+                        return name
+                except ValueError:
+                    continue
+            return None
+
+        dockerfile = first_repo_file(docker["dockerfiles"])
+        compose = first_repo_file(docker["composeFiles"])
         if dockerfile is None or compose is None:
             report.add(
                 "GOV-DOCKER-001", "Required Dockerfile or Compose declaration is missing.",
@@ -528,7 +824,9 @@ def check_stacks(root: Path, manifest: dict[str, Any], profiles_path: Path | Non
         return
     try:
         profiles = load_json(profiles_path)["profiles"]
-    except (OSError, KeyError, json.JSONDecodeError):
+        if not isinstance(profiles, dict):
+            raise ValueError("profiles must be an object")
+    except (OSError, KeyError, ValueError, json.JSONDecodeError):
         report.add("GOV-MANIFEST-001", "Stack profile catalog is unreadable.", "Restore the pinned stack profile catalog.", [])
         return
     for stack in stacks:
@@ -537,6 +835,9 @@ def check_stacks(root: Path, manifest: dict[str, Any], profiles_path: Path | Non
             report.add("GOV-STACK-001", f"Unknown stack profile: {stack}", "Declare a profile published by the pinned governance standard.", [])
             continue
         markers = profile.get("anyFiles", [])
+        if not string_list(markers) or not all(relative_pattern(marker) for marker in markers):
+            report.add("GOV-MANIFEST-001", f"Stack profile '{stack}' has invalid markers.", "Restore the pinned stack profile catalog.", [])
+            continue
         if markers and not any(safe_repo_path(root, marker).exists() for marker in markers):
             report.add("GOV-STACK-001", f"Declared stack '{stack}' has no recognized project marker.", "Add the stack marker or remove the inaccurate stack declaration.", markers)
 
@@ -600,6 +901,130 @@ def check_changed_content(root: Path, changed: list[str], actor: str, trusted_hu
             )
 
 
+def approval_evidence(
+    root: Path,
+    raw_path: str | None,
+    manifest: dict[str, Any],
+    expected_repository: str | None,
+    expected_pull_request: int | None,
+    expected_head: str | None,
+    report: Report,
+) -> dict[str, Any] | None:
+    if not raw_path:
+        return None
+    path = Path(raw_path).expanduser().resolve()
+    if path.is_relative_to(root):
+        report.add(
+            "GOV-APPROVAL-003",
+            "Approval evidence is controlled by the pull-request checkout.",
+            "Create evidence outside the checkout from a protected workflow after API or signature verification.",
+            [rel(root, path)],
+        )
+        return None
+    try:
+        evidence = load_json(path)
+    except (OSError, json.JSONDecodeError) as error:
+        report.add(
+            "GOV-APPROVAL-003", f"Approval evidence is unreadable: {error}",
+            "Have the protected approval resolver create a valid v1 evidence document outside the checkout.",
+        )
+        return None
+    required = {
+        "schema", "source", "repository", "pullRequest", "headSha", "ticket",
+        "actor", "verification",
+    }
+    actor = evidence.get("actor") if isinstance(evidence, dict) else None
+    verification = evidence.get("verification") if isinstance(evidence, dict) else None
+    structurally_valid = (
+        isinstance(evidence, dict)
+        and set(evidence) == required
+        and evidence.get("schema") == "new-project.approval-evidence/v1"
+        and evidence.get("source") in {
+            "github-review", "github-app-review", "signed-attestation",
+        }
+        and isinstance(evidence.get("repository"), str)
+        and re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", evidence["repository"]) is not None
+        and isinstance(evidence.get("pullRequest"), int)
+        and not isinstance(evidence.get("pullRequest"), bool)
+        and evidence["pullRequest"] >= 1
+        and isinstance(evidence.get("headSha"), str)
+        and re.fullmatch(r"[0-9a-f]{40}", evidence["headSha"]) is not None
+        and isinstance(evidence.get("ticket"), str)
+        and re.fullmatch(r"ticket-[0-9]{3}", evidence["ticket"]) is not None
+        and isinstance(actor, dict)
+        and set(actor) == {"login", "type"}
+        and isinstance(actor.get("login"), str) and bool(actor["login"])
+        and actor.get("type") in {"User", "Bot", "Workflow"}
+        and isinstance(verification, dict)
+        and {"method", "verified"} <= set(verification)
+        and set(verification) <= {"method", "verified", "issuer", "predicateType"}
+        and verification.get("method") in {
+            "github-api-allowlist", "github-attestation", "sigstore",
+        }
+        and verification.get("verified") is True
+    )
+    if not structurally_valid:
+        report.add(
+            "GOV-APPROVAL-003", "Approval evidence does not conform to new-project.approval-evidence/v1.",
+            "Regenerate evidence with the protected resolver and the pinned approval-evidence schema.",
+        )
+        return None
+    missing_expectation = (
+        expected_repository is None or expected_pull_request is None or expected_head is None
+        or re.fullmatch(r"[0-9a-f]{40}", expected_head or "") is None
+    )
+    bindings = {
+        "repository": (evidence["repository"], expected_repository),
+        "pullRequest": (evidence["pullRequest"], expected_pull_request),
+        "headSha": (evidence["headSha"], expected_head),
+    }
+    mismatches = {
+        name: {"evidence": supplied, "expected": expected}
+        for name, (supplied, expected) in bindings.items()
+        if supplied != expected
+    }
+    if missing_expectation or mismatches:
+        report.add(
+            "GOV-APPROVAL-004",
+            "Approval evidence is not bound to the current repository, pull request and HEAD.",
+            "Pass the current protected event bindings and request a fresh approval for the exact HEAD.",
+            evidence={"missingExpectedBinding": missing_expectation, "mismatches": mismatches},
+        )
+    source = evidence["source"]
+    actor_type = actor["type"]
+    method = verification["method"]
+    authority_valid = False
+    if source == "github-review":
+        authority_valid = actor_type == "User" and method == "github-api-allowlist"
+    elif source == "github-app-review":
+        authority_valid = (
+            actor_type == "Bot"
+            and actor["login"].endswith("[bot]")
+            and method == "github-api-allowlist"
+        )
+    else:
+        approval_config = manifest.get("approvalEvidence") or {}
+        expected_predicate = approval_config.get(
+            "signedAttestationPredicateType",
+            "https://wellmanifest.dev/attestations/validator/v1",
+        )
+        authority_valid = (
+            actor_type in {"Bot", "Workflow"}
+            and method in {"github-attestation", "sigstore"}
+            and isinstance(verification.get("issuer"), str)
+            and bool(verification["issuer"])
+            and verification.get("predicateType") == expected_predicate
+        )
+    if not authority_valid:
+        report.add(
+            "GOV-APPROVAL-005",
+            "Approval actor or verification method is not valid for the claimed source.",
+            "Use an allowlisted User, an allowlisted GitHub App bot login, or a signature-verified trusted attestation issuer.",
+            evidence={"source": source, "actor": actor, "verification": verification},
+        )
+    return evidence
+
+
 def check_change_gate(
     root: Path,
     manifest: dict[str, Any],
@@ -609,13 +1034,17 @@ def check_change_gate(
     head: str,
     approval_source: str | None,
     approved_ticket: str | None,
+    approval_evidence_path: str | None,
+    expected_repository: str | None,
+    expected_pull_request: int | None,
+    expected_head: str | None,
     enforce_approval: bool,
     report: Report,
-) -> None:
+) -> str | None:
     governance_patterns = manifest["governancePaths"]
     implementation = [path for path in changed if not matches(path, governance_patterns)]
     if not implementation:
-        return
+        return None
     config = manifest["ticket"]
     active = [record for record in records if record.status in set(config.get("activeStatuses", ACTIVE_DEFAULT))]
     if not active:
@@ -623,7 +1052,7 @@ def check_change_gate(
             "GOV-TICKET-001", "Implementation paths changed without an active ticket.",
             "Create the next target-repository ticket, publish its plan and obtain approval before editing implementation.", implementation,
         )
-        return
+        return None
     coordination = manifest.get("coordination")
     if not isinstance(coordination, dict):
         if len(active) > 1:
@@ -632,7 +1061,7 @@ def check_change_gate(
                 "Continue the existing ticket or close/cancel it before creating another.",
                 [rel(root, item.directory) for item in active], {"tickets": [item.directory.name for item in active]},
             )
-            return
+            return None
         selected = active[0]
     else:
         candidates = [
@@ -664,11 +1093,12 @@ def check_change_gate(
                 "Use one ticket per branch/PR, narrow allowedPaths, or create an approved integration ticket for the combined diff.",
                 implementation, {"candidateTickets": [record.directory.name for record in candidates], "pathOwners": path_owners},
             )
-            return
+            return None
     directory = selected.directory
     workflow = selected.workflow
     check_history_order(
         root, base=base, head=head, ticket_name=directory.name,
+        ticket_root=config["root"],
         intent_path=config["intentFile"], governance_patterns=governance_patterns,
         report=report,
     )
@@ -711,13 +1141,31 @@ def check_change_gate(
                     and integration_record.intent.get("workstream") == integration["workstream"]
                     and integration_record.status != "CANCELLED"
                 )
-                if not valid_integration:
-                    report.add(
-                        "GOV-INTEGRATION-001", "Shared contract paths lack valid integration-ticket routing.",
-                        "Create an integration-workstream ticket, record it in integrationTicket and obtain fresh approval before changing the shared contract.",
-                        shared, {"ticket": directory.name, "integrationTicket": integration_name, "requiredWorkstream": integration["workstream"]},
-                    )
+                report.add(
+                    "GOV-INTEGRATION-001", "Shared contract paths must be changed by the integration-workstream ticket.",
+                    "Move the shared-path diff to the referenced integration ticket's branch; integrationTicket coordinates work but does not transfer path ownership.",
+                    shared,
+                    {
+                        "ticket": directory.name,
+                        "integrationTicket": integration_name,
+                        "validIntegrationReference": valid_integration,
+                        "requiredWorkstream": integration["workstream"],
+                    },
+                )
     if enforce_approval:
+        supplied_evidence = approval_evidence(
+            root, approval_evidence_path, manifest, expected_repository,
+            expected_pull_request, expected_head, report,
+        )
+        if supplied_evidence is not None:
+            approval_source = supplied_evidence["source"]
+            approved_ticket = supplied_evidence["ticket"]
+        elif approval_source in {"github-app-review", "signed-attestation"}:
+            report.add(
+                "GOV-APPROVAL-003",
+                f"Approval source {approval_source} requires external v1 evidence.",
+                "Create bound evidence outside the checkout after allowlist or signature verification.",
+            )
         trusted = set(manifest["trustedApprovalSources"])
         if approval_source not in trusted:
             report.add(
@@ -732,6 +1180,7 @@ def check_change_gate(
                 "Approve the current ticket after reviewing its latest intent and implementation diff.",
                 [rel(root, directory)], {"activeTicket": directory.name, "approvedTickets": sorted(approved_tickets)},
             )
+    return directory.name
 
 
 def sarif(payload: dict[str, Any]) -> dict[str, Any]:
@@ -790,6 +1239,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--enforce-approval", action="store_true")
     parser.add_argument("--approval-source")
     parser.add_argument("--approved-ticket")
+    parser.add_argument("--approval-evidence")
+    parser.add_argument("--expected-repository")
+    parser.add_argument("--expected-pull-request", type=int)
+    parser.add_argument("--expected-head")
+    parser.add_argument("--resolved-ticket-output")
     parser.add_argument("--format", choices=["text", "json", "sarif"], default="text")
     parser.add_argument("--output")
     return parser.parse_args(argv)
@@ -799,6 +1253,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     root = Path(args.root).resolve()
     report = Report(root)
+    selected_ticket: str | None = None
     try:
         manifest_path = safe_repo_path(root, args.manifest)
     except ValueError as error:
@@ -814,10 +1269,26 @@ def main(argv: list[str] | None = None) -> int:
             manifest = None
 
     if manifest is not None:
-        lock_path = safe_repo_path(root, args.lock) if args.lock else None
-        profiles_path = safe_repo_path(root, args.stack_profiles) if args.stack_profiles else None
-        changed = changed_paths(root, args.base, args.head, args.changed_file)
-        check_lock(root, lock_path, report)
+        try:
+            lock_path = safe_repo_path(root, args.lock) if args.lock else None
+        except ValueError as error:
+            report.add("GOV-SYNC-001", str(error), "Use a repository-relative governance lock path.", [args.lock])
+            lock_path = None
+        try:
+            profiles_path = safe_repo_path(root, args.stack_profiles) if args.stack_profiles else None
+        except ValueError as error:
+            report.add("GOV-MANIFEST-001", str(error), "Use a repository-relative stack-profile path.", [args.stack_profiles])
+            profiles_path = None
+        try:
+            changed = changed_paths(root, args.base, args.head, args.changed_file)
+        except (RuntimeError, ValueError) as error:
+            report.add(
+                "GOV-DIFF-001", str(error),
+                "Use repository-relative changed paths and fetch the complete base/head history before retrying.",
+                evidence={"base": args.base, "head": args.head},
+            )
+            changed = []
+        check_lock(root, lock_path, manifest, report)
         check_required_files(root, manifest, report)
         check_stacks(root, manifest, profiles_path, report)
         directories = ticket_directories(root, manifest["ticket"])
@@ -825,11 +1296,35 @@ def main(argv: list[str] | None = None) -> int:
         records = load_ticket_records(directories, manifest["ticket"])
         check_coordination(root, manifest, records, changed, report)
         check_changed_content(root, changed, args.actor, args.trusted_human_change, report)
-        check_change_gate(
+        selected_ticket = check_change_gate(
             root, manifest, records, changed, args.base, args.head, args.approval_source,
-            args.approved_ticket, args.enforce_approval, report,
+            args.approved_ticket, args.approval_evidence, args.expected_repository,
+            args.expected_pull_request, args.expected_head, args.enforce_approval, report,
         )
 
+    if args.resolved_ticket_output and selected_ticket and report.errors == 0:
+        resolved_path = Path(args.resolved_ticket_output).expanduser().resolve()
+        if resolved_path.is_relative_to(root):
+            report.add(
+                "GOV-PATH-001", "Resolved ticket output must be outside the repository checkout.",
+                "Write ephemeral approval context to runner.temp or another protected directory.",
+                [rel(root, resolved_path)],
+            )
+        else:
+            try:
+                resolved_path.write_text(f"{selected_ticket}\n", encoding="utf-8")
+            except OSError as error:
+                report.add(
+                    "GOV-PATH-001", f"Could not write resolved ticket output: {error}",
+                    "Use a writable protected directory outside the checkout.",
+                )
+
+    output_path = None
+    if args.output:
+        try:
+            output_path = safe_repo_path(root, args.output)
+        except ValueError as error:
+            report.add("GOV-PATH-001", str(error), "Use a repository-relative report output path.", [args.output])
     payload = report.payload()
     if args.format == "json":
         output = json.dumps(payload, indent=2, sort_keys=True) + "\n"
@@ -837,8 +1332,7 @@ def main(argv: list[str] | None = None) -> int:
         output = json.dumps(sarif(payload), indent=2, sort_keys=True) + "\n"
     else:
         output = render_text(payload)
-    if args.output:
-        output_path = safe_repo_path(root, args.output)
+    if output_path is not None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(output, encoding="utf-8")
     else:

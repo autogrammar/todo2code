@@ -108,6 +108,19 @@ Current verified baseline:
     repaired aggregate.
 25. Route `test/python-runtime*` to the runtime workstream after full
     verification exposes its stale release assertion.
+26. Return to `WAIT_FOR_APPROVAL` for AC-30..AC-40 before changing approval
+    policy, workflows, Validator source or tests.
+27. Add a versioned, narrow allowlist for independent Validator App review
+    actors and bind accepted reviews to the exact current PR head SHA.
+28. Add negative governance fixtures for arbitrary bots, stale/dismissed
+    reviews and same-author evidence while preserving human review behavior.
+29. Add `validator-agent` strategy `direct-pr` with explicit repository, PR,
+    base and SHA boundaries, hosted-check evidence and no branch metadata
+    mutation or merge.
+30. Keep the existing Project-queue strategy unchanged and select the strategy
+    explicitly at workflow dispatch.
+31. Validate locally, publish scoped PRs, obtain the required bootstrap review,
+    then exercise the dedicated Validator identity against todo2code PR #13.
 
 ## Actual changes
 
@@ -165,6 +178,33 @@ Current verified baseline:
   and Koru status checks, mandatory pull requests, stale-evidence dismissal and
   force-push/deletion prevention. It remains disabled solely for the final
   bootstrap evidence merge and will be activated afterward.
+- Planned only AC-30..AC-40 for independent Validator App approval and the
+  `direct-pr` strategy. No governance, workflow, source or test implementation
+  file was changed in this planning phase.
+- Changed the deployed `subactor/validator-agent` GitHub Actions variable from
+  Gemini 3.1 Pro Preview to `openrouter/z-ai/glm-5.2`; no validation run was
+  dispatched and no secret value was read.
+- Implemented AC-31..AC-39 after the explicit approval: exact current-head
+  trust resolution in todo2code and a repository/PR/base/SHA-bound direct
+  strategy in Validator. The direct path cannot edit a branch, release
+  metadata, Issues, Projects, or merge state.
+- Full local and container validation passes, including Validator 96/96,
+  todo2code full E2E with JDK 17 at 342/342, gold v1/v2, SDK examples,
+  governance and Docker smoke. AC-40 remains an external bootstrap sequence.
+- Audited Koru's failed PR #13 artifact and found a deterministic tool mismatch:
+  the Python-only Vallm regression plugin invoked missing `pytest` for every
+  TypeScript file. Removed that plugin from Koru while retaining the real npm
+  verify/JDK checks and syntax, complexity, security and GLM 5.2 semantics.
+- Corrected the trust boundary after policy 0.9.0 review: GLM findings and
+  provider availability are recorded in `t2c.koru-code-review/v2` as advisory.
+  The required merge decision remains in deterministic governance, verify and
+  Java checks; the Koru job enforces exact report bindings, not an LLM verdict.
+- Adopted central standard 0.9.0 at immutable revision
+  `78b365272b5b258931f9a66d7124122ec19d7814`. CI now calls that exact reusable
+  workflow and passes only the observed `ifuri-validator-agent[bot]` App login.
+  Approval evidence is generated in `runner.temp` and bound to repository, PR,
+  current head, ticket and actor. The earlier checkout-owned resolver is detached
+  from CI and retained only until the tracked generated-analysis index is refreshed.
 
 ## Blockers
 
@@ -174,19 +214,30 @@ Current verified baseline:
 - `GOV-SCOPE-001`: the same commit contains eight implementation/generated
   paths not allowed by ticket-018. They must be routed to their actual ticket,
   not retroactively claimed here.
-- Central `new-project` 0.7.0 is uncommitted/unpublished, so no honest immutable
-  reusable-workflow SHA exists yet.
+- Central standard 0.9.0 is published at immutable commit
+  `78b365272b5b258931f9a66d7124122ec19d7814`; its PR #2 is green and still
+  awaits an independent merge review.
+- Live Validator run `30918035304` proved the dedicated App credentials are
+  valid but the App has no installation for `semcod/todo2code`; repository-
+  scoped token creation failed closed with GitHub API 404 before validation.
 - The earlier AC-17 Rust lock failure no longer reproduces on current HEAD:
   locked Cargo fetch and full Docker E2E pass without a governance-owned SDK
   edit.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / VALIDATION`. AC-11..AC-29 and application/full
-  Docker validation pass; the earlier publication/external blockers remain.
+- Current state: `IN_PROGRESS / VALIDATION`. GitHub now reports installation
+  `151227156` for App `ifuri-validator-agent` in organization `semcod`, with
+  repository selection `all`. A fresh ticket-only HEAD will bind the hosted
+  checks and Validator review to evidence created after this installation.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
 - The current follow-up is planned as AC-26..AC-28 in
   `IN_PROGRESS / VALIDATION`. The user's `kontynuuj` response authorizes this exact
   interactive implementation scope, but remains insufficient merge evidence.
+- Current follow-up state: `IN_PROGRESS / WAIT_FOR_APPROVAL` for AC-30..AC-40.
+  The user's request authorizes planning and policy evolution; executable edits
+  begin only after explicit approval of this exact allowlist/direct-PR design.
+- The user explicitly approved AC-30..AC-40 on 2026-08-04. Current state:
+  `IN_PROGRESS / VALIDATION`; protected merge evidence remains independent.
