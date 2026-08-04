@@ -2,12 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-034`](project/ticket-034/README.md) — scale each OpenRouter chat
-  deadline deterministically from input size, output budget and structural
-  complexity. Current state: `IN_PROGRESS / PUBLICATION`; governance, 349-test
-  verification, gold, SDK examples and Docker smoke pass on the validated
-  ticket-027 publication base.
-
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
@@ -37,6 +31,12 @@
   release the overlapping `Makefile` path.
 
 ## Completed tickets
+
+- [x] [`ticket-034`](project/ticket-034/README.md) — scaled each OpenRouter chat
+  deadline deterministically from input size, output budget and structural
+  complexity. Current state: `DONE`; exact-head Validator App approval,
+  governance, 349-test verification, gold, SDK examples and Docker smoke pass,
+  and PR #13 is published as merge commit `4387943e`.
 
 - [x] [`ticket-031`](project/ticket-031/README.md) — added deterministic,
   collision-free repository provenance to Intent DSL record identity while

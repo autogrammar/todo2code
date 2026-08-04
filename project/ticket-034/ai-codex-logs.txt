@@ -7,3 +7,8 @@
 2026-08-04 gold v2 PASS: all measured precision/recall 100%; stability PASS
 2026-08-04 examples PASS: five SDK fingerprints agree
 2026-08-04 Docker smoke PASS; state EDIT -> PUBLICATION
+2026-08-04 exact-head Validator run 30925171580 PASS
+2026-08-04 App review: ifuri-validator-agent[bot], APPROVED, head 68b0c0985f0aa95f8a41e252399491fe7aea29ca
+2026-08-04 hosted governance, verify, Java and Koru: PASS
+2026-08-04 PR #13 merged by tom-sapletta-com as 4387943e4095926fe2466628b767c3dd83034281
+2026-08-04 state PUBLICATION -> DONE; no remaining blockers
