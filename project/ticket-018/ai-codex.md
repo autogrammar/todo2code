@@ -106,6 +106,8 @@ Current verified baseline:
     analysis and without invoking `project2.sh`.
 24. Verify the focused generated-analysis gate, governance and the complete
     repaired aggregate.
+25. Route `test/python-runtime*` to the runtime workstream after full
+    verification exposes its stale release assertion.
 
 ## Actual changes
 

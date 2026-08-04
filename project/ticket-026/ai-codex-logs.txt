@@ -1,0 +1,5 @@
+2026-08-04 aggregate test diagnosis
+test/code-change-plan.test.ts, test/pipeline.test.ts and
+test/python-runtime.test.ts expect 0.5.0 while runtime/package report 0.5.2.
+Governance now assigns the Python adapter test to runtime. User authorization:
+kontynuuj.

@@ -3,7 +3,7 @@
   "ticket": "ticket-026",
   "summary": "Repair current runtime action dispatch",
   "workstream": "runtime",
-  "allowedPaths": ["src/services/actions.ts", "project/ticket-026/**", "TODO.md", "project/TICKETS.md"],
+  "allowedPaths": ["src/services/actions.ts", "test/code-change-plan.test.ts", "test/pipeline.test.ts", "test/python-runtime.test.ts", "project/ticket-026/**", "TODO.md", "project/TICKETS.md"],
   "forbiddenPaths": ["project/ticket-*/user-*.md"],
   "stacks": ["node"],
   "dependsOn": [],

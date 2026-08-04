@@ -17,10 +17,15 @@ restores the declared contract.
 1. Record the one-line runtime scope.
 2. Remove the stale third argument.
 3. Run check, focused action tests and governance.
+4. Update the three stale runtime-facing release assertions from `0.5.0` to
+   canonical `0.5.2`, then run their focused tests.
 
 ## Actual changes
 
 - Plan completed and the user-authorized repair entered `EDIT`.
+- Aggregate testing identified only stale release literals in the three added
+  test paths; the user's continued test-and-repair instruction authorizes this
+  exact follow-up.
 
 ## Blockers
 

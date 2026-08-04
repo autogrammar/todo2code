@@ -75,7 +75,7 @@
         "ownedPaths": ["src/llm/**", "src/live/**", "src/synthesis/**", "src/summary/**", "test/*llm*", "test/openrouter*", "test/task-synthesis*", "test/live-*", "test/grounded-contracts*"]
       },
       "runtime": {
-        "ownedPaths": ["src/pipeline/**", "src/operations/**", "src/services/**", "src/config/**", "src/watch/**", "src/tf/**", "test/pipeline*", "test/runtime*", "test/watch*", "test/operation*", "test/io*", "test/config*", "test/tensorflow*", "test/security*", "test/git*", "test/code-change*"]
+        "ownedPaths": ["src/pipeline/**", "src/operations/**", "src/services/**", "src/config/**", "src/watch/**", "src/tf/**", "test/pipeline*", "test/python-runtime*", "test/runtime*", "test/watch*", "test/operation*", "test/io*", "test/config*", "test/tensorflow*", "test/security*", "test/git*", "test/code-change*"]
       },
       "interfaces": {
         "ownedPaths": ["src/interfaces/**", "src/communication/**", "src/web/**", "src/cli.ts", "test/cli*", "test/mcp*", "test/a2a*", "test/communication*"]
