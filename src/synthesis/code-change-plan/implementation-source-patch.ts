@@ -431,7 +431,10 @@ function validateSourcePatchEvidence(
   expectedChangePaths: Map<string, CodeChangeFileAction>,
   editPaths: Set<string>,
 ): void {
-  const actualEditPaths = [...editPaths].map((item) => item.split('::')[0]);
+  const actualEditPaths = [...editPaths].map((item) => {
+    const marker = item.indexOf('::');
+    return marker === -1 ? item : item.slice(0, marker);
+  });
   const expectedPaths = [...expectedChangePaths.keys()];
   exactSourcePatchSet(actualEditPaths, expectedPaths, 'edit paths');
   exactSourcePatchSet(patch.diagnosticIds, plan.evidence.diagnosticIds, 'diagnosticIds');

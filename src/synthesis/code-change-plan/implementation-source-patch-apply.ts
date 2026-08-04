@@ -10,7 +10,8 @@ import {
 } from '../../core/id.js';
 import { ensureDir, pathExists, readJson, readText } from '../../core/io.js';
 import { T2C_VERSION } from '../../version.js';
-import { assertCodeChangeSourcePatch, normalizeUnifiedDiff } from './implementation-source-patch.js';
+import { assertCodeChangeSourcePatch } from './implementation-source-patch.js';
+import { normalizeUnifiedDiff } from './implementation-source-patch-diff.js';
 import { IMPLEMENTATION_DIAGNOSTIC_CODES } from './implementation-diagnostics.js';
 import type {
   CodeChangeFileAction,
@@ -91,17 +92,19 @@ async function readExistingReceipt(
 function assertPatchApplicationRequest(
   options: ApplyCodeChangeSourcePatchOptions,
 ): NormalizedApplyCodeChangeSourcePatchRequest {
-  const patch = assertCodeChangeSourcePatch(options.patch);
+  const patch = options.patch;
+  assertCodeChangeSourcePatch(patch);
   assertPatchApprovalActor(options.approval);
   assertPatchApprovalHash(patch, options.approval);
   assertPatchEditsContainDiffs(patch);
-  return {
+  const request: NormalizedApplyCodeChangeSourcePatchRequest = {
     root: options.root,
     patch: options.patch,
     approval: options.approval,
     receiptPath: options.receiptPath,
-    now: options.now,
   };
+  if (options.now !== undefined) request.now = options.now;
+  return request;
 }
 
 function assertPatchApprovalActor(approval: CodeChangeSourcePatchApproval): string {
