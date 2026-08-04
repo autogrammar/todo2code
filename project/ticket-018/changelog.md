@@ -39,6 +39,10 @@
   `IN_PROGRESS` before producing the new current-head validation request.
 - Advanced the immutable standard pin to `d082373` after its push-event fix
   excluded only the injected standard checkout through `.git/info/exclude`.
+- Confirmed the central push gate, Node/Docker, Java and Koru checks on exact
+  head `4ab9c254`. Live run `30921738666` still received installation 404, and
+  the organization API reports `semcod` installation count zero; returned the
+  ticket to `BLOCKED` without emitting a review.
 
 ## [0.5.0] - 2026-08-04
 

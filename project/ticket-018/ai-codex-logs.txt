@@ -342,3 +342,10 @@ old standard: 78b365272b5b258931f9a66d7124122ec19d7814
 new standard: d082373f314191dba794aba58aca2d4475ea497a
 change: workflow-owned .new-project-standard/ excluded through .git/info/exclude
 security property: tracked target paths remain visible to governance diff checks
+2026-08-04 LIVE VALIDATION AFTER REPORTED INSTALLATION
+head: 4ab9c2544798ff851ee3235036e8ecb9fc24252c
+push governance: PASS; verify: PASS; Java: PASS; Koru v2: PASS
+validator-agent run: 30921738666
+App JWT repository lookup: GET /repos/semcod/todo2code/installation -> 404
+authenticated org audit: GET /orgs/semcod/installations -> total_count=0
+result: no review emitted; BLOCKED and reservation released
