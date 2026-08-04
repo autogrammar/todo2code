@@ -102,8 +102,10 @@ jobs:
           if [[ -z "$OPENROUTER_API_KEY" ]]; then
             echo 'KORU-REVIEW-001: semantic review credential is unavailable; evidence remains incomplete.' >&2
             echo 'available=false' >> "$GITHUB_OUTPUT"
+            echo 'SEMANTIC_AVAILABLE=false' >> "$GITHUB_ENV"
           else
             echo 'available=true' >> "$GITHUB_OUTPUT"
+            echo 'SEMANTIC_AVAILABLE=true' >> "$GITHUB_ENV"
           fi
 
       - name: Prepare the read-only Koru command
@@ -157,8 +159,12 @@ jobs:
           export VALLM_LLM_MODEL="$REVIEW_MODEL"
           export VALLM_LLM_BASE_URL=https://openrouter.ai/api/v1
           export PYTHONPATH="${VALLM_COMPAT_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
+          semantic_args=()
+          if [[ "${SEMANTIC_AVAILABLE:-false}" == 'true' ]]; then
+            semantic_args=(--semantic)
+          fi
           timeout --signal=TERM "${VALLM_REVIEW_TIMEOUT_SECONDS}s" vallm batch "${files[@]}" \
-            --semantic --security \
+            "${semantic_args[@]}" --security \
             --model "$REVIEW_MODEL" \
             --format json --output .koru-review/vallm --show-issues
           BASH
@@ -168,7 +174,6 @@ jobs:
 
       - name: Run one bounded Koru review round
         id: koru
-        if: steps.files.outputs.count == '0' || steps.semantic.outputs.available == 'true'
         shell: bash
         run: |
           set -uo pipefail
@@ -205,6 +210,7 @@ jobs:
             --arg koruVersion "$KORU_VERSION" \
             --arg vallmVersion "$VALLM_VERSION" \
             --arg model "$REVIEW_MODEL" \
+            --arg semanticAvailable "${SEMANTIC_AVAILABLE:-false}" \
             --argjson exitCode "$KORU_EXIT_CODE" \
             --rawfile selectedFiles .koru-review/files.txt \
             --slurpfile validation .koru-review/vallm/validation.json \
@@ -213,22 +219,20 @@ jobs:
             | (($report.files // []) | map(.path) | sort | unique) as $reviewed
             | [
                 ($report.files // [])[]?.issues[]?
-                | select(
-                    (.rule != "semantic.llm_judge")
-                    or ((.severity | ascii_downcase) == "error")
-                  )
+                | select((.rule | startswith("semantic.")) | not)
               ] as $blocking
             | [
                 ($report.files // [])[]?.issues[]?
-                | select(
-                    .rule == "semantic.llm_judge"
-                    and ((.severity | ascii_downcase) == "info"
-                         or (.severity | ascii_downcase) == "warning")
-                  )
-              ] as $advisory
+                | select(.rule | startswith("semantic."))
+              ] as $semantic
+            | (($report.files // []) | all(
+                .verdict == "pass"
+                or (((.issues // []) | length) > 0
+                    and ((.issues // []) | all(.rule | startswith("semantic."))))
+              )) as $verdictExplained
             | (
                 $selected == $reviewed
-                and (($report.files // []) | all(.verdict == "pass"))
+                and $verdictExplained
                 and ($blocking | length) == 0
               ) as $gatePass
             | {
@@ -240,10 +244,17 @@ jobs:
               selectedFiles: $selected,
               gateVerdict: (if $gatePass then "pass" else "reject" end),
               advisory: {
-                verdict: (if ($advisory | length) == 0 then "clear" else "findings" end),
+                semanticStatus: (
+                  if $semanticAvailable != "true" then "skipped-unavailable"
+                  elif any($semantic[]?; .rule == "semantic.llm_error") then "unavailable"
+                  elif any($semantic[]?; .rule == "semantic.parse_error" or .rule == "semantic.json_error") then "invalid-output"
+                  elif ($semantic | length) == 0 then "clear"
+                  else "findings"
+                  end
+                ),
                 exitCode: $exitCode,
                 llmFindings: "advisory-only",
-                count: ($advisory | length)
+                count: ($semantic | length)
               },
               blocking: {count: ($blocking | length)},
               validation: $validation[0]
