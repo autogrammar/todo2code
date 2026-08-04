@@ -2,17 +2,19 @@
 
 ## Active tickets
 
-- [ ] [`ticket-039`](project/ticket-039/README.md) — bounded, read-only local
-  Git materializer for exact branch/tree/merge-base/ahead-behind, stable patch
-  identity and textual collision evidence. Current state:
-  `IN_PROGRESS / VALIDATION`; implementation `1391dd0` passes focused, full
-  host, Docker, governance, complexity and live read-only branch checks.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-039`](project/ticket-039/README.md) — bounded, read-only local
+  Git materializer for exact branch/tree/merge-base/ahead-behind, stable patch
+  identity and textual collision evidence. Focused, full host/Docker,
+  governance, complexity and live branch checks passed; Koru and Validator
+  approved exact head `29df450` with `openrouter/z-ai/glm-5.2`; PR #44 merged
+  as `main@2948f4a`. Current state: `DONE`.
 - [x] [`ticket-037`](project/ticket-037/README.md) — deterministic,
   fail-closed `t2c.branch/v1` projection over immutable branch evidence.
   Fourteen focused tests, full host/Docker verification, Koru and Validator

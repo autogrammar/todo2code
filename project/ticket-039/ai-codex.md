@@ -74,4 +74,5 @@ In particular, no public interface or cross-repository adapter is implied.
 
 ## Blockers
 
-- Protected Koru and Validator exact-head review remain before publication.
+- None. Exact-head Koru, Validator App and protected CI passed, and PR #44 was
+  merged as `main@2948f4a`.
