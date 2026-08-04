@@ -33,8 +33,16 @@ on a stable contract from this ticket and later runtime/interface tickets.
 
 ## Actual changes
 
-- Governance plan only; no implementation has started.
+- The user approved the bounded contract and the ticket entered
+  `IN_PROGRESS / EDIT` from the plan merge base on `main`.
+- Added a strict, dependency-free evidence validator and deterministic
+  `t2c.branch/v1` projector with exact snapshot bindings, canonical hashes,
+  conservative recommendations and no mutation surface.
+- Added nine offline tests for disjoint, duplicate, textual/semantic conflict,
+  stale, unknown, ordered, rebased, invariant and tampered evidence cases.
+- Kept the implementation at 495 NLOC with maximum function CC 11 and passed
+  the complete host and Docker regression gates.
 
 ## Blockers
 
-- Human approval is required before editing either implementation path.
+- Protected exact-head Koru and Validator review remain before merge.
