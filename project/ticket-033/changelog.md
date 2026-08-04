@@ -1,0 +1,9 @@
+# Ticket Changelog (ticket-033)
+
+## [0.1.0] - 2026-08-04
+
+- Initial governance scaffold created.
+- No human participant identity or content was generated.
+- Renumbered the unpublished scaffold from 023 to 033 because remote PR #3
+  already owns ticket-023.
+- Documented the bounded prompt-resolution regression repair.

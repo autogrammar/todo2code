@@ -1,0 +1,4 @@
+2026-08-04 planning
+- Fresh base `caf6551`: two communication LLM tests fail because the split
+  helper resolves the prompt under nonexistent `dist/prompts`.
+- No production source edited; state remains `WAIT_FOR_APPROVAL`.

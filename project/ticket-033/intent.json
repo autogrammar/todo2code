@@ -1,0 +1,17 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-033",
+  "summary": "Restore communication prompt resolution after module split",
+  "workstream": "interfaces",
+  "allowedPaths": [
+    "src/communication/llm/implementation-helpers.ts",
+    "project/ticket-033/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
