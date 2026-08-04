@@ -29,5 +29,58 @@
   ],
   "dependsOn": [],
   "conflictsWith": [],
-  "integrationTicket": null
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "2e87205dcd0b06286529ca9fa8ab9518694e9068",
+    "targetBranch": "main",
+    "outcome": "Stage the pinned bounded-delivery governance contract without retroactive enforcement",
+    "nonGoals": [
+      "No application source, test, build or UI changes",
+      "No retroactive enforcement against historical active branches"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 5,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Keep deterministic delivery validation in the governance runtime and human instructions in AGENTS.md",
+      "components": [
+        {
+          "name": "governance-runtime",
+          "paths": [".governance/**", "project/new-ticket.sh"]
+        },
+        {
+          "name": "agent-policy",
+          "paths": ["AGENTS.md"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Restore the pinned 0.8.0 governance package and manifest lock"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-33",
+        "commands": ["bash tests/governance-validator.test.sh", "bash tests/governance-scripts.test.sh"],
+        "evidence": "Central positive and negative bounded-delivery fixtures pass"
+      },
+      {
+        "criterion": "AC-35",
+        "commands": ["make governance"],
+        "evidence": "Target validation reports this migration separately from inherited active-ticket blockers"
+      }
+    ]
+  }
 }

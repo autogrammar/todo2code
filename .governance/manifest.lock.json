@@ -12,12 +12,12 @@
     ".governance/diagnostics.json": "2b2d5243cf18b7d95e94a96bcb220eafee9291566aa6a6814b4a9693e5c6aa6e",
     ".governance/governance_check.py": "7f364bf0441e2907556b47dab2b7072aa8504383ec65fac6bf440366bc7d6a3e",
     ".governance/intent.schema.json": "d618a2c7ef4b4a24fbf95d516bf8c8231836e7752b28f0450cc96f02f07b6780",
-    ".governance/manifest.json": "004839429722cc6ddbf8e3734893161ffc3f8a3003bcaefaff88465408ff32b0",
+    ".governance/manifest.json": "053150cbc7b38e86e8f7b010c311d90b097bab28098ee94749b2df0a3b5b4dd1",
     ".governance/manifest.schema.json": "a24a6cd544573298861ed1d05b90b1e3fe5044481a991a4b3a205e7381f6ef34",
     ".governance/stack-profiles.json": "6fa3f8f44e50cfd0539413a85092817d3fab4e82fe376405f1e443120724dff2",
     "project/governance-check.bat": "7207bc499483d7a7a1ab2c230ad288c2484cdf02f3a773ba69f4b760b67a3388",
     "project/governance-check.sh": "158ca61531b8e51ba484de8eb6f91f4e4fbba908ae3c8db678b63bf6bab49923",
-    "project/new-ticket.sh": "0e6d199c535259bf1eebbc91f8eab68ae6457c3158230f55cf23d587fdb671ff",
+    "project/new-ticket.sh": "3bda8a592e7768c71f609030299d2bcb3252d5ab44bbfecb33080a2b249db3f7",
     "project/readme.sh": "8a19819ab97fff26dbca179ead831d697f785c48774d8154714d768968fcfaf0"
   }
 }

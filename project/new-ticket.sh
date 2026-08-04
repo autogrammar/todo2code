@@ -6,7 +6,10 @@ set -euo pipefail
 TITLE="New Task Ticket"
 USERS=""
 AGENT="antigravity"
-WORKSTREAM="unresolved"
+WORKSTREAM=""
+TARGET_BRANCH="main"
+COMPLEXITY="XS"
+ESTIMATED_MINUTES=10
 FORCE_NEW=false
 
 usage() {
@@ -15,7 +18,10 @@ Usage: ./project/new-ticket.sh [options]
 
   -t, --title TITLE       Ticket title
   -a, --agent ID         Agent provider/id used for ai-{ID}.md
-  -w, --workstream ID    Declared workstream (for example runtime or sdk)
+  -w, --workstream ID    Required workstream declared in the governance manifest
+      --target-branch ID Approved target branch (default: main)
+      --complexity CLASS XS (<=10 minutes) or S (<=30 minutes)
+      --minutes N        Estimated active implementation minutes (default: 10)
   -u, --users IDS        Compatibility input only; human files are not created
       --force-new        Create a new ticket despite an unfinished ticket
   -h, --help             Show this help
@@ -55,6 +61,21 @@ while [[ $# -gt 0 ]]; do
       WORKSTREAM="$2"
       shift 2
       ;;
+    --target-branch)
+      require_value "$@"
+      TARGET_BRANCH="$2"
+      shift 2
+      ;;
+    --complexity)
+      require_value "$@"
+      COMPLEXITY="$(printf '%s' "$2" | tr '[:lower:]' '[:upper:]')"
+      shift 2
+      ;;
+    --minutes)
+      require_value "$@"
+      ESTIMATED_MINUTES="$2"
+      shift 2
+      ;;
     --force-new)
       FORCE_NEW=true
       shift
@@ -82,10 +103,42 @@ if [[ ! "$AGENT" =~ ^[a-z0-9][a-z0-9._-]*$ ]]; then
   exit 2
 fi
 
+if [[ -z "$WORKSTREAM" ]]; then
+  echo "Workstream is required; choose an id declared in .governance/manifest.json" >&2
+  exit 2
+fi
+
 WORKSTREAM="$(printf '%s' "$WORKSTREAM" | tr '[:upper:]' '[:lower:]')"
 if [[ ! "$WORKSTREAM" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
   echo "Workstream id must match [a-z0-9][a-z0-9-]*" >&2
   exit 2
+fi
+
+if ! git check-ref-format --branch "$TARGET_BRANCH" >/dev/null 2>&1; then
+  echo "Target branch is not a safe Git branch name" >&2
+  exit 2
+fi
+
+if [[ "$COMPLEXITY" != "XS" && "$COMPLEXITY" != "S" ]]; then
+  echo "Complexity must be XS or S" >&2
+  exit 2
+fi
+if [[ ! "$ESTIMATED_MINUTES" =~ ^[0-9]+$ ]] || (( ESTIMATED_MINUTES < 1 || ESTIMATED_MINUTES > 30 )); then
+  echo "Estimated minutes must be an integer between 1 and 30" >&2
+  exit 2
+fi
+if [[ "$COMPLEXITY" == "XS" ]] && (( ESTIMATED_MINUTES > 10 )); then
+  echo "XS work must fit within 10 minutes; use S or split the outcome" >&2
+  exit 2
+fi
+
+accepted_base_sha="0000000000000000000000000000000000000000"
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  accepted_base_sha="$(
+    git rev-parse --verify "refs/remotes/origin/$TARGET_BRANCH^{commit}" 2>/dev/null \
+      || git rev-parse --verify "refs/heads/$TARGET_BRANCH^{commit}" 2>/dev/null \
+      || git rev-parse --verify "HEAD^{commit}"
+  )"
 fi
 
 is_closed_ticket() {
@@ -148,6 +201,10 @@ render_template() {
     -e "s|{OWNER_NAME}|unresolved:human|g" \
     -e "s|{PROVIDER}|$(escape_sed "$AGENT")|g" \
     -e "s|{WORKSTREAM}|$(escape_sed "$WORKSTREAM")|g" \
+    -e "s|{TARGET_BRANCH}|$(escape_sed "$TARGET_BRANCH")|g" \
+    -e "s|{ACCEPTED_BASE_SHA}|$(escape_sed "$accepted_base_sha")|g" \
+    -e "s|{COMPLEXITY}|$(escape_sed "$COMPLEXITY")|g" \
+    -e "s|{ESTIMATED_MINUTES}|$(escape_sed "$ESTIMATED_MINUTES")|g" \
     "$source" > "$target"
 }
 
@@ -170,6 +227,10 @@ render_json_template() {
     -e "s|{YYYY-MM-DD}|$(escape_sed "$(json_escape "$date_only")")|g" \
     -e "s|{PROVIDER}|$(escape_sed "$(json_escape "$AGENT")")|g" \
     -e "s|{WORKSTREAM}|$(escape_sed "$(json_escape "$WORKSTREAM")")|g" \
+    -e "s|{TARGET_BRANCH}|$(escape_sed "$(json_escape "$TARGET_BRANCH")")|g" \
+    -e "s|{ACCEPTED_BASE_SHA}|$(escape_sed "$(json_escape "$accepted_base_sha")")|g" \
+    -e "s|{COMPLEXITY}|$(escape_sed "$(json_escape "$COMPLEXITY")")|g" \
+    -e "s|{ESTIMATED_MINUTES}|$(escape_sed "$ESTIMATED_MINUTES")|g" \
     "$source" > "$target"
 }
 
@@ -229,7 +290,37 @@ else
   "stacks": [],
   "dependsOn": [],
   "conflictsWith": [],
-  "integrationTicket": null
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "$accepted_base_sha",
+    "targetBranch": "$(json_escape "$TARGET_BRANCH")",
+    "outcome": "$(json_escape "$TITLE")",
+    "nonGoals": ["No work outside the approved allowed paths"],
+    "complexity": "$COMPLEXITY",
+    "estimatedMinutes": $ESTIMATED_MINUTES,
+    "budgets": {
+      "maxImplementationFiles": 5,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Keep the initial plan inside the governance component until scope approval",
+      "components": [{"name": "governance", "paths": ["project/$ticket_id/**", "TODO.md", "project/TICKETS.md"]}],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the bounded implementation slice"
+    },
+    "runtimeDependencies": [],
+    "validation": [{
+      "criterion": "AC-01",
+      "commands": ["./project/governance-check.sh --actor agent"],
+      "evidence": "Governance and ticket-specific tests pass"
+    }]
+  }
 }
 EOF
 fi

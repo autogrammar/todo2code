@@ -26,6 +26,14 @@ Before any multi-step implementation:
 11. A developer launching an LLM from an IDE remains the operator/reviewer;
     the AI keeps its own participant identity and cannot self-approve. A second
     AI either owns a non-overlapping ticket or performs read-only review.
+12. One ticket/branch/PR owns one observable result in one workstream. Before
+    `EDIT`, record the exact target/base SHA, `XS` (<=10 minutes) or `S` (<=30
+    minutes), file/component/interface/dependency budgets, accepted architecture
+    ownership, UI/data impact, rollback and criterion-specific validation.
+13. Record a checkpoint at 25 minutes and stop implementation at 30 minutes.
+    Split unfinished or newly discovered work into an explicit dependent ticket;
+    never enlarge the current diff or PR to absorb it. Refresh and re-approve
+    after base, scope or architecture drift.
 
 Chat or Markdown approval authorizes an interactive session but is not trusted
 merge evidence. Merge approval must come from an independent protected GitHub
