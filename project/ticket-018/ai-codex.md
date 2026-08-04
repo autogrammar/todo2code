@@ -208,7 +208,7 @@ Current verified baseline:
   scaffolder/templates; policy documentation; release metadata. Central script,
   validator and Draft 2020-12 schema checks pass.
 - Staged the target adoption with managed hashes bound to upstream commit
-  `0901114`. Kept enforcement disabled only for migration because applying the
+  `1ae86a1`. Kept enforcement disabled only for migration because applying the
   five-file hard limit retroactively to the accumulated ticket-018 branch would
   make the standard reject its own bootstrap. No application file changed.
 - Target schema and lock checks pass. The target governance gate reports only
@@ -235,7 +235,7 @@ Current verified baseline:
 - `GOV-SCOPE-001`: the same commit contains eight implementation/generated
   paths not allowed by ticket-018. They must be routed to their actual ticket,
   not retroactively claimed here.
-- Central `new-project` 0.9.0 is committed and pinned locally at `0901114`, but
+- Central `new-project` 0.9.0 is committed and pinned locally at `1ae86a1`, but
   remains unpublished, so no honest immutable remote reusable-workflow SHA
   exists yet.
 - AC-17: concurrent commit `9928699` bumped the Rust SDK manifest to 0.5.1, but

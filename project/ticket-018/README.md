@@ -313,7 +313,7 @@ remain historical evidence, not evidence for AC-11..AC-17.
   Schema Draft 2020-12 validation, Python compilation, scaffolder tests and
   validator positive/negative fixtures pass.
 - The target copies the 0.9.0 schemas, diagnostics, validator and scaffolder and
-  pins their hashes to local upstream commit `0901114`. The manifest keeps
+  pins their hashes to local upstream commit `1ae86a1`. The manifest keeps
   `delivery.requiredForImplementation=false` during migration because the
   historical ticket-018 branch already exceeds the new five-file slice limit.
   New repositories enable the bounded gate by default.
@@ -339,7 +339,8 @@ remain historical evidence, not evidence for AC-11..AC-17.
   and unrelated runtime work in one commit. Validation against its parent fails
   with `GOV-INTENT-003` because `intent.json` was not present in an ancestor and
   `GOV-SCOPE-001` for eight paths outside ticket-018.
-- Central 0.9.0 is committed locally and target hashes are pinned to `0901114`,
+- Central 0.9.0 plus its behavior-preserving complexity refactor are committed
+  locally and target hashes are pinned to `1ae86a1`,
   but the upstream branch is not published; therefore no immutable remote
   workflow revision can yet be required by repository rules.
 - Repository Ruleset/CODEOWNERS configuration is external state and remains
@@ -429,3 +430,10 @@ remain historical evidence, not evidence for AC-11..AC-17.
   and requires strict `governance / enforce` plus `koru / code-review` checks.
   Enforcement remains disabled only until this bootstrap evidence commit is
   merged; AC-24 is not claimed until the rule is activated and queried back.
+- Pull request #4 run `30904837479` exposed 14 deterministic complexity
+  findings in the managed validator. The source validator was split into
+  focused policy, coordination, delivery and reporting helpers at upstream
+  commit `1ae86a1`, without changing diagnostics or fail-closed policy.
+  Central validator/scaffolder fixtures pass, old/new JSON and SARIF reports
+  for the full PR range are byte-identical, and Lizard reports zero functions
+  above CC 15 or 100 lines. A fresh Koru run remains required for the new head.
