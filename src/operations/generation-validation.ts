@@ -94,8 +94,5 @@ function isDeterministicModeProvenance(generation: Record<string, unknown>): boo
   return (
     generation.effectiveMode === 'deterministic'
     && (generation.model !== null || generation.provider !== null || generation.responseId !== null)
-  ) {
-    return true;
-  }
-  return false;
+  );
 }
