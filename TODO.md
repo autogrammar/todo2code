@@ -2,7 +2,9 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-038`](project/ticket-038/README.md) — reconcile the stale
+  ticket-036 blocker narrative with its protected completion evidence. Current
+  state: `VALIDATION`.
 
 ## Planned tickets
 
