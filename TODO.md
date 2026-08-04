@@ -5,7 +5,8 @@
 - [ ] [`ticket-031`](project/ticket-031/README.md) — define collision-free,
   deterministic repository provenance for Intent DSL records as the first
   bounded foundation for Subactor Core↔Docs evidence linking. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; no source, test or build file has changed.
+  `IN_PROGRESS / VALIDATION`; focused tests pass 4/4, while AC-06 is blocked by
+  three inherited TypeScript parser errors outside the ticket scope.
 
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic

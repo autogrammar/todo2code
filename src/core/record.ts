@@ -14,6 +14,7 @@ import type {
   SourceLineRange,
 } from './types.js';
 import { normalizeTarget } from './target.js';
+import { canonicalRepositoryRoot } from './repository-scope.js';
 import { T2C_VERSION } from './version.js';
 
 export interface BuildRecordGenerationInput {
@@ -50,6 +51,7 @@ export interface BuildRecordInput {
   confidence: number;
   basis: string[];
   observedAt?: string | null;
+  repositoryRoot?: string;
   metadata?: Record<string, JsonValue>;
   generation?: BuildRecordGenerationInput;
 }
@@ -57,7 +59,10 @@ export interface BuildRecordInput {
 export function buildRecord(input: BuildRecordInput): IntentRecord {
   const target: IntentTarget = normalizeTarget(input.target);
   const rawExcerpt = input.rawExcerpt ?? input.text;
-  const seed = buildRecordSeed(input, target, rawExcerpt);
+  const repositoryRoot = input.repositoryRoot === undefined
+    ? undefined
+    : canonicalRepositoryRoot(input.repositoryRoot);
+  const seed = buildRecordSeed(input, target, rawExcerpt, repositoryRoot);
   return {
     schemaVersion: 't2c.intent/v1',
     id: createIntentId(seed, input.prefix ?? sourcePrefix(input.sourceKind)),
@@ -68,12 +73,18 @@ export function buildRecord(input: BuildRecordInput): IntentRecord {
     observedAt: input.observedAt ?? null,
     metadata: {
       ...(input.metadata ?? {}),
+      ...(repositoryRoot === undefined ? {} : { repositoryRoot }),
       generation: generationMetadata(input.extractor, input.generation),
     },
   };
 }
 
-function buildRecordSeed(input: BuildRecordInput, target: IntentTarget, rawExcerpt: string): Omit<IntentRecord, 'schemaVersion' | 'id' | 'statement' | 'lifecycle' | 'source' | 'epistemic' | 'observedAt' | 'metadata'> {
+function buildRecordSeed(
+  input: BuildRecordInput,
+  target: IntentTarget,
+  rawExcerpt: string,
+  repositoryRoot: string | undefined,
+): Omit<IntentRecord, 'schemaVersion' | 'id' | 'statement' | 'lifecycle' | 'source' | 'epistemic' | 'observedAt' | 'metadata'> {
   return {
     kind: input.kind,
     action: input.action,
@@ -85,6 +96,7 @@ function buildRecordSeed(input: BuildRecordInput, target: IntentTarget, rawExcer
     revision: input.revision ?? null,
     symbol: input.symbol ?? null,
     rawExcerpt,
+    ...(repositoryRoot === undefined ? {} : { repositoryRoot }),
   };
 }
 

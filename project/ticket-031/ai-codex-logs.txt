@@ -1,0 +1,11 @@
+2026-08-04 ticket-031 planned in isolated worktree; no implementation changes
+2026-08-04 intent schema PASS; governance reports no ticket-031 findings
+2026-08-04 human instruction "kontynuuj" approved AC-01..AC-08
+2026-08-04 workflow transition WAIT_FOR_APPROVAL -> EDIT
+2026-08-04 repository scope implementation limited to three approved files
+2026-08-04 isolated transpile and runtime test PASS: 4/4
+2026-08-04 isolated strict TypeScript check of changed source and test PASS
+2026-08-04 npm run verify BLOCKED by three inherited main parser errors
+2026-08-04 governance: zero ticket-031 findings; four inherited 018/019 errors
+2026-08-04 docker compose config PASS using the operator worktree environment
+2026-08-04 workflow transition EDIT -> VALIDATION

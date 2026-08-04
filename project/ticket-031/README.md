@@ -2,8 +2,8 @@
 
 - **ID**: ticket-031
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -50,31 +50,34 @@ changed by this slice.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: `buildRecord` accepts optional trusted repository provenance,
+- [x] AC-01: Scope is approved by a human owner.
+- [x] AC-02: `buildRecord` accepts optional trusted repository provenance,
       stores its canonical value and incorporates it into new record IDs.
-- [ ] AC-03: Repository roots are relative canonical aliases; absolute paths,
+- [x] AC-03: Repository roots are relative canonical aliases; absolute paths,
       parent traversal, empty aliases and separator ambiguity are rejected.
-- [ ] AC-04: Omitting repository provenance preserves every existing record ID
+- [x] AC-04: Omitting repository provenance preserves every existing record ID
       and metadata contract.
-- [ ] AC-05: Equal record content and source paths under `core` and `docs`
+- [x] AC-05: Equal record content and source paths under `core` and `docs`
       produce different, repeatable IDs with attributable provenance.
 - [ ] AC-06: Focused tests and `npm run verify` pass without changing linker,
       pipeline, CLI or extractor behavior.
-- [ ] AC-07: Cross-repository warnings remain advisory evidence and are not
+- [x] AC-07: Cross-repository warnings remain advisory evidence and are not
       converted into TODO entries or executable tickets.
-- [ ] AC-08: Follow-up work is explicitly split into external-document scope
+- [x] AC-08: Follow-up work is explicitly split into external-document scope
       ingestion and repository-aware linker reconciliation; this slice does not
       claim the complete Subactor Core↔Docs capability.
 
 ## Current blockers
 
-- Human approval is required before `EDIT`.
+- AC-06 cannot yet pass on the inherited `main` snapshot: TypeScript parsing
+  fails in `src/cli.ts`, `src/core/types/code-change.ts` and
+  `src/semantic/reranker/result.ts`, none of which is owned by this ticket.
 - The complete capability needs later integration slices after this identity
   foundation: one to ingest allowlisted sibling documentation and one to
   reconcile explicit cross-repository symbol/path targets.
 
 ## Participants
 
-- Human participant: unresolved; no user-* file was created by this script.
+- Human participant: interactive operator; approval recorded as the 2026-08-04
+  `kontynuuj` instruction without creating or modifying a `user-*` file.
 - Agent participant: [ai-codex.md](ai-codex.md)

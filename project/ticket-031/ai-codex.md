@@ -26,10 +26,17 @@ preserving existing single-repository IDs.
 
 ## Actual changes
 
-- None; waiting for approval.
+- Human approval received through the interactive `kontynuuj` instruction.
+- Workflow transitioned from `WAIT_FOR_APPROVAL` to `EDIT`.
+- Added fail-closed canonical repository aliases and optional trusted
+  `buildRecord` provenance without changing the legacy seed when omitted.
+- Added focused collision, determinism, compatibility and invalid-alias tests;
+  the isolated executable suite passes 4/4.
+- Workflow transitioned from `EDIT` to `VALIDATION`.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- Full TypeScript verification is blocked before reaching ticket-031 tests by
+  three syntax errors already present in the base `main` snapshot.
 - External Docs ingestion and cross-repository linker reconciliation require
   their own dependent tickets after this bounded foundation.
