@@ -248,6 +248,11 @@ Current verified baseline:
 - Replaced only the executable Koru `REVIEW_MODEL` with
   `openrouter/z-ai/glm-5.2`; retained historical Gemini evidence and made no
   provider request.
+- `npm run verify` passes: 335 tests, 334 passed, zero failed and one explicit
+  JDK skip. `make governance`, workflow YAML and diff checks pass.
+- Upstream PR #1 has green checks but no independent review. Returned this
+  ticket to `BLOCKED / VALIDATION` rather than generating a false `published`
+  lock or self-approving the governance source SHA.
 
 ## Blockers
 

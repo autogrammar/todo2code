@@ -15,11 +15,11 @@
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current follow-up state: `IN_PROGRESS / EDIT` for AC-37..AC-40. Reconcile
-  the two divergent upstream 0.9.0 contracts as canonical 0.10.0, adopt one
-  reviewed full SHA, compare governance diagnostics before/after and replace
-  the costly Koru Gemini 3.1 Pro Preview model with `z-ai/glm-5.2`. Do not make
-  a paid live LLM request; AC-17 and inherited blockers remain separate.
+  Current follow-up state: `BLOCKED / VALIDATION` for AC-37, AC-38 and AC-40.
+  Koru uses locally validated `z-ai/glm-5.2`; full verify and governance pass.
+  Final exact-SHA 0.10 adoption waits for independent upstream PR #1 review.
+  Upstream reconciliation is implemented and green; no paid live LLM request
+  was made. AC-17 and inherited blockers remain separate.
 
 ## Backlog tickets
 

@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Status**: BLOCKED
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -299,7 +299,7 @@ to this migration.
 - [ ] AC-38: Bounded delivery remains available while only `IN_PROGRESS`
       reserves scope; planning/backlog/blocked tickets do not create active
       conflict, dependency, ownership or overlap diagnostics.
-- [ ] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
+- [x] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
       current guidance contain no Gemini 3.1 Pro Preview default, while
       historical evidence remains explicitly historical.
 - [ ] AC-40: Adoption preflight, governance fixtures, workflow validation,
@@ -329,13 +329,16 @@ to this migration.
 
 ## Approval boundary
 
-- Current follow-up state: `IN_PROGRESS / EDIT` for AC-37..AC-40 after explicit
-  human approval on 2026-08-04.
+- Current follow-up state: `BLOCKED / VALIDATION` for AC-37, AC-38 and AC-40.
+  Local GLM configuration and the full deterministic suite pass; final
+  governance adoption waits for independent review and merge of upstream PR #1.
 - Upstream ticket-003 must complete first. A changed upstream SHA, managed-file
   plan or workflow model returns this phase to planning.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-26..AC-35 in chat. This authorizes the
   implementation session but is not merge-time evidence.
+- The user explicitly approved AC-36..AC-40 on 2026-08-04. Independent merge
+  evidence for upstream PR #1 is still required.
 
 ## Validation result and publication blockers
 

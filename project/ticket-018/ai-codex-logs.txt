@@ -428,3 +428,13 @@ sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
 - approved criteria: AC-36..AC-40
 - transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
 - provider calls made during transition: 0
+
+2026-08-04 GLM CONFIGURATION VALIDATION
+- executable model: openrouter/z-ai/glm-5.2
+- npm run verify: PASS
+- tests: 335 total; 334 passed; 0 failed; 1 JDK skip
+- make governance: PASS (0 errors, 0 warnings)
+- workflow YAML: PASS
+- live OpenRouter requests: 0
+- upstream PR #1 checks: PASS; independent review: missing
+- state: BLOCKED / VALIDATION pending published upstream SHA

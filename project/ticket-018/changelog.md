@@ -14,6 +14,9 @@
 - Replaced the executable Koru judge with `openrouter/z-ai/glm-5.2` and updated
   current guidance without rewriting historical Gemini evidence or making a
   live provider request.
+- Full deterministic verification passes 334/335 tests with one JDK skip;
+  governance reports zero findings. Final 0.10 lock adoption remains blocked
+  on independent review and merge of upstream PR #1.
 
 ## [0.4.1] - 2026-08-04
 
