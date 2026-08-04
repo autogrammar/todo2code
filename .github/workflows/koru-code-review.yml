@@ -127,6 +127,9 @@ jobs:
           def _bounded_completion(*args, **kwargs):
               kwargs["max_tokens"] = int(os.environ["VALLM_REVIEW_MAX_TOKENS"])
               kwargs["timeout"] = float(os.environ["VALLM_REVIEW_TIMEOUT_SECONDS"])
+              kwargs["response_format"] = {"type": "json_object"}
+              kwargs["reasoning_effort"] = "none"
+              kwargs["allowed_openai_params"] = ["reasoning_effort"]
               # Provider HTTP errors, including 404, must fail immediately.
               kwargs["num_retries"] = 0
               return _original_completion(*args, **kwargs)
