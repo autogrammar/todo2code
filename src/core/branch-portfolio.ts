@@ -444,11 +444,11 @@ const expectedPairKeys = (names: string[]): string[] => {
   }
   return keys;
 };
-const pairKey = (left: string, right: string): string => {
-  return left.localeCompare(right) < 0 ? `${left}\u0000${right}` : `${right}\u0000${left}`;
-};
+const pairKey = (left: string, right: string): string =>
+  left.localeCompare(right) < 0 ? `${left}\u0000${right}` : `${right}\u0000${left}`;
 const intersection = (left: string[], right: string[]): string[] => {
-  return uniqueSorted(left.filter((value) => new Set(right).has(value)));
+  const values = new Set(right);
+  return uniqueSorted(left.filter((value) => values.has(value)));
 };
 const uniqueSorted = (values: string[]): string[] => [...new Set(values)].sort();
 const requireObject: (value: unknown, name: string) => asserts value is Record<string, unknown> = (value, name) => {

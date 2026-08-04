@@ -104,7 +104,7 @@ exact-head evidence.
 - Full host verification: 363 passed, 1 environment-dependent skip, 0 failed.
 - Docker core E2E: 357 passed, 7 toolchain-dependent skips; both gold datasets,
   CLI, MCP, A2A and examples passed with `T2C-E2E-000`.
-- Lizard: 544 NLOC, zero threshold violations, maximum function CC 11.
+- Lizard: 499 NLOC, zero threshold violations, maximum function CC 11.
 - Governance: `GOV-PASS` with 0 errors and 0 warnings.
 - No Git/GitHub mutation, LLM call, runtime dependency or cross-workstream
   implementation change was introduced.
