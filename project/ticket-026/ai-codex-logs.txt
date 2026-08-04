@@ -3,3 +3,7 @@ test/code-change-plan.test.ts, test/pipeline.test.ts and
 test/python-runtime.test.ts expect 0.5.0 while runtime/package report 0.5.2.
 Governance now assigns the Python adapter test to runtime. User authorization:
 kontynuuj.
+2026-08-04 validation
+code-change CLI, offline pipeline and Python runtime adapter: PASS
+npm run verify: PASS (338 tests; 337 pass, 0 fail, 1 local JDK skip)
+governance and Docker core/full: PASS

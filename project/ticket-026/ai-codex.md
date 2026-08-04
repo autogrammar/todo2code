@@ -26,7 +26,9 @@ restores the declared contract.
 - Aggregate testing identified only stale release literals in the three added
   test paths; the user's continued test-and-repair instruction authorizes this
   exact follow-up.
+- Repaired action dispatch and canonical version assertions. Focused runtime
+  tests, aggregate verification and Docker core/full pass.
 
 ## Blockers
 
-- None after the user's continuation instruction; merge review is external.
+- Implementation and validation are complete; merge review remains external.

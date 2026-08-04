@@ -3,7 +3,7 @@
 - **ID**: ticket-026
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -21,10 +21,10 @@ change runtime behavior.
 ## Acceptance criteria
 
 - [x] AC-01: The human instructed the agent to continue iterative repair.
-- [ ] AC-02: Runtime action dispatch compiles and diff-git behavior remains
+- [x] AC-02: Runtime action dispatch compiles and diff-git behavior remains
       covered by existing tests.
-- [ ] AC-03: Aggregate verification and governance pass.
-- [ ] AC-04: Code-change CLI, offline pipeline and Python runtime adapter tests
+- [x] AC-03: Aggregate verification and governance pass.
+- [x] AC-04: Code-change CLI, offline pipeline and Python runtime adapter tests
       assert the canonical `0.5.2` release.
 
 ## Participants
