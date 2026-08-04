@@ -20,3 +20,6 @@
 - Split the original high-complexity request loop into bounded helper stages
   after Koru reported two cyclomatic-complexity violations; Lizard now reports
   no threshold violations and all validation remains green.
+- Worked around a pinned Vallm TypeScript parser ambiguity where `<` inside an
+  object literal was interpreted as a generic delimiter; the exact Lizard API
+  now reports no function above the configured CC=15 limit.

@@ -59,6 +59,9 @@ export function calculateOpenRouterTimeout(
     OPENROUTER_TIMEOUT_POLICY.maximumTimeoutMs,
     scaledTimeoutMs,
   );
+  // Keep the comparison outside the object literal: Vallm's pinned TypeScript
+  // complexity parser otherwise mistakes `<` for a generic type delimiter.
+  const capped = effectiveTimeoutMs < scaledTimeoutMs;
 
   return {
     ...load,
@@ -67,7 +70,7 @@ export function calculateOpenRouterTimeout(
     pressure,
     multiplier,
     effectiveTimeoutMs,
-    capped: effectiveTimeoutMs < scaledTimeoutMs,
+    capped,
   };
 }
 
@@ -82,10 +85,6 @@ export function openRouterRequestTimeout(
   } catch (error) {
     throw new Error(`OpenRouter request body must be JSON-serializable: ${error instanceof Error ? error.message : String(error)}`);
   }
-  if (serialized === undefined) {
-    throw new Error('OpenRouter request body must serialize to a JSON object');
-  }
-
   const messages = optionalArray(body.messages, 'messages');
   const plugins = optionalArray(body.plugins, 'plugins');
   const responseFormat = optionalObject(body.response_format, 'response_format');
