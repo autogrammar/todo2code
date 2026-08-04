@@ -3,7 +3,7 @@
 - **ID**: ticket-027
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -21,12 +21,12 @@ modules where the unchanged confidence ceilings now live.
 ## Acceptance criteria
 
 - [x] AC-01: The human instructed the agent to continue iterative repair.
-- [ ] AC-02: Review patch plan collections are compared only after validated
+- [x] AC-02: Review patch plan collections are compared only after validated
       string-array narrowing.
-- [ ] AC-03: Edit-path comparison supplies a definite `string[]` without
+- [x] AC-03: Edit-path comparison supplies a definite `string[]` without
       dropping or inventing paths.
-- [ ] AC-04: Complete check and code-change tests pass.
-- [ ] AC-05: Confidence hierarchy coverage reads the split Markdown/NL helper
+- [x] AC-04: Complete check and code-change tests pass.
+- [x] AC-05: Confidence hierarchy coverage reads the split Markdown/NL helper
       modules and continues to enforce the documented 0.94 > 0.90 > 0.85
       ceilings.
 

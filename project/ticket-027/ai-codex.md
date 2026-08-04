@@ -26,7 +26,9 @@ helper, while indexed `split` access becomes optional under strict settings.
 - Plan completed and the user-authorized repair entered `EDIT`.
 - Governance correctly rejected extractor ticket ownership of the confidence
   test; ticket-027 now owns its path-only update under the existing approval.
+- Restored synthesis narrowing and routed confidence coverage correctly. Full
+  verification, gold and Docker core/full pass.
 
 ## Blockers
 
-- None after the user's continuation instruction; merge review is external.
+- Implementation and validation are complete; merge review remains external.

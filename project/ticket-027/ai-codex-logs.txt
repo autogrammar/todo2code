@@ -2,3 +2,7 @@
 Confidence hierarchy behavior is unchanged, but test/nl-llm.test.ts reads the
 pre-split entry modules. GOV-WORKSTREAM-003 correctly assigns this test to LLM;
 ticket-027 now owns the two source-path updates. Focused test passed.
+2026-08-04 validation
+focused repaired tests: 79/79 PASS
+npm run verify: PASS (338 tests; 337 pass, 0 fail, 1 local JDK skip)
+gold v1/v2, governance and Docker core/full: PASS
