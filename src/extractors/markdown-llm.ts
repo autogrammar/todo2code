@@ -17,6 +17,8 @@ import {
   stageAudit,
 } from './markdown-llm-helpers.js';
 
+export { MARKDOWN_LLM_BATCH_RECORDS } from './markdown-llm-helpers.js';
+
 export interface AuditedMarkdownExtractionResult extends ExtractionResult {
   audit: PipelineStageAudit;
 }

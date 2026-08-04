@@ -217,11 +217,11 @@ function clampLine(value: number, min: number, max: number): number {
 }
 
 function allowedAction(value: string): value is IntentAction {
-  return NL_ACTIONS.includes(value);
+  return (NL_ACTIONS as readonly string[]).includes(value);
 }
 
 function allowedModality(value: string): value is Modality {
-  return NL_MODALITIES.includes(value);
+  return (NL_MODALITIES as readonly string[]).includes(value);
 }
 
 const NL_ACTIONS = [
