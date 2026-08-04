@@ -59,7 +59,7 @@ changed by this slice.
       and metadata contract.
 - [x] AC-05: Equal record content and source paths under `core` and `docs`
       produce different, repeatable IDs with attributable provenance.
-- [ ] AC-06: Focused tests and `npm run verify` pass without changing linker,
+- [x] AC-06: Focused tests and `npm run verify` pass without changing linker,
       pipeline, CLI or extractor behavior.
 - [x] AC-07: Cross-repository warnings remain advisory evidence and are not
       converted into TODO entries or executable tickets.
@@ -69,9 +69,11 @@ changed by this slice.
 
 ## Current blockers
 
-- AC-06 cannot yet pass on the inherited `main` snapshot: TypeScript parsing
-  fails in `src/cli.ts`, `src/core/types/code-change.ts` and
-  `src/semantic/reranker/result.ts`, none of which is owned by this ticket.
+- The ticket commit is based on a broken `main` snapshot. Its clean overlay on
+  the existing aggregate repair `56081b6` reports 342 total tests (341 pass,
+  one optional JDK skip, zero failures) and passes Docker smoke. Publication
+  waits for the already implemented tickets 023–027 to be integrated, followed
+  by a rebase; no additional parser repair is required in ticket 031.
 - The complete capability needs later integration slices after this identity
   foundation: one to ingest allowlisted sibling documentation and one to
   reconcile explicit cross-repository symbol/path targets.

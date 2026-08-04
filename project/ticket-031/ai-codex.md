@@ -32,11 +32,15 @@ preserving existing single-repository IDs.
   `buildRecord` provenance without changing the legacy seed when omitted.
 - Added focused collision, determinism, compatibility and invalid-alias tests;
   the isolated executable suite passes 4/4.
+- Applied the three-file implementation as an uncommitted validation overlay
+  on aggregate repair `56081b6`: `npm run verify` reported 342 total, 341 pass,
+  one optional JDK skip and zero failures; Docker smoke also passed.
 - Workflow transitioned from `EDIT` to `VALIDATION`.
 
 ## Blockers
 
-- Full TypeScript verification is blocked before reaching ticket-031 tests by
-  three syntax errors already present in the base `main` snapshot.
+- Publication waits for the already validated ticket-023..027 aggregate repair
+  to enter the target history so this commit can be rebased without copying or
+  duplicating another workstream's fixes.
 - External Docs ingestion and cross-repository linker reconciliation require
   their own dependent tickets after this bounded foundation.

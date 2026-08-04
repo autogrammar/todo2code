@@ -5,8 +5,11 @@
 - Recorded human approval and entered the bounded `EDIT` state.
 - Added canonical repository-root provenance to record identity with strict
   validation and unchanged legacy IDs when provenance is omitted.
-- Added four focused tests; full verification remains blocked by three parser
-  errors in the inherited base outside this ticket's allowed paths.
+- Added four focused tests; verification on the direct base is blocked by
+  three inherited parser errors outside this ticket's allowed paths.
+- Reused the existing ticket-023..027 aggregate repair as a temporary
+  validation base: full verification and Docker smoke pass with this change.
+  No duplicate repair implementation or automatic ticket was created.
 - Planned a 25-minute core-only identity slice for repository-qualified Intent
   records after the Subactor Core run exposed missing sibling Docs evidence.
 - Kept warning suppression, external reads, linker changes and automatic ticket

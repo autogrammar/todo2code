@@ -8,4 +8,7 @@
 2026-08-04 npm run verify BLOCKED by three inherited main parser errors
 2026-08-04 governance: zero ticket-031 findings; four inherited 018/019 errors
 2026-08-04 docker compose config PASS using the operator worktree environment
+2026-08-04 located existing repairs in tickets 023-027; no duplicate ticket created
+2026-08-04 ticket-031 overlay on aggregate repair 56081b6: verify PASS, 342 tests, 0 fail, 1 optional skip
+2026-08-04 ticket-031 overlay on aggregate repair 56081b6: Docker smoke PASS
 2026-08-04 workflow transition EDIT -> VALIDATION
