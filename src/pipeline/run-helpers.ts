@@ -175,3 +175,4 @@ export function appendLlmNotConfigured(report: DiagnosticReport): void {
   };
   report.diagnostics.unshift(diagnostic);
   report.counts.warning += 1;
+}
