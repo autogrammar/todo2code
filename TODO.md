@@ -4,8 +4,8 @@
 
 - [ ] [`ticket-033`](project/ticket-033/README.md) — restore communication LLM
   prompt resolution after its helper moved one directory deeper. Current
-  state: `IN_PROGRESS / EDIT`; one production file, estimated under 30
-  minutes, no test or prompt-content changes.
+  state: `IN_PROGRESS / VALIDATION`; focused tests pass and both targeted
+  failures are removed, with no test or prompt-content changes.
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with

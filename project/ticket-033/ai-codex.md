@@ -28,9 +28,15 @@ tests and does not indicate provider or schema failure.
 
 - The human explicitly approved ticket-033 by replying `kontynuuj`; the
   interactive implementation may enter `EDIT`.
+- Corrected the prompt traversal by one directory in the owning helper. No
+  prompt content, provider behavior, schema or test changed.
+- Clean build and all three focused communication LLM tests pass, including
+  correction retry and strict require-mode behavior. The isolated full suite
+  no longer contains either prompt-resolution failure.
 
 ## Blockers
 
 - Tickets 030, 031 and 032 remain independent sibling repairs and are not
   absorbed into this diff.
 - Four inherited ticket-018/ticket-019 governance errors remain outside scope.
+- Trusted merge approval for the final head SHA is still required.

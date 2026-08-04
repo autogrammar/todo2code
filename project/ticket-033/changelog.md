@@ -7,3 +7,10 @@
 - Renumbered the unpublished scaffold from 023 to 033 because remote PR #3
   already owns ticket-023.
 - Documented the bounded prompt-resolution regression repair.
+
+## [0.2.0] - 2026-08-04
+
+- Corrected communication prompt resolution for the helper's post-refactor
+  directory depth without changing prompt contents or LLM policy.
+- Focused communication LLM tests pass 3/3 and the two targeted full-suite
+  failures are removed.

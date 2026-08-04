@@ -3,7 +3,7 @@
 - **ID**: ticket-033
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -28,12 +28,12 @@ allowed and expected implementation time is under 30 minutes.
 ## Acceptance criteria
 
 - [x] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: The communication prompt resolves from both compiled test/runtime
+- [x] AC-02: The communication prompt resolves from both compiled test/runtime
       execution without relying on stale artifacts.
-- [ ] AC-03: Both audited communication enrichment tests pass using their
+- [x] AC-03: Both audited communication enrichment tests pass using their
       mocked provider and no live request.
-- [ ] AC-04: `require-llm` and correction validation behavior remain strict.
-- [ ] AC-05: Clean build, focused/full tests, diff scope and governance evidence
+- [x] AC-04: `require-llm` and correction validation behavior remain strict.
+- [x] AC-05: Clean build, focused/full tests, diff scope and governance evidence
       are recorded without changing tests or prompt contents.
 
 ## Participants
@@ -43,6 +43,18 @@ allowed and expected implementation time is under 30 minutes.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / EDIT` after explicit chat approval.
+- Current state: `IN_PROGRESS / VALIDATION` after implementing and testing the
+  bounded repair.
 - Chat approval authorizes this interactive implementation only; trusted merge
   evidence must remain independent and bound to the final SHA.
+
+## Validation evidence
+
+- `npm run build`: PASS.
+- Focused communication LLM suite: 3 passed, 0 failed; mocked provider only.
+- Full fresh suite on isolated base: 338 tests, 328 passed, 9 failed and one
+  skipped. Both prompt failures are removed. The remaining failures correspond
+  exactly to independent tickets 030, 031 and 032.
+- `git diff --check`: PASS.
+- `make governance`: only four inherited ticket-018/ticket-019 diagnostics;
+  no ticket-033 scope or workstream finding.
