@@ -41,6 +41,10 @@ diff and keeps each delivery within the 30-minute policy budget.
 - When protected `main` advanced to `9658ebbaac2ebd213d12f42614e054949fa086ab`,
   stopped rather than silently rebinding approval. The human replied
   `kontynuuj` to approve that exact new base.
+- When protected `main` later advanced to
+  `9cfc3a8f90a9669ef5b37c44928e0b0e6a191ae5`, stopped again at the exact-base
+  boundary. The human replied `kontynuuj`; the accepted architecture, scope and
+  implementation diff remain unchanged.
 - Bound the plan to the new accepted base and transitioned to
   `IN_PROGRESS / EDIT`. No implementation file changes are included in this
   plan commit.

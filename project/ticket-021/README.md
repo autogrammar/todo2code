@@ -64,3 +64,8 @@ After `main` advanced through tickets 019/035, the human explicitly continued
 against exact replacement base
 `9658ebbaac2ebd213d12f42614e054949fa086ab`. The implemented reconciliation
 preserves both Python-publication ownership and the generated-analysis patterns.
+
+After `main` subsequently advanced through the protected ticket-039 closure,
+the human replied `kontynuuj` again and approved exact replacement base
+`9cfc3a8f90a9669ef5b37c44928e0b0e6a191ae5`. The implementation diff and
+accepted architecture remain unchanged; only the approval binding is refreshed.

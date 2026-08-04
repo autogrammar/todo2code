@@ -14,3 +14,6 @@
   ownership and regenerated genuine standard lock evidence.
 - Focused deterministic validation passed; the ticket remains in
   `IN_PROGRESS / VALIDATION` pending independent publication evidence.
+- Rebound unchanged scope and architecture to exact protected base
+  `9cfc3a8f90a9669ef5b37c44928e0b0e6a191ae5` after the human replied
+  `kontynuuj`; no implementation file changed during the reconciliation.

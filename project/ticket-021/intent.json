@@ -16,7 +16,7 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "9658ebbaac2ebd213d12f42614e054949fa086ab",
+    "acceptedBaseSha": "9cfc3a8f90a9669ef5b37c44928e0b0e6a191ae5",
     "targetBranch": "main",
     "outcome": "Assign root-level generated analysis artifacts to the integration workstream without weakening the managed governance wrapper",
     "nonGoals": [
@@ -53,7 +53,7 @@
         "states": [],
         "evidence": []
       },
-      "rollback": "Restore the two governance files from accepted base 9658ebbaac2ebd213d12f42614e054949fa086ab"
+      "rollback": "Restore the two governance files from accepted base 9cfc3a8f90a9669ef5b37c44928e0b0e6a191ae5"
     },
     "runtimeDependencies": [],
     "validation": [
