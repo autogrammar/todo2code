@@ -2,6 +2,11 @@
 
 ## Active tickets
 
+- [ ] [`ticket-030`](project/ticket-030/README.md) — repair the stale
+  confidence-hierarchy source lookup after the NL and Markdown clamp logic
+  moved into focused helper modules. Current state: `IN_PROGRESS / VALIDATION`;
+  the production ceilings remain unchanged and the implementation is test-only.
+
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
   one root `pyproject.toml` and SDK-only artifacts. Current state:
