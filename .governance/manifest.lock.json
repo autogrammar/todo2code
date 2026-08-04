@@ -2,18 +2,18 @@
   "schema": "new-project.lock/v1",
   "standard": {
     "id": "wellmanifest/new-project",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "sourceRepository": "wellmanifest/new-project",
-    "sourceRevision": null,
-    "sourceBaseRevision": "72e5f6c9cf91998615e2342f02b2af650be81cea",
-    "publicationStatus": "uncommitted"
+    "sourceRevision": "3e54e3a17dee971ebe2ef62fcd824b05e1f5b004",
+    "sourceBaseRevision": "0b33a8a865b73c6826c27cd249111d204a297d6a",
+    "publicationStatus": "local-commit"
   },
   "managedFiles": {
-    ".governance/diagnostics.json": "2a6d1e088a03badb75eef33cfeb9b6c9992fea4c6f7fa5ebec6257b1eea9e39f",
-    ".governance/governance_check.py": "1e45843a4efa5793547aa7e9a0fd629b495449c65ca6a4cf7b0990334545bbfa",
-    ".governance/intent.schema.json": "7e3157c1bf7c987541fc2182fc44d33bf53520672931a09bbd6b2b10b821aa3b",
+    ".governance/diagnostics.json": "2b2d5243cf18b7d95e94a96bcb220eafee9291566aa6a6814b4a9693e5c6aa6e",
+    ".governance/governance_check.py": "7f364bf0441e2907556b47dab2b7072aa8504383ec65fac6bf440366bc7d6a3e",
+    ".governance/intent.schema.json": "d618a2c7ef4b4a24fbf95d516bf8c8231836e7752b28f0450cc96f02f07b6780",
     ".governance/manifest.json": "004839429722cc6ddbf8e3734893161ffc3f8a3003bcaefaff88465408ff32b0",
-    ".governance/manifest.schema.json": "185f041ffe3d9c40670765ff53fc7ef37dc4ee21121c67a8d7913bd8860435da",
+    ".governance/manifest.schema.json": "a24a6cd544573298861ed1d05b90b1e3fe5044481a991a4b3a205e7381f6ef34",
     ".governance/stack-profiles.json": "6fa3f8f44e50cfd0539413a85092817d3fab4e82fe376405f1e443120724dff2",
     "project/governance-check.bat": "7207bc499483d7a7a1ab2c230ad288c2484cdf02f3a773ba69f4b760b67a3388",
     "project/governance-check.sh": "158ca61531b8e51ba484de8eb6f91f4e4fbba908ae3c8db678b63bf6bab49923",
