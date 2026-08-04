@@ -259,3 +259,17 @@ test/python-runtime.test.ts; plan AC-29 routes this runtime adapter test to the
 runtime workstream before repair. User authorization remains: kontynuuj.
 manifest ownership updated and lock refreshed; focused governance gate pending
 aggregate ticket scopes.
+
+2026-08-04 COMPLETE AGGREGATE VALIDATION
+$ npm run verify
+PASS: 338 tests; 337 pass, 0 fail, 1 local JDK skip
+$ bash project/governance-check.sh --actor agent
+GOV-PASS: 0 errors, 0 warnings
+$ make docker-smoke
+PASS
+$ make e2e-core
+PASS: 331 tests passed, 7 explicit optional-toolchain skips
+$ make e2e-full
+PASS: cargo fetch --locked; 338 tests passed, 0 failed, 0 skipped
+gold v1/v2: 100% precision and recall; repeated-run stability PASS
+project2.sh: NOT RUN

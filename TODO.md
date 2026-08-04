@@ -4,45 +4,45 @@
 
 - [ ] [`ticket-027`](project/ticket-027/README.md) — restore strict narrowing
   in the split code-change synthesis helper. Current state:
-  `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
-  exact LLM helper repair.
+  `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
+  with protected merge review still required.
 
 - [ ] [`ticket-026`](project/ticket-026/README.md) — remove the stale runtime
   diff-git dispatcher argument after the action split. Current state:
-  `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
-  exact runtime repair.
+  `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
+  with protected merge review still required.
 
 - [ ] [`ticket-025`](project/ticket-025/README.md) — repair NL type guards and
   the public markdown batching export after helper splits. Current state:
-  `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
-  exact extractor repair.
+  `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
+  with protected merge review still required.
 
 - [ ] [`ticket-024`](project/ticket-024/README.md) — repair current CLI and
   communication contracts after the parallel module refactors. Current state:
-  `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
-  exact interfaces repair.
+  `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
+  with protected merge review still required.
 
 - [ ] [`ticket-023`](project/ticket-023/README.md) — repair the current-HEAD
   core artifact contracts, semantic reranker parser guard and canonical runtime
   version without reverting parallel refactors. Current state:
-  `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
-  exact core-dsl repair.
+  `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
+  with protected merge review still required.
 
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current state: `IN_PROGRESS / WAIT_FOR_APPROVAL` for the approved AC-11..AC-25:
+  Current state: `IN_PROGRESS / VALIDATION` for the approved AC-11..AC-29:
   pinned, read-only and attested `koru / code-review` PR check plus a required
   ruleset. `koru / code-review` and `governance / enforce` now run as required
   checks on `main`; the ruleset is active with no bypass actors.
-  Current follow-up state: `IN_PROGRESS / EDIT` for AC-26..AC-28, normalizing
+  Current follow-up state: `IN_PROGRESS / VALIDATION` for AC-26..AC-29, normalizing
   the three tracked generated-analysis
   artifacts after `npm run verify` detected a volatile `/tmp` worktree root;
   no analysis regeneration and no `project2.sh` execution are in scope.
-  Earlier AC-11..AC-16 pass; AC-17 and the pre-existing publication/external
-  governance blockers remain recorded separately.
+  AC-11..AC-29, governance and Docker core/full pass; only the pre-existing
+  publication/external governance blockers remain recorded separately.
 
 ## Backlog tickets
 

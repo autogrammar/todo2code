@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -146,7 +146,7 @@ agent self-approved.
       server configuration.
 - [x] AC-16: `todo2code` adopts the workstream map and demonstrates at least
       two parallel non-overlapping intents plus one rejected overlap in Docker.
-- [ ] AC-17: Existing application and Docker E2E checks still pass; unrelated
+- [x] AC-17: Existing application and Docker E2E checks still pass; unrelated
       concurrent changes in `.env.example`, `src/`, `test/` and
       `tests/fixtures/` are neither modified nor attributed to this ticket.
 - [x] AC-18: A human approves the Koru review design, bounded scope and
@@ -178,7 +178,7 @@ agent self-approved.
 - [x] AC-27: The existing deterministic normalizer replaces every persisted
       temporary analysis root without regenerating analysis or running
       `project2.sh`.
-- [ ] AC-28: `verify:generated-analysis`, governance and the complete project
+- [x] AC-28: `verify:generated-analysis`, governance and the complete project
       verification pass on the repaired aggregate branch.
 - [x] AC-29: The runtime workstream owns its Python runtime adapter test so the
       canonical `0.5.2` release assertion can be repaired without cross-stream
@@ -237,12 +237,10 @@ remain historical evidence, not evidence for AC-11..AC-17.
   `GOV-WORKSTREAM-004`.
 - Fresh core E2E passes; the focused Node result is 329 tests, 322 passed, zero
   failed and 7 optional-toolchain skips.
-- AC-17 remains blocked outside this governance diff. Concurrent commit
-  `9928699` changed `sdk/rust/Cargo.toml` from 0.5.0 to 0.5.1 while the ignored
-  local `sdk/rust/Cargo.lock` still records 0.5.0. `make e2e-full` therefore
-  stops at `cargo fetch --locked` with exit 101 before the full tests start.
-  Resolving it belongs to the `sdk`/`integration` workstream and requires its
-  own approved ticket; ticket-018 does not rewrite or claim that artifact.
+- The historical AC-17 Rust lock mismatch no longer reproduces on current HEAD.
+  `cargo fetch --locked` succeeds in the full image and `make e2e-full` passes
+  all 338 tests with zero skips. Ticket-018 did not rewrite or claim an SDK
+  artifact; the current aggregate supplied the already corrected SDK state.
 - Pull request #1 ran `koru / code-review` successfully as run `30703151199`.
   Its `t2c.koru-code-review/v1` report binds base `06a2faa`, head `4cfd2f9`,
   the pinned tool/model versions and an empty supported-source set. The report

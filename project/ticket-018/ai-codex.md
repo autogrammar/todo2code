@@ -176,19 +176,17 @@ Current verified baseline:
   not retroactively claimed here.
 - Central `new-project` 0.7.0 is uncommitted/unpublished, so no honest immutable
   reusable-workflow SHA exists yet.
-- AC-17: concurrent commit `9928699` bumped the Rust SDK manifest to 0.5.1, but
-  the ignored local Cargo lock still identifies the root package as 0.5.0.
-  Official full Docker E2E fails closed at `cargo fetch --locked` (exit 101).
-  Fixing or tracking that lock is an `sdk`/`integration` change outside this
-  ticket's approved governance workstream.
+- The earlier AC-17 Rust lock failure no longer reproduces on current HEAD:
+  locked Cargo fetch and full Docker E2E pass without a governance-owned SDK
+  edit.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / EDIT` for approved AC-18..AC-25. AC-11..AC-16 are
-  implemented; AC-17 and the earlier publication/external blockers remain open.
+- Current state: `IN_PROGRESS / VALIDATION`. AC-11..AC-29 and application/full
+  Docker validation pass; the earlier publication/external blockers remain.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
 - The current follow-up is planned as AC-26..AC-28 in
-  `IN_PROGRESS / EDIT`. The user's `kontynuuj` response authorizes this exact
+  `IN_PROGRESS / VALIDATION`. The user's `kontynuuj` response authorizes this exact
   interactive implementation scope, but remains insufficient merge evidence.

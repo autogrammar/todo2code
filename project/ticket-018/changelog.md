@@ -14,6 +14,10 @@
   complete aggregate verification remains AC-28.
 - Planned AC-29 to assign the Python runtime adapter test to its owning
   runtime workstream before correcting the stale release assertion.
+- Completed AC-17 and AC-28 on the current aggregate: local verification,
+  deterministic governance, Docker smoke and Docker core/full all pass.
+- Confirmed the historical locked Rust dependency failure no longer reproduces;
+  full Docker runs 338 tests with zero skips.
 
 ## [0.3.0] - 2026-08-04
 
