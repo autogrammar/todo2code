@@ -32,7 +32,7 @@ test('deterministic documentation baseline records headings, code blocks and exp
   assert.ok(result.records.every((record) => record.source.kind === 'document'));
   assert.ok(result.records.every((record) => record.source.extractor === 't2c/markdown-documentation@2'));
   assert.ok(result.records.every((record) => record.metadata.generation.generator === 't2c/markdown-documentation'));
-  assert.ok(result.records.every((record) => record.metadata.generation.runtimeVersion === '0.5.0'));
+  assert.ok(result.records.every((record) => record.metadata.generation.runtimeVersion === '0.5.2'));
   const reference = result.records[1];
   assert.deepEqual(reference?.statement.target.paths, ['src/runtime.ts']);
   assert.deepEqual(reference?.statement.target.symbols, ['validateContract']);

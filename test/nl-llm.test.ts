@@ -192,8 +192,8 @@ test('The documented confidence hierarchy holds across LLM extractors', async ()
   // Read the TypeScript sources from the repository root: the compiled test
   // runs out of dist/, where the .ts files do not exist.
   const sources = await Promise.all([
-    fs.readFile(path.resolve('src/extractors/markdown-llm.ts'), 'utf8'),
-    fs.readFile(path.resolve('src/extractors/nl-llm.ts'), 'utf8'),
+    fs.readFile(path.resolve('src/extractors/markdown-llm-helpers.ts'), 'utf8'),
+    fs.readFile(path.resolve('src/extractors/nl-llm-helpers.ts'), 'utf8'),
     fs.readFile(path.resolve('src/extractors/docs-record.ts'), 'utf8'),
   ]);
   const ceilings = sources.map((source) => {

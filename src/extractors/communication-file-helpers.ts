@@ -156,6 +156,7 @@ interface CommunicationMetadata {
   timestamp: string | null;
   explicitPaths: string[];
   explicitSymbols: string[];
+  declaredGitAuthors: string[];
   gitAuthors: string[];
   messageType: CommunicationType;
   explicitMessageType: string | null;
@@ -243,6 +244,7 @@ function collectCommunicationMetadata(
     timestamp,
     explicitPaths,
     explicitSymbols,
+    declaredGitAuthors,
     gitAuthors,
     messageType,
     explicitMessageType,
@@ -305,8 +307,8 @@ function appendRegistryAlignmentWarnings(
   if (metadata.declaredRole !== 'unknown' && metadata.declaredRole !== metadata.identity.entry.role) {
     warnings.push(`${relativeToProject}: declared role conflicts with participant registry`);
   }
-  if (metadata.identity.entry && metadata.gitAuthors.length
-    && !sameStrings(metadata.gitAuthors, metadata.identity.entry.gitAuthors)) {
+  if (metadata.declaredGitAuthors.length
+    && !sameStrings(metadata.declaredGitAuthors, metadata.identity.entry.gitAuthors)) {
     warnings.push(`${relativeToProject}: git-authors differ from participant registry and were ignored`);
   }
 }
