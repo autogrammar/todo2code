@@ -13,6 +13,10 @@
   coverage; the false ticket-020 workstream finding is gone.
 - Target schemas and lock pass; four inherited ticket-018/019 coordination
   findings remain separately attributed and block full activation.
+- Re-ran full local verification and Docker core E2E successfully; Docker full
+  reproduces only the separately owned Rust lock mismatch before tests.
+- Audited every bounded upstream and target commit at no more than five files
+  and completed AC-21, AC-25 and AC-35 evidence without claiming AC-34.
 
 ## [0.2.1] - 2026-08-01
 

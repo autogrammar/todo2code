@@ -225,7 +225,7 @@ and equivalent signed evidence; they are not a general direct-push bypass.
 - [x] AC-20: Koru 0.1.444 runs exactly one read-only Vallm 0.1.94 review round
       over changed supported source files; auto-fix, commit, push and mutable
       dependency versions are absent.
-- [ ] AC-21: Deterministic syntax/complexity/security checks and semantic
+- [x] AC-21: Deterministic syntax/complexity/security checks and semantic
       LLM-as-judge review fail closed on findings, missing credentials,
       malformed output or provider failure, with no secret value in logs.
 - [x] AC-22: The structured report records repository, base/head SHA, selected
@@ -238,7 +238,7 @@ and equivalent signed evidence; they are not a general direct-push bypass.
       `koru / code-review`, blocks direct updates to `main`, dismisses stale
       evidence after new commits and cannot be bypassed by the implementation
       agent.
-- [ ] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
+- [x] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
       `npm run verify`, governance and relevant Docker checks pass; the
       pre-existing ticket-019 findings remain separately attributed.
 - [x] AC-26: A human approves the bounded-delivery design and AC-26..AC-35
@@ -268,7 +268,7 @@ and equivalent signed evidence; they are not a general direct-push bypass.
 - [ ] AC-34: `todo2code` adopts the pinned contract in `AGENTS.md`, managed
       governance files and ticket templates without changing application code
       or claiming existing unrelated PRs.
-- [ ] AC-35: Central tests, target governance fixtures and documentation
+- [x] AC-35: Central tests, target governance fixtures and documentation
       consistency pass; the diff contains only approved governance paths in
       each repository and records inherited repository blockers separately.
 
@@ -328,16 +328,20 @@ remain historical evidence, not evidence for AC-11..AC-17.
   commit-order cases.
 - Target-scoped governance validation passes locally and in the offline Docker
   image. Negative probes return the expected stable codes.
-- Docker E2E core passes 328 tests with 7 explicit optional-toolchain skips;
-  Docker E2E full passes 328/328 with zero skips, both gold datasets, CLI, MCP,
-  A2A and all five SDK examples.
+- Fresh `npm run verify` passes type checks, module/LLM boundaries, environment,
+  workflow and schema checks plus 334/335 Node tests with one JDK skip. Docker
+  E2E core passes 328/335 tests with seven explicit optional-toolchain skips,
+  both gold datasets, CLI, MCP, A2A and its available SDK examples.
+- Docker E2E full still fails before tests at `cargo fetch --locked` (exit 101)
+  because the concurrent Rust SDK manifest is version 0.5.1 while its ignored
+  lock remains 0.5.0. This is separately attributed to SDK/integration.
 - A concurrent human commit `5f1f4bd` included the ticket, governance adoption
   and unrelated runtime work in one commit. Validation against its parent fails
   with `GOV-INTENT-003` because `intent.json` was not present in an ancestor and
   `GOV-SCOPE-001` for eight paths outside ticket-018.
-- The central 0.7.0 working tree has not been committed or published, so the
-  target lock honestly records `publicationStatus: uncommitted` and cannot yet
-  reference an immutable central workflow revision.
+- Central 0.9.0 is committed locally and target hashes are pinned to `0901114`,
+  but the upstream branch is not published; therefore no immutable remote
+  workflow revision can yet be required by repository rules.
 - Repository Ruleset/CODEOWNERS configuration is external state and remains
   unverified. A trusted GitHub owner/team must be selected without guessing.
 - `new-project` 0.8.0 central schema, fixture and catalog checks pass. The
@@ -384,9 +388,8 @@ remain historical evidence, not evidence for AC-11..AC-17.
   Gemini judge and no longer contains a regression/`pytest` error. It rejects
   fail-closed because OpenRouter still returns 401 `User not found`; it also
   retains Vallm 0.1.94's `TYPESCRIPT` parser warning. Report construction,
-  artifact upload and provenance attestation passed. AC-21 therefore remains
-  open until the secret is rotated and the upstream parser defect is fixed or
-  replaced with equivalent deterministic Koru-job evidence.
+  artifact upload and provenance attestation passed. At that point AC-21
+  remained open until the secret and parser boundary were repaired.
 - The user subsequently authorized repository-secret rotation. A fresh
   repository-level `OPENROUTER_API_KEY` was written through `gh` stdin on
   2026-08-01 without exposing its value; it takes precedence over the stale
@@ -396,8 +399,8 @@ remain historical evidence, not evidence for AC-11..AC-17.
   `pass`, but Koru correctly remains non-passing under the current fail-on-any-
   finding policy because Vallm emits its known uppercase-language parser
   warning plus advisory whole-file findings unrelated to the model-default
-  diff. The remaining AC-21 blockers are review context/parser policy, not the
-  GitHub credential.
+  diff. At that point the remaining AC-21 blockers were review context/parser
+  policy, not the GitHub credential; later evidence below resolves them.
 - The timeout/policy repair bounds the complete job to 10 minutes and the
   active review to 420 seconds, caps output at 8192 tokens, disables retries
   (including 404), normalizes the Vallm TypeScript language ID and separates
@@ -416,6 +419,10 @@ remain historical evidence, not evidence for AC-11..AC-17.
   `npm run verify` and Docker `e2e-core` pass; Docker `e2e-full` still stops at
   the separately attributed stale Rust lock with `cargo fetch --locked` exit
   101, without any ticket-018 change to the SDK.
+- The final bounded-delivery audit covers six upstream and five target commits;
+  every commit changes at most five files. Central validator/scaffolder tests,
+  target lock verification and the exact four-finding governance attribution
+  pass, with no ticket-020 or delivery/base/architecture/budget finding.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,

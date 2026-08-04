@@ -217,6 +217,15 @@ Current verified baseline:
   regression proves `test/cli*.test.ts` is owned by `test/cli*` without treating
   unrelated `test/mcp*.test.ts` as owned; this removed the false ticket-020
   workstream finding.
+- Fresh `npm run verify` passes all deterministic checks and 334/335 tests with
+  one JDK skip. Docker `e2e-core` passes 328/335 tests with seven expected
+  toolchain skips, both gold datasets, CLI, MCP, A2A and examples. Docker
+  `e2e-full` independently reproduces the out-of-scope stale Rust lock failure
+  at `cargo fetch --locked` with exit 101.
+- Audited all six upstream and five target bounded-delivery commits: each
+  changes no more than five files. AC-21, AC-25 and AC-35 now have sufficient
+  recorded evidence; AC-34 remains open because target enforcement is staged
+  off until ticket-019 is serialized.
 
 ## Blockers
 
@@ -226,8 +235,9 @@ Current verified baseline:
 - `GOV-SCOPE-001`: the same commit contains eight implementation/generated
   paths not allowed by ticket-018. They must be routed to their actual ticket,
   not retroactively claimed here.
-- Central `new-project` 0.7.0 is uncommitted/unpublished, so no honest immutable
-  reusable-workflow SHA exists yet.
+- Central `new-project` 0.9.0 is committed and pinned locally at `0901114`, but
+  remains unpublished, so no honest immutable remote reusable-workflow SHA
+  exists yet.
 - AC-17: concurrent commit `9928699` bumped the Rust SDK manifest to 0.5.1, but
   the ignored local Cargo lock still identifies the root package as 0.5.0.
   Official full Docker E2E fails closed at `cargo fetch --locked` (exit 101).
