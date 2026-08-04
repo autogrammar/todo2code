@@ -226,9 +226,10 @@ Current verified baseline:
 
 ## Approval boundary
 
-- Current state: `BLOCKED / VALIDATION`. GitHub reports zero App installations
-  for organization `semcod`; live run `30921738666` therefore failed closed at
-  repository-scoped token creation. The workstream reservation is released.
+- Current state: `IN_PROGRESS / VALIDATION`. GitHub now reports installation
+  `151227156` for App `ifuri-validator-agent` in organization `semcod`, with
+  repository selection `all`. A fresh ticket-only HEAD will bind the hosted
+  checks and Validator review to evidence created after this installation.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
@@ -239,4 +240,4 @@ Current verified baseline:
   The user's request authorizes planning and policy evolution; executable edits
   begin only after explicit approval of this exact allowlist/direct-PR design.
 - The user explicitly approved AC-30..AC-40 on 2026-08-04. Current state:
-  `BLOCKED / VALIDATION`; protected merge evidence remains independent.
+  `IN_PROGRESS / VALIDATION`; protected merge evidence remains independent.

@@ -43,6 +43,9 @@
   head `4ab9c254`. Live run `30921738666` still received installation 404, and
   the organization API reports `semcod` installation count zero; returned the
   ticket to `BLOCKED` without emitting a review.
+- Confirmed the new `semcod` installation `151227156` for
+  `ifuri-validator-agent` with repository selection `all`; resumed
+  `IN_PROGRESS / VALIDATION` before creating fresh current-head evidence.
 
 ## [0.5.0] - 2026-08-04
 

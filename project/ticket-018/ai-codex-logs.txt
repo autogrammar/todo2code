@@ -349,3 +349,10 @@ validator-agent run: 30921738666
 App JWT repository lookup: GET /repos/semcod/todo2code/installation -> 404
 authenticated org audit: GET /orgs/semcod/installations -> total_count=0
 result: no review emitted; BLOCKED and reservation released
+2026-08-04 SEMCOD APP INSTALLATION CONFIRMED
+organization installation: 151227156
+App slug: ifuri-validator-agent
+repository selection: all
+transition: BLOCKED -> IN_PROGRESS / VALIDATION
+next boundary: publish a fresh ticket-only head, pass deterministic hosted
+checks, then request an exact-head direct-pr review from the installed App
