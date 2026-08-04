@@ -80,7 +80,7 @@ export function assertIntentRecord(value: unknown): asserts value is IntentRecor
 }
 
 function assertIntentStatement(recordId: string, record: Record<string, unknown>): IntentRecord['statement'] {
-  const statement = objectValue(record.statement, `Intent ${recordId}: statement`) as IntentRecord['statement'];
+  const statement = objectValue(record.statement, `Intent ${recordId}: statement`);
   exactKeys(statement, ['kind', 'actor', 'action', 'subject', 'object', 'target', 'modality', 'polarity', 'text'], `Intent ${recordId}: statement`);
   nonEmptyString(statement.kind, `Intent ${recordId}: statement.kind`);
   nullableString(statement.actor, `Intent ${recordId}: statement.actor`);
@@ -91,27 +91,27 @@ function assertIntentStatement(recordId: string, record: Record<string, unknown>
   enumValue(statement.modality, MODALITIES, `Intent ${recordId}: statement.modality`);
   enumValue(statement.polarity, POLARITIES, `Intent ${recordId}: statement.polarity`);
   statement.target = assertIntentTarget(recordId, statement.target);
-  return statement;
+  return statement as unknown as IntentRecord['statement'];
 }
 
 function assertIntentTarget(recordId: string, targetValue: unknown): IntentRecord['statement']['target'] {
-  const target = objectValue(targetValue, `Intent ${recordId}: statement.target`) as IntentRecord['statement']['target'];
+  const target = objectValue(targetValue, `Intent ${recordId}: statement.target`);
   exactKeys(target, ['paths', 'symbols', 'tickets', 'versions'], `Intent ${recordId}: statement.target`);
   for (const key of ['paths', 'symbols', 'tickets', 'versions'] as const) {
     stringArray(target[key], `Intent ${recordId}: statement.target.${key}`, true);
   }
-  return target;
+  return target as unknown as IntentRecord['statement']['target'];
 }
 
 function assertIntentLifecycle(recordId: string, record: Record<string, unknown>): IntentRecord['lifecycle'] {
-  const lifecycle = objectValue(record.lifecycle, `Intent ${recordId}: lifecycle`) as IntentRecord['lifecycle'];
+  const lifecycle = objectValue(record.lifecycle, `Intent ${recordId}: lifecycle`);
   exactKeys(lifecycle, ['status'], `Intent ${recordId}: lifecycle`);
   enumValue(lifecycle.status, LIFECYCLES, `Intent ${recordId}: lifecycle.status`);
-  return lifecycle;
+  return lifecycle as unknown as IntentRecord['lifecycle'];
 }
 
 function assertIntentSource(recordId: string, record: Record<string, unknown>): IntentRecord['source'] {
-  const source = objectValue(record.source, `Intent ${recordId}: source`) as IntentRecord['source'];
+  const source = objectValue(record.source, `Intent ${recordId}: source`);
   exactKeys(source, ['kind', 'path', 'lines', 'revision', 'symbol', 'commitIndex', 'extractor', 'contentHash', 'rawExcerpt'], `Intent ${recordId}: source`);
   enumValue(source.kind, SOURCE_KINDS, `Intent ${recordId}: source.kind`);
   nullableString(source.path, `Intent ${recordId}: source.path`);
@@ -133,11 +133,11 @@ function assertIntentSource(recordId: string, record: Record<string, unknown>): 
       throw new Error(`Intent ${recordId}: source.lines must be positive and end >= start`);
     }
   }
-  return source;
+  return source as unknown as IntentRecord['source'];
 }
 
 function assertIntentEpistemic(recordId: string, record: Record<string, unknown>): IntentRecord['epistemic'] {
-  const epistemic = objectValue(record.epistemic, `Intent ${recordId}: epistemic`) as IntentRecord['epistemic'];
+  const epistemic = objectValue(record.epistemic, `Intent ${recordId}: epistemic`);
   exactKeys(epistemic, ['class', 'confidence', 'basis'], `Intent ${recordId}: epistemic`);
   enumValue(epistemic.class, EPISTEMIC_CLASSES, `Intent ${recordId}: epistemic.class`);
   if (typeof epistemic.confidence !== 'number' || !Number.isFinite(epistemic.confidence)
@@ -145,7 +145,7 @@ function assertIntentEpistemic(recordId: string, record: Record<string, unknown>
     throw new Error(`Intent ${recordId}: epistemic.confidence must be between 0 and 1`);
   }
   stringArray(epistemic.basis, `Intent ${recordId}: epistemic.basis`, true);
-  return epistemic;
+  return epistemic as unknown as IntentRecord['epistemic'];
 }
 
 function assertIntentMetadata(
