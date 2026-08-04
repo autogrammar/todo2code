@@ -173,9 +173,9 @@ agent self-approved.
 - [x] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
       `npm run verify`, governance and relevant Docker checks pass; the
       pre-existing ticket-019 findings remain separately attributed.
-- [ ] AC-26: The governance manifest and ticket intent explicitly own only the
+- [x] AC-26: The governance manifest and ticket intent explicitly own only the
       three tracked generated-analysis artifacts that require normalization.
-- [ ] AC-27: The existing deterministic normalizer replaces every persisted
+- [x] AC-27: The existing deterministic normalizer replaces every persisted
       temporary analysis root without regenerating analysis or running
       `project2.sh`.
 - [ ] AC-28: `verify:generated-analysis`, governance and the complete project

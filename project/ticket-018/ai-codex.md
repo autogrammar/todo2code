@@ -137,6 +137,11 @@ Current verified baseline:
   non-overlapping and remains untouched; the final whole-workspace gate accepts
   ticket-018 (`governance`) and ticket-019 (`sdk`) as parallel PLAN/VALIDATION
   records while routing this implementation diff uniquely to ticket-018.
+- Assigned exactly the three generated-analysis artifacts to governance and
+  ticket-018, refreshed the manifest lock, and normalized their volatile
+  analysis-worktree roots with the existing deterministic script.
+- The focused generated-analysis and governance gates pass. No analysis was
+  regenerated and `project2.sh` was not executed.
 - Planned only the Koru code-review extension requested by the user. Verified
   published Koru 0.1.444 and Vallm 0.1.94, an organization-level OpenRouter
   secret visible to this repository, and the absence of branch protection,
