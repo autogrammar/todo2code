@@ -16,3 +16,12 @@ Version contract: VERSION=0.5.2, package=0.5.2, runtime=0.5.2.
 Focused TS-source tests were deferred to the combined worktree because this
 repository does not declare `tsx`; the supported test command compiles to
 `dist/` first and is still blocked by the CLI parse error.
+
+2026-08-04 expanded core type validation
+
+$ tsc --ignoreConfig --noEmit --strict --target ES2022 --module NodeNext
+  --moduleResolution NodeNext --skipLibCheck src/core/types.ts
+PASS
+
+$ bash project/governance-check.sh --actor agent
+GOV-PASS: passed (0 errors, 0 warnings)
