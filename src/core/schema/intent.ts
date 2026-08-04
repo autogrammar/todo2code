@@ -69,67 +69,97 @@ export function assertIntentRecord(value: unknown): asserts value is IntentRecor
   exactKeys(record, ['schemaVersion', 'id', 'statement', 'lifecycle', 'source', 'epistemic', 'observedAt', 'metadata'], 'Intent record');
   if (record.schemaVersion !== 't2c.intent/v1') throw new Error('Unsupported intent schemaVersion');
   if (typeof record.id !== 'string' || !RECORD_ID.test(record.id)) throw new Error('Intent record id must match INT-<SOURCE>-<20 hex>');
+  const statement = assertIntentStatement(record);
+  const lifecycle = assertIntentLifecycle(record);
+  const source = assertIntentSource(record);
+  const epistemic = assertIntentEpistemic(record);
+  const metadata = objectValue(record.metadata, `Intent ${record.id}: metadata`);
+  assertIntentMetadata(record, metadata, source.extractor, epistemic.class);
+}
 
-  const statement = objectValue(record.statement, `Intent ${record.id}: statement`);
-  exactKeys(statement, ['kind', 'actor', 'action', 'subject', 'object', 'target', 'modality', 'polarity', 'text'], `Intent ${record.id}: statement`);
-  nonEmptyString(statement.kind, `Intent ${record.id}: statement.kind`);
-  nullableString(statement.actor, `Intent ${record.id}: statement.actor`);
-  enumValue(statement.action, ACTIONS, `Intent ${record.id}: statement.action`);
+function assertIntentStatement(record: Record<string, unknown>): IntentRecord['statement'] {
+  const statement = objectValue(record.statement, `Intent ${(record.id as string ?? 'unknown')}: statement`);
+  exactKeys(statement, ['kind', 'actor', 'action', 'subject', 'object', 'target', 'modality', 'polarity', 'text'], `Intent ${(record.id as string ?? 'unknown')}: statement`);
+  nonEmptyString(statement.kind, `Intent ${(record.id as string ?? 'unknown')}: statement.kind`);
+  nullableString(statement.actor, `Intent ${(record.id as string ?? 'unknown')}: statement.actor`);
+  enumValue(statement.action, ACTIONS, `Intent ${(record.id as string ?? 'unknown')}: statement.action`);
   nullableString(statement.subject, `Intent ${record.id}: statement.subject`);
   nonEmptyString(statement.object, `Intent ${record.id}: statement.object`);
   if (typeof statement.text !== 'string') throw new Error(`Intent ${record.id}: statement.text must be a string`);
   enumValue(statement.modality, MODALITIES, `Intent ${record.id}: statement.modality`);
   enumValue(statement.polarity, POLARITIES, `Intent ${record.id}: statement.polarity`);
+  statement.target = assertIntentTarget(record.id, statement.target);
+  return statement;
+}
 
-  const target = objectValue(statement.target, `Intent ${record.id}: statement.target`);
-  exactKeys(target, ['paths', 'symbols', 'tickets', 'versions'], `Intent ${record.id}: statement.target`);
+function assertIntentTarget(recordId: string, targetValue: unknown): IntentRecord['statement']['target'] {
+  const target = objectValue(targetValue, `Intent ${recordId}: statement.target`);
+  exactKeys(target, ['paths', 'symbols', 'tickets', 'versions'], `Intent ${recordId}: statement.target`);
   for (const key of ['paths', 'symbols', 'tickets', 'versions'] as const) {
-    stringArray(target[key], `Intent ${record.id}: statement.target.${key}`, true);
+    stringArray(target[key], `Intent ${recordId}: statement.target.${key}`, true);
   }
+  return target;
+}
 
-  const lifecycle = objectValue(record.lifecycle, `Intent ${record.id}: lifecycle`);
-  exactKeys(lifecycle, ['status'], `Intent ${record.id}: lifecycle`);
-  enumValue(lifecycle.status, LIFECYCLES, `Intent ${record.id}: lifecycle.status`);
+function assertIntentLifecycle(record: Record<string, unknown>): IntentRecord['lifecycle'] {
+  const lifecycle = objectValue(record.lifecycle, `Intent ${record.id as string}: lifecycle`);
+  exactKeys(lifecycle, ['status'], `Intent ${record.id as string}: lifecycle`);
+  enumValue(lifecycle.status, LIFECYCLES, `Intent ${record.id as string}: lifecycle.status`);
+  return lifecycle;
+}
 
-  const source = objectValue(record.source, `Intent ${record.id}: source`);
-  exactKeys(source, ['kind', 'path', 'lines', 'revision', 'symbol', 'commitIndex', 'extractor', 'contentHash', 'rawExcerpt'], `Intent ${record.id}: source`);
-  enumValue(source.kind, SOURCE_KINDS, `Intent ${record.id}: source.kind`);
-  nullableString(source.path, `Intent ${record.id}: source.path`);
-  nullableString(source.revision, `Intent ${record.id}: source.revision`);
-  nullableString(source.symbol, `Intent ${record.id}: source.symbol`);
-  nullableString(source.rawExcerpt, `Intent ${record.id}: source.rawExcerpt`);
-  nonEmptyString(source.extractor, `Intent ${record.id}: source.extractor`);
+function assertIntentSource(record: Record<string, unknown>): IntentRecord['source'] {
+  const source = objectValue(record.source, `Intent ${record.id as string}: source`);
+  exactKeys(source, ['kind', 'path', 'lines', 'revision', 'symbol', 'commitIndex', 'extractor', 'contentHash', 'rawExcerpt'], `Intent ${record.id as string}: source`);
+  enumValue(source.kind, SOURCE_KINDS, `Intent ${record.id as string}: source.kind`);
+  nullableString(source.path, `Intent ${record.id as string}: source.path`);
+  nullableString(source.revision, `Intent ${record.id as string}: source.revision`);
+  nullableString(source.symbol, `Intent ${record.id as string}: source.symbol`);
+  nullableString(source.rawExcerpt, `Intent ${record.id as string}: source.rawExcerpt`);
+  nonEmptyString(source.extractor, `Intent ${record.id as string}: source.extractor`);
   if (typeof source.contentHash !== 'string' || !FINGERPRINT.test(source.contentHash)) {
-    throw new Error(`Intent ${record.id}: source.contentHash must be SHA-256`);
+    throw new Error(`Intent ${record.id as string}: source.contentHash must be SHA-256`);
   }
   if (source.commitIndex !== null && (!Number.isInteger(source.commitIndex) || (source.commitIndex as number) < 1)) {
-    throw new Error(`Intent ${record.id}: source.commitIndex must be null or an integer >= 1`);
+    throw new Error(`Intent ${record.id as string}: source.commitIndex must be null or an integer >= 1`);
   }
   if (source.lines !== null) {
-    const lines = objectValue(source.lines, `Intent ${record.id}: source.lines`);
-    exactKeys(lines, ['start', 'end'], `Intent ${record.id}: source.lines`);
-    if (!Number.isInteger(lines.start) || (lines.start as number) < 1 || !Number.isInteger(lines.end) || (lines.end as number) < (lines.start as number)) {
-      throw new Error(`Intent ${record.id}: source.lines must be positive and end >= start`);
+    const lines = objectValue(source.lines, `Intent ${record.id as string}: source.lines`);
+    exactKeys(lines, ['start', 'end'], `Intent ${record.id as string}: source.lines`);
+    if (!Number.isInteger(lines.start) || (lines.start as number) < 1
+      || !Number.isInteger(lines.end) || (lines.end as number) < (lines.start as number)) {
+      throw new Error(`Intent ${record.id as string}: source.lines must be positive and end >= start`);
     }
   }
+  return source;
+}
 
-  const epistemic = objectValue(record.epistemic, `Intent ${record.id}: epistemic`);
-  exactKeys(epistemic, ['class', 'confidence', 'basis'], `Intent ${record.id}: epistemic`);
-  enumValue(epistemic.class, EPISTEMIC_CLASSES, `Intent ${record.id}: epistemic.class`);
+function assertIntentEpistemic(record: Record<string, unknown>): IntentRecord['epistemic'] {
+  const epistemic = objectValue(record.epistemic, `Intent ${record.id as string}: epistemic`);
+  exactKeys(epistemic, ['class', 'confidence', 'basis'], `Intent ${record.id as string}: epistemic`);
+  enumValue(epistemic.class, EPISTEMIC_CLASSES, `Intent ${record.id as string}: epistemic.class`);
   if (typeof epistemic.confidence !== 'number' || !Number.isFinite(epistemic.confidence)
     || epistemic.confidence < 0 || epistemic.confidence > 1) {
-    throw new Error(`Intent ${record.id}: epistemic.confidence must be between 0 and 1`);
+    throw new Error(`Intent ${record.id as string}: epistemic.confidence must be between 0 and 1`);
   }
-  stringArray(epistemic.basis, `Intent ${record.id}: epistemic.basis`, true);
-  nullableDate(record.observedAt, `Intent ${record.id}: observedAt`);
+  stringArray(epistemic.basis, `Intent ${record.id as string}: epistemic.basis`, true);
+  return epistemic;
+}
 
-  const metadata = objectValue(record.metadata, `Intent ${record.id}: metadata`);
-  if (!isJsonValue(metadata)) throw new Error(`Intent ${record.id}: metadata must contain JSON values only`);
-  assertIntentGenerationMetadata(metadata.generation, `Intent ${record.id}: metadata.generation`);
-  assertGenerationMatchesExtractor(metadata.generation, source.extractor as string, `Intent ${record.id}: metadata.generation`);
-  if (epistemic.class === 'llm_inference'
-    && (metadata.generation as { used: unknown }).used !== 'llm') {
-    throw new Error(`Intent ${record.id}: llm_inference requires metadata.generation.used=llm`);
+function assertIntentMetadata(
+  record: Record<string, unknown>,
+  metadata: unknown,
+  sourceExtractor: string,
+  epistemicClass: string,
+): void {
+  if (!isJsonValue(metadata)) throw new Error(`Intent ${record.id as string}: metadata must contain JSON values only`);
+  const typedMetadata = metadata as Record<string, unknown>;
+  const generation = objectValue(typedMetadata.generation, `Intent ${record.id as string}: metadata.generation`);
+  assertIntentGenerationMetadata(generation, `Intent ${record.id as string}: metadata.generation`);
+  assertGenerationMatchesExtractor(generation, sourceExtractor, `Intent ${record.id as string}: metadata.generation`);
+  nullableDate((record as { observedAt?: unknown }).observedAt, `Intent ${record.id as string}: observedAt`);
+  if (epistemicClass === 'llm_inference' && (generation as { used?: unknown }).used !== 'llm') {
+    throw new Error(`Intent ${record.id as string}: llm_inference requires metadata.generation.used=llm`);
   }
 }
 

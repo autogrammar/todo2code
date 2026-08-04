@@ -1,38 +1,132 @@
-export function diffUiHtml(): string {
-  return `<!doctype html>
-<html lang="pl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>todo2code · Intent Diff</title>
-  <style>
-    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#020617;color:#e2e8f0}
-    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#172554 0,transparent 38%),#020617;min-height:100vh}
-    main{width:min(1480px,96vw);margin:auto;padding:34px 0 64px}header{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:24px}
-    h1{font-size:clamp(28px,4vw,52px);margin:0;letter-spacing:-.04em}.eyebrow{color:#38bdf8;text-transform:uppercase;letter-spacing:.18em;font-size:12px;font-weight:800}
-    .sub{max-width:720px;color:#94a3b8;line-height:1.6}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:#0f172acc;border:1px solid #334155;border-radius:16px;padding:18px;box-shadow:0 20px 60px #0005}
-    .panel h2{margin:0 0 12px;font-size:16px}label{display:block;color:#94a3b8;font-size:12px;margin-bottom:7px}select{width:100%;border:1px solid #475569;border-radius:10px;background:#020617;color:#e2e8f0;padding:12px;font:13px ui-monospace,monospace}
-    select:focus,input:focus,textarea:focus{outline:2px solid #38bdf8;outline-offset:1px}.run-meta{min-height:34px;margin-top:9px;color:#64748b;font:11px/1.5 ui-monospace,monospace;word-break:break-all}
-    details.manual{margin-top:12px;border-top:1px solid #1e293b;padding-top:10px}summary{cursor:pointer;color:#94a3b8;font-size:13px}textarea{width:100%;min-height:150px;resize:vertical;border:1px solid #334155;border-radius:10px;background:#020617;color:#cbd5e1;padding:12px;font:12px ui-monospace,monospace;margin-top:10px}
-    input[type=file],input[type=password],.panel input:not([type=file]){width:100%;margin-top:10px;color:#94a3b8}input[type=password],.panel input:not([type=file]){background:#020617;border:1px solid #334155;border-radius:8px;padding:10px;color:#e2e8f0}
-    .actions{display:flex;align-items:center;gap:12px;margin:18px 0;flex-wrap:wrap}button{border:0;border-radius:10px;background:#38bdf8;color:#082f49;font-weight:800;padding:12px 20px;cursor:pointer}.secondary{background:#1e293b;color:#cbd5e1;border:1px solid #475569}button:disabled{opacity:.55;cursor:wait}
-    .status{color:#94a3b8;font:13px ui-monospace,monospace}.error{color:#fca5a5;white-space:pre-wrap}.result{display:none}.result.visible{display:block}.metrics{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}.metric{min-width:130px;background:#111827;border:1px solid #334155;border-radius:10px;padding:12px}.metric b{display:block;font-size:24px}.metric span{color:#94a3b8;font-size:12px}
-    #svg-host{overflow:auto;border-radius:14px;background:#0f172a}#svg-host svg{display:block;width:100%;height:auto}.fingerprint{word-break:break-all;color:#64748b;font:11px ui-monospace,monospace;margin-top:12px}
-    @media(max-width:850px){header{display:block}.grid{grid-template-columns:1fr}}
-  </style>
-</head>
-<body><main>
-  <header><div><div class="eyebrow">Intent Evidence Runtime</div><h1>Porównanie historii grafów.</h1></div><p class="sub">Dwa najnowsze runy z <code>.intent/runs</code> są wybierane automatycznie. Zmiana wyboru od razu przelicza deterministyczny diff i dostępny widok SVG.</p></header>
+function diffUiStyles(): string {
+  return ':root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#020617;color:#e2e8f0}'
+    + '*{box-sizing:border-box}'
+    + 'body{margin:0;background:radial-gradient(circle at 20% 0,#172554 0,transparent 38%),#020617;min-height:100vh}'
+    + 'main{width:min(1480px,96vw);margin:auto;padding:34px 0 64px}'
+    + 'header{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:24px}'
+    + 'h1{font-size:clamp(28px,4vw,52px);margin:0;letter-spacing:-.04em}'
+    + '.eyebrow{color:#38bdf8;text-transform:uppercase;letter-spacing:.18em;font-size:12px;font-weight:800}'
+    + '.sub{max-width:720px;color:#94a3b8;line-height:1.6}'
+    + '.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}'
+    + '.panel{background:#0f172acc;border:1px solid #334155;border-radius:16px;padding:18px;box-shadow:0 20px 60px #0005}'
+    + '.panel h2{margin:0 0 12px;font-size:16px}'
+    + 'label{display:block;color:#94a3b8;font-size:12px;margin-bottom:7px}'
+    + 'select{width:100%;border:1px solid #475569;border-radius:10px;background:#020617;color:#e2e8f0;padding:12px;font:13px ui-monospace,monospace}'
+    + 'select:focus,input:focus,textarea:focus{outline:2px solid #38bdf8;outline-offset:1px}'
+    + '.run-meta{min-height:34px;margin-top:9px;color:#64748b;font:11px/1.5 ui-monospace,monospace;word-break:break-all}'
+    + 'details.manual{margin-top:12px;border-top:1px solid #1e293b;padding-top:10px}'
+    + 'summary{cursor:pointer;color:#94a3b8;font-size:13px}'
+    + 'textarea{width:100%;min-height:150px;resize:vertical;border:1px solid #334155;border-radius:10px;background:#020617;color:#cbd5e1;padding:12px;font:12px ui-monospace,monospace;margin-top:10px}'
+    + 'input[type=file],input[type=password],.panel input:not([type=file]){width:100%;margin-top:10px;color:#94a3b8}'
+    + 'input[type=password],.panel input:not([type=file]){background:#020617;border:1px solid #334155;border-radius:8px;padding:10px;color:#e2e8f0}'
+    + '.actions{display:flex;align-items:center;gap:12px;margin:18px 0;flex-wrap:wrap}'
+    + 'button{border:0;border-radius:10px;background:#38bdf8;color:#082f49;font-weight:800;padding:12px 20px;cursor:pointer}'
+    + '.secondary{background:#1e293b;color:#cbd5e1;border:1px solid #475569}'
+    + 'button:disabled{opacity:.55;cursor:wait}'
+    + '.status{color:#94a3b8;font:13px ui-monospace,monospace}'
+    + '.error{color:#fca5a5;white-space:pre-wrap}'
+    + '.result{display:none}'
+    + '.result.visible{display:block}'
+    + '.metrics{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}'
+    + '.metric{min-width:130px;background:#111827;border:1px solid #334155;border-radius:10px;padding:12px}'
+    + '.metric b{display:block;font-size:24px}'
+    + '.metric span{color:#94a3b8;font-size:12px}'
+    + '#svg-host{overflow:auto;border-radius:14px;background:#0f172a}'
+    + '#svg-host svg{display:block;width:100%;height:auto}'
+    + '.fingerprint{word-break:break-all;color:#64748b;font:11px ui-monospace,monospace;margin-top:12px}'
+    + '@media(max-width:850px){header{display:block}.grid{grid-template-columns:1fr}}';
+}
+
+function diffUiRunPanel(side: 'before' | 'after', title: string): string {
+  return `
+    <article class="panel">
+      <h2>${title}</h2>
+      <label for="${side}-run">Historia .intent</label>
+      <select id="${side}-run" disabled>
+        <option>Ładowanie historii…</option>
+      </select>
+      <div id="${side}-meta" class="run-meta"></div>
+      <details class="manual">
+        <summary>Ręczne źródło JSON lub ścieżka</summary>
+        <textarea id="${side}" spellcheck="false" placeholder="Wklej intent.graph.json"></textarea>
+        <input id="${side}-file" type="file" accept="application/json,.json">
+        <input id="${side}-path" placeholder="Ścieżka serwera pod T2C_ROOT">
+      </details>
+    </article>`;
+}
+
+function diffUiFiltersPanel(): string {
+  return `
+  <section class="panel" style="margin-top:16px">
+    <h2>Filtry komunikacji</h2>
+    <div class="grid">
+      <div>
+        <label for="participant-filter">Uczestnik</label>
+        <input id="participant-filter" placeholder="np. Codex">
+      </div>
+      <div>
+        <label for="ticket-filter">Ticket</label>
+        <input id="ticket-filter" placeholder="np. WM-101">
+      </div>
+      <div>
+        <label for="role-filter">Rola</label>
+        <select id="role-filter">
+          <option value="">Wszystkie</option>
+          <option value="human">human</option>
+          <option value="agent">agent</option>
+          <option value="unknown">unknown</option>
+        </select>
+      </div>
+      <div>
+        <label for="severity-filter">Severity problemu</label>
+        <select id="severity-filter">
+          <option value="">Wszystkie</option>
+          <option value="blocking">blocking</option>
+          <option value="review_required">review_required</option>
+          <option value="warning">warning</option>
+          <option value="info">info</option>
+        </select>
+      </div>
+    </div>
+  </section>`;
+}
+
+function diffUiBodyMarkup(): string {
+  return `
+<main>
+  <header>
+    <div>
+      <div class="eyebrow">Intent Evidence Runtime</div>
+      <h1>Porównanie historii grafów.</h1>
+    </div>
+    <p class="sub">Dwa najnowsze runy z <code>.intent/runs</code> są wybierane automatycznie. Zmiana wyboru od razu przelicza deterministyczny diff i dostępny widok SVG.</p>
+  </header>
   <section class="grid">
-    <article class="panel"><h2>Poprzedni run</h2><label for="before-run">Historia .intent</label><select id="before-run" disabled><option>Ładowanie historii…</option></select><div id="before-meta" class="run-meta"></div><details class="manual"><summary>Ręczne źródło JSON lub ścieżka</summary><textarea id="before" spellcheck="false" placeholder="Wklej intent.graph.json"></textarea><input id="before-file" type="file" accept="application/json,.json"><input id="before-path" placeholder="Ścieżka serwera pod T2C_ROOT"></details></article>
-    <article class="panel"><h2>Najnowszy run</h2><label for="after-run">Historia .intent</label><select id="after-run" disabled><option>Ładowanie historii…</option></select><div id="after-meta" class="run-meta"></div><details class="manual"><summary>Ręczne źródło JSON lub ścieżka</summary><textarea id="after" spellcheck="false" placeholder="Wklej intent.graph.json"></textarea><input id="after-file" type="file" accept="application/json,.json"><input id="after-path" placeholder="Ścieżka serwera pod T2C_ROOT"></details></article>
+    ${diffUiRunPanel('before', 'Poprzedni run')}
+    ${diffUiRunPanel('after', 'Najnowszy run')}
   </section>
-  <section class="panel" style="margin-top:16px"><h2>Filtry komunikacji</h2><div class="grid"><div><label for="participant-filter">Uczestnik</label><input id="participant-filter" placeholder="np. Codex"></div><div><label for="ticket-filter">Ticket</label><input id="ticket-filter" placeholder="np. WM-101"></div><div><label for="role-filter">Rola</label><select id="role-filter"><option value="">Wszystkie</option><option value="human">human</option><option value="agent">agent</option><option value="unknown">unknown</option></select></div><div><label for="severity-filter">Severity problemu</label><select id="severity-filter"><option value="">Wszystkie</option><option value="blocking">blocking</option><option value="review_required">review_required</option><option value="warning">warning</option><option value="info">info</option></select></div></div></section>
-  <details class="panel" style="margin-top:16px"><summary>Bearer token (tylko gdy T2C_A2A_TOKEN jest włączony)</summary><input id="token" type="password" autocomplete="off" placeholder="Opcjonalny token"></details>
-  <div class="actions"><button id="compare">Porównaj grafy</button><button id="reload" class="secondary">Odśwież historię</button><span id="status" class="status">Ładowanie historii…</span></div>
+  ${diffUiFiltersPanel()}
+  <details class="panel" style="margin-top:16px">
+    <summary>Bearer token (tylko gdy T2C_A2A_TOKEN jest włączony)</summary>
+    <input id="token" type="password" autocomplete="off" placeholder="Opcjonalny token">
+  </details>
+  <div class="actions">
+    <button id="compare">Porównaj grafy</button>
+    <button id="reload" class="secondary">Odśwież historię</button>
+    <span id="status" class="status">Ładowanie historii…</span>
+  </div>
   <p id="error" class="error"></p>
-  <section id="result" class="result panel"><div id="metrics" class="metrics"></div><div id="svg-host"></div><div id="fingerprint" class="fingerprint"></div></section>
-</main><script>
+  <section id="result" class="result panel">
+    <div id="metrics" class="metrics"></div>
+    <div id="svg-host"></div>
+    <div id="fingerprint" class="fingerprint"></div>
+  </section>
+</main>`;
+}
+
+function diffUiScriptMarkup(): string {
+  return `
+<script>
 const byId=(id)=>document.getElementById(id);
 const state={runs:[]};
 const requestHeaders=(json)=>{const headers={};if(json)headers['Content-Type']='application/json';const token=byId('token').value.trim();if(token)headers.Authorization='Bearer '+token;return headers};
@@ -43,6 +137,31 @@ function fillSelect(side,preferred,index){const select=byId(side+'-run');select.
 async function loadRuns(){const status=byId('status'),error=byId('error'),reload=byId('reload');reload.disabled=true;status.textContent='Ładowanie historii .intent…';error.textContent='';const previousBefore=byId('before-run').value,previousAfter=byId('after-run').value;try{const query=new URLSearchParams();for(const [key,id] of [['participant','participant-filter'],['role','role-filter'],['ticket','ticket-filter'],['severity','severity-filter']]){const value=byId(id).value.trim();if(value)query.set(key,value)}const response=await fetch('/api/runs?'+query.toString(),{headers:requestHeaders(false)});const payload=await response.json();if(!response.ok)throw new Error(typeof payload.error==='string'?payload.error:'HTTP '+response.status);state.runs=Array.isArray(payload.runs)?payload.runs:[];fillSelect('before',previousBefore,1);fillSelect('after',previousAfter,0);const graphRuns=state.runs.filter((run)=>run.graphPath),failed=state.runs.filter((run)=>run.status==='failed').length,failedText=failed?' · nieudane runy: '+failed:'';if(graphRuns.length>=2){status.textContent='Wybrano dwa najnowsze kompletne runy'+failedText;await compareGraphs()}else{status.textContent=(graphRuns.length===1?'Znaleziono tylko jeden kompletny run':'Brak kompletnych runów w .intent/runs')+failedText}}catch(cause){error.textContent=cause instanceof Error?cause.message:String(cause);status.textContent='Nie udało się załadować historii'}finally{reload.disabled=false}}
 for(const side of ['before','after']){byId(side+'-file').addEventListener('change',async(event)=>{const file=event.target.files?.[0];if(file){byId(side).value=await file.text();byId(side+'-run').value='';updateMeta(side)}});byId(side+'-run').addEventListener('change',()=>{updateMeta(side);if(byId('before-run').value&&byId('after-run').value)void compareGraphs()})}
 async function compareGraphs(){const button=byId('compare'),status=byId('status'),error=byId('error'),result=byId('result');button.disabled=true;status.textContent='Obliczanie diffu…';error.textContent='';result.classList.remove('visible');try{const beforePath=byId('before-run').value||byId('before-path').value.trim(),afterPath=byId('after-run').value||byId('after-path').value.trim();let payload;if(beforePath&&afterPath){payload={before:beforePath,after:afterPath,includeSvg:true,compact:true}}else{if(!byId('before').value.trim()||!byId('after').value.trim())throw new Error('Wybierz dwa runy albo podaj oba grafy ręcznie.');payload={beforeGraph:JSON.parse(byId('before').value),afterGraph:JSON.parse(byId('after').value),includeSvg:true,compact:true}}for(const [key,id] of [['participant','participant-filter'],['role','role-filter'],['ticket','ticket-filter']]){const value=byId(id).value.trim();if(value)payload[key]=value}if(payload.participant||payload.role)payload.communicationOnly=true;const response=await fetch('/api/diff',{method:'POST',headers:requestHeaders(true),body:JSON.stringify(payload)});const responsePayload=await response.json();if(!response.ok)throw new Error(typeof responsePayload.error==='string'?responsePayload.error:('HTTP '+response.status));const summary=responsePayload.diff.summary;byId('metrics').innerHTML=[['Rekordy +',summary.recordsAdded],['Rekordy −',summary.recordsRemoved],['Zmienione',summary.recordsChanged],['Relacje +',summary.relationsAdded],['Relacje −',summary.relationsRemoved]].map(([label,value])=>'<div class="metric"><b>'+value+'</b><span>'+label+'</span></div>').join('');byId('svg-host').innerHTML=responsePayload.svg;byId('fingerprint').textContent='diff fingerprint: '+responsePayload.diff.fingerprint;result.classList.add('visible');status.textContent='Porównanie gotowe'}catch(cause){error.textContent=cause instanceof Error?cause.message:String(cause);status.textContent='Porównanie nie powiodło się'}finally{button.disabled=false}}
-byId('compare').addEventListener('click',()=>void compareGraphs());byId('reload').addEventListener('click',()=>void loadRuns());byId('token').addEventListener('change',()=>void loadRuns());for(const id of ['participant-filter','role-filter','ticket-filter','severity-filter'])byId(id).addEventListener('change',()=>void loadRuns());void loadRuns();
-</script></body></html>`;
+byId('compare').addEventListener('click',()=>void compareGraphs());
+byId('reload').addEventListener('click',()=>void loadRuns());
+byId('token').addEventListener('change',()=>void loadRuns());
+for(const id of ['participant-filter','role-filter','ticket-filter','severity-filter'])byId(id).addEventListener('change',()=>void loadRuns());
+void loadRuns();
+</script>`;
+}
+
+function diffUiTemplate(): string {
+  return `
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>todo2code · Intent Diff</title>
+  <style>
+    ${diffUiStyles()}
+  </style>
+</head>
+${diffUiBodyMarkup()}
+${diffUiScriptMarkup()}
+</html>`;
+}
+
+export function diffUiHtml(): string {
+  return diffUiTemplate();
 }

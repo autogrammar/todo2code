@@ -509,20 +509,57 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
 }
 
 function filterCommunicationGraph(graph: IntentGraph, input: Record<string, unknown>): IntentGraph {
+  const filter = parseCommunicationGraphFilter(input);
+  if (!filter.hasFilters) return graph;
+  const records = graph.records.filter((record) => matchesCommunicationFilter(record, filter));
+  return linkIntentRecords(records, graph.generatedAt);
+}
+
+interface CommunicationGraphFilter {
+  hasFilters: boolean;
+  participant: string;
+  role: string;
+  ticket: string;
+  communicationOnly: boolean;
+}
+
+function parseCommunicationGraphFilter(input: Record<string, unknown>): CommunicationGraphFilter {
   const participant = stringValue(input.participant, '').toLowerCase();
   const role = stringValue(input.role, '').toLowerCase();
   const ticket = stringValue(input.ticket, '').toLowerCase();
   const communicationOnly = booleanValue(input.communicationOnly, false);
-  if (!participant && !role && !ticket && !communicationOnly) return graph;
-  const records = graph.records.filter((record) => {
-    const isCommunication = record.source.kind === 'agent_log';
-    if (communicationOnly && !isCommunication) return false;
-    if (participant && (!isCommunication || String(record.metadata.participant ?? '').toLowerCase() !== participant)) return false;
-    if (role && (!isCommunication || String(record.metadata.participantRole ?? '').toLowerCase() !== role)) return false;
-    if (ticket && !record.statement.target.tickets.some((value) => value.toLowerCase() === ticket)) return false;
-    return true;
-  });
-  return linkIntentRecords(records, graph.generatedAt);
+  return {
+    participant,
+    role,
+    ticket,
+    communicationOnly,
+    hasFilters: participant !== '' || role !== '' || ticket !== '' || communicationOnly,
+  };
+}
+
+function matchesCommunicationFilter(record: IntentRecord, filter: CommunicationGraphFilter): boolean {
+  if (filter.communicationOnly && record.source.kind !== 'agent_log') return false;
+  if (!matchesParticipant(record, filter.participant)) return false;
+  if (!matchesRole(record, filter.role)) return false;
+  if (!matchesTicket(record, filter.ticket)) return false;
+  return true;
+}
+
+function matchesParticipant(record: IntentRecord, participant: string): boolean {
+  if (!participant) return true;
+  if (record.source.kind !== 'agent_log') return false;
+  return String(record.metadata.participant ?? '').toLowerCase() === participant;
+}
+
+function matchesRole(record: IntentRecord, role: string): boolean {
+  if (!role) return true;
+  if (record.source.kind !== 'agent_log') return false;
+  return String(record.metadata.participantRole ?? '').toLowerCase() === role;
+}
+
+function matchesTicket(record: IntentRecord, ticket: string): boolean {
+  if (!ticket) return true;
+  return record.statement.target.tickets.some((value) => value.toLowerCase() === ticket);
 }
 
 function nlModeValue(value: unknown, fallback: NlExtractionMode): NlExtractionMode {

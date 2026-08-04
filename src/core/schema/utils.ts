@@ -188,32 +188,52 @@ export function assertGroundedGenerationMetadata(
   fingerprint(generation.configurationFingerprint, `${name}.configurationFingerprint`);
   nullableString(generation.reason, `${name}.reason`);
 
-  if (generation.effectiveMode === 'llm') {
-    nonBlankString(generation.model, `${name}.model`);
-    nonBlankString(generation.provider, `${name}.provider`);
-    if (generation.degraded) throw new Error(`${name}.degraded must be false when effectiveMode is llm`);
-  }
+  assertGroundedLlMMode(generation, name);
+  assertModeRequirements(generation, name);
+  assertDegradedRequirements(generation, name);
+}
+
+function assertGroundedLlMMode(generation: Record<string, unknown>, name: string): void {
+  if (generation.effectiveMode !== 'llm') return;
+  nonBlankString(generation.model, `${name}.model`);
+  nonBlankString(generation.provider, `${name}.provider`);
+  if (generation.degraded) throw new Error(`${name}.degraded must be false when effectiveMode is llm`);
+}
+
+function assertModeRequirements(generation: Record<string, unknown>, name: string): void {
   if (generation.requestedMode === 'deterministic') {
-    if (
-      generation.effectiveMode !== 'deterministic' || generation.degraded
-      || generation.model !== null || generation.provider !== null || generation.responseId !== null
-      || generation.reason !== null
-    ) {
-      throw new Error(`${name} deterministic mode cannot contain LLM or degradation metadata`);
-    }
+    assertDeterministicGeneration(generation, name);
+    return;
   }
   if (generation.requestedMode === 'require-llm' && generation.effectiveMode !== 'llm') {
     throw new Error(`${name} require-llm mode cannot use deterministic output`);
   }
-  if (generation.requestedMode === 'prefer-llm' && generation.effectiveMode === 'deterministic' && !generation.degraded) {
+  if (generation.requestedMode === 'prefer-llm'
+    && generation.effectiveMode === 'deterministic'
+    && !generation.degraded) {
     throw new Error(`${name} prefer-llm deterministic output must be marked degraded`);
   }
-  if (generation.degraded) {
-    if (generation.requestedMode !== 'prefer-llm' || generation.effectiveMode !== 'deterministic') {
-      throw new Error(`${name} degraded output is only valid for prefer-llm deterministic fallback`);
-    }
-    nonBlankString(generation.reason, `${name}.reason`);
-  } else if (generation.reason !== null) {
-    throw new Error(`${name}.reason must be null when output is not degraded`);
+}
+
+function assertDeterministicGeneration(generation: Record<string, unknown>, name: string): void {
+  if (
+    generation.effectiveMode !== 'deterministic' || generation.degraded
+    || generation.model !== null || generation.provider !== null || generation.responseId !== null
+    || generation.reason !== null
+  ) {
+    throw new Error(`${name} deterministic mode cannot contain LLM or degradation metadata`);
   }
+}
+
+function assertDegradedRequirements(generation: Record<string, unknown>, name: string): void {
+  if (!generation.degraded) {
+    if (generation.reason !== null) {
+      throw new Error(`${name}.reason must be null when output is not degraded`);
+    }
+    return;
+  }
+  if (generation.requestedMode !== 'prefer-llm' || generation.effectiveMode !== 'deterministic') {
+    throw new Error(`${name} degraded output is only valid for prefer-llm deterministic fallback`);
+  }
+  nonBlankString(generation.reason, `${name}.reason`);
 }

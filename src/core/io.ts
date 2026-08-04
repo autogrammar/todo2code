@@ -85,33 +85,67 @@ export interface WalkOptions {
 }
 
 export async function walkFiles(root: string, options: WalkOptions = {}): Promise<string[]> {
-  const ignored = new Set([...DEFAULT_IGNORED_DIRS, ...(options.ignoredDirs ?? [])]);
-  const extensions = options.extensions ? new Set(options.extensions.map((value) => value.toLowerCase())) : null;
-  const maxFiles = options.maxFiles ?? 20_000;
-  const matcher = options.matcher;
-  const base = path.resolve(root);
-  const output: string[] = [];
+  const state = createWalkState(root, options);
+  if (await pathExists(root)) await walkDirectory(state.base, state);
+  return state.output;
+}
 
-  async function visit(directory: string): Promise<void> {
-    const entries = await fs.readdir(directory, { withFileTypes: true });
-    entries.sort((a, b) => a.name.localeCompare(b.name));
-    for (const entry of entries) {
-      if (output.length >= maxFiles) throw new Error(`File limit exceeded (${maxFiles}) under ${root}`);
-      const absolute = path.join(directory, entry.name);
-      if (entry.isSymbolicLink()) continue;
-      const relative = relativePosix(base, absolute);
-      if (matcher?.ignores(relative, entry.isDirectory())) continue;
-      if (entry.isDirectory()) {
-        if (!ignored.has(entry.name)) await visit(absolute);
-      } else if (entry.isFile()) {
-        const extension = path.extname(entry.name).toLowerCase();
-        if (!extensions || extensions.has(extension)) output.push(absolute);
-      }
-    }
+interface WalkState {
+  base: string;
+  root: string;
+  output: string[];
+  maxFiles: number;
+  extensions: Set<string> | null;
+  ignored: Set<string>;
+  matcher?: { ignores(relativePath: string, isDirectory?: boolean): boolean };
+}
+
+function createWalkState(root: string, options: WalkOptions): WalkState {
+  return {
+    base: path.resolve(root),
+    root,
+    output: [],
+    maxFiles: options.maxFiles ?? 20_000,
+    extensions: options.extensions ? new Set(options.extensions.map((value) => value.toLowerCase())) : null,
+    ignored: new Set([...DEFAULT_IGNORED_DIRS, ...(options.ignoredDirs ?? [])]),
+    matcher: options.matcher,
+  };
+}
+
+async function walkDirectory(directory: string, state: WalkState): Promise<void> {
+  const entries = await fs.readdir(directory, { withFileTypes: true });
+  entries.sort((a, b) => a.name.localeCompare(b.name));
+  for (const entry of entries) {
+    if (entry.isSymbolicLink()) continue;
+    await walkEntry(directory, entry, state);
+  }
+}
+
+async function walkEntry(
+  directory: string,
+  entry: { isDirectory(): boolean; isFile(): boolean; name: string },
+  state: WalkState,
+): Promise<void> {
+  if (state.output.length >= state.maxFiles) {
+    throw new Error(`File limit exceeded (${state.maxFiles}) under ${state.root}`);
+  }
+  const absolute = path.join(directory, entry.name);
+  const relative = relativePosix(state.base, absolute);
+  if (state.matcher?.ignores(relative, entry.isDirectory())) return;
+
+  if (entry.isDirectory()) {
+    if (!state.ignored.has(entry.name)) await walkDirectory(absolute, state);
+    return;
   }
 
-  if (await pathExists(root)) await visit(base);
-  return output;
+  if (entry.isFile() && isTargetFile(entry.name, state.extensions)) {
+    state.output.push(absolute);
+  }
+}
+
+function isTargetFile(name: string, extensions: Set<string> | null): boolean {
+  if (!extensions) return true;
+  return extensions.has(path.extname(name).toLowerCase());
 }
 
 function escapeRegex(value: string): string {

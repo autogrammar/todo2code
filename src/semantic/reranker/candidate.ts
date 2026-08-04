@@ -3,7 +3,7 @@ import {
   stableStringify,
 } from '../../core/id.js';
 import { assertIntentGraph } from '../../core/schema.js';
-import type { IntentGraph } from '../../core/types.js';
+import type { IntentGraph, IntentRecord } from '../../core/types.js';
 import { boundedScore, requiredText, validDate, validateRetrieval } from './validation.js';
 import {
   type SemanticCandidate,
@@ -100,6 +100,18 @@ export function assertSemanticCandidateSet(
   graph: IntentGraph,
 ): void {
   assertIntentGraph(graph);
+  assertCandidateSetHeader(value, graph);
+
+  const state = createCandidateValidationState(graph);
+  for (const candidate of value.candidates) {
+    addValidatedCandidate(value, candidate, state);
+  }
+
+  assertBoundedRanks(value, state.byDeclaration);
+  assertCandidateSetHash(value);
+}
+
+function assertCandidateSetHeader(value: SemanticCandidateSet, graph: IntentGraph): void {
   if (value.schemaVersion !== 't2c.semantic-candidate-set/v1') {
     throw new Error('Unsupported semantic candidate-set schemaVersion');
   }
@@ -114,57 +126,93 @@ export function assertSemanticCandidateSet(
   ) {
     throw new Error('candidateSet.maxCandidatesPerDeclaration must be an integer between 1 and 10');
   }
-
   validateRetrieval(value.retrieval);
+}
 
-  const records = new Map(graph.records.map((record) => [record.id, record]));
-  const seenIds = new Set<string>();
-  const seenPairs = new Set<string>();
-  const byDeclaration = new Map<string, SemanticCandidate[]>();
+interface CandidateValidationState {
+  records: Map<string, IntentRecord>;
+  seenIds: Set<string>;
+  seenPairs: Set<string>;
+  byDeclaration: Map<string, SemanticCandidate[]>;
+}
 
-  for (const candidate of value.candidates) {
-    if (!/^SCAND-[a-f0-9]{20}$/.test(candidate.id)) {
-      throw new Error(`Invalid semantic candidate ID: ${candidate.id}`);
-    }
-    if (seenIds.has(candidate.id)) {
-      throw new Error(`Duplicate semantic candidate ID: ${candidate.id}`);
-    }
-    seenIds.add(candidate.id);
+function createCandidateValidationState(graph: IntentGraph): CandidateValidationState {
+  return {
+    records: new Map(graph.records.map((record) => [record.id, record])),
+    seenIds: new Set<string>(),
+    seenPairs: new Set<string>(),
+    byDeclaration: new Map<string, SemanticCandidate[]>(),
+  };
+}
 
-    const declaration = records.get(candidate.declarationRecordId);
-    const module = records.get(candidate.moduleRecordId);
-    if (!declaration || !module) {
-      throw new Error(`Semantic candidate ${candidate.id} cites an unknown record`);
-    }
-    if (declaration.statement.kind === 'module_fact') {
-      throw new Error(`Semantic candidate ${candidate.id} declarationRecordId points to a module`);
-    }
-    if (module.statement.kind !== 'module_fact' || module.source.kind !== 'ast') {
-      throw new Error(`Semantic candidate ${candidate.id} moduleRecordId must point to an AST module_fact`);
-    }
+function addValidatedCandidate(
+  value: SemanticCandidateSet,
+  candidate: SemanticCandidate,
+  state: CandidateValidationState,
+): void {
+  validateCandidateId(candidate);
+  validateCandidateRecords(candidate, state);
+  validateCandidateRank(value.maxCandidatesPerDeclaration, candidate);
+  boundedScore(candidate.score);
+  registerCandidate(candidate, state);
+}
 
-    const pair = `${candidate.declarationRecordId}|${candidate.moduleRecordId}`;
-    if (seenPairs.has(pair)) {
-      throw new Error(`Duplicate semantic candidate pair: ${pair}`);
-    }
-    seenPairs.add(pair);
-    boundedScore(candidate.score);
+function validateCandidateId(candidate: SemanticCandidate): void {
+  if (!/^SCAND-[a-f0-9]{20}$/.test(candidate.id)) {
+    throw new Error(`Invalid semantic candidate ID: ${candidate.id}`);
+  }
+}
 
-    if (!Number.isInteger(candidate.rank)
-      || candidate.rank < 1
-      || candidate.rank > value.maxCandidatesPerDeclaration
-    ) {
-      throw new Error(`Semantic candidate ${candidate.id} has an invalid rank`);
-    }
+function validateCandidateRecords(
+  candidate: SemanticCandidate,
+  state: CandidateValidationState,
+): void {
+  if (state.seenIds.has(candidate.id)) {
+    throw new Error(`Duplicate semantic candidate ID: ${candidate.id}`);
+  }
+  state.seenIds.add(candidate.id);
 
-    const existing = byDeclaration.get(candidate.declarationRecordId);
-    if (existing) {
-      existing.push(candidate);
-    } else {
-      byDeclaration.set(candidate.declarationRecordId, [candidate]);
-    }
+  const declaration = state.records.get(candidate.declarationRecordId);
+  const module = state.records.get(candidate.moduleRecordId);
+  if (!declaration || !module) {
+    throw new Error(`Semantic candidate ${candidate.id} cites an unknown record`);
+  }
+  if (declaration.statement.kind === 'module_fact') {
+    throw new Error(`Semantic candidate ${candidate.id} declarationRecordId points to a module`);
+  }
+  if (module.statement.kind !== 'module_fact' || module.source.kind !== 'ast') {
+    throw new Error(`Semantic candidate ${candidate.id} moduleRecordId must point to an AST module_fact`);
   }
 
+  const pair = `${candidate.declarationRecordId}|${candidate.moduleRecordId}`;
+  if (state.seenPairs.has(pair)) {
+    throw new Error(`Duplicate semantic candidate pair: ${pair}`);
+  }
+  state.seenPairs.add(pair);
+}
+
+function validateCandidateRank(maxCandidatesPerDeclaration: number, candidate: SemanticCandidate): void {
+  if (!Number.isInteger(candidate.rank)
+    || candidate.rank < 1
+    || candidate.rank > maxCandidatesPerDeclaration
+  ) {
+    throw new Error(`Semantic candidate ${candidate.id} has an invalid rank`);
+  }
+}
+
+function registerCandidate(candidate: SemanticCandidate, state: CandidateValidationState): void {
+  const existing = state.byDeclaration.get(candidate.declarationRecordId);
+  if (existing) {
+    existing.push(candidate);
+  } else {
+    state.byDeclaration.set(candidate.declarationRecordId, [candidate]);
+  }
+}
+
+function assertBoundedRanks(
+  value: SemanticCandidateSet,
+  byDeclaration: Map<string, SemanticCandidate[]>,
+): void {
   for (const [declarationRecordId, candidates] of byDeclaration) {
     if (candidates.length > value.maxCandidatesPerDeclaration) {
       throw new Error(`Declaration ${declarationRecordId} exceeds the bounded candidate limit`);
@@ -179,7 +227,9 @@ export function assertSemanticCandidateSet(
       }
     });
   }
+}
 
+function assertCandidateSetHash(value: SemanticCandidateSet): void {
   const expectedHash = sha256(stableStringify({
     graphFingerprint: value.graphFingerprint,
     maxCandidatesPerDeclaration: value.maxCandidatesPerDeclaration,

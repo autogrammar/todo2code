@@ -16,6 +16,27 @@ const ACTION_PATTERNS: Array<[IntentAction, RegExp]> = [
   ['preserve', /\b(preserve|keep|maintain|zachowa(?:ć|c)|utrzyma(?:ć|c))\b/i],
 ];
 
+const OBJECT_PATTERNS: Record<IntentAction, RegExp> = {
+  add: /\b(add|create|implement|introduce|build|utworzy(?:ć|c)|doda(?:ć|c)|zaimplementowa(?:ć|c)|stworzy(?:ć|c)|zbudowa(?:ć|c))\b/i,
+  fix: /\b(fix|repair|correct|napraw(?:ić|ic)|popraw(?:ić|ic))\b/i,
+  remove: /\b(remove|delete|drop|usun(?:ąć|ac)|wycofa(?:ć|c))\b/i,
+  refactor: /\b(refactor|restructure|przebudowa(?:ć|c)|refaktoryz)\w*/i,
+  test: /\b(test|spec|coverage|przetestowa(?:ć|c)|testowa(?:ć|c))\b/i,
+  document: /\b(document|udokumentowa(?:ć|c)|readme|changelog|documentation|dokumentacj)\b/i,
+  configure: /\b(configure|configur|setup|ustawi(?:ć|c)|konfigur)\w*/i,
+  analyze: /\b(analy[sz]|inspect|scan|compare|analiz|por[oó]wn|zbada(?:ć|c))\w*/i,
+  validate: /\b(validat(?:e[sd]?|ing)|verify|check|walid(?:uj\w*|ow\w*)|sprawdzi(?:ć|c)|zweryfikowa(?:ć|c))\b/i,
+  call: /\b(call|wywoł)\w*/i,
+  depend_on: /\b(depends?|zależ)\w*/i,
+  declare: /\b(declare|deklar)\w*/i,
+  release: /\b(release|wydaj)\w*/i,
+  change: /\b(change|update|modify|zmieni(?:ć|c)|aktualizowa(?:ć|c)|modyfikowa(?:ć|c))\b/i,
+  preserve: /\b(preserve|keep|maintain|zachowa(?:ć|c)|utrzyma(?:ć|c))\b/i,
+  block: /\b(block|deny|prevent|zablokowa(?:ć|c)|zabroni(?:ć|c))\b/i,
+  approve: /\b(approve|accept|zatwierdzi(?:ć|c)|zaakceptowa(?:ć|c))\b/i,
+  unknown: /$a/,
+};
+
 /**
  * Function words, folded exactly as `keywords` folds its input.
  *
@@ -27,7 +48,7 @@ const ACTION_PATTERNS: Array<[IntentAction, RegExp]> = [
  * buckets keep only the first twelve tokens per record, so pure grammar was
  * displacing real vocabulary before matching even began.
  */
-const STOP_WORDS = new Set([
+const STOP_WORDS = new Set(buildStopWords([
   'the', 'a', 'an', 'and', 'or', 'to', 'of', 'for', 'in', 'on', 'with', 'from', 'by',
   'i', 'oraz', 'lub', 'do', 'z', 'ze', 'na', 'w', 'we', 'dla', 'przez', 'sie', 'ma',
   'musi', 'musza', 'powinien', 'powinna', 'powinno', 'powinny', 'nalezy', 'trzeba',
@@ -35,9 +56,31 @@ const STOP_WORDS = new Set([
   'nie', 'jest', 'sa', 'jako', 'bez', 'ani', 'albo', 'ale', 'tylko', 'wylacznie',
   'tego', 'tym', 'tej', 'ten', 'ta', 'to', 'te', 'przy', 'po', 'przed', 'aby', 'gdy',
   'kazdy', 'kazda', 'kazde', 'juz', 'tez', 'takze', 'byc', 'byl', 'byla', 'bylo',
-].map((value) => normalizeToken(value)));
+], normalizeToken));
+
+function buildStopWords(
+  words: readonly string[],
+  normalizer: (value: string) => string,
+): Set<string> {
+  return new Set(words.map(normalizer));
+}
 
 export function classifyActionHeuristically(text: string): IntentAction {
+  const conventionalAction = extractConventionalAction(text);
+  if (conventionalAction !== 'unknown') return conventionalAction;
+  // Inline code is a target, not a verb. Without masking it, an identifier
+  // such as `validateContract` can override the explicit verb "implement".
+  const prose = removeInlineCode(text);
+  // Fold diacritics before dictionary matching. JavaScript's `\b` treats letters such
+  // as `ć` or `ą` as non-word characters, so matching only the raw Polish text
+  // would miss perfectly valid imperatives such as `dodać`.
+  const searchable = normalizeToken(prose);
+  const matchedByPattern = findActionInText(prose, searchable);
+  if (matchedByPattern) return matchedByPattern;
+  return 'unknown';
+}
+
+function extractConventionalAction(text: string): IntentAction {
   const conventional = text.match(/^\s*(feat|fix|refactor|test|docs|chore|build|ci|perf)(?:\([^)]*\))?!?:/i)?.[1]?.toLowerCase();
   if (conventional === 'feat') return 'add';
   if (conventional === 'fix') return 'fix';
@@ -45,17 +88,21 @@ export function classifyActionHeuristically(text: string): IntentAction {
   if (conventional === 'test') return 'test';
   if (conventional === 'docs') return 'document';
   if (conventional === 'build' || conventional === 'ci' || conventional === 'chore') return 'configure';
-  // Inline code is a target, not a verb. Without masking it, an identifier
-  // such as `validateContract` can override the explicit verb "implement".
-  const prose = text.replace(/`[^`]*`/g, ' ');
-  // Fold diacritics before dictionary matching. JavaScript's `\b` treats letters such
-  // as `ć` or `ą` as non-word characters, so matching only the raw Polish text
-  // would miss perfectly valid imperatives such as `dodać`.
-  const searchable = normalizeToken(prose);
+  return 'unknown';
+}
+
+function findActionInText(
+  prose: string,
+  searchable: string,
+): IntentAction | null {
   for (const [action, pattern] of ACTION_PATTERNS) {
     if (pattern.test(prose) || pattern.test(searchable)) return action;
   }
-  return 'unknown';
+  return null;
+}
+
+function removeInlineCode(value: string): string {
+  return value.replace(/`[^`]*`/g, ' ');
 }
 
 /**
@@ -438,35 +485,27 @@ export function extractVersions(text: string): string[] {
 }
 
 export function inferObject(text: string, action: IntentAction): string {
-  const normalized = text
+  const normalized = normalizeForObject(text);
+  const withoutAction = removeObjectAction(normalized, action);
+  const result = stripObjectConnector(withoutAction);
+  return result || normalized || 'unspecified';
+}
+
+function normalizeForObject(text: string): string {
+  return text
     .replace(/^\s*[-*+]\s+/, '')
     .replace(/^\s*\d+[.)]\s+/, '')
     .replace(/^\s*\[[ xX]\]\s+/, '')
     .replace(/^\s*(feat|fix|refactor|test|docs|chore|build|ci|perf)(?:\([^)]*\))?!?:\s*/i, '')
     .trim();
+}
 
-  const actionWords: Record<IntentAction, RegExp> = {
-    add: /\b(add|create|implement|introduce|build|utworzy(?:ć|c)|doda(?:ć|c)|zaimplementowa(?:ć|c)|stworzy(?:ć|c)|zbudowa(?:ć|c))\b/i,
-    fix: /\b(fix|repair|correct|napraw(?:ić|ic)|popraw(?:ić|ic))\b/i,
-    remove: /\b(remove|delete|drop|usun(?:ąć|ac)|wycofa(?:ć|c))\b/i,
-    refactor: /\b(refactor|restructure|przebudowa(?:ć|c)|refaktoryz)\w*/i,
-    test: /\b(test|przetestowa(?:ć|c)|testowa(?:ć|c))\b/i,
-    document: /\b(document|udokumentowa(?:ć|c))\b/i,
-    configure: /\b(configur\w*|setup|ustawi(?:ć|c)|konfigurowa(?:ć|c))\b/i,
-    analyze: /\b(analy[sz]\w*|inspect|scan|analizowa(?:ć|c)|zbada(?:ć|c))\b/i,
-    validate: /\b(validat\w*|verify|check|walidowa(?:ć|c)|sprawdzi(?:ć|c))\b/i,
-    call: /\b(call|wywoł)\w*/i,
-    depend_on: /\b(depends?|zależ)\w*/i,
-    declare: /\b(declare|deklar)\w*/i,
-    release: /\b(release|wydaj)\w*/i,
-    change: /\b(change|update|modify|zmieni(?:ć|c)|aktualizowa(?:ć|c)|modyfikowa(?:ć|c))\b/i,
-    preserve: /\b(preserve|keep|maintain|zachowa(?:ć|c)|utrzyma(?:ć|c))\b/i,
-    block: /\b(block|deny|prevent|zablokowa(?:ć|c)|zabroni(?:ć|c))\b/i,
-    approve: /\b(approve|accept|zatwierdzi(?:ć|c)|zaakceptowa(?:ć|c))\b/i,
-    unknown: /$a/,
-  };
-  const result = normalized.replace(actionWords[action], '').replace(/^\s*(to|aby|żeby)\s+/i, '').trim();
-  return result || normalized || 'unspecified';
+function removeObjectAction(value: string, action: IntentAction): string {
+  return value.replace(OBJECT_PATTERNS[action], '').trim();
+}
+
+function stripObjectConnector(value: string): string {
+  return value.replace(/^\s*(to|aby|żeby)\s+/i, '').trim();
 }
 
 export function splitIntentLines(text: string): Array<{ text: string; line: number }> {

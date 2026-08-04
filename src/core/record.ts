@@ -57,7 +57,24 @@ export interface BuildRecordInput {
 export function buildRecord(input: BuildRecordInput): IntentRecord {
   const target: IntentTarget = normalizeTarget(input.target);
   const rawExcerpt = input.rawExcerpt ?? input.text;
-  const seed = {
+  const seed = buildRecordSeed(input, target, rawExcerpt);
+  return {
+    schemaVersion: 't2c.intent/v1',
+    id: createIntentId(seed, input.prefix ?? sourcePrefix(input.sourceKind)),
+    statement: buildRecordStatement(input, target),
+    lifecycle: { status: input.lifecycle },
+    source: buildRecordSource(input, rawExcerpt),
+    epistemic: buildRecordEpistemic(input),
+    observedAt: input.observedAt ?? null,
+    metadata: {
+      ...(input.metadata ?? {}),
+      generation: generationMetadata(input.extractor, input.generation),
+    },
+  };
+}
+
+function buildRecordSeed(input: BuildRecordInput, target: IntentTarget, rawExcerpt: string): Omit<IntentRecord, 'schemaVersion' | 'id' | 'statement' | 'lifecycle' | 'source' | 'epistemic' | 'observedAt' | 'metadata'> {
+  return {
     kind: input.kind,
     action: input.action,
     object: input.object,
@@ -69,42 +86,41 @@ export function buildRecord(input: BuildRecordInput): IntentRecord {
     symbol: input.symbol ?? null,
     rawExcerpt,
   };
+}
+
+function buildRecordStatement(input: BuildRecordInput, target: IntentTarget): IntentRecord['statement'] {
   return {
-    schemaVersion: 't2c.intent/v1',
-    id: createIntentId(seed, input.prefix ?? sourcePrefix(input.sourceKind)),
-    statement: {
-      kind: input.kind,
-      actor: input.actor ?? null,
-      action: input.action,
-      subject: input.subject ?? null,
-      object: input.object,
-      target,
-      modality: input.modality ?? 'unknown',
-      polarity: input.polarity ?? 'positive',
-      text: input.text,
-    },
-    lifecycle: { status: input.lifecycle },
-    source: {
-      kind: input.sourceKind,
-      path: input.sourcePath ?? null,
-      lines: input.sourceLines ?? null,
-      revision: input.revision ?? null,
-      symbol: input.symbol ?? null,
-      commitIndex: input.commitIndex ?? null,
-      extractor: input.extractor,
-      contentHash: sha256(rawExcerpt),
-      rawExcerpt,
-    },
-    epistemic: {
-      class: input.epistemicClass,
-      confidence: clamp(input.confidence),
-      basis: [...new Set(input.basis)].sort(),
-    },
-    observedAt: input.observedAt ?? null,
-    metadata: {
-      ...(input.metadata ?? {}),
-      generation: generationMetadata(input.extractor, input.generation),
-    },
+    kind: input.kind,
+    actor: input.actor ?? null,
+    action: input.action,
+    subject: input.subject ?? null,
+    object: input.object,
+    target,
+    modality: input.modality ?? 'unknown',
+    polarity: input.polarity ?? 'positive',
+    text: input.text,
+  };
+}
+
+function buildRecordSource(input: BuildRecordInput, rawExcerpt: string): IntentRecord['source'] {
+  return {
+    kind: input.sourceKind,
+    path: input.sourcePath ?? null,
+    lines: input.sourceLines ?? null,
+    revision: input.revision ?? null,
+    symbol: input.symbol ?? null,
+    commitIndex: input.commitIndex ?? null,
+    extractor: input.extractor,
+    contentHash: sha256(rawExcerpt),
+    rawExcerpt,
+  };
+}
+
+function buildRecordEpistemic(input: BuildRecordInput): IntentRecord['epistemic'] {
+  return {
+    class: input.epistemicClass,
+    confidence: clamp(input.confidence),
+    basis: [...new Set(input.basis)].sort(),
   };
 }
 
@@ -126,14 +142,11 @@ function generationMetadata(
   extractor: string,
   input: BuildRecordGenerationInput | undefined,
 ): IntentGenerationMetadata {
-  const { generator, generatorVersion } = extractorIdentity(extractor);
-  const used = input?.used ?? 'deterministic';
   return {
-    generator,
-    generatorVersion,
+    ...generationIdentity(extractor),
     runtimeVersion: T2C_VERSION,
-    requested: input?.requested ?? used,
-    used,
+    requested: input?.requested ?? (input?.used ?? 'deterministic'),
+    used: input?.used ?? 'deterministic',
     degraded: input?.degraded ?? false,
     fallbackReason: input?.fallbackReason ?? null,
     provider: input?.provider ?? null,
@@ -142,13 +155,11 @@ function generationMetadata(
   };
 }
 
-function extractorIdentity(extractor: string): { generator: string; generatorVersion: string } {
+function generationIdentity(extractor: string): { generator: string; generatorVersion: string } {
   const separator = extractor.lastIndexOf('@');
   if (separator > 0 && separator < extractor.length - 1) {
     return { generator: extractor.slice(0, separator), generatorVersion: extractor.slice(separator + 1) };
   }
-  // External/test builders that still supply an unversioned name are tied to
-  // the runtime implementation that materialized the record.
   return { generator: extractor, generatorVersion: T2C_VERSION };
 }
 

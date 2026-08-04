@@ -9,137 +9,237 @@ export const JS_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts', '.mj
 export const TYPESCRIPT_AST_CACHE_IDENTITY = `t2c/typescript-ast@1/typescript-${ts.version}`;
 
 export function extractTypeScriptFile(root: string, filePath: string, body: string): IntentRecord[] {
-  const relative = relativePosix(root, filePath);
-  const sourceFile = ts.createSourceFile(filePath, body, ts.ScriptTarget.Latest, true, scriptKind(filePath));
-  const records: IntentRecord[] = [];
-  const scope: string[] = [];
-  const moduleCapabilities = new Set<string>();
+  const context = createTypeScriptExtractionContext({
+    filePath,
+    relative: relativePosix(root, filePath),
+    sourceFile: ts.createSourceFile(filePath, body, ts.ScriptTarget.Latest, true, scriptKind(filePath)),
+    records: [],
+    scope: [],
+    moduleCapabilities: new Set<string>(),
+  });
+  visitTypeScriptNode(context.sourceFile, context);
+  const capabilities = boundedCapabilities(context.moduleCapabilities);
+  recordModuleFact(context, context.sourceFile, capabilities);
+  return context.records;
+}
 
-  function lineRange(node: ts.Node): { start: number; end: number } {
-    return {
-      start: sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1,
-      end: sourceFile.getLineAndCharacterOfPosition(node.getEnd()).line + 1,
-    };
+interface TypeScriptExtractionContext {
+  filePath: string;
+  relative: string;
+  sourceFile: ts.SourceFile;
+  records: IntentRecord[];
+  scope: string[];
+  moduleCapabilities: Set<string>;
+}
+
+function createTypeScriptExtractionContext(args: {
+  filePath: string;
+  relative: string;
+  sourceFile: ts.SourceFile;
+  records: IntentRecord[];
+  scope: string[];
+  moduleCapabilities: Set<string>;
+}): TypeScriptExtractionContext {
+  return args;
+}
+
+function visitTypeScriptNode(node: ts.Node, context: TypeScriptExtractionContext): void {
+  if (handleNode(node, context)) {
+    ts.forEachChild(node, (child) => visitTypeScriptNode(child, context));
   }
+}
 
-  function excerpt(node: ts.Node): string {
-    return node.getText(sourceFile).slice(0, 2000);
-  }
+function handleNode(node: ts.Node, context: TypeScriptExtractionContext): boolean {
+  if (handleImportDeclaration(node, context)) return true;
+  if (handleExportDeclaration(node, context)) return true;
+  if (handleSymbolDeclaration(node, context)) return true;
+  if (handleVariableDeclaration(node, context)) return true;
+  if (handleCallExpression(node, context)) return true;
+  return true;
+}
 
-  function add(node: ts.Node, input: {
+function handleImportDeclaration(node: ts.Node, context: TypeScriptExtractionContext): boolean {
+  if (!ts.isImportDeclaration(node) || !ts.isStringLiteral(node.moduleSpecifier)) return false;
+  addTypeScriptRecord({
+    context,
+    node,
+    kind: 'module_dependency_fact',
+    action: 'depend_on',
+    object: node.moduleSpecifier.text,
+    metadata: { importClause: node.importClause?.getText(context.sourceFile) ?? null },
+  });
+  return true;
+}
+
+function handleExportDeclaration(node: ts.Node, context: TypeScriptExtractionContext): boolean {
+  if (!ts.isExportDeclaration(node) || !node.moduleSpecifier || !ts.isStringLiteral(node.moduleSpecifier)) return false;
+  addTypeScriptRecord({
+    context,
+    node,
+    kind: 'module_dependency_fact',
+    action: 'depend_on',
+    object: node.moduleSpecifier.text,
+    metadata: { reExport: true },
+  });
+  return true;
+}
+
+function handleSymbolDeclaration(node: ts.Node, context: TypeScriptExtractionContext): boolean {
+  if (!isTypeScriptSymbolDeclaration(node)) return false;
+  const symbol = extractSymbolName(node, context.sourceFile);
+  if (!symbol) return true;
+  const symbolModifiers = extractModifiers(node);
+  addTypeScriptRecord({
+    context,
+    node,
+    kind: 'symbol_fact',
+    action: 'declare',
+    object: symbol,
+    symbol,
+    metadata: {
+      symbolKind: ts.SyntaxKind[node.kind] ?? 'unknown',
+      modifiers: symbolModifiers,
+      exported: symbolModifiers.includes('ExportKeyword'),
+    },
+  });
+  context.scope.push(symbol);
+  ts.forEachChild(node, (child) => visitTypeScriptNode(child, context));
+  context.scope.pop();
+  return false;
+}
+
+function handleVariableDeclaration(node: ts.Node, context: TypeScriptExtractionContext): boolean {
+  if (!ts.isVariableDeclaration(node) || !ts.isIdentifier(node.name)) return false;
+  const declarationIsCallable = Boolean(node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer)));
+  if (!declarationIsCallable && !isTopLevel(node)) return true;
+  addTypeScriptRecord({
+    context,
+    node,
+    kind: 'symbol_fact',
+    action: 'declare',
+    object: node.name.text,
+    symbol: node.name.text,
+    metadata: { symbolKind: declarationIsCallable ? 'callable_variable' : 'variable' },
+  });
+  return true;
+}
+
+function handleCallExpression(node: ts.Node, context: TypeScriptExtractionContext): boolean {
+  if (!ts.isCallExpression(node)) return false;
+  const callee = node.expression.getText(context.sourceFile).slice(0, 300);
+  addTypeScriptRecord({
+    context,
+    node,
+    kind: 'call_fact',
+    action: 'call',
+    object: callee,
+    symbol: context.scope.length ? context.scope.join('.') : null,
+    metadata: { callee, argumentCount: node.arguments.length },
+  });
+  return true;
+}
+
+function isTypeScriptSymbolDeclaration(
+  node: ts.Node,
+): node is
+  | ts.FunctionDeclaration
+  | ts.ClassDeclaration
+  | ts.InterfaceDeclaration
+  | ts.TypeAliasDeclaration
+  | ts.EnumDeclaration
+  | ts.MethodDeclaration {
+  return (
+    ts.isFunctionDeclaration(node)
+    || ts.isClassDeclaration(node)
+    || ts.isInterfaceDeclaration(node)
+    || ts.isTypeAliasDeclaration(node)
+    || ts.isEnumDeclaration(node)
+    || ts.isMethodDeclaration(node)
+  );
+}
+
+function extractSymbolName(
+  node: ts.Node & { name?: ts.Node },
+  sourceFile: ts.SourceFile,
+): string | null {
+  if (!node.name) return null;
+  return node.name.getText(sourceFile).replace(/^['"]|['"]$/g, '');
+}
+
+function extractModifiers(node: ts.Node): string[] {
+  if (!ts.canHaveModifiers(node)) return [];
+  return (ts.getModifiers(node) ?? []).map((modifier) => ts.SyntaxKind[modifier.kind] ?? String(modifier.kind));
+}
+
+function addTypeScriptRecord(
+  input: {
+    context: TypeScriptExtractionContext;
+    node: ts.Node;
     kind: string;
     action: IntentAction;
     object: string;
     symbol?: string | null;
+    text?: string;
     subject?: string | null;
     metadata?: Record<string, JsonValue>;
-    text?: string;
-  }): void {
-    const symbol = input.symbol ?? null;
-    if (input.kind === 'symbol_fact' || input.kind === 'module_dependency_fact') moduleCapabilities.add(input.object);
-    records.push(buildRecord({
-      kind: input.kind,
-      action: input.action,
-      subject: input.subject ?? (scope.length ? scope.join('.') : null),
-      object: input.object,
-      target: { paths: [relative], symbols: symbol ? [symbol] : [] },
-      modality: 'observed',
-      text: input.text ?? `${input.action} ${input.object}`,
-      lifecycle: 'implemented',
-      sourceKind: 'ast',
-      sourcePath: relative,
-      sourceLines: lineRange(node),
-      symbol,
-      extractor: 't2c/typescript-ast@1',
-      rawExcerpt: excerpt(node),
-      epistemicClass: 'fact',
-      confidence: 1,
-      basis: ['typescript_compiler_ast'],
-      metadata: {
-        language: languageName(filePath),
-        syntaxKind: ts.SyntaxKind[node.kind] ?? String(node.kind),
-        llmUsed: false,
-        ...(input.metadata ?? {}),
-      },
-    }));
+  },
+): void {
+  const symbol = input.symbol ?? null;
+  if (input.kind === 'symbol_fact' || input.kind === 'module_dependency_fact') {
+    input.context.moduleCapabilities.add(input.object);
   }
+  input.context.records.push(buildRecord({
+    kind: input.kind,
+    action: input.action,
+    subject: input.subject ?? (input.context.scope.length ? input.context.scope.join('.') : null),
+    object: input.object,
+    target: { paths: [input.context.relative], symbols: symbol ? [symbol] : [] },
+    modality: 'observed',
+    text: input.text ?? `${input.action} ${input.object}`,
+    lifecycle: 'implemented',
+    sourceKind: 'ast',
+    sourcePath: input.context.relative,
+    sourceLines: sourceLineRange(input.node, input.context.sourceFile),
+    symbol,
+    extractor: 't2c/typescript-ast@1',
+    rawExcerpt: nodeExcerpt(input.node, input.context.sourceFile),
+    epistemicClass: 'fact',
+    confidence: 1,
+    basis: ['typescript_compiler_ast'],
+    metadata: {
+      language: languageName(input.context.filePath),
+      syntaxKind: ts.SyntaxKind[input.node.kind] ?? String(input.node.kind),
+      llmUsed: false,
+      ...(input.metadata ?? {}),
+    },
+  }));
+}
 
-  function nameOf(node: ts.Node & { name?: ts.Node }): string | null {
-    if (!node.name) return null;
-    return node.name.getText(sourceFile).replace(/^['"]|['"]$/g, '');
-  }
+function sourceLineRange(node: ts.Node, sourceFile: ts.SourceFile): { start: number; end: number } {
+  return {
+    start: sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1,
+    end: sourceFile.getLineAndCharacterOfPosition(node.getEnd()).line + 1,
+  };
+}
 
-  function modifiers(node: ts.Node): string[] {
-    if (!ts.canHaveModifiers(node)) return [];
-    return (ts.getModifiers(node) ?? []).map((modifier) => ts.SyntaxKind[modifier.kind] ?? String(modifier.kind));
-  }
+function nodeExcerpt(node: ts.Node, sourceFile: ts.SourceFile): string {
+  return node.getText(sourceFile).slice(0, 2000);
+}
 
-  function visit(node: ts.Node): void {
-    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
-      add(node, { kind: 'module_dependency_fact', action: 'depend_on', object: node.moduleSpecifier.text, metadata: { importClause: node.importClause?.getText(sourceFile) ?? null } });
-    } else if (ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
-      add(node, { kind: 'module_dependency_fact', action: 'depend_on', object: node.moduleSpecifier.text, metadata: { reExport: true } });
-    } else if (
-      ts.isFunctionDeclaration(node)
-      || ts.isClassDeclaration(node)
-      || ts.isInterfaceDeclaration(node)
-      || ts.isTypeAliasDeclaration(node)
-      || ts.isEnumDeclaration(node)
-      || ts.isMethodDeclaration(node)
-    ) {
-      const symbol = nameOf(node);
-      if (symbol) {
-        const symbolModifiers = modifiers(node);
-        add(node, {
-          kind: 'symbol_fact',
-          action: 'declare',
-          object: symbol,
-          symbol,
-          metadata: {
-            symbolKind: ts.SyntaxKind[node.kind] ?? 'unknown',
-            modifiers: symbolModifiers,
-            exported: symbolModifiers.includes('ExportKeyword'),
-          },
-        });
-        scope.push(symbol);
-        ts.forEachChild(node, visit);
-        scope.pop();
-        return;
-      }
-    } else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
-      const declarationIsCallable = Boolean(node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer)));
-      if (declarationIsCallable || isTopLevel(node)) {
-        add(node, {
-          kind: 'symbol_fact',
-          action: 'declare',
-          object: node.name.text,
-          symbol: node.name.text,
-          metadata: { symbolKind: declarationIsCallable ? 'callable_variable' : 'variable' },
-        });
-      }
-    } else if (ts.isCallExpression(node)) {
-      const callee = node.expression.getText(sourceFile).slice(0, 300);
-      add(node, {
-        kind: 'call_fact',
-        action: 'call',
-        object: callee,
-        symbol: scope.length ? scope.join('.') : null,
-        metadata: { callee, argumentCount: node.arguments.length },
-      });
-    }
-    ts.forEachChild(node, visit);
-  }
-
-  visit(sourceFile);
-  const capabilities = boundedCapabilities(moduleCapabilities);
-  add(sourceFile, {
+function recordModuleFact(
+  context: TypeScriptExtractionContext,
+  node: ts.SourceFile,
+  capabilities: string[],
+): void {
+  addTypeScriptRecord({
+    context,
+    node,
     kind: 'module_fact',
     action: 'declare',
-    object: relative,
-    text: moduleTopicText(relative, capabilities),
+    object: context.relative,
+    text: moduleTopicText(context.relative, capabilities),
     metadata: { aggregate: 'module', factGranularity: 'file', capabilities },
   });
-  return records;
 }
 
 function isTopLevel(node: ts.Node): boolean {

@@ -20,15 +20,17 @@ export interface SymbolResolutionIndex {
 
 /** Resolves explicit NL symbols only against observed AST declarations. */
 export function buildSymbolResolutionIndex(records: IntentRecord[]): SymbolResolutionIndex {
+  const byAlias = collectAstCandidates(records);
+  sortCandidates(byAlias);
+  return { byNlRecord: collectNlResolutions(records, byAlias) };
+}
+
+function collectAstCandidates(records: IntentRecord[]): Map<string, AstSymbolCandidate[]> {
   const byAlias = new Map<string, AstSymbolCandidate[]>();
   for (const record of records) {
     if (!isAstDeclaration(record) || !record.source.path) continue;
-    const symbols = [...new Set([
-      ...record.statement.target.symbols,
-      ...(record.source.symbol ? [record.source.symbol] : []),
-    ])];
-    for (const symbol of symbols) {
-      const candidate = { recordId: record.id, path: normalizePath(record.source.path), symbol };
+    for (const symbol of uniqueSymbols(record)) {
+      const candidate = buildAstCandidate(record, symbol);
       for (const alias of symbolAliases(symbol)) {
         const values = byAlias.get(alias) ?? [];
         if (!values.some((value) => value.recordId === candidate.recordId)) values.push(candidate);
@@ -36,12 +38,36 @@ export function buildSymbolResolutionIndex(records: IntentRecord[]): SymbolResol
       }
     }
   }
+  return byAlias;
+}
+
+function buildAstCandidate(record: IntentRecord, symbol: string): AstSymbolCandidate {
+  return {
+    recordId: record.id,
+    path: normalizePath(record.source.path ?? ''),
+    symbol,
+  };
+}
+
+function uniqueSymbols(record: IntentRecord): string[] {
+  return [...new Set([
+    ...record.statement.target.symbols,
+    ...(record.source.symbol ? [record.source.symbol] : []),
+  ])];
+}
+
+function sortCandidates(byAlias: Map<string, AstSymbolCandidate[]>): void {
   for (const values of byAlias.values()) {
     values.sort((left, right) => left.path.localeCompare(right.path)
       || left.symbol.localeCompare(right.symbol)
       || left.recordId.localeCompare(right.recordId));
   }
+}
 
+function collectNlResolutions(
+  records: IntentRecord[],
+  byAlias: Map<string, AstSymbolCandidate[]>,
+): Map<string, NlSymbolResolution[]> {
   const byNlRecord = new Map<string, NlSymbolResolution[]>();
   for (const record of records) {
     if (record.source.kind !== 'nl' || record.statement.target.symbols.length === 0) continue;
@@ -51,7 +77,7 @@ export function buildSymbolResolutionIndex(records: IntentRecord[]): SymbolResol
       byAlias,
     )));
   }
-  return { byNlRecord };
+  return byNlRecord;
 }
 
 /**

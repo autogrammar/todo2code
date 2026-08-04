@@ -1,49 +1,49 @@
 # code2llm call graph | /home/tom/github/semcod/todo2code
 # generated in 0.23s
-# nodes: 426 | edges: 500 | modules: 29
-# CC̄=3.8
+# nodes: 401 | edges: 500 | modules: 30
+# CC̄=3.6
 
 HUBS[20]:
-  src.extractors.ast.typescript.extractTypeScriptFile
-    CC=43  in:0  out:44  total:44
-  src.extractors.ast.typescript.visit
-    CC=25  in:1  out:26  total:27
-  src.extractors.communication.extractCommunicationFile
-    CC=50  in:3  out:24  total:27
+  src.cli.optionString
+    CC=2  in:33  out:1  total:34
+  src.cli.optionNumber
+    CC=5  in:20  out:5  total:25
   src.extractors.git.extractRepositoryGitIntent
     CC=11  in:3  out:21  total:24
   src.extractors.todo.extractTodo
     CC=5  in:0  out:24  total:24
-  src.graph.linker.scorePair
-    CC=18  in:6  out:16  total:22
-  src.graph.linker.linkIntentRecords
-    CC=5  in:0  out:22  total:22
   src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
     CC=10  in:0  out:22  total:22
-  rust-ast.src.main.main
-    CC=6  in:0  out:21  total:21
-  src.extractors.markdown-llm.MarkdownLlmRequiredError.extractMarkdownIntentAudited
-    CC=19  in:0  out:21  total:21
   rust-ast.src.main.collect_files
     CC=9  in:1  out:20  total:21
-  src.extractors.todo.relative
-    CC=5  in:0  out:20  total:20
-  src.extractors.nl.extractNlIntent
-    CC=5  in:0  out:20  total:20
+  rust-ast.src.main.main
+    CC=6  in:0  out:21  total:21
+  src.cli.optionBoolean
+    CC=3  in:17  out:3  total:20
   src.extractors.todo.body
     CC=5  in:0  out:20  total:20
   src.extractors.todo.lines
+    CC=5  in:0  out:20  total:20
+  src.extractors.nl.extractNlIntent
+    CC=5  in:0  out:20  total:20
+  src.extractors.todo.relative
     CC=5  in:0  out:20  total:20
   src.extractors.changelog.extractChangelog
     CC=10  in:0  out:19  total:19
   rust-ast.src.main.add
     CC=1  in:9  out:10  total:19
-  src.graph.diff.diffIntentGraphs
-    CC=11  in:0  out:19  total:19
+  src.cli.handleCommunication
+    CC=11  in:0  out:18  total:18
   src.extractors.configuration.configurationRecords
     CC=4  in:4  out:12  total:16
   java.JavaAstExtract.JavaAstExtract.main
     CC=10  in:0  out:16  total:16
+  src.extractors.ast.records.moduleRecords
+    CC=6  in:1  out:14  total:15
+  src.extractors.changelog.relative
+    CC=7  in:0  out:15  total:15
+  src.extractors.changelog.body
+    CC=7  in:0  out:15  total:15
 
 MODULES:
   examples.backend.src.server  [12 funcs]
@@ -101,6 +101,17 @@ MODULES:
     slash  CC=1  out:2
     type_item  CC=1  out:8
     visit_expr_call  CC=1  out:9
+  src.cli  [80 funcs]
+    absolute  CC=3  out:1
+    buildCommonPipelineOptions  CC=3  out:8
+    buildDiffPayload  CC=2  out:2
+    buildFileDiff  CC=3  out:6
+    buildGitDiff  CC=5  out:6
+    buildPipelineOptions  CC=1  out:1
+    buildWorkspaceComparisonOptions  CC=3  out:6
+    command  CC=3  out:2
+    commandHandlers  CC=2  out:6
+    context  CC=2  out:4
   src.extractors.ast  [2 funcs]
     isExtractionResult  CC=5  out:3
     isIntentRecords  CC=2  out:1
@@ -116,34 +127,39 @@ MODULES:
     moduleRecords  CC=6  out:14
     moduleTopicText  CC=2  out:1
     start  CC=1  out:2
-  src.extractors.ast.typescript  [14 funcs]
-    add  CC=14  out:7
-    callee  CC=2  out:2
-    capabilities  CC=1  out:2
-    declarationIsCallable  CC=4  out:2
-    excerpt  CC=1  out:2
-    extractTypeScriptFile  CC=43  out:44
-    isTopLevel  CC=5  out:3
-    languageName  CC=2  out:3
-    lineRange  CC=1  out:3
-    modifiers  CC=4  out:4
+  src.extractors.ast.typescript  [11 funcs]
+    context  CC=1  out:4
+    createTypeScriptExtractionContext  CC=1  out:0
+    extractTypeScriptFile  CC=1  out:7
+    handleExportDeclaration  CC=4  out:3
+    handleImportDeclaration  CC=5  out:4
+    handleNode  CC=6  out:5
+    handleSymbolDeclaration  CC=4  out:9
+    handleVariableDeclaration  CC=8  out:7
+    recordModuleFact  CC=1  out:2
+    scriptKind  CC=4  out:3
   src.extractors.changelog  [5 funcs]
     body  CC=7  out:15
     changelogAction  CC=11  out:3
     extractChangelog  CC=10  out:19
     lines  CC=7  out:15
     relative  CC=7  out:15
-  src.extractors.communication  [34 funcs]
+  src.extractors.communication-file-helpers  [4 funcs]
+    envelope  CC=2  out:1
+    hasExplicitEnvelopeMetadata  CC=1  out:2
+    inferred  CC=2  out:1
+    shouldSkipCommunicationFile  CC=8  out:3
+  src.extractors.communication-helpers  [23 funcs]
     basename  CC=1  out:0
-    communicationFiles  CC=3  out:2
     communicationSegments  CC=14  out:12
-    declaredParticipant  CC=5  out:1
-    declaredParticipantId  CC=5  out:1
-    declaredRole  CC=5  out:1
-    envelope  CC=5  out:1
-    explicitEnvelope  CC=5  out:1
-    extractCommunicationFile  CC=50  out:24
-    extractCommunicationIntent  CC=7  out:10
+    fileParts  CC=5  out:2
+    flush  CC=5  out:5
+    heading  CC=2  out:1
+    inferGovernanceIdentityFromFilename  CC=7  out:3
+    inferIdentity  CC=2  out:5
+    inferIdentityFromPathAndFilename  CC=9  out:5
+    isCommunicationNoise  CC=3  out:2
+    isCommunicationType  CC=1  out:2
   src.extractors.configuration  [23 funcs]
     MAX_ENTRIES_PER_FILE  CC=4  out:10
     bounded  CC=1  out:3
@@ -214,17 +230,20 @@ MODULES:
     filterDiscoveryChildren  CC=5  out:6
     finishDiscovery  CC=4  out:1
     gitMarkerState  CC=5  out:5
-  src.extractors.markdown-llm  [17 funcs]
+  src.extractors.markdown-llm  [3 funcs]
+    client  CC=2  out:2
+    extractMarkdownIntentAudited  CC=9  out:14
+    fallbackOrThrow  CC=2  out:5
+  src.extractors.markdown-llm-helpers  [9 funcs]
     emptyCoverage  CC=2  out:1
-    enrichBatchCovering  CC=8  out:11
+    enrichBatchCovering  CC=6  out:11
     enrichMarkdownBatchWithCorrection  CC=1  out:0
+    enrichMarkdownRecords  CC=13  out:9
     enrichSplitBatch  CC=2  out:7
     enrichment  CC=1  out:6
-    failed  CC=1  out:2
-    fallbackOrThrow  CC=2  out:5
-    markDeterministic  CC=2  out:2
     markdownResponseContract  CC=1  out:7
-    readPrompt  CC=2  out:6
+    outcomes  CC=4  out:2
+    strings  CC=1  out:5
   src.extractors.markdown-paths  [14 funcs]
     addBasenameIndexMatch  CC=3  out:4
     basenames  CC=11  out:10
@@ -247,17 +266,22 @@ MODULES:
     extractNlIntent  CC=5  out:20
     inferActor  CC=5  out:2
     missing  CC=1  out:9
-  src.extractors.nl-llm  [32 funcs]
+  src.extractors.nl-llm  [4 funcs]
+    assertNlExtractionOptions  CC=2  out:4
+    client  CC=2  out:2
+    extractNlIntentAudited  CC=10  out:22
+    fallbackOrThrow  CC=1  out:0
+  src.extractors.nl-llm-helpers  [15 funcs]
     NL_RECORD_CONTRACT  CC=1  out:7
     action  CC=1  out:1
     allowedAction  CC=1  out:1
     allowedModality  CC=1  out:1
-    audit  CC=1  out:1
     clampLine  CC=1  out:3
-    deterministic  CC=1  out:1
-    extractNlWithCorrection  CC=1  out:0
-    failedAudit  CC=1  out:2
-    fallback  CC=2  out:0
+    isPlaceholder  CC=2  out:3
+    lines  CC=1  out:1
+    nlStrings  CC=1  out:6
+    nonEmptyText  CC=3  out:1
+    normalizedText  CC=1  out:1
   src.extractors.runtime-cycle  [17 funcs]
     MAX_PER_SECTION  CC=8  out:12
     boundedArray  CC=8  out:4
@@ -280,39 +304,6 @@ MODULES:
     heading  CC=1  out:1
     inferOwner  CC=4  out:1
     lines  CC=5  out:20
-  src.graph.diff  [26 funcs]
-    afterGroups  CC=7  out:6
-    afterRecord  CC=1  out:3
-    assertGraph  CC=3  out:3
-    beforeGroups  CC=7  out:6
-    beforeRecord  CC=1  out:3
-    changedFieldPaths  CC=6  out:6
-    compareRelations  CC=1  out:2
-    diffIntentGraphs  CC=11  out:19
-    escapeXml  CC=2  out:1
-    groupRecords  CC=4  out:6
-  src.graph.linker  [41 funcs]
-    addToBucket  CC=2  out:3
-    aliases  CC=3  out:3
-    astIds  CC=10  out:7
-    buckets  CC=10  out:7
-    byId  CC=4  out:2
-    candidatePairs  CC=5  out:7
-    collectCandidatePairs  CC=10  out:8
-    configurationIds  CC=10  out:7
-    declarationAstIds  CC=10  out:7
-    deduplicateRecords  CC=4  out:3
-  src.graph.symbol-resolution  [10 funcs]
-    buildSymbolResolutionIndex  CC=15  out:13
-    byAlias  CC=9  out:8
-    byNlRecord  CC=4  out:3
-    hasResolvedNlAstSymbolPair  CC=10  out:3
-    isAstDeclaration  CC=3  out:0
-    pathSelects  CC=3  out:5
-    resolveSymbol  CC=8  out:6
-    selected  CC=2  out:1
-    uniquePaths  CC=1  out:3
-    values  CC=2  out:0
 
 EDGES:
   rust-ast.src.main.main → rust-ast.src.main.arguments

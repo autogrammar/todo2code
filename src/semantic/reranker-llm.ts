@@ -15,6 +15,7 @@ import {
 } from './reranker.js';
 import {
   assertSemanticRerankerResponse,
+  type SemanticRerankerResponse,
   SEMANTIC_RERANK_RESPONSE_CONTRACT,
 } from './reranker-response.js';
 
@@ -42,41 +43,89 @@ export async function rerankSemanticCandidates(
   options: SemanticRerankerOptions,
 ): Promise<SemanticRerankResult> {
   assertSemanticCandidateSet(candidateSet, graph);
+  validateCandidateSetSize(candidateSet);
+  const model = resolveRerankerModel(config, options.model);
+  const modelRevision = resolveModelRevision(options.modelRevision);
+  const cached = resolveCachedResult(options.cachedResult, candidateSet, graph, model, modelRevision);
+  if (cached) return cached;
+
+  const client = assertRerankerClient(config);
+  await assertTrackedSnapshotAvailable(graph, candidateSet, options.trackedSnapshot);
+  const payload = buildRerankerPayload(graph, candidateSet);
+  const response = await callReranker(client, messagesForCandidates(graph, candidateSet, payload), model);
+  return buildRerankResult(graph, candidateSet, response, model, modelRevision);
+}
+
+function validateCandidateSetSize(candidateSet: SemanticCandidateSet): void {
   if (!candidateSet.candidates.length) {
     throw new Error('Semantic reranker requires at least one candidate');
   }
   if (candidateSet.candidates.length > 100) {
     throw new Error('Semantic reranker payload is limited to 100 candidates');
   }
-  const model = options.model?.trim() || config.openRouter.taskModel;
-  const modelRevision = options.modelRevision?.trim();
-  if (!modelRevision) throw new Error('Semantic reranker requires an explicit modelRevision');
-  if (options.cachedResult) {
-    assertSemanticRerankResult(options.cachedResult, candidateSet, graph);
-    if (options.cachedResult.generation.requestedModel !== model
-      || options.cachedResult.generation.modelRevision !== modelRevision) {
-      throw new Error('Cached semantic rerank result has a different model identity');
-    }
-    return options.cachedResult;
+}
+
+function resolveRerankerModel(config: T2CConfig, modelOverride?: string): string {
+  return modelOverride?.trim() || config.openRouter.taskModel;
+}
+
+function resolveModelRevision(modelRevision: string): string {
+  const revision = modelRevision?.trim();
+  if (!revision) throw new Error('Semantic reranker requires an explicit modelRevision');
+  return revision;
+}
+
+function resolveCachedResult(
+  cachedResult: SemanticRerankResult | null | undefined,
+  candidateSet: SemanticCandidateSet,
+  graph: IntentGraph,
+  model: string,
+  modelRevision: string,
+): SemanticRerankResult | null {
+  if (!cachedResult) return null;
+  assertSemanticRerankResult(cachedResult, candidateSet, graph);
+  if (cachedResult.generation.requestedModel !== model || cachedResult.generation.modelRevision !== modelRevision) {
+    throw new Error('Cached semantic rerank result has a different model identity');
   }
+  return cachedResult;
+}
+
+function assertRerankerClient(config: T2CConfig): OpenRouterClient {
   const client = new OpenRouterClient(config.openRouter);
   if (!client.isConfigured()) {
     throw new SemanticRerankerRequiredError(
       'Cross-language reranking requires OpenRouter; no deterministic or embedding-only fallback is allowed',
     );
   }
-  if (!options.trackedSnapshot) {
-    throw new Error('Cross-language reranking requires a verified trackedSnapshot');
-  }
-  await assertTrackedSnapshot(graph, candidateSet, options.trackedSnapshot);
+  return client;
+}
+
+function assertTrackedSnapshotAvailable(
+  graph: IntentGraph,
+  candidateSet: SemanticCandidateSet,
+  trackedSnapshot: { root: string; revision: string } | undefined,
+): Promise<void> {
+  if (!trackedSnapshot) throw new Error('Cross-language reranking requires a verified trackedSnapshot');
+  return assertTrackedSnapshot(graph, candidateSet, trackedSnapshot);
+}
+
+function buildRerankerPayload(graph: IntentGraph, candidateSet: SemanticCandidateSet): Array<{
+  candidateId: string;
+  retrieval: { score: number; rank: number };
+  declaration: Record<string, unknown>;
+  module: Record<string, unknown>;
+}> {
   const records = new Map(graph.records.map((record) => [record.id, record]));
-  const payload = candidateSet.candidates.map((candidate) => ({
+  return candidateSet.candidates.map((candidate) => ({
     candidateId: candidate.id,
     retrieval: { score: candidate.score, rank: candidate.rank },
     declaration: projectRecord(records.get(candidate.declarationRecordId), candidate.declarationRecordId),
     module: projectRecord(records.get(candidate.moduleRecordId), candidate.moduleRecordId),
   }));
-  const messages = [
+}
+
+function messagesForCandidates(graph: IntentGraph, candidateSet: SemanticCandidateSet, payload: ReturnType<typeof buildRerankerPayload>): Array<{ role: 'system' | 'user'; content: string }> {
+  return [
     {
       role: 'system' as const,
       content: [
@@ -100,19 +149,51 @@ export async function rerankSemanticCandidates(
       }),
     },
   ];
-  const response = await client.chatStructuredWithMetadata(
-    messages,
-    't2c_cross_language_rerank_v1',
-    SEMANTIC_RERANK_RESPONSE_CONTRACT,
-    model,
-  ).catch((error: unknown) => {
+}
+
+async function callReranker(
+  client: OpenRouterClient,
+  messages: Array<{ role: 'system' | 'user'; content: string }>,
+  model: string,
+): Promise<{
+  value: SemanticRerankerResponse;
+  metadata: {
+    provider?: string | null;
+    model?: string | null;
+    responseId?: string | null;
+  };
+}> {
+  try {
+    return await client.chatStructuredWithMetadata(
+      messages,
+      't2c_cross_language_rerank_v1',
+      SEMANTIC_RERANK_RESPONSE_CONTRACT,
+      model,
+    );
+  } catch (error: unknown) {
     const metadata = error instanceof StructuredResponseError ? error.responseMetadata : undefined;
     const identity = [metadata?.provider, metadata?.model, metadata?.responseId].filter(Boolean).join('/');
     throw new Error(
       `Invalid semantic reranker response${identity ? ` from ${identity}` : ''}: `
       + `${error instanceof Error ? error.message : String(error)}`,
     );
-  });
+  }
+}
+
+function buildRerankResult(
+  graph: IntentGraph,
+  candidateSet: SemanticCandidateSet,
+  response: {
+    value: SemanticRerankerResponse;
+    metadata: {
+      provider?: string | null;
+      model?: string | null;
+      responseId?: string | null;
+    };
+  },
+  model: string,
+  modelRevision: string,
+): SemanticRerankResult {
   try {
     assertSemanticRerankerResponse(response.value);
   } catch (error) {

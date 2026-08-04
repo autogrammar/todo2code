@@ -15,120 +15,12 @@ import { hasCapabilityClaim, isFileAggregate } from './capability-evidence.js';
 
 export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISOString()): DiagnosticReport {
   assertIntentGraph(graph);
+  const context = buildDiagnosticContext(graph);
   const diagnostics: Diagnostic[] = [];
-  const neighbors = buildNeighbors(graph);
-  const recordsById = new Map(graph.records.map((record) => [record.id, record]));
-  const groundedImplementation = indexGroundedImplementationEvidence(graph, recordsById);
-  const implementedPaths = indexImplementedPaths(graph);
-  const documentedPaths = indexDocumentedPaths(graph);
-  const symbolResolutionIndex = buildSymbolResolutionIndex(graph.records);
-
   for (const record of graph.records) {
-    const related = (neighbors.get(record.id) ?? [])
-      .map((id) => recordsById.get(id))
-      .filter((item): item is IntentRecord => Boolean(item));
-    const evidenced = groundedImplementation.has(record.id)
-      || !hasCapabilityClaim(record) && hasImplementedTarget(record, implementedPaths)
-      || record.source.kind === 'changelog' && hasDocumentedTarget(record, documentedPaths);
-    if (isPlan(record) && !evidenced) {
-      const hasLocationOnlyEvidence = related.some(isImplementationEvidence);
-      diagnostics.push(makeDiagnostic(
-        record.lifecycle.status === 'completed' ? 'blocking' : 'warning',
-        'PLANNED_NOT_IMPLEMENTED',
-        record.lifecycle.status === 'completed' ? 'Zadanie oznaczone jako ukończone bez dowodu implementacji' : 'Zaplanowane zadanie bez dowodu implementacji',
-        hasLocationOnlyEvidence
-          ? `Powiązany rekord Git/AST wskazuje lokalizację, ale nie potwierdza wymaganej zmiany: ${record.statement.text}`
-          : `Nie znaleziono powiązanego rekordu Git ani faktu AST dla: ${record.statement.text}`,
-        [record.id],
-        hasLocationOnlyEvidence
-          ? 'Zrealizować konkretną zmianę opisaną w rekordzie źródłowym albo wskazać jednoznaczny symbol lub dowód; następnie ponownie uruchomić linker.'
-          : 'Dodać identyfikator ticketu/symbolu albo dostarczyć implementację i ponownie uruchomić linker.',
-      ));
-    }
-
-    if (isPublicImplementation(record) && !related.some(isPlan)) {
-      diagnostics.push(makeDiagnostic(
-        'warning',
-        'IMPLEMENTED_NOT_PLANNED',
-        'Implementacja bez powiązanego planu',
-        `Fakt implementacyjny nie ma relacji do NL, TODO ani dokumentacji intencji: ${record.statement.object}`,
-        [record.id],
-        'Powiązać symbol z ticketem/TODO lub udokumentować, dlaczego implementacja jest poza planem.',
-      ));
-    }
-
-    if (isReleaseCandidate(record) && !related.some((item) => item.source.kind === 'changelog' || item.source.kind === 'document')) {
-      diagnostics.push(makeDiagnostic(
-        'info',
-        'IMPLEMENTED_NOT_DOCUMENTED',
-        'Zmiana bez dokumentacji wydania',
-        `Zmiana ${record.statement.object} nie ma powiązanego wpisu dokumentacyjnego lub changelogu.`,
-        [record.id],
-        'Dodać albo powiązać wpis CHANGELOG/dokumentacji, jeśli zmiana jest publiczna.',
-      ));
-    }
-
-    if (record.source.kind === 'changelog' && isActionableChangelogRecord(record) && !evidenced) {
-      diagnostics.push(makeDiagnostic(
-        'review_required',
-        'CHANGELOG_WITHOUT_IMPLEMENTATION',
-        'Wpis changelogu bez dowodu implementacji',
-        `Wpis wydania nie ma powiązanego commita ani faktu AST: ${record.statement.text}`,
-        [record.id],
-        'Zweryfikować wpis lub dodać jednoznaczne odwołanie do ticketu, commita, pliku albo symbolu.',
-      ));
-    }
-
-    const missingFields = Array.isArray(record.metadata.missingFields)
-      ? record.metadata.missingFields.filter((item): item is string => typeof item === 'string')
-      : [];
-    const symbolIssues = (symbolResolutionIndex.byNlRecord.get(record.id) ?? [])
-      .filter((resolution) => resolution.status === 'ambiguous' || resolution.status === 'conflicting');
-    if (missingFields.length > 0 || symbolIssues.length > 0) {
-      const detail = ambiguityDetail(record, missingFields, symbolIssues);
-      diagnostics.push(makeDiagnostic(
-        'review_required',
-        'AMBIGUOUS_REQUIREMENT',
-        symbolIssues.length > 0 ? 'Niejednoznaczny cel wymagania' : 'Niekompletne wymaganie',
-        detail,
-        [record.id],
-        ambiguityAction(missingFields, symbolIssues),
-      ));
-    }
-
-    if (record.epistemic.confidence < 0.5 && record.source.kind !== 'ast') {
-      diagnostics.push(makeDiagnostic(
-        'info',
-        'LOW_CONFIDENCE',
-        'Niska pewność ekstrakcji',
-        `Rekord ma confidence=${record.epistemic.confidence}: ${record.statement.text}`,
-        [record.id],
-        'Doprecyzować źródło lub dodać jawny identyfikator, ścieżkę albo symbol.',
-      ));
-    }
-
-    if ((neighbors.get(record.id)?.length ?? 0) === 0 && isImportantRecord(record)) {
-      diagnostics.push(makeDiagnostic(
-        'warning',
-        'UNLINKED_RECORD',
-        'Rekord niepołączony z przepływem wiedzy',
-        `Nie znaleziono relacji dla ${record.id}: ${record.statement.text}`,
-        [record.id],
-        'Dodać wspólny ticket, symbol, ścieżkę lub bardziej jednoznaczny obiekt intencji.',
-      ));
-    }
+    diagnostics.push(...collectRecordDiagnostics(record, context));
   }
-
-  for (const relation of graph.relations.filter((item) => item.type === 'contradicts')) {
-    diagnostics.push(makeDiagnostic(
-      'blocking',
-      'CONFLICTING_INTENT',
-      'Sprzeczne intencje lub dowody',
-      `Relacja ${relation.id} łączy rekordy o przeciwnej polaryzacji.`,
-      [relation.from, relation.to],
-      'Rozstrzygnąć konflikt w kanonicznym tickecie lub decyzji człowieka.',
-    ));
-  }
+  diagnostics.push(...collectContradictionDiagnostics(graph.relations));
 
   if (!diagnostics.some((item) => item.severity === 'blocking' || item.severity === 'review_required')) {
     diagnostics.push(makeDiagnostic(
@@ -152,6 +44,212 @@ export function diagnoseGraph(graph: IntentGraph, generatedAt = new Date().toISO
     diagnostics: unique,
     counts,
   };
+}
+
+interface DiagnosticContext {
+  neighbors: Map<string, string[]>;
+  recordsById: Map<string, IntentRecord>;
+  groundedImplementation: Set<string>;
+  implementedPaths: Set<string>;
+  documentedPaths: Set<string>;
+  symbolResolutionIndex: ReturnType<typeof buildSymbolResolutionIndex>;
+}
+
+function buildDiagnosticContext(graph: IntentGraph): DiagnosticContext {
+  const neighbors = buildNeighbors(graph);
+  const recordsById = new Map(graph.records.map((record) => [record.id, record]));
+  return {
+    neighbors,
+    recordsById,
+    groundedImplementation: indexGroundedImplementationEvidence(graph, recordsById),
+    implementedPaths: indexImplementedPaths(graph),
+    documentedPaths: indexDocumentedPaths(graph),
+    symbolResolutionIndex: buildSymbolResolutionIndex(graph.records),
+  };
+}
+
+function collectRecordDiagnostics(record: IntentRecord, context: DiagnosticContext): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  const related = collectRelatedRecords(record.id, context);
+  const missingFields = collectMissingFields(record);
+  const symbolIssues = collectSymbolIssues(record, context);
+  const isEvidence = isRecordEvidenced(record, context);
+
+  const planned = buildPlannedNotImplementedDiagnostic(record, related, isEvidence);
+  if (planned) diagnostics.push(planned);
+
+  const notPlanned = buildImplementedWithoutPlanDiagnostic(record, related);
+  if (notPlanned) diagnostics.push(notPlanned);
+
+  const notDocumented = buildUndocumentedImplementationDiagnostic(record, related);
+  if (notDocumented) diagnostics.push(notDocumented);
+
+  const changelog = buildChangelogWithoutImplementationDiagnostic(record, isEvidence);
+  if (changelog) diagnostics.push(changelog);
+
+  const ambiguous = buildAmbiguousRequirementDiagnostic(record, missingFields, symbolIssues);
+  if (ambiguous) diagnostics.push(ambiguous);
+
+  const lowConfidence = buildLowConfidenceDiagnostic(record);
+  if (lowConfidence) diagnostics.push(lowConfidence);
+
+  const unlinked = buildUnlinkedRecordDiagnostic(record, related);
+  if (unlinked) diagnostics.push(unlinked);
+
+  return diagnostics;
+}
+
+function collectRelatedRecords(recordId: string, context: DiagnosticContext): IntentRecord[] {
+  return (context.neighbors.get(recordId) ?? [])
+    .map((id) => context.recordsById.get(id))
+    .filter((item): item is IntentRecord => Boolean(item));
+}
+
+function collectMissingFields(record: IntentRecord): string[] {
+  return Array.isArray(record.metadata.missingFields)
+    ? record.metadata.missingFields.filter((item): item is string => typeof item === 'string')
+    : [];
+}
+
+function collectSymbolIssues(record: IntentRecord, context: DiagnosticContext): NlSymbolResolution[] {
+  return (context.symbolResolutionIndex.byNlRecord.get(record.id) ?? [])
+    .filter((resolution) => resolution.status === 'ambiguous' || resolution.status === 'conflicting');
+}
+
+function isRecordEvidenced(
+  record: IntentRecord,
+  context: DiagnosticContext,
+): boolean {
+  const hasImplementedTarget = !hasCapabilityClaim(record) && hasImplementedTarget(record, context.implementedPaths);
+  const hasDocumentedTarget = record.source.kind === 'changelog' && hasDocumentedTarget(record, context.documentedPaths);
+  return context.groundedImplementation.has(record.id)
+    || hasImplementedTarget
+    || hasDocumentedTarget;
+}
+
+function buildPlannedNotImplementedDiagnostic(
+  record: IntentRecord,
+  related: IntentRecord[],
+  evidenced: boolean,
+): Diagnostic | null {
+  if (!isPlan(record) || evidenced) return null;
+  const hasLocationOnlyEvidence = related.some(isImplementationEvidence);
+  const severity: DiagnosticSeverity = record.lifecycle.status === 'completed' ? 'blocking' : 'warning';
+  return makeDiagnostic(
+    severity,
+    'PLANNED_NOT_IMPLEMENTED',
+    record.lifecycle.status === 'completed'
+      ? 'Zadanie oznaczone jako ukończone bez dowodu implementacji'
+      : 'Zaplanowane zadanie bez dowodu implementacji',
+    hasLocationOnlyEvidence
+      ? `Powiązany rekord Git/AST wskazuje lokalizację, ale nie potwierdza wymaganej zmiany: ${record.statement.text}`
+      : `Nie znaleziono powiązanego rekordu Git ani faktu AST dla: ${record.statement.text}`,
+    [record.id],
+    hasLocationOnlyEvidence
+      ? 'Zrealizować konkretną zmianę opisaną w rekordzie źródłowym albo wskazać jednoznaczny symbol lub dowód; następnie ponownie uruchomić linker.'
+      : 'Dodać identyfikator ticketu/symbolu albo dostarczyć implementację i ponownie uruchomić linker.',
+  );
+}
+
+function buildImplementedWithoutPlanDiagnostic(
+  record: IntentRecord,
+  related: IntentRecord[],
+): Diagnostic | null {
+  if (!isPublicImplementation(record) || related.some(isPlan)) return null;
+  return makeDiagnostic(
+    'warning',
+    'IMPLEMENTED_NOT_PLANNED',
+    'Implementacja bez powiązanego planu',
+    `Fakt implementacyjny nie ma relacji do NL, TODO ani dokumentacji intencji: ${record.statement.object}`,
+    [record.id],
+    'Powiązać symbol z ticketem/TODO lub udokumentować, dlaczego implementacja jest poza planem.',
+  );
+}
+
+function buildUndocumentedImplementationDiagnostic(
+  record: IntentRecord,
+  related: IntentRecord[],
+): Diagnostic | null {
+  if (!isReleaseCandidate(record) || related.some((item) => item.source.kind === 'changelog' || item.source.kind === 'document')) {
+    return null;
+  }
+  return makeDiagnostic(
+    'info',
+    'IMPLEMENTED_NOT_DOCUMENTED',
+    'Zmiana bez dokumentacji wydania',
+    `Zmiana ${record.statement.object} nie ma powiązanego wpisu dokumentacyjnego lub changelogu.`,
+    [record.id],
+    'Dodać albo powiązać wpis CHANGELOG/dokumentacji, jeśli zmiana jest publiczna.',
+  );
+}
+
+function buildChangelogWithoutImplementationDiagnostic(
+  record: IntentRecord,
+  evidenced: boolean,
+): Diagnostic | null {
+  if (record.source.kind !== 'changelog' || !isActionableChangelogRecord(record) || evidenced) return null;
+  return makeDiagnostic(
+    'review_required',
+    'CHANGELOG_WITHOUT_IMPLEMENTATION',
+    'Wpis changelogu bez dowodu implementacji',
+    `Wpis wydania nie ma powiązanego commita ani faktu AST: ${record.statement.text}`,
+    [record.id],
+    'Zweryfikować wpis lub dodać jednoznaczne odwołanie do ticketu, commita, pliku albo symbolu.',
+  );
+}
+
+function buildAmbiguousRequirementDiagnostic(
+  record: IntentRecord,
+  missingFields: string[],
+  symbolIssues: NlSymbolResolution[],
+): Diagnostic | null {
+  if (missingFields.length === 0 && symbolIssues.length === 0) return null;
+  const detail = ambiguityDetail(record, missingFields, symbolIssues);
+  return makeDiagnostic(
+    'review_required',
+    'AMBIGUOUS_REQUIREMENT',
+    symbolIssues.length > 0 ? 'Niejednoznaczny cel wymagania' : 'Niekompletne wymaganie',
+    detail,
+    [record.id],
+    ambiguityAction(missingFields, symbolIssues),
+  );
+}
+
+function buildLowConfidenceDiagnostic(record: IntentRecord): Diagnostic | null {
+  if (record.epistemic.confidence >= 0.5 || record.source.kind === 'ast') return null;
+  return makeDiagnostic(
+    'info',
+    'LOW_CONFIDENCE',
+    'Niska pewność ekstrakcji',
+    `Rekord ma confidence=${record.epistemic.confidence}: ${record.statement.text}`,
+    [record.id],
+    'Doprecyzować źródło lub dodać jawny identyfikator, ścieżkę albo symbol.',
+  );
+}
+
+function buildUnlinkedRecordDiagnostic(record: IntentRecord, related: IntentRecord[]): Diagnostic | null {
+  if (related.length !== 0 || !isImportantRecord(record)) return null;
+  return makeDiagnostic(
+    'warning',
+    'UNLINKED_RECORD',
+    'Rekord niepołączony z przepływem wiedzy',
+    `Nie znaleziono relacji dla ${record.id}: ${record.statement.text}`,
+    [record.id],
+    'Dodać wspólny ticket, symbol, ścieżkę lub bardziej jednoznaczny obiekt intencji.',
+  );
+}
+
+function collectContradictionDiagnostics(relations: IntentGraph['relations']): Diagnostic[] {
+  return relations
+    .filter((relation) => relation.type === 'contradicts')
+    .map((relation) => makeDiagnostic(
+      'blocking',
+      'CONFLICTING_INTENT',
+      'Sprzeczne intencje lub dowody',
+      `Relacja ${relation.id} łączy rekordy o przeciwnej polaryzacji.`,
+      [relation.from, relation.to],
+      'Rozstrzygnąć konflikt w kanonicznym tickecie lub decyzji człowieka.',
+    ));
 }
 
 /**

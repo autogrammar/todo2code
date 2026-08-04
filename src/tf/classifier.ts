@@ -69,28 +69,67 @@ function vectorize(text: string, vocabulary: Record<string, number>): number[] {
 export async function classifyAction(text: string, config: T2CConfig): Promise<{ action: IntentAction; basis: string; confidence: number }> {
   const fallback = classifyActionHeuristically(text);
   if (!config.enableTensorFlow || !config.tensorflowModelPath) {
-    return { action: fallback, basis: 'heuristic_action_dictionary', confidence: fallback === 'unknown' ? 0.45 : 0.78 };
+    return buildHeuristicActionResult(fallback);
   }
   try {
     const loaded = await loadClassifier(config);
-    if (!loaded) return { action: fallback, basis: 'heuristic_action_dictionary', confidence: 0.7 };
-    const vector = vectorize(text, loaded.assets.vocabulary);
-    const input = loaded.tf.tensor2d([vector], [1, vector.length]);
-    const predictionValue = loaded.model.predict(input);
-    const prediction = Array.isArray(predictionValue) ? predictionValue[0] : predictionValue;
-    if (!prediction) throw new Error('TensorFlow model returned no prediction');
-    const probabilities = Array.from(await prediction.data());
-    prediction.dispose?.();
-    let bestIndex = 0;
-    for (let index = 1; index < probabilities.length; index += 1) {
-      if ((probabilities[index] ?? 0) > (probabilities[bestIndex] ?? 0)) bestIndex = index;
-    }
-    const action = loaded.assets.labels[bestIndex] ?? fallback;
-    const confidence = Math.max(0, Math.min(1, probabilities[bestIndex] ?? 0));
-    return confidence >= 0.55
-      ? { action, basis: 'tensorflow_action_classifier', confidence }
-      : { action: fallback, basis: 'heuristic_fallback_after_tensorflow', confidence: Math.max(0.55, confidence) };
+    if (!loaded) return buildHeuristicActionResult(fallback, 0.7);
+    const probabilities = await classifyWithTensorFlow(text, loaded);
+    return resolveActionFromTensorflow(probabilities, loaded, fallback);
   } catch (error) {
     return { action: fallback, basis: `heuristic_fallback:${error instanceof Error ? error.message : String(error)}`, confidence: 0.6 };
   }
+}
+
+function buildHeuristicActionResult(
+  action: IntentAction,
+  confidence?: number,
+): { action: IntentAction; basis: string; confidence: number } {
+  if (confidence === undefined) {
+    return { action, basis: 'heuristic_action_dictionary', confidence: action === 'unknown' ? 0.45 : 0.78 };
+  }
+  return { action, basis: 'heuristic_action_dictionary', confidence };
+}
+
+async function classifyWithTensorFlow(
+  text: string,
+  loaded: NonNullable<typeof cache>,
+): Promise<number[]> {
+  const vector = vectorize(text, loaded.assets.vocabulary);
+  const input = loaded.tf.tensor2d([vector], [1, vector.length]);
+  const predictionValue = loaded.model.predict(input);
+  const prediction = Array.isArray(predictionValue) ? predictionValue[0] : predictionValue;
+  if (!prediction) throw new Error('TensorFlow model returned no prediction');
+  const probabilities = Array.from(await prediction.data());
+  prediction.dispose?.();
+  return probabilities;
+}
+
+function resolveActionFromTensorflow(
+  probabilities: number[],
+  loaded: NonNullable<typeof cache>,
+  fallback: IntentAction,
+): { action: IntentAction; basis: string; confidence: number } {
+  const bestIndex = indexOfMaxValue(probabilities);
+  const action = loaded.assets.labels[bestIndex] ?? fallback;
+  const confidence = clampProbability(probabilities[bestIndex] ?? 0);
+  return confidence >= 0.55
+    ? { action, basis: 'tensorflow_action_classifier', confidence }
+    : {
+      action: fallback,
+      basis: 'heuristic_fallback_after_tensorflow',
+      confidence: Math.max(0.55, confidence),
+    };
+}
+
+function indexOfMaxValue(values: number[]): number {
+  let bestIndex = 0;
+  for (let index = 1; index < values.length; index += 1) {
+    if ((values[index] ?? 0) > (values[bestIndex] ?? 0)) bestIndex = index;
+  }
+  return bestIndex;
+}
+
+function clampProbability(value: number): number {
+  return Math.max(0, Math.min(1, value));
 }

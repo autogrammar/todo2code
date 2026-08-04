@@ -1,36 +1,34 @@
-# code2llm | 246f 39628L | typescript:138,json:40,python:16,javascript:15,shell:8,rust:7,go:6,php:4,toml:3,yaml:2,yml:2,java:1,proto:1,txt:1 | 2026-08-04
+# code2llm | 251f 39151L | typescript:143,json:40,python:16,javascript:15,shell:8,rust:7,go:6,php:4,toml:3,yaml:2,yml:2,java:1,proto:1,txt:1 | 2026-08-04
 # generated in 0.26s
-# CC̅=3.8 | critical:110/3592 | dups:0 | cycles:0
+# CC̅=3.6 | critical:90/3683 | dups:0 | cycles:0
 
 HEALTH[20]:
-  🔴 GOD   src/extractors/communication.ts = 515L, 5 classes, 76m, max CC=50
-  🔴 GOD   src/synthesis/code-change-plan/implementation.ts = 1310L, 10 classes, 127m, max CC=47
-  🔴 GOD   src/communication/llm/implementation.ts = 514L, 8 classes, 53m, max CC=12
+  🔴 GOD   src/graph/linker.ts = 537L, 4 classes, 81m, max CC=10
   🟡 CC    handleRequest CC=16 (limit:15)
-  🟡 CC    extractCommunicationFile CC=50 (limit:15)
-  🟡 CC    inferIdentity CC=15 (limit:15)
-  🟡 CC    extractMarkdownIntentAudited CC=19 (limit:15)
-  🟡 CC    extractTypeScriptFile CC=43 (limit:15)
-  🟡 CC    visit CC=25 (limit:15)
-  🟡 CC    buildSymbolResolutionIndex CC=15 (limit:15)
-  🟡 CC    scorePair CC=18 (limit:15)
-  🟡 CC    diagnoseGraph CC=40 (limit:15)
-  🟡 CC    neighbors CC=35 (limit:15)
-  🟡 CC    recordsById CC=35 (limit:15)
-  🟡 CC    groundedImplementation CC=35 (limit:15)
-  🟡 CC    implementedPaths CC=35 (limit:15)
-  🟡 CC    documentedPaths CC=35 (limit:15)
-  🟡 CC    symbolResolutionIndex CC=35 (limit:15)
+  🟡 CC    buildLocalWarnings CC=18 (limit:15)
   🟡 CC    executeAction CC=83 (limit:15)
   🟡 CC    root CC=83 (limit:15)
+  🟡 CC    normalized CC=30 (limit:15)
+  🟡 CC    inferObject CC=34 (limit:15)
+  🟡 CC    walkFiles CC=15 (limit:15)
+  🟡 CC    diffUiHtml CC=52 (limit:15)
+  🟡 CC    compareGraphs CC=15 (limit:15)
+  🟡 CC    rerankSemanticCandidates CC=25 (limit:15)
+  🟡 CC    assertSemanticRerankResult CC=21 (limit:15)
+  🟡 CC    records CC=16 (limit:15)
+  🟡 CC    seenDecisions CC=16 (limit:15)
+  🟡 CC    acceptedDeclarations CC=16 (limit:15)
+  🟡 CC    assertSemanticCandidateSet CC=27 (limit:15)
+  🟡 CC    NON_SOURCE_DIR_SEGMENTS CC=38 (limit:15)
+  🟡 CC    BINARY_EXTENSIONS CC=38 (limit:15)
+  🟡 CC    GENERATED_ANALYSIS_BASENAMES CC=38 (limit:15)
+  🟡 CC    T2C_ARTIFACT_BASENAMES CC=38 (limit:15)
 
-REFACTOR[4]:
-  1. split src/extractors/communication.ts  (god module)
-  2. split src/synthesis/code-change-plan/implementation.ts  (god module)
-  3. split src/communication/llm/implementation.ts  (god module)
-  4. split 17 high-CC methods  (CC>15)
+REFACTOR[2]:
+  1. split src/graph/linker.ts  (god module)
+  2. split 19 high-CC methods  (CC>15)
 
-PIPELINES[2043]:
+PIPELINES[2061]:
   [1] Src [main]: main → arguments
       PURITY: 100% pure
   [2] Src [new]: new
@@ -143,72 +141,75 @@ LAYERS:
   │ !! ast_extract                221L  1C   18m  CC=16     ←0
   │ requirements.txt             1L  0C    0m  CC=0.0    ←0
   │
-  src/                            CC̄=4.0    ←in:0  →out:0
-  │ !! implementation.ts         1310L  10C  127m  CC=47     ←3
+  src/                            CC̄=3.8    ←in:0  →out:0
   │ !! cli.ts                     935L  1C  124m  CC=13     ←0
-  │ !! actions.ts                 700L  0C   74m  CC=83     ←0
+  │ !! actions.ts                 737L  1C   79m  CC=83     ←0
   │ !! reality.ts                 619L  3C   74m  CC=26     ←0
   │ !! run.ts                     617L  1C   65m  CC=56     ←0
   │ !! a2a-task-store.ts          560L  3C   88m  CC=11     ←0
   │ !! analyzer.ts                542L  3C   72m  CC=48     ←0
-  │ !! communication.ts           515L  5C   76m  CC=50     ←0
-  │ !! implementation.ts          514L  8C   53m  CC=12     ←0
-  │ !! text.ts                    491L  0C   51m  CC=34     ←0
-  │ !! linker.ts                  489L  4C   72m  CC=18     ←3
-  │ !! markdown-llm.ts            458L  6C   38m  CC=19     ←0
+  │ !! linker.ts                  537L  4C   81m  CC=10     ←3
+  │ !! text.ts                    517L  0C   57m  CC=34     ←0
+  │ diagnostics.ts             459L  1C   58m  CC=11     ←0
   │ git.ts                     397L  6C   57m  CC=11     ←0
+  │ markdown-llm-helpers.ts    383L  5C   30m  CC=14     ←0
   │ !! gold-types.ts              378L  15C   11m  CC=32     ←0
   │ todo-patch.ts              372L  5C   52m  CC=12     ←0
   │ docs-deterministic.ts      369L  3C   43m  CC=11     ←0
   │ !! gold-cases.ts              366L  4C   42m  CC=18     ←0
-  │ !! diagnostics.ts             361L  0C   40m  CC=40     ←0
+  │ implementation-helpers.ts   357L  5C   33m  CC=10     ←0
   │ workspace.ts               342L  3C   54m  CC=12     ←0
   │ !! openrouter.ts              338L  7C   39m  CC=31     ←0
-  │ nl-llm.ts                  337L  5C   46m  CC=12     ←0
   │ summarizer.ts              333L  5C   27m  CC=10     ←0
   │ a2a.ts                     332L  0C   47m  CC=9      ←0
   │ gold.ts                    329L  3C   31m  CC=14     ←0
   │ mcp-tools.ts               323L  1C   10m  CC=10     ←0
   │ code-change.ts             322L  0C   35m  CC=11     ←0
+  │ communication-helpers.ts   320L  3C   45m  CC=14     ←0
   │ contract-check.ts          317L  6C   39m  CC=14     ←2
   │ runtime-cycle.ts           306L  1C   35m  CC=9      ←0
+  │ intent.ts                  306L  4C   36m  CC=12     ←0
+  │ !! communication-file-helpers.ts   296L  2C   39m  CC=18     ←0
   │ intake-service.ts          291L  2C   48m  CC=13     ←0
   │ !! validation.ts              281L  0C   47m  CC=84     ←0
-  │ !! intent.ts                  276L  4C   29m  CC=23     ←0
   │ !! intake-contract.ts         273L  7C   30m  CC=18     ←0
   │ docs-llm.ts                269L  1C   28m  CC=12     ←0
+  │ typescript.ts              266L  1C   26m  CC=8      ←0
   │ tasks-llm.ts               266L  4C   22m  CC=11     ←0
   │ !! result.ts                  264L  0C   16m  CC=21     ←0
   │ mcp.ts                     261L  2C   38m  CC=9      ←0
   │ intent.ts                  258L  15C    0m  CC=0.0    ←0
+  │ nl-llm-helpers.ts          256L  3C   28m  CC=12     ←0
   │ text-render.ts             251L  2C   33m  CC=13     ←0
   │ !! watcher.ts                 243L  4C   37m  CC=19     ←0
   │ !! text.ts                    239L  1C   48m  CC=19     ←2
+  │ utils.ts                   239L  0C   42m  CC=8      ←0
   │ diff.ts                    235L  1C   38m  CC=11     ←0
   │ env.ts                     231L  1C   20m  CC=13     ←0
   │ !! a2a-history.ts             226L  3C   37m  CC=18     ←0
   │ code-change.ts             221L  16C    0m  CC=0.0    ←0
-  │ !! utils.ts                   219L  0C   38m  CC=23     ←0
   │ structured-schema.ts       218L  5C   25m  CC=10     ←0
   │ model-comparison.ts        218L  4C   21m  CC=12     ←0
   │ conclusions.ts             210L  0C   21m  CC=9      ←0
   │ !! reranker-llm.ts            210L  2C   24m  CC=25     ←0
   │ configuration.ts           208L  1C   38m  CC=10     ←0
+  │ implementation.ts          208L  4C   21m  CC=12     ←0
   │ !! code-change-path.ts        204L  0C   14m  CC=38     ←0
   │ ignore.ts                  200L  3C   23m  CC=10     ←0
   │ !! candidate.ts               200L  0C   13m  CC=27     ←0
   │ !! a2a-message.ts             197L  0C   35m  CC=63     ←1
   │ docs-record.ts             193L  0C   34m  CC=14     ←0
+  │ !! record.ts                  183L  2C   13m  CC=17     ←0
   │ a2a-card.ts                181L  0C    7m  CC=3      ←0
   │ !! io.ts                      177L  1C   32m  CC=15     ←0
+  │ markdown-llm.ts            175L  2C   11m  CC=9      ←0
   │ pipeline.ts                173L  7C    0m  CC=0.0    ←0
-  │ !! record.ts                  172L  2C    9m  CC=18     ←0
   │ task-synthesis-materialize.ts   172L  0C   35m  CC=5      ←0
   │ typescript.ts              172L  6C   16m  CC=2      ←0
   │ ast.ts                     167L  2C   15m  CC=12     ←0
   │ id.ts                      167L  0C   16m  CC=5      ←0
-  │ !! typescript.ts              166L  0C   19m  CC=43     ←0
   │ a2a-types.ts               164L  9C   14m  CC=10     ←0
+  │ nl-llm.ts                  163L  2C   19m  CC=10     ←0
   │ !! git.ts                     161L  3C   21m  CC=22     ←0
   │ intake-store.ts            161L  3C   19m  CC=11     ←0
   │ markdown-paths.ts          158L  2C   22m  CC=12     ←0
@@ -216,11 +217,12 @@ LAYERS:
   │ types.ts                   155L  8C    0m  CC=0.0    ←0
   │ docs-chunks.ts             147L  0C   29m  CC=8      ←0
   │ !! identity.ts                146L  3C   22m  CC=30     ←0
+  │ symbol-resolution.ts       146L  3C   22m  CC=10     ←0
   │ content-cache.ts           139L  4C   12m  CC=5      ←0
+  │ classifier.ts              135L  4C   32m  CC=6      ←0
   │ gold-extraction.ts         127L  0C   13m  CC=5      ←0
   │ !! intake-protobuf.ts         125L  0C   23m  CC=18     ←0
   │ subactor.ts                122L  1C    9m  CC=13     ←0
-  │ !! symbol-resolution.ts       120L  3C   16m  CC=15     ←0
   │ validation.ts              113L  2C   28m  CC=11     ←0
   │ validation.ts              111L  0C   11m  CC=7      ←0
   │ nl.ts                      107L  1C   12m  CC=10     ←0
@@ -228,7 +230,6 @@ LAYERS:
   │ svg.ts                     104L  2C    7m  CC=2      ←0
   │ changelog.ts                99L  0C   16m  CC=11     ←0
   │ records.ts                  97L  0C   10m  CC=6      ←0
-  │ !! classifier.ts               96L  4C   27m  CC=17     ←0
   │ todo.ts                     93L  0C   18m  CC=5      ←0
   │ changelog-signal.ts         89L  0C   12m  CC=8      ←0
   │ mcp-resources.ts            88L  0C   13m  CC=6      ←0
@@ -240,6 +241,7 @@ LAYERS:
   │ task-synthesis-contract.ts    66L  3C    6m  CC=1      ←0
   │ artifact.ts                 66L  2C   10m  CC=6      ←0
   │ payload.ts                  65L  0C    8m  CC=12     ←0
+  │ communication.ts            63L  1C    7m  CC=7      ←0
   │ capability-evidence.ts      62L  0C   14m  CC=10     ←0
   │ render.ts                   61L  0C   13m  CC=10     ←0
   │ target.ts                   57L  0C   12m  CC=9      ←0
@@ -280,6 +282,7 @@ LAYERS:
   │ index.ts                     4L  0C    0m  CC=0.0    ←0
   │ version.ts                   2L  0C    0m  CC=0.0    ←0
   │ version.ts                   2L  0C    0m  CC=0.0    ←0
+  │ !! implementation.ts            1L  10C  127m  CC=47     ←3
   │ index.ts                     1L  0C    0m  CC=0.0    ←0
   │ llm.ts                       1L  0C    0m  CC=0.0    ←0
   │
@@ -418,9 +421,9 @@ COUPLING:
                java                                    ←2                                                                                                                ──                   
   examples.frontend                                    ←1                                                                                                                                   ──
   CYCLES: none
-  HUB: src.live/ (fan-in=7)
-  HUB: src.synthesis/ (fan-in=5)
   HUB: src.diff/ (fan-in=6)
+  HUB: src.synthesis/ (fan-in=5)
+  HUB: src.live/ (fan-in=7)
   SMELL: scripts.research/ fan-out=11 → split needed
   SMELL: sdk.python/ fan-out=8 → split needed
 

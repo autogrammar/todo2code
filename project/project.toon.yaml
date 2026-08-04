@@ -1,8 +1,8 @@
-# todo2code | 3586 func | 166f | 39601L | typescript | 2026-08-04
+# todo2code | 3683 func | 171f | 39185L | typescript | 2026-08-04
 # generated in 0.00s
 
 HEALTH:
-  CC̄=3.8  critical=279 (limit:10)  dup=28  cycles=0
+  CC̄=3.6  critical=256 (limit:10)  dup=28  cycles=0
 
 ALERTS[20]:
   !!! cc_exceeded      assertOperationPlan = 84 (limit:15)
@@ -14,39 +14,39 @@ ALERTS[20]:
   !!! cc_exceeded      runPipeline = 56 (limit:15)
   !!! high_fan_out     runPipeline = 56 (limit:10)
   !!! cc_exceeded      diffUiHtml = 52 (limit:15)
-  !!! cc_exceeded      extractCommunicationFile = 50 (limit:15)
+  !!! cc_exceeded      analyzeCommunication = 48 (limit:15)
 
-MODULES[246] (top by size):
+MODULES[251] (top by size):
   M[evaluation/gold/v2/dataset.json] 2410L C:0 F:0 CC↑0 D:0 (json)
-  M[src/synthesis/code-change-plan/implementation.ts] 1310L C:10 F:127 CC↑47 D:3 (typescript)
-  M[src/cli.ts] 908L C:1 F:118 CC↑13 D:0 (typescript)
+  M[src/cli.ts] 935L C:1 F:124 CC↑13 D:0 (typescript)
   M[evaluation/gold/v1/dataset.json] 761L C:0 F:0 CC↑0 D:0 (json)
-  M[src/services/actions.ts] 700L C:0 F:74 CC↑83 D:0 (typescript)
+  M[src/services/actions.ts] 737L C:1 F:79 CC↑83 D:0 (typescript)
   M[src/diff/reality.ts] 619L C:3 F:74 CC↑26 D:0 (typescript)
   M[src/pipeline/run.ts] 617L C:1 F:65 CC↑56 D:0 (typescript)
   M[schemas/gold-dataset.schema.json] 585L C:0 F:0 CC↑0 D:0 (json)
   M[src/interfaces/a2a-task-store.ts] 560L C:3 F:88 CC↑11 D:0 (typescript)
   M[src/communication/analyzer.ts] 542L C:3 F:72 CC↑48 D:0 (typescript)
+  M[src/graph/linker.ts] 537L C:4 F:81 CC↑10 D:3 (typescript)
   M[goal.yaml] 530L C:0 F:0 CC↑0 D:0 (yaml)
-  M[src/extractors/communication.ts] 515L C:5 F:76 CC↑50 D:0 (typescript)
-  M[src/communication/llm/implementation.ts] 514L C:8 F:53 CC↑12 D:0 (typescript)
-  M[src/core/text.ts] 491L C:0 F:51 CC↑34 D:0 (typescript)
-  M[src/graph/linker.ts] 489L C:4 F:72 CC↑18 D:3 (typescript)
-  LANGS: typescript:138/json:40/python:16/javascript:15/shell:8/rust:7/go:6/php:4/toml:3/other:2/yml:2/yaml:2/java:1/txt:1/proto:1
+  M[src/core/text.ts] 517L C:0 F:57 CC↑34 D:0 (typescript)
+  M[sdk/python/todo2code/client.py] 469L C:7 F:45 CC↑7 D:0 (python)
+  M[src/graph/diagnostics.ts] 459L C:1 F:58 CC↑11 D:0 (typescript)
+  M[sdk/typescript/src/index.ts] 420L C:14 F:45 CC↑8 D:0 (typescript)
+  LANGS: typescript:143/json:40/python:16/javascript:15/shell:8/rust:7/go:6/php:4/toml:3/other:2/yml:2/yaml:2/java:1/txt:1/proto:1
 
 HOTSPOTS[10]:
   ★ executeAction fan=65  // Orchestrates 65 calls
   ★ root fan=64  // Orchestrates 64 calls
   ★ runPipeline fan=56  // Orchestrates 56 calls
-  ★ extractTypeScriptFile fan=44  // Orchestrates 44 calls
   ★ diffUiHtml fan=42  // Orchestrates 42 calls
+  ★ compareWorkspaceIntent fan=40  // Orchestrates 40 calls
 
 REFACTOR[15]:
-  [1] H/L Split extractCommunicationFile (CC=50)
-  [2] H/L Split extractTypeScriptFile (CC=43)
-  [3] H/L Split visit (CC=25)
-  [4] H/L Split diagnoseGraph (CC=40)
-  [5] H/L Split neighbors (CC=35)
+  [1] H/L Split executeAction (CC=83)
+  [2] H/L Split root (CC=83)
+  [3] H/L Split normalized (CC=30)
+  [4] H/L Split inferObject (CC=34)
+  [5] H/L Split diffUiHtml (CC=52)
 
 EVOLUTION:
-  2026-08-04 CC̄=3.8 crit=279 39601L // Automated analysis
+  2026-08-04 CC̄=3.6 crit=256 39185L // Automated analysis

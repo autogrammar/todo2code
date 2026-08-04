@@ -1,4 +1,4 @@
-# code2llm/evolution | 3283 func | 132f | 2026-08-04
+# code2llm/evolution | 3374 func | 137f | 2026-08-04
 # generated in 0.01s
 
 NEXT[10] (ranked by impact):
@@ -34,13 +34,13 @@ NEXT[10] (ranked by impact):
       WHY: CC=63 exceeds 15
       EFFORT: ~1h  IMPACT: 2079
 
-  [9] !! SPLIT-FUNC      extractTypeScriptFile  CC=43  fan=44
-      WHY: CC=43 exceeds 15
-      EFFORT: ~1h  IMPACT: 1892
-
-  [10] !! SPLIT-FUNC      analyzeCommunication  CC=48  fan=35
+  [9] !! SPLIT-FUNC      analyzeCommunication  CC=48  fan=35
       WHY: CC=48 exceeds 15
       EFFORT: ~1h  IMPACT: 1680
+
+  [10] !! SPLIT-FUNC      applyCodeChangeSourcePatch  CC=41  fan=35
+      WHY: CC=41 exceeds 15
+      EFFORT: ~1h  IMPACT: 1435
 
 
 RISKS[3]:
@@ -49,10 +49,10 @@ RISKS[3]:
   ⚠ Splitting src/cli.ts may break 124 import paths
 
 METRICS-TARGET:
-  CC̄:          3.9 → ≤2.7
+  CC̄:          3.7 → ≤2.6
   max-CC:      84 → ≤20
   god-modules: 13 → 0
-  high-CC(≥15): 99 → ≤49
+  high-CC(≥15): 79 → ≤39
   hub-types:   0 → ≤0
 
 PATTERNS (language parser shared logic):
@@ -80,4 +80,4 @@ PATTERNS (language parser shared logic):
     - Standardized FunctionInfo/ClassInfo models
 
 HISTORY:
-  prev CC̄=3.9 → now CC̄=3.9
+  prev CC̄=3.7 → now CC̄=3.7

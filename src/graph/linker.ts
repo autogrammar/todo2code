@@ -350,29 +350,67 @@ function scorePair(
   const basis: string[] = [];
   const leftKeywords = index.get(left.id);
   const rightKeywords = index.get(right.id);
-  if (intersects(left.statement.target.tickets, right.statement.target.tickets)) {
-    score += 0.62;
-    basis.push('shared_ticket');
-  }
-  const resolvedNlAstSymbol = hasResolvedNlAstSymbolPair(left, right, symbolResolutionIndex);
-  if ((resolvedNlAstSymbol ?? intersectsAliases(left.statement.target.symbols, right.statement.target.symbols, symbolAliases))) {
-    score += 0.48;
-    basis.push('shared_symbol');
-  }
-  if (pathsIntersect(left.statement.target.paths, right.statement.target.paths, resolvableBasenames)) {
-    score += 0.28;
-    basis.push('shared_path');
-    if (isFileAggregateEvidencePair(left, right)) {
-      score += 0.24;
-      basis.push('module_coverage');
-      const capabilityOverlap = aggregateCapabilityOverlap(left, right);
-      if (capabilityOverlap > 0) basis.push(`capability_overlap:${capabilityOverlap}`);
-    }
-  }
-  if (left.statement.action === right.statement.action && left.statement.action !== 'unknown') {
-    score += 0.13;
-    basis.push('same_action');
-  }
+  score += scoreSharedTickets(left, right, basis);
+  score += scoreSharedSymbol(left, right, symbolResolutionIndex, basis);
+  score += scoreSharedPath(left, right, resolvableBasenames, basis);
+  score += scoreSameAction(left, right, basis);
+  const objectSimilarity = scoreObjectSimilarity(leftKeywords, rightKeywords, basis);
+  score += scoreSharedTopics(left, right, leftKeywords, rightKeywords, basis);
+  score += scoreSourceKindPenalty(left, right);
+  return {
+    score: Math.max(0, score),
+    basis: [...new Set(basis)].sort(),
+    textScore: objectSimilarity,
+  };
+}
+
+function scoreSharedTickets(left: IntentRecord, right: IntentRecord, basis: string[]): number {
+  if (!intersects(left.statement.target.tickets, right.statement.target.tickets)) return 0;
+  basis.push('shared_ticket');
+  return 0.62;
+}
+
+function scoreSharedSymbol(
+  left: IntentRecord,
+  right: IntentRecord,
+  symbolResolutionIndex: SymbolResolutionIndex,
+  basis: string[],
+): number {
+  const hasResolvedSymbol = hasResolvedNlAstSymbolPair(left, right, symbolResolutionIndex);
+  const hasSharedAlias = intersectsAliases(left.statement.target.symbols, right.statement.target.symbols, symbolAliases);
+  if (!(hasResolvedSymbol ?? hasSharedAlias)) return 0;
+  basis.push('shared_symbol');
+  return 0.48;
+}
+
+function scoreSharedPath(
+  left: IntentRecord,
+  right: IntentRecord,
+  resolvableBasenames: Set<string>,
+  basis: string[],
+): number {
+  if (!pathsIntersect(left.statement.target.paths, right.statement.target.paths, resolvableBasenames)) return 0;
+  let points = 0.28;
+  basis.push('shared_path');
+  if (!isFileAggregateEvidencePair(left, right)) return points;
+  points += 0.24;
+  basis.push('module_coverage');
+  const capabilityOverlap = aggregateCapabilityOverlap(left, right);
+  if (capabilityOverlap > 0) basis.push(`capability_overlap:${capabilityOverlap}`);
+  return points;
+}
+
+function scoreSameAction(left: IntentRecord, right: IntentRecord, basis: string[]): number {
+  if (!(left.statement.action === right.statement.action && left.statement.action !== 'unknown')) return 0;
+  basis.push('same_action');
+  return 0.13;
+}
+
+function scoreObjectSimilarity(
+  leftKeywords: RecordKeywords | undefined,
+  rightKeywords: RecordKeywords | undefined,
+  basis: string[],
+): number {
   const objectSimilarity = leftKeywords && rightKeywords
     ? Math.max(
       jaccard(leftKeywords.object, rightKeywords.object),
@@ -380,21 +418,31 @@ function scorePair(
     )
     : 0;
   if (objectSimilarity >= 0.2) {
-    score += objectSimilarity * 0.48;
     basis.push(`text_similarity:${objectSimilarity.toFixed(3)}`);
+    return objectSimilarity * 0.48;
   }
-  if (isModuleTopicEvidencePair(left, right) && leftKeywords && rightKeywords) {
-    const sharedTopics = intersectionSize(leftKeywords.topics, rightKeywords.topics);
-    // Two generic words still connected one declaration to dozens of modules
-    // in the measured repository. Three independently normalised topics keeps
-    // prose-only matching useful while retaining a precision-oriented floor.
-    if (sharedTopics >= 3) {
-      score += Math.min(0.64, 0.32 + sharedTopics * 0.08);
-      basis.push(`module_topic:${sharedTopics}`);
-    }
-  }
-  if (left.source.kind === right.source.kind) score -= 0.08;
-  return { score: Math.max(0, score), basis: [...new Set(basis)].sort(), textScore: objectSimilarity };
+  return 0;
+}
+
+function scoreSharedTopics(
+  left: IntentRecord,
+  right: IntentRecord,
+  leftKeywords: RecordKeywords | undefined,
+  rightKeywords: RecordKeywords | undefined,
+  basis: string[],
+): number {
+  if (!isModuleTopicEvidencePair(left, right) || !leftKeywords || !rightKeywords) return 0;
+  const sharedTopics = intersectionSize(leftKeywords.topics, rightKeywords.topics);
+  // Two generic words still connected one declaration to dozens of modules
+  // in the measured repository. Three independently normalised topics keeps
+  // prose-only matching useful while retaining a precision-oriented floor.
+  if (sharedTopics < 3) return 0;
+  basis.push(`module_topic:${sharedTopics}`);
+  return Math.min(0.64, 0.32 + sharedTopics * 0.08);
+}
+
+function scoreSourceKindPenalty(left: IntentRecord, right: IntentRecord): number {
+  return left.source.kind === right.source.kind ? -0.08 : 0;
 }
 
 function intersectionSize(left: Set<string>, right: Set<string>): number {
