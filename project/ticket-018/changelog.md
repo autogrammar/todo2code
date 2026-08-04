@@ -11,6 +11,9 @@
   workflow, application, test, build or human-owned file was changed.
 - Human approved AC-36..AC-40; transitioned to `IN_PROGRESS / EDIT` before
   changing managed governance or workflow configuration.
+- Replaced the executable Koru judge with `openrouter/z-ai/glm-5.2` and updated
+  current guidance without rewriting historical Gemini evidence or making a
+  live provider request.
 
 ## [0.4.1] - 2026-08-04
 

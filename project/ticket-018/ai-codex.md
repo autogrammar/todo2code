@@ -245,6 +245,9 @@ Current verified baseline:
   envelope.
 - Human approved AC-36..AC-40 on 2026-08-04. The follow-up entered
   `IN_PROGRESS / EDIT` before managed governance or workflow implementation.
+- Replaced only the executable Koru `REVIEW_MODEL` with
+  `openrouter/z-ai/glm-5.2`; retained historical Gemini evidence and made no
+  provider request.
 
 ## Blockers
 

@@ -77,10 +77,11 @@ security checks, attempts Vallm syntax analysis, and uses an OpenRouter
 semantic judge supplied by the existing organization-level
 `OPENROUTER_API_KEY` secret.
 
-The semantic judge is `google/gemini-3.1-pro-preview`, selected from the current
-live `llm-code-benchmark/v1` report because it is the only compared model that
-qualified for both repair and validation (repair 1.000, validation 0.929,
-security 1.000 and availability 100%). Vallm's Python-oriented `--regression`
+The historical semantic judge was `google/gemini-3.1-pro-preview`, selected
+from the then-current `llm-code-benchmark/v1` report. The current executable
+judge is `openrouter/z-ai/glm-5.2`, selected by the human owner to bound review
+cost. This is a configuration decision, not a fabricated benchmark claim;
+no paid comparison was run. Vallm's Python-oriented `--regression`
 mode is intentionally not used for TypeScript: the separate required `verify`
 job owns TypeScript compilation and the repository's 335-test regression
 suite. Koru remains the read-only semantic, complexity and security review
@@ -180,9 +181,8 @@ for 0.10.0 that combines bounded delivery with the corrected active/non-active
 state model. Then run adoption in `--check` mode, review the managed-file plan,
 apply the explicit upgrade and regenerate lock hashes against that exact SHA.
 
-The executable Koru judge currently uses costly
-`openrouter/google/gemini-3.1-pro-preview`. Per the user's cost decision it will
-use `openrouter/z-ai/glm-5.2`. Historical benchmark logs remain unchanged as
+The executable Koru judge now uses `openrouter/z-ai/glm-5.2` per the user's
+cost decision. Historical Gemini benchmark logs remain unchanged as
 historical evidence. No live OpenRouter request or new paid comparison belongs
 to this migration.
 

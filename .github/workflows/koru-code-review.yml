@@ -32,7 +32,7 @@ jobs:
     env:
       KORU_VERSION: '0.1.444'
       VALLM_VERSION: '0.1.94'
-      REVIEW_MODEL: openrouter/google/gemini-3.1-pro-preview
+      REVIEW_MODEL: openrouter/z-ai/glm-5.2
       VALLM_REVIEW_MAX_TOKENS: '8192'
       VALLM_REVIEW_TIMEOUT_SECONDS: '420'
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

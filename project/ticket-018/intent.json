@@ -90,7 +90,7 @@
       },
       {
         "criterion": "AC-39",
-        "commands": ["npm run test:workflow"],
+        "commands": ["npm run verify:workflows"],
         "evidence": "Koru workflow uses openrouter/z-ai/glm-5.2 and preserves its deterministic fail-closed envelope"
       }
     ]
