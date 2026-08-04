@@ -14,3 +14,5 @@
   directory depth without changing prompt contents or LLM policy.
 - Focused communication LLM tests pass 3/3 and the two targeted full-suite
   failures are removed.
+- Combined tickets 030-033 implementation verification passes all 337 runnable
+  tests on a clean build.

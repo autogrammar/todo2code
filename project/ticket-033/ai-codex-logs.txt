@@ -10,3 +10,5 @@
   failures removed, remaining failures belong to tickets 030/031/032.
 - `git diff --check`: PASS.
 - `make governance`: four inherited ticket-018/ticket-019 errors, no ticket-033 finding.
+- Combined implementation-only integration on `caf6551`: build PASS; full suite
+  PASS (338 total, 337 pass, 0 fail, 1 JDK skip).

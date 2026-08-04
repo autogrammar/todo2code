@@ -58,3 +58,6 @@ allowed and expected implementation time is under 30 minutes.
 - `git diff --check`: PASS.
 - `make governance`: only four inherited ticket-018/ticket-019 diagnostics;
   no ticket-033 scope or workstream finding.
+- Ephemeral integration of implementation commits `9c25942`, `bbd236f`,
+  `c5db5fb` and `f96c0a8` over base `caf6551`: clean build PASS; full suite
+  338 tests, 337 passed, 0 failed and one environment-dependent JDK skip.

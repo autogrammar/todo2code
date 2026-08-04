@@ -33,6 +33,9 @@ tests and does not indicate provider or schema failure.
 - Clean build and all three focused communication LLM tests pass, including
   correction retry and strict require-mode behavior. The isolated full suite
   no longer contains either prompt-resolution failure.
+- Verified the four sibling implementation commits together in a detached,
+  uncommitted integration worktree: build passes and all 337 runnable tests
+  pass. This is test evidence, not merge approval.
 
 ## Blockers
 
