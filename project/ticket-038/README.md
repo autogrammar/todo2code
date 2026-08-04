@@ -3,8 +3,8 @@
 - **ID**: ticket-038
 - **Issue**: [#37](https://github.com/semcod/todo2code/issues/37)
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -34,9 +34,9 @@ separate Goal, Koru and Validator follow-up workstreams.
 - [x] AC-03: The correction preserves the boundary around separate
       cross-repository follow-up work.
 - [x] AC-04: Governance and repository verification pass.
-- [ ] AC-05: An autonomous exact-head review uses
+- [x] AC-05: An autonomous exact-head review uses
       `openrouter/z-ai/glm-5.2` before protected merge.
-- [ ] AC-06: Completion evidence is recorded and issue #37 is closed.
+- [x] AC-06: Completion evidence is recorded and issue #37 is closed.
 
 ## Local verification evidence
 
@@ -45,6 +45,12 @@ separate Goal, Koru and Validator follow-up workstreams.
   analysis, structured responses and generated schemas all passed.
 - Governance: 0 errors, 0 warnings.
 - `git diff --check`: passed.
+- Koru: passed exact head `670894d7011b9af4a5ef9bbb0a7859a643d813e4`.
+- Validator run
+  [30952157041](https://github.com/subactor/validator-agent/actions/runs/30952157041):
+  exact-head approval with `openrouter/z-ai/glm-5.2`, advisory verdict
+  `APPROVE`, no findings.
+- Protected PR #40 merged as `main@ed35d3f`; issue #37 closed.
 
 ## Participants
 
