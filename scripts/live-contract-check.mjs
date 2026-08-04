@@ -63,11 +63,16 @@ async function main() {
   });
   const { audit } = recorded;
 
-  await writeJson(auditPath(), audit);
-  await writeJson(historyPath(), recorded.history);
+  const { auditFile, historyFile } = liveContractArtifactPaths();
+  await writeLiveContractArtifacts({
+    audit,
+    history: recorded.history,
+    auditFile,
+    historyFile,
+  });
   process.stdout.write(`${renderLiveReport(audit)}\n`);
-  process.stdout.write(`audit: ${path.relative(REPO_ROOT, auditPath())}\n`);
-  process.stdout.write(`history: ${path.relative(REPO_ROOT, historyPath())}\n`);
+  process.stdout.write(`audit: ${path.relative(REPO_ROOT, auditFile)}\n`);
+  process.stdout.write(`history: ${path.relative(REPO_ROOT, historyFile)}\n`);
 
   if (!audit.passed) process.exitCode = 1;
 }
@@ -144,6 +149,23 @@ async function readFailedLiveManifest(runsRoot, startedAt) {
 
 function resolveLiveRunOutput() {
   return process.env.T2C_LIVE_RUN_OUTPUT ?? DEFAULTS.runOutput;
+}
+
+function liveContractArtifactPaths() {
+  return {
+    auditFile: auditPath(),
+    historyFile: historyPath(),
+  };
+}
+
+async function writeLiveContractArtifacts({
+  audit,
+  history,
+  auditFile,
+  historyFile,
+}) {
+  await writeJson(auditFile, audit);
+  await writeJson(historyFile, history);
 }
 
 function prepareLiveRunConfig({ root, budget, liveRequestTimeoutMs, getConfig }) {
