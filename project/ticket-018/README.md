@@ -51,6 +51,15 @@ existing ticket.
 - Application source changes are excluded unless a focused test proves they
   are necessary for the deterministic `todo2code` governance command.
 
+## Planned generated-analysis normalization
+
+The current verification gate found a volatile `/tmp/t2c-analysis.*` worktree
+root embedded in tracked generated analysis. This follow-up assigns exactly
+`project/README.md`, `project/analysis.toon.yaml` and `project/index.html` to
+the governance workstream, runs the existing deterministic root normalizer,
+and verifies that no temporary analysis root remains. It does not regenerate
+the analysis and does not run `project2.sh`.
+
 ## Planned multi-agent contract
 
 - Extend the manifest with named workstreams, owned path patterns and a policy
@@ -164,6 +173,13 @@ agent self-approved.
 - [x] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
       `npm run verify`, governance and relevant Docker checks pass; the
       pre-existing ticket-019 findings remain separately attributed.
+- [ ] AC-26: The governance manifest and ticket intent explicitly own only the
+      three tracked generated-analysis artifacts that require normalization.
+- [ ] AC-27: The existing deterministic normalizer replaces every persisted
+      temporary analysis root without regenerating analysis or running
+      `project2.sh`.
+- [ ] AC-28: `verify:generated-analysis`, governance and the complete project
+      verification pass on the repaired aggregate branch.
 
 ## Participants
 

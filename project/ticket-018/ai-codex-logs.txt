@@ -233,3 +233,12 @@ bypass actors: none
 current_user_can_bypass: never
 rules: pull request, dismiss stale reviews, block deletion/force-push,
 strict required checks governance / enforce and koru / code-review
+
+2026-08-04 GENERATED ANALYSIS NORMALIZATION PLAN
+npm run verify:generated-analysis: FAIL
+finding: project/index.html contains a temporary analysis path
+scope: project/README.md, project/analysis.toon.yaml, project/index.html
+method: existing deterministic normalizer; no regeneration; no project2.sh
+state: WAIT_FOR_APPROVAL
+user response: kontynuuj
+transition authorized: WAIT_FOR_APPROVAL -> EDIT for AC-26..AC-28

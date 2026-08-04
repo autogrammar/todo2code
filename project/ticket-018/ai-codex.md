@@ -98,6 +98,14 @@ Current verified baseline:
     workflow validation, existing Node/Docker gates and scoped governance.
 20. Configure a `main` ruleset requiring governance and Koru review only after
     the check exists; verify direct pushes and stale evidence are rejected.
+21. Record the exact generated-analysis normalization scope and stop at
+    `WAIT_FOR_APPROVAL` before changing the manifest or generated artifacts.
+22. Assign `project/README.md`, `project/analysis.toon.yaml` and
+    `project/index.html` to the governance workstream and ticket intent.
+23. Run the existing deterministic root normalizer without regenerating the
+    analysis and without invoking `project2.sh`.
+24. Verify the focused generated-analysis gate, governance and the complete
+    repaired aggregate.
 
 ## Actual changes
 
@@ -174,3 +182,6 @@ Current verified baseline:
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
+- The current follow-up is planned as AC-26..AC-28 in
+  `WAIT_FOR_APPROVAL`. The user's `kontynuuj` response authorizes this exact
+  interactive implementation scope, but remains insufficient merge evidence.
