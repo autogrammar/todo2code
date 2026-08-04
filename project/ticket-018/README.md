@@ -247,7 +247,7 @@ existing README/runbook/permissions documentation. No application source in
       and mutable/unpinned heads are rejected.
 - [x] AC-39: Focused negative/positive tests, both complete repository suites,
       governance, Java, gold, SDK examples and Docker smoke pass.
-- [ ] AC-40: After a separately trusted bootstrap review merges the policy,
+- [x] AC-40: After a separately trusted bootstrap review merges the policy,
       the real Validator App reviews PR #13 at its exact SHA and the rerun
       proves `governance / enforce` accepts that independent agent evidence.
 

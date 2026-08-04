@@ -205,6 +205,13 @@ Current verified baseline:
   Approval evidence is generated in `runner.temp` and bound to repository, PR,
   current head, ticket and actor. The earlier checkout-owned resolver is detached
   from CI and retained only until the tracked generated-analysis index is refreshed.
+- Completed AC-40 after App installation. Validator run `30925171580` approved
+  PR #13 at exact head `68b0c0985f0aa95f8a41e252399491fe7aea29ca`, and
+  post-review run `30925337717` proved the protected governance resolver accepted
+  the App evidence. A later read-only historical audit fixed the previously
+  truncated semantic input and reviewed all 29,170 diff characters across 12
+  files in three non-overlapping chunks; run `30926415029` returned `APPROVE`
+  without creating a review, comment, commit or merge.
 
 ## Blockers
 
