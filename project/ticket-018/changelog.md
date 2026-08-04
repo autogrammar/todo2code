@@ -26,6 +26,12 @@
 - Bound trusted App evidence to the exact active `ticket-NNN` and safe
   correlation ID recorded in the current-head review body; human review
   behavior remains unchanged.
+- Adopted central standard 0.9.0 at immutable commit `78b3652`, including the
+  reusable protected resolver and ephemeral current-event approval evidence.
+- Verified PR #14 remotely: Koru v2, Node/Docker verification and required Java
+  passed. Live Validator run `30918035304` stopped before review because the App
+  is not installed in `semcod/todo2code`; ticket state moved to `BLOCKED` and
+  releases its reservation until that external installation is completed.
 
 ## [0.5.0] - 2026-08-04
 

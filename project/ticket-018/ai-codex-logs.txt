@@ -317,3 +317,13 @@ legacy checkout-owned resolver: detached from CI; retained for generated-analysi
 historical trusted App reviews resolve the exact login as
 ifuri-validator-agent[bot]; corrected the manifest and workflow default from
 the earlier unverified if-uri-validator-agent[bot] spelling
+2026-08-04 PR #14 HOSTED VALIDATION
+head: 646cea89582633f99ce0ef549811771023ee25de
+verify: PASS; Java adapter: PASS; koru / code-review v2: PASS
+governance: expected GOV-APPROVAL-001/002 only, pending independent review
+validator-agent run: 30918035304 at main 431ba7936d759f45da9670eb80010b2dfc7074f2
+validator tests: PASS
+repository-scoped App token: BLOCKED before validation
+GitHub API: GET /repos/semcod/todo2code/installation -> 404 Not Found
+required external action: install ifuri-validator-agent on semcod/todo2code only
+state: IN_PROGRESS -> BLOCKED; reservation released until installation

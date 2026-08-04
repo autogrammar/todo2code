@@ -214,16 +214,21 @@ Current verified baseline:
 - `GOV-SCOPE-001`: the same commit contains eight implementation/generated
   paths not allowed by ticket-018. They must be routed to their actual ticket,
   not retroactively claimed here.
-- Central `new-project` 0.7.0 is uncommitted/unpublished, so no honest immutable
-  reusable-workflow SHA exists yet.
+- Central standard 0.9.0 is published at immutable commit
+  `78b365272b5b258931f9a66d7124122ec19d7814`; its PR #2 is green and still
+  awaits an independent merge review.
+- Live Validator run `30918035304` proved the dedicated App credentials are
+  valid but the App has no installation for `semcod/todo2code`; repository-
+  scoped token creation failed closed with GitHub API 404 before validation.
 - The earlier AC-17 Rust lock failure no longer reproduces on current HEAD:
   locked Cargo fetch and full Docker E2E pass without a governance-owned SDK
   edit.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / VALIDATION`. AC-11..AC-29 and application/full
-  Docker validation pass; the earlier publication/external blockers remain.
+- Current state: `BLOCKED / VALIDATION`. Local and hosted deterministic checks
+  pass; the write-scope reservation is released while the Validator App awaits
+  installation on the single target repository.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
@@ -234,4 +239,4 @@ Current verified baseline:
   The user's request authorizes planning and policy evolution; executable edits
   begin only after explicit approval of this exact allowlist/direct-PR design.
 - The user explicitly approved AC-30..AC-40 on 2026-08-04. Current state:
-  `IN_PROGRESS / VALIDATION`; protected merge evidence remains independent.
+  `BLOCKED / VALIDATION`; protected merge evidence remains independent.
