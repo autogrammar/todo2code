@@ -61,8 +61,17 @@ In particular, no public interface or cross-repository adapter is implied.
 ## Actual changes
 
 - Governance scaffold and implementation plan approved by the user.
-- Implementation is entering the bounded `EDIT` state.
+- Added `src/services/branch-snapshot.ts` with strict input validation, exact
+  double-read ref capture, topology/patch evidence, isolated merge-tree
+  inspection and canonical fingerprinting.
+- Added `test/git-branch-snapshot.test.ts` with an offline seven-branch fixture
+  covering disjoint work, textual conflict, equivalent patches, a contained
+  behind-base branch, invalid inputs, determinism, ref movement and cleanup.
+- Repaired the unique-work range from `base..head` to `merge-base..head` after
+  the live `wellmanifest/new-project` audit showed reverse patch IDs on fully
+  contained branches.
+- Host, Docker, governance, complexity and live read-only validation pass.
 
 ## Blockers
 
-- None at implementation start.
+- Protected Koru and Validator exact-head review remain before publication.

@@ -5,7 +5,8 @@
 - [ ] [`ticket-039`](project/ticket-039/README.md) — bounded, read-only local
   Git materializer for exact branch/tree/merge-base/ahead-behind, stable patch
   identity and textual collision evidence. Current state:
-  `IN_PROGRESS / EDIT`.
+  `IN_PROGRESS / VALIDATION`; implementation `1391dd0` passes focused, full
+  host, Docker, governance, complexity and live read-only branch checks.
 
 ## Backlog tickets
 

@@ -3,7 +3,7 @@
 - **ID**: ticket-039
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal
@@ -30,7 +30,8 @@ already exist in the supplied repository. It must:
 - reject duplicate, symbolic, missing, option-like or over-limit inputs;
 - sort candidates independently of caller/ref enumeration order;
 - resolve exact tree and merge-base SHAs plus ahead/behind counts;
-- calculate stable patch identity from the base-to-head changeset;
+- calculate stable patch identity from the unique merge-base-to-head
+  changeset;
 - short-circuit disjoint changed-path sets as textually clean;
 - inspect possible collisions in an isolated temporary object directory;
 - re-resolve base and candidate refs before returning and reject any movement;
@@ -73,25 +74,26 @@ ticket-037 projector.
 
 - [x] AC-01: A human approves this exact read-only input/output and delivery
       boundary.
-- [ ] AC-02: The service rejects a non-repository root, malformed repository
+- [x] AC-02: The service rejects a non-repository root, malformed repository
       identity, unsafe/missing/symbolic refs, duplicate candidates and more
       than 32 candidates.
-- [ ] AC-03: Base and candidate commit/tree/merge-base SHAs and ahead/behind
+- [x] AC-03: Base and candidate commit/tree/merge-base SHAs and ahead/behind
       counts match independent Git commands in an offline fixture repository.
-- [ ] AC-04: Equivalent cherry-picked changes produce the same stable patch
-      identity even when commit SHAs differ; an empty changeset uses `null`.
-- [ ] AC-05: Disjoint paths are `clean`, a real overlapping textual collision
+- [x] AC-04: Equivalent cherry-picked changes produce the same stable patch
+      identity even when commit SHAs differ; a contained branch with no unique
+      merge-base-to-head changeset uses `null`.
+- [x] AC-05: Disjoint paths are `clean`, a real overlapping textual collision
       is `conflict`, and an unavailable/ambiguous merge check is `unknown`.
-- [ ] AC-06: Ref input order and generated time cannot alter the canonical
+- [x] AC-06: Ref input order and generated time cannot alter the canonical
       fingerprint; moving any ref during capture fails closed.
-- [ ] AC-07: Success and injected failure leave the caller's HEAD, index,
+- [x] AC-07: Success and injected failure leave the caller's HEAD, index,
       working tree, refs and object directory unchanged and remove temporary
       state.
-- [ ] AC-08: The output contains no absolute path, credential, token, command,
+- [x] AC-08: The output contains no absolute path, credential, token, command,
       approval flag, semantic completeness claim or mutation instruction.
-- [ ] AC-09: Focused tests, full offline verification, governance, Lizard and
+- [x] AC-09: Focused tests, full offline verification, governance, Lizard and
       Docker core E2E pass without network access or an LLM.
-- [ ] AC-10: Per-tree todo2code analysis, semantic assembly, PR metadata and
+- [x] AC-10: Per-tree todo2code analysis, semantic assembly, PR metadata and
       CLI/MCP/A2A/Goal/Koru/Validator integration remain explicit follow-ups.
 
 ## Participants
@@ -105,3 +107,40 @@ The user explicitly approved continuation and testing of ticket-039 on
 2026-08-05 after reviewing the initialized plan. Chat approval authorizes only
 the bounded interactive edit. A protected exact-head review or verified
 attestation remains required merge evidence.
+
+## Validation result
+
+- Implementation commit:
+  `1391dd0ba6813dde902627f92f970388ebf60b5c`.
+- Focused command:
+  `npm run build && node --test dist/test/git-branch-snapshot.test.js` —
+  5 passed, 0 failed, 0 skipped.
+- Full host `npm run verify`: 368 passed, 1 environment-dependent JDK skip,
+  0 failed.
+- Docker core E2E: 362 passed, 7 missing-toolchain skips, 0 failed; gold v1/v2
+  and the remaining deterministic smoke gates completed successfully.
+- Lizard over both implementation files: 603 NLOC, maximum observed CC 9 and
+  zero CC/length/argument threshold violations.
+- Governance: `GOV-PASS` with 0 errors and 0 warnings.
+- No dependency manifest, public interface, LLM boundary or environment
+  contract changed.
+
+## Live read-only audit
+
+The built materializer was run in a disposable fresh clone of
+`wellmanifest/new-project` against exact base
+`13c2f8e21a243fbbd6ea243b173305b0368a9729`. It produced fingerprint
+`b9672aca66b1d1590489c23ab06e130218df4cfc16610c975b254c3e44b58c5e`:
+
+- `feat/bounded-delivery-contract`: 7 ahead, 34 behind, 18 unique changed
+  paths and a textual conflict with the selected base;
+- `plan/governance-010-sync`: 0 ahead, 13 behind, no unique paths and
+  `patchId=null`;
+- `ticket/003-validator-approval-evidence`: 0 ahead, 31 behind, no unique
+  paths and `patchId=null`.
+
+The first live pass exposed and the implementation repaired an incorrect
+`base..head` patch identity for contained branches. The final logic uses
+`merge-base..head`, so work already contained in the base is not presented as
+a reverse patch. The audit created no persistent local checkout and made no
+remote mutation.

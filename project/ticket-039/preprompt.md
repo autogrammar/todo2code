@@ -24,7 +24,7 @@
 ## Required evidence
 
 - Offline fixture with disjoint, conflicting, cherry-equivalent and contained
-  branches.
+  branches, including a contained branch behind the selected base.
 - Independent Git assertions for every captured SHA/count/patch fact.
 - Before/after proof that caller HEAD, status, refs and object inventory did
   not change.
