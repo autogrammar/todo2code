@@ -1,30 +1,30 @@
 # code2llm call graph | /home/tom/github/semcod/todo2code
 # generated in 0.23s
-# nodes: 402 | edges: 500 | modules: 30
-# CC̄=3.3
+# nodes: 401 | edges: 500 | modules: 30
+# CC̄=3.6
 
 HUBS[20]:
   src.cli.optionString
     CC=2  in:33  out:1  total:34
   src.cli.optionNumber
     CC=5  in:20  out:5  total:25
-  src.extractors.todo.extractTodo
-    CC=5  in:0  out:24  total:24
   src.extractors.git.extractRepositoryGitIntent
     CC=11  in:3  out:21  total:24
+  src.extractors.todo.extractTodo
+    CC=5  in:0  out:24  total:24
   src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
     CC=10  in:0  out:22  total:22
-  rust-ast.src.main.main
-    CC=6  in:0  out:21  total:21
   rust-ast.src.main.collect_files
     CC=9  in:1  out:20  total:21
-  src.extractors.nl.extractNlIntent
-    CC=5  in:0  out:20  total:20
+  rust-ast.src.main.main
+    CC=6  in:0  out:21  total:21
   src.cli.optionBoolean
     CC=3  in:17  out:3  total:20
+  src.extractors.todo.body
+    CC=5  in:0  out:20  total:20
   src.extractors.todo.lines
     CC=5  in:0  out:20  total:20
-  src.extractors.todo.body
+  src.extractors.nl.extractNlIntent
     CC=5  in:0  out:20  total:20
   src.extractors.todo.relative
     CC=5  in:0  out:20  total:20
@@ -34,16 +34,16 @@ HUBS[20]:
     CC=1  in:9  out:10  total:19
   src.cli.handleCommunication
     CC=11  in:0  out:18  total:18
-  java.JavaAstExtract.JavaAstExtract.main
-    CC=10  in:0  out:16  total:16
   src.extractors.configuration.configurationRecords
     CC=4  in:4  out:12  total:16
+  java.JavaAstExtract.JavaAstExtract.main
+    CC=10  in:0  out:16  total:16
+  src.extractors.ast.records.moduleRecords
+    CC=6  in:1  out:14  total:15
   src.extractors.changelog.relative
     CC=7  in:0  out:15  total:15
   src.extractors.changelog.body
     CC=7  in:0  out:15  total:15
-  src.extractors.ast.records.moduleRecords
-    CC=6  in:1  out:14  total:15
 
 MODULES:
   examples.backend.src.server  [12 funcs]
@@ -127,26 +127,24 @@ MODULES:
     moduleRecords  CC=6  out:14
     moduleTopicText  CC=2  out:1
     start  CC=1  out:2
-  src.extractors.ast.typescript  [6 funcs]
+  src.extractors.ast.typescript  [11 funcs]
     context  CC=1  out:4
     createTypeScriptExtractionContext  CC=1  out:0
     extractTypeScriptFile  CC=1  out:7
+    handleExportDeclaration  CC=4  out:3
+    handleImportDeclaration  CC=5  out:4
+    handleNode  CC=6  out:5
+    handleSymbolDeclaration  CC=4  out:9
+    handleVariableDeclaration  CC=8  out:7
     recordModuleFact  CC=1  out:2
     scriptKind  CC=4  out:3
-    visitTypeScriptNode  CC=2  out:2
   src.extractors.changelog  [5 funcs]
     body  CC=7  out:15
     changelogAction  CC=11  out:3
     extractChangelog  CC=10  out:19
     lines  CC=7  out:15
     relative  CC=7  out:15
-  src.extractors.communication-file-helpers  [10 funcs]
-    appendA2aAgentWarnings  CC=5  out:4
-    appendIdentityWarnings  CC=4  out:2
-    appendRegistryAlignmentWarnings  CC=7  out:2
-    appendRoleAndParticipantWarnings  CC=3  out:2
-    appendTimestampWarnings  CC=3  out:2
-    buildLocalWarnings  CC=3  out:5
+  src.extractors.communication-file-helpers  [4 funcs]
     envelope  CC=2  out:1
     hasExplicitEnvelopeMetadata  CC=1  out:2
     inferred  CC=2  out:1

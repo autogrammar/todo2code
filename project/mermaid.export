@@ -870,7 +870,7 @@ flowchart TD
         src__core__text__matches["matches"]
         src__core__text__detectPolarity("detectPolarity CC=8")
         src__core__text__stripped["stripped"]
-        src__core__text__normalized["normalized"]
+        src__core__text__normalized{{normalized CC=30}}
         src__core__text__normalizeToken["normalizeToken"]
         src__core__text__keywords["keywords"]
         src__core__text__GENERIC_TOPICS["GENERIC_TOPICS"]
@@ -1129,28 +1129,28 @@ flowchart TD
         src__graph__diff__metricCard["metricCard"]
         src__graph__diff__escapeXml["escapeXml"]
         src__graph__diff__truncate["truncate"]
-        src__graph__symbol_resolution__buildSymbolResolutionIndex["buildSymbolResolutionIndex"]
-        src__graph__symbol_resolution__byAlias("byAlias CC=8")
-        src__graph__symbol_resolution__collectAstCandidates("collectAstCandidates CC=8")
-        src__graph__symbol_resolution__candidate["candidate"]
-        src__graph__symbol_resolution__values["values"]
-        src__graph__symbol_resolution__buildAstCandidate["buildAstCandidate"]
-        src__graph__symbol_resolution__uniqueSymbols["uniqueSymbols"]
-        src__graph__symbol_resolution__sortCandidates["sortCandidates"]
-        src__graph__symbol_resolution__collectNlResolutions["collectNlResolutions"]
-        src__graph__symbol_resolution__byNlRecord["byNlRecord"]
-        src__graph__symbol_resolution__hasResolvedNlAstSymbolPair("hasResolvedNlAstSymbolPair CC=10")
-        src__graph__symbol_resolution__nl["nl"]
-        src__graph__symbol_resolution__ast["ast"]
-        src__graph__symbol_resolution__resolveSymbol("resolveSymbol CC=8")
-        src__graph__symbol_resolution__matched["matched"]
-        src__graph__symbol_resolution__selected["selected"]
-        src__graph__symbol_resolution__paths["paths"]
-        src__graph__symbol_resolution__pathSelects["pathSelects"]
-        src__graph__symbol_resolution__normalized["normalized"]
-        src__graph__symbol_resolution__candidatePath["candidatePath"]
-        src__graph__symbol_resolution__uniquePaths["uniquePaths"]
-        src__graph__symbol_resolution__isAstDeclaration["isAstDeclaration"]
+        src__graph__linker__indexKeywords["indexKeywords"]
+        src__graph__linker__jaccard["jaccard"]
+        src__graph__linker__intersection["intersection"]
+        src__graph__linker__linkIntentRecords["linkIntentRecords"]
+        src__graph__linker__records["records"]
+        src__graph__linker__byId["byId"]
+        src__graph__linker__keywordIndex["keywordIndex"]
+        src__graph__linker__symbolResolutionIndex["symbolResolutionIndex"]
+        src__graph__linker__candidatePairs["candidatePairs"]
+        src__graph__linker__resolvableBasenames["resolvableBasenames"]
+        src__graph__linker__left["left"]
+        src__graph__linker__right["right"]
+        src__graph__linker__evidence["evidence"]
+        src__graph__linker__directed["directed"]
+        src__graph__linker__deduplicateRecords["deduplicateRecords"]
+        src__graph__linker__existing["existing"]
+        src__graph__linker__collectCandidatePairs("collectCandidatePairs CC=10")
+        src__graph__linker__buckets("buckets CC=10")
+        src__graph__linker__astIds("astIds CC=10")
+        src__graph__linker__moduleAstIds("moduleAstIds CC=10")
+        src__graph__linker__declarationAstIds("declarationAstIds CC=10")
+        src__graph__linker__configurationIds("configurationIds CC=10")
     end
     subgraph src__interfaces
         src__interfaces__a2a_card__sendAgentCard["sendAgentCard"]
@@ -1482,32 +1482,21 @@ flowchart TD
     end
     subgraph src__semantic
         src__semantic__reranker_llm__SemanticRerankerRequiredError__super["super"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__rerankSemanticCandidates["rerankSemanticCandidates"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__rerankSemanticCandidates{{rerankSemanticCandidates CC=25}}
         src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticCandidateSet["assertSemanticCandidateSet"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__validateCandidateSetSize["validateCandidateSetSize"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__model["model"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__modelRevision["modelRevision"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__cached["cached"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__client["client"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__payload["payload"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__response["response"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__resolveRerankerModel["resolveRerankerModel"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__resolveModelRevision["resolveModelRevision"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__revision["revision"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__resolveCachedResult["resolveCachedResult"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticRerankResult["assertSemanticRerankResult"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__assertRerankerClient["assertRerankerClient"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__assertTrackedSnapshotAvailable["assertTrackedSnapshotAvailable"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__buildRerankerPayload["buildRerankerPayload"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__client["client"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__records("records CC=9")
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__messagesForCandidates["messagesForCandidates"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__callReranker["callReranker"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__payload["payload"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__response("response CC=8")
         src__semantic__reranker_llm__SemanticRerankerRequiredError__metadata["metadata"]
-        src__semantic__reranker_llm__SemanticRerankerRequiredError__buildRerankResult["buildRerankResult"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__assertSemanticRerankerResponse["assertSemanticRerankerResponse"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__execFileAsync["execFileAsync"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__assertTrackedSnapshot["assertTrackedSnapshot"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__root["root"]
+        src__semantic__reranker_llm__SemanticRerankerRequiredError__revision["revision"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__head["head"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__resolvedRevision["resolvedRevision"]
         src__semantic__reranker_llm__SemanticRerankerRequiredError__tracked("tracked CC=9")
@@ -1523,86 +1512,97 @@ flowchart TD
         src__semantic__reranker_response__response["response"]
         src__semantic__reranker__result__createSemanticRerankResult["createSemanticRerankResult"]
         src__semantic__reranker__result__decisions["decisions"]
-        src__semantic__reranker__result__assertSemanticRerankResult{{assertSemanticRerankResult CC=29}}
-        src__semantic__reranker__result__seenDecisions["seenDecisions"]
-        src__semantic__reranker__result__acceptedDeclarations["acceptedDeclarations"]
+        src__semantic__reranker__result__assertSemanticRerankResult{{assertSemanticRerankResult CC=21}}
+        src__semantic__reranker__result__candidates["candidates"]
+        src__semantic__reranker__result__records{{records CC=16}}
+        src__semantic__reranker__result__seenDecisions{{seenDecisions CC=16}}
+        src__semantic__reranker__result__acceptedDeclarations{{acceptedDeclarations CC=16}}
         src__semantic__reranker__result__candidate["candidate"]
-        src__semantic__reranker__result__assertSemanticRerankHeader["assertSemanticRerankHeader"]
-        src__semantic__reranker__result__createCandidateAndRecordIndex["createCandidateAndRecordIndex"]
-        src__semantic__reranker__result__validateSemanticDecisionCandidate["validateSemanticDecisionCandidate"]
-        src__semantic__reranker__result__validateSemanticDecisionDecision["validateSemanticDecisionDecision"]
-        src__semantic__reranker__result__validateSemanticDecisionEvidence["validateSemanticDecisionEvidence"]
         src__semantic__reranker__result__citations["citations"]
         src__semantic__reranker__result__record["record"]
-        src__semantic__reranker__result__validateDecisionEvidenceScope["validateDecisionEvidenceScope"]
-        src__semantic__reranker__result__validateSemanticDecisionVerdict["validateSemanticDecisionVerdict"]
-        src__semantic__reranker__result__assertRerankResultHash["assertRerankResultHash"]
         src__semantic__reranker__result__expectedHash["expectedHash"]
         src__semantic__reranker__result__applyAcceptedSemanticRelations["applyAcceptedSemanticRelations"]
-        src__semantic__reranker__result__candidates["candidates"]
         src__semantic__reranker__result__added["added"]
+        src__semantic__reranker__result__assertSemanticVerdictReason["assertSemanticVerdictReason"]
+        src__semantic__reranker__result__allowedVerdicts["allowedVerdicts"]
+        src__semantic__reranker__result__allowedReasons["allowedReasons"]
+        src__semantic__reranker__candidate__createSemanticCandidateSet("createSemanticCandidateSet CC=8")
+        src__semantic__reranker__candidate__grouped["grouped"]
+        src__semantic__reranker__candidate__values["values"]
+        src__semantic__reranker__candidate__assertSemanticCandidateSet{{assertSemanticCandidateSet CC=27}}
+        src__semantic__reranker__candidate__records("records CC=14")
+        src__semantic__reranker__candidate__seenIds("seenIds CC=14")
+        src__semantic__reranker__candidate__seenPairs("seenPairs CC=14")
+        src__semantic__reranker__candidate__byDeclaration("byDeclaration CC=14")
+        src__semantic__reranker__candidate__declaration["declaration"]
+        src__semantic__reranker__candidate__module["module"]
+        src__semantic__reranker__candidate__existing["existing"]
+        src__semantic__reranker__candidate__expectedHash["expectedHash"]
+        src__semantic__reranker__candidate__comparePair["comparePair"]
+        src__semantic__reranker__validation__requiredText["requiredText"]
+        src__semantic__reranker__validation__validateRetrieval["validateRetrieval"]
     end
     subgraph src__services
-        src__services__actions__executeAction["executeAction"]
-        src__services__actions__root["root"]
-        src__services__actions__handler["handler"]
-        src__services__actions__executeExtractNlAction["executeExtractNlAction"]
+        src__services__actions__executeAction{{executeAction CC=83}}
+        src__services__actions__root{{root CC=83}}
         src__services__actions__file["file"]
         src__services__actions__text["text"]
-        src__services__actions__executeExtractGitAction["executeExtractGitAction"]
-        src__services__actions__executeExtractAstAction["executeExtractAstAction"]
-        src__services__actions__executeExtractConfigAction["executeExtractConfigAction"]
-        src__services__actions__executeExtractMarkdownAction["executeExtractMarkdownAction"]
-        src__services__actions__executeExtractDocsAction["executeExtractDocsAction"]
-        src__services__actions__executeExtractCommunicationAction["executeExtractCommunicationAction"]
-        src__services__actions__executeAnalyzeCommunicationAction["executeAnalyzeCommunicationAction"]
         src__services__actions__analysis["analysis"]
-        src__services__actions__executeLinkAction["executeLinkAction"]
         src__services__actions__records["records"]
-        src__services__actions__executeDiagnoseAction["executeDiagnoseAction"]
         src__services__actions__graph["graph"]
-        src__services__actions__executeSummarizeAction["executeSummarizeAction"]
         src__services__actions__diagnostics["diagnostics"]
-        src__services__actions__executeProposeTodoAction["executeProposeTodoAction"]
         src__services__actions__result["result"]
         src__services__actions__output["output"]
-        src__services__actions__executeRenderTodoAction["executeRenderTodoAction"]
         src__services__actions__synthesis["synthesis"]
         src__services__actions__todoPath["todoPath"]
         src__services__actions__patchPath["patchPath"]
         src__services__actions__auditPath["auditPath"]
         src__services__actions__todoContent["todoContent"]
         src__services__actions__rendered["rendered"]
-        src__services__actions__executeApplyTodoAction["executeApplyTodoAction"]
         src__services__actions__receiptPath["receiptPath"]
-        src__services__actions__executeProposeCodeChangeAction("executeProposeCodeChangeAction CC=10")
         src__services__actions__conclusions["conclusions"]
         src__services__actions__proposals["proposals"]
-        src__services__actions__executeRenderCodeChangeAction("executeRenderCodeChangeAction CC=8")
         src__services__actions__planSet["planSet"]
         src__services__actions__review["review"]
-        src__services__actions__executeProposeSourcePatchAction["executeProposeSourcePatchAction"]
         src__services__actions__plan["plan"]
         src__services__actions__unifiedDiffs["unifiedDiffs"]
         src__services__actions__patch["patch"]
-        src__services__actions__executeApplySourcePatchAction["executeApplySourcePatchAction"]
-        src__services__actions__executeEvaluateCodeChangeAction["executeEvaluateCodeChangeAction"]
         src__services__actions__beforeGraph("beforeGraph CC=8")
         src__services__actions__beforeDiagnostics("beforeDiagnostics CC=8")
         src__services__actions__afterGraph("afterGraph CC=8")
         src__services__actions__afterDiagnostics("afterDiagnostics CC=8")
-        src__services__actions__executeCloseCodeChangeAction("executeCloseCodeChangeAction CC=13")
         src__services__actions__value["value"]
-        src__services__actions__executeDiffAction["executeDiffAction"]
         src__services__actions__beforeInput["beforeInput"]
         src__services__actions__afterInput["afterInput"]
         src__services__actions__before["before"]
         src__services__actions__after["after"]
         src__services__actions__diff["diff"]
         src__services__actions__svg["svg"]
-        src__services__actions__executeDiffFilesAction["executeDiffFilesAction"]
         src__services__actions__beforePath["beforePath"]
         src__services__actions__afterPath["afterPath"]
+        src__services__actions__view["view"]
+        src__services__actions__filterCommunicationGraph["filterCommunicationGraph"]
+        src__services__actions__filter["filter"]
+        src__services__actions__parseCommunicationGraphFilter["parseCommunicationGraphFilter"]
+        src__services__actions__participant["participant"]
+        src__services__actions__role["role"]
+        src__services__actions__ticket["ticket"]
+        src__services__actions__communicationOnly["communicationOnly"]
+        src__services__actions__matchesCommunicationFilter["matchesCommunicationFilter"]
+        src__services__actions__matchesParticipant["matchesParticipant"]
+        src__services__actions__matchesRole["matchesRole"]
+        src__services__actions__matchesTicket["matchesTicket"]
+        src__services__actions__nlModeValue["nlModeValue"]
+        src__services__actions__llmModeValue["llmModeValue"]
+        src__services__actions__taskSynthesisMode["taskSynthesisMode"]
+        src__services__actions__summaryModeValue["summaryModeValue"]
+        src__services__actions__pipelineTaskMode["pipelineTaskMode"]
+        src__services__actions__withTextDiffViews["withTextDiffViews"]
+        src__services__actions__title["title"]
+        src__services__actions__readGraphInput["readGraphInput"]
+        src__services__actions__safePath["safePath"]
+        src__services__actions__readActionObject["readActionObject"]
+        src__services__actions__resolveRoot["resolveRoot"]
     end
     subgraph src__summary
         src__summary__payload__compactSummaryPayload("compactSummaryPayload CC=12")
@@ -1663,29 +1663,20 @@ flowchart TD
         src__synthesis__task_synthesis_payload__groundedDiagnostics["groundedDiagnostics"]
         src__synthesis__task_synthesis_payload__compactRecord["compactRecord"]
         src__synthesis__task_synthesis_payload__compareDiagnostics["compareDiagnostics"]
-        src__synthesis__code_change_path__NON_SOURCE_DIR_SEGMENTS["NON_SOURCE_DIR_SEGMENTS"]
-        src__synthesis__code_change_path__BINARY_EXTENSIONS["BINARY_EXTENSIONS"]
-        src__synthesis__code_change_path__GENERATED_ANALYSIS_BASENAMES["GENERATED_ANALYSIS_BASENAMES"]
-        src__synthesis__code_change_path__T2C_ARTIFACT_BASENAMES["T2C_ARTIFACT_BASENAMES"]
-        src__synthesis__code_change_path__EXTENSIONLESS_SOURCE_BASENAMES["EXTENSIONLESS_SOURCE_BASENAMES"]
-        src__synthesis__code_change_path__isUsefulCodeChangePath["isUsefulCodeChangePath"]
-        src__synthesis__code_change_path__isPlannablePath["isPlannablePath"]
+        src__synthesis__code_change_path__NON_SOURCE_DIR_SEGMENTS{{NON_SOURCE_DIR_SEGMENTS CC=38}}
+        src__synthesis__code_change_path__BINARY_EXTENSIONS{{BINARY_EXTENSIONS CC=38}}
+        src__synthesis__code_change_path__GENERATED_ANALYSIS_BASENAMES{{GENERATED_ANALYSIS_BASENAMES CC=38}}
+        src__synthesis__code_change_path__T2C_ARTIFACT_BASENAMES{{T2C_ARTIFACT_BASENAMES CC=38}}
+        src__synthesis__code_change_path__EXTENSIONLESS_SOURCE_BASENAMES{{EXTENSIONLESS_SOURCE_BASENAMES CC=38}}
+        src__synthesis__code_change_path__isPlannablePath{{isPlannablePath CC=38}}
         src__synthesis__code_change_path__normalized["normalized"]
         src__synthesis__code_change_path__segments["segments"]
         src__synthesis__code_change_path__lowerSegments["lowerSegments"]
         src__synthesis__code_change_path__basename["basename"]
-        src__synthesis__code_change_path__normalizePlannablePath["normalizePlannablePath"]
-        src__synthesis__code_change_path__isCandidatePathSyntax["isCandidatePathSyntax"]
-        src__synthesis__code_change_path__splitPathSegments["splitPathSegments"]
-        src__synthesis__code_change_path__isInvalidSegmentShape["isInvalidSegmentShape"]
-        src__synthesis__code_change_path__isConcretePath["isConcretePath"]
-        src__synthesis__code_change_path__hasShellPattern["hasShellPattern"]
-        src__synthesis__code_change_path__isDisallowedSegment["isDisallowedSegment"]
-        src__synthesis__code_change_path__isPlannableBasename("isPlannableBasename CC=11")
         src__synthesis__code_change_path__lowerBasename["lowerBasename"]
         src__synthesis__code_change_path__dot["dot"]
         src__synthesis__code_change_path__ext["ext"]
-        src__synthesis__code_change_path__isGeneratedArtifactPath("isGeneratedArtifactPath CC=10")
+        src__synthesis__code_change_path__isUsefulCodeChangePath["isUsefulCodeChangePath"]
         src__synthesis__task_synthesis_materialize__materializeTaskSynthesisResponse["materializeTaskSynthesisResponse"]
         src__synthesis__task_synthesis_materialize__parsed["parsed"]
         src__synthesis__task_synthesis_materialize__conclusionKeys["conclusionKeys"]
@@ -1715,6 +1706,15 @@ flowchart TD
         src__synthesis__task_synthesis_materialize__target["target"]
         src__synthesis__task_synthesis_materialize__normalizeAcceptanceCriteria["normalizeAcceptanceCriteria"]
         src__synthesis__task_synthesis_materialize__criteria["criteria"]
+        src__synthesis__task_synthesis_materialize__source["source"]
+        src__synthesis__task_synthesis_materialize__assertProposalEvidenceMatchesConclusions["assertProposalEvidenceMatchesConclu"]
+        src__synthesis__task_synthesis_materialize__byId["byId"]
+        src__synthesis__task_synthesis_materialize__cited["cited"]
+        src__synthesis__task_synthesis_materialize__diagnostics["diagnostics"]
+        src__synthesis__task_synthesis_materialize__records["records"]
+        src__synthesis__todo_patch__diagnosticReportFingerprint["diagnosticReportFingerprint"]
+        src__synthesis__todo_patch__createTodoPatch("createTodoPatch CC=8")
+        src__synthesis__todo_patch__expectedValidation["expectedValidation"]
     end
     subgraph src__tf
         src__tf__classifier__dynamicImport["dynamicImport"]
@@ -1790,11 +1790,7 @@ flowchart TD
         src__watch__watcher__finish["finish"]
     end
     subgraph src__web
-        src__web__diff_ui__diffUiStyles["diffUiStyles"]
-        src__web__diff_ui__diffUiRunPanel["diffUiRunPanel"]
-        src__web__diff_ui__diffUiFiltersPanel["diffUiFiltersPanel"]
-        src__web__diff_ui__diffUiBodyMarkup["diffUiBodyMarkup"]
-        src__web__diff_ui__diffUiScriptMarkup{{diffUiScriptMarkup CC=46}}
+        src__web__diff_ui__diffUiHtml{{diffUiHtml CC=52}}
         src__web__diff_ui__byId["byId"]
         src__web__diff_ui__requestHeaders["requestHeaders"]
         src__web__diff_ui__formatBytes["formatBytes"]
@@ -1803,8 +1799,6 @@ flowchart TD
         src__web__diff_ui__fillSelect["fillSelect"]
         src__web__diff_ui__loadRuns("loadRuns CC=12")
         src__web__diff_ui__compareGraphs{{compareGraphs CC=15}}
-        src__web__diff_ui__diffUiTemplate["diffUiTemplate"]
-        src__web__diff_ui__diffUiHtml["diffUiHtml"]
     end
     rust_ast__src__main__main --> rust_ast__src__main__arguments
     rust_ast__src__main__main --> rust_ast__src__main__collect_files
@@ -2300,11 +2294,6 @@ flowchart TD
     src__extractors__communication_file_helpers__envelope --> src__extractors__communication_file_helpers__shouldSkipCommunicationFile
     src__extractors__communication_file_helpers__inferred --> src__extractors__communication_file_helpers__shouldSkipCommunicationFile
     src__extractors__communication_file_helpers__shouldSkipCommunicationFile --> src__extractors__communication_file_helpers__hasExplicitEnvelopeMetadata
-    src__extractors__communication_file_helpers__buildLocalWarnings --> src__extractors__communication_file_helpers__appendRoleAndParticipantWarnings
-    src__extractors__communication_file_helpers__buildLocalWarnings --> src__extractors__communication_file_helpers__appendIdentityWarnings
-    src__extractors__communication_file_helpers__buildLocalWarnings --> src__extractors__communication_file_helpers__appendRegistryAlignmentWarnings
-    src__extractors__communication_file_helpers__buildLocalWarnings --> src__extractors__communication_file_helpers__appendA2aAgentWarnings
-    src__extractors__communication_file_helpers__buildLocalWarnings --> src__extractors__communication_file_helpers__appendTimestampWarnings
     src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord --> src__extractors__nl_llm_helpers__NlAttemptError__sourceExcerpt
     src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord --> src__extractors__nl_llm_helpers__NlAttemptError__resolveAction
     src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord --> src__extractors__nl_llm_helpers__NlAttemptError__nonEmptyText
@@ -2390,24 +2379,29 @@ flowchart TD
     src__graph__diff__changedFieldPaths --> src__graph__diff__isObject
     src__graph__diff__compareRelations --> src__graph__diff__relationKey
     src__graph__diff__metricCard --> src__graph__diff__escapeXml
-    src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__collectAstCandidates
-    src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__sortCandidates
-    src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__collectNlResolutions
-    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__isAstDeclaration
-    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__uniqueSymbols
-    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__buildAstCandidate
-    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__isAstDeclaration
-    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__uniqueSymbols
-    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__buildAstCandidate
-    src__graph__symbol_resolution__sortCandidates --> src__graph__symbol_resolution__values
-    src__graph__symbol_resolution__collectNlResolutions --> src__graph__symbol_resolution__resolveSymbol
-    src__graph__symbol_resolution__byNlRecord --> src__graph__symbol_resolution__resolveSymbol
-    src__graph__symbol_resolution__hasResolvedNlAstSymbolPair --> src__graph__symbol_resolution__isAstDeclaration
-    src__graph__symbol_resolution__resolveSymbol --> src__graph__symbol_resolution__pathSelects
-    src__graph__symbol_resolution__resolveSymbol --> src__graph__symbol_resolution__uniquePaths
-    src__graph__symbol_resolution__selected --> src__graph__symbol_resolution__uniquePaths
+    src__graph__linker__linkIntentRecords --> src__graph__linker__deduplicateRecords
+    src__graph__linker__linkIntentRecords --> src__graph__linker__indexKeywords
+    src__graph__linker__linkIntentRecords --> src__graph__linker__collectCandidatePairs
+    src__graph__linker__linkIntentRecords --> src__graph__linker__indexResolvableBasenames
+    src__graph__linker__linkIntentRecords --> src__graph__linker__scorePair
+    src__graph__linker__linkIntentRecords --> src__graph__linker__determineRelation
+    src__graph__linker__records --> src__graph__linker__scorePair
+    src__graph__linker__records --> src__graph__linker__determineRelation
+    src__graph__linker__byId --> src__graph__linker__set
+    src__graph__linker__keywordIndex --> src__graph__linker__scorePair
+    src__graph__linker__keywordIndex --> src__graph__linker__determineRelation
+    src__graph__linker__symbolResolutionIndex --> src__graph__linker__scorePair
+    src__graph__linker__symbolResolutionIndex --> src__graph__linker__determineRelation
+    src__graph__linker__candidatePairs --> src__graph__linker__scorePair
+    src__graph__linker__candidatePairs --> src__graph__linker__determineRelation
+    src__graph__linker__resolvableBasenames --> src__graph__linker__scorePair
+    src__graph__linker__resolvableBasenames --> src__graph__linker__determineRelation
+    src__graph__linker__deduplicateRecords --> src__graph__linker__set
+    src__graph__linker__deduplicateRecords --> src__graph__linker__values
+    src__graph__linker__collectCandidatePairs --> src__graph__linker__indexTargetBuckets
+    src__graph__linker__collectCandidatePairs --> src__graph__linker__indexKeywordBuckets
 
     classDef highCC fill:#ff6b6b,stroke:#c92a2a,color:#fff
     classDef medCC fill:#ffd43b,stroke:#f08c00,color:#000
-    class examples__backend__src__server__handleRequest,src__core__record__generationMetadata,src__web__diff_ui__diffUiScriptMarkup,src__web__diff_ui__compareGraphs,src__semantic__reranker__result__assertSemanticRerankResult,src__llm__openrouter__OpenRouterClient__timeout,src__llm__openrouter__OpenRouterClient__request,src__interfaces__a2a_message__parseCommand,src__interfaces__a2a_history__runListItem,src__diff__text__myers,src__diff__text__n,src__diff__text__m,src__diff__text__max,src__diff__text__offset,src__diff__text__y,src__diff__text__backtrack,src__diff__text__x,src__diff__reality__buildRealityView,src__diff__reality__resolveStatus,src__diff__reality__renderRealitySvg,src__diff__git__BINARY_EXTENSIONS,src__diff__git__collectGitDiff,src__pipeline__run__runPipeline,src__pipeline__run__persistFailedRun,src__evaluation__gold_types__assertLinkingCohorts,src__evaluation__gold_types__labels,src__evaluation__gold_types__modules,src__evaluation__gold_cases__evaluateRerankingCase,src__evaluation__gold_cases__buildFixtureRecords,src__evaluation__gold_cases__labels highCC
+    class examples__backend__src__server__handleRequest,src__extractors__communication_file_helpers__buildLocalWarnings,src__services__actions__executeAction,src__services__actions__root,src__core__text__normalized,src__core__text__inferObject,src__core__io__walkFiles,src__web__diff_ui__diffUiHtml,src__web__diff_ui__compareGraphs,src__semantic__reranker_llm__SemanticRerankerRequiredError__rerankSemanticCandidates,src__semantic__reranker__result__assertSemanticRerankResult,src__semantic__reranker__result__records,src__semantic__reranker__result__seenDecisions,src__semantic__reranker__result__acceptedDeclarations,src__semantic__reranker__candidate__assertSemanticCandidateSet,src__synthesis__code_change_path__NON_SOURCE_DIR_SEGMENTS,src__synthesis__code_change_path__BINARY_EXTENSIONS,src__synthesis__code_change_path__GENERATED_ANALYSIS_BASENAMES,src__synthesis__code_change_path__T2C_ARTIFACT_BASENAMES,src__synthesis__code_change_path__EXTENSIONLESS_SOURCE_BASENAMES,src__synthesis__code_change_path__isPlannablePath,src__synthesis__code_change_plan__implementation__proposeCodeChangePlans,src__synthesis__code_change_plan__implementation__paths,src__synthesis__code_change_plan__implementation__assertCodeChangeReviewPatch,src__synthesis__code_change_plan__implementation__assertCodeChangeSourcePatch,src__synthesis__code_change_plan__implementation__assertCodeChangeSourcePatchSet,src__synthesis__code_change_plan__implementation__normalizeUnifiedDiff,src__synthesis__code_change_plan__implementation__applyCodeChangeSourcePatch,src__synthesis__code_change_plan__implementation__applyUnifiedDiffToText,src__synthesis__code_change_plan__implementation__cursor highCC
     class rust_ast__src__main__collect_files,examples__backend__src__validation__ALLOWED_ACTIONS,examples__backend__src__validation__validateEventPayload,java__JavaAstExtract__JavaAstExtract__main,java__JavaAstExtract__JavaAstExtract__escape,src__cli__main,src__cli__handleRenderTodo,src__cli__handleApplyTodo,src__cli__options,src__cli__formatWatchEvent,src__cli__stamp,src__cli__handleDiff,src__cli__handleReality,src__cli__handleCommunication,src__cli__handleIntake,src__cli__intakeExitCode,src__cli__parseArgs,src__extractors__nl__assertNlExtractionOptions,src__extractors__nl__detectMissingFields,src__extractors__ast__extractAstIntent,src__extractors__runtime_cycle__MAX_PER_SECTION,src__extractors__runtime_cycle__extractRuntimeCycleIntent,src__extractors__runtime_cycle__boundedArray,src__extractors__runtime_cycle__probeRecord,src__extractors__configuration__isConfigurationPath,src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited,src__extractors__docs_llm__DocumentationLlmRequiredError__isDocumentChunks,src__extractors__docs_llm__DocumentationLlmRequiredError__extractChunk,src__extractors__changelog__extractChangelog,src__extractors__changelog__changelogAction medCC

@@ -1,58 +1,58 @@
-# code2llm/evolution | 3591 func | 137f | 2026-08-04
+# code2llm/evolution | 3374 func | 137f | 2026-08-04
 # generated in 0.01s
 
 NEXT[10] (ranked by impact):
-  [1] !! SPLIT           src/synthesis/code-change-plan/implementation-helpers.ts
-      WHY: 2239L, 25 classes, max CC=13
-      EFFORT: ~4h  IMPACT: 29107
+  [1] !! SPLIT           src/synthesis/code-change-plan/implementation.ts
+      WHY: 1310L, 10 classes, max CC=47
+      EFFORT: ~4h  IMPACT: 61570
 
   [2] !! SPLIT           src/cli.ts
       WHY: 935L, 1 classes, max CC=13
       EFFORT: ~4h  IMPACT: 12155
 
-  [3] !! SPLIT-FUNC      runPipeline  CC=56  fan=56
+  [3] !! SPLIT-FUNC      executeAction  CC=83  fan=65
+      WHY: CC=83 exceeds 15
+      EFFORT: ~1h  IMPACT: 5395
+
+  [4] !! SPLIT-FUNC      root  CC=83  fan=64
+      WHY: CC=83 exceeds 15
+      EFFORT: ~1h  IMPACT: 5312
+
+  [5] !! SPLIT-FUNC      runPipeline  CC=56  fan=56
       WHY: CC=56 exceeds 15
       EFFORT: ~1h  IMPACT: 3136
 
-  [4] !! SPLIT-FUNC      assertOperationPlan  CC=84  fan=28
+  [6] !! SPLIT-FUNC      assertOperationPlan  CC=84  fan=28
       WHY: CC=84 exceeds 15
       EFFORT: ~1h  IMPACT: 2352
 
-  [5] !! SPLIT-FUNC      parseCommand  CC=63  fan=33
+  [7] !! SPLIT-FUNC      diffUiHtml  CC=52  fan=42
+      WHY: CC=52 exceeds 15
+      EFFORT: ~1h  IMPACT: 2184
+
+  [8] !! SPLIT-FUNC      parseCommand  CC=63  fan=33
       WHY: CC=63 exceeds 15
       EFFORT: ~1h  IMPACT: 2079
 
-  [6] !! SPLIT-FUNC      analyzeCommunication  CC=48  fan=35
+  [9] !! SPLIT-FUNC      analyzeCommunication  CC=48  fan=35
       WHY: CC=48 exceeds 15
       EFFORT: ~1h  IMPACT: 1680
 
-  [7] !! SPLIT-FUNC      diffUiScriptMarkup  CC=46  fan=36
-      WHY: CC=46 exceeds 15
-      EFFORT: ~1h  IMPACT: 1656
-
-  [8] !! SPLIT-FUNC      assertSemanticRerankResult  CC=29  fan=37
-      WHY: CC=29 exceeds 15
-      EFFORT: ~1h  IMPACT: 1073
-
-  [9] !! SPLIT-FUNC      parseFile  CC=38  fan=19
-      WHY: CC=38 exceeds 15
-      EFFORT: ~1h  IMPACT: 722
-
-  [10] !  SPLIT-FUNC      Client.parse_http_response  CC=18  fan=37
-      WHY: CC=18 exceeds 15
-      EFFORT: ~1h  IMPACT: 666
+  [10] !! SPLIT-FUNC      applyCodeChangeSourcePatch  CC=41  fan=35
+      WHY: CC=41 exceeds 15
+      EFFORT: ~1h  IMPACT: 1435
 
 
 RISKS[3]:
   ⚠ Splitting evaluation/gold/v2/dataset.json may break 0 import paths
-  ⚠ Splitting src/synthesis/code-change-plan/implementation-helpers.ts may break 270 import paths
+  ⚠ Splitting src/synthesis/code-change-plan/implementation.ts may break 127 import paths
   ⚠ Splitting src/cli.ts may break 124 import paths
 
 METRICS-TARGET:
-  CC̄:          3.3 → ≤2.3
+  CC̄:          3.7 → ≤2.6
   max-CC:      84 → ≤20
   god-modules: 13 → 0
-  high-CC(≥15): 53 → ≤26
+  high-CC(≥15): 79 → ≤39
   hub-types:   0 → ≤0
 
 PATTERNS (language parser shared logic):
@@ -80,4 +80,4 @@ PATTERNS (language parser shared logic):
     - Standardized FunctionInfo/ClassInfo models
 
 HISTORY:
-  prev CC̄=3.7 → now CC̄=3.3
+  prev CC̄=3.7 → now CC̄=3.7
