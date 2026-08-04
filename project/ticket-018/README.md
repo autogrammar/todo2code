@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: BLOCKED
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -154,7 +154,7 @@ existing README/runbook/permissions documentation. No application source in
 - [x] AC-05: Approval provenance is checked against a trusted GitHub review
       boundary in CI; local or Markdown-only approval is never presented as a
       cryptographically trusted fact.
-- [ ] AC-06: A centrally maintained reusable GitHub workflow is pinned by
+- [x] AC-06: A centrally maintained reusable GitHub workflow is pinned by
       immutable revision and documented together with the required repository
       ruleset/CODEOWNERS settings.
 - [x] AC-07: Stack profiles provide appropriate gates for Node, Python, Go,
@@ -247,12 +247,12 @@ existing README/runbook/permissions documentation. No application source in
       and mutable/unpinned heads are rejected.
 - [x] AC-39: Focused negative/positive tests, both complete repository suites,
       governance, Java, gold, SDK examples and Docker smoke pass.
-- [ ] AC-40: After a separately trusted bootstrap review merges the policy,
+- [x] AC-40: After a separately trusted bootstrap review merges the policy,
       the real Validator App reviews PR #13 at its exact SHA and the rerun
       proves `governance / enforce` accepts that independent agent evidence.
 
 Central adoption for AC-31..AC-33 is pinned to
-`wellmanifest/new-project@78b365272b5b258931f9a66d7124122ec19d7814`.
+`wellmanifest/new-project@d082373f314191dba794aba58aca2d4475ea497a`.
 The caller passes `ifuri-validator-agent[bot]` through the App-only allowlist;
 the reusable workflow resolves the ticket and writes current-event approval
 evidence under `runner.temp`, outside the pull-request checkout.
@@ -330,3 +330,21 @@ remain historical evidence, not evidence for AC-11..AC-17.
   and requires strict `governance / enforce` plus `koru / code-review` checks.
   Enforcement remains disabled only until this bootstrap evidence commit is
   merged; AC-24 is not claimed until the rule is activated and queried back.
+
+## Validator App publication evidence
+
+- Installation `151227156` makes `ifuri-validator-agent` available to
+  `semcod/todo2code`; repository-scoped App-token creation passes.
+- Validator run `30924588549` approved PR #14 at exact head
+  `17715cc6af4d983918462a23d0f37a810b910eec` for `ticket-018`; governance,
+  verify, Java and Koru passed, and the human maintainer merged it as
+  `944feda7b3914f747cc67d3682ce8427a7305ff4`.
+- Validator run `30925171580` approved PR #13 at exact head
+  `68b0c0985f0aa95f8a41e252399491fe7aea29ca` for `ticket-034`; the rerun proved
+  `governance / enforce` accepts the independent App evidence. Validator did
+  not merge either pull request.
+- The remaining blocker is central `wellmanifest/new-project` PR #2 at exact
+  head `d082373f314191dba794aba58aca2d4475ea497a`. It is green and mergeable but
+  has no independent review, and the `wellmanifest` organization currently has
+  no Validator App installation. Ticket-018 therefore remains
+  `BLOCKED / PUBLICATION` and does not reserve its write scope while waiting.

@@ -190,7 +190,7 @@ Current verified baseline:
   metadata, Issues, Projects, or merge state.
 - Full local and container validation passes, including Validator 96/96,
   todo2code full E2E with JDK 17 at 342/342, gold v1/v2, SDK examples,
-  governance and Docker smoke. AC-40 remains an external bootstrap sequence.
+  governance and Docker smoke.
 - Audited Koru's failed PR #13 artifact and found a deterministic tool mismatch:
   the Python-only Vallm regression plugin invoked missing `pytest` for every
   TypeScript file. Removed that plugin from Koru while retaining the real npm
@@ -200,44 +200,30 @@ Current verified baseline:
   The required merge decision remains in deterministic governance, verify and
   Java checks; the Koru job enforces exact report bindings, not an LLM verdict.
 - Adopted central standard 0.9.0 at immutable revision
-  `78b365272b5b258931f9a66d7124122ec19d7814`. CI now calls that exact reusable
+  `d082373f314191dba794aba58aca2d4475ea497a`. CI now calls that exact reusable
   workflow and passes only the observed `ifuri-validator-agent[bot]` App login.
   Approval evidence is generated in `runner.temp` and bound to repository, PR,
   current head, ticket and actor. The earlier checkout-owned resolver is detached
   from CI and retained only until the tracked generated-analysis index is refreshed.
 
-## Blockers
+## Publication blocker
 
-- `GOV-INTENT-003`: concurrent commit `5f1f4bd` placed the ticket intent and
-  implementation in the same commit; correcting this requires an authorized
-  history/commit split.
-- `GOV-SCOPE-001`: the same commit contains eight implementation/generated
-  paths not allowed by ticket-018. They must be routed to their actual ticket,
-  not retroactively claimed here.
 - Central standard 0.9.0 is published at immutable commit
-  `78b365272b5b258931f9a66d7124122ec19d7814`; its PR #2 is green and still
-  awaits an independent merge review.
-- Live Validator run `30918035304` proved the dedicated App credentials are
-  valid but the App has no installation for `semcod/todo2code`; repository-
-  scoped token creation failed closed with GitHub API 404 before validation.
-- The earlier AC-17 Rust lock failure no longer reproduces on current HEAD:
-  locked Cargo fetch and full Docker E2E pass without a governance-owned SDK
-  edit.
+  `d082373f314191dba794aba58aca2d4475ea497a`; its PR #2 is green and still
+  awaits an independent merge review. The `wellmanifest` organization reports
+  zero App installations, so the existing Validator identity cannot yet
+  provide that review.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / VALIDATION`. GitHub now reports installation
+- Current state: `BLOCKED / PUBLICATION`. GitHub now reports installation
   `151227156` for App `ifuri-validator-agent` in organization `semcod`, with
-  repository selection `all`. A fresh ticket-only HEAD will bind the hosted
-  checks and Validator review to evidence created after this installation.
+  repository selection `all`; todo2code publication evidence is complete.
+  Central PR #2 still requires an independent reviewer or installation of the
+  Validator App in `wellmanifest`.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
-- The current follow-up is planned as AC-26..AC-28 in
-  `IN_PROGRESS / VALIDATION`. The user's `kontynuuj` response authorizes this exact
-  interactive implementation scope, but remains insufficient merge evidence.
-- Current follow-up state: `IN_PROGRESS / WAIT_FOR_APPROVAL` for AC-30..AC-40.
-  The user's request authorizes planning and policy evolution; executable edits
-  begin only after explicit approval of this exact allowlist/direct-PR design.
-- The user explicitly approved AC-30..AC-40 on 2026-08-04. Current state:
-  `IN_PROGRESS / VALIDATION`; protected merge evidence remains independent.
+- The user explicitly approved AC-26..AC-40 on 2026-08-04. Those criteria are
+  complete; current `BLOCKED / PUBLICATION` state concerns only the independent
+  review of central PR #2.

@@ -356,3 +356,14 @@ repository selection: all
 transition: BLOCKED -> IN_PROGRESS / VALIDATION
 next boundary: publish a fresh ticket-only head, pass deterministic hosted
 checks, then request an exact-head direct-pr review from the installed App
+2026-08-04 VALIDATOR APP END-TO-END EVIDENCE
+PR #14 run 30924588549: APPROVED exact head 17715cc6af4d983918462a23d0f37a810b910eec, ticket-018
+PR #14 governance/verify/Java/Koru: PASS; merged by human as 944feda7b3914f747cc67d3682ce8427a7305ff4
+PR #13 run 30925171580: APPROVED exact head 68b0c0985f0aa95f8a41e252399491fe7aea29ca, ticket-034
+PR #13 governance/verify/Java/Koru: PASS; merged by human as 4387943e4095926fe2466628b767c3dd83034281
+AC-40: PASS; Validator auto-merge remained disabled
+2026-08-04 CENTRAL PUBLICATION RECHECK
+wellmanifest/new-project PR #2 head: d082373f314191dba794aba58aca2d4475ea497a
+PR state: OPEN, CLEAN, tests PASS, no reviews
+wellmanifest organization App installations: 0
+transition: IN_PROGRESS / VALIDATION -> BLOCKED / PUBLICATION; reservation released

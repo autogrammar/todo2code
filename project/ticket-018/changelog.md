@@ -11,8 +11,8 @@
   scoped its workflow App token to one repository.
 - Verified 96 Validator tests, 342 full Docker E2E tests with JDK 17, both gold
   datasets at 100%, all SDK examples, governance, smoke and Docker smoke.
-- Entered `VALIDATION`; AC-40 remains open until the policy receives a separate
-  trusted bootstrap review and the real App reviews todo2code PR #13.
+- Entered `VALIDATION` pending a separately trusted bootstrap review and a real
+  App review of todo2code PR #13.
 - Removed Vallm's Python-only `--regression` plugin from the TypeScript Koru
   review after live evidence showed it called missing `pytest` for every TS
   file. Regression remains strictly enforced by the separate `verify` and Java
@@ -26,7 +26,7 @@
 - Bound trusted App evidence to the exact active `ticket-NNN` and safe
   correlation ID recorded in the current-head review body; human review
   behavior remains unchanged.
-- Adopted central standard 0.9.0 at immutable commit `78b3652`, including the
+- Adopted central standard 0.9.0 at immutable commit `d082373`, including the
   reusable protected resolver and ephemeral current-event approval evidence.
 - Verified PR #14 remotely: Koru v2, Node/Docker verification and required Java
   passed. Live Validator run `30918035304` stopped before review because the App
@@ -46,6 +46,13 @@
 - Confirmed the new `semcod` installation `151227156` for
   `ifuri-validator-agent` with repository selection `all`; resumed
   `IN_PROGRESS / VALIDATION` before creating fresh current-head evidence.
+- Completed AC-40: production Validator runs approved exact heads for PR #14
+  (`ticket-018`) and PR #13 (`ticket-034`), and the governance reruns accepted
+  the App evidence while merge remained human-controlled.
+- Recorded central PR #2 as the sole remaining publication blocker: it is green
+  and mergeable, but `wellmanifest` has no Validator App installation and the
+  author cannot supply an independent self-review. Released the workstream at
+  `BLOCKED / PUBLICATION`.
 
 ## [0.5.0] - 2026-08-04
 
