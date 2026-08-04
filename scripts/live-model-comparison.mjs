@@ -23,6 +23,7 @@ const DEFAULTS = {
   markdownPath: '.intent-live/model-comparison.md',
   root: '.',
 };
+const FORBIDDEN_MODEL_SELECTOR = /gemini-3\.1/i;
 
 async function main() {
   const { getConfig, loadEnvFile } = await import('../dist/src/config/env.js');
@@ -94,14 +95,25 @@ function resolveLiveModelComparisonTimeout() {
 }
 
 function resolveLiveModelList() {
-  const models = (process.env.T2C_LIVE_COMPARE_MODELS ?? DEFAULTS.models)
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
+  const models = parseModelList(process.env.T2C_LIVE_COMPARE_MODELS);
+  assertAllowedLiveModels(models);
   if (models.length < 2) {
     throw new Error('T2C_LIVE_COMPARE_MODELS needs at least two comma-separated models');
   }
   return models;
+}
+
+function parseModelList(raw) {
+  return (raw ?? DEFAULTS.models)
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function assertAllowedLiveModels(models) {
+  const forbidden = models.filter((model) => FORBIDDEN_MODEL_SELECTOR.test(model));
+  if (forbidden.length === 0) return;
+  throw new Error(`T2C_LIVE_COMPARE_MODELS contains unsupported model(s): ${forbidden.join(', ')}`);
 }
 
 function resolveLiveModelRoot() {
