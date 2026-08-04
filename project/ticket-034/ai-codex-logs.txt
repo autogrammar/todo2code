@@ -1,0 +1,57 @@
+2026-08-04 plan activation
+
+- User requested timeout scaling by task complexity and input size, including
+  proportional increases such as 2x above default values.
+- User requested continued execution and prohibited Gemini 3.1 Pro Preview;
+  Validator review remains configured for openrouter/z-ai/glm-5.2.
+- Current main is clean and contains the compatible OpenRouter request base.
+- Plan commit contains governance artifacts only.
+
+2026-08-04 implementation validation
+
+npm run build && node --test dist/test/openrouter-timeout.test.js
+- PASS: 7 tests, 0 failures.
+- Covered baseline, 2x/4x/8x thresholds, output pressure, structured complexity,
+  600-second cap, malformed values, audit safety, immediate cancellation and
+  retry deadline containment.
+
+npm run verify
+- PASS: TypeScript, module/env/workflow boundaries, generated analysis,
+  structured schemas, build and complete tests.
+- Complete tests: 342 total, 341 passed, 1 skipped because JDK is unavailable,
+  0 failed.
+
+make docker-smoke
+- PASS: image build and runtime smoke.
+
+./project/governance-check.sh
+- GOV-PASS: 0 errors, 0 warnings.
+
+2026-08-04 first hosted review response
+
+PR #31 initial checks
+- Push verify: PASS.
+- Pull-request verify: one unrelated CLI watch test timed out after 46 seconds;
+  all other tests passed. The same exact head passed push verify.
+- Koru deterministic gate: REJECT because calculateOpenRouterTimeout CC=31 and
+  OpenRouterClient.request CC=27 exceeded the configured CC=15 limit.
+- Koru advisory model: openrouter/z-ai/glm-5.2.
+
+Complexity repair
+- Decomposed request execution without adding a new deadline or retry budget.
+- `lizard src/llm/openrouter.ts src/llm/openrouter-timeout.ts`: PASS, zero
+  threshold warnings.
+- Focused OpenRouter tests: 26 passed, 0 failed.
+- Full verify after repair: PASS, 342 tests with 0 failures.
+- Docker smoke after repair: PASS.
+
+Second Koru parser finding
+- Hosted Vallm still reported calculateOpenRouterTimeout CC=31 although the
+  standalone Lizard CLI reported CC=7.
+- Reproduced the discrepancy through Vallm's exact Lizard Python API: a `<`
+  comparison inside the returned object literal was parsed as an unclosed
+  TypeScript generic and merged all following functions into one metric.
+- Moved the cap comparison to a named boolean before the object literal and
+  removed an unreachable JSON.stringify undefined check.
+- Exact Python API now reports no function above CC=15 in either changed module.
+- Focused OpenRouter tests: 26 passed, 0 failed; governance passes.

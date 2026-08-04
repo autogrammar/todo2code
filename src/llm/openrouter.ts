@@ -1,6 +1,7 @@
 import type { T2CConfig } from '../config/env.js';
 import type { LlmResponseMetadata } from '../core/types.js';
 import { StructuredResponseError, type StructuredSchema } from './structured-schema.js';
+import { openRouterRequestTimeout, type OpenRouterTimeoutDecision } from './openrouter-timeout.js';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -169,84 +170,135 @@ export class OpenRouterClient {
   }
 
   private async request(body: Record<string, unknown>): Promise<OpenRouterResponse> {
-    const apiKey = this.config.apiKey;
-    if (!apiKey) throw new Error('OPENROUTER_API_KEY is required for this operation');
+    const configuredCredential = this.config.apiKey;
+    if (!configuredCredential) throw new Error('OPENROUTER_API_KEY is required for this operation');
+    const requestBody = removeUndefined(body) as Record<string, unknown>;
+    const timeoutDecision = openRouterRequestTimeout(requestBody, this.config.timeoutMs);
     const controller = new AbortController();
     const externalSignal = this.config.signal;
     const abortFromExternal = () => controller.abort();
     externalSignal?.addEventListener('abort', abortFromExternal, { once: true });
     if (externalSignal?.aborted) controller.abort();
-    const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
+    const timeout = setTimeout(() => controller.abort(), timeoutDecision.effectiveTimeoutMs);
     try {
-      let lastError: Error | null = null;
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        try {
-          const headers: Record<string, string> = {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'X-OpenRouter-Title': this.config.appName,
-          };
-          if (this.config.siteUrl) headers['HTTP-Referer'] = this.config.siteUrl;
-          const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(removeUndefined(body)),
-            signal: controller.signal,
-          });
-          const text = await response.text();
-          let parsed: OpenRouterResponse;
-          try {
-            parsed = JSON.parse(text) as OpenRouterResponse;
-          } catch {
-            throw new Error(`OpenRouter returned non-JSON HTTP ${response.status}: ${text.slice(0, 500)}`);
-          }
-          if (!response.ok || parsed.error) {
-            const message = parsed.error?.message ?? text.slice(0, 500);
-            const error = new Error(`OpenRouter HTTP ${response.status}: ${message}`);
-            if ((response.status === 429 || response.status >= 500) && attempt < 2) {
-              lastError = error;
-              await sleep(300 * (2 ** attempt));
-              continue;
-            }
-            if (isInvalidModelError(response.status, message)) {
-              const model = typeof body.model === 'string' ? body.model : '(unknown)';
-              try {
-                const availableModels = await this.listAvailableModels();
-                throw new OpenRouterModelError(
-                  formatInvalidModelError(error.message, availableModels),
-                  model,
-                  availableModels,
-                );
-              } catch (listError) {
-                if (listError instanceof OpenRouterModelError) throw listError;
-                throw new OpenRouterModelError(
-                  `${error.message}\nAvailable OpenRouter models could not be fetched: ${listError instanceof Error ? listError.message : String(listError)}`,
-                  model,
-                  [],
-                );
-              }
-            }
-            throw error;
-          }
-          return parsed;
-        } catch (error) {
-          if (error instanceof Error && error.name === 'AbortError') {
-            if (externalSignal?.aborted) throw new Error('OpenRouter request aborted by pipeline deadline');
-            throw new Error(`OpenRouter request timed out after ${this.config.timeoutMs} ms`);
-          }
-          lastError = error instanceof Error ? error : new Error(String(error));
-          if (attempt < 2 && /fetch failed|ECONNRESET|ETIMEDOUT/i.test(lastError.message)) {
-            await sleep(300 * (2 ** attempt));
-            continue;
-          }
-          throw lastError;
-        }
-      }
-      throw lastError ?? new Error('OpenRouter request failed');
+      if (externalSignal?.aborted) throw new Error('OpenRouter request aborted by pipeline deadline');
+      return await this.requestWithRetries(
+        requestBody,
+        configuredCredential,
+        controller.signal,
+        externalSignal,
+        timeoutDecision,
+      );
     } finally {
       clearTimeout(timeout);
       externalSignal?.removeEventListener('abort', abortFromExternal);
     }
+  }
+
+  private async requestWithRetries(
+    body: Record<string, unknown>,
+    credential: string,
+    signal: AbortSignal,
+    externalSignal: AbortSignal | undefined,
+    timeoutDecision: OpenRouterTimeoutDecision,
+  ): Promise<OpenRouterResponse> {
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        return await this.requestAttempt(body, credential, signal);
+      } catch (caught) {
+        const error = normalizeRequestError(caught, externalSignal, timeoutDecision);
+        lastError = error;
+        if (!shouldRetryRequest(error, attempt)) throw error;
+        await waitForRetry(300 * (2 ** attempt), signal, externalSignal, timeoutDecision);
+      }
+    }
+    throw lastError ?? new Error('OpenRouter request failed');
+  }
+
+  private async requestAttempt(
+    body: Record<string, unknown>,
+    credential: string,
+    signal: AbortSignal,
+  ): Promise<OpenRouterResponse> {
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${credential}`,
+      'Content-Type': 'application/json',
+      'X-OpenRouter-Title': this.config.appName,
+    };
+    if (this.config.siteUrl) headers['HTTP-Referer'] = this.config.siteUrl;
+    const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+      signal,
+    });
+    const text = await response.text();
+    const parsed = parseOpenRouterResponse(text, response.status);
+    if (response.ok && !parsed.error) return parsed;
+
+    const message = parsed.error?.message ?? text.slice(0, 500);
+    const error = new Error(`OpenRouter HTTP ${response.status}: ${message}`);
+    if (!isInvalidModelError(response.status, message)) throw error;
+    throw await this.invalidModelError(error, body.model);
+  }
+
+  private async invalidModelError(error: Error, configuredModel: unknown): Promise<OpenRouterModelError> {
+    const model = typeof configuredModel === 'string' ? configuredModel : '(unknown)';
+    try {
+      const availableModels = await this.listAvailableModels();
+      return new OpenRouterModelError(
+        formatInvalidModelError(error.message, availableModels),
+        model,
+        availableModels,
+      );
+    } catch (listError) {
+      return new OpenRouterModelError(
+        `${error.message}\nAvailable OpenRouter models could not be fetched: ${listError instanceof Error ? listError.message : String(listError)}`,
+        model,
+        [],
+      );
+    }
+  }
+}
+
+function parseOpenRouterResponse(text: string, status: number): OpenRouterResponse {
+  try {
+    return JSON.parse(text) as OpenRouterResponse;
+  } catch {
+    throw new Error(`OpenRouter returned non-JSON HTTP ${status}: ${text.slice(0, 500)}`);
+  }
+}
+
+function normalizeRequestError(
+  caught: unknown,
+  externalSignal: AbortSignal | undefined,
+  timeoutDecision: OpenRouterTimeoutDecision,
+): Error {
+  const error = caught instanceof Error ? caught : new Error(String(caught));
+  if (error.name !== 'AbortError') return error;
+  if (externalSignal?.aborted) return new Error('OpenRouter request aborted by pipeline deadline');
+  return new Error(
+    `OpenRouter request timed out after ${timeoutDecision.effectiveTimeoutMs} ms `
+    + `(base ${timeoutDecision.baseTimeoutMs} ms, adaptive ${timeoutDecision.multiplier}x${timeoutDecision.capped ? ', capped' : ''})`,
+  );
+}
+
+function shouldRetryRequest(error: Error, attempt: number): boolean {
+  if (attempt >= 2) return false;
+  return /OpenRouter HTTP (?:429|5\d\d):|fetch failed|ECONNRESET|ETIMEDOUT/i.test(error.message);
+}
+
+async function waitForRetry(
+  milliseconds: number,
+  signal: AbortSignal,
+  externalSignal: AbortSignal | undefined,
+  timeoutDecision: OpenRouterTimeoutDecision,
+): Promise<void> {
+  try {
+    await sleep(milliseconds, signal);
+  } catch (error) {
+    throw normalizeRequestError(error, externalSignal, timeoutDecision);
   }
 }
 
@@ -333,6 +385,17 @@ function parseJsonResponse<T>(response: OpenRouterResponse): OpenRouterResult<T>
   }
 }
 
-function sleep(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+function sleep(milliseconds: number, signal: AbortSignal): Promise<void> {
+  if (signal.aborted) return Promise.reject(new DOMException('aborted', 'AbortError'));
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      clearTimeout(timeout);
+      reject(new DOMException('aborted', 'AbortError'));
+    };
+    const timeout = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, milliseconds);
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
 }
