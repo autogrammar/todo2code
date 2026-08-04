@@ -9,6 +9,8 @@
   `openrouter/z-ai/glm-5.2`; no live provider request was made.
 - Returned the follow-up to `PLAN / WAIT_FOR_APPROVAL`. No managed governance,
   workflow, application, test, build or human-owned file was changed.
+- Human approved AC-36..AC-40; transitioned to `IN_PROGRESS / EDIT` before
+  changing managed governance or workflow configuration.
 
 ## [0.4.1] - 2026-08-04
 

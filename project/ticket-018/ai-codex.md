@@ -243,7 +243,8 @@ Current verified baseline:
 - No live provider request or paid benchmark is required for this correction.
   Deterministic workflow/schema checks will validate the identifier and review
   envelope.
-- Current follow-up state is `PLAN / WAIT_FOR_APPROVAL` for AC-36..AC-40.
+- Human approved AC-36..AC-40 on 2026-08-04. The follow-up entered
+  `IN_PROGRESS / EDIT` before managed governance or workflow implementation.
 
 ## Blockers
 

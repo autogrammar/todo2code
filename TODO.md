@@ -15,7 +15,7 @@
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current follow-up state: `PLAN / WAIT_FOR_APPROVAL` for AC-36..AC-40. Reconcile
+  Current follow-up state: `IN_PROGRESS / EDIT` for AC-37..AC-40. Reconcile
   the two divergent upstream 0.9.0 contracts as canonical 0.10.0, adopt one
   reviewed full SHA, compare governance diagnostics before/after and replace
   the costly Koru Gemini 3.1 Pro Preview model with `z-ai/glm-5.2`. Do not make

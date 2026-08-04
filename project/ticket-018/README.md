@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -290,7 +290,7 @@ to this migration.
 - [x] AC-35: Central tests, target governance fixtures and documentation
       consistency pass; the diff contains only approved governance paths in
       each repository and records inherited repository blockers separately.
-- [ ] AC-36: A human approves upstream reconciliation, exact-SHA adoption,
+- [x] AC-36: A human approves upstream reconciliation, exact-SHA adoption,
       diagnostic comparison and the GLM cost correction before managed files
       or workflow configuration change.
 - [ ] AC-37: The adopted standard is one reviewed full SHA identified as
@@ -329,7 +329,8 @@ to this migration.
 
 ## Approval boundary
 
-- Current follow-up state: `PLAN / WAIT_FOR_APPROVAL` for AC-36..AC-40.
+- Current follow-up state: `IN_PROGRESS / EDIT` for AC-37..AC-40 after explicit
+  human approval on 2026-08-04.
 - Upstream ticket-003 must complete first. A changed upstream SHA, managed-file
   plan or workflow model returns this phase to planning.
 - Required response from: `unresolved:human`.
