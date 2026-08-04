@@ -4,7 +4,7 @@
 
 - [ ] [`ticket-033`](project/ticket-033/README.md) — restore communication LLM
   prompt resolution after its helper moved one directory deeper. Current
-  state: `PLAN / WAIT_FOR_APPROVAL`; one production file, estimated under 30
+  state: `IN_PROGRESS / EDIT`; one production file, estimated under 30
   minutes, no test or prompt-content changes.
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free

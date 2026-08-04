@@ -2,8 +2,8 @@
 
 - **ID**: ticket-033
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -27,7 +27,7 @@ allowed and expected implementation time is under 30 minutes.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope is approved by a human owner.
+- [x] AC-01: Scope is approved by a human owner.
 - [ ] AC-02: The communication prompt resolves from both compiled test/runtime
       execution without relying on stale artifacts.
 - [ ] AC-03: Both audited communication enrichment tests pass using their
@@ -43,6 +43,6 @@ allowed and expected implementation time is under 30 minutes.
 
 ## Approval boundary
 
-- Current state: `PLAN / WAIT_FOR_APPROVAL`.
+- Current state: `IN_PROGRESS / EDIT` after explicit chat approval.
 - Chat approval authorizes this interactive implementation only; trusted merge
   evidence must remain independent and bound to the final SHA.

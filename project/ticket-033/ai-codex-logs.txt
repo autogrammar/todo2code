@@ -2,3 +2,5 @@
 - Fresh base `caf6551`: two communication LLM tests fail because the split
   helper resolves the prompt under nonexistent `dist/prompts`.
 - No production source edited; state remains `WAIT_FOR_APPROVAL`.
+- Human response `kontynuuj` authorized ticket-033; transitioned to
+  `IN_PROGRESS / EDIT`.
