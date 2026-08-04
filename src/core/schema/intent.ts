@@ -78,18 +78,19 @@ export function assertIntentRecord(value: unknown): asserts value is IntentRecor
 }
 
 function assertIntentStatement(record: Record<string, unknown>): IntentRecord['statement'] {
-  const statement = objectValue(record.statement, `Intent ${(record.id as string ?? 'unknown')}: statement`);
-  exactKeys(statement, ['kind', 'actor', 'action', 'subject', 'object', 'target', 'modality', 'polarity', 'text'], `Intent ${(record.id as string ?? 'unknown')}: statement`);
-  nonEmptyString(statement.kind, `Intent ${(record.id as string ?? 'unknown')}: statement.kind`);
-  nullableString(statement.actor, `Intent ${(record.id as string ?? 'unknown')}: statement.actor`);
-  enumValue(statement.action, ACTIONS, `Intent ${(record.id as string ?? 'unknown')}: statement.action`);
-  nullableString(statement.subject, `Intent ${record.id}: statement.subject`);
-  nonEmptyString(statement.object, `Intent ${record.id}: statement.object`);
-  if (typeof statement.text !== 'string') throw new Error(`Intent ${record.id}: statement.text must be a string`);
-  enumValue(statement.modality, MODALITIES, `Intent ${record.id}: statement.modality`);
-  enumValue(statement.polarity, POLARITIES, `Intent ${record.id}: statement.polarity`);
-  statement.target = assertIntentTarget(record.id, statement.target);
-  return statement;
+  const recordId = typeof record.id === 'string' ? record.id : 'unknown';
+  const statement = objectValue(record.statement, `Intent ${recordId}: statement`);
+  exactKeys(statement, ['kind', 'actor', 'action', 'subject', 'object', 'target', 'modality', 'polarity', 'text'], `Intent ${recordId}: statement`);
+  nonEmptyString(statement.kind, `Intent ${recordId}: statement.kind`);
+  nullableString(statement.actor, `Intent ${recordId}: statement.actor`);
+  enumValue(statement.action, ACTIONS, `Intent ${recordId}: statement.action`);
+  nullableString(statement.subject, `Intent ${recordId}: statement.subject`);
+  nonEmptyString(statement.object, `Intent ${recordId}: statement.object`);
+  if (typeof statement.text !== 'string') throw new Error(`Intent ${recordId}: statement.text must be a string`);
+  enumValue(statement.modality, MODALITIES, `Intent ${recordId}: statement.modality`);
+  enumValue(statement.polarity, POLARITIES, `Intent ${recordId}: statement.polarity`);
+  statement.target = assertIntentTarget(recordId, statement.target);
+  return statement as unknown as IntentRecord['statement'];
 }
 
 function assertIntentTarget(recordId: string, targetValue: unknown): IntentRecord['statement']['target'] {
@@ -98,14 +99,14 @@ function assertIntentTarget(recordId: string, targetValue: unknown): IntentRecor
   for (const key of ['paths', 'symbols', 'tickets', 'versions'] as const) {
     stringArray(target[key], `Intent ${recordId}: statement.target.${key}`, true);
   }
-  return target;
+  return target as unknown as IntentRecord['statement']['target'];
 }
 
 function assertIntentLifecycle(record: Record<string, unknown>): IntentRecord['lifecycle'] {
   const lifecycle = objectValue(record.lifecycle, `Intent ${record.id as string}: lifecycle`);
   exactKeys(lifecycle, ['status'], `Intent ${record.id as string}: lifecycle`);
   enumValue(lifecycle.status, LIFECYCLES, `Intent ${record.id as string}: lifecycle.status`);
-  return lifecycle;
+  return lifecycle as unknown as IntentRecord['lifecycle'];
 }
 
 function assertIntentSource(record: Record<string, unknown>): IntentRecord['source'] {
@@ -131,7 +132,7 @@ function assertIntentSource(record: Record<string, unknown>): IntentRecord['sour
       throw new Error(`Intent ${record.id as string}: source.lines must be positive and end >= start`);
     }
   }
-  return source;
+  return source as unknown as IntentRecord['source'];
 }
 
 function assertIntentEpistemic(record: Record<string, unknown>): IntentRecord['epistemic'] {
@@ -143,7 +144,7 @@ function assertIntentEpistemic(record: Record<string, unknown>): IntentRecord['e
     throw new Error(`Intent ${record.id as string}: epistemic.confidence must be between 0 and 1`);
   }
   stringArray(epistemic.basis, `Intent ${record.id as string}: epistemic.basis`, true);
-  return epistemic;
+  return epistemic as unknown as IntentRecord['epistemic'];
 }
 
 function assertIntentMetadata(

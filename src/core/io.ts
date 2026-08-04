@@ -108,7 +108,7 @@ function createWalkState(root: string, options: WalkOptions): WalkState {
     maxFiles: options.maxFiles ?? 20_000,
     extensions: options.extensions ? new Set(options.extensions.map((value) => value.toLowerCase())) : null,
     ignored: new Set([...DEFAULT_IGNORED_DIRS, ...(options.ignoredDirs ?? [])]),
-    matcher: options.matcher,
+    ...(options.matcher === undefined ? {} : { matcher: options.matcher }),
   };
 }
 

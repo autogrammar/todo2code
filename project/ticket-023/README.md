@@ -15,6 +15,13 @@ restore missing type imports, synchronize `T2C_VERSION` with canonical release
 `0.5.2`, and close the stray schema guard in the newly split semantic reranker.
 CLI and interface files remain outside this workstream.
 
+After parser recovery, strict TypeScript checking exposed four additional
+current-refactor defects in the same workstream: an explicit `undefined`
+optional walk matcher, validator records not narrowed after runtime checks,
+two local variables shadowing their predicate functions, and an optional
+reranker response ID passed without null normalization. These exact files are
+included in the continuing core-dsl repair.
+
 ## Acceptance criteria
 
 - [x] AC-01: The human instructed the agent to continue the diagnosed repair.
@@ -25,6 +32,8 @@ CLI and interface files remain outside this workstream.
 - [ ] AC-04: Runtime and package/SDK versions consistently report `0.5.2`.
 - [ ] AC-05: Focused core/semantic validation passes; remaining diagnostics are
       attributed to other workstreams.
+- [ ] AC-06: Strict optional-property and runtime-validator types pass without
+      weakening validation or changing evidence semantics.
 
 ## Participants
 

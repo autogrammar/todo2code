@@ -22,6 +22,8 @@ core/semantic edits will be reapplied on current HEAD.
 3. Close the unmatched semantic schema guard without changing behavior.
 4. Run focused TypeScript validation and governance.
 5. Route CLI/interface failures to a separate non-overlapping ticket.
+6. Repair the four strict-type regressions exposed after all parser errors
+   clear, preserving current runtime validation behavior.
 
 ## Actual changes
 
