@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-026`](project/ticket-026/README.md) — remove the stale runtime
+  diff-git dispatcher argument after the action split. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`; exact runtime scope is documented.
+
 - [ ] [`ticket-025`](project/ticket-025/README.md) — repair NL type guards and
   the public markdown batching export after helper splits. Current state:
   `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
