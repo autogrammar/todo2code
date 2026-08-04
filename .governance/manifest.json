@@ -29,7 +29,7 @@
   "trustedApprovalActors": {
     "githubApps": [
       {
-        "login": "if-uri-validator-agent[bot]",
+        "login": "ifuri-validator-agent[bot]",
         "type": "Bot"
       }
     ]

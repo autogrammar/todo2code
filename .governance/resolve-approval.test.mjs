@@ -6,7 +6,7 @@ import { resolveTrustedApproval, trustedGithubApps } from './resolve-approval.mj
 const headSha = 'a'.repeat(40);
 const manifest = {
   trustedApprovalActors: {
-    githubApps: [{ login: 'if-uri-validator-agent[bot]', type: 'Bot' }],
+    githubApps: [{ login: 'ifuri-validator-agent[bot]', type: 'Bot' }],
   },
 };
 
@@ -27,11 +27,11 @@ test('accepts an independent human User approval on the exact head', () => {
 });
 
 test('accepts only the exact allowlisted GitHub App on the exact head', () => {
-  const app = review({ user: { login: 'if-uri-validator-agent[bot]', type: 'Bot' } });
+  const app = review({ user: { login: 'ifuri-validator-agent[bot]', type: 'Bot' } });
   const unknown = review({ id: 2, user: { login: 'unknown[bot]', type: 'Bot' } });
   const result = resolveTrustedApproval({ reviews: [unknown, app], authorLogin: 'author', headSha, manifest });
   assert.equal(result.approved, true);
-  assert.equal(result.actor, 'if-uri-validator-agent[bot]');
+  assert.equal(result.actor, 'ifuri-validator-agent[bot]');
 });
 
 test('rejects unknown bots, stale commits, same-author and non-approved reviews', () => {

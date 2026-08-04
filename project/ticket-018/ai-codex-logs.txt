@@ -301,3 +301,6 @@ root infrastructure error on all four TypeScript files: Vallm --regression
 invoked Python pytest, which was unavailable and is not the project test runner
 correction: remove --regression from Koru only; retain hosted npm verify + JDK
 checks and Koru syntax/complexity/security/semantic gates; semantic model GLM 5.2
+historical trusted App reviews resolve the exact login as
+ifuri-validator-agent[bot]; corrected the manifest and workflow default from
+the earlier unverified if-uri-validator-agent[bot] spelling

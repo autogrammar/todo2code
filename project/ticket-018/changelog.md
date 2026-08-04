@@ -17,6 +17,8 @@
   review after live evidence showed it called missing `pytest` for every TS
   file. Regression remains strictly enforced by the separate `verify` and Java
   checks; Koru retains syntax, complexity, security and GLM 5.2 semantic review.
+- Corrected the allowlisted actor to the observed GitHub review identity
+  `ifuri-validator-agent[bot]` from existing Validator App approvals.
 
 ## [0.5.0] - 2026-08-04
 
