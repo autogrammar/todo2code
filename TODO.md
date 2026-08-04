@@ -10,12 +10,6 @@
   020 in parallel; the global gate now reports only ticket-019's declared
   dependency, conflict, ownership and overlap violations.
 
-- [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
-  Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
-  one root `pyproject.toml` and SDK-only artifacts. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
-  release the overlapping `Makefile` path.
-
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
@@ -27,6 +21,14 @@
   deterministic stop/split rules. Upstream 0.9.0 and the pinned target files
   validate; enforcement is staged off until historical 018/019 branch
   conflicts are serialized. AC-17 and inherited blockers remain separate.
+
+## Backlog tickets
+
+- [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
+  Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
+  one root `pyproject.toml` and SDK-only artifacts. Current state:
+  `BACKLOG / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
+  release the overlapping `Makefile` path.
 
 ## Completed tickets
 
