@@ -2,17 +2,18 @@
 
 ## Active tickets
 
-- [ ] [`ticket-037`](project/ticket-037/README.md) — implement the deterministic
-  `t2c.branch/v1` core comparison contract and recommendation rules over
-  immutable, already-materialized branch evidence. Current state:
-  `IN_PROGRESS / VALIDATION`; focused, full, complexity, governance and Docker
-  checks pass.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-037`](project/ticket-037/README.md) — deterministic,
+  fail-closed `t2c.branch/v1` projection over immutable branch evidence.
+  Fourteen focused tests, full host/Docker verification, Koru and Validator
+  approved exact head `50d6dba` with `openrouter/z-ai/glm-5.2`; PR #42 merged
+  as `main@b5d2417`. Current state: `DONE`.
 - [x] [`ticket-038`](project/ticket-038/README.md) — reconciled ticket-036's
   stale pending-review narrative with protected completion evidence. Koru and
   Validator approved exact head `670894d` using

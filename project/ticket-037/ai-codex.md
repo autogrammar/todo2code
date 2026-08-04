@@ -53,4 +53,5 @@ on a stable contract from this ticket and later runtime/interface tickets.
 
 ## Blockers
 
-- Protected exact-head Koru and Validator review remain before merge.
+- None. Exact-head Koru, Validator App and protected CI passed, and PR #42 was
+  merged as `main@b5d2417`.
