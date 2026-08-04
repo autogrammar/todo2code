@@ -38,9 +38,12 @@ on a stable contract from this ticket and later runtime/interface tickets.
 - Added a strict, dependency-free evidence validator and deterministic
   `t2c.branch/v1` projector with exact snapshot bindings, canonical hashes,
   conservative recommendations and no mutation surface.
-- Added nine offline tests for disjoint, duplicate, textual/semantic conflict,
-  stale, unknown, ordered, rebased, invariant and tampered evidence cases.
-- Kept the implementation at 495 NLOC with maximum function CC 11 and passed
+- Preserved base-conflict and ordering citations in the output, made pair-level
+  semantic completeness explicit and bounded all collection inputs.
+- Added fourteen offline tests for disjoint, duplicate, textual/semantic
+  conflict, stale, unknown, ordered, rebased, invariant, malformed and
+  tampered evidence cases.
+- Kept the implementation at 544 NLOC with maximum function CC 11 and passed
   the complete host and Docker regression gates.
 
 ## Blockers

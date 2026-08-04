@@ -19,5 +19,8 @@
 - Added deterministic classifications for disjoint, overlap, duplicate,
   ordered, textual conflict, semantic conflict and unknown branch pairs, with
   conservative per-candidate recommendations and no mutation surface.
-- Added nine focused regression cases; full host verification, Lizard,
+- Required explicit pair-level semantic completeness and relation-backed
+  ordering citations; preserved base semantic findings in the projection and
+  bounded candidate, assertion, citation and PR collections.
+- Added fourteen focused regression cases; full host verification, Lizard,
   governance and Docker core E2E pass without an LLM or network dependency.

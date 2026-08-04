@@ -55,7 +55,9 @@ function pair(
     left,
     right,
     textualMerge: 'clean',
+    semanticEvidence: 'complete',
     ordering: 'independent',
+    orderingEvidence: structuredClone(EMPTY_CITATIONS),
     semanticConflict: structuredClone(EMPTY_CITATIONS),
     ...overrides,
   };
@@ -90,6 +92,7 @@ test('disjoint immutable candidates are bound to exact snapshots and merge-ready
 
   assert.equal(result.schemaVersion, 't2c.branch/v1');
   assert.equal(result.base.sha, BASE_SHA);
+  assert.ok(result.candidates.every((item) => item.baseSha === BASE_SHA));
   assert.deepEqual(result.candidates.map((item) => item.name), ['feature/alpha', 'feature/beta']);
   assert.deepEqual(result.candidates.map((item) => item.recommendation), ['merge_ready', 'merge_ready']);
   assert.equal(result.interactions[0]?.classification, 'disjoint');
@@ -167,9 +170,20 @@ test('contained or proven empty work is stale while unknown evidence requires re
 });
 
 test('ordering and target movement produce merge-after and rebase recommendations', () => {
+  const order = change('4');
   const input = evidence(
-    [candidate('feature/first', '1'), candidate('feature/second', '2', { behindBy: 2 })],
-    [pair('feature/second', 'feature/first', { ordering: 'right_after_left' })],
+    [
+      candidate('feature/first', '1', { assertionChanges: [order] }),
+      candidate('feature/second', '2', { behindBy: 2 }),
+    ],
+    [pair('feature/second', 'feature/first', {
+      ordering: 'right_after_left',
+      orderingEvidence: {
+        assertionIds: [...order.assertionIds],
+        recordIds: [...order.recordIds],
+        relationIds: [...order.relationIds],
+      },
+    })],
   );
 
   const result = projectBranchPortfolio(input);
@@ -181,10 +195,23 @@ test('ordering and target movement produce merge-after and rebase recommendation
 });
 
 test('ordering and generated time do not affect identity but a changed base does', () => {
-  const alpha = candidate('feature/alpha', '1');
+  const alpha = candidate('feature/alpha', '1', {
+    assertionChanges: [
+      change('7'),
+      {
+        ...change('8'),
+        recordIds: ['INT-second', 'INT-first'],
+        relationIds: ['REL-second', 'REL-first'],
+      },
+    ],
+  });
   const beta = candidate('feature/beta', '2');
   const firstInput = evidence([alpha, beta], [pair(alpha.name, beta.name)]);
-  const secondInput = evidence([beta, alpha], [pair(beta.name, alpha.name)]);
+  const reorderedAlpha = structuredClone(alpha);
+  reorderedAlpha.assertionChanges.reverse();
+  reorderedAlpha.assertionChanges[0]!.recordIds.reverse();
+  reorderedAlpha.assertionChanges[0]!.relationIds.reverse();
+  const secondInput = evidence([beta, reorderedAlpha], [pair(beta.name, alpha.name)]);
 
   const first = projectBranchPortfolio(firstInput, '2026-08-04T21:30:00.000Z');
   const second = projectBranchPortfolio(secondInput, '2026-08-05T09:30:00.000Z');
@@ -218,6 +245,82 @@ test('malformed identities and ungrounded semantic conflicts fail closed', () =>
   );
 });
 
+test('repository, counts, enums, digests and timestamps are validated strictly', () => {
+  const malformedRepository = evidence([candidate('feature/valid', '1')], []);
+  malformedRepository.repository = '../todo2code';
+  assert.throws(() => projectBranchPortfolio(malformedRepository), /repository must be owner\/name/);
+
+  const malformedCount = evidence([candidate('feature/count', '2', { aheadBy: -1 })], []);
+  assert.throws(() => projectBranchPortfolio(malformedCount), /aheadBy must be a non-negative integer/);
+
+  const malformedDigest = evidence([candidate('feature/digest', '3', { graphFingerprint: 'ABC' })], []);
+  assert.throws(() => projectBranchPortfolio(malformedDigest), /Invalid feature\/digest graphFingerprint/);
+
+  const malformedEnum = evidence([candidate('feature/enum', '4')], []);
+  malformedEnum.candidates[0]!.baseTextualMerge = 'optimistic' as BranchCandidateEvidence['baseTextualMerge'];
+  assert.throws(() => projectBranchPortfolio(malformedEnum), /Invalid feature\/enum baseTextualMerge/);
+
+  assert.throws(
+    () => projectBranchPortfolio(evidence([candidate('feature/time', '5')], []), '2026-08-04'),
+    /must be an ISO date-time/,
+  );
+});
+
+test('incomplete pair semantics cannot be classified as disjoint', () => {
+  const input = evidence(
+    [candidate('feature/left', '1'), candidate('feature/right', '2')],
+    [pair('feature/left', 'feature/right', { semanticEvidence: 'unknown' })],
+  );
+
+  const result = projectBranchPortfolio(input);
+
+  assert.equal(result.interactions[0]?.classification, 'unknown');
+  assert.ok(result.candidates.every((item) => item.recommendation === 'manual_review'));
+});
+
+test('base semantic evidence and ordering citations survive projection', () => {
+  const baseConflict = change('5');
+  const ordering = change('6');
+  const input = evidence(
+    [
+      candidate('feature/base-conflict', '1', {
+        assertionChanges: [baseConflict],
+        baseSemanticConflict: {
+          assertionIds: [...baseConflict.assertionIds],
+          recordIds: [...baseConflict.recordIds],
+          relationIds: [...baseConflict.relationIds],
+        },
+      }),
+      candidate('feature/follows', '2', { assertionChanges: [ordering] }),
+    ],
+    [pair('feature/base-conflict', 'feature/follows', {
+      ordering: 'right_after_left',
+      orderingEvidence: {
+        assertionIds: [...ordering.assertionIds],
+        recordIds: [...ordering.recordIds],
+        relationIds: [...ordering.relationIds],
+      },
+    })],
+  );
+
+  const result = projectBranchPortfolio(input);
+
+  assert.deepEqual(result.candidates[0]?.baseSemanticConflict.assertionIds, baseConflict.assertionIds);
+  assert.deepEqual(result.interactions[0]?.orderingEvidence.relationIds, ordering.relationIds);
+  assert.equal(result.candidates[0]?.recommendation, 'conflict');
+});
+
+test('ordering without related relation evidence fails closed', () => {
+  const left = candidate('feature/left', '1');
+  const right = candidate('feature/right', '2');
+  assert.throws(
+    () => projectBranchPortfolio(evidence([left, right], [pair(left.name, right.name, {
+      ordering: 'left_after_right',
+    })])),
+    /relation-backed orderingEvidence/,
+  );
+});
+
 test('missing, duplicate and self candidate pairs fail closed', () => {
   const left = candidate('feature/left', '1');
   const right = candidate('feature/right', '2');
@@ -234,6 +337,22 @@ test('missing, duplicate and self candidate pairs fail closed', () => {
     () => projectBranchPortfolio(evidence([left], [pair(left.name, left.name)])),
     /repeats candidate/,
   );
+});
+
+test('no unique work remains stale even when another branch has the same tree', () => {
+  const treeSha = '9'.repeat(40);
+  const input = evidence(
+    [
+      candidate('feature/contained-left', '1', { aheadBy: 0, treeSha, assertionChanges: [] }),
+      candidate('feature/contained-right', '2', { aheadBy: 0, treeSha, assertionChanges: [] }),
+    ],
+    [pair('feature/contained-left', 'feature/contained-right')],
+  );
+
+  const result = projectBranchPortfolio(input);
+
+  assert.equal(result.interactions[0]?.classification, 'duplicate');
+  assert.ok(result.candidates.every((item) => item.recommendation === 'stale'));
 });
 
 test('portfolio validation rejects tampering and authorization-like fields', () => {

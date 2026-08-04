@@ -19,23 +19,27 @@ export interface BranchCandidateEvidence {
 }
 export interface BranchPairEvidence {
   left: string; right: string; textualMerge: BranchTextualMerge;
-  ordering: BranchPairOrdering; semanticConflict: BranchCitationSet;
+  semanticEvidence: BranchEvidenceCompleteness; ordering: BranchPairOrdering;
+  orderingEvidence: BranchCitationSet; semanticConflict: BranchCitationSet;
 }
 export interface BranchPortfolioEvidence {
   schemaVersion: 't2c.branch-evidence/v1'; repository: string; toolVersion: string;
   base: BranchBaseEvidence; candidates: BranchCandidateEvidence[]; pairs: BranchPairEvidence[];
 }
 export interface BranchCandidateResult {
-  id: string; name: string; headSha: string; treeSha: string; mergeBaseSha: string;
+  id: string; name: string; baseSha: string; headSha: string; treeSha: string; mergeBaseSha: string;
   aheadBy: number; behindBy: number; pullRequests: number[]; patchId: string | null;
   graphFingerprint: string; truthMapFingerprint: string; changedAssertionIds: string[];
-  recordIds: string[]; relationIds: string[]; recommendation: BranchRecommendation; reasons: string[];
+  recordIds: string[]; relationIds: string[]; baseTextualMerge: BranchTextualMerge;
+  semanticEvidence: BranchEvidenceCompleteness; baseSemanticConflict: BranchCitationSet;
+  recommendation: BranchRecommendation; reasons: string[];
 }
 export interface BranchInteractionResult {
   id: string; left: string; right: string; leftHeadSha: string; rightHeadSha: string;
   leftMergeBaseSha: string; rightMergeBaseSha: string; baseSha: string;
   classification: BranchInteractionClassification; textualMerge: BranchTextualMerge;
-  ordering: BranchPairOrdering; sharedAssertionIds: string[]; semanticConflict: BranchCitationSet;
+  semanticEvidence: BranchEvidenceCompleteness; ordering: BranchPairOrdering;
+  orderingEvidence: BranchCitationSet; sharedAssertionIds: string[]; semanticConflict: BranchCitationSet;
 }
 export interface BranchPortfolio {
   schemaVersion: 't2c.branch/v1'; generatedAt: string; repository: string; toolVersion: string;
@@ -56,6 +60,8 @@ const PATCH_ID = /^[a-f0-9]{40}([a-f0-9]{24})?$/;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const ASSERTION_ID = /^TRUTH-[a-f0-9]{20}$/;
 const CITATION_ID = /^[A-Za-z][A-Za-z0-9._:-]{1,159}$/;
+const MAX_CANDIDATES = 128;
+const MAX_ASSERTION_CHANGES = 4096, MAX_CITATIONS = 4096, MAX_PULL_REQUESTS = 1000;
 const TEXTUAL_MERGES = new Set<BranchTextualMerge>(['clean', 'conflict', 'unknown']);
 const COMPLETENESS = new Set<BranchEvidenceCompleteness>(['complete', 'unknown']);
 const CHANGE_KINDS = new Set<BranchAssertionChangeKind>(['added', 'modified', 'removed']);
@@ -77,8 +83,8 @@ export function assertBranchPortfolioEvidence(value: BranchPortfolioEvidence): v
   requireRepository(value.repository);
   requireText(value.toolVersion, 'Branch evidence toolVersion');
   validateBase(value.base);
-  if (!Array.isArray(value.candidates) || value.candidates.length === 0) {
-    throw new Error('Branch evidence candidates must be a non-empty array');
+  if (!Array.isArray(value.candidates) || value.candidates.length === 0 || value.candidates.length > MAX_CANDIDATES) {
+    throw new Error(`Branch evidence candidates must contain 1..${MAX_CANDIDATES} items`);
   }
   if (!Array.isArray(value.pairs)) throw new Error('Branch evidence pairs must be an array');
   const candidates = validateCandidates(value.candidates);
@@ -155,6 +161,7 @@ const validateCandidate = (candidate: BranchCandidateEvidence): void => {
 };
 const validatePullRequests = (values: number[], branch: string): void => {
   if (!Array.isArray(values)) throw new Error(`${branch} pullRequests must be an array`);
+  if (values.length > MAX_PULL_REQUESTS) throw new Error(`${branch} pullRequests exceeds ${MAX_PULL_REQUESTS} items`);
   const seen = new Set<number>();
   for (const value of values) {
     if (!Number.isSafeInteger(value) || value <= 0) throw new Error(`${branch} pullRequests must contain positive integers`);
@@ -164,6 +171,7 @@ const validatePullRequests = (values: number[], branch: string): void => {
 };
 const validateAssertionChanges = (values: BranchAssertionChange[], branch: string): void => {
   if (!Array.isArray(values)) throw new Error(`${branch} assertionChanges must be an array`);
+  if (values.length > MAX_ASSERTION_CHANGES) throw new Error(`${branch} assertionChanges exceeds ${MAX_ASSERTION_CHANGES} items`);
   const seen = new Set<string>();
   for (const change of values) {
     requireObject(change, `${branch} assertion change`);
@@ -236,17 +244,36 @@ const validatePairs = (pairs: BranchPairEvidence[], candidates: CandidateIndex):
 };
 const validatePair = (pair: BranchPairEvidence, candidates: CandidateIndex): void => {
   requireObject(pair, 'Branch pair');
-  requireExactKeys(pair, ['left', 'right', 'textualMerge', 'ordering', 'semanticConflict'], 'Branch pair');
+  requireExactKeys(pair, [
+    'left', 'right', 'textualMerge', 'semanticEvidence', 'ordering', 'orderingEvidence', 'semanticConflict',
+  ], 'Branch pair');
   if (pair.left === pair.right) throw new Error(`Branch pair repeats candidate ${pair.left}`);
   const left = candidates.get(pair.left);
   const right = candidates.get(pair.right);
   if (!left || !right) throw new Error(`Branch pair references unknown candidate ${pair.left} / ${pair.right}`);
   requireEnum(pair.textualMerge, TEXTUAL_MERGES, 'Branch pair textualMerge');
+  requireEnum(pair.semanticEvidence, COMPLETENESS, 'Branch pair semanticEvidence');
   requireEnum(pair.ordering, ORDERINGS, 'Branch pair ordering');
   validateConflict(pair.semanticConflict, left.assertionChanges, 'Branch pair semanticConflict', right.assertionChanges);
+  validatePairCitations(pair.orderingEvidence, left, right, 'Branch pair orderingEvidence');
+  validateOrderingEvidence(pair);
   if (isDuplicateIdentity(left, right) && hasConflict(pair)) {
     throw new Error(`Duplicate branch pair ${pairKey(pair.left, pair.right)} cannot also conflict`);
   }
+};
+const validatePairCitations = (
+  citations: BranchCitationSet, left: BranchCandidateEvidence, right: BranchCandidateEvidence, name: string,
+): void => {
+  validateCitations(citations, name);
+  const changes = [...left.assertionChanges, ...right.assertionChanges];
+  requireSubset(citations.assertionIds, new Set(changes.map((change) => change.assertionIds[0])), name, 'assertion');
+  requireSubset(citations.recordIds, new Set(changes.flatMap((change) => change.recordIds)), name, 'record');
+  requireSubset(citations.relationIds, new Set(changes.flatMap((change) => change.relationIds)), name, 'relation');
+};
+const validateOrderingEvidence = (pair: BranchPairEvidence): void => {
+  const ordered = pair.ordering === 'left_after_right' || pair.ordering === 'right_after_left';
+  if (ordered !== (pair.orderingEvidence.relationIds.length > 0))
+    throw new Error('Ordered branch pair must contain relation-backed orderingEvidence only');
 };
 const buildInteraction = (
   baseSha: string,
@@ -257,23 +284,15 @@ const buildInteraction = (
   const right = candidates.get(pair.right);
   if (!left || !right) throw new Error('Branch pair candidate disappeared after validation');
   const sharedAssertionIds = intersection(assertionIds(left), assertionIds(right));
-  const identity = {
-    baseSha,
-    left: pair.left,
-    right: pair.right,
-    leftHeadSha: left.headSha,
-    rightHeadSha: right.headSha,
-    leftMergeBaseSha: left.mergeBaseSha,
-    rightMergeBaseSha: right.mergeBaseSha,
-  };
+  const identity = { baseSha, left: pair.left, right: pair.right,
+    leftHeadSha: left.headSha, rightHeadSha: right.headSha,
+    leftMergeBaseSha: left.mergeBaseSha, rightMergeBaseSha: right.mergeBaseSha };
   return {
-    id: `BPAIR-${shortHash(stableStringify(identity), 20)}`,
-    ...identity,
+    id: `BPAIR-${shortHash(stableStringify(identity), 20)}`, ...identity,
     classification: classifyInteraction(pair, left, right, sharedAssertionIds),
-    textualMerge: pair.textualMerge,
-    ordering: pair.ordering,
-    sharedAssertionIds,
-    semanticConflict: canonicalCitations(pair.semanticConflict),
+    textualMerge: pair.textualMerge, semanticEvidence: pair.semanticEvidence, ordering: pair.ordering,
+    orderingEvidence: canonicalCitations(pair.orderingEvidence),
+    sharedAssertionIds, semanticConflict: canonicalCitations(pair.semanticConflict),
   };
 };
 const classifyInteraction = (
@@ -286,6 +305,7 @@ const classifyInteraction = (
   if (pair.textualMerge === 'conflict') return 'textual_conflict';
   if (isDuplicateIdentity(left, right)) return 'duplicate';
   if (pair.ordering === 'left_after_right' || pair.ordering === 'right_after_left') return 'ordered_after';
+  if (pair.semanticEvidence === 'unknown') return 'unknown';
   if (sharedAssertionIds.length > 0) return 'overlap';
   if (pair.textualMerge === 'clean' && pair.ordering === 'independent') return 'disjoint';
   return 'unknown';
@@ -301,21 +321,17 @@ const buildCandidate = (
   const changes = canonicalChanges(candidate.assertionChanges);
   return {
     id: `BRANCH-${shortHash(stableStringify({ repository, baseSha, name: candidate.name, headSha: candidate.headSha }), 20)}`,
-    name: candidate.name,
-    headSha: candidate.headSha,
-    treeSha: candidate.treeSha,
-    mergeBaseSha: candidate.mergeBaseSha,
-    aheadBy: candidate.aheadBy,
-    behindBy: candidate.behindBy,
+    name: candidate.name, baseSha, headSha: candidate.headSha, treeSha: candidate.treeSha,
+    mergeBaseSha: candidate.mergeBaseSha, aheadBy: candidate.aheadBy, behindBy: candidate.behindBy,
     pullRequests: [...candidate.pullRequests].sort((left, right) => left - right),
-    patchId: candidate.patchId,
-    graphFingerprint: candidate.graphFingerprint,
-    truthMapFingerprint: candidate.truthMapFingerprint,
+    patchId: candidate.patchId, graphFingerprint: candidate.graphFingerprint,
+    truthMapFingerprint: candidate.truthMapFingerprint, baseTextualMerge: candidate.baseTextualMerge,
+    semanticEvidence: candidate.semanticEvidence,
+    baseSemanticConflict: canonicalCitations(candidate.baseSemanticConflict),
     changedAssertionIds: changes.map((change) => change.assertionIds[0] ?? ''),
     recordIds: uniqueSorted(changes.flatMap((change) => change.recordIds)),
     relationIds: uniqueSorted(changes.flatMap((change) => change.relationIds)),
-    recommendation: recommendationFor(candidate, relevant),
-    reasons,
+    recommendation: recommendationFor(candidate, relevant), reasons,
   };
 };
 const recommendationFor = (
@@ -323,8 +339,8 @@ const recommendationFor = (
   interactions: BranchInteractionResult[],
 ): BranchRecommendation => {
   if (hasCandidateConflict(candidate, interactions)) return 'conflict';
-  if (interactions.some((item) => item.classification === 'duplicate')) return 'duplicate';
   if (candidate.aheadBy === 0 || (candidate.semanticEvidence === 'complete' && candidate.assertionChanges.length === 0)) return 'stale';
+  if (interactions.some((item) => item.classification === 'duplicate')) return 'duplicate';
   if (candidate.behindBy > 0) return 'rebase_required';
   if (interactions.some((item) => waitsForCandidate(candidate.name, item))) return 'merge_after';
   if (candidate.baseTextualMerge === 'unknown' || candidate.semanticEvidence === 'unknown') return 'manual_review';
@@ -432,51 +448,37 @@ const pairKey = (left: string, right: string): string => {
   return left.localeCompare(right) < 0 ? `${left}\u0000${right}` : `${right}\u0000${left}`;
 };
 const intersection = (left: string[], right: string[]): string[] => {
-  const rightValues = new Set(right);
-  return uniqueSorted(left.filter((value) => rightValues.has(value)));
+  return uniqueSorted(left.filter((value) => new Set(right).has(value)));
 };
 const uniqueSorted = (values: string[]): string[] => [...new Set(values)].sort();
 const requireObject: (value: unknown, name: string) => asserts value is Record<string, unknown> = (value, name) => {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${name} must be an object`);
-};
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${name} must be an object`); };
 const requireExactKeys = (value: object, keys: string[], name: string): void => {
-  const actual = Object.keys(value).sort();
-  const expected = [...keys].sort();
-  if (stableStringify(actual) !== stableStringify(expected)) throw new Error(`${name} has unexpected or missing fields`);
-};
+  if (stableStringify(Object.keys(value).sort()) !== stableStringify([...keys].sort()))
+    throw new Error(`${name} has unexpected or missing fields`); };
 const requireRepository = (value: string): void => {
-  if (typeof value !== 'string' || !REPOSITORY.test(value) || value.includes('..')) {
-    throw new Error('Branch evidence repository must be owner/name');
-  }
-};
+  if (typeof value !== 'string' || !REPOSITORY.test(value) || value.includes('..'))
+    throw new Error('Branch evidence repository must be owner/name'); };
 const requireBranchName = (value: string): void => {
   const malformed = typeof value !== 'string'
-    || value.length === 0
-    || value.length > 200
+    || value.length === 0 || value.length > 200
     || !/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(value)
-    || value.includes('..')
-    || value.includes('//')
-    || value.endsWith('/')
-    || value.endsWith('.')
-    || value.endsWith('.lock');
+    || value.includes('..') || value.includes('//')
+    || value.endsWith('/') || value.endsWith('.') || value.endsWith('.lock');
   if (malformed) throw new Error(`Invalid branch name ${String(value)}`);
 };
 const requireSha = (value: string, name: string): void => {
-  if (typeof value !== 'string' || !SHA.test(value)) throw new Error(`Invalid ${name}`);
-};
+  if (typeof value !== 'string' || !SHA.test(value)) throw new Error(`Invalid ${name}`); };
 const requireDigest = (value: string, name: string): void => {
-  if (typeof value !== 'string' || !DIGEST.test(value)) throw new Error(`Invalid ${name}`);
-};
+  if (typeof value !== 'string' || !DIGEST.test(value)) throw new Error(`Invalid ${name}`); };
 const requireCount = (value: number, name: string): void => {
-  if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer`);
-};
+  if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer`); };
 const requireText = (value: string, name: string): void => {
-  if (typeof value !== 'string' || value.trim() !== value || value.length === 0 || value.length > 128) {
-    throw new Error(`${name} must be bounded non-empty text`);
-  }
-};
+  if (typeof value !== 'string' || value.trim() !== value || value.length === 0 || value.length > 128)
+    throw new Error(`${name} must be bounded non-empty text`); };
 const requireUniqueIds = (values: string[], pattern: RegExp, name: string): void => {
   if (!Array.isArray(values)) throw new Error(`${name} must be an array`);
+  if (values.length > MAX_CITATIONS) throw new Error(`${name} exceeds ${MAX_CITATIONS} items`);
   const seen = new Set<string>();
   for (const value of values) {
     if (typeof value !== 'string' || !pattern.test(value)) throw new Error(`Invalid ${name} value ${String(value)}`);
@@ -484,12 +486,14 @@ const requireUniqueIds = (values: string[], pattern: RegExp, name: string): void
     seen.add(value);
   }
 };
-const requireEnum = <T extends string>(value: T, allowed: Set<T>, name: string): void => {
-  if (!allowed.has(value)) throw new Error(`Invalid ${name}: ${String(value)}`);
+const requireSubset = (values: string[], allowed: Set<string | undefined>, name: string, kind: string): void => {
+  for (const value of values) if (!allowed.has(value)) throw new Error(`${name} references unrelated ${kind} ${value}`);
 };
+const requireEnum = <T extends string>(value: T, allowed: Set<T>, name: string): void => {
+  if (!allowed.has(value)) throw new Error(`Invalid ${name}: ${String(value)}`); };
 const requireDateTime = (value: string, name: string): void => {
-  if (typeof value !== 'string' || value.length === 0 || Number.isNaN(Date.parse(value))) {
+  const parsed = typeof value === 'string' ? new Date(value) : null;
+  if (parsed === null || Number.isNaN(parsed.getTime()) || parsed.toISOString() !== value)
     throw new Error(`${name} must be an ISO date-time`);
-  }
 };
 const compareById = (left: { id: string }, right: { id: string }): number => left.id.localeCompare(right.id);

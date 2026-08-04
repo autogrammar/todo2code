@@ -29,6 +29,9 @@ Every input binds:
 - a deterministic textual merge result supplied by a later Git runtime;
 - graph and truth-map fingerprints plus the explicit assertion changes used by
   semantic comparison;
+- explicit semantic completeness for each candidate and pair, so absent proof
+  cannot be interpreted as `disjoint`;
+- relation-backed citations for every non-independent ordering claim;
 - optional stable patch identity for equivalent cherry-pick detection.
 
 An unknown or missing fact stays `unknown`; the core must never infer a clean
@@ -91,17 +94,17 @@ Recommendations are a read model, not authorization. In particular,
 ## Approval boundary
 
 The user explicitly approved ticket-037 after reviewing this input/output and
-recommendation contract. Current state: `IN_PROGRESS / EDIT`. Chat approval
+recommendation contract. Current state: `IN_PROGRESS / VALIDATION`. Chat approval
 authorizes this bounded interactive edit only; merge still requires protected
 exact-head evidence.
 
 ## Validation result
 
-- Focused branch portfolio suite: 9 passed, 0 failed.
-- Full host verification: 358 passed, 1 environment-dependent skip, 0 failed.
-- Docker core E2E: 352 passed, 7 toolchain-dependent skips; both gold datasets,
+- Focused branch portfolio suite: 14 passed, 0 failed.
+- Full host verification: 363 passed, 1 environment-dependent skip, 0 failed.
+- Docker core E2E: 357 passed, 7 toolchain-dependent skips; both gold datasets,
   CLI, MCP, A2A and examples passed with `T2C-E2E-000`.
-- Lizard: 495 NLOC, zero threshold violations, maximum function CC 11.
+- Lizard: 544 NLOC, zero threshold violations, maximum function CC 11.
 - Governance: `GOV-PASS` with 0 errors and 0 warnings.
 - No Git/GitHub mutation, LLM call, runtime dependency or cross-workstream
   implementation change was introduced.
