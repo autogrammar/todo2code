@@ -1,0 +1,8 @@
+2026-08-04 plan activation
+
+- User requested timeout scaling by task complexity and input size, including
+  proportional increases such as 2x above default values.
+- User requested continued execution and prohibited Gemini 3.1 Pro Preview;
+  Validator review remains configured for openrouter/z-ai/glm-5.2.
+- Current main is clean and contains the compatible OpenRouter request base.
+- Plan commit contains governance artifacts only.
