@@ -27,3 +27,5 @@
 - Recorded the exact compiled focused-test command and its 14/14 pass result so
   exact-head review does not have to infer feature coverage from the aggregate
   `verify` check name.
+- Replaced four TypeScript non-null assertions in the focused suite with
+  explicit runtime guards; full typecheck and regression verification pass.

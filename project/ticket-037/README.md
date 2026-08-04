@@ -108,5 +108,7 @@ exact-head evidence.
   CLI, MCP, A2A and examples passed with `T2C-E2E-000`.
 - Lizard: 499 NLOC, zero threshold violations, maximum function CC 11.
 - Governance: `GOV-PASS` with 0 errors and 0 warnings.
+- Test fixtures use explicit runtime guards instead of TypeScript non-null
+  assertions; typecheck and the 14-test focused suite pass after the repair.
 - No Git/GitHub mutation, LLM call, runtime dependency or cross-workstream
   implementation change was introduced.

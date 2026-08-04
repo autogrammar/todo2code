@@ -46,6 +46,8 @@ on a stable contract from this ticket and later runtime/interface tickets.
 - Re-ran the exact compiled focused suite
   `node --test dist/test/graph-branch-portfolio.test.js`: 14/14 passed with no
   skips, making the feature-specific evidence explicit for protected review.
+- Replaced every non-null assertion in the new test file with an explicit
+  `assert.ok` guard after Validator identified the unsafe fixture accesses.
 - Kept the implementation at 499 NLOC with maximum function CC 11 and passed
   the complete host and Docker regression gates.
 

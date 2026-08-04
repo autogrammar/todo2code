@@ -209,8 +209,10 @@ test('ordering and generated time do not affect identity but a changed base does
   const firstInput = evidence([alpha, beta], [pair(alpha.name, beta.name)]);
   const reorderedAlpha = structuredClone(alpha);
   reorderedAlpha.assertionChanges.reverse();
-  reorderedAlpha.assertionChanges[0]!.recordIds.reverse();
-  reorderedAlpha.assertionChanges[0]!.relationIds.reverse();
+  const reorderedChange = reorderedAlpha.assertionChanges[0];
+  assert.ok(reorderedChange);
+  reorderedChange.recordIds.reverse();
+  reorderedChange.relationIds.reverse();
   const secondInput = evidence([beta, reorderedAlpha], [pair(beta.name, alpha.name)]);
 
   const first = projectBranchPortfolio(firstInput, '2026-08-04T21:30:00.000Z');
@@ -229,7 +231,9 @@ test('malformed identities and ungrounded semantic conflicts fail closed', () =>
   const left = candidate('feature/left', '1');
   const right = candidate('feature/right', '2');
   const invalidSha = evidence([candidate('feature/invalid', '3')], []);
-  invalidSha.candidates[0]!.headSha = 'ABC';
+  const invalidCandidate = invalidSha.candidates[0];
+  assert.ok(invalidCandidate);
+  invalidCandidate.headSha = 'ABC';
   assert.throws(() => projectBranchPortfolio(invalidSha), /Invalid feature\/invalid headSha/);
 
   const unrelated = pair(left.name, right.name, {
@@ -257,7 +261,9 @@ test('repository, counts, enums, digests and timestamps are validated strictly',
   assert.throws(() => projectBranchPortfolio(malformedDigest), /Invalid feature\/digest graphFingerprint/);
 
   const malformedEnum = evidence([candidate('feature/enum', '4')], []);
-  malformedEnum.candidates[0]!.baseTextualMerge = 'optimistic' as BranchCandidateEvidence['baseTextualMerge'];
+  const malformedCandidate = malformedEnum.candidates[0];
+  assert.ok(malformedCandidate);
+  malformedCandidate.baseTextualMerge = 'optimistic' as BranchCandidateEvidence['baseTextualMerge'];
   assert.throws(() => projectBranchPortfolio(malformedEnum), /Invalid feature\/enum baseTextualMerge/);
 
   assert.throws(
