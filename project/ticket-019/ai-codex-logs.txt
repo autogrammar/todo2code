@@ -63,3 +63,24 @@ npm run examples:check
 make e2e-core
 - PASS: verify, gold v2, gold v1, CLI, MCP, A2A and examples.
 - Result: T2C-E2E-000: PASS suite=core.
+
+2026-08-04 protected review and merge
+
+Pull request
+- PR: semcod/todo2code#28
+- Exact head: 16c2276960abf3bd521f335c7c7f7d36b2e2f5c1
+- Required checks: PASS verify, Java adapter (JDK 17 required),
+  koru / code-review and governance / governance / enforce.
+
+Validator App
+- Workflow run: subactor/validator-agent#30946212627, success.
+- Deterministic exact-head decision: APPROVED.
+- Advisory model: openrouter/z-ai/glm-5.2.
+- Advisory verdict: REQUEST_CHANGES because the pre-merge PyPI publication
+  needs explicit release-process treatment. The advisory result was preserved
+  and was not used as the approval trust root.
+- Merge requested by Validator: no.
+
+Merge
+- PR #28 merged without administrator override.
+- Merge commit: e333acefb24ee878754510416efb9e5a4aedda7b.
