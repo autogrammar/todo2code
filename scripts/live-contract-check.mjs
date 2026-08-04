@@ -52,9 +52,10 @@ async function main() {
   } = await import('../dist/src/live/contract-check.js');
 
   const budget = resolveLiveBudget();
+  const artifacts = liveContractArtifactPaths();
 
   const manifest = await runLivePipeline(budget, liveRequestTimeoutMs);
-  const history = await readHistory();
+  const history = await readHistory(artifacts.historyFile);
   const recorded = buildRecordedLiveAudit({
     manifest,
     budget,
@@ -63,16 +64,15 @@ async function main() {
   });
   const { audit } = recorded;
 
-  const { auditFile, historyFile } = liveContractArtifactPaths();
   await writeLiveContractArtifacts({
     audit,
     history: recorded.history,
-    auditFile,
-    historyFile,
+    auditFile: artifacts.auditFile,
+    historyFile: artifacts.historyFile,
   });
   process.stdout.write(`${renderLiveReport(audit)}\n`);
-  process.stdout.write(`audit: ${path.relative(REPO_ROOT, auditFile)}\n`);
-  process.stdout.write(`history: ${path.relative(REPO_ROOT, historyFile)}\n`);
+  process.stdout.write(`audit: ${path.relative(REPO_ROOT, artifacts.auditFile)}\n`);
+  process.stdout.write(`history: ${path.relative(REPO_ROOT, artifacts.historyFile)}\n`);
 
   if (!audit.passed) process.exitCode = 1;
 }
@@ -256,9 +256,9 @@ function historyPath() {
 }
 
 /** A missing or unreadable history starts empty; the trend is not the gate. */
-async function readHistory() {
+async function readHistory(historyFile) {
   try {
-    const parsed = JSON.parse(await fs.readFile(historyPath(), 'utf8'));
+    const parsed = JSON.parse(await fs.readFile(historyFile, 'utf8'));
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
