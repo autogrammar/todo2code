@@ -1,0 +1,5 @@
+2026-08-04 aggregate test diagnosis
+communication identity warning missing because declaredGitAuthors was replaced
+by registry gitAuthors before comparison; confidence test reads pre-split files;
+docs runtime version expectation remains 0.5.0 while canonical release is 0.5.2.
+Scope expanded within extractors; user authorization: kontynuuj.
