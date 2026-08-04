@@ -2,13 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-031`](project/ticket-031/README.md) — define collision-free,
-  deterministic repository provenance for Intent DSL records as the first
-  bounded foundation for Subactor Core↔Docs evidence linking. Current state:
-  `IN_PROGRESS / VALIDATION`; focused tests pass 4/4, and the clean overlay on
-  aggregate repair `56081b6` passes 342 tests plus Docker smoke. Publication
-  waits for the already implemented ticket-023..027 repair chain to integrate.
-
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
@@ -34,6 +27,11 @@
   release the overlapping `Makefile` path.
 
 ## Completed tickets
+
+- [x] [`ticket-031`](project/ticket-031/README.md) — added deterministic,
+  collision-free repository provenance to Intent DSL record identity while
+  preserving legacy IDs. Current state: `DONE`; governance, 342 tests and
+  Docker smoke pass on the exact publication branch.
 
 - [x] [`ticket-027`](project/ticket-027/README.md) — restored strict LLM helper
   narrowing and confidence hierarchy coverage. Current state: `DONE`; all

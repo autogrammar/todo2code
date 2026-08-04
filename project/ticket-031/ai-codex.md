@@ -35,12 +35,14 @@ preserving existing single-repository IDs.
 - Applied the three-file implementation as an uncommitted validation overlay
   on aggregate repair `56081b6`: `npm run verify` reported 342 total, 341 pass,
   one optional JDK skip and zero failures; Docker smoke also passed.
+- Integrated the completed ticket-023..027 chain ahead of ticket 031 and
+  repeated governance, full verification and Docker smoke on the exact
+  publication branch; all gates pass.
 - Workflow transitioned from `EDIT` to `VALIDATION`.
+- Workflow transitioned from `VALIDATION` to `DONE`.
 
 ## Blockers
 
-- Publication waits for the already validated ticket-023..027 aggregate repair
-  to enter the target history so this commit can be rebased without copying or
-  duplicating another workstream's fixes.
+- None for ticket completion. Protected publication review remains external.
 - External Docs ingestion and cross-repository linker reconciliation require
   their own dependent tickets after this bounded foundation.

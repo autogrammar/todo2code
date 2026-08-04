@@ -2,8 +2,8 @@
 
 - **ID**: ticket-031
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -69,11 +69,9 @@ changed by this slice.
 
 ## Current blockers
 
-- The ticket commit is based on a broken `main` snapshot. Its clean overlay on
-  the existing aggregate repair `56081b6` reports 342 total tests (341 pass,
-  one optional JDK skip, zero failures) and passes Docker smoke. Publication
-  waits for the already implemented tickets 023–027 to be integrated, followed
-  by a rebase; no additional parser repair is required in ticket 031.
+- None for ticket completion. The exact publication branch includes the
+  completed ticket-023..027 repair chain and reports 342 total tests (341 pass,
+  one optional JDK skip, zero failures), governance PASS and Docker smoke PASS.
 - The complete capability needs later integration slices after this identity
   foundation: one to ingest allowlisted sibling documentation and one to
   reconcile explicit cross-repository symbol/path targets.

@@ -10,6 +10,8 @@
 - Reused the existing ticket-023..027 aggregate repair as a temporary
   validation base: full verification and Docker smoke pass with this change.
   No duplicate repair implementation or automatic ticket was created.
+- Integrated the completed repair chain, repeated every required gate on the
+  exact publication branch and marked ticket 031 DONE.
 - Planned a 25-minute core-only identity slice for repository-qualified Intent
   records after the Subactor Core run exposed missing sibling Docs evidence.
 - Kept warning suppression, external reads, linker changes and automatic ticket
