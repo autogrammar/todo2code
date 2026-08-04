@@ -1,0 +1,18 @@
+2026-08-04 core repair validation
+
+$ bash project/governance-check.sh --actor agent
+GOV-PASS: passed (0 errors, 0 warnings)
+
+$ npm run check
+src/cli.ts(504,129): error TS1005: ',' expected.
+The prior code-change.ts parse error is cleared; the remaining error belongs to
+the separately scoped interfaces ticket.
+
+$ TypeScript transpileModule src/core/types/code-change.ts
+code-change syntax: PASS
+
+Version contract: VERSION=0.5.2, package=0.5.2, runtime=0.5.2.
+
+Focused TS-source tests were deferred to the combined worktree because this
+repository does not declare `tsx`; the supported test command compiles to
+`dist/` first and is still blocked by the CLI parse error.

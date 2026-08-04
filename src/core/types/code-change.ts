@@ -219,3 +219,32 @@ export interface TodoPatchArtifact {
     contentHash: string;
   };
   graphFingerprint: string;
+  diagnosticsFingerprint: string;
+  selectedProposalIds: string[];
+  duplicateProposalIds: string[];
+  duplicates: TodoPatchDuplicateClassification[];
+  synthesisAudit: PipelineStageAudit;
+  renderedPatchHash: string;
+}
+
+export interface TodoPatchApproval {
+  actor: string;
+  patchHash: string;
+}
+
+export interface TodoApplyReceipt {
+  schemaVersion: 't2c.todo-apply-receipt/v1';
+  patchHash: string;
+  sourceTodoHash: string;
+  resultTodoHash: string;
+  selectedProposalIds: string[];
+  approvedBy: string;
+  approvedAt: string;
+  appliedAt: string;
+}
+
+export interface TodoApplyResult {
+  applied: boolean;
+  idempotent: boolean;
+  receipt: TodoApplyReceipt;
+}
