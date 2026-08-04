@@ -42,22 +42,24 @@ jobs:
               pull_number: context.payload.pull_request.number,
             });
             const author = context.payload.pull_request.user.login;
-            const resolution = resolver.resolveTrustedApproval({
-              reviews,
-              authorLogin: author,
-              headSha: context.payload.pull_request.head.sha,
-              manifest,
-            });
             const active = fs.readdirSync('project', {withFileTypes: true})
               .filter(item => item.isDirectory() && /^ticket-[0-9]{3}$/.test(item.name))
               .filter(item => {
                 const readme = fs.readFileSync(path.join('project', item.name, 'README.md'), 'utf8');
                 return /^-\s+\*\*Status\*\*:\s*(PLAN|IN_PROGRESS|BLOCKED)\s*$/mi.test(readme);
               }).map(item => item.name);
+            const resolution = resolver.resolveTrustedApproval({
+              reviews,
+              authorLogin: author,
+              headSha: context.payload.pull_request.head.sha,
+              activeTickets: active,
+              manifest,
+            });
             core.setOutput('source', resolution.source);
             core.setOutput('actor', resolution.actor || 'none');
             core.setOutput('actor-type', resolution.actorType || 'none');
-            core.setOutput('ticket', active.length > 0 ? active.sort().join(',') : 'none');
+            core.setOutput('ticket', resolution.approvedTickets.length > 0 ? resolution.approvedTickets.join(',') : 'none');
+            core.setOutput('correlation-id', resolution.correlationId || 'none');
       - name: Validate ticket, intent, scope, ownership and pinned files
         shell: bash
         env:

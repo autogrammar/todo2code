@@ -22,9 +22,10 @@ export function trustedGithubApps(manifest) {
   return logins;
 }
 
-export function resolveTrustedApproval({ reviews, authorLogin, headSha, manifest }) {
+export function resolveTrustedApproval({ reviews, authorLogin, headSha, activeTickets, manifest }) {
   if (!Array.isArray(reviews) || typeof authorLogin !== 'string'
-      || !/^[0-9a-f]{40}$/.test(headSha)) {
+      || !/^[0-9a-f]{40}$/.test(headSha) || !Array.isArray(activeTickets)
+      || activeTickets.some(ticket => !/^ticket-[0-9]{3}$/.test(ticket))) {
     throw new Error('approval resolver input is malformed');
   }
   const trustedApps = trustedGithubApps(manifest);
@@ -43,18 +44,32 @@ export function resolveTrustedApproval({ reviews, authorLogin, headSha, manifest
         || typeof login !== 'string' || login.toLowerCase() === authorLogin.toLowerCase()) {
       return false;
     }
-    return type === 'User' || (type === 'Bot' && trustedApps.has(login.toLowerCase()));
+    if (type === 'User') return true;
+    if (type !== 'Bot' || !trustedApps.has(login.toLowerCase())) return false;
+    const binding = reviewBinding(review.body);
+    return binding !== null && activeTickets.includes(binding.ticket);
   }).sort((left, right) => left.user.login.localeCompare(right.user.login));
 
   if (candidates.length === 0) {
-    return { approved: false, source: 'none', actor: null, actorType: null };
+    return { approved: false, source: 'none', actor: null, actorType: null, approvedTickets: [] };
   }
+  const selected = candidates[0];
+  const binding = selected.user.type === 'Bot' ? reviewBinding(selected.body) : null;
   return {
     approved: true,
     source: 'github-review',
-    actor: candidates[0].user.login,
-    actorType: candidates[0].user.type,
+    actor: selected.user.login,
+    actorType: selected.user.type,
+    approvedTickets: binding ? [binding.ticket] : [...activeTickets].sort(),
+    correlationId: binding?.correlationId ?? null,
   };
+}
+
+function reviewBinding(body) {
+  if (typeof body !== 'string') return null;
+  const ticket = body.match(/^Ticket:\s+`(ticket-[0-9]{3})`\s*$/m)?.[1];
+  const correlationId = body.match(/^Correlation ID:\s+`([A-Za-z0-9][A-Za-z0-9._-]{0,127})`\s*$/m)?.[1];
+  return ticket && correlationId ? { ticket, correlationId } : null;
 }
 
 function isAtLeastAsNew(candidate, previous) {

@@ -17,8 +17,15 @@
   review after live evidence showed it called missing `pytest` for every TS
   file. Regression remains strictly enforced by the separate `verify` and Java
   checks; Koru retains syntax, complexity, security and GLM 5.2 semantic review.
+- Replaced the LLM-derived Koru gate verdict with commit-bound advisory evidence
+  (`t2c.koru-code-review/v2`). Added a 420-second/8192-token/zero-retry provider
+  boundary and TypeScript parser normalization; deterministic CI remains the
+  only required decision source.
 - Corrected the allowlisted actor to the observed GitHub review identity
   `ifuri-validator-agent[bot]` from existing Validator App approvals.
+- Bound trusted App evidence to the exact active `ticket-NNN` and safe
+  correlation ID recorded in the current-head review body; human review
+  behavior remains unchanged.
 
 ## [0.5.0] - 2026-08-04
 
