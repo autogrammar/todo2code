@@ -2,8 +2,8 @@
 
 - **ID**: ticket-039
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-04
 
 ## Goal
@@ -105,8 +105,9 @@ ticket-037 projector.
 
 The user explicitly approved continuation and testing of ticket-039 on
 2026-08-05 after reviewing the initialized plan. Chat approval authorizes only
-the bounded interactive edit. A protected exact-head review or verified
-attestation remains required merge evidence.
+the bounded interactive edit. The implementation was independently reviewed
+and merged through the protected path; merge authority came from exact-head
+Validator App evidence and required checks.
 
 ## Validation result
 
@@ -144,3 +145,25 @@ The first live pass exposed and the implementation repaired an incorrect
 `merge-base..head`, so work already contained in the base is not presented as
 a reverse patch. The audit created no persistent local checkout and made no
 remote mutation.
+
+## Protected completion evidence
+
+- Koru review run
+  [30956043365](https://github.com/semcod/todo2code/actions/runs/30956043365)
+  passed exact head `29df4507a2dbb55c6a3b296afc51a117ade0f01c`.
+- Validator run
+  [30956174819](https://github.com/subactor/validator-agent/actions/runs/30956174819)
+  approved the same head for `ticket-039` with
+  `openrouter/z-ai/glm-5.2`; its final advisory verdict was `APPROVE` with no
+  findings.
+- Review-triggered CI run
+  [30956277125](https://github.com/semcod/todo2code/actions/runs/30956277125)
+  passed governance, full verification, Docker smoke and the required Java
+  fixture using the exact-head approval evidence.
+- The earlier pull-request CI run
+  [30956043915](https://github.com/semcod/todo2code/actions/runs/30956043915)
+  was rerun after approval so GitHub's required-check rollup no longer retained
+  its pre-approval failure under the same governance context. The rerun passed
+  without changing the reviewed SHA.
+- Protected PR [#44](https://github.com/semcod/todo2code/pull/44) merged as
+  `main@2948f4ad5a5c7cf6f399c0f40f824bf159d84ff4`.
