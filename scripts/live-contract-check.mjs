@@ -29,7 +29,7 @@ const DEFAULTS = {
   runOutput: '.intent-live-run',
 };
 
-function envNumber(raw, name, fallback) {
+function resolveEnvNumber(raw, name, fallback) {
   if (raw === undefined || raw.trim() === '') return fallback;
   const value = Number(raw);
   if (!Number.isFinite(value) || value < 0) {
@@ -43,13 +43,7 @@ async function main() {
   await loadEnvFile(REPO_ROOT);
   const config = getConfig(REPO_ROOT);
 
-  if (!config.openRouter.apiKey) {
-    if (process.env.T2C_REQUIRE_LIVE_CHECK === '1') {
-      throw new Error('OPENROUTER_API_KEY is not configured and T2C_REQUIRE_LIVE_CHECK=1');
-    }
-    process.stdout.write('live contract check: SKIPPED (OPENROUTER_API_KEY not configured)\n');
-    return;
-  }
+  if (await maybeSkipLiveContractCheck(config)) return;
 
   const {
     buildRecordedLiveAudit,
@@ -57,19 +51,7 @@ async function main() {
     renderLiveReport,
   } = await import('../dist/src/live/contract-check.js');
 
-  const budget = {
-    maxStageLatencyMs: envNumber(
-      process.env.T2C_LIVE_MAX_STAGE_LATENCY_MS ?? process.env.T2C_LIVE_MAX_LATENCY_MS,
-      'T2C_LIVE_MAX_STAGE_LATENCY_MS',
-      DEFAULTS.maxStageLatencyMs,
-    ),
-    maxTotalLatencyMs: envNumber(
-      process.env.T2C_LIVE_MAX_TOTAL_LATENCY_MS,
-      'T2C_LIVE_MAX_TOTAL_LATENCY_MS',
-      DEFAULTS.maxTotalLatencyMs,
-    ),
-    maxCostUsd: envNumber(process.env.T2C_LIVE_MAX_COST_USD, 'T2C_LIVE_MAX_COST_USD', DEFAULTS.maxCostUsd),
-  };
+  const budget = resolveLiveBudget();
 
   const manifest = await runLivePipeline(budget, liveRequestTimeoutMs);
   const history = await readHistory();
@@ -90,13 +72,42 @@ async function main() {
   if (!audit.passed) process.exitCode = 1;
 }
 
+function isLiveCheckRequired() {
+  return process.env.T2C_REQUIRE_LIVE_CHECK === '1';
+}
+
+async function maybeSkipLiveContractCheck(config) {
+  if (config.openRouter.apiKey) return false;
+  if (isLiveCheckRequired()) {
+    throw new Error('OPENROUTER_API_KEY is not configured and T2C_REQUIRE_LIVE_CHECK=1');
+  }
+  process.stdout.write('live contract check: SKIPPED (OPENROUTER_API_KEY not configured)\n');
+  return true;
+}
+
+function resolveLiveBudget() {
+  return {
+    maxStageLatencyMs: resolveEnvNumber(
+      process.env.T2C_LIVE_MAX_STAGE_LATENCY_MS ?? process.env.T2C_LIVE_MAX_LATENCY_MS,
+      'T2C_LIVE_MAX_STAGE_LATENCY_MS',
+      DEFAULTS.maxStageLatencyMs,
+    ),
+    maxTotalLatencyMs: resolveEnvNumber(
+      process.env.T2C_LIVE_MAX_TOTAL_LATENCY_MS,
+      'T2C_LIVE_MAX_TOTAL_LATENCY_MS',
+      DEFAULTS.maxTotalLatencyMs,
+    ),
+    maxCostUsd: resolveEnvNumber(process.env.T2C_LIVE_MAX_COST_USD, 'T2C_LIVE_MAX_COST_USD', DEFAULTS.maxCostUsd),
+  };
+}
+
 /**
  * Runs all six semantic stages with no deterministic fallback available.
  *
  * `require-llm` throws once a stage cannot honour the contract, but it persists
  * the failed run's manifest first. That manifest is the finding, so it is read
  * back and measured: a named stage with its reason beats an opaque exception.
- */
+*/
 async function runLivePipeline(budget, liveRequestTimeoutMs) {
   const { runPipeline } = await import('../dist/src/pipeline/run.js');
   const { getConfig } = await import('../dist/src/config/env.js');
@@ -117,6 +128,7 @@ async function runLivePipeline(budget, liveRequestTimeoutMs) {
   const deadline = new AbortController();
   const deadlineTimer = setTimeout(() => deadline.abort(), budget.maxTotalLatencyMs);
   config.openRouter.signal = deadline.signal;
+  applyLiveBudgetTimeouts(config, budget, liveRequestTimeoutMs);
   const startedAt = Date.now();
 
   try {
@@ -128,6 +140,17 @@ async function runLivePipeline(budget, liveRequestTimeoutMs) {
   } finally {
     clearTimeout(deadlineTimer);
   }
+}
+
+function applyLiveBudgetTimeouts(config, budget, liveRequestTimeoutMs) {
+  config.openRouter.timeoutMs = liveRequestTimeoutMs(
+    config.openRouter.timeoutMs,
+    budget.maxStageLatencyMs,
+  );
+  config.documentTimeoutMs = liveRequestTimeoutMs(
+    config.documentTimeoutMs,
+    budget.maxStageLatencyMs,
+  );
 }
 
 async function runLivePipelineOnce(runPipeline, root, outputDir, config) {

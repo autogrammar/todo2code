@@ -212,7 +212,7 @@ function buildRerankResult(
     requestedModel: model,
     model: response.metadata.model ?? model,
     modelRevision,
-    responseId: response.metadata.responseId,
+    responseId: response.metadata.responseId ?? null,
   });
 }
 

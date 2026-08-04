@@ -1,0 +1,19 @@
+import { DIFF_UI_COMPARE_SCRIPT } from './diff-ui-compare.js';
+
+export const DIFF_UI_SCRIPT = `<script>
+const byId=(id)=>document.getElementById(id);
+const state={runs:[]};
+const requestHeaders=(json)=>{const headers={};if(json)headers['Content-Type']='application/json';const token=byId('token').value.trim();if(token)headers.Authorization='Bearer '+token;return headers};
+const formatBytes=(bytes)=>bytes<1048576?Math.round(bytes/1024)+' KiB':(bytes/1048576).toFixed(1)+' MiB';
+const selectedRun=(side)=>state.runs.find((run)=>run.graphPath===byId(side+'-run').value);
+function updateMeta(side){const run=selectedRun(side),communication=run?.communication;byId(side+'-meta').textContent=run?(run.graphFingerprint||'brak fingerprintu')+' · '+formatBytes(run.graphBytes)+' · status: '+(run.status||'legacy')+' · runtime: '+(run.runtimeVersion||'?')+' · ostrzeżenia: '+run.warningCount+(communication?' · uczestnicy: '+communication.participants.length+' · problemy: '+communication.issueCount:''):''}
+function fillSelect(side,preferred,index){const select=byId(side+'-run');select.textContent='';const manual=document.createElement('option');manual.value='';manual.textContent='Ręczne źródło';select.append(manual);const graphRuns=state.runs.filter((run)=>run.graphPath);for(const run of graphRuns){const option=document.createElement('option');option.value=run.graphPath;const date=new Date(run.createdAt).toLocaleString();option.textContent=run.runId+' · '+date+' · '+(run.graphFingerprint||'').slice(0,12);select.append(option)}const fallback=graphRuns[index]?.graphPath||'';select.value=graphRuns.some((run)=>run.graphPath===preferred)?preferred:fallback;select.disabled=graphRuns.length===0;updateMeta(side)}
+async function loadRuns(){const status=byId('status'),error=byId('error'),reload=byId('reload');reload.disabled=true;status.textContent='Ładowanie historii .intent…';error.textContent='';const previousBefore=byId('before-run').value,previousAfter=byId('after-run').value;try{const query=new URLSearchParams();for(const [key,id] of [['participant','participant-filter'],['role','role-filter'],['ticket','ticket-filter'],['severity','severity-filter']]){const value=byId(id).value.trim();if(value)query.set(key,value)}const response=await fetch('/api/runs?'+query.toString(),{headers:requestHeaders(false)});const payload=await response.json();if(!response.ok)throw new Error(typeof payload.error==='string'?payload.error:'HTTP '+response.status);state.runs=Array.isArray(payload.runs)?payload.runs:[];fillSelect('before',previousBefore,1);fillSelect('after',previousAfter,0);const graphRuns=state.runs.filter((run)=>run.graphPath),failed=state.runs.filter((run)=>run.status==='failed').length,failedText=failed?' · nieudane runy: '+failed:'';if(graphRuns.length>=2){status.textContent='Wybrano dwa najnowsze kompletne runy'+failedText;await compareGraphs()}else{status.textContent=(graphRuns.length===1?'Znaleziono tylko jeden kompletny run':'Brak kompletnych runów w .intent/runs')+failedText}}catch(cause){error.textContent=cause instanceof Error?cause.message:String(cause);status.textContent='Nie udało się załadować historii'}finally{reload.disabled=false}}
+for(const side of ['before','after']){byId(side+'-file').addEventListener('change',async(event)=>{const file=event.target.files?.[0];if(file){byId(side).value=await file.text();byId(side+'-run').value='';updateMeta(side)}});byId(side+'-run').addEventListener('change',()=>{updateMeta(side);if(byId('before-run').value&&byId('after-run').value)void compareGraphs()})}
+${DIFF_UI_COMPARE_SCRIPT}
+byId('compare').addEventListener('click',()=>void compareGraphs());
+byId('reload').addEventListener('click',()=>void loadRuns());
+byId('token').addEventListener('change',()=>void loadRuns());
+for(const id of ['participant-filter','role-filter','ticket-filter','severity-filter'])byId(id).addEventListener('change',()=>void loadRuns());
+void loadRuns();
+</script>`;

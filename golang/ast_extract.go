@@ -151,10 +151,18 @@ func parseFile(relative string, source []byte) ([]Fact, string) {
 
 	lines := strings.Split(string(source), "\n")
 	collector := &factCollector{relative: relative, fileSet: fileSet, lines: lines}
+	collectPackageFact(parsed, collector)
+	collectImportFacts(parsed, collector)
+	collectDeclarationFacts(parsed, collector)
+	return collector.facts, ""
+}
 
+func collectPackageFact(parsed *ast.File, collector *factCollector) {
 	collector.add(parsed.Name, "go_package_fact", "declare", parsed.Name.Name,
 		strPtr(parsed.Name.Name), nil, map[string]any{"package": parsed.Name.Name})
+}
 
+func collectImportFacts(parsed *ast.File, collector *factCollector) {
 	for _, importSpec := range parsed.Imports {
 		importPath, err := strconv.Unquote(importSpec.Path.Value)
 		if err != nil {
@@ -166,12 +174,12 @@ func parseFile(relative string, source []byte) ([]Fact, string) {
 		}
 		collector.add(importSpec, "go_import_fact", "depend_on", importPath, nil, nil, metadata)
 	}
+}
 
+func collectDeclarationFacts(parsed *ast.File, collector *factCollector) {
 	for _, declaration := range parsed.Decls {
 		collector.visitDecl(declaration, parsed.Name.Name)
 	}
-
-	return collector.facts, ""
 }
 
 type factCollector struct {

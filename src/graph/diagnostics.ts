@@ -120,11 +120,11 @@ function isRecordEvidenced(
   record: IntentRecord,
   context: DiagnosticContext,
 ): boolean {
-  const hasImplementedTarget = !hasCapabilityClaim(record) && hasImplementedTarget(record, context.implementedPaths);
-  const hasDocumentedTarget = record.source.kind === 'changelog' && hasDocumentedTarget(record, context.documentedPaths);
+  const hasImplementedTargetEvidence = !hasCapabilityClaim(record) && hasImplementedTarget(record, context.implementedPaths);
+  const hasDocumentedTargetEvidence = record.source.kind === 'changelog' && hasDocumentedTarget(record, context.documentedPaths);
   return context.groundedImplementation.has(record.id)
-    || hasImplementedTarget
-    || hasDocumentedTarget;
+    || hasImplementedTargetEvidence
+    || hasDocumentedTargetEvidence;
 }
 
 function buildPlannedNotImplementedDiagnostic(

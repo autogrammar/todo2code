@@ -98,17 +98,37 @@ export function assertAcyclicProposalDependencies(proposals: { id: string; depen
   const visiting = new Set<string>();
   const visited = new Set<string>();
   const visit = (id: string, chain: string[]): void => {
-    if (visiting.has(id)) {
-      const start = chain.indexOf(id);
-      throw new Error(`TODO proposal dependency cycle: ${[...chain.slice(Math.max(0, start)), id].join(' -> ')}`);
+    if (isCycleStart(chain, id, visiting)) {
+      throw new Error(`TODO proposal dependency cycle: ${formatProposalCycle(chain, id).join(' -> ')}`);
     }
-    if (visited.has(id)) return;
-    visiting.add(id);
+    if (isAlreadyVisited(visited, id)) return;
+    markVisit(visiting, id);
     for (const dependency of byId.get(id)?.dependencies ?? []) visit(dependency, [...chain, id]);
-    visiting.delete(id);
-    visited.add(id);
+    endVisit(visiting, visited, id);
   };
   for (const proposal of proposals) visit(proposal.id, []);
+}
+
+function isCycleStart(chain: string[], id: string, visiting: Set<string>): boolean {
+  return visiting.has(id);
+}
+
+function formatProposalCycle(chain: string[], id: string): string[] {
+  const start = chain.indexOf(id);
+  return [...chain.slice(Math.max(0, start)), id];
+}
+
+function isAlreadyVisited(visited: Set<string>, id: string): boolean {
+  return visited.has(id);
+}
+
+function markVisit(visiting: Set<string>, id: string): void {
+  visiting.add(id);
+}
+
+function endVisit(visiting: Set<string>, visited: Set<string>, id: string): void {
+  visiting.delete(id);
+  visited.add(id);
 }
 
 export function dateString(value: unknown, name: string): asserts value is string {

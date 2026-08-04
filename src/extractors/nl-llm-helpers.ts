@@ -7,11 +7,10 @@ import { buildRecord, withRecordGeneration } from '../core/record.js';
 import type {
   ExtractionResult,
   IntentAction,
+  Modality,
   IntentRecord,
   LlmResponseMetadata,
-  Modality,
   PipelineStageAudit,
-  LifecycleStatus,
 } from '../core/types.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient, type OpenRouterResult } from '../llm/openrouter.js';
@@ -21,12 +20,12 @@ import { T2C_VERSION } from '../version.js';
 export interface RawNlRecord {
   kind: string;
   actor: string | null;
-  action: IntentAction;
+  action: string;
   subject: string | null;
   object: string;
-  modality: Modality;
+  modality: string;
   polarity: 'positive' | 'negative';
-  lifecycle: LifecycleStatus;
+  lifecycle: string;
   confidence: number;
   basis: string[];
   target: { paths: string[]; symbols: string[]; tickets: string[]; versions: string[] };
@@ -97,7 +96,7 @@ export function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: strin
     subject: raw.subject ?? null,
     object,
     target: raw.target,
-    modality: allowedModality(raw.modality) ? raw.modality : 'unknown',
+    modality: resolveModality(raw.modality),
     polarity: raw.polarity === 'negative' ? 'negative' : 'positive',
     text: statementText,
     lifecycle: 'proposed',
@@ -169,6 +168,10 @@ function resolveAction(rawAction: string): IntentAction {
   return allowedAction(rawAction) ? rawAction : 'unknown';
 }
 
+function resolveModality(rawModality: string): Modality {
+  return allowedModality(rawModality) ? rawModality : 'unknown';
+}
+
 /**
  * `statement.object` is free text, but neighbouring fields (`action`, `modality`,
  * `lifecycle`) are enums that include the literal `unknown`. Models copy that
@@ -217,18 +220,20 @@ function clampLine(value: number, min: number, max: number): number {
 }
 
 function allowedAction(value: string): value is IntentAction {
-  return NL_ACTIONS.includes(value);
+  return NL_ACTION_SET.has(value);
 }
 
 function allowedModality(value: string): value is Modality {
-  return NL_MODALITIES.includes(value);
+  return NL_MODALITY_SET.has(value);
 }
 
 const NL_ACTIONS = [
   'add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'validate',
   'call', 'depend_on', 'declare', 'release', 'change', 'preserve', 'block', 'approve', 'unknown',
 ] as const;
+const NL_ACTION_SET = new Set<string>(NL_ACTIONS);
 const NL_MODALITIES = ['required', 'recommended', 'optional', 'observed', 'claimed', 'unknown'] as const;
+const NL_MODALITY_SET = new Set<string>(NL_MODALITIES);
 const NL_LIFECYCLES = [
   'proposed', 'planned', 'in_progress', 'implemented', 'verified', 'released', 'completed', 'blocked', 'unknown',
 ] as const;

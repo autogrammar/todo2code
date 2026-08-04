@@ -1,52 +1,52 @@
-# todo2code | 3683 func | 171f | 39185L | typescript | 2026-08-04
+# todo2code | 4218 func | 209f | 44016L | typescript | 2026-08-04
 # generated in 0.00s
 
 HEALTH:
-  CC̄=3.6  critical=256 (limit:10)  dup=28  cycles=0
+  CC̄=3.0  critical=170 (limit:10)  dup=29  cycles=0
 
 ALERTS[20]:
-  !!! cc_exceeded      assertOperationPlan = 84 (limit:15)
-  !!! cc_exceeded      executeAction = 83 (limit:15)
-  !!! cc_exceeded      root = 83 (limit:15)
-  !!! high_fan_out     executeAction = 65 (limit:10)
-  !!! high_fan_out     root = 64 (limit:10)
-  !!! cc_exceeded      parseCommand = 63 (limit:15)
-  !!! cc_exceeded      runPipeline = 56 (limit:15)
-  !!! high_fan_out     runPipeline = 56 (limit:10)
-  !!! cc_exceeded      diffUiHtml = 52 (limit:15)
-  !!! cc_exceeded      analyzeCommunication = 48 (limit:15)
+  !!! high_fan_out     compareWorkspaceIntent = 40 (limit:10)
+  !!! cc_exceeded      parseFile = 38 (limit:15)
+  !!! high_fan_out     run = 33 (limit:10)
+  !!! high_fan_out     main = 31 (limit:10)
+  !!! high_fan_out     Client.validate_http_status_body = 28 (limit:10)
+  !!! cc_exceeded      main = 27 (limit:15)
+  !!! cc_exceeded      run = 26 (limit:15)
+  !!! high_fan_out     executePipeline = 26 (limit:10)
+  !!! high_fan_out     temporaryParent = 25 (limit:10)
+  !!! high_fan_out     baseWorktree = 25 (limit:10)
 
-MODULES[251] (top by size):
+MODULES[294] (top by size):
   M[evaluation/gold/v2/dataset.json] 2410L C:0 F:0 CC↑0 D:0 (json)
-  M[src/cli.ts] 935L C:1 F:124 CC↑13 D:0 (typescript)
+  M[src/cli.ts] 985L C:1 F:133 CC↑13 D:0 (typescript)
+  M[src/services/actions.ts] 806L C:1 F:106 CC↑13 D:0 (typescript)
   M[evaluation/gold/v1/dataset.json] 761L C:0 F:0 CC↑0 D:0 (json)
-  M[src/services/actions.ts] 737L C:1 F:79 CC↑83 D:0 (typescript)
-  M[src/diff/reality.ts] 619L C:3 F:74 CC↑26 D:0 (typescript)
-  M[src/pipeline/run.ts] 617L C:1 F:65 CC↑56 D:0 (typescript)
+  M[src/communication/analyzer.ts] 619L C:3 F:85 CC↑14 D:0 (typescript)
   M[schemas/gold-dataset.schema.json] 585L C:0 F:0 CC↑0 D:0 (json)
   M[src/interfaces/a2a-task-store.ts] 560L C:3 F:88 CC↑11 D:0 (typescript)
-  M[src/communication/analyzer.ts] 542L C:3 F:72 CC↑48 D:0 (typescript)
-  M[src/graph/linker.ts] 537L C:4 F:81 CC↑10 D:3 (typescript)
+  M[src/core/text.ts] 530L C:0 F:61 CC↑14 D:0 (typescript)
   M[goal.yaml] 530L C:0 F:0 CC↑0 D:0 (yaml)
-  M[src/core/text.ts] 517L C:0 F:57 CC↑34 D:0 (typescript)
+  M[src/evaluation/gold-cases.ts] 489L C:4 F:62 CC↑8 D:0 (typescript)
   M[sdk/python/todo2code/client.py] 469L C:7 F:45 CC↑7 D:0 (python)
-  M[src/graph/diagnostics.ts] 459L C:1 F:58 CC↑11 D:0 (typescript)
+  M[src/graph/diagnostics.ts] 459L C:1 F:59 CC↑11 D:0 (typescript)
+  M[src/synthesis/code-change-plan/implementation-source-patch-apply-core.ts] 434L C:6 F:50 CC↑13 D:0 (typescript)
   M[sdk/typescript/src/index.ts] 420L C:14 F:45 CC↑8 D:0 (typescript)
-  LANGS: typescript:143/json:40/python:16/javascript:15/shell:8/rust:7/go:6/php:4/toml:3/other:2/yml:2/yaml:2/java:1/txt:1/proto:1
+  M[sdk/php/src/Client.php] 401L C:1 F:27 CC↑11 D:0 (php)
+  LANGS: typescript:187/json:40/python:15/javascript:15/shell:8/rust:7/go:6/php:4/toml:3/other:2/yml:2/yaml:2/java:1/txt:1/proto:1
 
 HOTSPOTS[10]:
-  ★ executeAction fan=65  // Orchestrates 65 calls
-  ★ root fan=64  // Orchestrates 64 calls
-  ★ runPipeline fan=56  // Orchestrates 56 calls
-  ★ diffUiHtml fan=42  // Orchestrates 42 calls
   ★ compareWorkspaceIntent fan=40  // Orchestrates 40 calls
+  ★ run fan=33  // Orchestrates 33 calls
+  ★ main fan=31  // Orchestrates 31 calls
+  ★ Client.validate_http_status_body fan=28  // Orchestrates 28 calls
+  ★ executePipeline fan=26  // Orchestrates 26 calls
 
 REFACTOR[15]:
-  [1] H/L Split executeAction (CC=83)
-  [2] H/L Split root (CC=83)
-  [3] H/L Split normalized (CC=30)
-  [4] H/L Split inferObject (CC=34)
-  [5] H/L Split diffUiHtml (CC=52)
+  [1] H/L Split parseFile (CC=38)
+  [2] H/L Split main (CC=27)
+  [3] H/L Split run (CC=26)
+  [4] H/H Split god module src/communication/analyzer.ts (619L, 3 classes)
+  [5] H/H Split god module src/core/text.ts (530L, 0 classes)
 
 EVOLUTION:
-  2026-08-04 CC̄=3.6 crit=256 39185L // Automated analysis
+  2026-08-04 CC̄=3.0 crit=170 44016L // Automated analysis

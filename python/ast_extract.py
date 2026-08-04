@@ -167,20 +167,22 @@ class FactVisitor(ast.NodeVisitor):
 
 def iter_python_files(root: Path, files_from: Path | None = None) -> list[Path]:
     if files_from is not None:
-        values = json.loads(files_from.read_text(encoding='utf-8'))
-        if not isinstance(values, list) or any(not isinstance(value, str) for value in values):
-            raise ValueError('--files-from must contain a JSON array of paths')
-        output: list[Path] = []
-        for value in values:
-            candidate = (root / value).resolve()
-            try:
-                candidate.relative_to(root)
-            except ValueError as exc:
-                raise ValueError(f'Python source escapes root: {value}') from exc
-            if candidate.suffix == '.py' and candidate.is_file() and not candidate.is_symlink():
-                output.append(candidate)
-        return sorted(set(output))
+    return _iter_python_files_from_manifest(root, files_from) if files_from is not None else _iter_python_files_from_disk(root)
 
+
+def _iter_python_files_from_manifest(root: Path, files_from: Path) -> list[Path]:
+    values = json.loads(files_from.read_text(encoding='utf-8'))
+    if not isinstance(values, list) or any(not isinstance(value, str) for value in values):
+        raise ValueError('--files-from must contain a JSON array of paths')
+    output: list[Path] = []
+    for value in values:
+        candidate = _resolve_candidate(root, value)
+        if candidate.suffix == '.py' and candidate.is_file() and not candidate.is_symlink():
+            output.append(candidate)
+    return sorted(set(output))
+
+
+def _iter_python_files_from_disk(root: Path) -> list[Path]:
     output: list[Path] = []
     for current, directories, files in os.walk(root):
         directories[:] = sorted(directory for directory in directories if directory not in IGNORED_DIRS)
@@ -190,6 +192,15 @@ def iter_python_files(root: Path, files_from: Path | None = None) -> list[Path]:
                 if not candidate.is_symlink():
                     output.append(candidate)
     return output
+
+
+def _resolve_candidate(root: Path, value: str) -> Path:
+    candidate = (root / value).resolve()
+    try:
+        candidate.relative_to(root)
+    except ValueError as exc:
+        raise ValueError(f'Python source escapes root: {value}') from exc
+    return candidate
 
 
 def main() -> int:

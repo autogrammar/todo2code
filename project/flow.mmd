@@ -1,5 +1,5 @@
 flowchart TD
-%% generated in 0.04s
+%% generated in 0.05s
 
     %% Entry points (blue)
     classDef entry fill:#4dabf7,stroke:#1971c2,color:#fff
@@ -11,16 +11,16 @@ flowchart TD
         src__cli__command["command"]
         src__cli__config["config"]
         src__cli__handler["handler"]
+        src__cli__shouldShowGlobalHelp["shouldShowGlobalHelp"]
+        src__cli__shouldShowGlobalVersion["shouldShowGlobalVersion"]
+        src__cli__resolveRequestedCommand["resolveRequestedCommand"]
+        src__cli__isHelpRequest["isHelpRequest"]
+        src__cli__resolveCommandHandler["resolveCommandHandler"]
         src__cli__commandHandlers["commandHandlers"]
         src__cli__resolveMainCommand["resolveMainCommand"]
         src__cli__handleLink["handleLink"]
         src__cli__files["files"]
-        src__cli__records["records"]
-        src__cli__graph["graph"]
-        src__cli__handleDiagnose["handleDiagnose"]
-        src__cli__graphFile["graphFile"]
-        src__cli__handleSummarize["handleSummarize"]
-        ...["+109 more"]
+        ...["+118 more"]
     end
 
     subgraph Core
@@ -39,7 +39,7 @@ flowchart TD
         rust_ast__src__main__visit_item_static["visit_item_static"]
         rust_ast__src__main__visit_item_fn["visit_item_fn"]
         rust_ast__src__main__visit_item_impl["visit_item_impl"]
-        ...["+2378 more"]
+        ...["+2532 more"]
     end
 
     subgraph Exporters

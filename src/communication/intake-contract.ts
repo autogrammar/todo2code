@@ -134,53 +134,114 @@ export function assertIntakeEnvelope(value: unknown, operation: 'command' | 'que
     'schemaVersion', 'messageId', 'correlationId', 'causationId', 'idempotencyKey',
     'authenticatedPrincipal', 'expectedVersion', 'timestamp', 'payloadHash', 'payload', 'unknownFields',
   ], 'Envelope', ['unknownFields']);
+  validateIntakeEnvelopeHeader(envelope);
+  validateIntakeEnvelopeTimestamp(envelope.timestamp);
+  if (operation === 'command') {
+    assertCommand(envelope.payload);
+  } else {
+    assertQuery(envelope.payload);
+  }
+  if (payloadHash(envelope.payload as IntakeCommand | IntakeQuery) !== envelope.payloadHash) {
+    invalid('Envelope payloadHash does not match payload');
+  }
+}
+
+function validateIntakeEnvelopeHeader(envelope: Record<string, unknown>): void {
   if (envelope.schemaVersion !== INTAKE_SCHEMA_VERSION) invalid('Unsupported envelope schemaVersion');
   for (const key of ['messageId', 'correlationId', 'idempotencyKey', 'authenticatedPrincipal', 'payloadHash'] as const) {
     if (typeof envelope[key] !== 'string' || !envelope[key].trim()) invalid(`Envelope ${key} must be a non-blank string`);
   }
   if (envelope.causationId !== null && typeof envelope.causationId !== 'string') invalid('Envelope causationId must be a string or null');
-  if (envelope.expectedVersion !== null && (!Number.isSafeInteger(envelope.expectedVersion) || (envelope.expectedVersion as number) < 0)) {
+  if (envelope.expectedVersion !== null
+    && (!Number.isSafeInteger(envelope.expectedVersion) || (envelope.expectedVersion as number) < 0)) {
     invalid('Envelope expectedVersion must be a non-negative integer or null');
   }
-  if (typeof envelope.timestamp !== 'string' || !Number.isFinite(Date.parse(envelope.timestamp))) invalid('Envelope timestamp must be ISO 8601');
   if (!/^[a-f0-9]{64}$/.test(envelope.payloadHash as string)) invalid('Envelope payloadHash must be lowercase SHA-256');
-  if (envelope.unknownFields !== undefined && (!Array.isArray(envelope.unknownFields) || !envelope.unknownFields.every((item) => typeof item === 'string'))) {
+  if (envelope.unknownFields !== undefined
+    && (!Array.isArray(envelope.unknownFields) || !envelope.unknownFields.every((item) => typeof item === 'string'))) {
     invalid('Envelope unknownFields must contain base64 strings');
   }
-  if (operation === 'command') assertCommand(envelope.payload);
-  else assertQuery(envelope.payload);
-  if (payloadHash(envelope.payload as IntakeCommand | IntakeQuery) !== envelope.payloadHash) invalid('Envelope payloadHash does not match payload');
+}
+
+function validateIntakeEnvelopeTimestamp(timestamp: unknown): void {
+  if (typeof timestamp !== 'string' || !Number.isFinite(Date.parse(timestamp))) {
+    invalid('Envelope timestamp must be ISO 8601');
+  }
 }
 
 export function assertCommand(value: unknown): asserts value is IntakeCommand {
   const base = strictObject(value, ['schemaVersion', 'type', ...commandFields(value)], 'Command');
   if (base.schemaVersion !== COMMAND_SCHEMA_VERSION) invalid('Unsupported command schemaVersion');
+  validateCommandPayload(base as Record<string, unknown> & { schemaVersion: string; type: string });
+}
+
+function validateCommandPayload(
+  base: Record<string, unknown> & { schemaVersion: string; type: string },
+): void {
   switch (base.type) {
-    case 'RegisterParticipant': assertParticipant(base.participant); break;
-    case 'BindExternalIdentity': participantId(base.participantId); assertPrincipal(base.principal); break;
-    case 'AssignRole':
-      participantId(base.participantId); role(base.governanceRole); stringArray(base.ticketIds, 'ticketIds'); capabilities(base.capabilities); break;
-    case 'CaptureMessage':
-      participantId(base.participantId); role(base.governanceRole); ticketId(base.ticketId);
-      if (typeof base.message !== 'string' || !base.message.trim()) invalid('CaptureMessage message must be non-blank');
-      if (Buffer.byteLength(base.message) > 256 * 1024) invalid('CaptureMessage message exceeds 262144 bytes');
+    case 'RegisterParticipant':
+      assertParticipant(base.participant);
       break;
-    case 'RebuildProjection': participantId(base.participantId); ticketId(base.ticketId); break;
-    case 'VerifyEventStream': break;
-    default: invalid('Unsupported command type');
+    case 'BindExternalIdentity':
+      participantId(base.participantId);
+      assertPrincipal(base.principal);
+      break;
+    case 'AssignRole':
+      participantId(base.participantId);
+      role(base.governanceRole);
+      stringArray(base.ticketIds, 'ticketIds');
+      capabilities(base.capabilities);
+      break;
+    case 'CaptureMessage':
+      participantId(base.participantId);
+      role(base.governanceRole);
+      ticketId(base.ticketId);
+      if (typeof base.message !== 'string' || !base.message.trim()) {
+        invalid('CaptureMessage message must be non-blank');
+      }
+      if (Buffer.byteLength(base.message) > 256 * 1024) {
+        invalid('CaptureMessage message exceeds 262144 bytes');
+      }
+      break;
+    case 'RebuildProjection':
+      participantId(base.participantId);
+      ticketId(base.ticketId);
+      break;
+    case 'VerifyEventStream':
+      break;
+    default:
+      invalid('Unsupported command type');
   }
 }
 
 export function assertQuery(value: unknown): asserts value is IntakeQuery {
   const base = strictObject(value, ['schemaVersion', 'type', ...queryFields(value)], 'Query');
   if (base.schemaVersion !== QUERY_SCHEMA_VERSION) invalid('Unsupported query schemaVersion');
+  validateQueryPayload(base as Record<string, unknown> & { schemaVersion: string; type: string });
+}
+
+function validateQueryPayload(
+  base: Record<string, unknown> & { schemaVersion: string; type: string },
+): void {
   switch (base.type) {
-    case 'ResolveParticipant': nonBlank(base.principal, 'principal'); break;
-    case 'GetRole': participantId(base.participantId); break;
-    case 'GetTicketConversation': ticketId(base.ticketId); break;
-    case 'GetCommandStatus': nonBlank(base.idempotencyKey, 'idempotencyKey'); break;
-    case 'ValidateProjection': participantId(base.participantId); ticketId(base.ticketId); break;
-    default: invalid('Unsupported query type');
+    case 'ResolveParticipant':
+      nonBlank(base.principal, 'principal');
+      break;
+    case 'GetRole':
+      participantId(base.participantId);
+      break;
+    case 'GetTicketConversation':
+      ticketId(base.ticketId);
+      break;
+    case 'GetCommandStatus':
+      nonBlank(base.idempotencyKey, 'idempotencyKey');
+      break;
+    case 'ValidateProjection':
+      participantId(base.participantId);
+      ticketId(base.ticketId);
+      break;
+    default:
+      invalid('Unsupported query type');
   }
 }
 

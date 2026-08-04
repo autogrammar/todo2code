@@ -97,7 +97,7 @@ interface WalkState {
   maxFiles: number;
   extensions: Set<string> | null;
   ignored: Set<string>;
-  matcher?: { ignores(relativePath: string, isDirectory?: boolean): boolean };
+  matcher: { ignores(relativePath: string, isDirectory?: boolean): boolean };
 }
 
 function createWalkState(root: string, options: WalkOptions): WalkState {
@@ -108,7 +108,7 @@ function createWalkState(root: string, options: WalkOptions): WalkState {
     maxFiles: options.maxFiles ?? 20_000,
     extensions: options.extensions ? new Set(options.extensions.map((value) => value.toLowerCase())) : null,
     ignored: new Set([...DEFAULT_IGNORED_DIRS, ...(options.ignoredDirs ?? [])]),
-    matcher: options.matcher,
+    matcher: options.matcher ?? { ignores: () => false },
   };
 }
 
@@ -131,7 +131,7 @@ async function walkEntry(
   }
   const absolute = path.join(directory, entry.name);
   const relative = relativePosix(state.base, absolute);
-  if (state.matcher?.ignores(relative, entry.isDirectory())) return;
+  if (state.matcher.ignores(relative, entry.isDirectory())) return;
 
   if (entry.isDirectory()) {
     if (!state.ignored.has(entry.name)) await walkDirectory(absolute, state);

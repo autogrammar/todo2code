@@ -145,82 +145,20 @@ const DEFAULT_MIN_INTERVAL_MS = 60_000;
 const DEFAULT_SCAN_INTERVAL_MS = 2_000;
 
 export async function watchRepository(options: WatchOptions, config: T2CConfig): Promise<void> {
-  const root = path.resolve(options.root);
-  const minIntervalMs = Math.max(0, options.minIntervalMs ?? DEFAULT_MIN_INTERVAL_MS);
-  const scanIntervalMs = Math.max(50, options.scanIntervalMs ?? DEFAULT_SCAN_INTERVAL_MS);
-  const emit = options.onEvent ?? ((): void => {});
-  const now = options.now ?? ((): number => Date.now());
-  const sleep = options.sleep ?? defaultSleep;
-  const signal = options.signal;
+  const configuration = await createWatchConfiguration(options, config);
+  const runtime = await createWatchRuntime(configuration);
 
-  const matcher = await loadIgnoreMatcher(root);
-  const runReport = options.runReport ?? (async (): Promise<ReportResult> => {
-    const result = await runPipeline(options.pipeline, config);
-    return { runId: result.manifest.runId, summaryPath: result.summaryPath };
-  });
-
-  const scanOptions: ScanOptions = { matcher, ...(options.maxFiles === undefined ? {} : { maxFiles: options.maxFiles }) };
-  let snapshot = await scanTree(root, scanOptions);
-  emit({ type: 'ready', root, files: snapshot.size, sources: matcher.sources });
-
-  // `lastReportStartedAt` anchors the floor to the start of a report, so a slow
-  // pipeline does not add its own duration to the wait before the next one.
-  let lastReportStartedAt = Number.NEGATIVE_INFINITY;
-  let pending = 0;
-  let pendingReason = '';
-
-  if (options.runOnStart ?? true) {
-    lastReportStartedAt = now();
-    await generate('initial scan');
+  if (configuration.runOnStart) {
+    await generateReportForReason('initial scan', runtime);
   }
 
-  while (!signal?.aborted) {
-    await sleep(scanIntervalMs, signal);
-    if (signal?.aborted) break;
-
-    const current = await scanTree(root, scanOptions);
-    const delta = diffSnapshots(snapshot, current);
-    snapshot = current;
-
-    if (delta.total > 0) {
-      pending += delta.total;
-      pendingReason = describeDelta(delta);
-      emit({ type: 'change', delta, description: pendingReason });
-    }
-    if (pending === 0) continue;
-
-    const waitMs = lastReportStartedAt + minIntervalMs - now();
-    if (waitMs > 0) {
-      emit({ type: 'throttled', waitMs, pending });
-      continue;
-    }
-
-    const reason = `${pending} change(s): ${pendingReason}`;
-    pending = 0;
-    pendingReason = '';
-    lastReportStartedAt = now();
-    await generate(reason);
+  while (!runtime.signal?.aborted) {
+    await runtime.sleep(runtime.scanIntervalMs, runtime.signal);
+    if (runtime.signal?.aborted) break;
+    await evaluateChangeCycle(runtime);
   }
 
-  emit({ type: 'stopped' });
-
-  async function generate(reason: string): Promise<void> {
-    emit({ type: 'report:start', reason });
-    const startedAt = now();
-    try {
-      const result = await runReport(reason);
-      emit({
-        type: 'report:done',
-        runId: result.runId,
-        summaryPath: result.summaryPath,
-        durationMs: now() - startedAt,
-      });
-    } catch (error) {
-      emit({ type: 'report:error', message: error instanceof Error ? error.message : String(error) });
-    }
-    // Changes written by the report itself must not trigger the next one.
-    snapshot = await scanTree(root, scanOptions);
-  }
+  runtime.emit({ type: 'stopped' });
 }
 
 function defaultSleep(ms: number, signal?: AbortSignal): Promise<void> {
@@ -240,4 +178,115 @@ function defaultSleep(ms: number, signal?: AbortSignal): Promise<void> {
       resolve();
     }
   });
+}
+
+interface WatchConfiguration {
+  root: string;
+  minIntervalMs: number;
+  scanIntervalMs: number;
+  matcher: IgnoreMatcher;
+  runReport: (reason: string) => Promise<ReportResult>;
+  emit: (event: WatchEvent) => void;
+  now: () => number;
+  sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
+  signal: AbortSignal | undefined;
+  runOnStart: boolean;
+  scanOptions: ScanOptions;
+}
+
+interface WatchRuntime {
+  configuration: WatchConfiguration;
+  snapshot: TreeSnapshot;
+  pending: number;
+  pendingReason: string;
+  lastReportStartedAt: number;
+}
+
+async function createWatchConfiguration(options: WatchOptions, config: T2CConfig): Promise<WatchConfiguration> {
+  const root = path.resolve(options.root);
+  const minIntervalMs = Math.max(0, options.minIntervalMs ?? DEFAULT_MIN_INTERVAL_MS);
+  const scanIntervalMs = Math.max(50, options.scanIntervalMs ?? DEFAULT_SCAN_INTERVAL_MS);
+  const emit = options.onEvent ?? ((): void => {});
+  const now = options.now ?? ((): number => Date.now());
+  const sleep = options.sleep ?? defaultSleep;
+  const matcher = await loadIgnoreMatcher(root);
+  const runReport = options.runReport ?? (async (_reason: string): Promise<ReportResult> => {
+    const result = await runPipeline(options.pipeline, config);
+    return { runId: result.manifest.runId, summaryPath: result.summaryPath };
+  });
+  return {
+    root,
+    minIntervalMs,
+    scanIntervalMs,
+    matcher,
+    emit,
+    now,
+    sleep,
+    signal: options.signal,
+    runOnStart: options.runOnStart ?? true,
+    runReport,
+    scanOptions: { matcher, ...(options.maxFiles === undefined ? {} : { maxFiles: options.maxFiles }) },
+  };
+}
+
+async function createWatchRuntime(configuration: WatchConfiguration): Promise<WatchRuntime> {
+  const initialSnapshot = await scanTreeCurrent(configuration);
+  configuration.emit({ type: 'ready', root: configuration.root, files: initialSnapshot.size, sources: configuration.matcher.sources });
+  return {
+    configuration,
+    snapshot: initialSnapshot,
+    pending: 0,
+    pendingReason: '',
+    lastReportStartedAt: Number.NEGATIVE_INFINITY,
+  };
+}
+
+async function scanTreeCurrent(configuration: WatchConfiguration): Promise<TreeSnapshot> {
+  return scanTree(configuration.root, configuration.scanOptions);
+}
+
+async function evaluateChangeCycle(runtime: WatchRuntime): Promise<void> {
+  const current = await scanTree(runtime.configuration.root, runtime.configuration.scanOptions);
+  const delta = diffSnapshots(runtime.snapshot, current);
+  runtime.snapshot = current;
+  handleDelta(runtime, delta);
+  await maybeGenerateReport(runtime);
+}
+
+function handleDelta(runtime: WatchRuntime, delta: SnapshotDelta): void {
+  if (delta.total === 0) return;
+  runtime.pending += delta.total;
+  runtime.pendingReason = describeDelta(delta);
+  runtime.configuration.emit({ type: 'change', delta, description: runtime.pendingReason });
+}
+
+async function maybeGenerateReport(runtime: WatchRuntime): Promise<void> {
+  if (runtime.pending === 0) return;
+  const waitMs = runtime.lastReportStartedAt + runtime.configuration.minIntervalMs - runtime.configuration.now();
+  if (waitMs > 0) {
+    runtime.configuration.emit({ type: 'throttled', waitMs, pending: runtime.pending });
+    return;
+  }
+  const reason = `${runtime.pending} change(s): ${runtime.pendingReason}`;
+  runtime.pending = 0;
+  runtime.pendingReason = '';
+  runtime.lastReportStartedAt = runtime.configuration.now();
+  await generateReportForReason(reason, runtime);
+}
+
+async function generateReportForReason(reason: string, runtime: WatchRuntime): Promise<void> {
+  const startedAt = runtime.configuration.now();
+  runtime.configuration.emit({ type: 'report:start', reason });
+  try {
+    const result = await runtime.configuration.runReport(reason);
+    runtime.configuration.emit({
+      type: 'report:done',
+      runId: result.runId,
+      summaryPath: result.summaryPath,
+      durationMs: runtime.configuration.now() - startedAt,
+    });
+  } catch (error) {
+    runtime.configuration.emit({ type: 'report:error', message: error instanceof Error ? error.message : String(error) });
+  }
+  runtime.snapshot = await scanTree(runtime.configuration.root, runtime.configuration.scanOptions);
 }

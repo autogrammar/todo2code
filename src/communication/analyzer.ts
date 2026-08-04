@@ -62,9 +62,35 @@ export function analyzeCommunication(
   const communication = graph.records.filter((record) => record.source.kind === 'agent_log');
   validateSyntheses(syntheses, communication);
   const evidenceByRecord = evidenceNeighbors(graph);
+  const { participants, issues } = collectParticipantsAndIdentityIssues(communication);
+  const humanRequests = communication.filter((record) => roleOf(record) === 'human' && ['request', 'message'].includes(typeOf(record)));
+  const agentMessages = communication.filter((record) => roleOf(record) === 'agent');
+  const allIssues = [
+    ...issues,
+    ...collectConflictIssues(communication, participants),
+    ...collectRequestResponseIssues(communication, humanRequests, agentMessages),
+    ...collectAgentActionIssues(communication, graph, evidenceByRecord, humanRequests, agentMessages),
+  ];
+  const uniqueIssues = deduplicateCommunicationIssues(allIssues)
+    .sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || a.id.localeCompare(b.id));
+  const participantRows = buildParticipantRows(graph, communication, participants, evidenceByRecord, uniqueIssues);
+  const counts: Record<CommunicationIssueSeverity, number> = { info: 0, warning: 0, review_required: 0, blocking: 0 };
+  for (const item of uniqueIssues) counts[item.severity] += 1;
+  return {
+    schemaVersion: 't2c.communication-analysis/v1',
+    generatedAt,
+    graphFingerprint: graph.fingerprint,
+    tickets: [...new Set(communication.map(ticketOf))].sort(),
+    participants: participantRows,
+    syntheses: [...syntheses].sort((left, right) => left.role.localeCompare(right.role) || left.participant.localeCompare(right.participant)),
+    issues: uniqueIssues,
+    counts,
+  };
+}
+
+function collectParticipantsAndIdentityIssues(communication: IntentRecord[]): { participants: Map<string, IntentRecord[]>; issues: CommunicationIssue[] } {
   const issues: CommunicationIssue[] = [];
   const participants = new Map<string, IntentRecord[]>();
-
   for (const record of communication) {
     const participant = participantOf(record);
     const values = participants.get(participant);
@@ -79,7 +105,14 @@ export function analyzeCommunication(
       ));
     }
   }
+  return { participants, issues };
+}
 
+function collectConflictIssues(
+  communication: IntentRecord[],
+  participants: Map<string, IntentRecord[]>,
+): CommunicationIssue[] {
+  const issues: CommunicationIssue[] = [];
   for (let leftIndex = 0; leftIndex < communication.length; leftIndex += 1) {
     for (let rightIndex = leftIndex + 1; rightIndex < communication.length; rightIndex += 1) {
       const left = communication[leftIndex];
@@ -91,11 +124,7 @@ export function analyzeCommunication(
       const rightRole = roleOf(right);
       if (leftRole === 'unknown' || rightRole === 'unknown') continue;
       const roles = [leftRole, rightRole].sort().join(':');
-      const code = roles === 'human:human'
-        ? 'HUMAN_COMMUNICATION_CONFLICT'
-        : roles === 'agent:agent'
-          ? 'AGENT_COMMUNICATION_CONFLICT'
-          : 'HUMAN_AGENT_CONFLICT';
+      const code = resolveConflictCode(roles);
       const responseRequiredRole: CommunicationRole = 'human';
       const responseRequiredFrom = roles === 'human:human'
         ? [participantOf(left), participantOf(right)]
@@ -110,9 +139,23 @@ export function analyzeCommunication(
       ));
     }
   }
+  return issues;
+}
 
-  const humanRequests = communication.filter((record) => roleOf(record) === 'human' && ['request', 'message'].includes(typeOf(record)));
-  const agentMessages = communication.filter((record) => roleOf(record) === 'agent');
+function resolveConflictCode(roles: string): CommunicationIssue['code'] {
+  return roles === 'human:human'
+    ? 'HUMAN_COMMUNICATION_CONFLICT'
+    : roles === 'agent:agent'
+      ? 'AGENT_COMMUNICATION_CONFLICT'
+      : 'HUMAN_AGENT_CONFLICT';
+}
+
+function collectRequestResponseIssues(
+  communication: IntentRecord[],
+  humanRequests: IntentRecord[],
+  agentMessages: IntentRecord[],
+): CommunicationIssue[] {
+  const issues: CommunicationIssue[] = [];
   for (const request of humanRequests) {
     const response = agentResponseCoversRequest(request, agentMessages);
     if (!response) {
@@ -124,50 +167,96 @@ export function analyzeCommunication(
       ));
     }
   }
+  return issues;
+}
 
-  for (const record of agentMessages) {
+function collectAgentActionIssues(
+  communication: IntentRecord[],
+  graph: IntentGraph,
+  evidenceByRecord: Map<string, string[]>,
+  humanRequests: IntentRecord[],
+  agentMessages: IntentRecord[],
+): CommunicationIssue[] {
+  const issues: CommunicationIssue[] = [];
+  for (const record of communication.filter((record) => roleOf(record) === 'agent')) {
     const type = typeOf(record);
-    if (['report', 'result', 'claim'].includes(type) && isHumanDecisionClaim(record)) {
-      issues.push(issue(
-        'AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED', 'review_required', ticketOf(record),
-        [participantOf(record)], [record.id],
-        `Agent powołuje się na decyzję człowieka, której nie ma w komunikacji należącej do człowieka: ${record.statement.text}`,
-        'Właściciel zakresu powinien zapisać decyzję we własnym pliku komunikacji; agent nie może zrobić tego w jego imieniu.',
-        'human', participantsForRole(communication, ticketOf(record), 'human'),
-      ));
-    } else if (['report', 'result', 'claim'].includes(type) && isPositiveImplementationClaim(record)) {
-      const participantGit = matchedGitRecords(record, graph.records);
-      const linked = evidenceByRecord.get(record.id) ?? [];
-      if (participantGit.length === 0 && linked.length === 0) {
-        issues.push(issue(
-          'AGENT_CLAIM_WITHOUT_EVIDENCE', 'review_required', ticketOf(record), [participantOf(record)], [record.id],
-          `Agent raportuje wykonanie bez powiązanego commita lub faktu AST: ${record.statement.text}`,
-          'Dodać ticket do commita albo wskazać paths/symbols i ponownie uruchomić analizę.',
-          'agent', [participantOf(record)],
-        ));
-      }
-    }
-    if (['plan', 'report', 'result', 'claim'].includes(type)
-      && !isHumanDecisionClaim(record)
-      && isActionableAgentWork(record)) {
-      const matchedRequest = agentWorkCoveredByHumanScope(record, humanRequests, agentMessages);
-      if (!matchedRequest) {
-        issues.push(issue(
-          'AGENT_WORK_OUTSIDE_REQUEST', 'warning', ticketOf(record), [participantOf(record)], [record.id],
-          `Plan lub działanie agenta nie ma powiązanej intencji człowieka: ${record.statement.text}`,
-          'Powiązać działanie z poleceniem człowieka albo uzyskać decyzję rozszerzającą zakres ticketu.',
-          'human', participantsForRole(communication, ticketOf(record), 'human'),
-        ));
-      }
+    const issueItem = classifyAgentActionIssue(record, type, communication, graph, evidenceByRecord, humanRequests, agentMessages);
+    if (issueItem) issues.push(issueItem);
+  }
+  return issues;
+}
+
+function classifyAgentActionIssue(
+  record: IntentRecord,
+  type: string,
+  communication: IntentRecord[],
+  graph: IntentGraph,
+  evidenceByRecord: Map<string, string[]>,
+  humanRequests: IntentRecord[],
+  agentMessages: IntentRecord[],
+): CommunicationIssue | null {
+  if (isActionableMessage(type) && isHumanDecisionClaim(record)) {
+    return issue(
+      'AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED', 'review_required', ticketOf(record),
+      [participantOf(record)], [record.id],
+      `Agent powołuje się na decyzję człowieka, której nie ma w komunikacji należącej do człowieka: ${record.statement.text}`,
+      'Właściciel zakresu powinien zapisać decyzję we własnym pliku komunikacji; agent nie może zrobić tego w jego imieniu.',
+      'human', participantsForRole(communication, ticketOf(record), 'human'),
+    );
+  }
+
+  if (isActionableMessage(type) && isPositiveImplementationClaim(record)) {
+    const participantGit = matchedGitRecords(record, graph.records);
+    const linked = evidenceByRecord.get(record.id) ?? [];
+    if (participantGit.length === 0 && linked.length === 0) {
+      return issue(
+        'AGENT_CLAIM_WITHOUT_EVIDENCE', 'review_required', ticketOf(record), [participantOf(record)], [record.id],
+        `Agent raportuje wykonanie bez powiązanego commita lub faktu AST: ${record.statement.text}`,
+        'Dodać ticket do commita albo wskazać paths/symbols i ponownie uruchomić analizę.',
+        'agent', [participantOf(record)],
+      );
     }
   }
 
-  const uniqueIssues = [...new Map(issues.map((item) => [item.id, item])).values()]
-    .sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || a.id.localeCompare(b.id));
-  const participantRows = [...participants.entries()].map(([participant, records]) => {
+  if (isWorkTrackingMessage(type) && !isHumanDecisionClaim(record) && isActionableAgentWork(record)) {
+    const matchedRequest = agentWorkCoveredByHumanScope(record, humanRequests, agentMessages);
+    if (!matchedRequest) {
+      return issue(
+        'AGENT_WORK_OUTSIDE_REQUEST', 'warning', ticketOf(record), [participantOf(record)], [record.id],
+        `Plan lub działanie agenta nie ma powiązanej intencji człowieka: ${record.statement.text}`,
+        'Powiązać działanie z poleceniem człowieka albo uzyskać decyzję rozszerzającą zakres ticketu.',
+        'human', participantsForRole(communication, ticketOf(record), 'human'),
+      );
+    }
+  }
+
+  return null;
+}
+
+function isActionableMessage(type: string): boolean {
+  return ['report', 'result', 'claim'].includes(type);
+}
+
+function isWorkTrackingMessage(type: string): boolean {
+  return ['plan', 'report', 'result', 'claim'].includes(type);
+}
+
+function deduplicateCommunicationIssues(issues: CommunicationIssue[]): CommunicationIssue[] {
+  return [...new Map(issues.map((item) => [item.id, item])).values()];
+}
+
+function buildParticipantRows(
+  graph: IntentGraph,
+  communication: IntentRecord[],
+  participants: Map<string, IntentRecord[]>,
+  evidenceByRecord: Map<string, string[]>,
+  uniqueIssues: CommunicationIssue[],
+): ParticipantCommunicationAnalysis[] {
+  return [...participants.entries()].map(([participant, records]) => {
     const aliases = new Set(records.flatMap(gitAliases));
     aliases.add(normalizeIdentity(participant));
-    const matchedGit = graph.records.filter((record) => record.source.kind === 'git' && aliases.has(normalizeIdentity(record.statement.actor ?? '')));
+    const matchedGit = graph.records.filter((record) => record.source.kind === 'git'
+      && aliases.has(normalizeIdentity(record.statement.actor ?? '')));
     const evidence = new Set(records.flatMap((record) => evidenceByRecord.get(record.id) ?? []));
     return {
       participant,
@@ -185,18 +274,6 @@ export function analyzeCommunication(
       issueIds: uniqueIssues.filter((item) => item.participantIds.includes(participant)).map((item) => item.id),
     } satisfies ParticipantCommunicationAnalysis;
   }).sort((a, b) => a.role.localeCompare(b.role) || a.participant.localeCompare(b.participant));
-  const counts: Record<CommunicationIssueSeverity, number> = { info: 0, warning: 0, review_required: 0, blocking: 0 };
-  for (const item of uniqueIssues) counts[item.severity] += 1;
-  return {
-    schemaVersion: 't2c.communication-analysis/v1',
-    generatedAt,
-    graphFingerprint: graph.fingerprint,
-    tickets: [...new Set(communication.map(ticketOf))].sort(),
-    participants: participantRows,
-    syntheses: [...syntheses].sort((left, right) => left.role.localeCompare(right.role) || left.participant.localeCompare(right.participant)),
-    issues: uniqueIssues,
-    counts,
-  };
 }
 
 function validateSyntheses(syntheses: ParticipantCommunicationSynthesis[], communication: IntentRecord[]): void {

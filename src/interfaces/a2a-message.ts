@@ -1,6 +1,4 @@
-import { decodeIntakeEnvelope } from '../communication/intake-protobuf.js';
 import {
-  A2A_ACTIONS,
   A2ARequestError,
   isRecord,
   optionalBoolean,
@@ -12,8 +10,8 @@ import {
   type A2AMessage,
   type A2APart,
   type SendConfiguration,
-  type A2AAction,
 } from './a2a-types.js';
+export { parseCommand } from './a2a-message-command.js';
 
 export function parseSendConfiguration(value: unknown): SendConfiguration {
   if (value === undefined) return { returnImmediately: false, historyLength: undefined };
@@ -37,60 +35,6 @@ function validateOutputModes(value: unknown): void {
   if (value.length > 0 && !value.some((mode) => supported.has(mode as string))) {
     throw new A2ARequestError(-32005, 'None of the accepted output modes is supported');
   }
-}
-
-export function parseCommand(
-  message: A2AMessage,
-  params: Record<string, unknown>,
-): { action: A2AAction; input: Record<string, unknown> } {
-  const protobuf = message.parts.find((part) => typeof part.raw === 'string' && part.mediaType === 'application/x-protobuf');
-  if (protobuf?.raw) {
-    const bytes = Buffer.from(protobuf.raw, 'base64');
-    try {
-      decodeIntakeEnvelope(bytes, 'command');
-      return { action: 'intake_command', input: { protobuf: protobuf.raw, outputFormat: 'protobuf' } };
-    } catch {
-      decodeIntakeEnvelope(bytes, 'query');
-      return { action: 'intake_query', input: { protobuf: protobuf.raw, outputFormat: 'protobuf' } };
-    }
-  }
-  const objectData = message.parts.find((part) => isRecord(part.data))?.data;
-  if (isRecord(objectData)) return commandFromData(objectData, message, params);
-
-  const text = message.parts.map((part) => part.text ?? '').join('\n').trim();
-  if (text.startsWith('{')) return commandFromData(JSON.parse(text) as Record<string, unknown>, message, params);
-  const first = text.split(/\s+/, 1)[0]?.toLowerCase();
-  if (first && A2A_ACTIONS.includes(first as A2AAction)) {
-    return { action: first as A2AAction, input: parseKeyValues(text.slice(first.length)) };
-  }
-  return { action: 'extract_nl', input: { text, file: 'a2a-message.md' } };
-}
-
-function commandFromData(
-  data: Record<string, unknown>,
-  message: A2AMessage,
-  params: Record<string, unknown>,
-): { action: A2AAction; input: Record<string, unknown> } {
-  const action = normalizeAction(data.action ?? data.skill ?? message.metadata?.action ?? params.skillId);
-  const nested = isRecord(data.input) ? data.input : data;
-  return { action, input: { ...nested } };
-}
-
-function parseKeyValues(text: string): Record<string, unknown> {
-  const output: Record<string, unknown> = {};
-  for (const match of text.matchAll(/([A-Za-z][\w.-]*)=("[^"]*"|'[^']*'|\S+)/g)) {
-    const key = match[1];
-    const raw = match[2];
-    if (!key || raw === undefined) continue;
-    const stringValue = raw.replace(/^['"]|['"]$/g, '');
-    output[key] = parseScalar(stringValue);
-  }
-  return output;
-}
-
-function parseScalar(value: string): string | boolean | number {
-  if (value === 'true' || value === 'false') return value === 'true';
-  return /^\d+$/.test(value) ? Number(value) : value;
 }
 
 export function parseMessage(value: unknown): A2AMessage {
@@ -149,22 +93,6 @@ export function ensureSupportedMessageContent(message: A2AMessage): void {
   const supported = message.parts.some((part) => typeof part.text === 'string' || isRecord(part.data)
     || (typeof part.raw === 'string' && part.mediaType === 'application/x-protobuf'));
   if (!supported) throw new A2ARequestError(-32005, 'todo2code accepts text, object-valued JSON or canonical Protobuf parts');
-}
-
-function normalizeAction(value: unknown): A2AAction {
-  if (typeof value !== 'string') return 'pipeline';
-  const normalized = value.toLowerCase().replace(/[- ]/g, '_');
-  const aliases: Record<string, A2AAction> = {
-    analyze_repository: 'pipeline',
-    extract_intent: 'extract_nl',
-    summarize_team_state: 'summarize',
-    diagnose_alignment: 'diagnose',
-  };
-  const action = aliases[normalized] ?? normalized;
-  if (!A2A_ACTIONS.includes(action as A2AAction)) {
-    throw new A2ARequestError(-32602, `Unknown todo2code action: ${value}`);
-  }
-  return action as A2AAction;
 }
 
 export function cloneMessage(message: A2AMessage): A2AMessage {

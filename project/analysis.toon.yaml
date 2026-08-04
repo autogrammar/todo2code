@@ -1,34 +1,23 @@
-# code2llm | 251f 39151L | typescript:143,json:40,python:16,javascript:15,shell:8,rust:7,go:6,php:4,toml:3,yaml:2,yml:2,java:1,proto:1,txt:1 | 2026-08-04
-# generated in 0.26s
-# CC̅=3.6 | critical:90/3683 | dups:0 | cycles:0
+# code2llm | 294f 44016L | typescript:187,json:40,python:15,javascript:15,shell:8,rust:7,go:6,php:4,toml:3,yaml:2,yml:2,java:1,proto:1,txt:1 | 2026-08-04
+# generated in 0.33s
+# CC̅=3.0 | critical:10/4218 | dups:0 | cycles:0
 
-HEALTH[20]:
-  🔴 GOD   src/graph/linker.ts = 537L, 4 classes, 81m, max CC=10
-  🟡 CC    handleRequest CC=16 (limit:15)
-  🟡 CC    buildLocalWarnings CC=18 (limit:15)
-  🟡 CC    executeAction CC=83 (limit:15)
-  🟡 CC    root CC=83 (limit:15)
-  🟡 CC    normalized CC=30 (limit:15)
-  🟡 CC    inferObject CC=34 (limit:15)
-  🟡 CC    walkFiles CC=15 (limit:15)
-  🟡 CC    diffUiHtml CC=52 (limit:15)
-  🟡 CC    compareGraphs CC=15 (limit:15)
-  🟡 CC    rerankSemanticCandidates CC=25 (limit:15)
-  🟡 CC    assertSemanticRerankResult CC=21 (limit:15)
-  🟡 CC    records CC=16 (limit:15)
-  🟡 CC    seenDecisions CC=16 (limit:15)
-  🟡 CC    acceptedDeclarations CC=16 (limit:15)
-  🟡 CC    assertSemanticCandidateSet CC=27 (limit:15)
-  🟡 CC    NON_SOURCE_DIR_SEGMENTS CC=38 (limit:15)
-  🟡 CC    BINARY_EXTENSIONS CC=38 (limit:15)
-  🟡 CC    GENERATED_ANALYSIS_BASENAMES CC=38 (limit:15)
-  🟡 CC    T2C_ARTIFACT_BASENAMES CC=38 (limit:15)
+HEALTH[10]:
+  🟡 CC    generationMetadata CC=17 (limit:15)
+  🟡 CC    parseFile CC=38 (limit:15)
+  🟡 CC    collectDockerReferences CC=20 (limit:15)
+  🟡 CC    main CC=27 (limit:15)
+  🟡 CC    run CC=26 (limit:15)
+  🟡 CC    baseUrl CC=17 (limit:15)
+  🟡 CC    token CC=17 (limit:15)
+  🟡 CC    root CC=17 (limit:15)
+  🟡 CC    main CC=17 (limit:15)
+  🟡 CC    run CC=20 (limit:15)
 
-REFACTOR[2]:
-  1. split src/graph/linker.ts  (god module)
-  2. split 19 high-CC methods  (CC>15)
+REFACTOR[1]:
+  1. split 10 high-CC methods  (CC>15)
 
-PIPELINES[2061]:
+PIPELINES[2102]:
   [1] Src [main]: main → arguments
       PURITY: 100% pure
   [2] Src [new]: new
@@ -59,232 +48,83 @@ PIPELINES[2061]:
       PURITY: 100% pure
   [15] Src [visit_expr_method_call]: visit_expr_method_call → add → excerpt
       PURITY: 100% pure
-  [16] Src [ALLOWED_ACTIONS]: ALLOWED_ACTIONS → invalid
+  [16] Src [MAX_BODY_BYTES]: MAX_BODY_BYTES → handleHealth → sendJson
       PURITY: 100% pure
-  [17] Src [validateEventPayload]: validateEventPayload → invalid
+  [17] Src [handleRequest]: handleRequest → handleHealth → sendJson
       PURITY: 100% pure
-  [18] Src [record]: record → invalid
+  [18] Src [url]: url
       PURITY: 100% pure
-  [19] Src [agent]: agent → invalid
+  [19] Src [body]: body
       PURITY: 100% pure
-  [20] Src [action]: action → invalid
+  [20] Src [validation]: validation → sendJson
       PURITY: 100% pure
-  [21] Src [object]: object → invalid
+  [21] Src [event]: event → sendJson
       PURITY: 100% pure
-  [22] Src [enqueueEvent]: enqueueEvent
+  [22] Src [ALLOWED_ACTIONS]: ALLOWED_ACTIONS → invalid
       PURITY: 100% pure
-  [23] Src [listEvents]: listEvents
+  [23] Src [validateEventPayload]: validateEventPayload → invalid
       PURITY: 100% pure
-  [24] Src [start]: start
+  [24] Src [record]: record → invalid
       PURITY: 100% pure
-  [25] Src [store]: store → handleRequest → sendJson
+  [25] Src [agent]: agent → invalid
       PURITY: 100% pure
-  [26] Src [server]: server → handleRequest → sendJson
+  [26] Src [action]: action → invalid
       PURITY: 100% pure
-  [27] Src [url]: url
+  [27] Src [object]: object → invalid
       PURITY: 100% pure
-  [28] Src [body]: body
+  [28] Src [enqueueEvent]: enqueueEvent
       PURITY: 100% pure
-  [29] Src [validation]: validation → sendJson
+  [29] Src [listEvents]: listEvents
       PURITY: 100% pure
-  [30] Src [event]: event → sendJson
+  [30] Src [start]: start
       PURITY: 100% pure
-  [31] Src [offset]: offset → sendJson
+  [31] Src [store]: store → sendJson
       PURITY: 100% pure
-  [32] Src [limit]: limit → sendJson
+  [32] Src [server]: server → sendJson
       PURITY: 100% pure
-  [33] Src [startBackend]: startBackend → createBackend → handleRequest → sendJson
+  [33] Src [body]: body
       PURITY: 100% pure
-  [34] Src [port]: port
+  [34] Src [startBackend]: startBackend → createBackend → sendJson
       PURITY: 100% pure
-  [35] Src [host]: host
+  [35] Src [port]: port
       PURITY: 100% pure
-  [36] Src [fetchEvents]: fetchEvents
+  [36] Src [host]: host
       PURITY: 100% pure
-  [37] Src [url]: url
+  [37] Src [fetchEvents]: fetchEvents
       PURITY: 100% pure
-  [38] Src [response]: response
+  [38] Src [url]: url
       PURITY: 100% pure
-  [39] Src [payload]: payload
+  [39] Src [response]: response
       PURITY: 100% pure
-  [40] Src [publishEvent]: publishEvent
+  [40] Src [payload]: payload
       PURITY: 100% pure
-  [41] Src [toRows]: toRows → classifyEvent
+  [41] Src [publishEvent]: publishEvent
       PURITY: 100% pure
-  [42] Src [renderTable]: renderTable → headerRow
+  [42] Src [toRows]: toRows → classifyEvent
       PURITY: 100% pure
-  [43] Src [table]: table
+  [43] Src [renderTable]: renderTable → headerRow
       PURITY: 100% pure
-  [44] Src [head]: head
+  [44] Src [table]: table
       PURITY: 100% pure
-  [45] Src [body]: body
+  [45] Src [head]: head
       PURITY: 100% pure
-  [46] Src [tr]: tr
+  [46] Src [body]: body
       PURITY: 100% pure
-  [47] Src [renderError]: renderError
+  [47] Src [tr]: tr
       PURITY: 100% pure
-  [48] Src [message]: message
+  [48] Src [renderError]: renderError
       PURITY: 100% pure
-  [49] Src [mountPanel]: mountPanel → createState
+  [49] Src [message]: message
       PURITY: 100% pure
-  [50] Src [load_task]: load_task
+  [50] Src [mountPanel]: mountPanel → createState
       PURITY: 100% pure
 
 LAYERS:
   php/                            CC̄=8.7    ←in:0  →out:0
   │ !! ast_extract.php            233L  0C    7m  CC=38     ←0
   │
-  golang/                         CC̄=5.3    ←in:0  →out:0
-  │ ast_extract.go             368L  3C   15m  CC=14     ←0
-  │
-  python/                         CC̄=4.2    ←in:0  →out:5
-  │ !! ast_extract                221L  1C   18m  CC=16     ←0
-  │ requirements.txt             1L  0C    0m  CC=0.0    ←0
-  │
-  src/                            CC̄=3.8    ←in:0  →out:0
-  │ !! cli.ts                     935L  1C  124m  CC=13     ←0
-  │ !! actions.ts                 737L  1C   79m  CC=83     ←0
-  │ !! reality.ts                 619L  3C   74m  CC=26     ←0
-  │ !! run.ts                     617L  1C   65m  CC=56     ←0
-  │ !! a2a-task-store.ts          560L  3C   88m  CC=11     ←0
-  │ !! analyzer.ts                542L  3C   72m  CC=48     ←0
-  │ !! linker.ts                  537L  4C   81m  CC=10     ←3
-  │ !! text.ts                    517L  0C   57m  CC=34     ←0
-  │ diagnostics.ts             459L  1C   58m  CC=11     ←0
-  │ git.ts                     397L  6C   57m  CC=11     ←0
-  │ markdown-llm-helpers.ts    383L  5C   30m  CC=14     ←0
-  │ !! gold-types.ts              378L  15C   11m  CC=32     ←0
-  │ todo-patch.ts              372L  5C   52m  CC=12     ←0
-  │ docs-deterministic.ts      369L  3C   43m  CC=11     ←0
-  │ !! gold-cases.ts              366L  4C   42m  CC=18     ←0
-  │ implementation-helpers.ts   357L  5C   33m  CC=10     ←0
-  │ workspace.ts               342L  3C   54m  CC=12     ←0
-  │ !! openrouter.ts              338L  7C   39m  CC=31     ←0
-  │ summarizer.ts              333L  5C   27m  CC=10     ←0
-  │ a2a.ts                     332L  0C   47m  CC=9      ←0
-  │ gold.ts                    329L  3C   31m  CC=14     ←0
-  │ mcp-tools.ts               323L  1C   10m  CC=10     ←0
-  │ code-change.ts             322L  0C   35m  CC=11     ←0
-  │ communication-helpers.ts   320L  3C   45m  CC=14     ←0
-  │ contract-check.ts          317L  6C   39m  CC=14     ←2
-  │ runtime-cycle.ts           306L  1C   35m  CC=9      ←0
-  │ intent.ts                  306L  4C   36m  CC=12     ←0
-  │ !! communication-file-helpers.ts   296L  2C   39m  CC=18     ←0
-  │ intake-service.ts          291L  2C   48m  CC=13     ←0
-  │ !! validation.ts              281L  0C   47m  CC=84     ←0
-  │ !! intake-contract.ts         273L  7C   30m  CC=18     ←0
-  │ docs-llm.ts                269L  1C   28m  CC=12     ←0
-  │ typescript.ts              266L  1C   26m  CC=8      ←0
-  │ tasks-llm.ts               266L  4C   22m  CC=11     ←0
-  │ !! result.ts                  264L  0C   16m  CC=21     ←0
-  │ mcp.ts                     261L  2C   38m  CC=9      ←0
-  │ intent.ts                  258L  15C    0m  CC=0.0    ←0
-  │ nl-llm-helpers.ts          256L  3C   28m  CC=12     ←0
-  │ text-render.ts             251L  2C   33m  CC=13     ←0
-  │ !! watcher.ts                 243L  4C   37m  CC=19     ←0
-  │ !! text.ts                    239L  1C   48m  CC=19     ←2
-  │ utils.ts                   239L  0C   42m  CC=8      ←0
-  │ diff.ts                    235L  1C   38m  CC=11     ←0
-  │ env.ts                     231L  1C   20m  CC=13     ←0
-  │ !! a2a-history.ts             226L  3C   37m  CC=18     ←0
-  │ code-change.ts             221L  16C    0m  CC=0.0    ←0
-  │ structured-schema.ts       218L  5C   25m  CC=10     ←0
-  │ model-comparison.ts        218L  4C   21m  CC=12     ←0
-  │ conclusions.ts             210L  0C   21m  CC=9      ←0
-  │ !! reranker-llm.ts            210L  2C   24m  CC=25     ←0
-  │ configuration.ts           208L  1C   38m  CC=10     ←0
-  │ implementation.ts          208L  4C   21m  CC=12     ←0
-  │ !! code-change-path.ts        204L  0C   14m  CC=38     ←0
-  │ ignore.ts                  200L  3C   23m  CC=10     ←0
-  │ !! candidate.ts               200L  0C   13m  CC=27     ←0
-  │ !! a2a-message.ts             197L  0C   35m  CC=63     ←1
-  │ docs-record.ts             193L  0C   34m  CC=14     ←0
-  │ !! record.ts                  183L  2C   13m  CC=17     ←0
-  │ a2a-card.ts                181L  0C    7m  CC=3      ←0
-  │ !! io.ts                      177L  1C   32m  CC=15     ←0
-  │ markdown-llm.ts            175L  2C   11m  CC=9      ←0
-  │ pipeline.ts                173L  7C    0m  CC=0.0    ←0
-  │ task-synthesis-materialize.ts   172L  0C   35m  CC=5      ←0
-  │ typescript.ts              172L  6C   16m  CC=2      ←0
-  │ ast.ts                     167L  2C   15m  CC=12     ←0
-  │ id.ts                      167L  0C   16m  CC=5      ←0
-  │ a2a-types.ts               164L  9C   14m  CC=10     ←0
-  │ nl-llm.ts                  163L  2C   19m  CC=10     ←0
-  │ !! git.ts                     161L  3C   21m  CC=22     ←0
-  │ intake-store.ts            161L  3C   19m  CC=11     ←0
-  │ markdown-paths.ts          158L  2C   22m  CC=12     ←0
-  │ intake_cli                 156L  0C    6m  CC=10     ←0
-  │ types.ts                   155L  8C    0m  CC=0.0    ←0
-  │ docs-chunks.ts             147L  0C   29m  CC=8      ←0
-  │ !! identity.ts                146L  3C   22m  CC=30     ←0
-  │ symbol-resolution.ts       146L  3C   22m  CC=10     ←0
-  │ content-cache.ts           139L  4C   12m  CC=5      ←0
-  │ classifier.ts              135L  4C   32m  CC=6      ←0
-  │ gold-extraction.ts         127L  0C   13m  CC=5      ←0
-  │ !! intake-protobuf.ts         125L  0C   23m  CC=18     ←0
-  │ subactor.ts                122L  1C    9m  CC=13     ←0
-  │ validation.ts              113L  2C   28m  CC=11     ←0
-  │ validation.ts              111L  0C   11m  CC=7      ←0
-  │ nl.ts                      107L  1C   12m  CC=10     ←0
-  │ types.ts                   106L  11C    0m  CC=0.0    ←0
-  │ svg.ts                     104L  2C    7m  CC=2      ←0
-  │ changelog.ts                99L  0C   16m  CC=11     ←0
-  │ records.ts                  97L  0C   10m  CC=6      ←0
-  │ todo.ts                     93L  0C   18m  CC=5      ←0
-  │ changelog-signal.ts         89L  0C   12m  CC=8      ←0
-  │ mcp-resources.ts            88L  0C   13m  CC=6      ←0
-  │ contract.ts                 84L  0C    7m  CC=1      ←0
-  │ governed-intake.proto       78L  0C    0m  CC=0.0    ←0
-  │ task-synthesis-payload.ts    70L  0C    8m  CC=3      ←0
-  │ docs-types.ts               68L  7C    0m  CC=0.0    ←0
-  │ markdown-block.ts           67L  1C    3m  CC=10     ←0
-  │ task-synthesis-contract.ts    66L  3C    6m  CC=1      ←0
-  │ artifact.ts                 66L  2C   10m  CC=6      ←0
-  │ payload.ts                  65L  0C    8m  CC=12     ←0
-  │ communication.ts            63L  1C    7m  CC=7      ←0
-  │ capability-evidence.ts      62L  0C   14m  CC=10     ←0
-  │ render.ts                   61L  0C   13m  CC=10     ←0
-  │ target.ts                   57L  0C   12m  CC=9      ←0
-  │ security.ts                 55L  0C   11m  CC=7      ←0
-  │ index.ts                    53L  0C    0m  CC=0.0    ←0
-  │ gold-metrics.ts             50L  1C   11m  CC=4      ←0
-  │ external.ts                 48L  1C    5m  CC=9      ←0
-  │ !! diff-ui.ts                  48L  0C    9m  CC=52     ←0
-  │ diagnostics.ts              45L  2C    0m  CC=0.0    ←0
-  │ gold-cli.ts                 44L  0C   10m  CC=12     ←0
-  │ docs-schema.ts              43L  0C    5m  CC=1      ←0
-  │ reranker-response.ts        42L  1C    5m  CC=1      ←0
-  │ python.ts                   39L  0C    6m  CC=2      ←0
-  │ text-types.ts               39L  4C    0m  CC=0.0    ←0
-  │ intake-actions.ts           38L  0C   10m  CC=6      ←0
-  │ participant-registry-v2.schema.json    36L  0C    0m  CC=0.0    ←0
-  │ markdown.ts                 35L  1C    4m  CC=4      ←0
-  │ php.ts                      34L  0C    6m  CC=2      ←0
-  │ compile-cli.ts              34L  0C    7m  CC=10     ←0
-  │ constants.ts                31L  0C   14m  CC=1      ←0
-  │ unsupported.ts              30L  0C    4m  CC=5      ←0
-  │ failure.ts                  25L  1C    3m  CC=7      ←0
-  │ grounding.ts                24L  0C    5m  CC=5      ←0
-  │ rust.ts                     20L  0C    2m  CC=1      ←0
-  │ go.ts                       20L  0C    2m  CC=1      ←0
-  │ java.ts                     20L  0C    2m  CC=1      ←0
-  │ types.ts                    20L  2C    0m  CC=0.0    ←0
-  │ event-v1.schema.json        20L  0C    0m  CC=0.0    ←0
-  │ envelope-v1.schema.json     20L  0C    0m  CC=0.0    ←0
-  │ audit.ts                    19L  0C    1m  CC=1      ←0
-  │ command-v1.schema.json      17L  0C    0m  CC=0.0    ←0
-  │ query-v1.schema.json        11L  0C    0m  CC=0.0    ←0
-  │ diagnostic-v1.schema.json    11L  0C    0m  CC=0.0    ←0
-  │ mcp-errors.ts               10L  1C    2m  CC=3      ←0
-  │ result-v1.schema.json        9L  0C    0m  CC=0.0    ←0
-  │ index.ts                     8L  0C    0m  CC=0.0    ←0
-  │ index.ts                     4L  0C    0m  CC=0.0    ←0
-  │ index.ts                     4L  0C    0m  CC=0.0    ←0
-  │ version.ts                   2L  0C    0m  CC=0.0    ←0
-  │ version.ts                   2L  0C    0m  CC=0.0    ←0
-  │ !! implementation.ts            1L  10C  127m  CC=47     ←3
-  │ index.ts                     1L  0C    0m  CC=0.0    ←0
-  │ llm.ts                       1L  0C    0m  CC=0.0    ←0
+  golang/                         CC̄=4.6    ←in:0  →out:0
+  │ ast_extract.go             376L  3C   18m  CC=14     ←0
   │
   scripts/                        CC̄=3.4    ←in:0  →out:0
   │ audit-changelog-sample.mjs   226L  0C   39m  CC=11     ←0
@@ -292,13 +132,13 @@ LAYERS:
   │ live-contract-check.mjs    200L  0C   26m  CC=5      ←0
   │ rerank-embedding-shortlist.mjs   191L  0C   27m  CC=14     ←0
   │ !! rank-intent-graph-embeddings   174L  0C    3m  CC=27     ←0
+  │ !! verify-env-contract.mjs    139L  0C   21m  CC=20     ←0
   │ live-model-comparison.mjs   125L  0C   15m  CC=13     ←0
   │ e2e.sh                     109L  0C    3m  CC=0.0    ←0
-  │ !! verify-env-contract.mjs    103L  0C   15m  CC=28     ←0
   │ evaluate-embedding-pairs   101L  0C    2m  CC=9      ←0
+  │ verify-no-llm-imports.mjs    99L  0C   11m  CC=8      ←0
   │ verify-generated-analysis.mjs    88L  0C   14m  CC=8      ←0
   │ verify-module-boundaries.mjs    87L  0C   16m  CC=7      ←0
-  │ !! verify-no-llm-imports.mjs    78L  0C    6m  CC=15     ←0
   │ sync-generated-readme-metadata.mjs    66L  0C   14m  CC=4      ←0
   │ smoke.sh                    57L  0C    0m  CC=0.0    ←0
   │ assert-demollm-run.mjs      45L  0C    9m  CC=2      ←0
@@ -312,15 +152,200 @@ LAYERS:
   │ a2a-request.sh              23L  0C    0m  CC=0.0    ←0
   │ mcp-request.sh              11L  0C    0m  CC=0.0    ←0
   │
-  java/                           CC̄=3.0    ←in:2  →out:0
-  │ JavaAstExtract.java        260L  1C   12m  CC=10     ←1
+  src/                            CC̄=3.0    ←in:0  →out:0
+  │ !! cli.ts                     985L  1C  133m  CC=13     ←0
+  │ !! actions.ts                 806L  1C  106m  CC=13     ←0
+  │ !! analyzer.ts                619L  3C   85m  CC=14     ←0
+  │ !! a2a-task-store.ts          560L  3C   88m  CC=11     ←0
+  │ !! text.ts                    530L  0C   61m  CC=14     ←0
+  │ gold-cases.ts              489L  4C   62m  CC=8      ←0
+  │ diagnostics.ts             459L  1C   59m  CC=11     ←0
+  │ implementation-source-patch-apply-core.ts   434L  6C   50m  CC=13     ←0
+  │ git.ts                     397L  6C   57m  CC=11     ←0
+  │ implementation-source-patch-assert.ts   397L  2C   52m  CC=11     ←0
+  │ markdown-llm-helpers.ts    383L  5C   30m  CC=14     ←0
+  │ gold-types.ts              382L  15C   16m  CC=12     ←0
+  │ todo-patch.ts              372L  5C   52m  CC=12     ←0
+  │ docs-deterministic.ts      369L  3C   43m  CC=11     ←0
+  │ implementation-helpers.ts   357L  5C   33m  CC=10     ←0
+  │ reality-build.ts           346L  2C   44m  CC=14     ←0
+  │ communication-file-helpers.ts   342L  2C   45m  CC=14     ←0
+  │ workspace.ts               342L  3C   54m  CC=12     ←0
+  │ validation.ts              338L  0C   64m  CC=11     ←0
+  │ intake-contract.ts         334L  7C   34m  CC=14     ←0
+  │ a2a.ts                     332L  0C   47m  CC=9      ←0
+  │ gold.ts                    329L  3C   31m  CC=14     ←0
+  │ mcp-tools.ts               323L  1C   10m  CC=10     ←0
+  │ code-change.ts             322L  0C   35m  CC=11     ←0
+  │ communication-helpers.ts   320L  3C   45m  CC=14     ←0
+  │ contract-check.ts          317L  6C   39m  CC=14     ←2
+  │ result.ts                  311L  0C   23m  CC=7      ←0
+  │ intent.ts                  309L  4C   37m  CC=12     ←0
+  │ runtime-cycle.ts           306L  1C   35m  CC=9      ←0
+  │ summarizer.ts              304L  5C   24m  CC=10     ←0
+  │ watcher.ts                 292L  6C   42m  CC=12     ←0
+  │ reranker-llm.ts            291L  2C   35m  CC=9      ←0
+  │ intake-service.ts          291L  2C   48m  CC=13     ←0
+  │ linker.ts                  286L  1C   52m  CC=8      ←2
+  │ implementation-review.ts   274L  3C   33m  CC=7      ←0
+  │ docs-llm.ts                269L  1C   28m  CC=12     ←0
+  │ implementation-helpers-plans.ts   269L  3C   36m  CC=9      ←0
+  │ typescript.ts              266L  1C   26m  CC=8      ←0
+  │ nl-llm-helpers.ts          261L  3C   31m  CC=11     ←0
+  │ mcp.ts                     261L  2C   38m  CC=9      ←0
+  │ utils.ts                   259L  0C   47m  CC=8      ←0
+  │ text-render.ts             251L  2C   33m  CC=13     ←0
+  │ candidate.ts               250L  1C   19m  CC=8      ←0
+  │ code-change.ts             250L  19C    0m  CC=0.0    ←0
+  │ tasks-llm.ts               243L  4C   20m  CC=11     ←0
+  │ openrouter-request.ts      242L  4C   30m  CC=9      ←0
+  │ openrouter.ts              240L  5C   31m  CC=13     ←0
+  │ run-persistence.ts         236L  0C   16m  CC=8      ←0
+  │ diff.ts                    235L  1C   38m  CC=11     ←0
+  │ implementation-source-patch-create.ts   235L  3C   30m  CC=6      ←0
+  │ implementation-source-patch-apply-diff.ts   233L  3C   31m  CC=11     ←0
+  │ code-change-path.ts        232L  0C   23m  CC=11     ←0
+  │ env.ts                     231L  1C   20m  CC=13     ←0
+  │ reality.ts                 223L  2C   37m  CC=9      ←0
+  │ structured-schema.ts       218L  5C   25m  CC=10     ←0
+  │ model-comparison.ts        218L  4C   21m  CC=12     ←0
+  │ identity.ts                216L  3C   33m  CC=12     ←0
+  │ intent.ts                  212L  13C    0m  CC=0.0    ←0
+  │ io.ts                      211L  2C   30m  CC=11     ←0
+  │ conclusions.ts             210L  0C   21m  CC=9      ←0
+  │ configuration.ts           208L  1C   38m  CC=10     ←0
+  │ git.ts                     208L  4C   27m  CC=6      ←0
+  │ implementation.ts          208L  4C   21m  CC=12     ←0
+  │ ignore.ts                  200L  3C   23m  CC=10     ←0
+  │ docs-record.ts             193L  0C   34m  CC=14     ←0
+  │ run-execution.ts           189L  0C   26m  CC=12     ←0
+  │ a2a-card.ts                181L  0C    7m  CC=3      ←0
+  │ markdown-llm.ts            178L  2C   11m  CC=9      ←0
+  │ operation-step-validation.ts   178L  0C   18m  CC=11     ←0
+  │ run-helpers.ts             177L  0C   17m  CC=11     ←0
+  │ pipeline.ts                173L  7C    0m  CC=0.0    ←0
+  │ task-synthesis-materialize.ts   172L  0C   35m  CC=5      ←0
+  │ typescript.ts              172L  6C   16m  CC=2      ←0
+  │ a2a-run-list-item.ts       171L  2C   29m  CC=8      ←0
+  │ ast.ts                     167L  2C   15m  CC=12     ←0
+  │ id.ts                      167L  0C   16m  CC=5      ←0
+  │ run-failed.ts              167L  0C   15m  CC=9      ←0
+  │ a2a-types.ts               164L  9C   14m  CC=10     ←0
+  │ nl-llm.ts                  163L  2C   19m  CC=10     ←0
+  │ linker-candidates.ts       163L  1C   23m  CC=10     ←0
+  │ intake-store.ts            161L  3C   19m  CC=11     ←0
+  │ markdown-paths.ts          158L  2C   22m  CC=12     ←0
+  │ record.ts                  158L  2C   10m  CC=6      ←0
+  │ intake-protobuf.ts         158L  0C   29m  CC=13     ←0
+  │ intake_cli                 156L  0C    6m  CC=10     ←0
+  │ types.ts                   155L  8C    0m  CC=0.0    ←0
+  │ text.ts                    153L  0C   34m  CC=6      ←0
+  │ diff-ui.ts                 152L  0C    7m  CC=5      ←0
+  │ text-myers.ts              152L  3C   27m  CC=9      ←0
+  │ docs-chunks.ts             147L  0C   29m  CC=8      ←0
+  │ symbol-resolution.ts       146L  3C   22m  CC=10     ←0
+  │ implementation-helpers-acceptance.ts   141L  2C   15m  CC=4      ←0
+  │ a2a-message-command.ts     141L  0C   29m  CC=6      ←1
+  │ content-cache.ts           139L  4C   12m  CC=5      ←0
+  │ classifier.ts              135L  4C   32m  CC=6      ←0
+  │ persist-optional-artifacts.ts   128L  0C    6m  CC=7      ←0
+  │ gold-extraction.ts         127L  0C   13m  CC=5      ←0
+  │ implementation-semantic.ts   125L  1C   13m  CC=9      ←0
+  │ a2a-message.ts             125L  0C   19m  CC=12     ←0
+  │ subactor.ts                122L  1C    9m  CC=13     ←0
+  │ validation.ts              113L  2C   28m  CC=11     ←0
+  │ validation.ts              111L  0C   11m  CC=7      ←0
+  │ nl.ts                      107L  1C   12m  CC=10     ←0
+  │ types.ts                   106L  11C    0m  CC=0.0    ←0
+  │ diff-ui-compare.ts         105L  0C   20m  CC=7      ←0
+  │ svg.ts                     104L  2C    7m  CC=2      ←0
+  │ generation-validation.ts   101L  0C   13m  CC=8      ←0
+  │ changelog.ts                99L  0C   16m  CC=11     ←0
+  │ records.ts                  97L  0C   10m  CC=6      ←0
+  │ a2a-history.ts              96L  1C   17m  CC=13     ←0
+  │ todo.ts                     93L  0C   18m  CC=5      ←0
+  │ changelog-signal.ts         89L  0C   12m  CC=8      ←0
+  │ run-types.ts                89L  4C    0m  CC=0.0    ←0
+  │ mcp-resources.ts            88L  0C   13m  CC=6      ←0
+  │ contract.ts                 84L  0C    7m  CC=1      ←0
+  │ linker-relations.ts         83L  3C    7m  CC=7      ←0
+  │ run-documentation.ts        80L  0C    4m  CC=9      ←0
+  │ governed-intake.proto       78L  0C    0m  CC=0.0    ←0
+  │ implementation-helpers-close.ts    75L  2C   10m  CC=4      ←0
+  │ implementation-source-patch-diff.ts    74L  0C   16m  CC=6      ←0
+  │ task-synthesis-payload.ts    70L  0C    8m  CC=3      ←0
+  │ docs-types.ts               68L  7C    0m  CC=0.0    ←0
+  │ markdown-block.ts           67L  1C    3m  CC=10     ←0
+  │ task-synthesis-contract.ts    66L  3C    6m  CC=1      ←0
+  │ reality-totals.ts           66L  0C    9m  CC=5      ←0
+  │ run.ts                      66L  0C    6m  CC=2      ←0
+  │ artifact.ts                 66L  2C   10m  CC=6      ←0
+  │ payload.ts                  65L  0C    8m  CC=12     ←0
+  │ gold-cli.ts                 65L  0C   11m  CC=8      ←0
+  │ communication.ts            63L  1C    7m  CC=7      ←0
+  │ capability-evidence.ts      62L  0C   14m  CC=10     ←0
+  │ implementation-targets.ts    61L  0C    9m  CC=5      ←0
+  │ generation-metadata.ts      61L  0C    8m  CC=4      ←0
+  │ render.ts                   61L  0C   13m  CC=10     ←0
+  │ run-summary.ts              58L  1C    4m  CC=5      ←0
+  │ target.ts                   57L  0C   12m  CC=9      ←0
+  │ security.ts                 55L  0C   11m  CC=7      ←0
+  │ compile-cli.ts              55L  0C    9m  CC=6      ←0
+  │ index.ts                    53L  0C    0m  CC=0.0    ←0
+  │ gold-metrics.ts             50L  1C   11m  CC=4      ←0
+  │ external.ts                 48L  1C    5m  CC=9      ←0
+  │ diagnostics.ts              45L  2C    0m  CC=0.0    ←0
+  │ docs-schema.ts              43L  0C    5m  CC=1      ←0
+  │ reranker-response.ts        42L  1C    5m  CC=1      ←0
+  │ python.ts                   39L  0C    6m  CC=2      ←0
+  │ gold-reranker-validation.ts    39L  0C    4m  CC=9      ←0
+  │ text-types.ts               39L  4C    0m  CC=0.0    ←0
+  │ implementation-helpers.ts    39L  0C    0m  CC=0.0    ←0
+  │ intake-actions.ts           38L  0C   10m  CC=6      ←0
+  │ participant-registry-v2.schema.json    36L  0C    0m  CC=0.0    ←0
+  │ markdown.ts                 35L  1C    4m  CC=4      ←0
+  │ php.ts                      34L  0C    6m  CC=2      ←0
+  │ constants.ts                31L  0C   14m  CC=1      ←0
+  │ unsupported.ts              30L  0C    4m  CC=5      ←0
+  │ implementation-helpers-shared.ts    29L  0C    2m  CC=1      ←0
+  │ task-synthesis-metadata.ts    28L  0C    2m  CC=3      ←0
+  │ !! record-metadata.ts          27L  0C    3m  CC=17     ←0
+  │ implementation-indexing.ts    25L  0C    4m  CC=4      ←3
+  │ failure.ts                  25L  1C    3m  CC=7      ←0
+  │ grounding.ts                24L  0C    5m  CC=5      ←0
+  │ rust.ts                     20L  0C    2m  CC=1      ←0
+  │ go.ts                       20L  0C    2m  CC=1      ←0
+  │ java.ts                     20L  0C    2m  CC=1      ←0
+  │ types.ts                    20L  2C    0m  CC=0.0    ←0
+  │ event-v1.schema.json        20L  0C    0m  CC=0.0    ←0
+  │ envelope-v1.schema.json     20L  0C    0m  CC=0.0    ←0
+  │ diff-ui-script.ts           19L  0C    7m  CC=12     ←0
+  │ audit.ts                    19L  0C    1m  CC=1      ←0
+  │ implementation-diagnostics.ts    17L  0C    2m  CC=2      ←0
+  │ command-v1.schema.json      17L  0C    0m  CC=0.0    ←0
+  │ query-v1.schema.json        11L  0C    0m  CC=0.0    ←0
+  │ diagnostic-v1.schema.json    11L  0C    0m  CC=0.0    ←0
+  │ mcp-errors.ts               10L  1C    2m  CC=3      ←0
+  │ git-binary.ts               10L  0C    2m  CC=1      ←0
+  │ implementation-source-patch.ts     9L  0C    0m  CC=0.0    ←0
+  │ result-v1.schema.json        9L  0C    0m  CC=0.0    ←0
+  │ index.ts                     8L  0C    0m  CC=0.0    ←0
+  │ implementation-source-patch-apply.ts     8L  0C    0m  CC=0.0    ←0
+  │ index.ts                     4L  0C    0m  CC=0.0    ←0
+  │ index.ts                     4L  0C    0m  CC=0.0    ←0
+  │ command-input.ts             3L  0C    1m  CC=1      ←0
+  │ version.ts                   2L  0C    0m  CC=0.0    ←0
+  │ version.ts                   2L  0C    0m  CC=0.0    ←0
+  │ index.ts                     1L  0C    0m  CC=0.0    ←0
+  │ implementation.ts            1L  0C    0m  CC=0.0    ←0
+  │ llm.ts                       1L  0C    0m  CC=0.0    ←0
   │
   sdk/                            CC̄=2.7    ←in:0  →out:0
   │ client                     469L  7C   45m  CC=7      ←0
   │ index.ts                   420L  14C   45m  CC=8      ←0
   │ Client.php                 401L  1C   27m  CC=11     ←0
+  │ client.rs                  243L  1C   24m  CC=14     ←0
   │ runtime                    225L  3C   10m  CC=9      ←0
-  │ !! client.rs                  221L  1C   19m  CC=18     ←0
   │ types.go                   215L  19C    2m  CC=4      ←0
   │ client.go                  197L  3C   10m  CC=9      ←0
   │ todo2code_sdk              171L  1C   11m  CC=2      ←0
@@ -346,11 +371,15 @@ LAYERS:
   │ __init__                    13L  0C    0m  CC=0.0    ←0
   │ __init__                     1L  0C    0m  CC=0.0    ←0
   │
-  examples/                       CC̄=2.4    ←in:0  →out:0
-  │ !! server.ts                   99L  1C   18m  CC=16     ←0
+  java/                           CC̄=2.6    ←in:2  →out:0
+  │ JavaAstExtract.java        285L  1C   14m  CC=10     ←1
+  │
+  examples/                       CC̄=2.3    ←in:0  →out:0
+  │ request-handlers.ts         88L  0C   18m  CC=9      ←0
   │ render.ts                   64L  1C   12m  CC=4      ←0
   │ api.ts                      50L  3C    6m  CC=6      ←1
   │ store.ts                    48L  3C    4m  CC=1      ←0
+  │ server.ts                   43L  1C    8m  CC=4      ←0
   │ app.ts                      43L  1C    7m  CC=4      ←0
   │ participants.json           37L  0C    0m  CC=0.0    ←0
   │ validation.ts               31L  1C    7m  CC=10     ←0
@@ -408,24 +437,24 @@ LAYERS:
   │ !! dataset.json              2410L  0C    0m  CC=0.0    ←0
   │ !! dataset.json               761L  0C    0m  CC=0.0    ←0
   │
+  python/                         CC̄=0.0    ←in:0  →out:0
+  │ requirements.txt             1L  0C    0m  CC=0.0    ←0
+  │
 
 COUPLING:
-                      scripts.research         sdk.python           src.live           src.diff             python      src.synthesis          src.graph               java  examples.frontend
-   scripts.research                 ──                                     7                  2                                     1                  1                                        !! fan-out
-         sdk.python                                    ──                                                                           4                  1                  2                  1  !! fan-out
-           src.live                 ←7                                    ──                                                                                                                    hub
-           src.diff                 ←2                                                       ──                 ←4                                                                              hub
-             python                                                                           4                 ──                                     1                                      
-      src.synthesis                 ←1                 ←4                                                                          ──                                                           hub
-          src.graph                 ←1                 ←1                                                       ←1                                    ──                                      
-               java                                    ←2                                                                                                                ──                   
-  examples.frontend                                    ←1                                                                                                                                   ──
+                      scripts.research         sdk.python           src.live      src.synthesis               java          src.graph  examples.frontend
+   scripts.research                 ──                                     7                  1                                     1                     !! fan-out
+         sdk.python                                    ──                                     4                  2                  1                  1  !! fan-out
+           src.live                 ←7                                    ──                                                                              hub
+      src.synthesis                 ←1                 ←4                                    ──                                                           hub
+               java                                    ←2                                                       ──                                      
+          src.graph                 ←1                 ←1                                                                          ──                   
+  examples.frontend                                    ←1                                                                                             ──
   CYCLES: none
-  HUB: src.diff/ (fan-in=6)
   HUB: src.synthesis/ (fan-in=5)
   HUB: src.live/ (fan-in=7)
-  SMELL: scripts.research/ fan-out=11 → split needed
   SMELL: sdk.python/ fan-out=8 → split needed
+  SMELL: scripts.research/ fan-out=9 → split needed
 
 EXTERNAL:
   validation: run `vallm batch .` → validation.toon

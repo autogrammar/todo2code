@@ -10,12 +10,15 @@ import { classifyLlmFailure, rejectedLlmResponseMetadata, type LlmFailureReason 
 import { OpenRouterClient } from '../llm/openrouter.js';
 import {
   enrichMarkdownRecords,
+  MARKDOWN_LLM_BATCH_RECORDS,
   enrichRecord,
   markDeterministic,
   MarkdownAttemptError,
   readPrompt,
   stageAudit,
 } from './markdown-llm-helpers.js';
+
+export { MARKDOWN_LLM_BATCH_RECORDS };
 
 export interface AuditedMarkdownExtractionResult extends ExtractionResult {
   audit: PipelineStageAudit;

@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { T2CConfig } from '../config/env.js';
-import { createConclusionId, sha256, stableStringify } from '../core/id.js';
+import { createConclusionId } from '../core/id.js';
 import { groundRecordIdsByDiagnostics } from '../core/grounding.js';
 import { pathExists } from '../core/io.js';
 import { assertConclusions } from '../core/schema.js';
@@ -16,12 +16,11 @@ import type {
   LlmResponseMetadata,
   LlmExtractionMode,
 } from '../core/types.js';
-import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient } from '../llm/openrouter.js';
 import { StructuredResponseError, structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
-import { T2C_VERSION } from '../version.js';
 import { compactSummaryPayload } from './payload.js';
 import { compareConclusions, renderSummaryMarkdown } from './render.js';
+import { generationMetadata } from './generation-metadata.js';
 
 export interface SummaryResult {
   conclusions: Conclusion[];
@@ -280,34 +279,6 @@ function deterministicConclusions(
     });
   assertConclusions(conclusions, { graph, diagnostics });
   return conclusions.sort(compareConclusions);
-}
-
-function generationMetadata(
-  config: T2CConfig,
-  mode: GroundedGenerationMetadata['requestedMode'],
-  response?: LlmResponseMetadata,
-  reason?: string,
-): GroundedGenerationMetadata {
-  const effectiveMode = response ? 'llm' : 'deterministic';
-  const degraded = mode === 'prefer-llm' && effectiveMode === 'deterministic';
-  const configuration = openRouterAuditConfiguration(
-    config,
-    mode === 'deterministic' ? null : config.openRouter.summaryModel,
-  );
-  return {
-    generator: 't2c/grounded-summary',
-    generatorVersion: '2',
-    runtimeVersion: T2C_VERSION,
-    generatedAt: new Date().toISOString(),
-    requestedMode: mode,
-    effectiveMode,
-    degraded,
-    model: response ? response.model ?? config.openRouter.summaryModel : null,
-    provider: response ? response.provider ?? 'openrouter' : null,
-    responseId: response?.responseId ?? null,
-    configurationFingerprint: sha256(stableStringify(configuration)),
-    reason: degraded ? reason ?? 'LLM_UNAVAILABLE' : null,
-  };
 }
 
 function summaryMode(options: SummaryOptions): GroundedGenerationMetadata['requestedMode'] {

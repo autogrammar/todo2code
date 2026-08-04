@@ -79,22 +79,47 @@ public final class JavaAstExtract {
       List<Map<String, Object>> facts,
       List<String> warnings) throws Exception {
     String source = Files.readString(file, StandardCharsets.UTF_8);
+    String relative = slash(root.relativize(file).toString());
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     try (StandardJavaFileManager manager = compiler.getStandardFileManager(diagnostics, Locale.ROOT, StandardCharsets.UTF_8)) {
-      Iterable<? extends JavaFileObject> units = manager.getJavaFileObjects(file.toFile());
-      JavacTask task = (JavacTask) compiler.getTask(null, manager, diagnostics,
-          List.of("-proc:none"), null, units);
-      Iterable<? extends CompilationUnitTree> parsed = task.parse();
-      Trees trees = Trees.instance(task);
-      SourcePositions positions = trees.getSourcePositions();
-      String relative = slash(root.relativize(file).toString());
-      for (CompilationUnitTree unit : parsed) {
-        new Collector(relative, source, unit, positions, facts).scan(unit, null);
-      }
+      ParsedJavaCompilation parsed = parseCompilationUnits(compiler, diagnostics, manager, file);
+      scanCompilationUnits(parsed, relative, source, facts);
     }
+    collectFileDiagnostics(relative, diagnostics, warnings);
+  }
+
+  private static ParsedJavaCompilation parseCompilationUnits(
+      JavaCompiler compiler,
+      DiagnosticCollector<JavaFileObject> diagnostics,
+      StandardJavaFileManager manager,
+      Path file) throws IOException {
+    Iterable<? extends JavaFileObject> units = manager.getJavaFileObjects(file.toFile());
+    JavacTask task = (JavacTask) compiler.getTask(null, manager, diagnostics,
+        List.of("-proc:none"), null, units);
+    Iterable<? extends CompilationUnitTree> parsed = task.parse();
+    SourcePositions positions = Trees.instance(task).getSourcePositions();
+    return new ParsedJavaCompilation(parsed, positions);
+  }
+
+  private static void scanCompilationUnits(
+      ParsedJavaCompilation parsed,
+      String relative,
+      String source,
+      List<Map<String, Object>> facts) {
+    for (CompilationUnitTree unit : parsed.units()) {
+      new Collector(relative, source, unit, parsed.positions(), facts).scan(unit, null);
+    }
+  }
+
+  private record ParsedJavaCompilation(
+      Iterable<? extends CompilationUnitTree> units,
+      SourcePositions positions) {
+  }
+
+  private static void collectFileDiagnostics(String relative, DiagnosticCollector<JavaFileObject> diagnostics, List<String> warnings) {
     for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
       if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-        warnings.add(slash(root.relativize(file).toString()) + ":" + diagnostic.getLineNumber()
+        warnings.add(relative + ":" + diagnostic.getLineNumber()
             + ": parse error: " + diagnostic.getMessage(Locale.ROOT));
       }
     }
