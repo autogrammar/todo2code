@@ -32,7 +32,9 @@ module boundary.
   the interactive approval boundary.
 - Focused tests passed, but governance correctly classified
   `test/nl-llm.test.ts` under `llm`; ticket-025 no longer claims that path.
+- Restored extractor split contracts and declared identity comparison. Focused
+  tests, aggregate verification, gold and Docker core/full pass.
 
 ## Blockers
 
-- None after the user's continuation instruction; merge review is external.
+- Implementation and validation are complete; merge review remains external.

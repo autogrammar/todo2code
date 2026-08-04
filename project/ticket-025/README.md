@@ -3,7 +3,7 @@
 - **ID**: ticket-025
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -22,14 +22,14 @@ expects release `0.5.0` instead of canonical `0.5.2`.
 ## Acceptance criteria
 
 - [x] AC-01: The human instructed the agent to continue iterative repair.
-- [ ] AC-02: NL action/modality guards narrow strings without unsafe runtime
+- [x] AC-02: NL action/modality guards narrow strings without unsafe runtime
       acceptance.
-- [ ] AC-03: The markdown batching constant remains exported from the public
+- [x] AC-03: The markdown batching constant remains exported from the public
       extractor module and its tests compile.
-- [ ] AC-04: Focused extractor tests and aggregate verification pass.
-- [ ] AC-05: Registry alignment compares declared Git authors with the
+- [x] AC-04: Focused extractor tests and aggregate verification pass.
+- [x] AC-05: Registry alignment compares declared Git authors with the
       canonical registry entry and emits the established mismatch warning.
-- [ ] AC-06: Deterministic documentation asserts canonical release `0.5.2`;
+- [x] AC-06: Deterministic documentation asserts canonical release `0.5.2`;
       confidence hierarchy coverage is routed to its owning LLM ticket.
 
 ## Participants

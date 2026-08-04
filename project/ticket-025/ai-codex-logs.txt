@@ -6,3 +6,7 @@ Scope expanded within extractors; user authorization: kontynuuj.
 2026-08-04 governance routing correction
 GOV-WORKSTREAM-003 identified test/nl-llm.test.ts as LLM-owned. Removed that
 path from ticket-025; ticket-027 owns the confidence test update.
+2026-08-04 validation
+focused repaired tests: 79/79 PASS across all affected workstreams
+npm run verify: PASS (338 tests; 337 pass, 0 fail, 1 local JDK skip)
+gold v1/v2 and Docker core/full: PASS
