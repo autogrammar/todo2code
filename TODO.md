@@ -4,7 +4,8 @@
 
 - [ ] [`ticket-024`](project/ticket-024/README.md) — repair current CLI and
   communication contracts after the parallel module refactors. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; exact interfaces scope is documented.
+  `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
+  exact interfaces repair.
 
 - [ ] [`ticket-023`](project/ticket-023/README.md) — repair the current-HEAD
   core artifact contracts, semantic reranker parser guard and canonical runtime
