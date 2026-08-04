@@ -235,9 +235,9 @@ Current verified baseline:
 - `GOV-SCOPE-001`: the same commit contains eight implementation/generated
   paths not allowed by ticket-018. They must be routed to their actual ticket,
   not retroactively claimed here.
-- Central `new-project` 0.9.0 is committed and pinned locally at `1ae86a1`, but
-  remains unpublished, so no honest immutable remote reusable-workflow SHA
-  exists yet.
+- Central `new-project` 0.9.0 is pinned at `1ae86a1` and the exact commit is
+  published on `origin/feat/bounded-delivery-contract`; it remains unmerged on
+  upstream `main`, so it is evidence for a remote branch, not a released tag.
 - AC-17: concurrent commit `9928699` bumped the Rust SDK manifest to 0.5.1, but
   the ignored local Cargo lock still identifies the root package as 0.5.0.
   Official full Docker E2E fails closed at `cargo fetch --locked` (exit 101).

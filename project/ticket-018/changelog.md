@@ -5,6 +5,8 @@
 - Refactored the managed governance validator at upstream commit `1ae86a1` so
   every function remains within CC 15 and 100 lines while preserving byte-for-
   byte JSON/SARIF results for the PR #4 range; refreshed the pinned lock.
+- Published that exact upstream commit on `feat/bounded-delivery-contract` and
+  updated the target lock provenance from `local-commit` to `remote-branch`.
 
 ## [0.4.0] - 2026-08-04
 

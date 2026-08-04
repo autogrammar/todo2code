@@ -6,7 +6,7 @@
     "sourceRepository": "wellmanifest/new-project",
     "sourceRevision": "1ae86a15a1348443fe3d270c6f4c6528dc309436",
     "sourceBaseRevision": "0b33a8a865b73c6826c27cd249111d204a297d6a",
-    "publicationStatus": "local-commit"
+    "publicationStatus": "remote-branch"
   },
   "managedFiles": {
     ".governance/diagnostics.json": "2b2d5243cf18b7d95e94a96bcb220eafee9291566aa6a6814b4a9693e5c6aa6e",

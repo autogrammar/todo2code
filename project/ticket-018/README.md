@@ -341,8 +341,8 @@ remain historical evidence, not evidence for AC-11..AC-17.
   `GOV-SCOPE-001` for eight paths outside ticket-018.
 - Central 0.9.0 plus its behavior-preserving complexity refactor are committed
   locally and target hashes are pinned to `1ae86a1`,
-  but the upstream branch is not published; therefore no immutable remote
-  workflow revision can yet be required by repository rules.
+  on the published upstream branch `feat/bounded-delivery-contract`; the commit
+  is remotely fetchable but is not yet a merged release on upstream `main`.
 - Repository Ruleset/CODEOWNERS configuration is external state and remains
   unverified. A trusted GitHub owner/team must be selected without guessing.
 - `new-project` 0.8.0 central schema, fixture and catalog checks pass. The
@@ -436,4 +436,6 @@ remain historical evidence, not evidence for AC-11..AC-17.
   commit `1ae86a1`, without changing diagnostics or fail-closed policy.
   Central validator/scaffolder fixtures pass, old/new JSON and SARIF reports
   for the full PR range are byte-identical, and Lizard reports zero functions
-  above CC 15 or 100 lines. A fresh Koru run remains required for the new head.
+  above CC 15 or 100 lines. Run `30906125354` then passed Koru/Gemini for exact
+  head `aff2137` with 1/1 file, zero blocking/advisory findings and an attested
+  report. A later provenance-only commit must receive its own fresh checks.
