@@ -1,0 +1,12 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-027",
+  "summary": "Repair current code-change helper narrowing",
+  "workstream": "llm",
+  "allowedPaths": ["src/synthesis/code-change-plan/implementation-helpers.ts", "project/ticket-027/**", "TODO.md", "project/TICKETS.md"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}

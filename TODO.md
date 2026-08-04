@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-027`](project/ticket-027/README.md) — restore strict narrowing
+  in the split code-change synthesis helper. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`; exact LLM workstream scope is documented.
+
 - [ ] [`ticket-026`](project/ticket-026/README.md) — remove the stale runtime
   diff-git dispatcher argument after the action split. Current state:
   `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
