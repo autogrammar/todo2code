@@ -1,0 +1,12 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-024",
+  "summary": "Repair current CLI and interface contracts",
+  "workstream": "interfaces",
+  "allowedPaths": ["src/cli.ts", "src/communication/llm/implementation.ts", "src/communication/llm/implementation-helpers.ts", "project/ticket-024/**", "TODO.md", "project/TICKETS.md"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}

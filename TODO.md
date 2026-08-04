@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-024`](project/ticket-024/README.md) — repair current CLI and
+  communication contracts after the parallel module refactors. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`; exact interfaces scope is documented.
+
 - [ ] [`ticket-023`](project/ticket-023/README.md) — repair the current-HEAD
   core artifact contracts, semantic reranker parser guard and canonical runtime
   version without reverting parallel refactors. Current state:
