@@ -2,8 +2,8 @@
 
 - **ID**: ticket-035
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -57,6 +57,12 @@ requires an exact-head external approval.
 - Adoption preview before refresh reported exactly one update:
   `.governance/manifest.lock.json`.
 - `git diff --check`: PASS.
+- Protected CI: governance, Node verification, Docker smoke and required Java
+  fixture PASS.
+- Exact-head Validator App approval: PASS for
+  `f9c0b4b1a1acf65040c69d915fb60afe196a9764`, model
+  `openrouter/z-ai/glm-5.2`, advisory findings none.
+- Merge: PR #26, `main@a2441f876d3261e49e2fc8630e409de2053970a1`.
 
 ## Participants
 

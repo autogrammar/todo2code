@@ -2,11 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-035`](project/ticket-035/README.md) — declare the Python
-  publication transaction as an integration-owned scope and refresh the
-  adoption lock, so ticket-019 can change root packaging, Goal, Make and SDK
-  metadata without violating workstream ownership. Current state:
-  `IN_PROGRESS / VALIDATION`; local and simulated ownership gates pass.
+None.
 
 ## Backlog tickets
 
@@ -18,6 +14,11 @@
 
 ## Completed tickets
 
+- [x] [`ticket-035`](project/ticket-035/README.md) — declared the five atomic
+  Python publication paths as integration-owned shared contracts, preserved the
+  immutable standard provenance and passed exact-head Validator review plus all
+  protected checks. Implementation merged as `main@a2441f8`; current state:
+  `DONE`.
 - [x] [`ticket-020`](project/ticket-020/README.md) — role-bound trusted intake
   with persistent manager/user/dev assignments, CQRS/event sourcing, strict
   schemas, dependency-free Protobuf codecs and Python/TypeScript CLI, MCP and

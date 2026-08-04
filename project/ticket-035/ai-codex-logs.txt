@@ -40,3 +40,14 @@ $ git diff --check
 exit 0
 
 Workflow transition: WAIT_FOR_APPROVAL -> EDIT -> VALIDATION.
+
+2026-08-04 publication
+
+- Superseded PR #25 after protected CI found GOV-INTENT-003.
+- PR #26 preserved a plan-only first commit and implementation second commit.
+- Validator App approved exact head
+  f9c0b4b1a1acf65040c69d915fb60afe196a9764 with no advisory findings.
+- Protected governance, Node/Docker and Java checks passed.
+- PR #26 merged as a2441f876d3261e49e2fc8630e409de2053970a1.
+
+Workflow transition: VALIDATION -> PUBLICATION -> DONE.
