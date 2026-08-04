@@ -4,8 +4,9 @@
 
 - [ ] [`ticket-034`](project/ticket-034/README.md) — scale each OpenRouter chat
   deadline deterministically from input size, output budget and structural
-  complexity. Current state: `IN_PROGRESS / EDIT`; ticket-027 is closed on its
-  validated repair line and the bounded implementation is approved.
+  complexity. Current state: `IN_PROGRESS / PUBLICATION`; governance, 349-test
+  verification, gold, SDK examples and Docker smoke pass on the validated
+  ticket-027 publication base.
 
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic

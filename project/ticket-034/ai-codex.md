@@ -29,8 +29,15 @@ JSON requests can therefore receive less time than much smaller generic calls.
 - Recorded the user's explicit continuation as approval and entered `EDIT`.
 - Configured the ignored local OpenRouter environment to use `z-ai/glm-5.2`;
   no API key or other secret was changed.
+- Added a pure timeout policy and applied one effective deadline across HTTP
+  retries and their abortable backoff.
+- Added timeout policy fields to secret-free audit configuration and base plus
+  effective durations to timeout errors.
+- Added seven boundary, cap, malformed-input, audit and cancellation tests.
+- Full verify, gold, SDK examples, governance and Docker smoke pass on the
+  validated ticket-027 publication base.
 
 ## Blockers
 
-- None for bounded implementation. Protected review remains an external
-  publication requirement.
+- Implementation and validation are complete. Protected review remains an
+  external publication requirement.

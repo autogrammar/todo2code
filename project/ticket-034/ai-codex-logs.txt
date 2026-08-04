@@ -1,3 +1,9 @@
 2026-08-04 user approval: "kontynuuj"; state WAIT_FOR_APPROVAL -> EDIT
 2026-08-04 local OpenRouter model: z-ai/glm-5.2; ignored .env only, no secret changed
 2026-08-04 ticket-027 closure verified at c51bf19; equivalent split behavior present on current base
+2026-08-04 focused OpenRouter suites PASS: 26/26 including 7 adaptive timeout tests
+2026-08-04 make governance PASS: 0 errors, 0 warnings
+2026-08-04 npm run verify PASS: 349 total, 348 pass, 0 fail, 1 optional JDK skip
+2026-08-04 gold v2 PASS: all measured precision/recall 100%; stability PASS
+2026-08-04 examples PASS: five SDK fingerprints agree
+2026-08-04 Docker smoke PASS; state EDIT -> PUBLICATION

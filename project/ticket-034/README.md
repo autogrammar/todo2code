@@ -3,7 +3,7 @@
 - **ID**: ticket-034
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -54,22 +54,30 @@ fallback and the `/models` endpoint are out of scope.
 
 - [x] AC-01: A human approves the formula and bounded paths after ticket-027 is
       integrated or closed.
-- [ ] AC-02: Requests at or below all baselines retain the exact configured base
+- [x] AC-02: Requests at or below all baselines retain the exact configured base
       timeout.
-- [ ] AC-03: Crossing one, two and four baseline units produces `2×`, `4×` and
+- [x] AC-03: Crossing one, two and four baseline units produces `2×`, `4×` and
       `8×` timeouts respectively.
-- [ ] AC-04: The result never exceeds 600 seconds and rejects non-finite or
+- [x] AC-04: The result never exceeds 600 seconds and rejects non-finite or
       malformed request values without silently granting an unbounded timeout.
-- [ ] AC-05: Structured schemas and response-healing complexity contribute to
+- [x] AC-05: Structured schemas and response-healing complexity contribute to
       scaling independently of raw character count.
-- [ ] AC-06: External `AbortSignal` cancellation remains immediate and is never
+- [x] AC-06: External `AbortSignal` cancellation remains immediate and is never
       extended by adaptive timeout logic.
-- [ ] AC-07: Retry backoff remains inside one effective request deadline; the
+- [x] AC-07: Retry backoff remains inside one effective request deadline; the
       change does not multiply each retry into a separate unbounded deadline.
-- [ ] AC-08: Timeout errors state both base and effective milliseconds; audit
+- [x] AC-08: Timeout errors state both base and effective milliseconds; audit
       configuration records the factor, baselines and cap without secrets.
-- [ ] AC-09: Focused tests, full `npm run verify`, Docker smoke and governance
+- [x] AC-09: Focused tests, full `npm run verify`, Docker smoke and governance
       pass on the integrated base.
+
+## Validation
+
+- `make governance`: PASS, 0 errors and 0 warnings.
+- `npm run verify`: PASS, 349 tests, 348 passed, 1 optional JDK skip.
+- `npm run evaluate:gold`: PASS, all measured precision and recall 100%.
+- `npm run examples:check`: PASS, five SDK fingerprints agree.
+- `make docker-smoke`: PASS.
 
 ## Resolved blockers
 
