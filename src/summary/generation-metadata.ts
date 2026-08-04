@@ -13,21 +13,29 @@ export function generationMetadata(
   response?: LlmResponseMetadata,
   reason?: string,
 ): GroundedGenerationMetadata {
-  const effectiveMode = resolveGenerationMode(response);
-  const degraded = shouldDegradeGeneration(mode, effectiveMode);
   return {
     generator: 't2c/grounded-summary',
     generatorVersion: '2',
     runtimeVersion: T2C_VERSION,
     generatedAt: new Date().toISOString(),
     requestedMode: mode,
-    effectiveMode,
-    degraded,
+    ...resolveGenerationSummary(response, mode),
     model: resolveGenerationModel(config, response),
     provider: resolveGenerationProvider(response),
-    responseId: response?.responseId ?? null,
+    responseId: resolveResponseId(response),
     configurationFingerprint: sha256(stableStringify(resolveGenerationConfiguration(config, mode))),
-    reason: degraded ? reason ?? 'LLM_UNAVAILABLE' : null,
+    reason: resolveGenerationReason(response, mode, reason),
+  };
+}
+
+function resolveGenerationSummary(
+  response: LlmResponseMetadata | undefined,
+  mode: GroundedGenerationMetadata['requestedMode'],
+): Pick<GroundedGenerationMetadata, 'effectiveMode' | 'degraded'> {
+  const effectiveMode = resolveGenerationMode(response);
+  return {
+    effectiveMode,
+    degraded: shouldDegradeGeneration(mode, effectiveMode),
   };
 }
 
@@ -48,6 +56,21 @@ function resolveGenerationModel(config: T2CConfig, response?: LlmResponseMetadat
 
 function resolveGenerationProvider(response?: LlmResponseMetadata): string | null {
   return response ? response.provider ?? 'openrouter' : null;
+}
+
+function resolveResponseId(response?: LlmResponseMetadata): string | null {
+  return response?.responseId ?? null;
+}
+
+function resolveGenerationReason(
+  response: LlmResponseMetadata | undefined,
+  mode: GroundedGenerationMetadata['requestedMode'],
+  reason?: string,
+): string | null {
+  if (!shouldDegradeGeneration(mode, resolveGenerationMode(response))) {
+    return null;
+  }
+  return reason ?? 'LLM_UNAVAILABLE';
 }
 
 function resolveGenerationConfiguration(
