@@ -2,12 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
-  Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
-  one root `pyproject.toml` and SDK-only artifacts. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
-  release the overlapping `Makefile` path.
-
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
@@ -19,6 +13,14 @@
   checks on `main`; the ruleset is active with no bypass actors.
   Earlier AC-11..AC-16 pass; AC-17 and the pre-existing publication/external
   governance blockers remain recorded separately.
+
+## Backlog tickets
+
+- [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
+  Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
+  one root `pyproject.toml` and SDK-only artifacts. Current state:
+  `BACKLOG / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
+  release the overlapping `Makefile` path.
 
 ## Completed tickets
 

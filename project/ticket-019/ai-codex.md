@@ -42,7 +42,8 @@ violate the non-overlap contract.
 
 ## Actual changes
 
-- None; waiting for approval.
+- Returned the unapproved plan to `BACKLOG / WAIT_FOR_APPROVAL` so it no longer
+  conflicts with active ticket-018 or claims its unfinished dependency.
 
 ## Blockers
 
