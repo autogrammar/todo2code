@@ -1,0 +1,17 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-038",
+  "summary": "Reconcile protected completion narrative",
+  "workstream": "governance",
+  "allowedPaths": [
+    "project/ticket-036/ai-codex.md",
+    "project/ticket-038/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": ["ticket-036"],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
