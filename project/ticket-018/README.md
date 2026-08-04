@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -224,29 +224,29 @@ existing README/runbook/permissions documentation. No application source in
       scope laundering.
 - [x] AC-30: A human approves AC-30..AC-40 and the exact cross-repository paths
       before governance, workflow, source or test implementation changes.
-- [ ] AC-31: The manifest/schema version a narrow trusted Validator review
+- [x] AC-31: The manifest/schema version a narrow trusted Validator review
       actor allowlist without treating every GitHub bot as trusted.
-- [ ] AC-32: Pull-request CI accepts an allowlisted independent Validator App
+- [x] AC-32: Pull-request CI accepts an allowlisted independent Validator App
       approval only for the exact current head SHA and retains existing human
       `User` approval behavior.
-- [ ] AC-33: Deterministic fixtures reject unknown bots, stale/dismissed
+- [x] AC-33: Deterministic fixtures reject unknown bots, stale/dismissed
       reviews, same-author reviews and malformed allowlist entries.
-- [ ] AC-34: `validator-agent` exposes an explicit direct-PR strategy bound to
+- [x] AC-34: `validator-agent` exposes an explicit direct-PR strategy bound to
       repository, PR number, allowed base branch and expected head SHA while
       preserving the existing Project-queue strategy.
-- [ ] AC-35: Direct validation never commits release metadata, edits the PR
+- [x] AC-35: Direct validation never commits release metadata, edits the PR
       branch, mutates Issues/Projects or merges; its verdict mutation is limited
       to `APPROVE` or `REQUEST_CHANGES` from the dedicated identity.
-- [ ] AC-36: The direct strategy checks the exact diff, unsafe markers, required
+- [x] AC-36: The direct strategy checks the exact diff, unsafe markers, required
       hosted checks and head stability, excluding only the documented circular
       approval gate from its prerequisite set.
-- [ ] AC-37: The semantic review uses `openrouter/z-ai/glm-5.2`, preserves cost
+- [x] AC-37: The semantic review uses `openrouter/z-ai/glm-5.2`, preserves cost
       and schema limits, and fails closed on missing credentials or malformed
       output.
-- [ ] AC-38: Workflow dispatch requires explicit direct strategy inputs and
+- [x] AC-38: Workflow dispatch requires explicit direct strategy inputs and
       creates a repository-scoped Validator App token; arbitrary repositories
       and mutable/unpinned heads are rejected.
-- [ ] AC-39: Focused negative/positive tests, both complete repository suites,
+- [x] AC-39: Focused negative/positive tests, both complete repository suites,
       governance, Java, gold, SDK examples and Docker smoke pass.
 - [ ] AC-40: After a separately trusted bootstrap review merges the policy,
       the real Validator App reviews PR #13 at its exact SHA and the rerun

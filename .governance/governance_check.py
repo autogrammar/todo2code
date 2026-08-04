@@ -205,7 +205,26 @@ def basic_manifest_valid(manifest: Any) -> bool:
     if not common_valid or manifest.get("schema") == "new-project.governance/v1":
         return common_valid
     coordination = manifest.get("coordination")
+    approval_actors = manifest.get("trustedApprovalActors")
+    github_apps = approval_actors.get("githubApps") if isinstance(approval_actors, dict) else None
+    approval_actors_valid = (
+        isinstance(approval_actors, dict)
+        and set(approval_actors) == {"githubApps"}
+        and isinstance(github_apps, list)
+        and bool(github_apps)
+        and all(
+            isinstance(actor, dict)
+            and set(actor) == {"login", "type"}
+            and actor.get("type") == "Bot"
+            and isinstance(actor.get("login"), str)
+            and re.fullmatch(r"[A-Za-z0-9-]+\[bot\]", actor["login"]) is not None
+            for actor in github_apps
+        )
+        and len({actor["login"].lower() for actor in github_apps}) == len(github_apps)
+    )
     return (
+        approval_actors_valid
+        and
         isinstance(coordination, dict)
         and coordination.get("mode") == "workstreams"
         and isinstance(coordination.get("maxActiveTicketsPerWorkstream"), int)

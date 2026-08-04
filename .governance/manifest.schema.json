@@ -4,7 +4,7 @@
   "title": "new-project governance manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "standard", "requiredFiles", "ticket", "docker", "governancePaths", "trustedApprovalSources", "coordination"],
+  "required": ["schema", "standard", "requiredFiles", "ticket", "docker", "governancePaths", "trustedApprovalSources", "trustedApprovalActors", "coordination"],
   "properties": {
     "$schema": { "type": "string", "minLength": 1 },
     "schema": { "const": "new-project.governance/v2" },
@@ -24,6 +24,30 @@
       "items": { "enum": ["github-review", "signed-attestation"] },
       "minItems": 1,
       "uniqueItems": true
+    },
+    "trustedApprovalActors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["githubApps"],
+      "properties": {
+        "githubApps": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["login", "type"],
+            "properties": {
+              "login": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9-]+\\[bot\\]$"
+              },
+              "type": { "const": "Bot" }
+            }
+          }
+        }
+      }
     },
     "ticket": {
       "type": "object",

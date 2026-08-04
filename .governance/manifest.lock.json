@@ -10,13 +10,15 @@
   },
   "managedFiles": {
     ".governance/diagnostics.json": "2a6d1e088a03badb75eef33cfeb9b6c9992fea4c6f7fa5ebec6257b1eea9e39f",
-    ".governance/governance_check.py": "1e45843a4efa5793547aa7e9a0fd629b495449c65ca6a4cf7b0990334545bbfa",
+    ".governance/governance_check.py": "d675fd864bcd483e1dc92b0b7961e3b41975470d5231f45842f148bf502c7a9b",
     ".governance/intent.schema.json": "7e3157c1bf7c987541fc2182fc44d33bf53520672931a09bbd6b2b10b821aa3b",
-    ".governance/manifest.json": "8d3f8048f9112e467832d3c82121653ab976eeeb14f160348c0d24fd94230c27",
-    ".governance/manifest.schema.json": "185f041ffe3d9c40670765ff53fc7ef37dc4ee21121c67a8d7913bd8860435da",
+    ".governance/manifest.json": "43d2a2ce4d9702cc1a5fe66e8168606e212eed2fb2c295705ef91af9ee15be94",
+    ".governance/manifest.schema.json": "9bd483c0e807ebd412e3679661d8f28b69d0bff1f214c18991b3b477c4904b27",
+    ".governance/resolve-approval.mjs": "8d60a6848f81921d296015f4a6891a28e81369482085fc9806461bee92993811",
+    ".governance/resolve-approval.test.mjs": "8e1781dba702aac6be2df550968750891246cf679b393551013ca7a7434810a3",
     ".governance/stack-profiles.json": "6fa3f8f44e50cfd0539413a85092817d3fab4e82fe376405f1e443120724dff2",
-    "project/governance-check.bat": "7207bc499483d7a7a1ab2c230ad288c2484cdf02f3a773ba69f4b760b67a3388",
-    "project/governance-check.sh": "158ca61531b8e51ba484de8eb6f91f4e4fbba908ae3c8db678b63bf6bab49923",
+    "project/governance-check.bat": "829ce79cd799da8f715b587e138ca93593ec34b430f0b8b12f16387ce44b0845",
+    "project/governance-check.sh": "250c51e10e373cd966e1620727092f1e0c533d5883e08481e9ed1d9f7db2c0d0",
     "project/new-ticket.sh": "0e6d199c535259bf1eebbc91f8eab68ae6457c3158230f55cf23d587fdb671ff",
     "project/readme.sh": "8a19819ab97fff26dbca179ead831d697f785c48774d8154714d768968fcfaf0"
   }

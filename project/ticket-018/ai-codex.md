@@ -184,6 +184,13 @@ Current verified baseline:
 - Changed the deployed `subactor/validator-agent` GitHub Actions variable from
   Gemini 3.1 Pro Preview to `openrouter/z-ai/glm-5.2`; no validation run was
   dispatched and no secret value was read.
+- Implemented AC-31..AC-39 after the explicit approval: exact current-head
+  trust resolution in todo2code and a repository/PR/base/SHA-bound direct
+  strategy in Validator. The direct path cannot edit a branch, release
+  metadata, Issues, Projects, or merge state.
+- Full local and container validation passes, including Validator 96/96,
+  todo2code full E2E with JDK 17 at 342/342, gold v1/v2, SDK examples,
+  governance and Docker smoke. AC-40 remains an external bootstrap sequence.
 
 ## Blockers
 
@@ -213,4 +220,4 @@ Current verified baseline:
   The user's request authorizes planning and policy evolution; executable edits
   begin only after explicit approval of this exact allowlist/direct-PR design.
 - The user explicitly approved AC-30..AC-40 on 2026-08-04. Current state:
-  `IN_PROGRESS / EDIT`; protected merge evidence remains independent.
+  `IN_PROGRESS / VALIDATION`; protected merge evidence remains independent.

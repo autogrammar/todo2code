@@ -26,6 +26,14 @@
     "github-review",
     "signed-attestation"
   ],
+  "trustedApprovalActors": {
+    "githubApps": [
+      {
+        "login": "if-uri-validator-agent[bot]",
+        "type": "Bot"
+      }
+    ]
+  },
   "ticket": {
     "root": "project",
     "directoryPattern": "^ticket-[0-9]{3}$",

@@ -1,5 +1,19 @@
 # Ticket Changelog (ticket-018)
 
+## [0.6.0] - 2026-08-04
+
+- Added a versioned, exact Validator GitHub App allowlist and current-head
+  approval resolver while preserving independent human `User` reviews.
+- Added deterministic rejection fixtures for unknown bots, stale/dismissed
+  reviews, self-review and malformed or duplicate allowlist entries.
+- Added the non-mutating `direct-pr` strategy to `validator-agent`, pinned it to
+  explicit repository/PR/base/SHA inputs and `openrouter/z-ai/glm-5.2`, and
+  scoped its workflow App token to one repository.
+- Verified 96 Validator tests, 342 full Docker E2E tests with JDK 17, both gold
+  datasets at 100%, all SDK examples, governance, smoke and Docker smoke.
+- Entered `VALIDATION`; AC-40 remains open until the policy receives a separate
+  trusted bootstrap review and the real App reviews todo2code PR #13.
+
 ## [0.5.0] - 2026-08-04
 
 - Planned AC-30..AC-40 for allowlisted independent Validator App approvals

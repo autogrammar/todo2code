@@ -277,3 +277,21 @@ project2.sh: NOT RUN
 2026-08-04 deployed validator model variable set to openrouter/z-ai/glm-5.2; no live review dispatched
 2026-08-04 state VALIDATION -> WAIT_FOR_APPROVAL; no executable implementation files changed
 2026-08-04 user approval: "zatwierdzam AC-30..AC-40 ticket-018"; state WAIT_FOR_APPROVAL -> EDIT
+2026-08-04 AC-31..AC-39 IMPLEMENTATION AND VALIDATION
+$ node --test .governance/resolve-approval.test.mjs
+PASS: 5/5 approval trust-boundary fixtures
+$ make governance
+GOV-PASS: 0 errors, 0 warnings
+$ npm run verify
+PASS: 342 tests; 341 pass, 0 fail, 1 local JDK skip
+$ make smoke && make examples-check && make docker-smoke
+PASS: smoke; five SDK languages; Docker smoke
+$ npm run evaluate:gold
+PASS: gold v2 100% precision/recall and repeated-run stability
+$ docker compose -f compose.e2e.yml run --rm --no-deps e2e-full
+PASS: 342 tests, 0 failed, 0 skipped; JDK 17 Java adapter PASS; gold v1/v2,
+MCP, A2A, CLI smoke and examples PASS
+$ SKILLS_AGENT_PROCESS_ROOT=../skills-agent/SKILLS python -m pytest -q
+validator-agent PASS: 96 tests
+state EDIT -> VALIDATION; AC-40 remains open for separately trusted bootstrap
+merge and real Validator App review of todo2code PR #13
