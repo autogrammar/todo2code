@@ -23,6 +23,7 @@ FIELDS = {
     5: "idempotencyKey", 6: "authenticatedPrincipal", 7: "expectedVersion",
     8: "timestamp", 9: "payloadHash", 10: "payload",
 }
+SKIP_UNKNOWN_FIELD = object()
 
 
 def _varint(value: int) -> bytes:
@@ -81,30 +82,53 @@ def decode_envelope(data: bytes) -> dict[str, Any]:
     offset = 0
     while offset < len(data):
         start = offset
-        tag, offset = _read_varint(data, offset)
-        number, wire = tag >> 3, tag & 7
-        if wire == 0:
-            value, offset = _read_varint(data, offset)
-            if number == 7:
-                output["expectedVersion"] = value
-            else:
-                unknown.append(base64.b64encode(data[start:offset]).decode())
-        elif wire == 2:
-            length, offset = _read_varint(data, offset)
-            end = offset + length
-            if end > len(data):
-                raise ValueError("truncated length-delimited field")
-            raw = data[offset:end]
-            offset = end
-            if number in FIELDS and number != 7:
-                output[FIELDS[number]] = json.loads(raw) if number == 10 else raw.decode()
-            else:
-                unknown.append(base64.b64encode(data[start:offset]).decode())
-        else:
-            raise ValueError(f"unsupported wire type {wire}")
+        number, wire, value_start, offset = read_field_metadata(data, offset)
+        value = read_field_value(data, number, wire, value_start, offset)
+        if value is SKIP_UNKNOWN_FIELD:
+            unknown.append(base64.b64encode(data[start:offset]).decode())
+            continue
+        if value is not None:
+            output[value[0]] = value[1]
     if unknown:
         output["unknownFields"] = unknown
     return output
+
+
+def read_field_metadata(data: bytes, offset: int) -> tuple[int, int, int, int]:
+    tag, offset = _read_varint(data, offset)
+    number, wire = tag >> 3, tag & 7
+    if wire == 0:
+        value_start = offset
+        _, offset = _read_varint(data, offset)
+        return number, wire, value_start, offset
+    if wire == 2:
+        length, offset = _read_varint(data, offset)
+        end = offset + length
+        if end > len(data):
+            raise ValueError("truncated length-delimited field")
+        return number, wire, offset, end
+    raise ValueError(f"unsupported wire type {wire}")
+
+
+def read_field_value(
+    data: bytes,
+    number: int,
+    wire: int,
+    value_start: int,
+    value_end: int,
+) -> tuple[str, Any] | object | None:
+    if value_start > len(data) or value_end > len(data) or value_end < value_start:
+        raise ValueError("invalid field payload")
+    if wire == 0 and number == 7:
+        value, _ = _read_varint(data, value_start)
+        return ("expectedVersion", value)
+    if wire == 0:
+        return SKIP_UNKNOWN_FIELD
+    if wire == 2 and number in FIELDS and number != 7:
+        payload = data[value_start:value_end]
+        field_value = json.loads(payload) if number == 10 else payload.decode()
+        return (FIELDS[number], field_value)
+    return SKIP_UNKNOWN_FIELD
 
 
 def execute(args: argparse.Namespace) -> int:
@@ -119,35 +143,58 @@ def execute(args: argparse.Namespace) -> int:
     return subprocess.run(command, cwd=repository, check=False).returncode
 
 
-def main() -> int:
+def run_command(args: argparse.Namespace) -> int:
+    return execute(args)
+
+
+def run_encode(args: argparse.Namespace) -> int:
+    envelope = json.loads(pathlib.Path(args.input).read_text(encoding="utf-8"))
+    pathlib.Path(args.output).write_bytes(encode_envelope(envelope))
+    return 0
+
+
+def run_decode(args: argparse.Namespace) -> int:
+    envelope = decode_envelope(pathlib.Path(args.input).read_bytes())
+    pathlib.Path(args.output).write_text(json.dumps(envelope, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Dependency-free todo2code governed-intake CLI")
     sub = parser.add_subparsers(dest="mode", required=True)
     for operation in ("command", "query"):
-        run = sub.add_parser(operation)
-        run.add_argument("input")
-        run.add_argument("--repository", default=".")
-        run.add_argument("--root", default=".")
-        run.add_argument("--project-dir", default="project")
-        run.add_argument("--protobuf", action="store_true")
+        add_command_parser(sub, operation)
+
     encode = sub.add_parser("encode")
     encode.add_argument("input")
     encode.add_argument("output")
+    encode.set_defaults(handler=run_encode)
+
     decode = sub.add_parser("decode")
     decode.add_argument("input")
     decode.add_argument("output")
+    decode.set_defaults(handler=run_decode)
+
+    return parser
+
+
+def add_command_parser(sub: argparse._SubParsersAction, operation: str) -> None:
+    run = sub.add_parser(operation)
+    run.add_argument("input")
+    run.add_argument("--repository", default=".")
+    run.add_argument("--root", default=".")
+    run.add_argument("--project-dir", default="project")
+    run.add_argument("--protobuf", action="store_true")
+    run.set_defaults(handler=run_command, operation=operation)
+
+
+def main() -> int:
+    parser = build_parser()
     args = parser.parse_args()
     try:
-        if args.mode in ("command", "query"):
-            args.operation = args.mode
-            return execute(args)
-        if args.mode == "encode":
-            envelope = json.loads(pathlib.Path(args.input).read_text(encoding="utf-8"))
-            pathlib.Path(args.output).write_bytes(encode_envelope(envelope))
-        else:
-            envelope = decode_envelope(pathlib.Path(args.input).read_bytes())
-            pathlib.Path(args.output).write_text(json.dumps(envelope, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        return 0
-    except (OSError, ValueError, json.JSONDecodeError) as error:
+        result = args.handler(args)
+        return int(result)
+    except (OSError, ValueError, json.JSONDecodeError, UnicodeError) as error:
         print(f"T2C-INTAKE-INVALID-WIRE: {error}", file=sys.stderr)
         return 2
 
