@@ -1,0 +1,2 @@
+
+2026-08-04: User explicitly requested publication of all current project changes to main. Ticket-032 publication is limited to governance evidence; executable implementation remains unapproved.
