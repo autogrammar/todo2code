@@ -32,6 +32,9 @@
   passed. Live Validator run `30918035304` stopped before review because the App
   is not installed in `semcod/todo2code`; ticket state moved to `BLOCKED` and
   releases its reservation until that external installation is completed.
+- Rechecked installation in non-mutating run `30918421022` after user approval;
+  token creation still returned 404, confirming that the remaining step is the
+  interactive GitHub App installation rather than a code or secret defect.
 
 ## [0.5.0] - 2026-08-04
 

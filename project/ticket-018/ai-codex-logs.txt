@@ -327,3 +327,9 @@ repository-scoped App token: BLOCKED before validation
 GitHub API: GET /repos/semcod/todo2code/installation -> 404 Not Found
 required external action: install ifuri-validator-agent on semcod/todo2code only
 state: IN_PROGRESS -> BLOCKED; reservation released until installation
+2026-08-04 APP INSTALLATION RECHECK AFTER USER APPROVAL
+validator-agent dry-run: 30918421022
+tests: PASS; no review or target mutation requested
+repository-scoped App token: still 404 Not Found
+conclusion: chat approval authorizes continuation but cannot create a GitHub App
+installation; interactive installation remains required at the App settings boundary
