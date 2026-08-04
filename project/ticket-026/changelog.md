@@ -7,3 +7,4 @@
 - Removed the stale action-dispatch argument and aligned runtime-facing release
   assertions with canonical `0.5.2`.
 - Aggregate verification, governance and Docker core/full pass.
+- Marked the fully validated implementation DONE before protected publication.

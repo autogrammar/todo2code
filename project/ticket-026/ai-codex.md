@@ -31,4 +31,4 @@ restores the declared contract.
 
 ## Blockers
 
-- Implementation and validation are complete; merge review remains external.
+- None for ticket completion. Publication remains subject to protected review.

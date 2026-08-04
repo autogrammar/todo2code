@@ -7,11 +7,6 @@
   `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
   with protected merge review still required.
 
-- [ ] [`ticket-026`](project/ticket-026/README.md) — remove the stale runtime
-  diff-git dispatcher argument after the action split. Current state:
-  `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
-  with protected merge review still required.
-
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
@@ -37,6 +32,10 @@
   release the overlapping `Makefile` path.
 
 ## Completed tickets
+
+- [x] [`ticket-026`](project/ticket-026/README.md) — repaired runtime action
+  dispatch and canonical release assertions. Current state: `DONE`; all local,
+  governance and Docker gates pass.
 
 - [x] [`ticket-025`](project/ticket-025/README.md) — restored extractor split
   contracts and their deterministic regression coverage. Current state:
