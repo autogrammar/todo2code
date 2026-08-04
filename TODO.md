@@ -4,7 +4,7 @@
 
 - [ ] [`ticket-037`](project/ticket-037/README.md) — reconcile the stale
   ticket-036 blocker narrative with its protected completion evidence. Current
-  state: `PLAN`.
+  state: `VERIFY`.
 
 ## Backlog tickets
 

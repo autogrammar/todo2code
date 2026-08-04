@@ -24,6 +24,10 @@ rewrite the historical validation evidence.
 ## Actual changes
 
 - Created issue #37 and the bounded ticket plan.
+- Replaced the obsolete ticket-036 pending-review statement with a completed
+  state while retaining the separate dependent-ticket boundary.
+- Full offline verification passed with 349 tests, one environment-dependent
+  skip and no failures.
 
 ## Blockers
 

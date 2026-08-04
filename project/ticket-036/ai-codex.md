@@ -83,6 +83,5 @@ this ticket's core-dsl implementation paths.
 
 ## Blockers
 
-- No core implementation blocker remains. Protected exact-head review and
-  merge are pending. Cross-repository Goal, Koru and Validator changes remain
-  separate dependent tickets.
+- None for this completed core ticket. Cross-repository Goal, Koru and
+  Validator changes remain separate dependent tickets.

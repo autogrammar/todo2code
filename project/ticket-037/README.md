@@ -4,7 +4,7 @@
 - **Issue**: [#37](https://github.com/semcod/todo2code/issues/37)
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: PLAN
+- **Workflow state**: VERIFY
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -26,14 +26,21 @@ separate Goal, Koru and Validator follow-up workstreams.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Ticket 036 no longer claims that completed exact-head review and
+- [x] AC-01: Ticket 036 no longer claims that completed exact-head review and
       protected merge are pending.
-- [ ] AC-02: The correction preserves the boundary around separate
+- [x] AC-02: The correction preserves the boundary around separate
       cross-repository follow-up work.
-- [ ] AC-03: Governance and repository verification pass.
+- [x] AC-03: Governance and repository verification pass.
 - [ ] AC-04: An autonomous exact-head review uses
       `openrouter/z-ai/glm-5.2` before protected merge.
 - [ ] AC-05: Completion evidence is recorded and issue #37 is closed.
+
+## Local verification evidence
+
+- `npm run verify`: 349 passed, 1 JDK-dependent skip, 0 failed.
+- TypeScript, module boundaries, environment/workflow contracts, generated
+  analysis, structured responses and generated schemas all passed.
+- `git diff --check`: passed.
 
 ## Participants
 
