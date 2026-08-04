@@ -2,8 +2,8 @@
 
 - **ID**: ticket-034
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -87,7 +87,10 @@ external Validator App exact-head review remains required.
 All seven focused timeout tests pass. The complete suite passes 341 tests with
 one environment-dependent Java test skipped, full verification has zero
 failures, Docker smoke passes, and the local governance gate reports zero
-errors and warnings. The branch is ready for protected exact-head review.
+errors and warnings. Koru accepted the final complexity repair, and
+validator-agent approved exact head `e09e8323b96cfdd7543e851b57bd1035d640eb84`
+with `openrouter/z-ai/glm-5.2`. All protected checks passed and PR #31 merged
+the implementation as `main@6116961d8c9674b24c1161903e43f3a7dbb2147b`.
 
 ## Participants
 

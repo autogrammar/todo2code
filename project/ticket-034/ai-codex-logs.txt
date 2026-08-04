@@ -55,3 +55,24 @@ Second Koru parser finding
   removed an unreachable JSON.stringify undefined check.
 - Exact Python API now reports no function above CC=15 in either changed module.
 - Focused OpenRouter tests: 26 passed, 0 failed; governance passes.
+
+2026-08-04 protected closure
+
+Koru code review
+- PASS on exact implementation head
+  e09e8323b96cfdd7543e851b57bd1035d640eb84.
+
+validator-agent run 30948334597
+- Exact head: e09e8323b96cfdd7543e851b57bd1035d640eb84.
+- Model: openrouter/z-ai/glm-5.2.
+- Deterministic decision: APPROVED.
+- GitHub review state: APPROVED.
+- Advisory LLM verdict: REQUEST_CHANGES because one supplied diff chunk ended
+  mid-function; this was not the approval trust root and did not override the
+  independently passing deterministic checks.
+- Merge was not delegated to the reviewer.
+
+PR #31
+- All required governance, verify, JDK, Docker and Koru checks passed.
+- Merged normally without an administrative bypass.
+- Merge commit: 6116961d8c9674b24c1161903e43f3a7dbb2147b.
