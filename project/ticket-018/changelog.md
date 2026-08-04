@@ -1,5 +1,15 @@
 # Ticket Changelog (ticket-018)
 
+## [0.5.0-plan] - 2026-08-04
+
+- Planned adoption of one canonical, reviewed `new-project` 0.10.0 full SHA
+  that combines safe lifecycle/adoption behavior with bounded delivery.
+- Planned replacement of the executable Koru judge
+  `openrouter/google/gemini-3.1-pro-preview` with the less costly
+  `openrouter/z-ai/glm-5.2`; no live provider request was made.
+- Returned the follow-up to `PLAN / WAIT_FOR_APPROVAL`. No managed governance,
+  workflow, application, test, build or human-owned file was changed.
+
 ## [0.4.1] - 2026-08-04
 
 - Refactored the managed governance validator at upstream commit `1ae86a1` so

@@ -227,6 +227,24 @@ Current verified baseline:
   recorded evidence; AC-34 remains open because target enforcement is staged
   off until ticket-019 is serialized.
 
+## Planned 0.10.0 follow-up
+
+- Verified that upstream `main@c0bb63e` and
+  `feat/bounded-delivery-contract@1ae86a1` expose different contracts under the
+  same `0.9.0` version. Direct copying from either branch would therefore lose
+  either safe adoption/lifecycle semantics or bounded delivery.
+- Adoption will use one reviewed, immutable full SHA produced by upstream
+  ticket-003 as `0.10.0`; no managed governance file has been changed for this
+  follow-up yet.
+- The executable Koru model will change from
+  `openrouter/google/gemini-3.1-pro-preview` to
+  `openrouter/z-ai/glm-5.2`. Historical Gemini reports remain audit evidence
+  and will not be rewritten as if GLM produced them.
+- No live provider request or paid benchmark is required for this correction.
+  Deterministic workflow/schema checks will validate the identifier and review
+  envelope.
+- Current follow-up state is `PLAN / WAIT_FOR_APPROVAL` for AC-36..AC-40.
+
 ## Blockers
 
 - `GOV-INTENT-003`: concurrent commit `5f1f4bd` placed the ticket intent and

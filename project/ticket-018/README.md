@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: PLAN
+- **Workflow state**: WAIT_FOR_APPROVAL
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -167,6 +167,25 @@ their size is now bounded by the delivery contract. Documentation-only,
 generated-artifact and emergency exceptions require an explicit manifest mode
 and equivalent signed evidence; they are not a general direct-push bypass.
 
+## Planned canonical 0.10.0 adoption and review-cost correction
+
+Upstream `main@c0bb63e` and `feat/bounded-delivery-contract@1ae86a1` both
+identify themselves as 0.9.0 but carry different lifecycle semantics. This
+target is pinned to `1ae86a1`, where `PLAN` and `BLOCKED` still reserve
+workstreams. Upstream main correctly reserves only `IN_PROGRESS`; the standard
+must reconcile these contracts before another target upgrade is trustworthy.
+
+Wait for `wellmanifest/new-project` ticket-003 to publish one reviewed full SHA
+for 0.10.0 that combines bounded delivery with the corrected active/non-active
+state model. Then run adoption in `--check` mode, review the managed-file plan,
+apply the explicit upgrade and regenerate lock hashes against that exact SHA.
+
+The executable Koru judge currently uses costly
+`openrouter/google/gemini-3.1-pro-preview`. Per the user's cost decision it will
+use `openrouter/z-ai/glm-5.2`. Historical benchmark logs remain unchanged as
+historical evidence. No live OpenRouter request or new paid comparison belongs
+to this migration.
+
 ## Acceptance criteria
 
 - [x] AC-01: A human approves this understanding and execution checklist before
@@ -271,6 +290,21 @@ and equivalent signed evidence; they are not a general direct-push bypass.
 - [x] AC-35: Central tests, target governance fixtures and documentation
       consistency pass; the diff contains only approved governance paths in
       each repository and records inherited repository blockers separately.
+- [ ] AC-36: A human approves upstream reconciliation, exact-SHA adoption,
+      diagnostic comparison and the GLM cost correction before managed files
+      or workflow configuration change.
+- [ ] AC-37: The adopted standard is one reviewed full SHA identified as
+      0.10.0; lock hashes match every managed file and no moving branch or
+      remote-branch publication claim remains.
+- [ ] AC-38: Bounded delivery remains available while only `IN_PROGRESS`
+      reserves scope; planning/backlog/blocked tickets do not create active
+      conflict, dependency, ownership or overlap diagnostics.
+- [ ] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
+      current guidance contain no Gemini 3.1 Pro Preview default, while
+      historical evidence remains explicitly historical.
+- [ ] AC-40: Adoption preflight, governance fixtures, workflow validation,
+      `npm run verify`, Docker-relevant checks and `git diff --check` pass
+      without a live LLM request or application-source edit.
 
 ## Participants
 
@@ -295,9 +329,9 @@ and equivalent signed evidence; they are not a general direct-push bypass.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / VALIDATION` for AC-26..AC-35. Upstream 0.9.0 is
-  implemented on an isolated local branch; target adoption is staged without
-  retroactive enforcement against the historical ticket-018 branch.
+- Current follow-up state: `PLAN / WAIT_FOR_APPROVAL` for AC-36..AC-40.
+- Upstream ticket-003 must complete first. A changed upstream SHA, managed-file
+  plan or workflow model returns this phase to planning.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-26..AC-35 in chat. This authorizes the
   implementation session but is not merge-time evidence.

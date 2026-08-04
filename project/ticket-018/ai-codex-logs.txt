@@ -413,3 +413,12 @@ fresh Docker build: expected inherited failure at cargo fetch --locked
 exit: 101
 cause: sdk/rust/Cargo.lock requires an update after the independently owned
 sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
+
+2026-08-04 CANONICAL GOVERNANCE AND MODEL COST PLAN
+- upstream main: c0bb63e (adoption + IN_PROGRESS-only reservations)
+- upstream bounded branch: 1ae86a1 (delivery contract + older active statuses)
+- current target lock: 1ae86a1, publicationStatus=remote-branch
+- current executable Koru model: openrouter/google/gemini-3.1-pro-preview
+- requested replacement: openrouter/z-ai/glm-5.2
+- live OpenRouter requests: 0
+- managed/workflow implementation edits: 0; WAIT_FOR_APPROVAL

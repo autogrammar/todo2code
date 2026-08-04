@@ -33,10 +33,12 @@
   "delivery": {
     "acceptedBaseSha": "2e87205dcd0b06286529ca9fa8ab9518694e9068",
     "targetBranch": "main",
-    "outcome": "Stage the pinned bounded-delivery governance contract without retroactive enforcement",
+    "outcome": "Adopt canonical 0.10.0 governance and switch the Koru judge to z-ai/glm-5.2",
     "nonGoals": [
       "No application source, test, build or UI changes",
-      "No retroactive enforcement against historical active branches"
+      "No retroactive enforcement against historical active branches",
+      "No live OpenRouter benchmark or paid provider request",
+      "No rewriting of historical Gemini evidence"
     ],
     "complexity": "S",
     "estimatedMinutes": 30,
@@ -48,7 +50,7 @@
     },
     "architecture": {
       "status": "accepted",
-      "decision": "Keep deterministic delivery validation in the governance runtime and human instructions in AGENTS.md",
+      "decision": "Adopt one reviewed 0.10.0 governance SHA, keep deterministic delivery validation in governance, and configure Koru with z-ai/glm-5.2",
       "components": [
         {
           "name": "governance-runtime",
@@ -56,7 +58,7 @@
         },
         {
           "name": "agent-policy",
-          "paths": ["AGENTS.md"]
+          "paths": ["AGENTS.md", ".github/workflows/**"]
         }
       ],
       "responsibilityChanges": false,
@@ -67,7 +69,7 @@
         "states": [],
         "evidence": []
       },
-      "rollback": "Restore the pinned 0.8.0 governance package and manifest lock"
+      "rollback": "Restore the current 1ae86a1 lock and the previous Koru model identifier"
     },
     "runtimeDependencies": [],
     "validation": [
@@ -80,6 +82,16 @@
         "criterion": "AC-35",
         "commands": ["make governance"],
         "evidence": "Target validation reports this migration separately from inherited active-ticket blockers"
+      },
+      {
+        "criterion": "AC-38",
+        "commands": ["make governance"],
+        "evidence": "PLAN, BACKLOG and BLOCKED tickets no longer reserve active scope while IN_PROGRESS still does"
+      },
+      {
+        "criterion": "AC-39",
+        "commands": ["npm run test:workflow"],
+        "evidence": "Koru workflow uses openrouter/z-ai/glm-5.2 and preserves its deterministic fail-closed envelope"
       }
     ]
   }
