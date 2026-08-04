@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: BLOCKED
-- **Workflow state**: VALIDATION
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -329,16 +329,18 @@ to this migration.
 
 ## Approval boundary
 
-- Current follow-up state: `BLOCKED / VALIDATION` for AC-37, AC-38 and AC-40.
-  Local GLM configuration and the full deterministic suite pass; final
-  governance adoption waits for independent review and merge of upstream PR #1.
-- Upstream ticket-003 must complete first. A changed upstream SHA, managed-file
-  plan or workflow model returns this phase to planning.
+- Current follow-up state: `IN_PROGRESS / EDIT` for AC-37, AC-38 and AC-40.
+  Local GLM configuration and the full deterministic suite pass. Upstream PR #1
+  was independently approved for exact head `346895b` and published as merge
+  commit `5267cf3b365959770e070e96e9157573a5d8c04b`; adoption may now use that
+  immutable source revision.
+- A changed upstream SHA, managed-file plan or workflow model returns this
+  phase to planning.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-26..AC-35 in chat. This authorizes the
   implementation session but is not merge-time evidence.
-- The user explicitly approved AC-36..AC-40 on 2026-08-04. Independent merge
-  evidence for upstream PR #1 is still required.
+- The user explicitly approved AC-36..AC-40 on 2026-08-04. Independent upstream
+  merge evidence is now present and was verified before resuming edits.
 
 ## Validation result and publication blockers
 

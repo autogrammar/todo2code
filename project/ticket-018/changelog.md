@@ -19,6 +19,9 @@
   on independent review and merge of upstream PR #1.
 - Read-only adoption preflight against the PR head made zero writes and stopped
   on the expected target-manifest 0.9.0 versus source 0.10.0 precondition.
+- Verified independent Validator App approval for the exact upstream head and
+  publication as merge commit `5267cf3`; resumed the approved immutable-SHA
+  adoption without treating the former review branch as a release.
 
 ## [0.4.1] - 2026-08-04
 

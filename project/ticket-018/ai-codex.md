@@ -256,6 +256,10 @@ Current verified baseline:
 - Adoption `--check` against PR head `e0a8e5c...` stopped before writes on the
   expected 0.9.0 -> 0.10.0 target-manifest version precondition. The explicit
   upgrade must update that local contract only after the source SHA is trusted.
+- Upstream PR #1 was independently approved by `ifuri-validator-agent[bot]`
+  for exact head `346895b...` and merged as published commit `5267cf3...`.
+  Resumed the approved target adoption in `IN_PROGRESS / EDIT`; the lock will
+  bind to the merge commit rather than the former review branch or PR head.
 
 ## Blockers
 

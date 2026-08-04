@@ -447,3 +447,12 @@ sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
 - interpretation: expected safe-upgrade precondition; do not change target
   manifest or claim published provenance until independent review/merge
 - target files written: 0
+
+2026-08-04 UPSTREAM PUBLICATION VERIFIED
+- reviewed head: 346895b3205ce2ad6af19159f01a6c60b99ba5c8
+- independent reviewer: ifuri-validator-agent[bot]
+- review state: APPROVED, exact reviewed head confirmed
+- published merge revision: 5267cf3b365959770e070e96e9157573a5d8c04b
+- upstream open pull requests after merge: 0
+- transition: BLOCKED / VALIDATION -> IN_PROGRESS / EDIT
+- target managed files written during transition: 0
