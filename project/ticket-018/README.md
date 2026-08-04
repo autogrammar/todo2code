@@ -180,6 +180,9 @@ agent self-approved.
       `project2.sh`.
 - [ ] AC-28: `verify:generated-analysis`, governance and the complete project
       verification pass on the repaired aggregate branch.
+- [ ] AC-29: The runtime workstream owns its Python runtime adapter test so the
+      canonical `0.5.2` release assertion can be repaired without cross-stream
+      scope laundering.
 
 ## Participants
 

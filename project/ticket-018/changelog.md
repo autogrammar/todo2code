@@ -12,6 +12,8 @@
   and normalized volatile roots without regenerating the analysis.
 - `verify:generated-analysis` and the deterministic governance gate pass;
   complete aggregate verification remains AC-28.
+- Planned AC-29 to assign the Python runtime adapter test to its owning
+  runtime workstream before correcting the stale release assertion.
 
 ## [0.3.0] - 2026-08-04
 
