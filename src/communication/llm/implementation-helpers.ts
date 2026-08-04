@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { T2CConfig } from '../../config/env.js';
 import { createIntentId, sha256, stableStringify } from '../../core/id.js';
 import { pathExists } from '../../core/io.js';
 import { buildRecord, withRecordGeneration } from '../../core/record.js';
@@ -10,13 +11,12 @@ import type {
   IntentRecord,
   LlmResponseMetadata,
   PipelineStageAudit,
-  T2CConfig,
   LlmExtractionMode,
 } from '../../core/types.js';
 import { openRouterAuditConfiguration } from '../../llm/audit.js';
 import { structuredSchema as s, type StructuredSchema } from '../../llm/structured-schema.js';
 import { T2C_VERSION } from '../../version.js';
-import type { CommunicationRole, CommunicationExtractionOptions } from '../extractors/communication.js';
+import type { CommunicationRole, CommunicationExtractionOptions } from '../../extractors/communication.js';
 
 export const ACTIONS = [
   'add', 'fix', 'remove', 'refactor', 'test', 'document', 'configure', 'analyze', 'validate',

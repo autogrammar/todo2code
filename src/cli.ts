@@ -93,8 +93,12 @@ function commandHandlers(): Record<string, CommandHandler> {
     },
     init: async (parsed) => initProject(path.resolve(parsed.positionals[0] ?? '.')),
     doctor: async (_parsed, config) => doctor(config),
-    mcp: async (_parsed, config) => startMcpServer(config),
-    a2a: async (_parsed, config) => startA2aServer(config),
+    mcp: async (_parsed, config) => {
+      await startMcpServer(config);
+    },
+    a2a: async (_parsed, config) => {
+      await startA2aServer(config);
+    },
     intake: handleIntake,
     extract: handleExtract,
     communication: handleCommunication,
@@ -572,6 +576,9 @@ async function handleReality(parsed: ParsedArgs, config: ReturnType<typeof getCo
 
 async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
   const extractor = parsed.positionals.shift();
+  if (!extractor) {
+    throw new Error('Usage: t2c extract <nl|git|ast|config|runtime|markdown|docs|communication> ...');
+  }
   const root = path.resolve(optionString(parsed, 'root') ?? config.root);
   const out = optionString(parsed, 'out');
   const handlers: Record<string, ExtractHandler> = {

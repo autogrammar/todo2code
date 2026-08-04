@@ -103,6 +103,9 @@ const ACTION_HANDLERS: Record<T2CAction, ActionInputHandler> = {
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
   const root = await resolveRoot(input.root, config);
   const handler = ACTION_HANDLERS[action];
+  if (!handler) {
+    throw new Error(`Unknown action: ${action}`);
+  }
   return handler(input, root, config);
 }
 
@@ -513,7 +516,7 @@ async function executeDiffGitAction(input: Record<string, unknown>, root: string
   return { ...withTextDiffViews(result.diffs, input), revision: result.revision, staged: result.staged, warnings: result.warnings };
 }
 
-function executeRealityAction(_input: Record<string, unknown>, _root: string, config: T2CConfig): unknown {
+function executeRealityAction(input: Record<string, unknown>, _root: string, config: T2CConfig): unknown {
   const graph = objectValue<IntentGraph>(input.graph, 'graph');
   const diagnostics = input.diagnostics
     ? objectValue<DiagnosticReport>(input.diagnostics, 'diagnostics')

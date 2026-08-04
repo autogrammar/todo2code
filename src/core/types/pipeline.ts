@@ -1,4 +1,4 @@
-import type { JsonValue } from './intent.js';
+import type { IntentRecord, JsonValue } from './intent.js';
 
 export interface ExtractionResult {
   records: IntentRecord[];

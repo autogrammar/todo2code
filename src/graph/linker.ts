@@ -1,62 +1,21 @@
 import { createRelationId, graphFingerprint } from '../core/id.js';
 import { assertIntentRecords } from '../core/schema.js';
-import { keywords, topicKeywords } from '../core/text.js';
 import { pathAliases, symbolAliases } from '../core/target.js';
-import type { IntentGraph, IntentRecord, IntentRelation, RelationType, SourceKind } from '../core/types.js';
+import type { IntentGraph, IntentRecord, IntentRelation } from '../core/types.js';
 import { buildSymbolResolutionIndex, hasResolvedNlAstSymbolPair, type SymbolResolutionIndex } from './symbol-resolution.js';
 import { aggregateCapabilityOverlap, isFileAggregate } from './capability-evidence.js';
+import {
+  collectCandidatePairs,
+  indexKeywords as buildKeywordIndex,
+  type RecordKeywords,
+} from './linker-candidates.js';
+import { determineRelation } from './linker-relations.js';
 
 interface PairEvidence {
   score: number;
   basis: string[];
   /** Best of object/text similarity, reused by `determineRelation`. */
   textScore: number;
-}
-
-/**
- * Tokenising `statement.object` and `statement.text` is the linker's hot path:
- * scoring recomputed both for every candidate pair, so a repository producing
- * ~177k pairs performed ~1.4M tokenisations. Keyword sets are computed once per
- * record instead and compared with a plain Jaccard index.
- */
-interface RecordKeywords {
-  object: Set<string>;
-  text: Set<string>;
-  topics: Set<string>;
-}
-
-interface DirectedRelation {
-  from: IntentRecord;
-  to: IntentRecord;
-  type: RelationType;
-}
-
-interface SourceRelationRule {
-  anchor: SourceKind;
-  others: ReadonlySet<SourceKind>;
-  type: RelationType;
-  anchorPosition: 'from' | 'to';
-}
-
-const SOURCE_RELATION_RULES: SourceRelationRule[] = [
-  { anchor: 'git', others: new Set(['todo', 'nl', 'document']), type: 'implements', anchorPosition: 'from' },
-  {
-    anchor: 'ast',
-    others: new Set<SourceKind>(['nl', 'git', 'todo', 'changelog', 'document', 'agent_log', 'test', 'system']),
-    type: 'evidenced_by',
-    anchorPosition: 'to',
-  },
-  { anchor: 'changelog', others: new Set(['git', 'ast']), type: 'releases', anchorPosition: 'from' },
-  { anchor: 'todo', others: new Set(['nl', 'document']), type: 'plans', anchorPosition: 'from' },
-  { anchor: 'document', others: new Set(['nl']), type: 'documents', anchorPosition: 'from' },
-];
-
-function indexKeywords(records: IntentRecord[]): Map<string, RecordKeywords> {
-  return new Map(records.map((record) => [record.id, {
-    object: new Set(keywords(record.statement.object)),
-    text: new Set(keywords(record.statement.text)),
-    topics: new Set(topicKeywords(`${record.statement.object} ${record.statement.text}`)),
-  }]));
 }
 
 function jaccard(left: Set<string>, right: Set<string>): number {
@@ -74,7 +33,7 @@ export function linkIntentRecords(inputRecords: IntentRecord[], generatedAt = ne
   assertIntentRecords(inputRecords);
   const records = deduplicateRecords(inputRecords).sort((a, b) => a.id.localeCompare(b.id));
   const byId = new Map(records.map((record) => [record.id, record]));
-  const keywordIndex = indexKeywords(records);
+  const keywordIndex = buildKeywordIndex(records);
   const symbolResolutionIndex = buildSymbolResolutionIndex(records);
   const candidatePairs = collectCandidatePairs(records, keywordIndex);
   const resolvableBasenames = indexResolvableBasenames(records);
@@ -120,169 +79,6 @@ function deduplicateRecords(records: IntentRecord[]): IntentRecord[] {
     if (!existing || record.epistemic.confidence > existing.epistemic.confidence) byId.set(record.id, record);
   }
   return [...byId.values()];
-}
-
-/**
- * Builds the candidate pairs the scorer has to inspect.
- *
- * Pairs are returned as tuples rather than `"left|right"` keys so the scoring
- * loop does not re-split a string per pair; the map key exists only to
- * deduplicate, and the result is sorted by it to keep output deterministic.
- */
-function collectCandidatePairs(
-  records: IntentRecord[],
-  keywordIndex: Map<string, RecordKeywords>,
-): Array<[string, string]> {
-  const buckets = new Map<string, string[]>();
-  const astIds = new Set<string>();
-  const moduleAstIds = new Set<string>();
-  const declarationAstIds = new Set<string>();
-  const configurationIds = new Set<string>();
-  for (const record of records) {
-    if (record.source.kind === 'ast') {
-      astIds.add(record.id);
-      if (isFileAggregate(record)) moduleAstIds.add(record.id);
-      if (record.statement.action === 'declare' && record.statement.target.symbols.length > 0) {
-        declarationAstIds.add(record.id);
-      }
-    }
-    if (record.source.kind === 'system') configurationIds.add(record.id);
-    indexTargetBuckets(buckets, record);
-    indexKeywordBuckets(buckets, record.id, keywordIndex.get(record.id)?.object);
-    if (isModuleTopicSource(record)) {
-      indexTopicBuckets(buckets, record.id, keywordIndex.get(record.id)?.topics);
-    }
-  }
-  return pairsFromBuckets(buckets, astIds, moduleAstIds, declarationAstIds, configurationIds);
-}
-
-function isModuleTopicSource(record: IntentRecord): boolean {
-  return record.statement.kind === 'module_fact'
-    || record.source.kind === 'nl'
-    || record.source.kind === 'todo'
-    || record.source.kind === 'document';
-}
-
-function indexTargetBuckets(buckets: Map<string, string[]>, record: IntentRecord): void {
-  for (const ticket of record.statement.target.tickets) {
-    addToBucket(buckets, `ticket:${ticket.toLowerCase()}`, record.id);
-  }
-  indexAliases(buckets, 'symbol', record.id, record.statement.target.symbols, symbolAliases);
-  indexAliases(buckets, 'path', record.id, record.statement.target.paths, pathAliases);
-}
-
-function indexAliases(
-  buckets: Map<string, string[]>,
-  prefix: string,
-  recordId: string,
-  values: string[],
-  aliases: (value: string) => string[],
-): void {
-  for (const value of values) {
-    for (const alias of aliases(value)) addToBucket(buckets, `${prefix}:${alias}`, recordId);
-  }
-}
-
-function indexKeywordBuckets(
-  buckets: Map<string, string[]>,
-  recordId: string,
-  objectKeywords: Set<string> | undefined,
-): void {
-  // A Set preserves the sorted insertion order of `keywords()`, so slicing the
-  // materialized values keeps the same five-token candidate limit.
-  for (const token of [...(objectKeywords ?? [])].slice(0, 5)) {
-    addToBucket(buckets, `token:${token}`, recordId);
-  }
-}
-
-function indexTopicBuckets(
-  buckets: Map<string, string[]>,
-  recordId: string,
-  topics: Set<string> | undefined,
-): void {
-  for (const topic of [...(topics ?? [])].slice(0, 12)) {
-    addToBucket(buckets, `topic:${topic}`, recordId);
-  }
-}
-
-function addToBucket(buckets: Map<string, string[]>, key: string, recordId: string): void {
-  const values = buckets.get(key);
-  if (values) values.push(recordId);
-  else buckets.set(key, [recordId]);
-}
-
-/**
- * Two configuration declarations sharing a key name are not evidence.
- *
- * Config records are uniform by construction: every one carries action
- * `configure` and a fragment of text such as `params:` or `version: 1`, so
- * `same_action` plus text similarity clears the threshold for almost any pair.
- * On an infrastructure repository 1 263 configuration records produced 28 896
- * mutual relations — 72% of the entire graph — restating only that YAML files
- * reuse key names. A shared ticket still connects them, because that names one
- * piece of work rather than a shared vocabulary.
- */
-function isSuppressedConfigurationPair(
-  bucketKey: string,
-  leftId: string,
-  rightId: string,
-  configurationIds: Set<string>,
-): boolean {
-  if (bucketKey.startsWith('ticket:')) return false;
-  return configurationIds.has(leftId) && configurationIds.has(rightId);
-}
-
-function pairsFromBuckets(
-  buckets: Map<string, string[]>,
-  astIds: Set<string>,
-  moduleAstIds: Set<string>,
-  declarationAstIds: Set<string>,
-  configurationIds: Set<string>,
-): Array<[string, string]> {
-  const output = new Map<string, [string, string]>();
-  for (const [bucketKey, ids] of buckets) {
-    const limited = [...new Set(ids)].sort().slice(0, 300);
-    for (let left = 0; left < limited.length; left += 1) {
-      for (let right = left + 1; right < limited.length; right += 1) {
-        const leftId = limited[left];
-        const rightId = limited[right];
-        if (!leftId || !rightId) continue;
-        if (isSuppressedAstPair(bucketKey, leftId, rightId, astIds, moduleAstIds, declarationAstIds)) continue;
-        if (isSuppressedConfigurationPair(bucketKey, leftId, rightId, configurationIds)) continue;
-        output.set(`${leftId}|${rightId}`, [leftId, rightId]);
-      }
-    }
-  }
-
-  return [...output.entries()]
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([, pair]) => pair);
-}
-
-function isSuppressedAstPair(
-  bucketKey: string,
-  leftId: string,
-  rightId: string,
-  astIds: Set<string>,
-  moduleAstIds: Set<string>,
-  declarationAstIds: Set<string>,
-): boolean {
-  const leftAst = astIds.has(leftId);
-  const rightAst = astIds.has(rightId);
-  // AST details may relate only through an explicit shared symbol. Shared file
-  // and generic keyword buckets otherwise create a quadratic graph of calls
-  // within one module without adding plan/code evidence.
-  if (leftAst && rightAst) {
-    return !bucketKey.startsWith('symbol:')
-      || !declarationAstIds.has(leftId)
-      || !declarationAstIds.has(rightId);
-  }
-  if (!bucketKey.startsWith('path:')) return false;
-  // A file-level declaration links to one module aggregate, not every call and
-  // symbol extracted from that file. Exact symbol and semantic token matches
-  // remain available through their stronger buckets.
-  const astId = leftAst ? leftId : rightAst ? rightId : null;
-  return astId !== null && !moduleAstIds.has(astId);
 }
 
 /**
@@ -468,53 +264,6 @@ function isFileAggregateEvidencePair(left: IntentRecord, right: IntentRecord): b
 function isModuleTopicEvidencePair(left: IntentRecord, right: IntentRecord): boolean {
   return left.source.kind !== right.source.kind
     && (left.statement.kind === 'module_fact' || right.statement.kind === 'module_fact');
-}
-
-function determineRelation(left: IntentRecord, right: IntentRecord, evidence: PairEvidence): DirectedRelation {
-  // `scorePair` already computed this over the same two strings.
-  const textScore = evidence.textScore;
-  if (left.statement.polarity !== right.statement.polarity && textScore >= 0.45) {
-    return { from: left, to: right, type: 'contradicts' };
-  }
-  if (left.source.kind === right.source.kind && textScore >= 0.82) {
-    return { from: left, to: right, type: 'duplicates' };
-  }
-  const sourceRelation = relationForSourceKinds(left, right);
-  if (sourceRelation) return sourceRelation;
-  if (evidence.score >= 0.8) return { from: left, to: right, type: 'same_as' };
-  return { from: left, to: right, type: 'related_to' };
-}
-
-function relationForSourceKinds(left: IntentRecord, right: IntentRecord): DirectedRelation | null {
-  for (const rule of SOURCE_RELATION_RULES) {
-    const relation = matchSourceRule(left, right, rule);
-    if (relation) return relation;
-  }
-  return null;
-}
-
-function matchSourceRule(
-  left: IntentRecord,
-  right: IntentRecord,
-  rule: SourceRelationRule,
-): DirectedRelation | null {
-  if (left.source.kind === rule.anchor && rule.others.has(right.source.kind)) {
-    return orientRelation(left, right, rule);
-  }
-  if (right.source.kind === rule.anchor && rule.others.has(left.source.kind)) {
-    return orientRelation(right, left, rule);
-  }
-  return null;
-}
-
-function orientRelation(
-  anchor: IntentRecord,
-  other: IntentRecord,
-  rule: SourceRelationRule,
-): DirectedRelation {
-  return rule.anchorPosition === 'from'
-    ? { from: anchor, to: other, type: rule.type }
-    : { from: other, to: anchor, type: rule.type };
 }
 
 function intersects(left: string[], right: string[]): boolean {
