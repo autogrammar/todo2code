@@ -508,3 +508,15 @@ sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
 - git diff --check: PASS
 - live LLM requests from local validation: 0
 - state: IN_PROGRESS / PUBLICATION; fresh exact-head App review required
+
+2026-08-04 FINAL PUBLICATION
+- validator-agent fix: e1033deb67965037e89ba3446f308b16efbb749d
+- Validator App run: 30937911350 (success)
+- reviewed target head: d716c6ee7b1a206022e315fe4a2b7be292390d32
+- review actor/state: ifuri-validator-agent[bot] / APPROVED
+- model: openrouter/z-ai/glm-5.2 (advisory)
+- protected governance: PASS with external v1 evidence
+- required Koru context: PASS
+- PR #4 merge: 6ad85bdf3a18ee427f2bc03171c96e0892bea0e0
+- post-merge CI: 30938509879, PASS
+- transition: IN_PROGRESS / PUBLICATION -> DONE / DONE

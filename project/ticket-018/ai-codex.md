@@ -282,13 +282,16 @@ Current verified baseline:
   `TRUSTED_VALIDATOR_APPS` is now a protected repository variable containing
   the exact App login; the PR cannot expand its own authority set.
 - Local governance, workflow YAML, all Node verification and Docker smoke pass.
-  The old App approval is correctly stale after this change; a fresh review of
-  the new exact HEAD remains the only publication blocker.
+  The old App approval was correctly dismissed; fresh review run `30937911350`
+  approved exact target head `d716c6e`, protected governance passed, and PR #4
+  merged as `6ad85bd`. Post-merge CI `30938509879` is green.
 
-## Blockers
+## Current blockers
 
-- Fresh Validator App approval and hosted governance for the new exact HEAD are
-  required before merge. Earlier approval `a01816b` is intentionally stale.
+- None for ticket-018. Remaining SDK and other-ticket work stays with its
+  declared owner and does not keep the governance workstream reserved.
+
+## Historical blockers (resolved or routed)
 
 - `GOV-INTENT-003`: concurrent commit `5f1f4bd` placed the ticket intent and
   implementation in the same commit; correcting this requires an authorized

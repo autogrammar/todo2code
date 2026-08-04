@@ -10,18 +10,6 @@
   020 in parallel; the global gate now reports only ticket-019's declared
   dependency, conflict, ownership and overlap violations.
 
-- [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
-  `wellmanifest/new-project` manifest as policy-as-code through a deterministic
-  validator, trusted approval boundary, reusable governance CI, stack-specific
-  gates and pinned adoption in `todo2code`; extend it with safe concurrent
-  workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current follow-up state: `IN_PROGRESS / PUBLICATION`. AC-34 and AC-37..AC-40
-  pass locally; governance 0.10.0 and reusable CI are pinned to hardened,
-  independently reviewed merge `9706e63`. Koru uses `z-ai/glm-5.2`; semantic
-  provider unavailability remains advisory and explicit, while deterministic
-  findings block. Fresh exact-head App approval is required after the final
-  hardening commit. AC-17 and inherited blockers remain separate.
-
 ## Backlog tickets
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
@@ -32,6 +20,10 @@
 
 ## Completed tickets
 
+- [x] [`ticket-018`](project/ticket-018/README.md) — adopted hardened
+  `wellmanifest/new-project` 0.10.0 at immutable merge `9706e63`, moved trusted
+  App authority outside PR control, switched Koru to `z-ai/glm-5.2`, passed
+  exact-head App review and protected checks, and merged as `main@6ad85bd`.
 - [x] [`ticket-017`](project/ticket-017/README.md) — repaired mutating command
   help, Polish prohibition polarity and repository-bound path resolution;
   independently audited the concurrent path/action-planning baseline and added

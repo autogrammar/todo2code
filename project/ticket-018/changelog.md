@@ -40,6 +40,9 @@
   non-author User and ignored App reviews.
 - Revalidated governance, workflow YAML, 335 Node tests and Docker smoke; all
   required local checks pass with one explicit JDK skip.
+- Fresh Validator App review approved exact head `d716c6e`; reusable governance,
+  Koru, full verify and Java checks passed. PR #4 merged as `6ad85bd`, and the
+  post-merge main CI passed before the ticket moved to `DONE`.
 
 ## [0.4.1] - 2026-08-04
 
