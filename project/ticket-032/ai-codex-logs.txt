@@ -1,0 +1,4 @@
+2026-08-04 planning
+- Fresh base `caf6551`: communication identity mismatch test fails because the
+  resolved registry authors are compared with themselves.
+- No production source edited; state remains `WAIT_FOR_APPROVAL`.

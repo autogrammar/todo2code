@@ -2,6 +2,11 @@
 
 ## Active tickets
 
+- [ ] [`ticket-032`](project/ticket-032/README.md) — restore the unreachable
+  declared Git-author mismatch warning while keeping registry-owned identity
+  authoritative. Current state: `PLAN / WAIT_FOR_APPROVAL`; one production
+  file, estimated under 30 minutes.
+
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
   one root `pyproject.toml` and SDK-only artifacts. Current state:
