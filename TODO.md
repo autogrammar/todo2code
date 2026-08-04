@@ -6,11 +6,17 @@ None.
 
 ## Backlog tickets
 
+- [ ] [`ticket-035`](project/ticket-035/README.md) — declare the Python
+  publication transaction as an integration-owned scope and refresh the
+  adoption lock, so ticket-019 can change root packaging, Goal, Make and SDK
+  metadata without violating workstream ownership. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`; the current user instruction authorizes the
+  bounded implementation in the next commit.
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
   one root `pyproject.toml` and SDK-only artifacts. Current state:
-  `BACKLOG / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
-  release the overlapping `Makefile` path.
+  `BACKLOG / WAIT_FOR_APPROVAL`; ticket-018 is complete and the remaining
+  prerequisite is ticket-035's bounded integration ownership.
 
 ## Completed tickets
 

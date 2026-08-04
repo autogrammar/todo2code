@@ -1,0 +1,18 @@
+2026-08-04 ticket initialization
+
+User instruction: identify remaining work, create task proposals in TODO and
+project tickets, and execute them.
+
+Verified baseline:
+- ticket-020 is DONE on protected main after exact-head Validator approval;
+- ticket-018 is DONE;
+- ticket-019 remains BACKLOG / WAIT_FOR_APPROVAL;
+- current governance gate passes with 0 errors and 0 warnings;
+- the ticket-019 paths span integration, governance and sdk ownership.
+
+Workflow transition: PLAN -> WAIT_FOR_APPROVAL.
+Interactive authorization for the later bounded implementation is recorded from
+the current user instruction and is not treated as trusted merge evidence.
+
+The superseded single-commit PR #25 correctly failed GOV-INTENT-003. This branch
+records plan and intent in a separate commit before implementation.

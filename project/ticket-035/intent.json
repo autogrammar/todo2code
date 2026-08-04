@@ -1,0 +1,26 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-035",
+  "summary": "Declare the atomic Python publication paths as integration-owned shared contracts",
+  "workstream": "governance",
+  "allowedPaths": [
+    ".governance/manifest.json",
+    ".governance/manifest.lock.json",
+    "project/ticket-035/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "pyproject.toml",
+    "goal.yaml",
+    "Makefile",
+    "sdk/**",
+    "src/**",
+    "test/**"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
