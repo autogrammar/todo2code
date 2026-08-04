@@ -2,7 +2,7 @@ Analiza projektu todo2code — stan ścieżki NL → DSL → sourcecode
 
 1. Czym system jest dziś (i czym nie jest)
 
-todo2code 0.5.0 to system Intent Evidence — nie generator kodu. Realizuje:
+todo2code 0.5.1 to system Intent Evidence — nie generator kodu. Realizuje:
 
 NL / Git / AST / TODO / CHANGELOG / docs / config / komunikacja
                     ↓
@@ -17,6 +17,12 @@ NL / Git / AST / TODO / CHANGELOG / docs / config / komunikacja
                     operation-plan → Subactor envelope (propozycja, bez dispatch)
 
 Brakuje jawnej gałęzi DSL → sourcecode. Kod jest tylko odczytywany (AST → DSL). System nie emituje implementacji z intencji — tylko zadania, wnioski i plany operacyjne do review.
+
+### Uwagi wykonawcze (2026-08-04)
+
+- Wprowadzono refaktoryzację wewnętrznych modułów (`intake_cli.py`, `run-helpers.ts`,
+  `generation-metadata.ts`, `basic.py`) zwiększając czytelność kodu przy zachowaniu
+  tych samych kontraktów runtime.
 
 ───
 

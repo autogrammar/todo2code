@@ -1,6 +1,6 @@
 <!-- code2docs:start --># todo2code
 
-![version](https://img.shields.io/badge/version-0.5.0-blue) ![node](https://img.shields.io/badge/node-%3E%3D20-339933) ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey) ![functions](https://img.shields.io/badge/functions-3288-green)
+![version](https://img.shields.io/badge/version-0.5.1-blue) ![node](https://img.shields.io/badge/node-%3E%3D20-339933) ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey) ![functions](https://img.shields.io/badge/functions-3288-green)
 > **3288** functions | **348** classes | **389** files | CC̄ = 4.0
 
 > Auto-generated project documentation from source code analysis.

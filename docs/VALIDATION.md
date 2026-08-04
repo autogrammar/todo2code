@@ -1,6 +1,6 @@
 # Walidacja paczki
 
-Stan walidacji: **2026-08-01**, `todo2code 0.5.0`. Najnowsza lokalna kontrola
+Stan walidacji: **2026-08-01**, `todo2code 0.5.1`. Najnowsza lokalna kontrola
 została wykonana na bieżącym drzewie roboczym. Poniższe próby origin/workspace i live
 OpenRouter są zachowanymi pomiarami historycznymi i mają własne identyfikatory
 runów — nie należy interpretować ich jako porównania aktualnego drzewa.

@@ -40,7 +40,7 @@ zatwierdzeniem merge. Trwałe instrukcje zawiera [`AGENTS.md`](AGENTS.md).
 
 ## Stan projektu
 
-Wersja `0.5.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
+Wersja `0.5.1` ma działającą ścieżkę źródła → kanoniczny DSL → graf →
 diagnostyka/Intent vs Reality → raport oraz zamknięty, reviewowalny przepływ
 `DSL2TODO`. Kontrakty `t2c.conclusion/v1`, `t2c.todo-proposal/v1`,
 `t2c.todo-patch/v1`, `t2c.code-change-plan/v1`,
@@ -149,7 +149,7 @@ audyt z 2026-07-29 ma 0 podatności. `make install-tf` instaluje
 jego 8 zgłoszeń nie trafia do drzewa zależności rdzenia. Nie należy stosować
 `npm audit fix --force`, ponieważ proponuje niekompatybilny downgrade.
 
-## Demonstracja działania 0.5.0
+## Demonstracja działania 0.5.1
 
 Poniższa demonstracja używa wersjonowanego repozytorium `examples/`, nie wymaga
 klucza ani połączenia z OpenRouter i pozostawia jednoznaczny audyt. Uruchom:
@@ -184,13 +184,13 @@ console.log({ records: graph.records.length, relations: graph.relations.length, 
 NODE
 ```
 
-Weryfikowany wynik dla `0.5.0` ma 227 rekordów, w tym 5 wersjonowanych rekordów
+Weryfikowany wynik dla `0.5.1` ma 227 rekordów, w tym 5 wersjonowanych rekordów
 komunikacji. Liczba relacji zależy również od
 ostatnich 10 commitów Git, dlatego po każdym commicie może się prawidłowo
 zmienić i należy odczytać ją z bieżącego grafu:
 
 ```text
-status: succeeded, runtime: todo2code 0.5.0
+status: succeeded, runtime: todo2code 0.5.1
 naturalLanguageExtraction: succeeded / deterministic
 markdownExtraction:        succeeded / deterministic
 documentationExtraction:   succeeded / deterministic

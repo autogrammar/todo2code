@@ -1,6 +1,6 @@
 # Gotowość projektu
 
-Stan na **2026-08-01**, runtime `0.5.0`. Dokument odpowiada na jedno pytanie:
+Stan na **2026-08-01**, runtime `0.5.1`. Dokument odpowiada na jedno pytanie:
 **czy todo2code jest kompletny i co trzeba poprawić, zanim będzie**.
 
 `docs/PROJECT_STATUS.md` opisuje, co jest zbudowane. `docs/TEST_REPORT.md`

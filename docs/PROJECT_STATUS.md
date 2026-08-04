@@ -1,6 +1,6 @@
 # Aktualny stan projektu
 
-Stan na **2026-08-01**, wersja runtime `0.5.0`.
+Stan na **2026-08-01**, wersja runtime `0.5.1`.
 
 ## Ocena wykonania przepływu
 

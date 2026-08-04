@@ -8,6 +8,12 @@
   contract, grounded materialization and bounded payload modules. The public
   `tasks-llm` API, one-retry policy, provenance and fail-closed validation stay
   unchanged while the orchestrator drops from 554 to 266 lines.
+- Refactor internal implementation: split Python SDK demo flow and interface
+  helpers into smaller modules (`sdk/python/examples/basic.py`,
+  `src/interfaces/intake_cli.py`, `src/summary/generation-metadata.ts`,
+  `src/pipeline/run-helpers.ts`) and aligned their internal validation flow.
+  These are maintainability-only changes; public CLI/SDK behavior, contracts and
+  outputs remain unchanged.
 - Audited semantic stages now default to fail-closed `require-llm`: NL,
   TODO/CHANGELOG enrichment, communication enrichment, standalone summaries
   and direct TODO synthesis no longer fall back unless the caller explicitly
