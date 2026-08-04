@@ -730,7 +730,7 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
   assert.equal(closeResult.acceptedCount, 1);
   assert.equal(closeResult.allAccepted, true);
   assert.equal(closeResult.generation.generator, 't2c/code-change-close-result');
-  assert.equal(closeResult.generation.runtimeVersion, '0.5.0');
+  assert.equal(closeResult.generation.runtimeVersion, '0.5.2');
   assert.equal(closeResult.generation.model, null);
 });
 
