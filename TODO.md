@@ -11,7 +11,8 @@
   pinned, read-only and attested `koru / code-review` PR check plus a required
   ruleset. `koru / code-review` and `governance / enforce` now run as required
   checks on `main`; the ruleset is active with no bypass actors.
-  Follow-up AC-26..AC-28 normalizes the three tracked generated-analysis
+  Current follow-up state: `IN_PROGRESS / EDIT` for AC-26..AC-28, normalizing
+  the three tracked generated-analysis
   artifacts after `npm run verify` detected a volatile `/tmp` worktree root;
   no analysis regeneration and no `project2.sh` execution are in scope.
   Earlier AC-11..AC-16 pass; AC-17 and the pre-existing publication/external

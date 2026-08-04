@@ -183,5 +183,5 @@ Current verified baseline:
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
 - The current follow-up is planned as AC-26..AC-28 in
-  `WAIT_FOR_APPROVAL`. The user's `kontynuuj` response authorizes this exact
+  `IN_PROGRESS / EDIT`. The user's `kontynuuj` response authorizes this exact
   interactive implementation scope, but remains insufficient merge evidence.
