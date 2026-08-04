@@ -1,0 +1,17 @@
+2026-08-04T21:20:00Z PLAN ticket-037 deterministic branch comparison contract scaffolded
+2026-08-04T21:20:00Z WAIT_FOR_APPROVAL implementation paths unchanged
+2026-08-04T21:30:00Z APPROVED user explicitly approved ticket-037 contract
+2026-08-04T21:30:00Z EDIT base=1eec6a19df4bb78b98bc82f79608d46a21a1cdda paths=2
+2026-08-04T21:31:00Z REPAIR GOV-WORKSTREAM-003 test path aligned to test/graph-* ownership
+2026-08-04T21:34:00Z PASS focused=9/9 host=358-pass,1-skip lizard=0 max-cc=11 nloc=495
+2026-08-04T21:35:00Z PASS docker=352-pass,7-skip gold=100-percent smoke=all
+2026-08-04T21:35:00Z VALIDATION governance=0-errors,0-warnings exact-head-review=pending
+2026-08-04T21:40:00Z HARDEN semantic-completeness=explicit ordering-evidence=relation-backed collections=bounded
+2026-08-04T21:42:00Z PASS focused=14/14 host=363-pass,1-skip lizard=0 max-cc=11 nloc=499
+2026-08-04T21:43:00Z PASS docker=357-pass,7-skip gold=100-percent smoke=all
+2026-08-04T21:44:00Z PASS command="node --test dist/test/graph-branch-portfolio.test.js" tests=14 pass=14 fail=0 skip=0
+2026-08-04T21:47:00Z REPAIR validator-advisory non-null-assertions=4 replacement=assert.ok
+2026-08-04T21:48:00Z PASS focused=14/14 host=363-pass,1-skip governance=pass typecheck=pass
+2026-08-04T21:51:50Z APPROVED head=50d6dbac0d81f34109c6c2888056c6bd7a5331ff validator=30953984588 model=openrouter/z-ai/glm-5.2 advisory=APPROVE
+2026-08-04T21:53:19Z PASS ci=30954110229 koru=30953872007 exact-head=50d6dbac0d81f34109c6c2888056c6bd7a5331ff
+2026-08-04T21:54:12Z DONE pr=42 merge=b5d24171b1f66f9b25f1387b494b94ca98f23c06

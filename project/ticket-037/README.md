@@ -1,0 +1,132 @@
+# Ticket 037: Deterministic branch comparison contract
+
+- **ID**: ticket-037
+- **Owner**: unresolved:human
+- **Status**: DONE
+- **Workflow state**: DONE
+- **Created**: 2026-08-04
+
+## Goal
+
+Define the dependency-free core `t2c.branch/v1` read model that compares a
+bounded set of immutable branch snapshots against one exact base snapshot.
+The projector consumes already-materialized Git and semantic evidence; it does
+not fetch a remote, resolve mutable refs, call an LLM or mutate a branch.
+
+This is the second delivery from ticket-036's Branch Intelligence blueprint.
+It turns exact snapshot facts into deterministic pairwise interactions and
+conservative recommendations that Goal, Koru and validator-agent can later
+consume through separate adapters.
+
+## Input boundary
+
+Every input binds:
+
+- repository identity and tool/schema version;
+- exact base SHA and tree SHA;
+- for each candidate: branch name, head SHA, tree SHA, merge-base SHA,
+  ahead/behind counts and zero-or-more PR identities;
+- a deterministic textual merge result supplied by a later Git runtime;
+- graph and truth-map fingerprints plus the explicit assertion changes used by
+  semantic comparison;
+- explicit semantic completeness for each candidate and pair, so absent proof
+  cannot be interpreted as `disjoint`;
+- relation-backed citations for every non-independent ordering claim;
+- optional stable patch identity for equivalent cherry-pick detection.
+
+An unknown or missing fact stays `unknown`; the core must never infer a clean
+merge, reviewer identity or branch freshness from a display name.
+
+## Output boundary
+
+The sorted, fingerprinted `t2c.branch/v1` portfolio contains:
+
+- exact repository/base/head/merge-base bindings;
+- one result per candidate and one result per relevant candidate pair;
+- cited record, relation and assertion IDs for semantic findings;
+- classifications `disjoint`, `overlap`, `duplicate`, `ordered_after`,
+  `textual_conflict`, `semantic_conflict` or `unknown`;
+- recommendations limited to `merge_ready`, `merge_after`, `conflict`,
+  `duplicate`, `stale`, `rebase_required` or `manual_review`;
+- a canonical fingerprint that excludes wall-clock metadata.
+
+Recommendations are a read model, not authorization. In particular,
+`duplicate` and `stale` never mean that a branch may be deleted.
+
+## Delivery boundary
+
+- Workstream: `core-dsl`.
+- Complexity: `S`; at most two implementation files and one component.
+- Proposed implementation paths: `src/core/branch-portfolio.ts` and
+  `test/graph-branch-portfolio.test.ts`.
+- No Git subprocess, pipeline, cache, CLI, MCP, A2A, Protobuf, schema
+  publication, Goal/Koru/Validator change or documentation outside this
+  ticket.
+
+## Acceptance criteria
+
+- [x] AC-01: A human approves this exact input/output and recommendation
+      boundary.
+- [x] AC-02: The projector rejects malformed SHA, repository, count, enum,
+      graph/truth-map and cross-reference bindings.
+- [x] AC-03: Every candidate and interaction is bound to the exact base, head
+      and merge-base SHAs; a changed base invalidates the fingerprint.
+- [x] AC-04: Textual and semantic conflict evidence is retained separately and
+      either conflict forces the conservative `conflict` recommendation.
+- [x] AC-05: Equivalent stable patch identities are classified `duplicate`
+      without treating different commit IDs as unique work.
+- [x] AC-06: Contained/no-unique-evidence branches are `stale`; missing or
+      ambiguous evidence is `manual_review`, never guessed as merge-ready.
+- [x] AC-07: Pair ordering, record ordering and generated time do not change
+      IDs or the portfolio fingerprint.
+- [x] AC-08: The result contains no mutation command, approval boolean, token,
+      credential or automatic conflict winner.
+- [x] AC-09: Focused tests, full offline verification, governance, Lizard and
+      Docker core E2E pass without a network or LLM.
+- [x] AC-10: Runtime materialization, public interfaces/docs, Goal, Koru and
+      Validator remain explicit follow-up tickets.
+
+## Participants
+
+- Human participant: unresolved; no `user-*` file was created.
+- Agent participant: [ai-codex.md](ai-codex.md)
+
+## Approval boundary
+
+The user explicitly approved ticket-037 after reviewing this input/output and
+recommendation contract. The bounded implementation was independently reviewed
+and merged through the protected path. Chat approval authorized the interactive
+edit only; merge authority came from exact-head App evidence and required
+checks.
+
+## Validation result
+
+- Exact focused command:
+  `npm run build && node --test dist/test/graph-branch-portfolio.test.js` —
+  14 tests, 14 passed, 0 failed, 0 skipped.
+- Full host verification: 363 passed, 1 environment-dependent skip, 0 failed.
+- Docker core E2E: 357 passed, 7 toolchain-dependent skips; both gold datasets,
+  CLI, MCP, A2A and examples passed with `T2C-E2E-000`.
+- Lizard: 499 NLOC, zero threshold violations, maximum function CC 11.
+- Governance: `GOV-PASS` with 0 errors and 0 warnings.
+- Test fixtures use explicit runtime guards instead of TypeScript non-null
+  assertions; typecheck and the 14-test focused suite pass after the repair.
+- No Git/GitHub mutation, LLM call, runtime dependency or cross-workstream
+  implementation change was introduced.
+
+## Protected completion evidence
+
+- Koru review run
+  [30953872007](https://github.com/semcod/todo2code/actions/runs/30953872007)
+  passed exact head `50d6dbac0d81f34109c6c2888056c6bd7a5331ff`.
+- Validator run
+  [30953984588](https://github.com/subactor/validator-agent/actions/runs/30953984588)
+  approved the same head for `ticket-037` with
+  `openrouter/z-ai/glm-5.2`; its final advisory verdict was `APPROVE` with no
+  findings.
+- Review-triggered CI run
+  [30954110229](https://github.com/semcod/todo2code/actions/runs/30954110229)
+  passed governance, full verification, Docker smoke and the required Java
+  fixture with the exact-head approval evidence.
+- Protected PR [#42](https://github.com/semcod/todo2code/pull/42) merged as
+  `main@b5d24171b1f66f9b25f1387b494b94ca98f23c06`.

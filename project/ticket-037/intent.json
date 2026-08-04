@@ -1,0 +1,118 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-037",
+  "summary": "Classify immutable branch evidence into one deterministic t2c.branch/v1 portfolio",
+  "workstream": "core-dsl",
+  "allowedPaths": [
+    "src/core/branch-portfolio.ts",
+    "test/graph-branch-portfolio.test.ts",
+    "project/ticket-037/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/types.ts",
+    "src/pipeline/**",
+    "src/interfaces/**",
+    "src/cli.ts",
+    "src/sdk/**",
+    "sdk/**",
+    "schemas/**",
+    "docs/**",
+    ".github/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-036"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "1eec6a19df4bb78b98bc82f79608d46a21a1cdda",
+    "targetBranch": "main",
+    "outcome": "Provide deterministic branch interaction classifications and conservative recommendations over exact immutable evidence",
+    "nonGoals": [
+      "No Git or GitHub access",
+      "No ref, PR or repository mutation",
+      "No pipeline artifact, cache or interface exposure",
+      "No Goal, Koru or Validator adapter",
+      "No LLM call or runtime dependency"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Keep immutable Git materialization outside core and derive t2c.branch/v1 only from validated snapshot and truth-map evidence",
+      "components": [
+        {
+          "name": "branch-portfolio-projector",
+          "paths": ["src/core/branch-portfolio.ts", "test/graph-branch-portfolio.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": ["Add an in-memory derived branch portfolio; no persisted or public schema changes in this ticket"],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Remove the two additive core-dsl files; truth-map and current pipeline behavior remain unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
+        "evidence": "Strict input and cross-reference validation tests pass"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
+        "evidence": "Exact snapshot and stale-base fingerprint tests pass"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
+        "evidence": "Textual and semantic conflict tests pass"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
+        "evidence": "Equivalent patch classification tests pass"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
+        "evidence": "Contained and ambiguous evidence tests pass"
+      },
+      {
+        "criterion": "AC-07",
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
+        "evidence": "Ordering and timestamp invariance tests pass"
+      },
+      {
+        "criterion": "AC-08",
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
+        "evidence": "Read-model-only shape and forbidden-field tests pass"
+      },
+      {
+        "criterion": "AC-09",
+        "commands": ["npm run verify", "make governance", "make e2e-core", "git diff --check"],
+        "evidence": "Offline regression, governance, complexity and Docker gates pass"
+      },
+      {
+        "criterion": "AC-10",
+        "commands": ["./project/governance-check.sh"],
+        "evidence": "Follow-up workstreams remain excluded by allowedPaths and forbiddenPaths"
+      }
+    ]
+  }
+}

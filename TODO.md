@@ -12,7 +12,32 @@
 None.
 
 ## Completed tickets
-
+- [x] [`ticket-039`](project/ticket-039/README.md) — bounded, read-only local
+  Git materializer for exact branch/tree/merge-base/ahead-behind, stable patch
+  identity and textual collision evidence. Focused, full host/Docker,
+  governance, complexity and live branch checks passed; Koru and Validator
+  approved exact head `29df450` with `openrouter/z-ai/glm-5.2`; PR #44 merged
+  as `main@2948f4a`. Current state: `DONE`.
+- [x] [`ticket-037`](project/ticket-037/README.md) — deterministic,
+  fail-closed `t2c.branch/v1` projection over immutable branch evidence.
+  Fourteen focused tests, full host/Docker verification, Koru and Validator
+  approved exact head `50d6dba` with `openrouter/z-ai/glm-5.2`; PR #42 merged
+  as `main@b5d2417`. Current state: `DONE`.
+- [x] [`ticket-038`](project/ticket-038/README.md) — reconciled ticket-036's
+  stale pending-review narrative with protected completion evidence. Koru and
+  Validator approved exact head `670894d` using
+  `openrouter/z-ai/glm-5.2`; PR #40 merged as `main@ed35d3f`. Current state:
+  `DONE`.
+- [x] [`ticket-036`](project/ticket-036/README.md) — deterministic,
+  provenance-preserving `t2c.truth-map/v1` core projection. Koru and Validator
+  approved exact head `65b4bc1` with `openrouter/z-ai/glm-5.2`; PR #35 merged
+  as `main@15d2b26`. Current state: `DONE`.
+- [x] [`ticket-034`](project/ticket-034/README.md) — scales each OpenRouter
+  request timeout from bounded input, output and structural-complexity pressure,
+  retaining the configured default at baseline and increasing by `2x` steps up
+  to `8x` and 600 seconds. Exact-head Validator approval used
+  `openrouter/z-ai/glm-5.2`; implementation merged in PR #31 as
+  `main@6116961`. Current state: `DONE`.
 - [x] [`ticket-019`](project/ticket-019/README.md) — published the
   dependency-free Python SDK from one root `pyproject.toml`, passed package,
   application, SDK, Docker and protected exact-head validation, and merged PR
