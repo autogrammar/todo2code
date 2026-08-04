@@ -3,7 +3,7 @@
 - **ID**: ticket-024
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -18,12 +18,12 @@ repairs remain owned by ticket-023.
 ## Acceptance criteria
 
 - [x] AC-01: The human instructed the agent to continue the diagnosed repair.
-- [ ] AC-02: The CLI parses and preserves graph-diff output behavior.
-- [ ] AC-03: A2A startup and extractor selection satisfy their TypeScript
+- [x] AC-02: The CLI parses and preserves graph-diff output behavior.
+- [x] AC-03: A2A startup and extractor selection satisfy their TypeScript
       contracts and existing usage errors.
-- [ ] AC-04: Communication imports the root extractor and finds its fail-closed
+- [x] AC-04: Communication imports the root extractor and finds its fail-closed
       prompt after compilation.
-- [ ] AC-05: Complete verification, gold, governance and Docker E2E pass on the
+- [x] AC-05: Complete verification, gold, governance and Docker E2E pass on the
       aggregate current-HEAD repair.
 
 ## Participants

@@ -25,7 +25,9 @@ prompt path now belongs to `implementation-helpers.ts`.
 ## Actual changes
 
 - Plan completed and the user-authorized repair entered `EDIT`.
+- Repaired CLI/A2A and communication split contracts. Full verification, both
+  gold datasets, protocol smoke and Docker core/full pass.
 
 ## Blockers
 
-- None after the user's continuation instruction; merge review is external.
+- Implementation and validation are complete; merge review remains external.
