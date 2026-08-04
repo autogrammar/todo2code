@@ -57,11 +57,14 @@ async function main() {
     generatedAt: new Date().toISOString(),
   });
   const rendered = renderLiveModelComparison(comparison);
+  const { jsonTarget, markdownTarget } = resolveLiveModelOutputPaths();
 
-  const jsonTarget = path.resolve(REPO_ROOT, process.env.T2C_LIVE_COMPARE_PATH ?? DEFAULTS.outputPath);
-  const markdownTarget = path.resolve(REPO_ROOT, process.env.T2C_LIVE_COMPARE_MD_PATH ?? DEFAULTS.markdownPath);
-  await writeFile(jsonTarget, `${JSON.stringify(comparison, null, 2)}\n`);
-  await writeFile(markdownTarget, `${rendered}\n`);
+  await writeLiveModelComparisonArtifacts({
+    comparison,
+    rendered,
+    jsonTarget,
+    markdownTarget,
+  });
   process.stdout.write(`${rendered}\n`);
 
   if (comparison.models.every((model) => !model.ok)) process.exitCode = 1;
@@ -105,6 +108,13 @@ function resolveLiveModelRoot() {
   return path.resolve(REPO_ROOT, process.env.T2C_LIVE_COMPARE_ROOT ?? DEFAULTS.root);
 }
 
+function resolveLiveModelOutputPaths() {
+  return {
+    jsonTarget: path.resolve(REPO_ROOT, process.env.T2C_LIVE_COMPARE_PATH ?? DEFAULTS.outputPath),
+    markdownTarget: path.resolve(REPO_ROOT, process.env.T2C_LIVE_COMPARE_MD_PATH ?? DEFAULTS.markdownPath),
+  };
+}
+
 async function compareModels({
   models,
   root,
@@ -125,6 +135,16 @@ async function compareModels({
     }));
   }
   return runs;
+}
+
+async function writeLiveModelComparisonArtifacts({
+  comparison,
+  rendered,
+  jsonTarget,
+  markdownTarget,
+}) {
+  await writeFile(jsonTarget, `${JSON.stringify(comparison, null, 2)}\n`);
+  await writeFile(markdownTarget, `${rendered}\n`);
 }
 
 async function runModelMarkdownComparison({
