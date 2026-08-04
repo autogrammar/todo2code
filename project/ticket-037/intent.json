@@ -5,7 +5,7 @@
   "workstream": "core-dsl",
   "allowedPaths": [
     "src/core/branch-portfolio.ts",
-    "test/branch-portfolio.test.ts",
+    "test/graph-branch-portfolio.test.ts",
     "project/ticket-037/**",
     "TODO.md",
     "project/TICKETS.md"
@@ -29,7 +29,7 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "24fed395c3982ec2550e781998d1f7264dde12ca",
+    "acceptedBaseSha": "1eec6a19df4bb78b98bc82f79608d46a21a1cdda",
     "targetBranch": "main",
     "outcome": "Provide deterministic branch interaction classifications and conservative recommendations over exact immutable evidence",
     "nonGoals": [
@@ -48,12 +48,12 @@
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Keep immutable Git materialization outside core and derive t2c.branch/v1 only from validated snapshot and truth-map evidence",
       "components": [
         {
           "name": "branch-portfolio-projector",
-          "paths": ["src/core/branch-portfolio.ts", "test/branch-portfolio.test.ts"]
+          "paths": ["src/core/branch-portfolio.ts", "test/graph-branch-portfolio.test.ts"]
         }
       ],
       "responsibilityChanges": false,
@@ -70,37 +70,37 @@
     "validation": [
       {
         "criterion": "AC-02",
-        "commands": ["npm run build", "node --test dist/test/branch-portfolio.test.js"],
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
         "evidence": "Strict input and cross-reference validation tests pass"
       },
       {
         "criterion": "AC-03",
-        "commands": ["npm run build", "node --test dist/test/branch-portfolio.test.js"],
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
         "evidence": "Exact snapshot and stale-base fingerprint tests pass"
       },
       {
         "criterion": "AC-04",
-        "commands": ["npm run build", "node --test dist/test/branch-portfolio.test.js"],
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
         "evidence": "Textual and semantic conflict tests pass"
       },
       {
         "criterion": "AC-05",
-        "commands": ["npm run build", "node --test dist/test/branch-portfolio.test.js"],
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
         "evidence": "Equivalent patch classification tests pass"
       },
       {
         "criterion": "AC-06",
-        "commands": ["npm run build", "node --test dist/test/branch-portfolio.test.js"],
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
         "evidence": "Contained and ambiguous evidence tests pass"
       },
       {
         "criterion": "AC-07",
-        "commands": ["npm run build", "node --test dist/test/branch-portfolio.test.js"],
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
         "evidence": "Ordering and timestamp invariance tests pass"
       },
       {
         "criterion": "AC-08",
-        "commands": ["npm run build", "node --test dist/test/branch-portfolio.test.js"],
+        "commands": ["npm run build", "node --test dist/test/graph-branch-portfolio.test.js"],
         "evidence": "Read-model-only shape and forbidden-field tests pass"
       },
       {

@@ -2,14 +2,11 @@
 
 ## Active tickets
 
-None.
-
-## Planned tickets
-
-- [ ] [`ticket-037`](project/ticket-037/README.md) — define the deterministic
+- [ ] [`ticket-037`](project/ticket-037/README.md) — implement the deterministic
   `t2c.branch/v1` core comparison contract and recommendation rules over
   immutable, already-materialized branch evidence. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`.
+  `IN_PROGRESS / VALIDATION`; focused, full, complexity, governance and Docker
+  checks pass.
 
 ## Backlog tickets
 

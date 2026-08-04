@@ -33,8 +33,24 @@ on a stable contract from this ticket and later runtime/interface tickets.
 
 ## Actual changes
 
-- Governance plan only; no implementation has started.
+- The user approved the bounded contract and the ticket entered
+  `IN_PROGRESS / EDIT` from the plan merge base on `main`.
+- Added a strict, dependency-free evidence validator and deterministic
+  `t2c.branch/v1` projector with exact snapshot bindings, canonical hashes,
+  conservative recommendations and no mutation surface.
+- Preserved base-conflict and ordering citations in the output, made pair-level
+  semantic completeness explicit and bounded all collection inputs.
+- Added fourteen offline tests for disjoint, duplicate, textual/semantic
+  conflict, stale, unknown, ordered, rebased, invariant, malformed and
+  tampered evidence cases.
+- Re-ran the exact compiled focused suite
+  `node --test dist/test/graph-branch-portfolio.test.js`: 14/14 passed with no
+  skips, making the feature-specific evidence explicit for protected review.
+- Replaced every non-null assertion in the new test file with an explicit
+  `assert.ok` guard after Validator identified the unsafe fixture accesses.
+- Kept the implementation at 499 NLOC with maximum function CC 11 and passed
+  the complete host and Docker regression gates.
 
 ## Blockers
 
-- Human approval is required before editing either implementation path.
+- Protected exact-head Koru and Validator review remain before merge.
