@@ -6,3 +6,4 @@ ticket-027 now owns the two source-path updates. Focused test passed.
 focused repaired tests: 79/79 PASS
 npm run verify: PASS (338 tests; 337 pass, 0 fail, 1 local JDK skip)
 gold v1/v2, governance and Docker core/full: PASS
+2026-08-04 ticket completion: DONE after aggregate validation; publication review remains external

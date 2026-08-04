@@ -7,3 +7,4 @@
 - Restored validated array/path narrowing and moved confidence hierarchy
   coverage to the split helper-module locations.
 - Aggregate verification, governance and Docker core/full pass.
+- Marked the fully validated implementation DONE before protected publication.
