@@ -151,6 +151,7 @@ function scorePair(
   score += scoreSharedPath(left, right, resolvableBasenames, basis);
   score += scoreSameAction(left, right, basis);
   const objectSimilarity = scoreObjectSimilarity(leftKeywords, rightKeywords, basis);
+  score += objectSimilarity * 0.48;
   score += scoreSharedTopics(left, right, leftKeywords, rightKeywords, basis);
   score += scoreSourceKindPenalty(left, right);
   return {
@@ -215,7 +216,7 @@ function scoreObjectSimilarity(
     : 0;
   if (objectSimilarity >= 0.2) {
     basis.push(`text_similarity:${objectSimilarity.toFixed(3)}`);
-    return objectSimilarity * 0.48;
+    return objectSimilarity;
   }
   return 0;
 }
