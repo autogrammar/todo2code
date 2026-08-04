@@ -25,7 +25,7 @@ core/semantic edits will be reapplied on current HEAD.
 
 ## Actual changes
 
-- None; waiting at the plan boundary.
+- Plan completed and the user-authorized current-HEAD repair entered `EDIT`.
 
 ## Blockers
 

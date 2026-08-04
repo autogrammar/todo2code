@@ -5,7 +5,8 @@
 - [ ] [`ticket-023`](project/ticket-023/README.md) — repair the current-HEAD
   core artifact contracts, semantic reranker parser guard and canonical runtime
   version without reverting parallel refactors. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; exact core-dsl scope is documented.
+  `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the
+  exact core-dsl repair.
 
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic

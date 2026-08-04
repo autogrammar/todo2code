@@ -2,8 +2,8 @@
 
 - **ID**: ticket-023
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-04
 
 ## Goal and scope
