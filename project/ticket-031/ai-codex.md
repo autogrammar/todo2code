@@ -26,10 +26,10 @@ test expectations because it recreates the pre-refactor algorithm.
 
 ## Actual changes
 
-- None; waiting for approval.
+- The human explicitly approved ticket-031 by replying `kontynuuj`; the
+  interactive implementation may enter `EDIT`.
 
 ## Blockers
 
-- Human approval is required before implementation.
 - Repository governance already has four unrelated ticket-018/ticket-019
   blockers; ticket-031 must not rewrite them.

@@ -2,8 +2,8 @@
 
 - **ID**: ticket-031
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -29,7 +29,7 @@ under 30 minutes.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope is approved by a human owner.
+- [x] AC-01: Scope is approved by a human owner.
 - [ ] AC-02: `scorePair` adds object/text similarity to the aggregate score and
       continues to expose the same value as `textScore`.
 - [ ] AC-03: The shared-path plan/AST and configuration/document regression
@@ -48,7 +48,7 @@ under 30 minutes.
 
 ## Approval boundary
 
-- Current state: `PLAN / WAIT_FOR_APPROVAL`.
+- Current state: `IN_PROGRESS / EDIT` after explicit chat approval.
 - Chat approval authorizes this interactive implementation only.
 - Trusted merge evidence still requires an independent protected review or
   signed attestation bound to the final head SHA.

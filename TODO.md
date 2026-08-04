@@ -4,7 +4,7 @@
 
 - [ ] [`ticket-031`](project/ticket-031/README.md) — restore the semantic
   similarity score contribution dropped during the linker split. Current
-  state: `PLAN / WAIT_FOR_APPROVAL`; one production file, no threshold or test
+  state: `IN_PROGRESS / EDIT`; one production file, no threshold or test
   expectation changes, estimated under 30 minutes.
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free

@@ -2,3 +2,5 @@
 - Fresh base `caf6551`: build PASS; full suite 338 total, 327 pass, 10 fail, 1 skip.
 - Seven failures trace to one omission: `scoreObjectSimilarity(...)` is computed but not added to aggregate `score` after the linker split.
 - No production source edited; state remains `WAIT_FOR_APPROVAL`.
+- Human response `kontynuuj` authorized the bounded ticket-031 implementation;
+  transitioned to `IN_PROGRESS / EDIT`.
