@@ -16,6 +16,7 @@ project:
   name: todo2code
   type:
   - nodejs
+  - python
   description: 'todo2code (t2c): audited intent and team-communication extraction,
     evidence graphs, origin-to-workspace comparison and grounded summaries through
     CLI, MCP and A2A.'
@@ -23,7 +24,7 @@ versioning:
   strategy: semver
   files:
   - VERSION
-  - sdk/python/pyproject.toml:version
+  - pyproject.toml:version
   - package.json:version
   - rust-ast/Cargo.toml:version
   - sdk/python/todo2code/__init__.py:__version__

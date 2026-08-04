@@ -37,8 +37,8 @@ contracts. Ticket-019 is therefore routed to the `integration` workstream.
    clean virtual environment and verify imports/version/dependency metadata.
 6. Run Goal detection and `goal --dry-run -a`, then the repository verification,
    SDK examples and governance checks.
-7. Record evidence without publishing, committing or pushing unless separately
-   requested.
+7. Record evidence, commit the bounded implementation and submit it through the
+   protected exact-head review workflow requested by the user.
 
 ## Actual changes
 
@@ -46,8 +46,19 @@ contracts. Ticket-019 is therefore routed to the `integration` workstream.
   ticket-018 and ticket-035 are explicit completed dependencies, and the stale
   ticket-018 conflict was removed.
 - No package or build metadata changed in this plan commit.
+- Added the root `todo2code` PEP 517/621 manifest with an explicit
+  `sdk/python` package mapping and no runtime dependencies.
+- Added Python to Goal detection/versioning, migrated `make python-wheel` to
+  the root manifest, removed the nested manifest and updated SDK commands.
+- Built and inspected the wheel and sdist, verified them with Twine, installed
+  the wheel in a clean environment and confirmed both public import paths.
+- Passed full repository verification, SDK examples and Docker E2E core.
+- Detected that Goal 2.1.284 executes publication despite its global
+  `--dry-run` flag. The bounded Python artifacts were therefore published as
+  PyPI 0.5.1; npm rejected the subsequent operation with `ENEEDAUTH`, and an
+  independent lookup found no npm release.
 
 ## Blockers
 
-- None for interactive implementation. Exact-head external review remains
+- None for implementation or local validation. Exact-head external review remains
   required before merge.

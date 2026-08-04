@@ -2,16 +2,15 @@
 
 ## Active tickets
 
-None.
-
-## Backlog tickets
-
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
   one root `pyproject.toml` and SDK-only artifacts. Current state:
-  `BACKLOG / WAIT_FOR_APPROVAL`; tickets 018 and 035 are DONE, integration owns
-  the complete transaction and the next commit begins the authorized build
-  metadata implementation.
+  `IN_PROGRESS / VALIDATION`; all local package, application, SDK, Docker and
+  governance checks pass, with exact-head external review still required.
+
+## Backlog tickets
+
+None.
 
 ## Completed tickets
 

@@ -12,3 +12,54 @@ Verified dependencies:
 Scope transition: BACKLOG / WAIT_FOR_APPROVAL remains plan-only while the
 intent changes from sdk to integration. The current user instruction authorizes
 the later bounded implementation but is not trusted merge evidence.
+
+2026-08-04 implementation and validation
+
+python3 -m build
+- PASS: dist/todo2code-0.5.1-py3-none-any.whl
+- PASS: dist/todo2code-0.5.1.tar.gz
+- PASS: the pre-existing TypeScript CLI digest remained
+  e0967a484104542c519425640778bd3d9dc211483e949321d797de9929d0a8a1
+
+Archive inspection
+- PASS: wheel has 9 entries: todo2code_sdk.py, three todo2code package files,
+  LICENSE, METADATA, WHEEL, top_level.txt and RECORD.
+- PASS: sdist contains root package metadata and sdk/python sources; it does not
+  contain TypeScript runtime sources.
+
+python3 -m twine check dist/todo2code-*
+- PASS: wheel and sdist.
+
+Clean virtual-environment install
+- PASS: installed wheel with --no-deps.
+- PASS: imported todo2code and todo2code_sdk.
+- PASS: package version 0.5.1; declared runtime dependency count 0.
+
+make python-wheel
+- Initial root wheel attempt with --no-build-isolation exposed a missing
+  setuptools.build_meta in the caller environment.
+- Updated the target to use normal PEP 517 isolation.
+- PASS: .intent-packages/python/todo2code-0.5.1-py3-none-any.whl.
+
+goal info / goal --dry-run -a
+- PASS: Goal 2.1.284 detects python and nodejs.
+- PASS: version source is root pyproject.toml, current version 0.5.1.
+- PASS: automatic dry-run proposes 0.5.2 without side effects.
+
+goal --dry-run publish --no-make --version 0.5.1
+- DEFECT: Goal printed the configured and resolved bounded command
+  `twine upload dist/todo2code-0.5.1*` but executed it despite --dry-run.
+- EXTERNAL STATE: published non-yanked PyPI wheel and sdist for todo2code 0.5.1.
+- npm publish then failed with ENEEDAUTH; registry lookup returned E404 for
+  todo2code@0.5.1, so this run did not publish npm.
+- No credentials were written to ticket evidence. No release was yanked.
+
+npm run verify
+- PASS: 335 tests, 334 passed, 1 skipped because JDK is unavailable, 0 failed.
+
+npm run examples:check
+- PASS: five SDK languages share the expected fingerprints.
+
+make e2e-core
+- PASS: verify, gold v2, gold v1, CLI, MCP, A2A and examples.
+- Result: T2C-E2E-000: PASS suite=core.

@@ -15,3 +15,22 @@
 - Routed the atomic publication transaction to the integration workstream and
   removed the resolved ticket-018 conflict.
 - Kept this commit plan-only before changing any package or build metadata.
+
+## [Implementation] - 2026-08-04
+
+- Added the root `todo2code` Python distribution manifest.
+- Routed Goal versioning and `make python-wheel` through the root manifest.
+- Removed the nested SDK manifest and updated installation/build documentation.
+
+## [Validation] - 2026-08-04
+
+- Built wheel and sdist from the root without changing the existing TypeScript
+  build output; inspected the bounded archive members and passed Twine checks.
+- Installed the wheel in a clean virtual environment, imported `todo2code` and
+  `todo2code_sdk`, verified version 0.5.1 and confirmed zero runtime
+  dependencies.
+- Passed `make python-wheel`, Goal project detection, full application verify,
+  SDK examples, Docker E2E core and the governance gate.
+- Recorded a Goal 2.1.284 dry-run defect: the bounded PyPI upload executed even
+  with `--dry-run`, publishing Python 0.5.1. The npm step failed authentication
+  and registry verification found no npm release. No package was yanked.

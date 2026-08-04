@@ -123,7 +123,7 @@ e2e-clean: ## Usuń kontenery i lokalne obrazy środowisk E2E
 
 python-wheel: build ## Zbuduj wheel SDK z lokalnym mostem do runtime TypeScript
 	mkdir -p "$(PYTHON_WHEEL_DIR)"
-	$(PYTHON) -m pip wheel ./sdk/python --no-deps --no-build-isolation --wheel-dir "$(PYTHON_WHEEL_DIR)"
+	$(PYTHON) -m pip wheel . --no-deps --wheel-dir "$(PYTHON_WHEEL_DIR)"
 
 package: validate ## Utwórz ZIP i plik SHA-256 bez sekretów i node_modules
 	$(PYTHON) scripts/package.py "$(PACKAGE)"
