@@ -108,6 +108,19 @@ Current verified baseline:
     repaired aggregate.
 25. Route `test/python-runtime*` to the runtime workstream after full
     verification exposes its stale release assertion.
+26. Return to `WAIT_FOR_APPROVAL` for AC-30..AC-40 before changing approval
+    policy, workflows, Validator source or tests.
+27. Add a versioned, narrow allowlist for independent Validator App review
+    actors and bind accepted reviews to the exact current PR head SHA.
+28. Add negative governance fixtures for arbitrary bots, stale/dismissed
+    reviews and same-author evidence while preserving human review behavior.
+29. Add `validator-agent` strategy `direct-pr` with explicit repository, PR,
+    base and SHA boundaries, hosted-check evidence and no branch metadata
+    mutation or merge.
+30. Keep the existing Project-queue strategy unchanged and select the strategy
+    explicitly at workflow dispatch.
+31. Validate locally, publish scoped PRs, obtain the required bootstrap review,
+    then exercise the dedicated Validator identity against todo2code PR #13.
 
 ## Actual changes
 
@@ -165,6 +178,12 @@ Current verified baseline:
   and Koru status checks, mandatory pull requests, stale-evidence dismissal and
   force-push/deletion prevention. It remains disabled solely for the final
   bootstrap evidence merge and will be activated afterward.
+- Planned only AC-30..AC-40 for independent Validator App approval and the
+  `direct-pr` strategy. No governance, workflow, source or test implementation
+  file was changed in this planning phase.
+- Changed the deployed `subactor/validator-agent` GitHub Actions variable from
+  Gemini 3.1 Pro Preview to `openrouter/z-ai/glm-5.2`; no validation run was
+  dispatched and no secret value was read.
 
 ## Blockers
 
@@ -190,3 +209,6 @@ Current verified baseline:
 - The current follow-up is planned as AC-26..AC-28 in
   `IN_PROGRESS / VALIDATION`. The user's `kontynuuj` response authorizes this exact
   interactive implementation scope, but remains insufficient merge evidence.
+- Current follow-up state: `IN_PROGRESS / WAIT_FOR_APPROVAL` for AC-30..AC-40.
+  The user's request authorizes planning and policy evolution; executable edits
+  begin only after explicit approval of this exact allowlist/direct-PR design.

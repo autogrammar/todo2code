@@ -1,5 +1,18 @@
 # Ticket Changelog (ticket-018)
 
+## [0.5.0] - 2026-08-04
+
+- Planned AC-30..AC-40 for allowlisted independent Validator App approvals
+  bound to the exact PR head SHA.
+- Planned a non-mutating `direct-pr` validator strategy alongside the existing
+  Project-queue strategy.
+- Kept arbitrary bots, stale reviews, self-review, metadata commits and merge
+  authority outside the trusted path.
+- Updated the deployed Validator model variable to
+  `openrouter/z-ai/glm-5.2` without dispatching a live review.
+- Stopped at `IN_PROGRESS / WAIT_FOR_APPROVAL`; no executable implementation
+  file changed.
+
 ## [0.4.0] - 2026-08-04
 
 - Planned AC-26..AC-28 to assign and normalize exactly three tracked generated
