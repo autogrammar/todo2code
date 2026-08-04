@@ -1,0 +1,84 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-021",
+  "summary": "Govern reproducible project analysis generation before integration",
+  "workstream": "governance",
+  "allowedPaths": [
+    ".governance/manifest.json",
+    ".governance/manifest.lock.json",
+    "project/ticket-021/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "9cfc3a8f90a9669ef5b37c44928e0b0e6a191ae5",
+    "targetBranch": "main",
+    "outcome": "Assign root-level generated analysis artifacts to the integration workstream without weakening the managed governance wrapper",
+    "nonGoals": [
+      "No code2llm or redup execution",
+      "No generated artifact refresh",
+      "No project.sh or analyzer image change",
+      "No host package installation"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Extend only the target integration workstream ownership with root-level generated analysis formats and refresh genuine lock evidence",
+      "components": [
+        {
+          "name": "governance-ownership-contract",
+          "paths": [
+            ".governance/manifest.json",
+            ".governance/manifest.lock.json"
+          ]
+        }
+      ],
+      "responsibilityChanges": true,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Restore the two governance files from accepted base 9cfc3a8f90a9669ef5b37c44928e0b0e6a191ae5"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "python3 -c ownership assertions"
+        ],
+        "evidence": "Generated root paths resolve to integration while nested ticket paths do not"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": [
+          "goal governance adopt --source-revision 9706e63d5f121323e9087d0db47a16acdbd276bb --target-root . --check"
+        ],
+        "evidence": "Pinned adoption reports up-to-date after the lock refresh"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": [
+          "make governance",
+          "git diff --check"
+        ],
+        "evidence": "Deterministic governance and whitespace checks pass"
+      }
+    ]
+  }
+}
