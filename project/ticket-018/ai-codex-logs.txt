@@ -471,3 +471,16 @@ sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
 - git diff --check: PASS
 - live OpenRouter requests: 0
 - transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
+
+2026-08-04 GLM STRUCTURED-OUTPUT FAILURE
+- workflow run: 30934859353
+- reviewed range: 2e87205dcd0b06286529ca9fa8ab9518694e9068 -> a150575b632f65d4a0aed3fce3eb68c539549ea5
+- model: openrouter/z-ai/glm-5.2
+- selected source: .governance/governance_check.py
+- provider/credential error: none
+- report/attestation: generated
+- Vallm finding: semantic.parse_error, severity info, file verdict pass
+- normalized result: blocking because semantic evidence was not parseable
+- decision: retain fail-closed behavior; enforce provider JSON response format
+  and disable optional reasoning before a new exact-head review
+- transition: IN_PROGRESS / VALIDATION -> IN_PROGRESS / EDIT

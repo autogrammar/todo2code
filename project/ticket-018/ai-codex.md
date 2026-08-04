@@ -267,6 +267,11 @@ Current verified baseline:
 - Post-adoption checks pass: central validator/scripts/adoption fixtures,
   lock `--check`, target governance, workflow YAML, full `npm run verify`
   (334 passed, one JDK skip) and Docker smoke. No live LLM request was made.
+- Exact-head Koru run `30934859353` used GLM 5.2 and produced an attested
+  fail-closed report with `semantic.parse_error`: Vallm requested JSON only in
+  prose, not through the provider response contract. Reopened AC-39/AC-40 and
+  will constrain the existing compatibility boundary to JSON output with
+  optional reasoning disabled, then require a successful exact-head rerun.
 
 ## Blockers
 

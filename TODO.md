@@ -15,11 +15,12 @@
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current follow-up state: `IN_PROGRESS / VALIDATION`. AC-37..AC-40 pass:
-  governance 0.10.0 is locked to published merge `5267cf3`, only
-  `IN_PROGRESS` reserves scope, Koru uses `z-ai/glm-5.2`, and governance,
-  workflow, full Node and Docker smoke checks pass without a paid live LLM
-  request. AC-17 and inherited blockers remain separate.
+  Current follow-up state: `IN_PROGRESS / EDIT`. AC-37 and AC-38 pass;
+  governance 0.10.0 is locked to published merge `5267cf3` and only
+  `IN_PROGRESS` reserves scope. Exact-head Koru run `30934859353` reached
+  `z-ai/glm-5.2` but failed closed on non-JSON output, so AC-39/AC-40 are open
+  while the bounded adapter enforces structured output. AC-17 and inherited
+  blockers remain separate.
 
 ## Backlog tickets
 

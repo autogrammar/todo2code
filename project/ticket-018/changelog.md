@@ -27,6 +27,9 @@
 - Central fixtures, target governance, workflow validation, all 335 Node tests
   (one JDK skip) and Docker smoke pass without a live LLM request. Marked
   AC-37, AC-38 and AC-40 complete and entered `VALIDATION`.
+- Exact-head GLM run `30934859353` failed closed on Vallm
+  `semantic.parse_error`; reopened AC-39/AC-40 to require provider-enforced
+  JSON rather than accepting an advisory verdict without parseable evidence.
 
 ## [0.4.1] - 2026-08-04
 

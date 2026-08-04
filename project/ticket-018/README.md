@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: EDIT
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -299,10 +299,10 @@ to this migration.
 - [x] AC-38: Bounded delivery remains available while only `IN_PROGRESS`
       reserves scope; planning/backlog/blocked tickets do not create active
       conflict, dependency, ownership or overlap diagnostics.
-- [x] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
+- [ ] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
       current guidance contain no Gemini 3.1 Pro Preview default, while
       historical evidence remains explicitly historical.
-- [x] AC-40: Adoption preflight, governance fixtures, workflow validation,
+- [ ] AC-40: Adoption preflight, governance fixtures, workflow validation,
       `npm run verify`, Docker-relevant checks and `git diff --check` pass
       without a live LLM request or application-source edit.
 
@@ -329,10 +329,12 @@ to this migration.
 
 ## Approval boundary
 
-- Current follow-up state: `IN_PROGRESS / VALIDATION`; AC-37..AC-40 pass
-  locally. Upstream PR #1 was independently approved for exact head `346895b`
-  and published as merge commit `5267cf3b365959770e070e96e9157573a5d8c04b`;
-  the target lock now uses that immutable source revision.
+- Current follow-up state: `IN_PROGRESS / EDIT`; AC-37 and AC-38 pass.
+  Upstream PR #1 was independently approved for exact head `346895b` and
+  published as merge commit `5267cf3b365959770e070e96e9157573a5d8c04b`;
+  the target lock uses that immutable source revision. Exact-head Koru run
+  `30934859353` reached GLM 5.2 but correctly failed closed because Vallm did
+  not receive parsable JSON. AC-39/AC-40 require a structured rerun.
 - A changed upstream SHA, managed-file plan or workflow model returns this
   phase to planning.
 - Required response from: `unresolved:human`.
