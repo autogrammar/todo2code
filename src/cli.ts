@@ -501,7 +501,7 @@ async function handleGraphDiff(parsed: ParsedArgs, config: ReturnType<typeof get
   const out = optionString(parsed, 'out');
   const svg = optionString(parsed, 'svg');
   if (out) await writeJson(path.resolve(out), diff);
-  if (svg) await writeText(path.resolve(svg), renderGraphDiffSvg(diff, { maxItems: optionNumber(parsed, 'max-items', 18, 1, 100 }));
+  if (svg) await writeText(path.resolve(svg), renderGraphDiffSvg(diff, { maxItems: optionNumber(parsed, 'max-items', 18, 1, 100) }));
   if (!out && !svg) process.stdout.write(`${JSON.stringify(diff, null, 2)}\n`);
 }
 
