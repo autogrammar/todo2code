@@ -209,10 +209,15 @@ function assertReviewPatchIds(artifact: Record<string, unknown>): void {
 }
 
 function assertCodeChangeReviewPatchPlanCollections(artifact: Record<string, unknown>): void {
-  if (artifact.planIds.length !== artifact.planHashes.length) {
+  if (!Array.isArray(artifact.planIds) || !Array.isArray(artifact.planHashes)) {
+    throw new Error('Code change review planIds and planHashes must be arrays');
+  }
+  const planIds = artifact.planIds as string[];
+  const planHashes = artifact.planHashes as string[];
+  if (planIds.length !== planHashes.length) {
     throw new Error('Code change review planIds and planHashes must have equal length');
   }
-  if (new Set(artifact.planIds as string[]).size !== (artifact.planIds as string[]).length) {
+  if (new Set(planIds).size !== planIds.length) {
     throw new Error('Code change review planIds must be unique');
   }
 }

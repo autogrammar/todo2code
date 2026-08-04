@@ -9,9 +9,7 @@ import type {
   IntentAction,
   IntentRecord,
   LlmResponseMetadata,
-  Modality,
   PipelineStageAudit,
-  LifecycleStatus,
 } from '../core/types.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import { OpenRouterClient, type OpenRouterResult } from '../llm/openrouter.js';
@@ -21,12 +19,12 @@ import { T2C_VERSION } from '../version.js';
 export interface RawNlRecord {
   kind: string;
   actor: string | null;
-  action: IntentAction;
+  action: string;
   subject: string | null;
   object: string;
-  modality: Modality;
+  modality: string;
   polarity: 'positive' | 'negative';
-  lifecycle: LifecycleStatus;
+  lifecycle: string;
   confidence: number;
   basis: string[];
   target: { paths: string[]; symbols: string[]; tickets: string[]; versions: string[] };

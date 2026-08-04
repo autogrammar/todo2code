@@ -200,15 +200,18 @@ interface PlanContext {
 function buildPlanContext(options: ProposeCodeChangePlansOptions): PlanContext {
   const conclusions = options.conclusions ?? [];
   const proposals = options.proposals ?? [];
-  return {
+  const context: PlanContext = {
     graph: options.graph,
     recordsById: new Map(options.graph.records.map((record) => [record.id, record])),
     proposalsByDiagnostic: indexProposalsByDiagnostic(proposals),
     conclusionsByDiagnostic: indexConclusionsByDiagnostic(conclusions),
     conclusions,
     proposals,
-    pathExists: options.pathExists,
   };
+  if (options.pathExists) {
+    context.pathExists = options.pathExists;
+  }
+  return context;
 }
 
 function findRelatedRecords(
@@ -532,5 +535,4 @@ function deterministicGeneration(generatedAt: string, generator: string): Ground
     reason: null,
   };
 }
-
 
