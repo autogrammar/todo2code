@@ -65,3 +65,22 @@ module boundaries: 114 modules, 521 internal imports, no cycles
 
 $ git diff --check && git diff --cached --check
 PASS (no output)
+
+$ git merge-base --is-ancestor 06a2faa origin/main
+PASS: implementation commit is contained in protected main@68b4514
+
+$ npm run build && node --test dist/test/communication-intake.test.js \
+    dist/test/cli-intake.test.js dist/test/a2a-intake.test.js \
+    dist/test/mcp.test.js
+PASS: tests 9; pass 9; fail 0; skipped 0
+
+$ python3 [invalid Base64 encode_envelope probe]
+PASS: invalid-base64 rejected through validate=True
+
+$ make governance  # policy 0.10.0 on main@68b4514
+GOV-PASS: passed (0 errors, 0 warnings)
+
+$ npm ci --omit=optional && npm run verify
+PASS: tests 335; pass 334; fail 0; skipped 1 (JDK unavailable locally)
+module boundaries: 114 modules, 521 internal imports, no cycles
+structured calls: 7; raw calls: 0

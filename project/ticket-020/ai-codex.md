@@ -122,16 +122,18 @@ Current verified baseline:
 
 ## Blockers
 
-- The branch was refreshed to committed policy 0.8.0. Safe parallel tickets
-  018 (`governance`) and 020 (`interfaces`) are accepted. The global gate now
-  fails only on ticket-019's explicit conflict/unmet dependency on ticket-018,
-  paths outside `sdk` and overlapping `Makefile` claim; no finding names
-  ticket-020.
-- Trusted merge evidence will still require an independent protected review or
-  signed attestation; chat approval authorizes only the interactive edit phase.
+- None. Ticket-018 is complete, ticket-019 is a non-active backlog item, and
+  policy 0.10.0 governance passes with 0 errors and 0 warnings.
+- The implementation is already contained in protected `main`; this bounded
+  documentation closure still requires exact-head Validator App review before
+  merge.
 
 ## Approval boundary
 
-- Current state: `BLOCKED / VALIDATION`.
+- Current state: `DONE / DONE`.
 - Interactive implementation was approved by the human operator on 2026-08-01.
-- Protected merge approval remains unresolved and cannot be self-attested.
+- Implementation commit `06a2faa` is contained in `main@68b4514`; current
+  focused validation passes 9/9, full verification passes 334/335 with one
+  explicit local JDK skip, and the current main CI is green including JDK 17.
+- Closure approval remains independent: the agent does not self-attest and the
+  protected PR must be reviewed for its exact head by the Validator App.

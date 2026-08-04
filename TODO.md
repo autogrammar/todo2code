@@ -2,13 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-020`](project/ticket-020/README.md) — implement a role-bound
-  trusted intake boundary with persistent manager/user/dev assignments,
-  CQRS/event sourcing, strict schemas, Protobuf, Python/TypeScript CLI, MCP and
-  A2A parity. Current state: `BLOCKED / VALIDATION`; implementation, full Node
-  verification and Docker core E2E pass. Policy 0.8.0 accepts tickets 018 and
-  020 in parallel; the global gate now reports only ticket-019's declared
-  dependency, conflict, ownership and overlap violations.
+None.
 
 ## Backlog tickets
 
@@ -20,6 +14,12 @@
 
 ## Completed tickets
 
+- [x] [`ticket-020`](project/ticket-020/README.md) — role-bound trusted intake
+  with persistent manager/user/dev assignments, CQRS/event sourcing, strict
+  schemas, dependency-free Protobuf codecs and Python/TypeScript CLI, MCP and
+  A2A parity. Implementation commit `06a2faa` is contained in protected main;
+  current focused validation passes 9/9, full verification has 0 failures and
+  policy 0.10.0 governance passes.
 - [x] [`ticket-018`](project/ticket-018/README.md) — adopted hardened
   `wellmanifest/new-project` 0.10.0 at immutable merge `9706e63`, moved trusted
   App authority outside PR control, switched Koru to `z-ai/glm-5.2`, passed

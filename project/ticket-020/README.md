@@ -2,8 +2,8 @@
 
 - **ID**: ticket-020
 - **Owner**: unresolved:human
-- **Status**: BLOCKED
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -151,10 +151,8 @@ not trusted merge evidence.
   top-level `schemas/**` or documentation requires a separate integration
   ticket, dependency/license review and fresh approval.
 - SDK/Python packaging paths remain outside this ticket and are untouched.
-- The branch now inherits committed policy 0.8.0 and its workstream-aware
-  validator; remaining governance findings, if any, must be attributed to an
-  actual dependency, conflict, ownership or scope violation rather than a
-  repository-wide single-ticket limit.
+- The final validation runs under committed policy 0.10.0 and its
+  workstream-aware, exact-head approval boundary.
 
 ## Implementation and validation result
 
@@ -176,8 +174,27 @@ not trusted merge evidence.
 - `make e2e-core`: PASS in network-isolated Docker; 335 tests, 328 passed,
   7 explicit optional-toolchain skips, both gold datasets, CLI, MCP, A2A and
   available SDK examples passed.
-- `make governance` now uses policy 0.8.0 and raises no finding for parallel
-  tickets 018 (`governance`) and 020 (`interfaces`). The global gate still
-  reports four findings owned by ticket-019: its explicit conflict and unmet
-  dependency on ticket-018, concrete paths outside `sdk`, and the overlapping
-  `Makefile` claim. Ticket-020 itself no longer hits a single-ticket limit.
+- During the original validation, policy 0.8.0 raised no finding for parallel
+  tickets 018 (`governance`) and 020 (`interfaces`); its remaining four
+  findings belonged to the then-active ticket-019. Policy 0.10.0 now treats
+  ticket-019 as backlog and the repository gate passes.
+
+## Final closure evidence
+
+- The implementation commit `06a2faa` is an ancestor of the protected
+  `main@68b4514`; no implementation replay or history merge is required.
+- Current focused CLI, MCP, A2A, CQRS/event-store and cross-language Protobuf
+  validation passes: 9 tests, 9 passed, 0 failed.
+- Current full `npm run verify` passes: 335 tests, 334 passed, 0 failed and one
+  explicit missing-JDK skip; hosted CI separately passes the required JDK 17
+  adapter.
+- Invalid Base64 in the Python codec is rejected through
+  `base64.b64decode(..., validate=True)` and maps to
+  `T2C-INTAKE-INVALID-WIRE`; the stale PR #21 refactor that weakened this path
+  was closed without merge.
+- Current `main@68b4514` passed hosted governance, full verify, Docker smoke and
+  the required Java adapter. Local policy 0.10.0 governance also passes with
+  0 errors and 0 warnings.
+- The obsolete implementation worktree remains historical evidence only; this
+  bounded closure changes ticket documentation and does not modify runtime
+  code, schemas, tests or human-owned participant files.
