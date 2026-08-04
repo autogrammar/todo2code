@@ -75,7 +75,7 @@
         "ownedPaths": ["src/llm/**", "src/live/**", "src/synthesis/**", "src/summary/**", "test/*llm*", "test/openrouter*", "test/task-synthesis*", "test/live-*", "test/grounded-contracts*"]
       },
       "runtime": {
-        "ownedPaths": ["src/pipeline/**", "src/operations/**", "src/services/**", "src/config/**", "src/watch/**", "src/tf/**", "test/pipeline*", "test/runtime*", "test/watch*", "test/operation*", "test/io*", "test/config*", "test/tensorflow*", "test/security*", "test/git*", "test/code-change*"]
+        "ownedPaths": ["src/pipeline/**", "src/operations/**", "src/services/**", "src/config/**", "src/watch/**", "src/tf/**", "test/pipeline*", "test/python-runtime*", "test/runtime*", "test/watch*", "test/operation*", "test/io*", "test/config*", "test/tensorflow*", "test/security*", "test/git*", "test/code-change*"]
       },
       "interfaces": {
         "ownedPaths": ["src/interfaces/**", "src/communication/**", "src/web/**", "src/cli.ts", "test/cli*", "test/mcp*", "test/a2a*", "test/communication*"]
@@ -84,7 +84,7 @@
         "ownedPaths": ["src/sdk/**", "sdk/**", "examples/sdk/**", "test/sdk*"]
       },
       "governance": {
-        "ownedPaths": [".governance/**", ".github/workflows/**", "AGENTS.md", "Makefile", "README.md", "TODO.md", "project.sh", "project.bat", "project/governance-check.*", "project/new-ticket.sh", "project/readme.sh", "project/TICKETS.md", "project/ticket-*/**"]
+        "ownedPaths": [".governance/**", ".github/workflows/**", "AGENTS.md", "Makefile", "README.md", "TODO.md", "project.sh", "project.bat", "project/README.md", "project/analysis.toon.yaml", "project/index.html", "project/governance-check.*", "project/new-ticket.sh", "project/readme.sh", "project/TICKETS.md", "project/ticket-*/**"]
       },
       "integration": {
         "ownedPaths": ["package.json", "package-lock.json", "tsconfig.json", "Dockerfile*", "compose*.yml", "scripts/**", "examples/**", "docs/**", "test/fixtures/**", "test/workflow-validation.test.ts", "src/core/types.ts"]

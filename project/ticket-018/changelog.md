@@ -1,5 +1,20 @@
 # Ticket Changelog (ticket-018)
 
+## [0.4.0] - 2026-08-04
+
+- Planned AC-26..AC-28 to assign and normalize exactly three tracked generated
+  analysis artifacts after the deterministic gate found a volatile `/tmp`
+  worktree root.
+- Kept regeneration and `project2.sh` explicitly outside the follow-up scope.
+- Stopped at `WAIT_FOR_APPROVAL` before changing the manifest or generated
+  artifacts; the user's subsequent `kontynuuj` authorizes interactive EDIT.
+- Assigned the three exact artifacts to governance, updated the manifest lock
+  and normalized volatile roots without regenerating the analysis.
+- `verify:generated-analysis` and the deterministic governance gate pass;
+  complete aggregate verification remains AC-28.
+- Planned AC-29 to assign the Python runtime adapter test to its owning
+  runtime workstream before correcting the stale release assertion.
+
 ## [0.3.0] - 2026-08-04
 
 - Confirmed and recorded `koru / code-review` + `governance / enforce` as the

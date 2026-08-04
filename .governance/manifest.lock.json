@@ -12,7 +12,7 @@
     ".governance/diagnostics.json": "2a6d1e088a03badb75eef33cfeb9b6c9992fea4c6f7fa5ebec6257b1eea9e39f",
     ".governance/governance_check.py": "1e45843a4efa5793547aa7e9a0fd629b495449c65ca6a4cf7b0990334545bbfa",
     ".governance/intent.schema.json": "7e3157c1bf7c987541fc2182fc44d33bf53520672931a09bbd6b2b10b821aa3b",
-    ".governance/manifest.json": "004839429722cc6ddbf8e3734893161ffc3f8a3003bcaefaff88465408ff32b0",
+    ".governance/manifest.json": "8d3f8048f9112e467832d3c82121653ab976eeeb14f160348c0d24fd94230c27",
     ".governance/manifest.schema.json": "185f041ffe3d9c40670765ff53fc7ef37dc4ee21121c67a8d7913bd8860435da",
     ".governance/stack-profiles.json": "6fa3f8f44e50cfd0539413a85092817d3fab4e82fe376405f1e443120724dff2",
     "project/governance-check.bat": "7207bc499483d7a7a1ab2c230ad288c2484cdf02f3a773ba69f4b760b67a3388",

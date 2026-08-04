@@ -233,3 +233,29 @@ bypass actors: none
 current_user_can_bypass: never
 rules: pull request, dismiss stale reviews, block deletion/force-push,
 strict required checks governance / enforce and koru / code-review
+
+2026-08-04 GENERATED ANALYSIS NORMALIZATION PLAN
+npm run verify:generated-analysis: FAIL
+finding: project/index.html contains a temporary analysis path
+scope: project/README.md, project/analysis.toon.yaml, project/index.html
+method: existing deterministic normalizer; no regeneration; no project2.sh
+state: WAIT_FOR_APPROVAL
+user response: kontynuuj
+transition authorized: WAIT_FOR_APPROVAL -> EDIT for AC-26..AC-28
+
+2026-08-04 GENERATED ANALYSIS NORMALIZATION IMPLEMENTATION
+$ node scripts/normalize-generated-analysis-roots.mjs . .
+filesChecked=19 filesChanged=3
+changed: project/README.md, project/analysis.toon.yaml, project/index.html
+$ npm run verify:generated-analysis
+PASS: filesChecked=19 status=ok
+$ bash project/governance-check.sh --actor agent
+GOV-PASS: 0 errors, 0 warnings
+project2.sh: NOT RUN
+
+2026-08-04 RUNTIME TEST OWNERSHIP FOLLOW-UP
+full aggregate verification exposed a stale 0.5.0 assertion in
+test/python-runtime.test.ts; plan AC-29 routes this runtime adapter test to the
+runtime workstream before repair. User authorization remains: kontynuuj.
+manifest ownership updated and lock refreshed; focused governance gate pending
+aggregate ticket scopes.
