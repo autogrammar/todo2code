@@ -233,3 +233,278 @@ bypass actors: none
 current_user_can_bypass: never
 rules: pull request, dismiss stale reviews, block deletion/force-push,
 strict required checks governance / enforce and koru / code-review
+
+2026-08-01 KORU BENCHMARK MODEL ADOPTION
+$ inspect llm-code-benchmark/reports/latest/REPORT.md
+standard: llm-code-benchmark/v1
+winner: google/gemini-3.1-pro-preview
+repair=1.000 validator=0.929 security=1.000 availability=100.0%
+selection: only compared model qualified for both repair and validation
+
+$ inspect pull request #3 Koru run 30712589077 artifact
+configured model: openrouter/deepseek/deepseek-v4-pro (stale)
+selected files: src/config/env.ts, test/config-env.test.ts
+Vallm regression error: pytest is not installed for the TypeScript repository
+semantic provider error: OpenRouter 401 User not found
+report, artifact upload and provenance attestation: PASS
+enforced verdict: FAIL
+
+Decision:
+- use openrouter/google/gemini-3.1-pro-preview for the Koru semantic judge;
+- omit Vallm --regression because the required Node verify job owns regression;
+- retain fail-closed behavior for provider errors;
+- do not read, copy or overwrite the GitHub Actions secret. A trusted owner must
+  rotate OPENROUTER_API_KEY and rerun the exact commit.
+
+$ npm run verify:workflows
+Workflow YAML verified: 2 file(s), no duplicate top-level keys.
+
+$ npm run verify
+tests 335; pass 334; fail 0; skipped 1 (local JDK unavailable)
+module boundaries: 114 modules, 521 internal imports, no cycles
+workflow, schema, no-LLM and generated-analysis gates: PASS
+
+$ make governance
+Four inherited ticket-019 findings remain: GOV-CONFLICT-001,
+GOV-DEPENDENCY-002, GOV-WORKSTREAM-003 and GOV-WORKSTREAM-004.
+No ticket-018 scope, ownership or secret finding was emitted.
+
+2026-08-01 KORU REMOTE MODEL CONFIGURATION EVIDENCE
+$ GitHub pull request #4 / workflow run 30712853708
+reviewed base: 2e87205dcd0b06286529ca9fa8ab9518694e9068
+reviewed head: a4eb0f9155ce5fcac46dc5388370df7e18deb9a8
+report schema: t2c.koru-code-review/v1
+reported model: openrouter/google/gemini-3.1-pro-preview
+selected supported source files: 0
+provider request/cost: none; credential step skipped by design
+Koru report/artifact/attestation/enforced verdict: PASS
+Node verify including Docker smoke: PASS
+Java adapter with required JDK 17 fixture: PASS
+governance: FAIL on inherited ticket-019 state only
+
+Interpretation: this is commit-bound evidence for the deployed model and the
+no-source path. A live TypeScript semantic rerun is still required after a
+trusted owner rotates the failing OPENROUTER_API_KEY Actions secret.
+
+2026-08-01 KORU LIVE GEMINI DISPATCH
+$ workflow_dispatch run 30713017811
+workflow ref: ticket-018-koru-review at 920fcb9
+reviewed base: 2e87205dcd0b06286529ca9fa8ab9518694e9068
+reviewed head: eb9414cc34bd33e357d5ff9075604bdd68052438
+selected: src/config/env.ts, test/config-env.test.ts
+reported model: openrouter/google/gemini-3.1-pro-preview
+credential presence check: PASS (value was not read or logged)
+regression/pytest issue: absent after removal of Vallm --regression
+semantic provider: OpenRouter 401 User not found
+syntax: warning; Vallm 0.1.94 passes TYPESCRIPT while
+tree-sitter-language-pack accepts lowercase typescript
+report/artifact/provenance attestation: PASS
+enforced verdict: FAIL (expected fail-closed provider path)
+
+$ python -m pip index versions vallm
+latest published version: 0.1.94 (already pinned)
+
+Decision: reopen AC-21. The required verify job supplies passing TypeScript
+compilation and regression evidence, but Koru syntax and live semantic review
+cannot be claimed until the upstream parser defect and external credential are
+fixed.
+
+2026-08-01 KORU REPOSITORY SECRET ROTATION AND LIVE RERUN
+User authorization: explicit instruction to configure the GitHub credential.
+$ set local OPENROUTER_API_KEY through gh secret set stdin
+scope: repository semcod/todo2code
+value in command/logs: absent
+repository secret updated: 2026-08-01T19:23:43Z
+
+$ workflow_dispatch run 30714664770
+workflow ref: ticket-018-koru-review at 4de71f9
+reviewed base: 2e87205dcd0b06286529ca9fa8ab9518694e9068
+reviewed head: eb9414cc34bd33e357d5ff9075604bdd68052438
+selected: src/config/env.ts, test/config-env.test.ts
+reported model: openrouter/google/gemini-3.1-pro-preview
+credential presence check: PASS
+provider authentication/limit error: none
+file-level verdicts: pass, pass
+aggregate Koru verdict: reject
+remaining findings: Vallm TYPESCRIPT parser warning and advisory whole-file
+review findings; none concern provider authentication.
+report/artifact/provenance attestation: PASS
+
+Interpretation: GitHub credential rotation is complete. AC-21 remains open for
+the Vallm parser defect and diff-context/finding-enforcement policy.
+
+2026-08-02 KORU TIMEOUT AND POLICY REPAIR
+User requirement: the review may take at most 10 minutes, except HTTP errors
+such as 404 must not wait for that timeout.
+
+Configured boundaries:
+- GitHub job timeout: 10 minutes;
+- Vallm process and LiteLLM request timeout: 420 seconds;
+- evidence reserve: approximately 3 minutes;
+- response ceiling: 8192 tokens;
+- provider retries: 0, so 401/402/403/404 fail immediately;
+- Vallm 0.1.94 TYPESCRIPT ID: normalized to lowercase for tree-sitter;
+- semantic info/warning + file verdict pass: retained advisory;
+- semantic error and every non-semantic finding: blocking;
+- timeout, provider error, malformed/missing/unexpected result: blocking.
+
+Local validation:
+$ npm run verify:workflows
+Workflow YAML verified: 2 files, no duplicate top-level keys.
+
+$ generate the Prepare-step command from parsed workflow YAML
+generated Koru command Bash syntax: PASS
+sitecustomize Python syntax: PASS
+
+$ compatibility wrapper probe
+simulated provider HTTP 404: one call, failure in approximately 2 ms
+max_tokens=8192, timeout=420, num_retries=0: PASS
+TYPESCRIPT -> lowercase tree-sitter parser: PASS
+
+$ deterministic policy fixtures
+semantic warning/info + file verdict pass: exit 0, 2/2 passed
+semantic.llm_error (simulated 404): exit 1, blocking
+syntax.unsupported: exit 1, blocking
+timeout fixture with one-second test ceiling: exit 124 after approximately 1 s
+
+$ npm run verify
+tests 335; pass 334; fail 0; skipped 1 (local JDK unavailable)
+module boundaries, workflows, schemas and structured-output gates: PASS
+
+2026-08-02 LIVE REPAIRED KORU EVIDENCE
+Workflow dispatch: 30746421293
+Workflow ref: ticket-018-koru-review @ fb03583
+Reviewed range: 2e87205dcd0b06286529ca9fa8ab9518694e9068..
+                6b7952741e57856343c2385b48929f1cf4f0eb17
+Duration: 1 minute 24 seconds
+Model: openrouter/google/gemini-3.1-pro-preview
+Selected files: src/config/env.ts, test/config-env.test.ts
+Attested verdict: pass; final exit 0; 2/2 files; failed files 0
+Blocking findings: 0
+Advisory semantic findings retained: 5
+syntax.unsupported findings: 0
+semantic.llm_error findings: 0
+Original Vallm exit before policy normalization: 2
+
+2026-08-02 FOLLOW-UP TIMEOUT AND E2E VALIDATION
+$ LiteLLM against a local HTTP 404 endpoint
+exception: NotFoundError
+elapsed: approximately 705 ms
+HTTP requests: exactly 1
+request max_tokens: 8192
+result: PASS (404 did not wait for the review timeout and was not retried)
+
+$ LiteLLM against a local endpoint delayed for two seconds
+probe timeout: 0.5 seconds
+exception: Timeout
+elapsed: approximately 799 ms
+HTTP requests: exactly 1
+result: PASS (request timeout was enforced without retry)
+
+$ npm run verify
+tests 335; pass 334; fail 0; skipped 1 (local JDK unavailable)
+all type, module, workflow, schema and structured-response checks: PASS
+
+$ make e2e-core
+fresh Docker build and core suite: PASS (exit 0)
+
+$ make e2e-full
+fresh Docker build: expected inherited failure at cargo fetch --locked
+exit: 101
+cause: sdk/rust/Cargo.lock requires an update after the independently owned
+sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
+
+2026-08-04 CANONICAL GOVERNANCE AND MODEL COST PLAN
+- upstream main: c0bb63e (adoption + IN_PROGRESS-only reservations)
+- upstream bounded branch: 1ae86a1 (delivery contract + older active statuses)
+- current target lock: 1ae86a1, publicationStatus=remote-branch
+- current executable Koru model: openrouter/google/gemini-3.1-pro-preview
+- requested replacement: openrouter/z-ai/glm-5.2
+- live OpenRouter requests: 0
+- managed/workflow implementation edits: 0; WAIT_FOR_APPROVAL
+
+2026-08-04 FOLLOW-UP APPROVAL
+- human response: continue
+- approved criteria: AC-36..AC-40
+- transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+- provider calls made during transition: 0
+
+2026-08-04 GLM CONFIGURATION VALIDATION
+- executable model: openrouter/z-ai/glm-5.2
+- npm run verify: PASS
+- tests: 335 total; 334 passed; 0 failed; 1 JDK skip
+- make governance: PASS (0 errors, 0 warnings)
+- workflow YAML: PASS
+- live OpenRouter requests: 0
+- upstream PR #1 checks: PASS; independent review: missing
+- state: BLOCKED / VALIDATION pending published upstream SHA
+
+2026-08-04 ADOPTION PREFLIGHT
+- source revision: e0a8e5c2d7dea3e65697f07e83ffeaadf2c98b11 (upstream PR #1 head)
+- command: create_adoption_lock.py --check
+- result: stopped before writes because target manifest is 0.9.0 and source is 0.10.0
+- diagnostic: target manifest version must equal adopted standard version 0.10.0
+- interpretation: expected safe-upgrade precondition; do not change target
+  manifest or claim published provenance until independent review/merge
+- target files written: 0
+
+2026-08-04 UPSTREAM PUBLICATION VERIFIED
+- reviewed head: 346895b3205ce2ad6af19159f01a6c60b99ba5c8
+- independent reviewer: ifuri-validator-agent[bot]
+- review state: APPROVED, exact reviewed head confirmed
+- published merge revision: 5267cf3b365959770e070e96e9157573a5d8c04b
+- upstream open pull requests after merge: 0
+- transition: BLOCKED / VALIDATION -> IN_PROGRESS / EDIT
+- target managed files written during transition: 0
+
+2026-08-04 CANONICAL 0.10 TARGET ADOPTION
+- source revision: 5267cf3b365959770e070e96e9157573a5d8c04b
+- source publication status: published
+- adoption check after write: up-to-date
+- lifecycle: active=IN_PROGRESS; non-active=BACKLOG,PLAN,BLOCKED
+- trusted App review: github-app-review with exact binding schema
+- central governance validator/scripts/adoption-lock tests: PASS
+- target make governance: PASS (0 errors, 0 warnings)
+- workflow YAML: PASS (2 files)
+- npm run verify: PASS (335 total, 334 passed, 0 failed, 1 JDK skip)
+- Docker smoke: PASS
+- git diff --check: PASS
+- live OpenRouter requests: 0
+- transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
+
+2026-08-04 GLM STRUCTURED-OUTPUT FAILURE
+- workflow run: 30934859353
+- reviewed range: 2e87205dcd0b06286529ca9fa8ab9518694e9068 -> a150575b632f65d4a0aed3fce3eb68c539549ea5
+- model: openrouter/z-ai/glm-5.2
+- selected source: .governance/governance_check.py
+- provider/credential error: none
+- report/attestation: generated
+- Vallm finding: semantic.parse_error, severity info, file verdict pass
+- normalized result: blocking because semantic evidence was not parseable
+- decision: retain fail-closed behavior; enforce provider JSON response format
+  and disable optional reasoning before a new exact-head review
+- transition: IN_PROGRESS / VALIDATION -> IN_PROGRESS / EDIT
+
+2026-08-04 APPROVAL EVIDENCE HARDENING AND REPUBLICATION
+- original target reviewed head: a01816b53fff27dabe4662f04ca8c94588b709cb
+- Validator App review: APPROVED, exact head, model openrouter/z-ai/glm-5.2
+- confirmed findings: invalid authority projection defence and no-follow read
+- canonical maintenance ticket: wellmanifest/new-project ticket-005
+- upstream PR: #4
+- reviewed upstream head: 898041db4f66a6ab67ba656364c708cd7496817c
+- published merge: 9706e63d5f121323e9087d0db47a16acdbd276bb
+- upstream local and hosted governance suites: PASS
+
+2026-08-04 TARGET HARDENED ADOPTION
+- create_adoption_lock.py --upgrade: adopted 0.10.0 at 9706e63
+- create_adoption_lock.py --check: up-to-date
+- managed target updates: governance_check.py, manifest.lock.json
+- reusable workflow ref: 9706e63d5f121323e9087d0db47a16acdbd276bb
+- protected repo variable: TRUSTED_VALIDATOR_APPS=ifuri-validator-agent[bot]
+- make governance: PASS (0 errors, 0 warnings)
+- npm run verify:workflows: PASS (2 files)
+- npm run verify: PASS (335 total; 334 pass; 0 fail; 1 JDK skip)
+- make docker-smoke: PASS
+- git diff --check: PASS
+- live LLM requests from local validation: 0
+- state: IN_PROGRESS / PUBLICATION; fresh exact-head App review required

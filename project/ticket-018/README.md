@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -72,9 +72,36 @@ The user requested automated code review through Koru. The implementation will
 add a read-only GitHub check named `koru / code-review`, run for pull requests
 and explicit historical-review dispatches. It will pin Koru 0.1.444 and Vallm
 0.1.94, select only changed supported source files, and let Koru execute one
-bounded Vallm review round. The review combines deterministic syntax,
-complexity and security checks with an OpenRouter semantic judge supplied by
-the existing organization-level `OPENROUTER_API_KEY` secret.
+bounded Vallm review round. The review runs deterministic complexity and
+security checks, attempts Vallm syntax analysis, and uses an OpenRouter
+semantic judge supplied by the existing organization-level
+`OPENROUTER_API_KEY` secret.
+
+The historical semantic judge was `google/gemini-3.1-pro-preview`, selected
+from the then-current `llm-code-benchmark/v1` report. The current executable
+judge is `openrouter/z-ai/glm-5.2`, selected by the human owner to bound review
+cost. This is a configuration decision, not a fabricated benchmark claim;
+no paid comparison was run. Vallm's Python-oriented `--regression`
+mode is intentionally not used for TypeScript: the separate required `verify`
+job owns TypeScript compilation and the repository's 335-test regression
+suite. Koru remains the read-only semantic, complexity and security review
+boundary. Vallm still attempts syntax analysis, but 0.1.94 passes the uppercase
+language enum `TYPESCRIPT` to a parser that accepts lowercase `typescript`.
+The workflow now applies a pinned lowercase compatibility boundary before
+parsing and still blocks if any `syntax.unsupported` finding remains.
+
+The repaired execution budget is explicit and layered. GitHub terminates the
+whole job after 10 minutes; Vallm and its LiteLLM request are bounded to 420
+seconds so report construction, artifact upload and attestation retain roughly
+three minutes of the job budget after an active-review timeout (less the setup
+time already consumed). Responses are capped at 8192 tokens. LiteLLM retries are
+disabled, therefore provider HTTP errors such as 401, 402, 403 or 404 fail
+immediately rather than consuming the timeout. A pinned compatibility boundary
+lowercases Vallm 0.1.94's language ID before tree-sitter parsing. Semantic
+`info` and `warning` findings remain in the attested report as advisory when
+Vallm's file-level verdict is `pass`; semantic errors and every syntax,
+complexity, security, provider, malformed/missing-result or timeout finding
+remain blocking.
 
 The workflow will never use `pull_request_target`, check out untrusted code
 with a write-capable token, modify source, auto-fix, commit, push or submit a
@@ -89,6 +116,75 @@ artifact attestation. A repository ruleset will require both the existing
 governance check and `koru / code-review`; the Koru attestation is independent
 read-only review evidence, not evidence that the implementation author or this
 agent self-approved.
+
+## Planned bounded-delivery extension
+
+The follow-up changes the central `wellmanifest/new-project` contract and its
+`todo2code` adoption so implementation tickets are small, predictable delivery
+slices rather than open-ended projects. A slice owns exactly one observable
+outcome in one workstream and has a hard active-execution timebox of at most 30
+minutes. At 25 minutes the implementer records a checkpoint; at 30 minutes it
+must stop. Unfinished work becomes a newly planned dependency slice and may not
+be hidden by widening the current intent or PR.
+
+Before `EDIT`, every slice will declare a machine-readable delivery budget:
+
+- accepted base SHA and the exact target branch;
+- one outcome plus explicit non-goals;
+- complexity class `XS` (up to 10 minutes) or `S` (up to 30 minutes); larger
+  work is rejected until decomposed;
+- maximum implementation-file count, affected components, public-interface
+  changes, dependency changes and migration/UI risk;
+- architecture impact covering ownership, component boundaries, dependency
+  direction, data/API flow, UI states and rollback;
+- deterministic validation commands and evidence expected for each acceptance
+  criterion.
+
+Default hard limits will be conservative: one workstream, one capability, at
+most five implementation files, at most two affected components, no new
+runtime dependency and no public API/schema/database migration unless a
+separately approved integration slice owns that contract. File count excludes
+ticket evidence but not generated application artifacts. Line count and commit
+count remain descriptive signals, never the sole measure of complexity.
+
+Architecture is decided before coding, proportionally to risk. Every ticket
+has a short architecture-impact record. An ADR/diagram is additionally required
+only when the slice moves responsibility, changes a component/interface edge,
+alters persistent data or adds a multi-state UI flow. UI slices must enumerate
+loading, empty, error and success states as applicable and name their visual,
+accessibility and interaction checks before implementation.
+
+The validator will fail closed when the budget is absent, over 30 minutes,
+larger than `S`, exceeded by the actual diff, or when architecture/validation
+decisions remain unresolved. It will also compare the approved base with the
+current branch, reject a mixed-ticket diff, require explicit dependencies and
+conflicts, and invalidate approval after a base, scope or architecture change.
+Before publication the slice is refreshed against the target branch and tested
+again; a semantic or textual conflict returns it to planning rather than being
+resolved opportunistically inside the PR.
+
+Pull requests remain a protected publication boundary for implementation, but
+their size is now bounded by the delivery contract. Documentation-only,
+generated-artifact and emergency exceptions require an explicit manifest mode
+and equivalent signed evidence; they are not a general direct-push bypass.
+
+## Planned canonical 0.10.0 adoption and review-cost correction
+
+Upstream `main@c0bb63e` and `feat/bounded-delivery-contract@1ae86a1` both
+identify themselves as 0.9.0 but carry different lifecycle semantics. This
+target is pinned to `1ae86a1`, where `PLAN` and `BLOCKED` still reserve
+workstreams. Upstream main correctly reserves only `IN_PROGRESS`; the standard
+must reconcile these contracts before another target upgrade is trustworthy.
+
+Wait for `wellmanifest/new-project` ticket-003 to publish one reviewed full SHA
+for 0.10.0 that combines bounded delivery with the corrected active/non-active
+state model. Then run adoption in `--check` mode, review the managed-file plan,
+apply the explicit upgrade and regenerate lock hashes against that exact SHA.
+
+The executable Koru judge now uses `openrouter/z-ai/glm-5.2` per the user's
+cost decision. Historical Gemini benchmark logs remain unchanged as
+historical evidence. No live OpenRouter request or new paid comparison belongs
+to this migration.
 
 ## Acceptance criteria
 
@@ -161,9 +257,54 @@ agent self-approved.
       `koru / code-review`, blocks direct updates to `main`, dismisses stale
       evidence after new commits and cannot be bypassed by the implementation
       agent.
-- [ ] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
+- [x] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
       `npm run verify`, governance and relevant Docker checks pass; the
       pre-existing ticket-019 findings remain separately attributed.
+- [x] AC-26: A human approves the bounded-delivery design and AC-26..AC-35
+      before central policy, schemas, validator, templates or target adoption
+      files are changed.
+- [x] AC-27: The central manifest and intent schema define a maximum 30-minute
+      slice, `XS|S` complexity, one outcome/workstream and explicit budgets for
+      files, components, interfaces, dependencies, data and UI risk.
+- [x] AC-28: Every implementation slice records its accepted base SHA, target,
+      non-goals, architecture impact, rollback and criterion-specific validation
+      before it can enter `EDIT`.
+- [x] AC-29: Deterministic validation rejects missing/invalid budgets, estimates
+      above 30 minutes, unresolved architecture, mixed-ticket diffs and actual
+      file/component/interface/dependency scope above the approved limits.
+- [x] AC-30: Reaching the 30-minute timebox or discovering additional outcome,
+      workstream, contract or migration work stops the slice and creates an
+      explicitly dependent plan; silent scope expansion is forbidden.
+- [x] AC-31: Base-SHA drift, target-branch movement, changed architecture or a
+      merge conflict invalidates stale approval and requires refresh, re-test
+      and, where intent changed, fresh human approval.
+- [x] AC-32: UI work declares applicable loading/empty/error/success states and
+      visual, interaction and accessibility evidence; architecture diagrams or
+      ADRs are required only for genuine boundary/flow changes.
+- [x] AC-33: Central fixtures cover an accepted 10-minute fix, an accepted
+      30-minute slice, over-budget decomposition, file-budget overflow,
+      unresolved architecture, stale base and overlapping branch scenarios.
+- [x] AC-34: `todo2code` adopts the pinned contract in `AGENTS.md`, managed
+      governance files and ticket templates without changing application code
+      or claiming existing unrelated PRs.
+- [x] AC-35: Central tests, target governance fixtures and documentation
+      consistency pass; the diff contains only approved governance paths in
+      each repository and records inherited repository blockers separately.
+- [x] AC-36: A human approves upstream reconciliation, exact-SHA adoption,
+      diagnostic comparison and the GLM cost correction before managed files
+      or workflow configuration change.
+- [x] AC-37: The adopted standard is one reviewed full SHA identified as
+      0.10.0; lock hashes match every managed file and no moving branch or
+      remote-branch publication claim remains.
+- [x] AC-38: Bounded delivery remains available while only `IN_PROGRESS`
+      reserves scope; planning/backlog/blocked tickets do not create active
+      conflict, dependency, ownership or overlap diagnostics.
+- [x] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
+      current guidance contain no Gemini 3.1 Pro Preview default, while
+      historical evidence remains explicitly historical.
+- [x] AC-40: Adoption preflight, governance fixtures, workflow validation,
+      `npm run verify`, Docker-relevant checks and `git diff --check` pass
+      without a live LLM request or application-source edit.
 
 ## Participants
 
@@ -186,27 +327,83 @@ agent self-approved.
 - Live LLM behavior is nondeterministic and provider-dependent. It may produce
   advisory findings but cannot be a required merge gate.
 
+## Approval boundary
+
+- Current follow-up state: `IN_PROGRESS / PUBLICATION`; AC-34 and AC-37..AC-40
+  pass locally. Upstream hardening PR #4 was independently approved for exact
+  head `898041d` and published as merge commit
+  `9706e63d5f121323e9087d0db47a16acdbd276bb`; the target lock and reusable
+  governance workflow use that same immutable source revision. Hosted Koru run
+  `30935659179` is bound to GLM 5.2 and exact head `a01816b`; its semantic
+  status is honestly `unavailable` because the provider key reached its weekly
+  limit, while all deterministic blocking gates passed. The next commit
+  intentionally invalidates that review and requires a fresh App approval.
+- A changed upstream SHA, managed-file plan or workflow model returns this
+  phase to planning.
+- Required response from: `unresolved:human`.
+- The user explicitly approved AC-26..AC-35 in chat. This authorizes the
+  implementation session but is not merge-time evidence.
+- The user explicitly approved AC-36..AC-40 on 2026-08-04. Independent upstream
+  merge evidence is now present and was verified before resuming edits.
+
+## Current hardening and validation evidence
+
+- Validator App review of `a01816b` exposed an approval-evidence defence gap;
+  the advisory finding was independently confirmed before any merge.
+- `wellmanifest/new-project` ticket-005 added fail-closed binding/authority
+  projection and a no-follow regular-file read boundary. Its three central
+  suites passed locally and twice in hosted CI before PR #4 merged.
+- Immutable adoption check for `9706e63` reports `up-to-date`; only the managed
+  validator and lock changed in the target.
+- Target CI now calls the pinned reusable governance workflow. The trusted App
+  login is stored in repository variable `TRUSTED_VALIDATOR_APPS`, outside the
+  pull-request checkout; arbitrary User or Bot reviews are not accepted.
+- `make governance`, workflow verification, full `npm run verify`, Docker smoke
+  and `git diff --check` pass. Node: 335 total, 334 passed, zero failed, one
+  explicit local JDK skip. No application source or live LLM request was added
+  by this hardening slice.
+
 ## Validation result and publication blockers
 
 The multi-workstream extension was explicitly approved by the user in chat on
 2026-08-01. The results below describe the already executed 0.7.0 baseline and
 remain historical evidence, not evidence for AC-11..AC-17.
 
+- `wellmanifest/new-project` 0.9.0 is implemented as six local commits on
+  `feat/bounded-delivery-contract`, each changing at most five files. JSON
+  Schema Draft 2020-12 validation, Python compilation, scaffolder tests and
+  validator positive/negative fixtures pass.
+- The target copies the 0.9.0 schemas, diagnostics, validator and scaffolder and
+  pins their hashes to local upstream commit `1ae86a1`. The manifest keeps
+  `delivery.requiredForImplementation=false` during migration because the
+  historical ticket-018 branch already exceeds the new five-file slice limit.
+  New repositories enable the bounded gate by default.
+- Target schema and lock validation pass. `make governance` emits no new
+  delivery/base/architecture/budget finding. A central wildcard-ownership
+  regression removed the false ticket-020 finding; four inherited coordination
+  findings for tickets 018/019 remain. Full activation
+  (AC-34) waits for those historical branches to be serialized or completed.
+
 - Central scaffolder and validator fixtures pass, including allowed/denied
   approval, ownership, scope, executable-ticket content, manifest integrity and
   commit-order cases.
 - Target-scoped governance validation passes locally and in the offline Docker
   image. Negative probes return the expected stable codes.
-- Docker E2E core passes 328 tests with 7 explicit optional-toolchain skips;
-  Docker E2E full passes 328/328 with zero skips, both gold datasets, CLI, MCP,
-  A2A and all five SDK examples.
+- Fresh `npm run verify` passes type checks, module/LLM boundaries, environment,
+  workflow and schema checks plus 334/335 Node tests with one JDK skip. Docker
+  E2E core passes 328/335 tests with seven explicit optional-toolchain skips,
+  both gold datasets, CLI, MCP, A2A and its available SDK examples.
+- Docker E2E full still fails before tests at `cargo fetch --locked` (exit 101)
+  because the concurrent Rust SDK manifest is version 0.5.1 while its ignored
+  lock remains 0.5.0. This is separately attributed to SDK/integration.
 - A concurrent human commit `5f1f4bd` included the ticket, governance adoption
   and unrelated runtime work in one commit. Validation against its parent fails
   with `GOV-INTENT-003` because `intent.json` was not present in an ancestor and
   `GOV-SCOPE-001` for eight paths outside ticket-018.
-- The central 0.7.0 working tree has not been committed or published, so the
-  target lock honestly records `publicationStatus: uncommitted` and cannot yet
-  reference an immutable central workflow revision.
+- Central 0.9.0 plus its behavior-preserving complexity refactor are committed
+  locally and target hashes are pinned to `1ae86a1`,
+  on the published upstream branch `feat/bounded-delivery-contract`; the commit
+  is remotely fetchable but is not yet a merged release on upstream `main`.
 - Repository Ruleset/CODEOWNERS configuration is external state and remains
   unverified. A trusted GitHub owner/team must be selected without guessing.
 - `new-project` 0.8.0 central schema, fixture and catalog checks pass. The
@@ -234,9 +431,72 @@ remain historical evidence, not evidence for AC-11..AC-17.
   artifact upload and attestation still succeeded. The attested report digest
   is `sha256:fa0f4d0c1f780bb8d21f56ca74d8ae901e184fb4996f9e84832a87846adfc1d8`.
   No credential value appears in the workflow output.
+- Pull request #3 exposed that the original Koru configuration had drifted from
+  the current benchmark winner. Run `30712589077` still used
+  `openrouter/deepseek/deepseek-v4-pro`; Vallm also attempted `pytest` for the
+  TypeScript diff and the semantic request failed with OpenRouter 401 `User not
+  found`. The workflow now uses the qualified Gemini model and delegates
+  regression to the already passing required `verify` job. The 401 cannot be
+  repaired in repository code: a trusted repository or organization owner must
+  rotate the `OPENROUTER_API_KEY` Actions secret and rerun the exact commit.
+- Pull request #4 run `30712853708` passed the read-only Koru gate for commit
+  `a4eb0f9`. Its attested `t2c.koru-code-review/v1` report records
+  `openrouter/google/gemini-3.1-pro-preview` and an empty supported-source set,
+  so no provider request or cost occurred. This proves the deployed workflow
+  configuration and no-source path; it does not supersede the required live
+  rerun after secret rotation.
+- Workflow dispatch `30713017811` then exercised that workflow against the
+  exact two-file TypeScript diff from pull request #3. The report records the
+  Gemini judge and no longer contains a regression/`pytest` error. It rejects
+  fail-closed because OpenRouter still returns 401 `User not found`; it also
+  retains Vallm 0.1.94's `TYPESCRIPT` parser warning. Report construction,
+  artifact upload and provenance attestation passed. At that point AC-21
+  remained open until the secret and parser boundary were repaired.
+- The user subsequently authorized repository-secret rotation. A fresh
+  repository-level `OPENROUTER_API_KEY` was written through `gh` stdin on
+  2026-08-01 without exposing its value; it takes precedence over the stale
+  organization secret only for `semcod/todo2code`. Dispatch `30714664770`
+  proves the credential and increased provider limit now work: Gemini reviewed
+  both TypeScript files with no provider error. Both file-level verdicts are
+  `pass`, but Koru correctly remains non-passing under the current fail-on-any-
+  finding policy because Vallm emits its known uppercase-language parser
+  warning plus advisory whole-file findings unrelated to the model-default
+  diff. At that point the remaining AC-21 blockers were review context/parser
+  policy, not the GitHub credential; later evidence below resolves them.
+- The timeout/policy repair bounds the complete job to 10 minutes and the
+  active review to 420 seconds, caps output at 8192 tokens, disables retries
+  (including 404), normalizes the Vallm TypeScript language ID and separates
+  advisory semantic warnings from blocking deterministic/provider/semantic
+  errors without removing any finding from the attested JSON.
+- Repaired workflow dispatch `30746421293` reviewed the exact pull request #3
+  range `2e87205..6b79527` with Gemini in 1 minute 24 seconds. Its attested
+  report selects `src/config/env.ts` and `test/config-env.test.ts`, records 2/2
+  passed, no failed files, no parser/provider finding and exit 0. All five
+  whole-file semantic observations remain visible as advisory; the policy
+  records Vallm's original exit 2 before deterministic normalization.
+- A follow-up exact-stack LiteLLM probe used a local HTTP endpoint: HTTP 404
+  produced `NotFoundError` after about 705 ms with exactly one request and the
+  8192-token ceiling intact. A slow endpoint with a 0.5-second probe ceiling
+  produced `Timeout` after about 799 ms with exactly one request. Fresh local
+  `npm run verify` and Docker `e2e-core` pass; Docker `e2e-full` still stops at
+  the separately attributed stale Rust lock with `cargo fetch --locked` exit
+  101, without any ticket-018 change to the SDK.
+- The final bounded-delivery audit covers six upstream and five target commits;
+  every commit changes at most five files. Central validator/scaffolder tests,
+  target lock verification and the exact four-finding governance attribution
+  pass, with no ticket-020 or delivery/base/architecture/budget finding.
 - Repository ruleset `20186914` is staged with no bypass actors and
   `current_user_can_bypass: never`. It targets the default branch, requires a
   pull request, dismisses stale review evidence, rejects deletion/force-push,
   and requires strict `governance / enforce` plus `koru / code-review` checks.
   Enforcement remains disabled only until this bootstrap evidence commit is
   merged; AC-24 is not claimed until the rule is activated and queried back.
+- Pull request #4 run `30904837479` exposed 14 deterministic complexity
+  findings in the managed validator. The source validator was split into
+  focused policy, coordination, delivery and reporting helpers at upstream
+  commit `1ae86a1`, without changing diagnostics or fail-closed policy.
+  Central validator/scaffolder fixtures pass, old/new JSON and SARIF reports
+  for the full PR range are byte-identical, and Lizard reports zero functions
+  above CC 15 or 100 lines. Run `30906125354` then passed Koru/Gemini for exact
+  head `aff2137` with 1/1 file, zero blocking/advisory findings and an attested
+  report. A later provenance-only commit must receive its own fresh checks.

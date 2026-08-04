@@ -3,7 +3,7 @@
   "schema": "new-project.governance/v2",
   "standard": {
     "id": "wellmanifest/new-project",
-    "version": "0.8.0"
+    "version": "0.10.0"
   },
   "requiredFiles": [
     "README.md",
@@ -24,6 +24,7 @@
   ],
   "trustedApprovalSources": [
     "github-review",
+    "github-app-review",
     "signed-attestation"
   ],
   "ticket": {
@@ -40,8 +41,11 @@
       "ai-*-logs.txt"
     ],
     "activeStatuses": [
+      "IN_PROGRESS"
+    ],
+    "nonActiveStatuses": [
+      "BACKLOG",
       "PLAN",
-      "IN_PROGRESS",
       "BLOCKED"
     ],
     "closedStatuses": [
@@ -54,6 +58,18 @@
       "PUBLICATION"
     ],
     "intentFile": "intent.json"
+  },
+  "approvalEvidence": {
+    "schema": "new-project.approval-evidence/v1",
+    "requiredBindings": [
+      "repository",
+      "pullRequest",
+      "headSha",
+      "ticket",
+      "actor"
+    ],
+    "reviewVerificationMethod": "github-api-allowlist",
+    "signedAttestationPredicateType": "https://wellmanifest.dev/attestations/validator/v1"
   },
   "docker": {
     "required": true,
@@ -94,6 +110,19 @@
       "workstream": "integration",
       "requiredForPaths": ["package.json", "package-lock.json", "tsconfig.json", "src/core/types.ts"]
     }
+  },
+  "delivery": {
+    "requiredForImplementation": false,
+    "maxActiveMinutes": 30,
+    "checkpointMinutes": 25,
+    "allowedComplexityClasses": ["XS", "S"],
+    "maxImplementationFiles": 5,
+    "maxAffectedComponents": 2,
+    "maxPublicInterfaceChanges": 0,
+    "maxRuntimeDependencies": 0,
+    "targetBranches": ["main"],
+    "publicInterfacePaths": ["src/interfaces/**", "src/core/types.ts", "sdk/**"],
+    "dependencyManifestPaths": ["package.json", "package-lock.json", "pyproject.toml", "go.mod", "Cargo.toml", "pom.xml"]
   },
   "stacks": ["node", "docker"]
 }

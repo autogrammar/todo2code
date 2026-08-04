@@ -29,5 +29,70 @@
   ],
   "dependsOn": [],
   "conflictsWith": [],
-  "integrationTicket": null
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "2e87205dcd0b06286529ca9fa8ab9518694e9068",
+    "targetBranch": "main",
+    "outcome": "Adopt canonical 0.10.0 governance and switch the Koru judge to z-ai/glm-5.2",
+    "nonGoals": [
+      "No application source, test, build or UI changes",
+      "No retroactive enforcement against historical active branches",
+      "No live OpenRouter benchmark or paid provider request",
+      "No rewriting of historical Gemini evidence"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 5,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Adopt one reviewed 0.10.0 governance SHA, keep deterministic delivery validation in governance, and configure Koru with z-ai/glm-5.2",
+      "components": [
+        {
+          "name": "governance-runtime",
+          "paths": [".governance/**", "project/new-ticket.sh"]
+        },
+        {
+          "name": "agent-policy",
+          "paths": ["AGENTS.md", ".github/workflows/**"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Restore the current 1ae86a1 lock and the previous Koru model identifier"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-33",
+        "commands": ["bash tests/governance-validator.test.sh", "bash tests/governance-scripts.test.sh"],
+        "evidence": "Central positive and negative bounded-delivery fixtures pass"
+      },
+      {
+        "criterion": "AC-35",
+        "commands": ["make governance"],
+        "evidence": "Target validation reports this migration separately from inherited active-ticket blockers"
+      },
+      {
+        "criterion": "AC-38",
+        "commands": ["make governance"],
+        "evidence": "PLAN, BACKLOG and BLOCKED tickets no longer reserve active scope while IN_PROGRESS still does"
+      },
+      {
+        "criterion": "AC-39",
+        "commands": ["npm run verify:workflows"],
+        "evidence": "Koru workflow uses openrouter/z-ai/glm-5.2 and preserves its deterministic fail-closed envelope"
+      }
+    ]
+  }
 }

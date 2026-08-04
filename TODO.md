@@ -10,23 +10,25 @@
   020 in parallel; the global gate now reports only ticket-019's declared
   dependency, conflict, ownership and overlap violations.
 
-- [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
-  Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
-  one root `pyproject.toml` and SDK-only artifacts. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
-  release the overlapping `Makefile` path.
-
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current state: `IN_PROGRESS / EDIT` for the approved AC-18..AC-25: add a
-  pinned, read-only and attested `koru / code-review` PR check plus a required
-  ruleset. The workflow and live fail-closed semantic probe are verified;
-  ruleset `20186914` is staged for activation after the bootstrap evidence merge.
-  Earlier AC-11..AC-16 pass; AC-17 and the pre-existing publication/external
-  governance blockers remain recorded separately.
+  Current follow-up state: `IN_PROGRESS / PUBLICATION`. AC-34 and AC-37..AC-40
+  pass locally; governance 0.10.0 and reusable CI are pinned to hardened,
+  independently reviewed merge `9706e63`. Koru uses `z-ai/glm-5.2`; semantic
+  provider unavailability remains advisory and explicit, while deterministic
+  findings block. Fresh exact-head App approval is required after the final
+  hardening commit. AC-17 and inherited blockers remain separate.
+
+## Backlog tickets
+
+- [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
+  Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
+  one root `pyproject.toml` and SDK-only artifacts. Current state:
+  `BACKLOG / WAIT_FOR_APPROVAL`; implementation also waits for ticket-018 to
+  release the overlapping `Makefile` path.
 
 ## Completed tickets
 

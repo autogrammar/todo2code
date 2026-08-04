@@ -6,7 +6,7 @@ set -euo pipefail
 TITLE="New Task Ticket"
 USERS=""
 AGENT="antigravity"
-WORKSTREAM="unresolved"
+WORKSTREAM=""
 FORCE_NEW=false
 
 usage() {
@@ -15,7 +15,7 @@ Usage: ./project/new-ticket.sh [options]
 
   -t, --title TITLE       Ticket title
   -a, --agent ID         Agent provider/id used for ai-{ID}.md
-  -w, --workstream ID    Declared workstream (for example runtime or sdk)
+  -w, --workstream ID    Required workstream declared in the governance manifest
   -u, --users IDS        Compatibility input only; human files are not created
       --force-new        Create a new ticket despite an unfinished ticket
   -h, --help             Show this help
@@ -82,15 +82,20 @@ if [[ ! "$AGENT" =~ ^[a-z0-9][a-z0-9._-]*$ ]]; then
   exit 2
 fi
 
+if [[ -z "$WORKSTREAM" ]]; then
+  echo "Workstream is required; choose an id declared in .governance/manifest.json" >&2
+  exit 2
+fi
+
 WORKSTREAM="$(printf '%s' "$WORKSTREAM" | tr '[:upper:]' '[:lower:]')"
 if [[ ! "$WORKSTREAM" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
   echo "Workstream id must match [a-z0-9][a-z0-9-]*" >&2
   exit 2
 fi
 
-is_closed_ticket() {
+is_active_ticket() {
   local readme="$1/README.md"
-  [[ -f "$readme" ]] && grep -Eiq '^-[[:space:]]+\*\*Status\*\*:[[:space:]]*(DONE|CANCELLED)([[:space:]]|$)' "$readme"
+  [[ -f "$readme" ]] && grep -Eiq '^-[[:space:]]+\*\*Status\*\*:[[:space:]]*IN_PROGRESS([[:space:]]|$)' "$readme"
 }
 
 highest=0
@@ -102,7 +107,7 @@ if [[ -d project ]]; then
     [[ "$number" =~ ^[0-9]+$ ]] || continue
     decimal=$((10#$number))
     (( decimal > highest )) && highest=$decimal
-    if ! is_closed_ticket "$dir"; then
+    if is_active_ticket "$dir"; then
       active_workstream="$(sed -nE 's/^[[:space:]]*"workstream"[[:space:]]*:[[:space:]]*"([a-z0-9-]+)".*/\1/p' "$dir/intent.json" 2>/dev/null | head -n 1)"
       if [[ -z "$active_workstream" || "$active_workstream" == "unresolved" || "$WORKSTREAM" == "unresolved" || "$active_workstream" == "$WORKSTREAM" ]]; then
         conflicting_ticket="$dir"

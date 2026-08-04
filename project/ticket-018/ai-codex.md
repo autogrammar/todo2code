@@ -35,6 +35,14 @@ exact PR diff, produces a commit-bound attested report, and exposes a required
 GitHub status. It may reject a change but may not edit it, push it or impersonate
 a human `APPROVE` review.
 
+The newest follow-up addresses the cause of repeated integration friction: work
+was path-scoped, but not bounded by delivery time, component count, interface
+risk or an accepted base SHA. The central standard should make one ticket/PR a
+single independently testable slice that fits within 30 minutes. Architecture,
+UI states, rollback and validation evidence are decided before coding. Crossing
+the time, outcome, workstream or contract boundary stops the slice and creates
+an explicit dependency instead of growing the current diff.
+
 Current verified baseline:
 
 - Docker CLI and engine are available; engine version reported `29.1.3`.
@@ -98,6 +106,23 @@ Current verified baseline:
     workflow validation, existing Node/Docker gates and scoped governance.
 20. Configure a `main` ruleset requiring governance and Koru review only after
     the check exists; verify direct pushes and stale evidence are rejected.
+21. Return to `WAIT_FOR_APPROVAL` for AC-26..AC-35; change no central or target
+    policy/implementation files until the bounded-delivery plan is approved.
+22. In `wellmanifest/new-project`, add manifest and intent contracts for one
+    outcome, accepted base SHA, `XS|S`/30-minute budget, architecture impact,
+    rollback, UI risk and criterion-specific validation evidence.
+23. Add stable deterministic diagnostics and fixtures for over-budget work,
+    unresolved architecture, actual-diff overflow, stale bases, mixed tickets
+    and conflicting or overlapping slices.
+24. Update central documentation and templates. Require a concise architecture
+    impact for every slice; require ADR/diagrams only when component, interface,
+    persistence or UI-flow boundaries actually change.
+25. Adopt the published/pinned contract in `todo2code` governance files and
+    `AGENTS.md`, without changing application source or absorbing unrelated
+    active PRs or tickets.
+26. Run central fixtures and target governance checks, compare managed-file
+    hashes, review each repository diff separately and record inherited
+    blockers without weakening the new limits.
 
 ## Actual changes
 
@@ -150,8 +175,120 @@ Current verified baseline:
   and Koru status checks, mandatory pull requests, stale-evidence dismissal and
   force-push/deletion prevention. It remains disabled solely for the final
   bootstrap evidence merge and will be activated afterward.
+- Revalidated Koru after the model-adoption benchmark. Pull request #3 showed
+  that the workflow still used stale DeepSeek, invoked Python `pytest` for a
+  TypeScript diff and received OpenRouter 401. Updated the semantic judge to
+  benchmark-qualified Gemini 3.1 Pro Preview, left regression ownership with
+  the required Node `verify` job, and did not read or overwrite the external
+  Actions secret.
+- Dispatched the updated branch workflow against pull request #3's exact source
+  diff. The attested report confirms Gemini and removal of the invalid pytest
+  path, then fails closed on the unchanged 401. It also proves Vallm 0.1.94
+  cannot resolve its uppercase TypeScript language enum; AC-21 was reopened and
+  no successful syntax/semantic verdict is claimed.
+- After explicit user authorization, set the working local OpenRouter key as a
+  repository-scoped Actions secret via stdin. Dispatch `30714664770` reached
+  Gemini with no credential/provider error and returned `pass` for both files;
+  aggregate enforcement still rejected the parser warning and advisory
+  whole-file findings. No secret value was read back or logged.
+- Repaired the integration boundary without dropping evidence: 10-minute job,
+  420-second active review, 8192 output tokens, no HTTP retries, lowercase Vallm
+  language IDs and explicit advisory/blocking normalization persisted in the
+  structured report.
+- Dispatch `30746421293` then passed the exact pull request #3 range in 1 minute
+  24 seconds. The attested Gemini report records both expected files, 2/2 pass,
+  zero blocking/parser/provider findings and all five semantic observations as
+  advisory; its final Koru exit is 0 while preserving Vallm's original exit 2.
+- Planned AC-26..AC-35 only. Confirmed that `todo2code/AGENTS.md` is an adoption
+  of `wellmanifest/new-project` policy and template material. No central policy,
+  schema, validator, template, workflow, ruleset or application file changed in
+  this plan phase.
+- After explicit approval, implemented upstream 0.9.0 in five bounded local
+  commits: delivery schemas/defaults; deterministic gate/diagnostics/fixtures;
+  scaffolder/templates; policy documentation; release metadata. Central script,
+  validator and Draft 2020-12 schema checks pass.
+- Staged the target adoption with managed hashes bound to upstream commit
+  `1ae86a1`. Kept enforcement disabled only for migration because applying the
+  five-file hard limit retroactively to the accumulated ticket-018 branch would
+  make the standard reject its own bootstrap. No application file changed.
+- Target schema and lock checks pass. The target governance gate reports only
+  four inherited ticket-018/019 coordination errors and no new delivery,
+  architecture, base or budget diagnostic. The central wildcard containment
+  regression proves `test/cli*.test.ts` is owned by `test/cli*` without treating
+  unrelated `test/mcp*.test.ts` as owned; this removed the false ticket-020
+  workstream finding.
+- Fresh `npm run verify` passes all deterministic checks and 334/335 tests with
+  one JDK skip. Docker `e2e-core` passes 328/335 tests with seven expected
+  toolchain skips, both gold datasets, CLI, MCP, A2A and examples. Docker
+  `e2e-full` independently reproduces the out-of-scope stale Rust lock failure
+  at `cargo fetch --locked` with exit 101.
+- Audited all six upstream and five target bounded-delivery commits: each
+  changes no more than five files. AC-21, AC-25 and AC-35 now have sufficient
+  recorded evidence; AC-34 remains open because target enforcement is staged
+  off until ticket-019 is serialized.
+
+## Planned 0.10.0 follow-up
+
+- Verified that upstream `main@c0bb63e` and
+  `feat/bounded-delivery-contract@1ae86a1` expose different contracts under the
+  same `0.9.0` version. Direct copying from either branch would therefore lose
+  either safe adoption/lifecycle semantics or bounded delivery.
+- Adoption will use one reviewed, immutable full SHA produced by upstream
+  ticket-003 as `0.10.0`; no managed governance file has been changed for this
+  follow-up yet.
+- The executable Koru model will change from
+  `openrouter/google/gemini-3.1-pro-preview` to
+  `openrouter/z-ai/glm-5.2`. Historical Gemini reports remain audit evidence
+  and will not be rewritten as if GLM produced them.
+- No live provider request or paid benchmark is required for this correction.
+  Deterministic workflow/schema checks will validate the identifier and review
+  envelope.
+- Human approved AC-36..AC-40 on 2026-08-04. The follow-up entered
+  `IN_PROGRESS / EDIT` before managed governance or workflow implementation.
+- Replaced only the executable Koru `REVIEW_MODEL` with
+  `openrouter/z-ai/glm-5.2`; retained historical Gemini evidence and made no
+  provider request.
+- `npm run verify` passes: 335 tests, 334 passed, zero failed and one explicit
+  JDK skip. `make governance`, workflow YAML and diff checks pass.
+- Upstream PR #1 has green checks but no independent review. Returned this
+  ticket to `BLOCKED / VALIDATION` rather than generating a false `published`
+  lock or self-approving the governance source SHA.
+- Adoption `--check` against PR head `e0a8e5c...` stopped before writes on the
+  expected 0.9.0 -> 0.10.0 target-manifest version precondition. The explicit
+  upgrade must update that local contract only after the source SHA is trusted.
+- Upstream PR #1 was independently approved by `ifuri-validator-agent[bot]`
+  for exact head `346895b...` and merged as published commit `5267cf3...`.
+  Resumed the approved target adoption in `IN_PROGRESS / EDIT`; the lock will
+  bind to the merge commit rather than the former review branch or PR head.
+- Adopted the reviewed 0.10.0 tree and added the local lifecycle migration:
+  only `IN_PROGRESS` is active, while `PLAN`, `BACKLOG` and `BLOCKED` are
+  explicitly non-active. GitHub App review is a configured trusted source with
+  exact repository/PR/head/ticket/actor bindings.
+- Post-adoption checks pass: central validator/scripts/adoption fixtures,
+  lock `--check`, target governance, workflow YAML, full `npm run verify`
+  (334 passed, one JDK skip) and Docker smoke. No live LLM request was made.
+- Exact-head Koru run `30934859353` used GLM 5.2 and produced an attested
+  fail-closed report with `semantic.parse_error`: Vallm requested JSON only in
+  prose, not through the provider response contract. Reopened AC-39/AC-40 and
+  will constrain the existing compatibility boundary to JSON output with
+  optional reasoning disabled, then require a successful exact-head rerun.
+- Exact-head App review of `a01816b` identified two approval-evidence hardening
+  concerns. Confirmed the trust-projection concern and treated the path-race
+  concern as defence-in-depth instead of merging on a formal approval alone.
+- Published the fix through `wellmanifest/new-project` ticket-005 and PR #4;
+  exact reviewed head `898041d` merged as `9706e63` after both hosted CI runs.
+- Adopted `9706e63` into the target lock and replaced the local duplicated
+  approval resolver with the reusable workflow from the same SHA.
+  `TRUSTED_VALIDATOR_APPS` is now a protected repository variable containing
+  the exact App login; the PR cannot expand its own authority set.
+- Local governance, workflow YAML, all Node verification and Docker smoke pass.
+  The old App approval is correctly stale after this change; a fresh review of
+  the new exact HEAD remains the only publication blocker.
 
 ## Blockers
+
+- Fresh Validator App approval and hosted governance for the new exact HEAD are
+  required before merge. Earlier approval `a01816b` is intentionally stale.
 
 - `GOV-INTENT-003`: concurrent commit `5f1f4bd` placed the ticket intent and
   implementation in the same commit; correcting this requires an authorized
@@ -159,8 +296,9 @@ Current verified baseline:
 - `GOV-SCOPE-001`: the same commit contains eight implementation/generated
   paths not allowed by ticket-018. They must be routed to their actual ticket,
   not retroactively claimed here.
-- Central `new-project` 0.7.0 is uncommitted/unpublished, so no honest immutable
-  reusable-workflow SHA exists yet.
+- Central `new-project` 0.9.0 is pinned at `1ae86a1` and the exact commit is
+  published on `origin/feat/bounded-delivery-contract`; it remains unmerged on
+  upstream `main`, so it is evidence for a remote branch, not a released tag.
 - AC-17: concurrent commit `9928699` bumped the Rust SDK manifest to 0.5.1, but
   the ignored local Cargo lock still identifies the root package as 0.5.0.
   Official full Docker E2E fails closed at `cargo fetch --locked` (exit 101).
@@ -169,8 +307,7 @@ Current verified baseline:
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / EDIT` for approved AC-18..AC-25. AC-11..AC-16 are
-  implemented; AC-17 and the earlier publication/external blockers remain open.
+- Current state: `IN_PROGRESS / VALIDATION` for AC-26..AC-35.
 - Required response from: `unresolved:human`.
-- The user explicitly approved AC-18..AC-25 in chat. This authorizes the
-  implementation workflow but is not itself merge-time review evidence.
+- The user explicitly approved the bounded-delivery extension. Interactive
+  approval authorized implementation but is not trusted merge evidence.
