@@ -21,7 +21,7 @@ helper, while indexed `split` access becomes optional under strict settings.
 
 ## Actual changes
 
-- None; waiting at the plan boundary.
+- Plan completed and the user-authorized repair entered `EDIT`.
 
 ## Blockers
 
