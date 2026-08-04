@@ -5,52 +5,13 @@ import path from 'node:path';
 const root = process.cwd();
 const examplePath = path.join(root, '.env.example');
 const example = await fs.readFile(examplePath, 'utf8');
-const declared = new Map();
 const duplicates = [];
-for (const [index, line] of example.split(/\r?\n/).entries()) {
-  const match = line.match(/^([A-Z][A-Z0-9_]*)=/);
-  if (!match?.[1]) continue;
-  if (declared.has(match[1])) duplicates.push(`${match[1]} (lines ${declared.get(match[1])} and ${index + 1})`);
-  declared.set(match[1], index + 1);
-}
-
-const expected = new Set();
-const configBody = await fs.readFile(path.join(root, 'src/config/env.ts'), 'utf8');
-for (const match of configBody.matchAll(/env(?:String|Optional|Number|Boolean|List|LlmMode)\('([A-Z][A-Z0-9_]+)'/g)) {
-  expected.add(match[1]);
-}
-
-for (const file of await collectExisting(['src', 'sdk', 'examples', 'scripts'])) {
-  const body = await fs.readFile(file, 'utf8');
-  const patterns = [
-    /process\.env\.([A-Z][A-Z0-9_]+)/g,
-    /process\.env\[['"]([A-Z][A-Z0-9_]+)['"]\]/g,
-    /os\.(?:getenv|environ\.get)\(['"]([A-Z][A-Z0-9_]+)['"]/g,
-    /getenv\(['"]([A-Z][A-Z0-9_]+)['"]\)/g,
-    /env::var\(['"]([A-Z][A-Z0-9_]+)['"]\)/g,
-    /os\.Getenv\(['"]([A-Z][A-Z0-9_]+)['"]\)/g,
-  ];
-  for (const pattern of patterns) {
-    for (const match of body.matchAll(pattern)) expected.add(match[1]);
-  }
-  if (file.endsWith('.sh')) {
-    for (const match of body.matchAll(/\b((?:T2C|OPENROUTER)_[A-Z0-9_]+)\b/g)) expected.add(match[1]);
-  }
-}
-
-const makefile = await fs.readFile(path.join(root, 'Makefile'), 'utf8');
-for (const match of makefile.matchAll(/\b((?:T2C|OPENROUTER)_[A-Z0-9_]+)\b/g)) expected.add(match[1]);
-
-for (const fileName of ['docker-compose.yml', 'Dockerfile']) {
-  const body = await fs.readFile(path.join(root, fileName), 'utf8');
-  for (const match of body.matchAll(/\$\{([A-Z][A-Z0-9_]+)/g)) expected.add(match[1]);
-  for (const match of body.matchAll(/\b((?:T2C|OPENROUTER)_[A-Z0-9_]+)\s*(?::|=)/g)) expected.add(match[1]);
-}
-
+const declared = parseDeclaredEnv(example);
+const expected = await collectExpectedVariables(root);
 const missing = [...expected].filter((name) => !declared.has(name)).sort();
 const unused = [...declared.keys()].filter((name) => !expected.has(name)).sort();
 const local = await auditLocalKeys(path.join(root, '.env'), declared);
-if (duplicates.length || missing.length || unused.length || local.missing.length || local.extra.length || local.duplicates.length) {
+if (hasContractProblems(missing, unused, local)) {
   if (duplicates.length) console.error(`Duplicate .env.example keys:\n${duplicates.join('\n')}`);
   if (missing.length) console.error(`Environment variables missing from .env.example:\n${missing.join('\n')}`);
   if (unused.length) console.error(`Unused environment variables declared in .env.example:\n${unused.join('\n')}`);
@@ -60,6 +21,87 @@ if (duplicates.length || missing.length || unused.length || local.missing.length
   process.exit(1);
 }
 console.log(`Environment contract verified: ${expected.size} code/Docker variables, ${declared.size} documented keys, no duplicates.`);
+
+function parseDeclaredEnv(example) {
+  const declared = new Map();
+  const lines = example.split(/\r?\n/);
+  for (const [index, line] of lines.entries()) {
+    const match = line.match(/^([A-Z][A-Z0-9_]*)=/);
+    if (!match?.[1]) continue;
+    if (declared.has(match[1])) duplicates.push(`${match[1]} (lines ${declared.get(match[1])} and ${index + 1})`);
+    declared.set(match[1], index + 1);
+  }
+  return declared;
+}
+
+async function collectExpectedVariables(rootPath) {
+  const expected = new Set();
+  for (const value of await collectConfigKeys(path.join(rootPath, 'src', 'config', 'env.ts'))) {
+    expected.add(value);
+  }
+  for (const file of await collectExisting(['src', 'sdk', 'examples', 'scripts'])) {
+    const body = await fs.readFile(file, 'utf8');
+    for (const match of collectEnvReferences(file, body)) expected.add(match);
+  }
+  for (const name of collectMakefileReferences(await fs.readFile(path.join(rootPath, 'Makefile'), 'utf8'))) {
+    expected.add(name);
+  }
+  for (const file of ['docker-compose.yml', 'Dockerfile']) {
+    const body = await fs.readFile(path.join(rootPath, file), 'utf8');
+    for (const name of collectDockerReferences(body)) expected.add(name);
+  }
+  return expected;
+}
+
+async function collectConfigKeys(configFile) {
+  const body = await fs.readFile(configFile, 'utf8');
+  return [...body.matchAll(/env(?:String|Optional|Number|Boolean|List|LlmMode)\('([A-Z][A-Z0-9_]+)'/g)].map((match) => match[1]);
+}
+
+function collectEnvReferences(file, body) {
+  const patterns = [
+    /process\.env\.([A-Z][A-Z0-9_]+)/g,
+    /process\.env\[['"]([A-Z][A-Z0-9_]+)['"]\]/g,
+    /os\.(?:getenv|environ\.get)\(['"]([A-Z][A-Z0-9_]+)['"]/g,
+    /getenv\(['"]([A-Z][A-Z0-9_]+)['"]\)/g,
+    /env::var\(['"]([A-Z][A-Z0-9_]+)['"]\)/g,
+    /os\.Getenv\(['"]([A-Z][A-Z0-9_]+)['"]\)/g,
+  ];
+  const names = [];
+  for (const pattern of patterns) {
+    for (const match of body.matchAll(pattern)) names.push(match[1]);
+  }
+  if (file.endsWith('.sh')) {
+    for (const match of body.matchAll(/\b((?:T2C|OPENROUTER)_[A-Z0-9_]+)\b/g)) names.push(match[1]);
+  }
+  return names;
+}
+
+function collectMakefileReferences(makefileBody) {
+  return [...makefileBody.matchAll(/\b((?:T2C|OPENROUTER)_[A-Z0-9_]+)\b/g)].map((match) => match[1]);
+}
+
+function collectDockerReferences(body) {
+  return [
+    ...extractMatches(body, /\$\{([A-Z][A-Z0-9_]+)/g),
+    ...extractMatches(body, /\b((?:T2C|OPENROUTER)_[A-Z0-9_]+)\s*(?::|=)/g),
+  ];
+}
+
+function extractMatches(body, pattern) {
+  const names = [];
+  for (const match of body.matchAll(pattern)) names.push(match[1]);
+  return names;
+}
+
+function hasContractProblems(missing, unused, local) {
+  return duplicates.length
+    || missing.length
+    || unused.length
+    || local.missing.length
+    || local.extra.length
+    || local.duplicates.length;
+}
 
 async function auditLocalKeys(file, contract) {
   try {

@@ -1,48 +1,48 @@
 # code2llm call graph | /home/tom/github/semcod/todo2code
-# generated in 0.23s
-# nodes: 399 | edges: 500 | modules: 30
-# CC̄=3.1
+# generated in 0.25s
+# nodes: 442 | edges: 500 | modules: 35
+# CC̄=3.0
 
 HUBS[20]:
-  src.cli.optionString
-    CC=2  in:33  out:1  total:34
-  src.cli.optionNumber
-    CC=5  in:20  out:5  total:25
-  src.extractors.git.extractRepositoryGitIntent
-    CC=11  in:3  out:21  total:24
   src.extractors.todo.extractTodo
     CC=5  in:0  out:24  total:24
+  src.extractors.git.extractRepositoryGitIntent
+    CC=11  in:3  out:21  total:24
+  src.graph.linker.linkIntentRecords
+    CC=5  in:0  out:22  total:22
   src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
     CC=10  in:0  out:22  total:22
-  rust-ast.src.main.main
-    CC=6  in:0  out:21  total:21
   rust-ast.src.main.collect_files
     CC=9  in:1  out:20  total:21
-  src.extractors.todo.body
-    CC=5  in:0  out:20  total:20
+  rust-ast.src.main.main
+    CC=6  in:0  out:21  total:21
   src.extractors.nl.extractNlIntent
+    CC=5  in:0  out:20  total:20
+  src.extractors.todo.body
     CC=5  in:0  out:20  total:20
   src.extractors.todo.lines
     CC=5  in:0  out:20  total:20
   src.extractors.todo.relative
     CC=5  in:0  out:20  total:20
-  src.cli.optionBoolean
-    CC=3  in:17  out:3  total:20
   rust-ast.src.main.add
     CC=1  in:9  out:10  total:19
   src.extractors.changelog.extractChangelog
     CC=10  in:0  out:19  total:19
-  src.cli.handleCommunication
-    CC=11  in:0  out:18  total:18
+  src.graph.diff.diffIntentGraphs
+    CC=11  in:0  out:19  total:19
+  src.graph.linker.scorePair
+    CC=1  in:6  out:11  total:17
   src.extractors.configuration.configurationRecords
     CC=4  in:4  out:12  total:16
   java.JavaAstExtract.JavaAstExtract.main
     CC=10  in:0  out:16  total:16
-  src.extractors.ast.records.moduleRecords
-    CC=6  in:1  out:14  total:15
   src.extractors.changelog.relative
     CC=7  in:0  out:15  total:15
+  src.graph.diagnostics.diagnoseGraph
+    CC=6  in:0  out:15  total:15
   src.extractors.changelog.lines
+    CC=7  in:0  out:15  total:15
+  src.extractors.changelog.body
     CC=7  in:0  out:15  total:15
 
 MODULES:
@@ -85,17 +85,17 @@ MODULES:
   examples.src.runtime  [2 funcs]
     executeContract  CC=1  out:1
     validateContract  CC=2  out:1
-  java.JavaAstExtract  [10 funcs]
+  java.JavaAstExtract  [11 funcs]
     add  CC=1  out:0
     collect  CC=1  out:11
+    collectFileDiagnostics  CC=4  out:5
     containsIgnored  CC=3  out:2
     emit  CC=1  out:3
     escape  CC=9  out:6
     json  CC=1  out:1
     main  CC=10  out:16
     map  CC=1  out:0
-    slash  CC=1  out:1
-    try  CC=3  out:13
+    scanCompilationUnits  CC=1  out:0
   rust-ast.src.main  [21 funcs]
     add  CC=1  out:10
     arguments  CC=5  out:9
@@ -107,17 +107,6 @@ MODULES:
     slash  CC=1  out:2
     type_item  CC=1  out:8
     visit_expr_call  CC=1  out:9
-  src.cli  [80 funcs]
-    absolute  CC=3  out:1
-    buildCommonPipelineOptions  CC=3  out:8
-    buildDiffPayload  CC=2  out:2
-    buildFileDiff  CC=3  out:6
-    buildGitDiff  CC=5  out:6
-    buildPipelineOptions  CC=1  out:1
-    buildWorkspaceComparisonOptions  CC=3  out:6
-    command  CC=3  out:2
-    commandHandlers  CC=2  out:6
-    context  CC=2  out:4
   src.extractors.ast  [2 funcs]
     isExtractionResult  CC=5  out:3
     isIntentRecords  CC=2  out:1
@@ -125,9 +114,25 @@ MODULES:
     execFileAsync  CC=3  out:0
     result  CC=2  out:1
     runExternalAstAdapter  CC=9  out:6
-  src.extractors.ast.records  [2 funcs]
+  src.extractors.ast.records  [7 funcs]
     adapterRecords  CC=2  out:3
+    boundedCapabilities  CC=1  out:6
+    capabilities  CC=1  out:2
+    end  CC=1  out:2
     moduleRecords  CC=6  out:14
+    moduleTopicText  CC=2  out:1
+    start  CC=1  out:2
+  src.extractors.ast.typescript  [20 funcs]
+    addTypeScriptRecord  CC=5  out:0
+    callee  CC=2  out:2
+    context  CC=1  out:4
+    createTypeScriptExtractionContext  CC=1  out:0
+    declarationIsCallable  CC=2  out:1
+    extractModifiers  CC=4  out:4
+    extractSymbolName  CC=2  out:0
+    extractTypeScriptFile  CC=1  out:7
+    handleCallExpression  CC=3  out:5
+    handleExportDeclaration  CC=4  out:3
   src.extractors.changelog  [5 funcs]
     body  CC=7  out:15
     changelogAction  CC=11  out:3
@@ -300,6 +305,55 @@ MODULES:
     heading  CC=1  out:1
     inferOwner  CC=4  out:1
     lines  CC=5  out:20
+  src.graph.diagnostics  [24 funcs]
+    buildAmbiguousRequirementDiagnostic  CC=4  out:3
+    buildChangelogWithoutImplementationDiagnostic  CC=5  out:2
+    buildDiagnosticContext  CC=1  out:7
+    buildImplementedWithoutPlanDiagnostic  CC=4  out:3
+    buildNeighbors  CC=2  out:1
+    buildPlannedNotImplementedDiagnostic  CC=7  out:3
+    buildUndocumentedImplementationDiagnostic  CC=4  out:3
+    collectContradictionDiagnostics  CC=1  out:3
+    collectMissingFields  CC=2  out:2
+    collectRecordDiagnostics  CC=8  out:12
+  src.graph.diff  [26 funcs]
+    afterGroups  CC=7  out:6
+    afterRecord  CC=1  out:3
+    assertGraph  CC=3  out:3
+    beforeGroups  CC=7  out:6
+    beforeRecord  CC=1  out:3
+    changedFieldPaths  CC=6  out:6
+    compareRelations  CC=1  out:2
+    diffIntentGraphs  CC=11  out:19
+    escapeXml  CC=2  out:1
+    groupRecords  CC=4  out:6
+  src.graph.linker  [28 funcs]
+    aliases  CC=3  out:3
+    byId  CC=4  out:2
+    candidatePairs  CC=5  out:7
+    deduplicateRecords  CC=4  out:3
+    expand  CC=8  out:5
+    indexResolvableBasenames  CC=8  out:13
+    intersectionSize  CC=4  out:1
+    intersects  CC=1  out:3
+    intersectsAliases  CC=1  out:5
+    isFileAggregateEvidencePair  CC=3  out:1
+  src.graph.linker-relations  [4 funcs]
+    determineRelation  CC=7  out:1
+    matchSourceRule  CC=5  out:2
+    orientRelation  CC=2  out:0
+    relationForSourceKinds  CC=3  out:1
+  src.graph.symbol-resolution  [15 funcs]
+    buildAstCandidate  CC=2  out:1
+    buildSymbolResolutionIndex  CC=1  out:3
+    byAlias  CC=8  out:8
+    byNlRecord  CC=4  out:3
+    collectAstCandidates  CC=8  out:8
+    collectNlResolutions  CC=4  out:3
+    hasResolvedNlAstSymbolPair  CC=10  out:3
+    isAstDeclaration  CC=3  out:0
+    pathSelects  CC=3  out:5
+    resolveSymbol  CC=8  out:6
 
 EDGES:
   rust-ast.src.main.main → rust-ast.src.main.arguments

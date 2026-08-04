@@ -60,30 +60,51 @@ type ExtractHandler = (parsed: ParsedArgs, root: string, out: string | null, con
 
 export async function main(argv = process.argv.slice(2)): Promise<void> {
   await loadEnvFile();
-  if (argv[0] === '--help' || argv[0] === '-h') {
+  if (shouldShowGlobalHelp(argv)) {
     printHelp();
     return;
   }
-  if (argv[0] === '--version' || argv[0] === '-v') {
+  if (shouldShowGlobalVersion(argv)) {
     process.stdout.write(`todo2code ${T2C_VERSION}\n`);
     return;
   }
-  const parsed = parseArgs(argv);
-  const command = resolveMainCommand(parsed.positionals.shift() ?? 'help');
 
-  if (command === 'help' || parsed.options.has('help')) {
+  const parsed = parseArgs(argv);
+  const command = resolveRequestedCommand(parsed);
+
+  if (isHelpRequest(command, parsed)) {
     printHelp();
     return;
   }
+
+  const config = getConfig();
+  const handler = resolveCommandHandler(command);
+  await handler(parsed, config);
+}
+
+function shouldShowGlobalHelp(argv: string[]): boolean {
+  return argv[0] === '--help' || argv[0] === '-h';
+}
+
+function shouldShowGlobalVersion(argv: string[]): boolean {
+  return argv[0] === '--version' || argv[0] === '-v';
+}
+
+function resolveRequestedCommand(parsed: ParsedArgs): string {
+  return resolveMainCommand(parsed.positionals.shift() ?? 'help');
+}
+
+function isHelpRequest(command: string, parsed: ParsedArgs): boolean {
   // `parseArgs` removes options from positionals, so `pipeline --help` would
   // otherwise look exactly like `pipeline` and execute a mutating run. Help is
   // global until command-specific help exists: it must never reach a handler.
-  const config = getConfig();
+  return command === 'help' || parsed.options.has('help');
+}
+
+function resolveCommandHandler(command: string): CommandHandler {
   const handler = commandHandlers()[command];
-  if (!handler) {
-    throw new Error(`Unknown command: ${command}. Run t2c help.`);
-  }
-  await handler(parsed, config);
+  if (!handler) throw new Error(`Unknown command: ${command}. Run t2c help.`);
+  return handler;
 }
 
 function commandHandlers(): Record<string, CommandHandler> {
@@ -725,12 +746,21 @@ async function handleIntake(parsed: ParsedArgs, config: ReturnType<typeof getCon
 }
 
 function intakeExitCode(code: string | undefined): number {
-  if (!code || code === 'T2C-INTAKE-INVALID-SCHEMA' || code === 'T2C-INTAKE-INVALID-WIRE') return 2;
-  if (['T2C-INTAKE-UNKNOWN-ACTOR', 'T2C-INTAKE-UNVERIFIED-ACTOR', 'T2C-INTAKE-ROLE-MISMATCH', 'T2C-INTAKE-UNAUTHORIZED'].includes(code)) return 3;
-  if (code === 'T2C-INTAKE-VERSION-CONFLICT' || code === 'T2C-INTAKE-DUPLICATE') return 4;
-  if (code === 'T2C-INTAKE-BROKEN-CHAIN' || code === 'T2C-INTAKE-PROJECTION-DRIFT') return 5;
-  if (code === 'T2C-INTAKE-STORAGE-FAILURE') return 6;
-  return 7;
+  const exitCodes: Record<string, number> = {
+    'T2C-INTAKE-INVALID-SCHEMA': 2,
+    'T2C-INTAKE-INVALID-WIRE': 2,
+    'T2C-INTAKE-UNKNOWN-ACTOR': 3,
+    'T2C-INTAKE-UNVERIFIED-ACTOR': 3,
+    'T2C-INTAKE-ROLE-MISMATCH': 3,
+    'T2C-INTAKE-UNAUTHORIZED': 3,
+    'T2C-INTAKE-VERSION-CONFLICT': 4,
+    'T2C-INTAKE-DUPLICATE': 4,
+    'T2C-INTAKE-BROKEN-CHAIN': 5,
+    'T2C-INTAKE-PROJECTION-DRIFT': 5,
+    'T2C-INTAKE-STORAGE-FAILURE': 6,
+  };
+  if (!code || !(code in exitCodes)) return 7;
+  return exitCodes[code];
 }
 
 async function initProject(root: string): Promise<void> {
@@ -785,34 +815,56 @@ function parseArgs(argv: string[]): ParsedArgs {
       positionals.push(...argv.slice(index + 1));
       break;
     }
-    if (value.startsWith('--')) {
-      const [rawName = '', inline] = value.slice(2).split('=', 2);
-      if (inline !== undefined) {
-        options.set(rawName, inline);
-      } else {
-        const next = argv[index + 1];
-        if (next !== undefined && !next.startsWith('-')) {
-          options.set(rawName, next);
-          index += 1;
-        } else {
-          options.set(rawName, true);
-        }
-      }
-    } else if (value.startsWith('-') && value.length === 2) {
-      const aliases: Record<string, string> = { o: 'out', r: 'root', c: 'count', h: 'help' };
-      const name = aliases[value.slice(1)] ?? value.slice(1);
-      const next = argv[index + 1];
-      if (next !== undefined && !next.startsWith('-')) {
-        options.set(name, next);
-        index += 1;
-      } else {
-        options.set(name, true);
-      }
+    if (isLongOption(value)) {
+      index = parseLongOption(value, argv, index, options);
+    } else if (isShortOption(value)) {
+      index = parseShortOption(value, argv, index, options);
     } else {
       positionals.push(value);
     }
   }
   return { positionals, options };
+}
+
+const shortOptionAliases: Record<string, string> = {
+  o: 'out',
+  r: 'root',
+  c: 'count',
+  h: 'help',
+};
+
+function isLongOption(value: string): boolean {
+  return value.startsWith('--');
+}
+
+function isShortOption(value: string): boolean {
+  return value.startsWith('-') && value.length === 2;
+}
+
+function parseLongOption(value: string, argv: string[], index: number, options: Map<string, string | boolean>): number {
+  const [rawName = '', inline] = value.slice(2).split('=', 2);
+  if (inline !== undefined) {
+    options.set(rawName, inline);
+    return index;
+  }
+  const next = argv[index + 1];
+  if (next !== undefined && !next.startsWith('-')) {
+    options.set(rawName, next);
+    return index + 1;
+  }
+  options.set(rawName, true);
+  return index;
+}
+
+function parseShortOption(value: string, argv: string[], index: number, options: Map<string, string | boolean>): number {
+  const name = shortOptionAliases[value.slice(1)] ?? value.slice(1);
+  const next = argv[index + 1];
+  if (next !== undefined && !next.startsWith('-')) {
+    options.set(name, next);
+    return index + 1;
+  }
+  options.set(name, true);
+  return index;
 }
 
 function optionString(parsed: ParsedArgs, name: string): string | null {

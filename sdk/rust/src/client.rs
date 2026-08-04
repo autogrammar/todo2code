@@ -150,23 +150,45 @@ fn unwrap_task(result: Value) -> Value {
 }
 
 fn parse_http_response(response: &str) -> Result<String, Error> {
-    let separator = response.find("\r\n\r\n")
+    let (head, raw_body) = split_http_response(response)?;
+    let status = parse_status_code(head);
+    let body = parse_http_body(head, raw_body)?;
+    validate_http_status_body(status, &body)?;
+    Ok(body)
+}
+
+fn split_http_response(response: &str) -> Result<(&str, &str), Error> {
+    let separator = response
+        .find("\r\n\r\n")
         .ok_or_else(|| Error::Protocol("response had no header terminator".into()))?;
-    let head = &response[..separator];
-    let raw_body = &response[separator + 4..];
-    let status = head.lines().next()
+    Ok((&response[..separator], &response[separator + 4..]))
+}
+
+fn parse_status_code(head: &str) -> u16 {
+    head.lines()
+        .next()
         .and_then(|line| line.split_whitespace().nth(1))
         .and_then(|code| code.parse::<u16>().ok())
-        .unwrap_or(0);
-    let body = if head.to_ascii_lowercase().contains("transfer-encoding: chunked") {
-        decode_chunked(raw_body)?
+        .unwrap_or(0)
+}
+
+fn parse_http_body(head: &str, raw_body: &str) -> Result<String, Error> {
+    if is_chunked_response(head) {
+        decode_chunked(raw_body)
     } else {
-        raw_body.to_owned()
-    };
+        Ok(raw_body.to_owned())
+    }
+}
+
+fn is_chunked_response(head: &str) -> bool {
+    head.to_ascii_lowercase().contains("transfer-encoding: chunked")
+}
+
+fn validate_http_status_body(status: u16, body: &str) -> Result<(), Error> {
     if status >= 400 && !body.trim_start().starts_with('{') {
         return Err(Error::Runtime { code: status as i64, message: format!("HTTP {status}") });
     }
-    Ok(body)
+    Ok(())
 }
 
 fn parse_base_url(base_url: &str) -> Result<(String, u16, String), Error> {

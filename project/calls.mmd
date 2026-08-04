@@ -1,417 +1,460 @@
 flowchart LR
-%% generated in 0.04s
+%% generated in 0.05s
     subgraph examples__backend
-        examples__backend__src__request_handlers__handleHealth["handleHealth"]
-        examples__backend__src__validation__agent["agent"]
-        examples__backend__src__request_handlers__size["size"]
-        examples__backend__src__server__createBackend["createBackend"]
-        examples__backend__src__request_handlers__handleEventList["handleEventList"]
         examples__backend__src__request_handlers__handleRequest["handleRequest"]
-        examples__backend__src__validation__invalid["invalid"]
-        examples__backend__src__server__sendJson["sendJson"]
-        examples__backend__src__request_handlers__handleEventPublish["handleEventPublish"]
-        examples__backend__src__request_handlers__parseOffset["parseOffset"]
-        examples__backend__src__validation__record["record"]
-        examples__backend__src__request_handlers__event["event"]
-        examples__backend__src__request_handlers__parseLimit["parseLimit"]
-        examples__backend__src__request_handlers__validation["validation"]
-        examples__backend__src__server__startBackend["startBackend"]
-        examples__backend__src__server__store["store"]
-        examples__backend__src__request_handlers__readBody["readBody"]
-        examples__backend__src__request_handlers__sendJson["sendJson"]
-        examples__backend__src__validation__ALLOWED_ACTIONS["ALLOWED_ACTIONS"]
+        examples__backend__src__server__createBackend["createBackend"]
         examples__backend__src__validation__validateEventPayload["validateEventPayload"]
-        examples__backend__src__validation__action["action"]
-        examples__backend__src__request_handlers__MAX_BODY_BYTES["MAX_BODY_BYTES"]
+        examples__backend__src__request_handlers__parseOffset["parseOffset"]
+        examples__backend__src__request_handlers__handleEventPublish["handleEventPublish"]
+        examples__backend__src__request_handlers__parseLimit["parseLimit"]
+        examples__backend__src__validation__invalid["invalid"]
+        examples__backend__src__validation__agent["agent"]
         examples__backend__src__server__server["server"]
+        examples__backend__src__request_handlers__sendJson["sendJson"]
+        examples__backend__src__server__store["store"]
+        examples__backend__src__request_handlers__event["event"]
+        examples__backend__src__validation__record["record"]
+        examples__backend__src__request_handlers__handleEventList["handleEventList"]
+        examples__backend__src__request_handlers__MAX_BODY_BYTES["MAX_BODY_BYTES"]
+        examples__backend__src__validation__ALLOWED_ACTIONS["ALLOWED_ACTIONS"]
         examples__backend__src__validation__object["object"]
+        examples__backend__src__request_handlers__handleHealth["handleHealth"]
+        examples__backend__src__request_handlers__readBody["readBody"]
+        examples__backend__src__server__sendJson["sendJson"]
+        examples__backend__src__validation__action["action"]
+        examples__backend__src__request_handlers__validation["validation"]
+        examples__backend__src__request_handlers__size["size"]
+        examples__backend__src__server__startBackend["startBackend"]
     end
     subgraph examples__frontend
-        examples__frontend__src__app__state["state"]
         examples__frontend__src__render__renderTable["renderTable"]
         examples__frontend__src__app__refresh["refresh"]
-        examples__frontend__src__render__headerRow["headerRow"]
-        examples__frontend__src__app__mountPanel["mountPanel"]
-        examples__frontend__src__app__reload["reload"]
-        examples__frontend__src__render__classifyEvent["classifyEvent"]
-        examples__frontend__src__render__toRows["toRows"]
         examples__frontend__src__app__createState["createState"]
+        examples__frontend__src__app__reload["reload"]
+        examples__frontend__src__render__headerRow["headerRow"]
+        examples__frontend__src__render__toRows["toRows"]
+        examples__frontend__src__app__mountPanel["mountPanel"]
+        examples__frontend__src__render__classifyEvent["classifyEvent"]
+        examples__frontend__src__app__state["state"]
     end
     subgraph examples__src
         examples__src__runtime__executeContract["executeContract"]
         examples__src__runtime__validateContract["validateContract"]
     end
     subgraph java__JavaAstExtract
-        java__JavaAstExtract__JavaAstExtract__slash["slash"]
-        java__JavaAstExtract__JavaAstExtract__collect["collect"]
-        java__JavaAstExtract__JavaAstExtract__json["json"]
         java__JavaAstExtract__JavaAstExtract__map["map"]
-        java__JavaAstExtract__JavaAstExtract__try["try"]
-        java__JavaAstExtract__JavaAstExtract__containsIgnored["containsIgnored"]
-        java__JavaAstExtract__JavaAstExtract__escape["escape"]
+        java__JavaAstExtract__JavaAstExtract__collect["collect"]
         java__JavaAstExtract__JavaAstExtract__add["add"]
-        java__JavaAstExtract__JavaAstExtract__emit["emit"]
+        java__JavaAstExtract__JavaAstExtract__containsIgnored["containsIgnored"]
+        java__JavaAstExtract__JavaAstExtract__try["try"]
+        java__JavaAstExtract__JavaAstExtract__escape["escape"]
+        java__JavaAstExtract__JavaAstExtract__scanCompilationUnits["scanCompilationUnits"]
+        java__JavaAstExtract__JavaAstExtract__json["json"]
+        java__JavaAstExtract__JavaAstExtract__collectFileDiagnostics["collectFileDiagnostics"]
         java__JavaAstExtract__JavaAstExtract__main["main"]
+        java__JavaAstExtract__JavaAstExtract__emit["emit"]
     end
     subgraph rust_ast__src
-        rust_ast__src__main__visit_item_use["visit_item_use"]
-        rust_ast__src__main__visit_impl_item_fn["visit_impl_item_fn"]
         rust_ast__src__main__visit_item_static["visit_item_static"]
-        rust_ast__src__main__visit_item_const["visit_item_const"]
-        rust_ast__src__main__add["add"]
-        rust_ast__src__main__visit_item_mod["visit_item_mod"]
-        rust_ast__src__main__visit_item_fn["visit_item_fn"]
-        rust_ast__src__main__qualified["qualified"]
-        rust_ast__src__main__modifiers["modifiers"]
         rust_ast__src__main__visit_item_type["visit_item_type"]
-        rust_ast__src__main__visit_item_enum["visit_item_enum"]
-        rust_ast__src__main__slash["slash"]
-        rust_ast__src__main__visit_expr_call["visit_expr_call"]
-        rust_ast__src__main__visit_item_trait["visit_item_trait"]
-        rust_ast__src__main__excerpt["excerpt"]
-        rust_ast__src__main__main["main"]
-        rust_ast__src__main__type_item["type_item"]
-        rust_ast__src__main__collect_files["collect_files"]
-        rust_ast__src__main__visit_expr_method_call["visit_expr_method_call"]
         rust_ast__src__main__arguments["arguments"]
+        rust_ast__src__main__visit_expr_call["visit_expr_call"]
+        rust_ast__src__main__visit_item_mod["visit_item_mod"]
+        rust_ast__src__main__visit_impl_item_fn["visit_impl_item_fn"]
         rust_ast__src__main__visit_item_struct["visit_item_struct"]
-    end
-    subgraph src__cli
-        src__cli__main["main"]
-        src__cli__svg["svg"]
-        src__cli__handleExtractAst["handleExtractAst"]
-        src__cli__handleDiagnose["handleDiagnose"]
-        src__cli__handleExtract["handleExtract"]
-        src__cli__result["result"]
-        src__cli__taskFile["taskFile"]
-        src__cli__handleCommunication["handleCommunication"]
-        src__cli__isPlanSet["isPlanSet"]
-        src__cli__doctor["doctor"]
-        src__cli__handleLink["handleLink"]
-        src__cli__emitExtraction["emitExtraction"]
-        src__cli__parseArgs["parseArgs"]
-        src__cli__handleDiff["handleDiff"]
-        src__cli__optionTaskMode["optionTaskMode"]
-        src__cli__handleCompareWorkspace["handleCompareWorkspace"]
-        src__cli__handleEvaluateCodeChange["handleEvaluateCodeChange"]
-        src__cli__handleWatch["handleWatch"]
-        src__cli__handleExtractCommunication["handleExtractCommunication"]
-        src__cli__handleGraphDiff["handleGraphDiff"]
-        src__cli__emitJson["emitJson"]
-        src__cli__view["view"]
-        src__cli__controller["controller"]
-        src__cli__handleApplySourcePatch["handleApplySourcePatch"]
-        src__cli__buildDiffPayload["buildDiffPayload"]
-        src__cli__context["context"]
-        src__cli__handleRenderTodo["handleRenderTodo"]
-        src__cli__handleExtractDocs["handleExtractDocs"]
-        src__cli__printHelp["printHelp"]
-        src__cli__optionNullableString["optionNullableString"]
-        src__cli__optionPipelineTaskMode["optionPipelineTaskMode"]
-        src__cli__handleReality["handleReality"]
-        src__cli__optionString["optionString"]
-        src__cli__handleProposeTodo["handleProposeTodo"]
-        src__cli__resolveMainCommand["resolveMainCommand"]
-        src__cli__handleExtractConfig["handleExtractConfig"]
-        src__cli__buildCommonPipelineOptions["buildCommonPipelineOptions"]
-        src__cli__diff["diff"]
-        src__cli__optionNumber["optionNumber"]
-        src__cli__handler["handler"]
-        src__cli__resolvePipelineRoot["resolvePipelineRoot"]
-        src__cli__root["root"]
-        src__cli__handleIntake["handleIntake"]
-        src__cli__handleProposeSourcePatch["handleProposeSourcePatch"]
-        src__cli__handleProposeCodeChange["handleProposeCodeChange"]
-        src__cli__optionNlMode["optionNlMode"]
-        src__cli__commandHandlers["commandHandlers"]
-        src__cli__execFileAsync["execFileAsync"]
-        src__cli__optionList["optionList"]
-        src__cli__handleExtractGit["handleExtractGit"]
-        src__cli__handleExtractNl["handleExtractNl"]
-        src__cli__command["command"]
-        src__cli__formatWatchEvent["formatWatchEvent"]
-        src__cli__diagnosticsPath["diagnosticsPath"]
-        src__cli__handleRenderCodeChange["handleRenderCodeChange"]
-        src__cli__handleSummarize["handleSummarize"]
-        src__cli__reportPipelineDegradation["reportPipelineDegradation"]
-        src__cli__file["file"]
-        src__cli__handleExtractMarkdown["handleExtractMarkdown"]
-        src__cli__pipeline["pipeline"]
-        src__cli__buildWorkspaceComparisonOptions["buildWorkspaceComparisonOption"]
-        src__cli__handleExtractRuntime["handleExtractRuntime"]
-        src__cli__absolute["absolute"]
-        src__cli__resolveWatchTaskFile["resolveWatchTaskFile"]
-        src__cli__diagnostics["diagnostics"]
-        src__cli__parsed["parsed"]
-        src__cli__initProject["initProject"]
-        src__cli__invokedPath["invokedPath"]
-        src__cli__handleCloseCodeChange["handleCloseCodeChange"]
-        src__cli__buildGitDiff["buildGitDiff"]
-        src__cli__stop["stop"]
-        src__cli__handleApplyTodo["handleApplyTodo"]
-        src__cli__optionBoolean["optionBoolean"]
-        src__cli__optionLlmMode["optionLlmMode"]
-        src__cli__parseDiffMode["parseDiffMode"]
-        src__cli__stamp["stamp"]
-        src__cli__optionSummaryMode["optionSummaryMode"]
-        src__cli__buildFileDiff["buildFileDiff"]
-        src__cli__handlePipeline["handlePipeline"]
-        src__cli__buildPipelineOptions["buildPipelineOptions"]
+        rust_ast__src__main__visit_item_trait["visit_item_trait"]
+        rust_ast__src__main__qualified["qualified"]
+        rust_ast__src__main__collect_files["collect_files"]
+        rust_ast__src__main__excerpt["excerpt"]
+        rust_ast__src__main__add["add"]
+        rust_ast__src__main__type_item["type_item"]
+        rust_ast__src__main__visit_item_fn["visit_item_fn"]
+        rust_ast__src__main__main["main"]
+        rust_ast__src__main__visit_item_use["visit_item_use"]
+        rust_ast__src__main__visit_expr_method_call["visit_expr_method_call"]
+        rust_ast__src__main__modifiers["modifiers"]
+        rust_ast__src__main__slash["slash"]
+        rust_ast__src__main__visit_item_const["visit_item_const"]
+        rust_ast__src__main__visit_item_enum["visit_item_enum"]
     end
     subgraph src__extractors
-        src__extractors__docs_llm__DocumentationLlmRequiredError__errorMessage["errorMessage"]
-        src__extractors__nl__absolute["absolute"]
-        src__extractors__markdown_paths__addBasenameIndexMatch["addBasenameIndexMatch"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__markdownResponseContract["markdownResponseContract"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichment["enrichment"]
-        src__extractors__git__extractChangedSymbols["extractChangedSymbols"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__extractDocumentationIntent["extractDocumentationIntent"]
-        src__extractors__nl__confidence["confidence"]
-        src__extractors__runtime_cycle__sourcePathFor["sourcePathFor"]
-        src__extractors__docs_deterministic__primePathMapper["primePathMapper"]
-        src__extractors__markdown_paths__buildBasenameIndex["buildBasenameIndex"]
-        src__extractors__docs_chunks__sectionText["sectionText"]
-        src__extractors__docs_deterministic__heading["heading"]
-        src__extractors__communication_helpers__nestedRoleIndex["nestedRoleIndex"]
-        src__extractors__ast__isIntentRecords["isIntentRecords"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichMarkdownRecords["enrichMarkdownRecords"]
-        src__extractors__todo__body["body"]
-        src__extractors__communication_file_helpers__buildLocalWarnings["buildLocalWarnings"]
-        src__extractors__runtime_cycle__MAX_PER_SECTION["MAX_PER_SECTION"]
-        src__extractors__markdown_paths__createMarkdownPathResolver["createMarkdownPathResolver"]
-        src__extractors__docs_deterministic__parseBulletStatement["parseBulletStatement"]
-        src__extractors__docs_record__anchorToSource["anchorToSource"]
-        src__extractors__docs_record__allowedAction["allowedAction"]
-        src__extractors__communication_helpers__listValue["listValue"]
-        src__extractors__todo__resolvedPaths["resolvedPaths"]
-        src__extractors__communication_file_helpers__appendRegistryAlignmentWarnings["appendRegistryAlignmentWarning"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__client["client"]
-        src__extractors__runtime_cycle__proposalAction["proposalAction"]
-        src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited["extractNlIntentAudited"]
-        src__extractors__docs_deterministic__qualifyingStatement["qualifyingStatement"]
-        src__extractors__runtime_cycle__results["results"]
-        src__extractors__docs_deterministic__resolver["resolver"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__loadDocumentChunks["loadDocumentChunks"]
-        src__extractors__docs_schema__documentRecord["documentRecord"]
-        src__extractors__configuration__uniqueEntries["uniqueEntries"]
-        src__extractors__runtime_cycle__tags["tags"]
-        src__extractors__nl_llm_helpers__NlAttemptError__action["action"]
-        src__extractors__git__resolveDiscoveryPrefix["resolveDiscoveryPrefix"]
-        src__extractors__docs_record__hasTarget["hasTarget"]
-        src__extractors__configuration__yamlOrAssignmentEntries["yamlOrAssignmentEntries"]
-        src__extractors__docs_deterministic__extractDocumentationBaseline["extractDocumentationBaseline"]
-        src__extractors__configuration__entry["entry"]
-        src__extractors__todo__match["match"]
-        src__extractors__docs_chunks__workerCount["workerCount"]
-        src__extractors__git__registerDiscoveredRepository["registerDiscoveredRepository"]
-        src__extractors__communication_helpers__match["match"]
-        src__extractors__todo__checked["checked"]
-        src__extractors__ast__records__moduleRecords["moduleRecords"]
-        src__extractors__runtime_cycle__proposalRecord["proposalRecord"]
-        src__extractors__runtime_cycle__factsMetadata["factsMetadata"]
-        src__extractors__git__extractGitIntent["extractGitIntent"]
-        src__extractors__docs_schema__target["target"]
-        src__extractors__nl__object["object"]
-        src__extractors__communication_helpers__heading["heading"]
-        src__extractors__configuration__bounded["bounded"]
-        src__extractors__ast__external__execFileAsync["execFileAsync"]
-        src__extractors__communication_file_helpers__hasExplicitEnvelopeMetadata["hasExplicitEnvelopeMetadata"]
-        src__extractors__nl_llm__NlLlmRequiredError__client["client"]
-        src__extractors__git__root["root"]
-        src__extractors__runtime_cycle__violationRecord["violationRecord"]
-        src__extractors__todo__text["text"]
-        src__extractors__communication_helpers__inferGovernanceIdentityFromFilename["inferGovernanceIdentityFromFil"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichSplitBatch["enrichSplitBatch"]
-        src__extractors__configuration__tomlEntries["tomlEntries"]
-        src__extractors__ast__records__adapterRecords["adapterRecords"]
-        src__extractors__communication_helpers__raw["raw"]
-        src__extractors__markdown_paths__basenames["basenames"]
-        src__extractors__changelog__relative["relative"]
-        src__extractors__git__readStats["readStats"]
-        src__extractors__runtime_cycle__jsonScalar["jsonScalar"]
-        src__extractors__docs_deterministic__match["match"]
-        src__extractors__docs_record__OBJECT_PLACEHOLDERS["OBJECT_PLACEHOLDERS"]
-        src__extractors__git__runGit["runGit"]
-        src__extractors__git__readCommits["readCommits"]
-        src__extractors__markdown_paths__headingScopes["headingScopes"]
-        src__extractors__ast__isExtractionResult["isExtractionResult"]
-        src__extractors__markdown_paths__index["index"]
-        src__extractors__communication_file_helpers__envelope["envelope"]
-        src__extractors__nl_llm_helpers__NlAttemptError__NL_RECORD_CONTRACT["NL_RECORD_CONTRACT"]
-        src__extractors__todo__block["block"]
-        src__extractors__nl_llm_helpers__NlAttemptError__resolveAction["resolveAction"]
-        src__extractors__configuration__lines["lines"]
-        src__extractors__docs_chunks__markdownSections["markdownSections"]
-        src__extractors__markdown_paths__readBasenameDirectoryEntries["readBasenameDirectoryEntries"]
-        src__extractors__git__extractRepositoryGitIntent["extractRepositoryGitIntent"]
-        src__extractors__todo__raw["raw"]
-        src__extractors__runtime_cycle__text["text"]
-        src__extractors__communication_helpers__basename["basename"]
-        src__extractors__git__filterDiscoveryChildren["filterDiscoveryChildren"]
-        src__extractors__configuration__parsed["parsed"]
-        src__extractors__docs_schema__documentResponseSchema["documentResponseSchema"]
-        src__extractors__configuration__isConfigurationPath["isConfigurationPath"]
-        src__extractors__docs_record__resolveAction["resolveAction"]
-        src__extractors__nl_llm_helpers__NlAttemptError__resolveModality["resolveModality"]
-        src__extractors__git__readChangedFiles["readChangedFiles"]
-        src__extractors__docs_record__modality["modality"]
-        src__extractors__git__processDiscoveryDirectory["processDiscoveryDirectory"]
-        src__extractors__docs_deterministic__parseParagraphStatement["parseParagraphStatement"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__selectWithinBudget["selectWithinBudget"]
-        src__extractors__communication_helpers__item["item"]
-        src__extractors__docs_deterministic__parseFenceBlock["parseFenceBlock"]
-        src__extractors__configuration__fileAggregate["fileAggregate"]
-        src__extractors__nl_llm_helpers__NlAttemptError__clampLine["clampLine"]
-        src__extractors__markdown_paths__createBasenameIndexState["createBasenameIndexState"]
-        src__extractors__nl__sourcePath["sourcePath"]
-        src__extractors__git__readDiscoveryEntries["readDiscoveryEntries"]
-        src__extractors__nl_llm_helpers__NlAttemptError__nonEmptyText["nonEmptyText"]
-        src__extractors__git__mapWithConcurrency["mapWithConcurrency"]
-        src__extractors__docs_chunks__prioritizeDocumentChunks["prioritizeDocumentChunks"]
-        src__extractors__nl__assertNlExtractionOptions["assertNlExtractionOptions"]
-        src__extractors__nl_llm_helpers__NlAttemptError__NL_ACTION_SET["NL_ACTION_SET"]
-        src__extractors__nl_llm__NlLlmRequiredError__fallbackOrThrow["fallbackOrThrow"]
-        src__extractors__configuration__pair["pair"]
-        src__extractors__nl__action["action"]
-        src__extractors__docs_deterministic__action["action"]
-        src__extractors__runtime_cycle__extractRuntimeCycleIntent["extractRuntimeCycleIntent"]
-        src__extractors__configuration__jsonEntries["jsonEntries"]
-        src__extractors__nl_llm_helpers__NlAttemptError__statementText["statementText"]
-        src__extractors__runtime_cycle__watched["watched"]
         src__extractors__docs_record__fallback["fallback"]
-        src__extractors__communication_helpers__fileParts["fileParts"]
-        src__extractors__changelog__extractChangelog["extractChangelog"]
-        src__extractors__nl_llm_helpers__NlAttemptError__allowedAction["allowedAction"]
-        src__extractors__docs_chunks__needles["needles"]
-        src__extractors__docs_chunks__chunkPriority["chunkPriority"]
-        src__extractors__configuration__heading["heading"]
-        src__extractors__git__count["count"]
-        src__extractors__nl__extractNlIntent["extractNlIntent"]
-        src__extractors__communication_file_helpers__appendIdentityWarnings["appendIdentityWarnings"]
-        src__extractors__nl_llm_helpers__NlAttemptError__isPlaceholder["isPlaceholder"]
-        src__extractors__nl_llm_helpers__NlAttemptError__NL_MODALITY_SET["NL_MODALITY_SET"]
-        src__extractors__communication_helpers__nestedParticipant["nestedParticipant"]
-        src__extractors__docs_deterministic__codeBlockRecord["codeBlockRecord"]
-        src__extractors__nl_llm_helpers__NlAttemptError__resolveObject["resolveObject"]
-        src__extractors__docs_deterministic__handleDocumentationLine["handleDocumentationLine"]
-        src__extractors__docs_chunks__sectionLines["sectionLines"]
-        src__extractors__configuration__relative["relative"]
-        src__extractors__communication_helpers__nestedRole["nestedRole"]
-        src__extractors__docs_chunks__takeLineBatch["takeLineBatch"]
-        src__extractors__configuration__match["match"]
-        src__extractors__changelog__lines["lines"]
-        src__extractors__docs_record__isPlaceholder["isPlaceholder"]
-        src__extractors__docs_record__allowedLifecycle["allowedLifecycle"]
-        src__extractors__nl_llm_helpers__NlAttemptError__nlStrings["nlStrings"]
-        src__extractors__markdown_paths__isRepositoryPath["isRepositoryPath"]
-        src__extractors__git__result["result"]
-        src__extractors__todo__lines["lines"]
-        src__extractors__communication_helpers__normalize["normalize"]
-        src__extractors__git__execFileAsync["execFileAsync"]
-        src__extractors__configuration__extractConfigurationIntent["extractConfigurationIntent"]
-        src__extractors__docs_deterministic__statementRecord["statementRecord"]
-        src__extractors__docs_deterministic__root["root"]
-        src__extractors__markdown_paths__repositoryRoot["repositoryRoot"]
-        src__extractors__nl__detectMissingFields["detectMissingFields"]
-        src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord["toIntentRecord"]
+        src__extractors__markdown_paths__buildBasenameIndex["buildBasenameIndex"]
+        src__extractors__docs_chunks__index["index"]
+        src__extractors__ast__typescript__context["context"]
+        src__extractors__nl__body["body"]
         src__extractors__ast__external__result["result"]
+        src__extractors__docs_chunks__mapConcurrent["mapConcurrent"]
+        src__extractors__ast__typescript__handleCallExpression["handleCallExpression"]
+        src__extractors__ast__typescript__createTypeScriptExtractionContext["createTypeScriptExtractionCont"]
+        src__extractors__todo__raw["raw"]
+        src__extractors__ast__typescript__callee["callee"]
+        src__extractors__todo__resolvedPaths["resolvedPaths"]
+        src__extractors__configuration__bounded["bounded"]
+        src__extractors__todo__classified["classified"]
+        src__extractors__communication_helpers__normalize["normalize"]
+        src__extractors__markdown_paths__createMarkdownPathResolver["createMarkdownPathResolver"]
+        src__extractors__markdown_paths__addBasenameIndexMatch["addBasenameIndexMatch"]
+        src__extractors__configuration__uniqueEntries["uniqueEntries"]
         src__extractors__todo__extractTodo["extractTodo"]
-        src__extractors__communication_helpers__parseEnvelope["parseEnvelope"]
-        src__extractors__docs_record__resolveModality["resolveModality"]
-        src__extractors__todo__task["task"]
-        src__extractors__communication_helpers__inferIdentityFromPathAndFilename["inferIdentityFromPathAndFilena"]
-        src__extractors__docs_deterministic__targetsOf["targetsOf"]
-        src__extractors__markdown_paths__isNestedCheckout["isNestedCheckout"]
-        src__extractors__communication_helpers__unquote["unquote"]
-        src__extractors__docs_chunks__item["item"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__outcomes["outcomes"]
+        src__extractors__runtime_cycle__MAX_PER_SECTION["MAX_PER_SECTION"]
+        src__extractors__nl__extractNlIntent["extractNlIntent"]
+        src__extractors__nl__missing["missing"]
+        src__extractors__nl_llm_helpers__NlAttemptError__NL_ACTION_SET["NL_ACTION_SET"]
+        src__extractors__ast__typescript__extractSymbolName["extractSymbolName"]
+        src__extractors__docs_record__isPlaceholder["isPlaceholder"]
+        src__extractors__docs_deterministic__match["match"]
+        src__extractors__communication_helpers__item["item"]
+        src__extractors__docs_chunks__prioritizeDocumentChunks["prioritizeDocumentChunks"]
+        src__extractors__runtime_cycle__probeRecord["probeRecord"]
+        src__extractors__docs_record__action["action"]
+        src__extractors__changelog__relative["relative"]
+        src__extractors__ast__typescript__scriptKind["scriptKind"]
+        src__extractors__docs_deterministic__action["action"]
+        src__extractors__nl_llm__NlLlmRequiredError__client["client"]
+        src__extractors__git__state["state"]
+        src__extractors__nl_llm_helpers__NlAttemptError__NL_RECORD_CONTRACT["NL_RECORD_CONTRACT"]
+        src__extractors__communication_helpers__sameStrings["sameStrings"]
+        src__extractors__git__mapWithConcurrency["mapWithConcurrency"]
+        src__extractors__markdown_paths__headingScopes["headingScopes"]
+        src__extractors__docs_deterministic__extractDocumentationBaseline["extractDocumentationBaseline"]
+        src__extractors__git__filterDiscoveryChildren["filterDiscoveryChildren"]
+        src__extractors__communication_helpers__flush["flush"]
+        src__extractors__todo__inferOwner["inferOwner"]
+        src__extractors__todo__extractExplicitId["extractExplicitId"]
+        src__extractors__git__extractGitIntent["extractGitIntent"]
+        src__extractors__communication_file_helpers__appendRoleAndParticipantWarnings["appendRoleAndParticipantWarnin"]
+        src__extractors__runtime_cycle__factsMetadata["factsMetadata"]
+        src__extractors__configuration__fileAggregate["fileAggregate"]
+        src__extractors__configuration__MAX_ENTRIES_PER_FILE["MAX_ENTRIES_PER_FILE"]
+        src__extractors__docs_record__OBJECT_PLACEHOLDERS["OBJECT_PLACEHOLDERS"]
+        src__extractors__docs_record__hasTarget["hasTarget"]
+        src__extractors__docs_deterministic__statementRecord["statementRecord"]
+        src__extractors__nl__object["object"]
+        src__extractors__docs_chunks__splitLongSection["splitLongSection"]
+        src__extractors__ast__typescript__recordModuleFact["recordModuleFact"]
+        src__extractors__configuration__parsed["parsed"]
+        src__extractors__docs_chunks__chunkPriority["chunkPriority"]
+        src__extractors__nl_llm_helpers__NlAttemptError__isPlaceholder["isPlaceholder"]
+        src__extractors__docs_schema__documentResponseSchema["documentResponseSchema"]
+        src__extractors__docs_record__resolveTarget["resolveTarget"]
+        src__extractors__configuration__jsonEntries["jsonEntries"]
+        src__extractors__git__finishDiscovery["finishDiscovery"]
+        src__extractors__configuration__pair["pair"]
+        src__extractors__ast__typescript__declarationIsCallable["declarationIsCallable"]
+        src__extractors__communication_helpers__isCommunicationNoise["isCommunicationNoise"]
+        src__extractors__nl__confidence["confidence"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__files["files"]
+        src__extractors__configuration__line["line"]
+        src__extractors__runtime_cycle__label["label"]
+        src__extractors__todo__body["body"]
+        src__extractors__nl_llm_helpers__NlAttemptError__nlStrings["nlStrings"]
+        src__extractors__git__gitMarkerState["gitMarkerState"]
+        src__extractors__nl_llm__NlLlmRequiredError__assertNlExtractionOptions["assertNlExtractionOptions"]
         src__extractors__markdown_paths__scanDirectoryForBasenames["scanDirectoryForBasenames"]
         src__extractors__docs_deterministic__convertDocument["convertDocument"]
-        src__extractors__ast__external__runExternalAstAdapter["runExternalAstAdapter"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__extractChunk["extractChunk"]
-        src__extractors__docs_schema__strings["strings"]
-        src__extractors__runtime_cycle__label["label"]
-        src__extractors__todo__extractExplicitId["extractExplicitId"]
-        src__extractors__nl_llm_helpers__NlAttemptError__normalizedText["normalizedText"]
-        src__extractors__communication_helpers__sameStrings["sameStrings"]
-        src__extractors__communication_file_helpers__appendTimestampWarnings["appendTimestampWarnings"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__requireConfiguredClient["requireConfiguredClient"]
-        src__extractors__nl_llm_helpers__NlAttemptError__sourceExcerpt["sourceExcerpt"]
+        src__extractors__docs_chunks__takeLineBatch["takeLineBatch"]
+        src__extractors__ast__external__execFileAsync["execFileAsync"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichBatchCovering["enrichBatchCovering"]
+        src__extractors__markdown_paths__createBasenameIndexState["createBasenameIndexState"]
+        src__extractors__docs_schema__documentRecord["documentRecord"]
+        src__extractors__communication_helpers__nestedRole["nestedRole"]
+        src__extractors__runtime_cycle__text["text"]
+        src__extractors__runtime_cycle__extractRuntimeCycleIntent["extractRuntimeCycleIntent"]
+        src__extractors__git__isGitWorkTree["isGitWorkTree"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichment["enrichment"]
+        src__extractors__communication_file_helpers__appendA2aAgentWarnings["appendA2aAgentWarnings"]
+        src__extractors__configuration__match["match"]
+        src__extractors__runtime_cycle__proposalRecord["proposalRecord"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__markdownResponseContract["markdownResponseContract"]
         src__extractors__docs_deterministic__parseSectionHeading["parseSectionHeading"]
+        src__extractors__configuration__heading["heading"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__loadDocumentChunks["loadDocumentChunks"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__readPrompt["readPrompt"]
+        src__extractors__ast__typescript__handleExportDeclaration["handleExportDeclaration"]
+        src__extractors__markdown_paths__basenames["basenames"]
+        src__extractors__nl_llm_helpers__NlAttemptError__nonEmptyText["nonEmptyText"]
+        src__extractors__ast__typescript__symbolModifiers["symbolModifiers"]
+        src__extractors__ast__typescript__isTopLevel["isTopLevel"]
+        src__extractors__communication_file_helpers__appendTimestampWarnings["appendTimestampWarnings"]
+        src__extractors__docs_deterministic__resolver["resolver"]
+        src__extractors__nl__absolute["absolute"]
+        src__extractors__git__discoverGitRepositories["discoverGitRepositories"]
+        src__extractors__ast__records__boundedCapabilities["boundedCapabilities"]
+        src__extractors__docs_deterministic__parseBulletStatement["parseBulletStatement"]
+        src__extractors__configuration__tomlEntries["tomlEntries"]
+        src__extractors__todo__lines["lines"]
+        src__extractors__todo__heading["heading"]
+        src__extractors__todo__text["text"]
+        src__extractors__ast__external__runExternalAstAdapter["runExternalAstAdapter"]
+        src__extractors__configuration__findKeyLine["findKeyLine"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__errorMessage["errorMessage"]
+        src__extractors__communication_file_helpers__appendRegistryAlignmentWarnings["appendRegistryAlignmentWarning"]
+        src__extractors__docs_record__anchorToSource["anchorToSource"]
+        src__extractors__docs_deterministic__heading["heading"]
+        src__extractors__docs_record__allowedLifecycle["allowedLifecycle"]
+        src__extractors__docs_deterministic__primePathMapper["primePathMapper"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__requireConfiguredClient["requireConfiguredClient"]
+        src__extractors__configuration__files["files"]
+        src__extractors__todo__match["match"]
+        src__extractors__communication_helpers__raw["raw"]
+        src__extractors__git__count["count"]
+        src__extractors__ast__records__capabilities["capabilities"]
+        src__extractors__communication_file_helpers__hasExplicitEnvelopeMetadata["hasExplicitEnvelopeMetadata"]
+        src__extractors__nl_llm_helpers__NlAttemptError__statementText["statementText"]
+        src__extractors__communication_file_helpers__appendIdentityWarnings["appendIdentityWarnings"]
+        src__extractors__configuration__entry["entry"]
+        src__extractors__docs_record__allowedModality["allowedModality"]
+        src__extractors__docs_deterministic__parseParagraphStatement["parseParagraphStatement"]
+        src__extractors__communication_helpers__isTicketEvidenceFile["isTicketEvidenceFile"]
+        src__extractors__ast__isExtractionResult["isExtractionResult"]
+        src__extractors__git__readDiscoveryEntries["readDiscoveryEntries"]
+        src__extractors__todo__task["task"]
+        src__extractors__changelog__lines["lines"]
+        src__extractors__docs_deterministic__marker["marker"]
+        src__extractors__communication_helpers__inferIdentityFromPathAndFilename["inferIdentityFromPathAndFilena"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__extractChunk["extractChunk"]
+        src__extractors__communication_helpers__unquote["unquote"]
+        src__extractors__nl_llm_helpers__NlAttemptError__toIntentRecord["toIntentRecord"]
+        src__extractors__docs_chunks__worker["worker"]
+        src__extractors__communication_helpers__fileParts["fileParts"]
+        src__extractors__configuration__extractConfigurationIntent["extractConfigurationIntent"]
+        src__extractors__ast__typescript__extractTypeScriptFile["extractTypeScriptFile"]
+        src__extractors__git__readChangedFiles["readChangedFiles"]
+        src__extractors__docs_chunks__sectionText["sectionText"]
+        src__extractors__nl__sourcePath["sourcePath"]
+        src__extractors__configuration__dockerEntries["dockerEntries"]
+        src__extractors__git__result["result"]
+        src__extractors__docs_record__statementText["statementText"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichMarkdownRecords["enrichMarkdownRecords"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichMarkdownBatchWithCorrection["enrichMarkdownBatchWithCorrect"]
+        src__extractors__ast__isIntentRecords["isIntentRecords"]
+        src__extractors__docs_record__clampLine["clampLine"]
+        src__extractors__nl_llm_helpers__NlAttemptError__action["action"]
+        src__extractors__git__execFileAsync["execFileAsync"]
+        src__extractors__docs_record__linesFromChunk["linesFromChunk"]
+        src__extractors__markdown_paths__readBasenameDirectoryEntries["readBasenameDirectoryEntries"]
+        src__extractors__git__hasMoreDiscoveryWork["hasMoreDiscoveryWork"]
+        src__extractors__nl_llm_helpers__NlAttemptError__lines["lines"]
+        src__extractors__docs_record__resolveObject["resolveObject"]
+        src__extractors__docs_record__toDocumentIntentRecord["toDocumentIntentRecord"]
+        src__extractors__communication_helpers__listValue["listValue"]
         src__extractors__communication_helpers__inferIdentity["inferIdentity"]
         src__extractors__git__takeNextDiscoveryDirectory["takeNextDiscoveryDirectory"]
-        src__extractors__communication_helpers__isTicketEvidenceFile["isTicketEvidenceFile"]
-        src__extractors__markdown_paths__headingDirectories["headingDirectories"]
-        src__extractors__communication_file_helpers__appendA2aAgentWarnings["appendA2aAgentWarnings"]
-        src__extractors__todo__inferOwner["inferOwner"]
-        src__extractors__runtime_cycle__probeRecord["probeRecord"]
-        src__extractors__docs_record__target["target"]
-        src__extractors__git__createDiscoveryState["createDiscoveryState"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichBatchCovering["enrichBatchCovering"]
-        src__extractors__docs_chunks__worker["worker"]
-        src__extractors__nl_llm__NlLlmRequiredError__assertNlExtractionOptions["assertNlExtractionOptions"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__files["files"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__extractMarkdownIntentAudited["extractMarkdownIntentAudited"]
-        src__extractors__git__gitMarkerState["gitMarkerState"]
-        src__extractors__runtime_cycle__parseCycle["parseCycle"]
-        src__extractors__communication_file_helpers__shouldSkipCommunicationFile["shouldSkipCommunicationFile"]
-        src__extractors__configuration__dockerEntries["dockerEntries"]
-        src__extractors__git__isGitWorkTree["isGitWorkTree"]
-        src__extractors__communication_helpers__communicationSegments["communicationSegments"]
-        src__extractors__changelog__body["body"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichMarkdownBatchWithCorrection["enrichMarkdownBatchWithCorrect"]
-        src__extractors__configuration__configurationFormat["configurationFormat"]
-        src__extractors__docs_deterministic__marker["marker"]
-        src__extractors__configuration__findKeyLine["findKeyLine"]
-        src__extractors__communication_file_helpers__inferred["inferred"]
-        src__extractors__todo__heading["heading"]
+        src__extractors__nl_llm_helpers__NlAttemptError__NL_MODALITY_SET["NL_MODALITY_SET"]
+        src__extractors__ast__typescript__handleNode["handleNode"]
+        src__extractors__docs_chunks__sectionLines["sectionLines"]
+        src__extractors__changelog__extractChangelog["extractChangelog"]
         src__extractors__docs_chunks__flush["flush"]
-        src__extractors__communication_helpers__isCommunicationType["isCommunicationType"]
-        src__extractors__communication_helpers__normalizeType["normalizeType"]
-        src__extractors__configuration__files["files"]
-        src__extractors__docs_deterministic__readParagraph["readParagraph"]
-        src__extractors__docs_record__linesFromChunk["linesFromChunk"]
-        src__extractors__nl__inferActor["inferActor"]
-        src__extractors__docs_record__action["action"]
-        src__extractors__docs_record__clampLine["clampLine"]
-        src__extractors__runtime_cycle__boundedArray["boundedArray"]
-        src__extractors__docs_chunks__splitLongSection["splitLongSection"]
-        src__extractors__todo__classified["classified"]
-        src__extractors__git__state["state"]
-        src__extractors__runtime_cycle__driftRecord["driftRecord"]
-        src__extractors__configuration__entries["entries"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__emptyCoverage["emptyCoverage"]
-        src__extractors__todo__relative["relative"]
-        src__extractors__docs_chunks__chunkMarkdown["chunkMarkdown"]
-        src__extractors__communication_file_helpers__appendRoleAndParticipantWarnings["appendRoleAndParticipantWarnin"]
-        src__extractors__nl__classified["classified"]
-        src__extractors__docs_chunks__index["index"]
-        src__extractors__todo__action["action"]
-        src__extractors__markdown_llm__MarkdownLlmRequiredError__fallbackOrThrow["fallbackOrThrow"]
-        src__extractors__communication_helpers__isCommunicationNoise["isCommunicationNoise"]
-        src__extractors__nl_llm_helpers__NlAttemptError__lines["lines"]
-        src__extractors__configuration__configurationRecords["configurationRecords"]
-        src__extractors__docs_record__toDocumentIntentRecord["toDocumentIntentRecord"]
-        src__extractors__docs_record__allowedModality["allowedModality"]
-        src__extractors__docs_llm__DocumentationLlmRequiredError__readPrompt["readPrompt"]
-        src__extractors__communication_helpers__flush["flush"]
-        src__extractors__docs_record__keywordOverlap["keywordOverlap"]
-        src__extractors__changelog__changelogAction["changelogAction"]
-        src__extractors__configuration__MAX_ENTRIES_PER_FILE["MAX_ENTRIES_PER_FILE"]
-        src__extractors__git__hasMoreDiscoveryWork["hasMoreDiscoveryWork"]
-        src__extractors__configuration__line["line"]
-        src__extractors__docs_record__statementText["statementText"]
-        src__extractors__markdown_llm_helpers__MarkdownAttemptError__strings["strings"]
-        src__extractors__nl__body["body"]
-        src__extractors__docs_record__resolveTarget["resolveTarget"]
-        src__extractors__git__discoverGitRepositories["discoverGitRepositories"]
-        src__extractors__git__finishDiscovery["finishDiscovery"]
-        src__extractors__nl__missing["missing"]
-        src__extractors__docs_chunks__mapConcurrent["mapConcurrent"]
-        src__extractors__docs_schema__documentResponseContract["documentResponseContract"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__outcomes["outcomes"]
+        src__extractors__docs_deterministic__codeBlockRecord["codeBlockRecord"]
+        src__extractors__nl_llm_helpers__NlAttemptError__sourceExcerpt["sourceExcerpt"]
+        src__extractors__docs_schema__target["target"]
+        src__extractors__ast__records__moduleTopicText["moduleTopicText"]
         src__extractors__nl_llm_helpers__NlAttemptError__allowedModality["allowedModality"]
+        src__extractors__git__extractChangedSymbols["extractChangedSymbols"]
+        src__extractors__nl_llm_helpers__NlAttemptError__normalizedText["normalizedText"]
+        src__extractors__nl_llm__NlLlmRequiredError__fallbackOrThrow["fallbackOrThrow"]
+        src__extractors__markdown_llm__MarkdownLlmRequiredError__fallbackOrThrow["fallbackOrThrow"]
+        src__extractors__ast__typescript__addTypeScriptRecord["addTypeScriptRecord"]
+        src__extractors__markdown_paths__headingDirectories["headingDirectories"]
+        src__extractors__runtime_cycle__jsonScalar["jsonScalar"]
+        src__extractors__communication_helpers__parseEnvelope["parseEnvelope"]
+        src__extractors__communication_helpers__nestedRoleIndex["nestedRoleIndex"]
+        src__extractors__ast__typescript__isTypeScriptSymbolDeclaration["isTypeScriptSymbolDeclaration"]
+        src__extractors__nl__assertNlExtractionOptions["assertNlExtractionOptions"]
+        src__extractors__communication_helpers__heading["heading"]
+        src__extractors__configuration__isConfigurationPath["isConfigurationPath"]
+        src__extractors__todo__checked["checked"]
+        src__extractors__communication_helpers__isCommunicationType["isCommunicationType"]
+        src__extractors__docs_chunks__chunkMarkdown["chunkMarkdown"]
+        src__extractors__changelog__body["body"]
+        src__extractors__todo__block["block"]
+        src__extractors__configuration__yamlOrAssignmentEntries["yamlOrAssignmentEntries"]
+        src__extractors__docs_chunks__needles["needles"]
+        src__extractors__configuration__lines["lines"]
+        src__extractors__docs_record__modality["modality"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__strings["strings"]
+        src__extractors__ast__records__start["start"]
+        src__extractors__docs_chunks__item["item"]
+        src__extractors__ast__records__adapterRecords["adapterRecords"]
+        src__extractors__configuration__configurationRecords["configurationRecords"]
+        src__extractors__runtime_cycle__proposalAction["proposalAction"]
+        src__extractors__markdown_llm__MarkdownLlmRequiredError__client["client"]
+        src__extractors__docs_deterministic__qualifyingStatement["qualifyingStatement"]
+        src__extractors__docs_record__resolveModality["resolveModality"]
+        src__extractors__runtime_cycle__violationRecord["violationRecord"]
+        src__extractors__configuration__entries["entries"]
+        src__extractors__communication_file_helpers__envelope["envelope"]
+        src__extractors__nl__action["action"]
+        src__extractors__docs_record__keywordOverlap["keywordOverlap"]
+        src__extractors__git__registerDiscoveredRepository["registerDiscoveredRepository"]
+        src__extractors__communication_helpers__basename["basename"]
+        src__extractors__docs_deterministic__parseFenceBlock["parseFenceBlock"]
+        src__extractors__ast__typescript__handleSymbolDeclaration["handleSymbolDeclaration"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__emptyCoverage["emptyCoverage"]
+        src__extractors__communication_helpers__nestedParticipant["nestedParticipant"]
+        src__extractors__runtime_cycle__watched["watched"]
+        src__extractors__git__runGit["runGit"]
+        src__extractors__todo__relative["relative"]
+        src__extractors__ast__typescript__handleImportDeclaration["handleImportDeclaration"]
+        src__extractors__markdown_llm__MarkdownLlmRequiredError__extractMarkdownIntentAudited["extractMarkdownIntentAudited"]
+        src__extractors__docs_deterministic__targetsOf["targetsOf"]
+        src__extractors__runtime_cycle__driftRecord["driftRecord"]
+        src__extractors__markdown_paths__isNestedCheckout["isNestedCheckout"]
+        src__extractors__docs_record__target["target"]
+        src__extractors__runtime_cycle__tags["tags"]
+        src__extractors__nl_llm_helpers__NlAttemptError__resolveModality["resolveModality"]
+        src__extractors__todo__action["action"]
+        src__extractors__communication_helpers__inferGovernanceIdentityFromFilename["inferGovernanceIdentityFromFil"]
+        src__extractors__nl_llm_helpers__NlAttemptError__allowedAction["allowedAction"]
+        src__extractors__runtime_cycle__parseCycle["parseCycle"]
+        src__extractors__git__resolveDiscoveryPrefix["resolveDiscoveryPrefix"]
+        src__extractors__markdown_paths__index["index"]
+        src__extractors__markdown_llm_helpers__MarkdownAttemptError__enrichSplitBatch["enrichSplitBatch"]
+        src__extractors__ast__records__moduleRecords["moduleRecords"]
+        src__extractors__ast__records__end["end"]
+        src__extractors__communication_file_helpers__inferred["inferred"]
+        src__extractors__runtime_cycle__sourcePathFor["sourcePathFor"]
+        src__extractors__docs_schema__strings["strings"]
+        src__extractors__nl_llm_helpers__NlAttemptError__resolveAction["resolveAction"]
+        src__extractors__nl__inferActor["inferActor"]
+        src__extractors__docs_record__allowedAction["allowedAction"]
+        src__extractors__communication_helpers__match["match"]
+        src__extractors__docs_chunks__markdownSections["markdownSections"]
+        src__extractors__ast__typescript__extractModifiers["extractModifiers"]
+        src__extractors__ast__typescript__visitTypeScriptNode["visitTypeScriptNode"]
+        src__extractors__nl__detectMissingFields["detectMissingFields"]
+        src__extractors__git__readCommits["readCommits"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__extractDocumentationIntent["extractDocumentationIntent"]
+        src__extractors__git__processDiscoveryDirectory["processDiscoveryDirectory"]
+        src__extractors__docs_chunks__workerCount["workerCount"]
+        src__extractors__communication_helpers__normalizeType["normalizeType"]
+        src__extractors__ast__typescript__handleVariableDeclaration["handleVariableDeclaration"]
+        src__extractors__nl__classified["classified"]
+        src__extractors__markdown_paths__repositoryRoot["repositoryRoot"]
+        src__extractors__git__root["root"]
+        src__extractors__docs_llm__DocumentationLlmRequiredError__selectWithinBudget["selectWithinBudget"]
+        src__extractors__configuration__configurationFormat["configurationFormat"]
+        src__extractors__docs_deterministic__handleDocumentationLine["handleDocumentationLine"]
+        src__extractors__runtime_cycle__boundedArray["boundedArray"]
+        src__extractors__docs_record__resolveAction["resolveAction"]
+        src__extractors__markdown_paths__isRepositoryPath["isRepositoryPath"]
+        src__extractors__git__createDiscoveryState["createDiscoveryState"]
+        src__extractors__communication_helpers__communicationSegments["communicationSegments"]
+        src__extractors__docs_schema__documentResponseContract["documentResponseContract"]
         src__extractors__markdown_paths__state["state"]
-        src__extractors__docs_record__resolveObject["resolveObject"]
+        src__extractors__communication_file_helpers__buildLocalWarnings["buildLocalWarnings"]
+        src__extractors__nl_llm__NlLlmRequiredError__extractNlIntentAudited["extractNlIntentAudited"]
+        src__extractors__changelog__changelogAction["changelogAction"]
+        src__extractors__git__readStats["readStats"]
+        src__extractors__runtime_cycle__results["results"]
+        src__extractors__communication_file_helpers__shouldSkipCommunicationFile["shouldSkipCommunicationFile"]
+        src__extractors__configuration__relative["relative"]
+        src__extractors__docs_deterministic__readParagraph["readParagraph"]
+        src__extractors__git__extractRepositoryGitIntent["extractRepositoryGitIntent"]
+        src__extractors__docs_deterministic__root["root"]
+        src__extractors__nl_llm_helpers__NlAttemptError__clampLine["clampLine"]
+        src__extractors__nl_llm_helpers__NlAttemptError__resolveObject["resolveObject"]
+    end
+    subgraph src__graph
+        src__graph__linker__aliases["aliases"]
+        src__graph__linker_relations__matchSourceRule["matchSourceRule"]
+        src__graph__linker__expand["expand"]
+        src__graph__diagnostics__buildImplementedWithoutPlanDiagnostic["buildImplementedWithoutPlanDia"]
+        src__graph__linker__scoreSharedTickets["scoreSharedTickets"]
+        src__graph__diagnostics__collectMissingFields["collectMissingFields"]
+        src__graph__linker__intersectsAliases["intersectsAliases"]
+        src__graph__diff__escapeXml["escapeXml"]
+        src__graph__diff__beforeRecord["beforeRecord"]
+        src__graph__linker__keywordIndex["keywordIndex"]
+        src__graph__diff__truncate["truncate"]
+        src__graph__diff__height["height"]
+        src__graph__diff__groups["groups"]
+        src__graph__symbol_resolution__resolveSymbol["resolveSymbol"]
+        src__graph__symbol_resolution__selected["selected"]
+        src__graph__diagnostics__diagnoseGraph["diagnoseGraph"]
+        src__graph__diff__values["values"]
+        src__graph__diff__beforeGroups["beforeGroups"]
+        src__graph__linker__resolvableBasenames["resolvableBasenames"]
+        src__graph__diagnostics__collectRelatedRecords["collectRelatedRecords"]
+        src__graph__linker__symbolResolutionIndex["symbolResolutionIndex"]
+        src__graph__linker__scoreSharedPath["scoreSharedPath"]
+        src__graph__diagnostics__buildDiagnosticContext["buildDiagnosticContext"]
+        src__graph__diff__metricCard["metricCard"]
+        src__graph__linker_relations__orientRelation["orientRelation"]
+        src__graph__diff__y["y"]
+        src__graph__diff__renderGraphDiffSvg["renderGraphDiffSvg"]
+        src__graph__diagnostics__makeDiagnostic["makeDiagnostic"]
+        src__graph__diagnostics__buildNeighbors["buildNeighbors"]
+        src__graph__diff__compareRelations["compareRelations"]
+        src__graph__diagnostics__indexGroundedImplementationEvidence["indexGroundedImplementationEvi"]
+        src__graph__diagnostics__hasDocumentedTarget["hasDocumentedTarget"]
+        src__graph__diff__relationKey["relationKey"]
+        src__graph__symbol_resolution__pathSelects["pathSelects"]
+        src__graph__linker__scoreSourceKindPenalty["scoreSourceKindPenalty"]
+        src__graph__diff__isObject["isObject"]
+        src__graph__linker__linkIntentRecords["linkIntentRecords"]
+        src__graph__diff__changedFieldPaths["changedFieldPaths"]
+        src__graph__symbol_resolution__uniquePaths["uniquePaths"]
+        src__graph__linker__scorePair["scorePair"]
+        src__graph__symbol_resolution__byAlias["byAlias"]
+        src__graph__diagnostics__map["map"]
+        src__graph__linker__isFileAggregateEvidencePair["isFileAggregateEvidencePair"]
+        src__graph__diagnostics__context["context"]
+        src__graph__linker_relations__determineRelation["determineRelation"]
+        src__graph__symbol_resolution__values["values"]
+        src__graph__diff__left["left"]
+        src__graph__diff__normalizeRecord["normalizeRecord"]
+        src__graph__linker__scoreSharedTopics["scoreSharedTopics"]
+        src__graph__symbol_resolution__collectAstCandidates["collectAstCandidates"]
+        src__graph__symbol_resolution__buildAstCandidate["buildAstCandidate"]
+        src__graph__diagnostics__indexImplementedPaths["indexImplementedPaths"]
+        src__graph__linker_relations__relationForSourceKinds["relationForSourceKinds"]
+        src__graph__linker__intersectionSize["intersectionSize"]
+        src__graph__diagnostics__indexDocumentedPaths["indexDocumentedPaths"]
+        src__graph__linker__scoreObjectSimilarity["scoreObjectSimilarity"]
+        src__graph__diagnostics__recordsById["recordsById"]
+        src__graph__linker__candidatePairs["candidatePairs"]
+        src__graph__diagnostics__buildChangelogWithoutImplementationDiagnostic["buildChangelogWithoutImplement"]
+        src__graph__linker__pathsIntersect["pathsIntersect"]
+        src__graph__diagnostics__buildAmbiguousRequirementDiagnostic["buildAmbiguousRequirementDiagn"]
+        src__graph__linker__records["records"]
+        src__graph__linker__indexResolvableBasenames["indexResolvableBasenames"]
+        src__graph__diff__afterRecord["afterRecord"]
+        src__graph__diagnostics__isRecordEvidenced["isRecordEvidenced"]
+        src__graph__linker__owners["owners"]
+        src__graph__diff__paired["paired"]
+        src__graph__linker__deduplicateRecords["deduplicateRecords"]
+        src__graph__linker__isModuleTopicEvidencePair["isModuleTopicEvidencePair"]
+        src__graph__symbol_resolution__sortCandidates["sortCandidates"]
+        src__graph__diff__recordIdentity["recordIdentity"]
+        src__graph__diagnostics__collectSymbolIssues["collectSymbolIssues"]
+        src__graph__linker__byId["byId"]
+        src__graph__diff__assertGraph["assertGraph"]
+        src__graph__linker__set["set"]
+        src__graph__diff__width["width"]
+        src__graph__diagnostics__collectContradictionDiagnostics["collectContradictionDiagnostic"]
+        src__graph__linker__jaccard["jaccard"]
+        src__graph__diagnostics__buildUndocumentedImplementationDiagnostic["buildUndocumentedImplementatio"]
+        src__graph__diff__afterGroups["afterGroups"]
+        src__graph__symbol_resolution__uniqueSymbols["uniqueSymbols"]
+        src__graph__symbol_resolution__buildSymbolResolutionIndex["buildSymbolResolutionIndex"]
+        src__graph__symbol_resolution__hasResolvedNlAstSymbolPair["hasResolvedNlAstSymbolPair"]
+        src__graph__diagnostics__buildPlannedNotImplementedDiagnostic["buildPlannedNotImplementedDiag"]
+        src__graph__diff__right["right"]
+        src__graph__symbol_resolution__byNlRecord["byNlRecord"]
+        src__graph__diagnostics__collectRecordDiagnostics["collectRecordDiagnostics"]
+        src__graph__diagnostics__hasImplementedTarget["hasImplementedTarget"]
+        src__graph__linker__scoreSharedSymbol["scoreSharedSymbol"]
+        src__graph__diff__diffIntentGraphs["diffIntentGraphs"]
+        src__graph__symbol_resolution__isAstDeclaration["isAstDeclaration"]
+        src__graph__diff__groupRecords["groupRecords"]
+        src__graph__linker__scoreSameAction["scoreSameAction"]
+        src__graph__diff__visibleRows["visibleRows"]
+        src__graph__linker__intersects["intersects"]
+        src__graph__diagnostics__neighbors["neighbors"]
+        src__graph__symbol_resolution__collectNlResolutions["collectNlResolutions"]
     end
     rust_ast__src__main__main --> rust_ast__src__main__arguments
     rust_ast__src__main__main --> rust_ast__src__main__collect_files
@@ -482,144 +525,9 @@ flowchart LR
     java__JavaAstExtract__JavaAstExtract__emit --> java__JavaAstExtract__JavaAstExtract__map
     java__JavaAstExtract__JavaAstExtract__collect --> java__JavaAstExtract__JavaAstExtract__try
     java__JavaAstExtract__JavaAstExtract__collect --> java__JavaAstExtract__JavaAstExtract__containsIgnored
-    java__JavaAstExtract__JavaAstExtract__try --> java__JavaAstExtract__JavaAstExtract__slash
+    java__JavaAstExtract__JavaAstExtract__try --> java__JavaAstExtract__JavaAstExtract__scanCompilationUnits
+    java__JavaAstExtract__JavaAstExtract__collectFileDiagnostics --> java__JavaAstExtract__JavaAstExtract__add
     java__JavaAstExtract__JavaAstExtract__json --> java__JavaAstExtract__JavaAstExtract__escape
-    src__cli__main --> src__cli__printHelp
-    src__cli__main --> src__cli__parseArgs
-    src__cli__main --> src__cli__resolveMainCommand
-    src__cli__main --> src__cli__commandHandlers
-    src__cli__parsed --> src__cli__printHelp
-    src__cli__command --> src__cli__printHelp
-    src__cli__commandHandlers --> src__cli__initProject
-    src__cli__commandHandlers --> src__cli__doctor
-    src__cli__handleLink --> src__cli__emitJson
-    src__cli__handleLink --> src__cli__optionString
-    src__cli__handleDiagnose --> src__cli__emitJson
-    src__cli__handleDiagnose --> src__cli__optionString
-    src__cli__handleSummarize --> src__cli__optionString
-    src__cli__handleSummarize --> src__cli__optionSummaryMode
-    src__cli__diagnosticsPath --> src__cli__optionNumber
-    src__cli__diagnosticsPath --> src__cli__optionBoolean
-    src__cli__diagnostics --> src__cli__optionNumber
-    src__cli__diagnostics --> src__cli__optionBoolean
-    src__cli__result --> src__cli__execFileAsync
-    src__cli__handleProposeTodo --> src__cli__optionString
-    src__cli__handleProposeTodo --> src__cli__optionTaskMode
-    src__cli__handleRenderTodo --> src__cli__optionString
-    src__cli__handleApplyTodo --> src__cli__optionString
-    src__cli__handleProposeCodeChange --> src__cli__optionString
-    src__cli__handleRenderCodeChange --> src__cli__optionString
-    src__cli__handleProposeSourcePatch --> src__cli__optionString
-    src__cli__isPlanSet --> src__cli__optionString
-    src__cli__handleApplySourcePatch --> src__cli__optionString
-    src__cli__handleEvaluateCodeChange --> src__cli__optionString
-    src__cli__handleCloseCodeChange --> src__cli__optionString
-    src__cli__handleCompareWorkspace --> src__cli__resolvePipelineRoot
-    src__cli__handleCompareWorkspace --> src__cli__buildWorkspaceComparisonOptions
-    src__cli__root --> src__cli__optionString
-    src__cli__root --> src__cli__optionNullableString
-    src__cli__root --> src__cli__optionLlmMode
-    src__cli__handlePipeline --> src__cli__resolvePipelineRoot
-    src__cli__handlePipeline --> src__cli__buildPipelineOptions
-    src__cli__handlePipeline --> src__cli__optionNullableString
-    src__cli__handlePipeline --> src__cli__reportPipelineDegradation
-    src__cli__handleWatch --> src__cli__resolvePipelineRoot
-    src__cli__handleWatch --> src__cli__resolveWatchTaskFile
-    src__cli__handleWatch --> src__cli__buildPipelineOptions
-    src__cli__handleWatch --> src__cli__optionNumber
-    src__cli__handleWatch --> src__cli__optionBoolean
-    src__cli__taskFile --> src__cli__optionNumber
-    src__cli__taskFile --> src__cli__optionBoolean
-    src__cli__taskFile --> src__cli__formatWatchEvent
-    src__cli__pipeline --> src__cli__optionNumber
-    src__cli__pipeline --> src__cli__optionBoolean
-    src__cli__pipeline --> src__cli__formatWatchEvent
-    src__cli__controller --> src__cli__optionNumber
-    src__cli__controller --> src__cli__optionBoolean
-    src__cli__controller --> src__cli__formatWatchEvent
-    src__cli__stop --> src__cli__optionNumber
-    src__cli__stop --> src__cli__optionBoolean
-    src__cli__stop --> src__cli__formatWatchEvent
-    src__cli__buildPipelineOptions --> src__cli__buildCommonPipelineOptions
-    src__cli__buildCommonPipelineOptions --> src__cli__optionNullableString
-    src__cli__buildCommonPipelineOptions --> src__cli__optionList
-    src__cli__buildCommonPipelineOptions --> src__cli__optionBoolean
-    src__cli__buildCommonPipelineOptions --> src__cli__optionString
-    src__cli__buildCommonPipelineOptions --> src__cli__optionNumber
-    src__cli__buildCommonPipelineOptions --> src__cli__optionNlMode
-    src__cli__buildCommonPipelineOptions --> src__cli__optionLlmMode
-    src__cli__buildCommonPipelineOptions --> src__cli__optionPipelineTaskMode
-    src__cli__resolveWatchTaskFile --> src__cli__optionNullableString
-    src__cli__buildWorkspaceComparisonOptions --> src__cli__optionString
-    src__cli__buildWorkspaceComparisonOptions --> src__cli__optionNullableString
-    src__cli__buildWorkspaceComparisonOptions --> src__cli__optionList
-    src__cli__buildWorkspaceComparisonOptions --> src__cli__optionBoolean
-    src__cli__buildWorkspaceComparisonOptions --> src__cli__optionLlmMode
-    src__cli__buildWorkspaceComparisonOptions --> src__cli__optionNumber
-    src__cli__formatWatchEvent --> src__cli__file
-    src__cli__stamp --> src__cli__file
-    src__cli__handleDiff --> src__cli__parseDiffMode
-    src__cli__handleDiff --> src__cli__handleGraphDiff
-    src__cli__handleDiff --> src__cli__buildDiffPayload
-    src__cli__handleDiff --> src__cli__optionString
-    src__cli__handleDiff --> src__cli__optionNumber
-    src__cli__svg --> src__cli__optionNumber
-    src__cli__svg --> src__cli__optionBoolean
-    src__cli__parseDiffMode --> src__cli__optionString
-    src__cli__handleGraphDiff --> src__cli__optionString
-    src__cli__handleGraphDiff --> src__cli__optionNumber
-    src__cli__diff --> src__cli__optionNumber
-    src__cli__buildDiffPayload --> src__cli__buildFileDiff
-    src__cli__buildDiffPayload --> src__cli__buildGitDiff
-    src__cli__buildFileDiff --> src__cli__optionNumber
-    src__cli__context --> src__cli__optionString
-    src__cli__context --> src__cli__optionBoolean
-    src__cli__context --> src__cli__optionNumber
-    src__cli__buildGitDiff --> src__cli__optionNumber
-    src__cli__buildGitDiff --> src__cli__optionString
-    src__cli__buildGitDiff --> src__cli__optionBoolean
-    src__cli__handleReality --> src__cli__optionString
-    src__cli__handleReality --> src__cli__optionNumber
-    src__cli__handleReality --> src__cli__optionBoolean
-    src__cli__view --> src__cli__optionNumber
-    src__cli__view --> src__cli__optionBoolean
-    src__cli__handleExtract --> src__cli__optionString
-    src__cli__handleExtract --> src__cli__handler
-    src__cli__handleExtractNl --> src__cli__optionString
-    src__cli__handleExtractNl --> src__cli__optionNlMode
-    src__cli__handleExtractNl --> src__cli__emitExtraction
-    src__cli__handleExtractGit --> src__cli__optionNumber
-    src__cli__handleExtractGit --> src__cli__emitExtraction
-    src__cli__handleExtractAst --> src__cli__emitExtraction
-    src__cli__handleExtractConfig --> src__cli__emitExtraction
-    src__cli__handleExtractRuntime --> src__cli__emitExtraction
-    src__cli__handleExtractMarkdown --> src__cli__optionNullableString
-    src__cli__handleExtractMarkdown --> src__cli__optionLlmMode
-    src__cli__handleExtractMarkdown --> src__cli__emitExtraction
-    src__cli__handleExtractDocs --> src__cli__optionList
-    src__cli__handleExtractDocs --> src__cli__emitExtraction
-    src__cli__handleExtractCommunication --> src__cli__optionString
-    src__cli__handleExtractCommunication --> src__cli__optionNullableString
-    src__cli__handleExtractCommunication --> src__cli__optionLlmMode
-    src__cli__handleExtractCommunication --> src__cli__emitExtraction
-    src__cli__handleCommunication --> src__cli__optionString
-    src__cli__handleCommunication --> src__cli__optionNullableString
-    src__cli__handleCommunication --> src__cli__optionLlmMode
-    src__cli__handleCommunication --> src__cli__optionNumber
-    src__cli__handleCommunication --> src__cli__optionBoolean
-    src__cli__handleIntake --> src__cli__optionString
-    src__cli__handleIntake --> src__cli__optionBoolean
-    src__cli__absolute --> src__cli__optionString
-    src__cli__doctor --> src__cli__execFileAsync
-    src__cli__optionNumber --> src__cli__optionString
-    src__cli__optionList --> src__cli__optionString
-    src__cli__optionNlMode --> src__cli__optionLlmMode
-    src__cli__optionLlmMode --> src__cli__optionString
-    src__cli__optionTaskMode --> src__cli__optionString
-    src__cli__optionSummaryMode --> src__cli__optionLlmMode
-    src__cli__optionSummaryMode --> src__cli__optionBoolean
-    src__cli__optionPipelineTaskMode --> src__cli__optionString
-    src__cli__invokedPath --> src__cli__main
     src__extractors__nl__extractNlIntent --> src__extractors__nl__assertNlExtractionOptions
     src__extractors__nl__extractNlIntent --> src__extractors__nl__detectMissingFields
     src__extractors__nl__absolute --> src__extractors__nl__detectMissingFields
@@ -913,3 +821,138 @@ flowchart LR
     src__extractors__ast__external__runExternalAstAdapter --> src__extractors__ast__external__execFileAsync
     src__extractors__ast__external__result --> src__extractors__ast__external__execFileAsync
     src__extractors__ast__records__adapterRecords --> src__extractors__ast__records__moduleRecords
+    src__extractors__ast__records__moduleRecords --> src__extractors__ast__records__boundedCapabilities
+    src__extractors__ast__records__start --> src__extractors__ast__records__moduleTopicText
+    src__extractors__ast__records__end --> src__extractors__ast__records__moduleTopicText
+    src__extractors__ast__records__capabilities --> src__extractors__ast__records__moduleTopicText
+    src__extractors__ast__typescript__extractTypeScriptFile --> src__extractors__ast__typescript__createTypeScriptExtractionContext
+    src__extractors__ast__typescript__extractTypeScriptFile --> src__extractors__ast__typescript__scriptKind
+    src__extractors__ast__typescript__extractTypeScriptFile --> src__extractors__ast__typescript__visitTypeScriptNode
+    src__extractors__ast__typescript__extractTypeScriptFile --> src__extractors__ast__typescript__recordModuleFact
+    src__extractors__ast__typescript__context --> src__extractors__ast__typescript__createTypeScriptExtractionContext
+    src__extractors__ast__typescript__context --> src__extractors__ast__typescript__scriptKind
+    src__extractors__ast__typescript__visitTypeScriptNode --> src__extractors__ast__typescript__handleNode
+    src__extractors__ast__typescript__handleNode --> src__extractors__ast__typescript__handleImportDeclaration
+    src__extractors__ast__typescript__handleNode --> src__extractors__ast__typescript__handleExportDeclaration
+    src__extractors__ast__typescript__handleNode --> src__extractors__ast__typescript__handleSymbolDeclaration
+    src__extractors__ast__typescript__handleNode --> src__extractors__ast__typescript__handleVariableDeclaration
+    src__extractors__ast__typescript__handleNode --> src__extractors__ast__typescript__handleCallExpression
+    src__extractors__ast__typescript__handleImportDeclaration --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__extractors__ast__typescript__handleExportDeclaration --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__extractors__ast__typescript__handleSymbolDeclaration --> src__extractors__ast__typescript__isTypeScriptSymbolDeclaration
+    src__extractors__ast__typescript__handleSymbolDeclaration --> src__extractors__ast__typescript__extractSymbolName
+    src__extractors__ast__typescript__handleSymbolDeclaration --> src__extractors__ast__typescript__extractModifiers
+    src__extractors__ast__typescript__handleSymbolDeclaration --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__extractors__ast__typescript__handleSymbolDeclaration --> src__extractors__ast__typescript__visitTypeScriptNode
+    src__extractors__ast__typescript__symbolModifiers --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__extractors__ast__typescript__handleVariableDeclaration --> src__extractors__ast__typescript__isTopLevel
+    src__extractors__ast__typescript__handleVariableDeclaration --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__extractors__ast__typescript__declarationIsCallable --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__extractors__ast__typescript__handleCallExpression --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__extractors__ast__typescript__callee --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__extractors__ast__typescript__recordModuleFact --> src__extractors__ast__typescript__addTypeScriptRecord
+    src__graph__diff__diffIntentGraphs --> src__graph__diff__assertGraph
+    src__graph__diff__diffIntentGraphs --> src__graph__diff__groupRecords
+    src__graph__diff__beforeGroups --> src__graph__diff__changedFieldPaths
+    src__graph__diff__beforeGroups --> src__graph__diff__normalizeRecord
+    src__graph__diff__afterGroups --> src__graph__diff__changedFieldPaths
+    src__graph__diff__afterGroups --> src__graph__diff__normalizeRecord
+    src__graph__diff__left --> src__graph__diff__changedFieldPaths
+    src__graph__diff__left --> src__graph__diff__normalizeRecord
+    src__graph__diff__right --> src__graph__diff__changedFieldPaths
+    src__graph__diff__right --> src__graph__diff__normalizeRecord
+    src__graph__diff__paired --> src__graph__diff__changedFieldPaths
+    src__graph__diff__paired --> src__graph__diff__normalizeRecord
+    src__graph__diff__beforeRecord --> src__graph__diff__changedFieldPaths
+    src__graph__diff__beforeRecord --> src__graph__diff__normalizeRecord
+    src__graph__diff__afterRecord --> src__graph__diff__changedFieldPaths
+    src__graph__diff__afterRecord --> src__graph__diff__normalizeRecord
+    src__graph__diff__renderGraphDiffSvg --> src__graph__diff__escapeXml
+    src__graph__diff__renderGraphDiffSvg --> src__graph__diff__truncate
+    src__graph__diff__visibleRows --> src__graph__diff__escapeXml
+    src__graph__diff__visibleRows --> src__graph__diff__truncate
+    src__graph__diff__width --> src__graph__diff__escapeXml
+    src__graph__diff__width --> src__graph__diff__truncate
+    src__graph__diff__height --> src__graph__diff__escapeXml
+    src__graph__diff__height --> src__graph__diff__truncate
+    src__graph__diff__y --> src__graph__diff__escapeXml
+    src__graph__diff__y --> src__graph__diff__truncate
+    src__graph__diff__groupRecords --> src__graph__diff__recordIdentity
+    src__graph__diff__groupRecords --> src__graph__diff__values
+    src__graph__diff__groups --> src__graph__diff__recordIdentity
+    src__graph__diff__changedFieldPaths --> src__graph__diff__isObject
+    src__graph__diff__compareRelations --> src__graph__diff__relationKey
+    src__graph__diff__metricCard --> src__graph__diff__escapeXml
+    src__graph__linker_relations__determineRelation --> src__graph__linker_relations__relationForSourceKinds
+    src__graph__linker_relations__relationForSourceKinds --> src__graph__linker_relations__matchSourceRule
+    src__graph__linker_relations__matchSourceRule --> src__graph__linker_relations__orientRelation
+    src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__collectAstCandidates
+    src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__sortCandidates
+    src__graph__symbol_resolution__buildSymbolResolutionIndex --> src__graph__symbol_resolution__collectNlResolutions
+    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__isAstDeclaration
+    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__uniqueSymbols
+    src__graph__symbol_resolution__byAlias --> src__graph__symbol_resolution__buildAstCandidate
+    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__isAstDeclaration
+    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__uniqueSymbols
+    src__graph__symbol_resolution__collectAstCandidates --> src__graph__symbol_resolution__buildAstCandidate
+    src__graph__symbol_resolution__sortCandidates --> src__graph__symbol_resolution__values
+    src__graph__symbol_resolution__collectNlResolutions --> src__graph__symbol_resolution__resolveSymbol
+    src__graph__symbol_resolution__byNlRecord --> src__graph__symbol_resolution__resolveSymbol
+    src__graph__symbol_resolution__hasResolvedNlAstSymbolPair --> src__graph__symbol_resolution__isAstDeclaration
+    src__graph__symbol_resolution__resolveSymbol --> src__graph__symbol_resolution__pathSelects
+    src__graph__symbol_resolution__resolveSymbol --> src__graph__symbol_resolution__uniquePaths
+    src__graph__symbol_resolution__selected --> src__graph__symbol_resolution__uniquePaths
+    src__graph__linker__linkIntentRecords --> src__graph__linker__deduplicateRecords
+    src__graph__linker__records --> src__graph__linker__scorePair
+    src__graph__linker__byId --> src__graph__linker__set
+    src__graph__linker__keywordIndex --> src__graph__linker__scorePair
+    src__graph__linker__symbolResolutionIndex --> src__graph__linker__scorePair
+    src__graph__linker__candidatePairs --> src__graph__linker__scorePair
+    src__graph__linker__resolvableBasenames --> src__graph__linker__scorePair
+    src__graph__linker__deduplicateRecords --> src__graph__linker__set
+    src__graph__linker__indexResolvableBasenames --> src__graph__linker__set
+    src__graph__linker__owners --> src__graph__linker__set
+    src__graph__linker__pathsIntersect --> src__graph__linker__expand
+    src__graph__linker__scorePair --> src__graph__linker__scoreSharedTickets
+    src__graph__linker__scorePair --> src__graph__linker__scoreSharedSymbol
+    src__graph__linker__scorePair --> src__graph__linker__scoreSharedPath
+    src__graph__linker__scorePair --> src__graph__linker__scoreSameAction
+    src__graph__linker__scorePair --> src__graph__linker__scoreObjectSimilarity
+    src__graph__linker__scorePair --> src__graph__linker__scoreSharedTopics
+    src__graph__linker__scorePair --> src__graph__linker__scoreSourceKindPenalty
+    src__graph__linker__scoreSharedTickets --> src__graph__linker__intersects
+    src__graph__linker__scoreSharedSymbol --> src__graph__linker__intersectsAliases
+    src__graph__linker__scoreSharedPath --> src__graph__linker__pathsIntersect
+    src__graph__linker__scoreSharedPath --> src__graph__linker__isFileAggregateEvidencePair
+    src__graph__linker__scoreObjectSimilarity --> src__graph__linker__jaccard
+    src__graph__linker__scoreSharedTopics --> src__graph__linker__isModuleTopicEvidencePair
+    src__graph__linker__scoreSharedTopics --> src__graph__linker__intersectionSize
+    src__graph__linker__intersectsAliases --> src__graph__linker__aliases
+    src__graph__diagnostics__diagnoseGraph --> src__graph__diagnostics__buildDiagnosticContext
+    src__graph__diagnostics__diagnoseGraph --> src__graph__diagnostics__collectRecordDiagnostics
+    src__graph__diagnostics__diagnoseGraph --> src__graph__diagnostics__collectContradictionDiagnostics
+    src__graph__diagnostics__diagnoseGraph --> src__graph__diagnostics__makeDiagnostic
+    src__graph__diagnostics__context --> src__graph__diagnostics__collectRecordDiagnostics
+    src__graph__diagnostics__buildDiagnosticContext --> src__graph__diagnostics__buildNeighbors
+    src__graph__diagnostics__buildDiagnosticContext --> src__graph__diagnostics__map
+    src__graph__diagnostics__buildDiagnosticContext --> src__graph__diagnostics__indexGroundedImplementationEvidence
+    src__graph__diagnostics__buildDiagnosticContext --> src__graph__diagnostics__indexImplementedPaths
+    src__graph__diagnostics__buildDiagnosticContext --> src__graph__diagnostics__indexDocumentedPaths
+    src__graph__diagnostics__neighbors --> src__graph__diagnostics__indexGroundedImplementationEvidence
+    src__graph__diagnostics__neighbors --> src__graph__diagnostics__indexImplementedPaths
+    src__graph__diagnostics__neighbors --> src__graph__diagnostics__indexDocumentedPaths
+    src__graph__diagnostics__recordsById --> src__graph__diagnostics__indexGroundedImplementationEvidence
+    src__graph__diagnostics__recordsById --> src__graph__diagnostics__indexImplementedPaths
+    src__graph__diagnostics__recordsById --> src__graph__diagnostics__indexDocumentedPaths
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__collectRelatedRecords
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__collectMissingFields
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__collectSymbolIssues
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__isRecordEvidenced
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__buildPlannedNotImplementedDiagnostic
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__buildImplementedWithoutPlanDiagnostic
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__buildUndocumentedImplementationDiagnostic
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__buildChangelogWithoutImplementationDiagnostic
+    src__graph__diagnostics__collectRecordDiagnostics --> src__graph__diagnostics__buildAmbiguousRequirementDiagnostic
+    src__graph__diagnostics__collectRelatedRecords --> src__graph__diagnostics__map
+    src__graph__diagnostics__isRecordEvidenced --> src__graph__diagnostics__hasImplementedTarget
+    src__graph__diagnostics__isRecordEvidenced --> src__graph__diagnostics__hasDocumentedTarget

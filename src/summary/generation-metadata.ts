@@ -13,12 +13,8 @@ export function generationMetadata(
   response?: LlmResponseMetadata,
   reason?: string,
 ): GroundedGenerationMetadata {
-  const effectiveMode = response ? 'llm' : 'deterministic';
-  const degraded = mode === 'prefer-llm' && effectiveMode === 'deterministic';
-  const configuration = openRouterAuditConfiguration(
-    config,
-    mode === 'deterministic' ? null : config.openRouter.summaryModel,
-  );
+  const effectiveMode = resolveGenerationMode(response);
+  const degraded = shouldDegradeGeneration(mode, effectiveMode);
   return {
     generator: 't2c/grounded-summary',
     generatorVersion: '2',
@@ -27,10 +23,39 @@ export function generationMetadata(
     requestedMode: mode,
     effectiveMode,
     degraded,
-    model: response ? response.model ?? config.openRouter.summaryModel : null,
-    provider: response ? response.provider ?? 'openrouter' : null,
+    model: resolveGenerationModel(config, response),
+    provider: resolveGenerationProvider(response),
     responseId: response?.responseId ?? null,
-    configurationFingerprint: sha256(stableStringify(configuration)),
+    configurationFingerprint: sha256(stableStringify(resolveGenerationConfiguration(config, mode))),
     reason: degraded ? reason ?? 'LLM_UNAVAILABLE' : null,
   };
+}
+
+function resolveGenerationMode(response?: LlmResponseMetadata): 'llm' | 'deterministic' {
+  return response ? 'llm' : 'deterministic';
+}
+
+function shouldDegradeGeneration(
+  mode: GroundedGenerationMetadata['requestedMode'],
+  effectiveMode: 'llm' | 'deterministic',
+): boolean {
+  return mode === 'prefer-llm' && effectiveMode === 'deterministic';
+}
+
+function resolveGenerationModel(config: T2CConfig, response?: LlmResponseMetadata): string | null {
+  return response ? response.model ?? config.openRouter.summaryModel : null;
+}
+
+function resolveGenerationProvider(response?: LlmResponseMetadata): string | null {
+  return response ? response.provider ?? 'openrouter' : null;
+}
+
+function resolveGenerationConfiguration(
+  config: T2CConfig,
+  mode: GroundedGenerationMetadata['requestedMode'],
+) {
+  return openRouterAuditConfiguration(
+    config,
+    mode === 'deterministic' ? null : config.openRouter.summaryModel,
+  );
 }

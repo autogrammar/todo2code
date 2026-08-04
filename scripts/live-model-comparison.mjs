@@ -29,13 +29,7 @@ async function main() {
   await loadEnvFile(REPO_ROOT);
 
   const probe = getConfig(REPO_ROOT);
-  if (!probe.openRouter.apiKey) {
-    if (process.env.T2C_REQUIRE_LIVE_CHECK === '1') {
-      throw new Error('OPENROUTER_API_KEY is not configured and T2C_REQUIRE_LIVE_CHECK=1');
-    }
-    process.stdout.write('live model comparison: SKIPPED (OPENROUTER_API_KEY not configured)\n');
-    return;
-  }
+  if (await maybeSkipLiveModelComparison(probe)) return;
 
   const { MARKDOWN_LLM_BATCH_RECORDS, extractMarkdownIntentAudited } = await import(
     '../dist/src/extractors/markdown-llm.js'
@@ -45,42 +39,17 @@ async function main() {
   );
   const { liveRequestTimeoutMs } = await import('../dist/src/live/contract-check.js');
 
-  // The comparison enriches a repository's whole TODO/CHANGELOG, which is
-  // several bounded batches. A request timeout below that budget measures the
-  // clock rather than the model — the first live run timed out at 120 s on a
-  // model that had not failed.
-  const timeoutMs = Number(process.env.T2C_LIVE_COMPARE_TIMEOUT_MS ?? 300_000);
-
-  const models = (process.env.T2C_LIVE_COMPARE_MODELS ?? DEFAULTS.models)
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-  if (models.length < 2) throw new Error('T2C_LIVE_COMPARE_MODELS needs at least two comma-separated models');
-
-  const root = path.resolve(REPO_ROOT, process.env.T2C_LIVE_COMPARE_ROOT ?? DEFAULTS.root);
-  const runs = [];
-  for (const model of models) {
-    // A fresh config per model: the stage reads its model from configuration,
-    // and sharing one object would leak the previous model's audit fingerprint.
-    const config = getConfig(root);
-    config.root = root;
-    config.openRouter.markdownModel = model;
-    config.openRouter.timeoutMs = liveRequestTimeoutMs(config.openRouter.timeoutMs, timeoutMs);
-    process.stdout.write(`running ${model}…\n`);
-    const result = await extractMarkdownIntentAudited(
-      { root, todoPath: 'TODO.md', changelogPath: 'CHANGELOG.md' },
-      config,
-      'require-llm',
-    ).catch((error) => ({ error }));
-
-    if (result.error) {
-      // A model that cannot honour the contract is a comparison result, not a
-      // crash: record it and keep measuring the others.
-      runs.push({ model, audit: failedAudit(model, result.error), records: [] });
-      continue;
-    }
-    runs.push({ model, audit: result.audit, records: result.records });
-  }
+  const timeoutMs = resolveLiveModelComparisonTimeout();
+  const models = resolveLiveModelList();
+  const root = resolveLiveModelRoot();
+  const runs = await compareModels({
+    models,
+    root,
+    timeoutMs,
+    getConfig,
+    extractMarkdownIntentAudited,
+    liveRequestTimeoutMs,
+  });
 
   const comparison = buildLiveModelComparison({
     runs,
@@ -96,6 +65,91 @@ async function main() {
   process.stdout.write(`${rendered}\n`);
 
   if (comparison.models.every((model) => !model.ok)) process.exitCode = 1;
+}
+
+function isLiveModelComparisonRequired() {
+  return process.env.T2C_REQUIRE_LIVE_CHECK === '1';
+}
+
+async function maybeSkipLiveModelComparison(probe) {
+  if (probe.openRouter.apiKey) return false;
+  if (isLiveModelComparisonRequired()) {
+    throw new Error('OPENROUTER_API_KEY is not configured and T2C_REQUIRE_LIVE_CHECK=1');
+  }
+  process.stdout.write('live model comparison: SKIPPED (OPENROUTER_API_KEY not configured)\n');
+  return true;
+}
+
+function resolveLiveModelComparisonTimeout() {
+  const raw = process.env.T2C_LIVE_COMPARE_TIMEOUT_MS;
+  if (raw === undefined || raw.trim() === '') return 300_000;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error(`T2C_LIVE_COMPARE_TIMEOUT_MS must be a non-negative number, received "${raw}"`);
+  }
+  return value;
+}
+
+function resolveLiveModelList() {
+  const models = (process.env.T2C_LIVE_COMPARE_MODELS ?? DEFAULTS.models)
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (models.length < 2) {
+    throw new Error('T2C_LIVE_COMPARE_MODELS needs at least two comma-separated models');
+  }
+  return models;
+}
+
+function resolveLiveModelRoot() {
+  return path.resolve(REPO_ROOT, process.env.T2C_LIVE_COMPARE_ROOT ?? DEFAULTS.root);
+}
+
+async function compareModels({
+  models,
+  root,
+  timeoutMs,
+  getConfig,
+  extractMarkdownIntentAudited,
+  liveRequestTimeoutMs,
+}) {
+  const runs = [];
+  for (const model of models) {
+    runs.push(await runModelMarkdownComparison({
+      model,
+      root,
+      timeoutMs,
+      getConfig,
+      extractMarkdownIntentAudited,
+      liveRequestTimeoutMs,
+    }));
+  }
+  return runs;
+}
+
+async function runModelMarkdownComparison({
+  model,
+  root,
+  timeoutMs,
+  getConfig,
+  extractMarkdownIntentAudited,
+  liveRequestTimeoutMs,
+}) {
+  const config = getConfig(root);
+  config.root = root;
+  config.openRouter.markdownModel = model;
+  config.openRouter.timeoutMs = liveRequestTimeoutMs(config.openRouter.timeoutMs, timeoutMs);
+  process.stdout.write(`running ${model}…\n`);
+  const result = await extractMarkdownIntentAudited(
+    { root, todoPath: 'TODO.md', changelogPath: 'CHANGELOG.md' },
+    config,
+    'require-llm',
+  ).catch((error) => ({ error }));
+
+  if (result.error) {
+    return { model, audit: failedAudit(model, result.error), records: [] };
+  }
+  return { model, audit: result.audit, records: result.records };
 }
 
 function failedAudit(model, error) {

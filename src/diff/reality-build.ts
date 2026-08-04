@@ -1,6 +1,7 @@
 import { sha256, stableStringify } from '../core/id.js';
 import { assertIntentGraph } from '../core/schema.js';
 import { symbolAliases } from '../core/target.js';
+import { buildRealityTotals } from './reality-totals.js';
 import type {
   DiagnosticCode,
   DiagnosticReport,
@@ -170,48 +171,6 @@ function compareRealityRows(left: RealityRow, right: RealityRow): number {
   const bySize = right.recordIds.length - left.recordIds.length;
   if (bySize !== 0) return bySize;
   return left.key.localeCompare(right.key);
-}
-
-function buildRealityTotals(graph: IntentGraph, rows: RealityRow[]): IntentRealityView['totals'] {
-  const byStatus: Record<string, number> = {};
-  for (const row of rows) byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
-
-  const declaredRecords = graph.records.filter((record) => DECLARED_KINDS.includes(record.source.kind)).length;
-  const observedRecords = graph.records.filter((record) => OBSERVED_KINDS.includes(record.source.kind)).length;
-  const aligned = rows.filter((row) => row.status === 'aligned').length;
-  const declaredTopics = rows.filter((row) => DECLARED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
-  const observedTopics = rows.filter((row) => OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
-  const implementationAlignedTopics = rows.filter((row) => row.status === 'aligned'
-    && DECLARED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)
-    && OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
-  const documentedObservedTopics = rows.filter((row) =>
-    (row.lanes.document ?? 0) > 0
-    && OBSERVED_KINDS.some((kind) => (row.lanes[kind] ?? 0) > 0)).length;
-
-  return {
-    topics: rows.length,
-    aligned,
-    gaps: rows.length - aligned,
-    alignedByEvidence: {
-      code: rows.filter((row) => row.status === 'aligned' && row.evidence === 'code').length,
-      configuration: rows.filter((row) => row.status === 'aligned' && row.evidence === 'configuration').length,
-      none: rows.filter((row) => row.status === 'aligned' && row.evidence === 'none').length,
-    },
-    byStatus: Object.fromEntries(Object.entries(byStatus).sort(([a], [b]) => a.localeCompare(b))),
-    declaredRecords,
-    observedRecords,
-    declaredTopics,
-    observedTopics,
-    implementationAlignedTopics,
-    implementationCoverage: ratio(implementationAlignedTopics, declaredTopics),
-    plannedCodeCoverage: ratio(implementationAlignedTopics, observedTopics),
-    documentedCodeCoverage: ratio(documentedObservedTopics, observedTopics),
-    documentationMeasured: graph.records.some((record) => record.source.kind === 'document'),
-  };
-}
-
-function ratio(numerator: number, denominator: number): number {
-  return denominator === 0 ? 1 : Math.round((numerator / denominator) * 10_000) / 10_000;
 }
 
 /** Renders documentation coverage, or says it was not measured at all. */

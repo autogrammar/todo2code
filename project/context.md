@@ -5,17 +5,17 @@
 
 - **Project**: /home/tom/github/semcod/todo2code
 - **Primary Language**: typescript
-- **Languages**: typescript: 173, json: 40, python: 16, javascript: 15, shell: 8
+- **Languages**: typescript: 187, json: 40, python: 15, javascript: 15, shell: 8
 - **Analysis Mode**: static
-- **Total Functions**: 4129
-- **Total Classes**: 404
-- **Modules**: 281
-- **Entry Points**: 2776
+- **Total Functions**: 4218
+- **Total Classes**: 403
+- **Modules**: 294
+- **Entry Points**: 2791
 
 ## Architecture by Module
 
 ### src.cli
-- **Functions**: 202
+- **Functions**: 212
 - **Classes**: 1
 - **File**: `cli.ts`
 
@@ -29,13 +29,8 @@
 - **Classes**: 3
 - **File**: `a2a-task-store.ts`
 
-### src.diff.reality
-- **Functions**: 97
-- **Classes**: 4
-- **File**: `reality.ts`
-
 ### src.communication.analyzer
-- **Functions**: 88
+- **Functions**: 92
 - **Classes**: 3
 - **File**: `analyzer.ts`
 
@@ -55,7 +50,7 @@
 - **File**: `gold-cases.ts`
 
 ### src.operations.validation
-- **Functions**: 75
+- **Functions**: 67
 - **File**: `validation.ts`
 
 ### src.core.text
@@ -102,6 +97,11 @@
 - **Classes**: 3
 - **File**: `communication-helpers.ts`
 
+### src.diff.reality-build
+- **Functions**: 49
+- **Classes**: 2
+- **File**: `reality-build.ts`
+
 ### src.interfaces.a2a
 - **Functions**: 48
 - **File**: `a2a.ts`
@@ -130,6 +130,9 @@ Main execution flows into the system:
 ### src.interfaces.intake_cli.main
 - **Calls**: argparse.ArgumentParser, parser.add_subparsers, sub.add_parser, encode.add_argument, encode.add_argument, sub.add_parser, decode.add_argument, decode.add_argument
 
+### src.pipeline.run-execution.executePipeline
+- **Calls**: src.pipeline.run-execution.resolveGlobs, src.pipeline.run-execution.skippedAudit, src.pipeline.run-execution.extractNlIntentAudited, src.pipeline.run-execution.push, src.pipeline.run-execution.extractGitIntent, src.pipeline.run-execution.extractAstIntent, src.pipeline.run-execution.extractMarkdownIntentAudited, src.pipeline.run-execution.filter
+
 ### src.comparison.workspace.temporaryParent
 - **Calls**: src.comparison.workspace.git, src.comparison.workspace.join, src.comparison.workspace.commonPipelineOptions, src.comparison.workspace.optionsForRoot, src.comparison.workspace.runPipeline, src.comparison.workspace.all, src.comparison.workspace.buildRealityView, src.comparison.workspace.diffIntentGraphs
 
@@ -138,12 +141,6 @@ Main execution flows into the system:
 
 ### src.extractors.todo.extractTodo
 - **Calls**: src.extractors.todo.resolve, src.extractors.todo.pathExists, src.extractors.todo.readText, src.extractors.todo.relativePosix, src.extractors.todo.split, src.extractors.todo.match, src.extractors.todo.splice, src.extractors.todo.trim
-
-### scripts.verify-env-contract.makefile
-- **Calls**: scripts.verify-env-contract.readFile, scripts.verify-env-contract.join, scripts.verify-env-contract.matchAll, scripts.verify-env-contract.add, scripts.verify-env-contract.b, scripts.verify-env-contract.filter, scripts.verify-env-contract.has, scripts.verify-env-contract.sort
-
-### python.ast_extract.main
-- **Calls**: argparse.ArgumentParser, parser.add_argument, parser.add_argument, parser.add_argument, parser.parse_args, None.resolve, python.ast_extract.iter_python_files, print
 
 ### src.communication.llm.implementation.CommunicationLlmRequiredError.extractCommunicationIntentAudited
 - **Calls**: src.communication.llm.implementation.now, src.communication.llm.implementation.extractCommunicationIntent, src.communication.llm.implementation.audit, src.communication.llm.implementation.markDeterministic, src.communication.llm.implementation.deterministicSyntheses, src.communication.llm.implementation.deterministicGeneration, src.communication.llm.implementation.OpenRouterClient, src.communication.llm.implementation.isConfigured
@@ -202,8 +199,11 @@ Main execution flows into the system:
 ### php.ast_extract.parseFile
 - **Calls**: php.ast_extract.file_get_contents, php.ast_extract.RuntimeException, php.ast_extract.preg_split, php.ast_extract.token_get_all, php.ast_extract.foreach, php.ast_extract.normalizedToken, php.ast_extract.substr_count, php.ast_extract.defined
 
-### src.cli.handleCommunication
-- **Calls**: src.cli.resolve, src.cli.all, src.cli.extractCommunicationIntentAudited, src.cli.optionString, src.cli.optionNullableString, src.cli.optionLlmMode, src.cli.extractGitIntent, src.cli.optionNumber
+### src.services.actions.executeAnalyzeCommunicationAction
+- **Calls**: src.services.actions.all, src.services.actions.extractCommunicationIntentAudited, src.services.actions.scopedPath, src.services.actions.nullableString, src.services.actions.llmModeValue, src.services.actions.extractGitIntent, src.services.actions.numberValue, src.services.actions.booleanValue
+
+### src.synthesis.task-synthesis-materialize.materializeTaskSynthesisResponse
+- **Calls**: src.synthesis.task-synthesis-materialize.parse, src.synthesis.task-synthesis-materialize.normalizeLocalKeys, src.synthesis.task-synthesis-materialize.flatMap, src.synthesis.task-synthesis-materialize.map, src.synthesis.task-synthesis-materialize.sortedUnique, src.synthesis.task-synthesis-materialize.groundRecordIdsByDiagnostics, src.synthesis.task-synthesis-materialize.normalizeStringArray, src.synthesis.task-synthesis-materialize.createConclusionId
 
 ## Process Flows
 
@@ -221,28 +221,28 @@ compareWorkspaceIntent [src.comparison.workspace]
       └─> execFileAsync
 ```
 
-### Flow 3: temporaryParent
+### Flow 3: executePipeline
+```
+executePipeline [src.pipeline.run-execution]
+```
+
+### Flow 4: temporaryParent
 ```
 temporaryParent [src.comparison.workspace]
   └─> git
       └─> execFileAsync
 ```
 
-### Flow 4: baseWorktree
+### Flow 5: baseWorktree
 ```
 baseWorktree [src.comparison.workspace]
   └─> git
       └─> execFileAsync
 ```
 
-### Flow 5: extractTodo
+### Flow 6: extractTodo
 ```
 extractTodo [src.extractors.todo]
-```
-
-### Flow 6: makefile
-```
-makefile [scripts.verify-env-contract]
 ```
 
 ### Flow 7: extractCommunicationIntentAudited
@@ -313,29 +313,29 @@ Example:
 - **Methods**: 29
 - **Key Methods**: src.extractors.docs-llm.DocumentationLlmRequiredError.super, src.extractors.docs-llm.DocumentationLlmRequiredError.extractDocumentationIntent, src.extractors.docs-llm.DocumentationLlmRequiredError.startedAt, src.extractors.docs-llm.DocumentationLlmRequiredError.client, src.extractors.docs-llm.DocumentationLlmRequiredError.requireConfiguredClient, src.extractors.docs-llm.DocumentationLlmRequiredError.cache, src.extractors.docs-llm.DocumentationLlmRequiredError.chunks, src.extractors.docs-llm.DocumentationLlmRequiredError.selectedChunks, src.extractors.docs-llm.DocumentationLlmRequiredError.systemPrompt, src.extractors.docs-llm.DocumentationLlmRequiredError.results
 
+### java.JavaAstExtract.JavaAstExtract
+- **Methods**: 28
+- **Key Methods**: java.JavaAstExtract.JavaAstExtract.main, java.JavaAstExtract.JavaAstExtract.emit, java.JavaAstExtract.JavaAstExtract.parseFile, java.JavaAstExtract.JavaAstExtract.emit, java.JavaAstExtract.JavaAstExtract.collect, java.JavaAstExtract.JavaAstExtract.try, java.JavaAstExtract.JavaAstExtract.containsIgnored, java.JavaAstExtract.JavaAstExtract.try, java.JavaAstExtract.JavaAstExtract.scanCompilationUnits, java.JavaAstExtract.JavaAstExtract.collectFileDiagnostics
+
 ### sdk.php.src.Client.Todo2Code.Client
 - **Methods**: 27
 - **Key Methods**: sdk.php.src.Client.Client.__construct, sdk.php.src.Client.Client.health, sdk.php.src.Client.Client.agentCard, sdk.php.src.Client.Client.send, sdk.php.src.Client.Client.call, sdk.php.src.Client.Client.rpc, sdk.php.src.Client.Client.extractAst, sdk.php.src.Client.Client.extractConfig, sdk.php.src.Client.Client.extractNl, sdk.php.src.Client.Client.extractDocs
-
-### java.JavaAstExtract.JavaAstExtract
-- **Methods**: 25
-- **Key Methods**: java.JavaAstExtract.JavaAstExtract.main, java.JavaAstExtract.JavaAstExtract.emit, java.JavaAstExtract.JavaAstExtract.parseFile, java.JavaAstExtract.JavaAstExtract.emit, java.JavaAstExtract.JavaAstExtract.collect, java.JavaAstExtract.JavaAstExtract.try, java.JavaAstExtract.JavaAstExtract.containsIgnored, java.JavaAstExtract.JavaAstExtract.try, java.JavaAstExtract.JavaAstExtract.Collector, java.JavaAstExtract.JavaAstExtract.add
-
-### src.synthesis.tasks-llm.TaskSynthesisAttemptError
-- **Methods**: 21
-- **Key Methods**: src.synthesis.tasks-llm.TaskSynthesisAttemptError.super, src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeTodoProposals, src.synthesis.tasks-llm.TaskSynthesisAttemptError.startedAt, src.synthesis.tasks-llm.TaskSynthesisAttemptError.assertConclusions, src.synthesis.tasks-llm.TaskSynthesisAttemptError.client, src.synthesis.tasks-llm.TaskSynthesisAttemptError.prompt, src.synthesis.tasks-llm.TaskSynthesisAttemptError.payload, src.synthesis.tasks-llm.TaskSynthesisAttemptError.failure, src.synthesis.tasks-llm.TaskSynthesisAttemptError.responses, src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeWithCorrection
-
-### src.summary.summarizer.SummaryAttemptError
-- **Methods**: 21
-- **Key Methods**: src.summary.summarizer.SummaryAttemptError.super, src.summary.summarizer.SummaryAttemptError.summarizeWithCorrection, src.summary.summarizer.SummaryAttemptError.conclusions, src.summary.summarizer.SummaryAttemptError.generationMetadata, src.summary.summarizer.SummaryAttemptError.message, src.summary.summarizer.SummaryAttemptError.materializeConclusions, src.summary.summarizer.SummaryAttemptError.parsed, src.summary.summarizer.SummaryAttemptError.conclusions, src.summary.summarizer.SummaryAttemptError.diagnosticIds, src.summary.summarizer.SummaryAttemptError.assertConclusions
 
 ### src.extractors.nl-llm.NlLlmRequiredError
 - **Methods**: 19
 - **Key Methods**: src.extractors.nl-llm.NlLlmRequiredError.super, src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited, src.extractors.nl-llm.NlLlmRequiredError.assertNlExtractionOptions, src.extractors.nl-llm.NlLlmRequiredError.startedAt, src.extractors.nl-llm.NlLlmRequiredError.result, src.extractors.nl-llm.NlLlmRequiredError.client, src.extractors.nl-llm.NlLlmRequiredError.absolute, src.extractors.nl-llm.NlLlmRequiredError.body, src.extractors.nl-llm.NlLlmRequiredError.sourcePath, src.extractors.nl-llm.NlLlmRequiredError.maxLine
 
+### src.synthesis.tasks-llm.TaskSynthesisAttemptError
+- **Methods**: 19
+- **Key Methods**: src.synthesis.tasks-llm.TaskSynthesisAttemptError.super, src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeTodoProposals, src.synthesis.tasks-llm.TaskSynthesisAttemptError.startedAt, src.synthesis.tasks-llm.TaskSynthesisAttemptError.assertConclusions, src.synthesis.tasks-llm.TaskSynthesisAttemptError.client, src.synthesis.tasks-llm.TaskSynthesisAttemptError.prompt, src.synthesis.tasks-llm.TaskSynthesisAttemptError.payload, src.synthesis.tasks-llm.TaskSynthesisAttemptError.failure, src.synthesis.tasks-llm.TaskSynthesisAttemptError.responses, src.synthesis.tasks-llm.TaskSynthesisAttemptError.synthesizeWithCorrection
+
 ### src.communication.intake-store.IntakeEventStore
 - **Methods**: 19
 - **Key Methods**: src.communication.intake-store.IntakeEventStore.read, src.communication.intake-store.IntakeEventStore.names, src.communication.intake-store.IntakeEventStore.name, src.communication.intake-store.IntakeEventStore.eventPath, src.communication.intake-store.IntakeEventStore.stat, src.communication.intake-store.IntakeEventStore.event, src.communication.intake-store.IntakeEventStore.lockPath, src.communication.intake-store.IntakeEventStore.stream, src.communication.intake-store.IntakeEventStore.existing, src.communication.intake-store.IntakeEventStore.writeRegistry
+
+### src.summary.summarizer.SummaryAttemptError
+- **Methods**: 17
+- **Key Methods**: src.summary.summarizer.SummaryAttemptError.super, src.summary.summarizer.SummaryAttemptError.summarizeWithCorrection, src.summary.summarizer.SummaryAttemptError.conclusions, src.summary.summarizer.SummaryAttemptError.generationMetadata, src.summary.summarizer.SummaryAttemptError.message, src.summary.summarizer.SummaryAttemptError.materializeConclusions, src.summary.summarizer.SummaryAttemptError.parsed, src.summary.summarizer.SummaryAttemptError.conclusions, src.summary.summarizer.SummaryAttemptError.diagnosticIds, src.summary.summarizer.SummaryAttemptError.assertConclusions
 
 ### src.sdk.typescript.Todo2CodeClient
 - **Methods**: 16
@@ -349,10 +349,9 @@ Example:
 - **Methods**: 13
 - **Key Methods**: src.core.content-cache.ContentCache.getOrCompute, src.core.content-cache.ContentCache.assertNamespace, src.core.content-cache.ContentCache.key, src.core.content-cache.ContentCache.filePath, src.core.content-cache.ContentCache.cached, src.core.content-cache.ContentCache.value, src.core.content-cache.ContentCache.snapshot, src.core.content-cache.ContentCache.envelope, src.core.content-cache.ContentCache.write, src.core.content-cache.ContentCache.directory
 
-### python.ast_extract.FactVisitor
-- **Methods**: 13
-- **Key Methods**: python.ast_extract.FactVisitor.__init__, python.ast_extract.FactVisitor.excerpt, python.ast_extract.FactVisitor.add, python.ast_extract.FactVisitor.visit_Import, python.ast_extract.FactVisitor.visit_ImportFrom, python.ast_extract.FactVisitor.visit_FunctionDef, python.ast_extract.FactVisitor.visit_AsyncFunctionDef, python.ast_extract.FactVisitor.visit_ClassDef, python.ast_extract.FactVisitor.add_named_constant, python.ast_extract.FactVisitor.visit_Assign
-- **Inherits**: ast.NodeVisitor
+### src.extractors.markdown-llm.MarkdownLlmRequiredError
+- **Methods**: 11
+- **Key Methods**: src.extractors.markdown-llm.MarkdownLlmRequiredError.super, src.extractors.markdown-llm.MarkdownLlmRequiredError.extractMarkdownIntentAudited, src.extractors.markdown-llm.MarkdownLlmRequiredError.startedAt, src.extractors.markdown-llm.MarkdownLlmRequiredError.deterministic, src.extractors.markdown-llm.MarkdownLlmRequiredError.client, src.extractors.markdown-llm.MarkdownLlmRequiredError.prompt, src.extractors.markdown-llm.MarkdownLlmRequiredError.failure, src.extractors.markdown-llm.MarkdownLlmRequiredError.failedResponses, src.extractors.markdown-llm.MarkdownLlmRequiredError.classifyLlmFailure, src.extractors.markdown-llm.MarkdownLlmRequiredError.fallbackOrThrow
 
 ## Data Transformation Functions
 
@@ -373,18 +372,6 @@ Key functions that process and transform data:
 - **Output to**: examples.src.runtime.Error
 
 ### java.JavaAstExtract.JavaAstExtract.parseFile
-
-### src.cli.parsed
-- **Output to**: src.cli.has, src.cli.printHelp
-
-### src.cli.formatWatchEvent
-- **Output to**: src.cli.Date, src.cli.toISOString, src.cli.file, src.cli.join, src.cli.change
-
-### src.cli.parseDiffMode
-- **Output to**: src.cli.optionString, src.cli.toLowerCase, src.cli.Error
-
-### src.cli.parseArgs
-- **Output to**: src.cli.push, src.cli.slice, src.cli.startsWith, src.cli.split, src.cli.set
 
 ### src.extractors.runtime-cycle.parseCycle
 - **Output to**: src.extractors.runtime-cycle.parse, src.extractors.runtime-cycle.Error, src.extractors.runtime-cycle.JSON, src.extractors.runtime-cycle.String, src.extractors.runtime-cycle.isArray
@@ -430,12 +417,19 @@ Key functions that process and transform data:
 ### src.services.actions.parseCommunicationGraphFilter
 - **Output to**: src.services.actions.stringValue, src.services.actions.toLowerCase, src.services.actions.booleanValue
 
-## Behavioral Patterns
+### src.core.ignore.parseIgnoreFile
+- **Output to**: src.core.ignore.split, src.core.ignore.map, src.core.ignore.compileIgnorePattern, src.core.ignore.filter
 
-### recursion_dotted_name
-- **Type**: recursion
-- **Confidence**: 0.90
-- **Functions**: python.ast_extract.dotted_name
+### src.core.schema.code-change.validateCodeChangePlanContext
+- **Output to**: src.core.schema.code-change.validateGroundedContext, src.core.schema.code-change.assertConclusions, src.core.schema.code-change.assertTodoProposals, src.core.schema.code-change.entries, src.core.schema.code-change.objectValue
+
+### src.core.schema.conclusions.validateGroundedContext
+- **Output to**: src.core.schema.conclusions.assertIntentGraph, src.core.schema.conclusions.objectValue, src.core.schema.conclusions.Error, src.core.schema.conclusions.isArray, src.core.schema.conclusions.test
+
+### src.core.schema.conclusions.validateTodoProposalContext
+- **Output to**: src.core.schema.conclusions.validateGroundedContext, src.core.schema.conclusions.assertConclusions, src.core.schema.conclusions.Set, src.core.schema.conclusions.map
+
+## Behavioral Patterns
 
 ### state_machine_GovernedIntakeService
 - **Type**: state_machine
@@ -449,25 +443,21 @@ Functions exposed as public API (no underscore prefix):
 - `sdk.python.examples.basic.main` - 62 calls
 - `scripts.research.rank-intent-graph-embeddings.main` - 43 calls
 - `src.comparison.workspace.compareWorkspaceIntent` - 40 calls
-- `sdk.rust.src.client.parse_http_response` - 37 calls
 - `sdk.rust.examples.basic.run` - 33 calls
-- `src.pipeline.run.executePipeline` - 31 calls
 - `scripts.research.evaluate-embedding-pairs.main` - 30 calls
 - `src.interfaces.intake_cli.main` - 29 calls
+- `sdk.rust.src.client.validate_http_status_body` - 28 calls
+- `src.pipeline.run-execution.executePipeline` - 26 calls
 - `src.comparison.workspace.temporaryParent` - 25 calls
 - `src.comparison.workspace.baseWorktree` - 25 calls
 - `sdk.go.examples.basic.main.run` - 25 calls
 - `src.extractors.todo.extractTodo` - 24 calls
-- `src.interfaces.a2a-message-command.looksLikeJson` - 24 calls
-- `scripts.verify-env-contract.makefile` - 24 calls
-- `python.ast_extract.main` - 24 calls
 - `src.communication.llm.implementation.CommunicationLlmRequiredError.extractCommunicationIntentAudited` - 23 calls
 - `src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited` - 22 calls
 - `src.graph.linker.linkIntentRecords` - 22 calls
 - `scripts.live-model-comparison.main` - 22 calls
 - `rust-ast.src.main.main` - 21 calls
 - `src.extractors.git.extractRepositoryGitIntent` - 21 calls
-- `python.ast_extract.iter_python_files` - 21 calls
 - `sdk.typescript.examples.basic.baseUrl` - 21 calls
 - `sdk.typescript.examples.basic.token` - 21 calls
 - `sdk.typescript.examples.basic.root` - 21 calls
@@ -485,7 +475,11 @@ Functions exposed as public API (no underscore prefix):
 - `src.extractors.changelog.extractChangelog` - 19 calls
 - `src.graph.diff.diffIntentGraphs` - 19 calls
 - `php.ast_extract.parseFile` - 19 calls
-- `src.cli.handleCommunication` - 18 calls
+- `scripts.verify-env-contract.collectDockerReferences` - 19 calls
+- `src.services.actions.executeAnalyzeCommunicationAction` - 18 calls
+- `src.core.schema.conclusions.assertTodoProposalValue` - 18 calls
+- `src.synthesis.task-synthesis-materialize.materializeTaskSynthesisResponse` - 18 calls
+- `src.operations.subactor.compileSubactorProcessEnvelope` - 18 calls
 
 ## System Interactions
 
@@ -512,17 +506,17 @@ graph TD
     main --> add_subparsers
     main --> add_parser
     main --> add_argument
+    executePipeline --> resolveGlobs
+    executePipeline --> skippedAudit
+    executePipeline --> extractNlIntentAudit
+    executePipeline --> push
+    executePipeline --> extractGitIntent
     temporaryParent --> git
     temporaryParent --> join
     temporaryParent --> commonPipelineOption
     temporaryParent --> optionsForRoot
     temporaryParent --> runPipeline
     baseWorktree --> git
-    baseWorktree --> join
-    baseWorktree --> commonPipelineOption
-    baseWorktree --> optionsForRoot
-    baseWorktree --> runPipeline
-    extractTodo --> resolve
 ```
 
 ## Reverse Engineering Guidelines

@@ -6,6 +6,7 @@ import {
   type A2AAction,
   type A2AMessage,
 } from './a2a-types.js';
+import { looksLikeJson } from './command-input.js';
 
 export function parseCommand(
   message: A2AMessage,
@@ -51,10 +52,6 @@ function parseCommandFromText(
   const text = parseText(message);
   if (looksLikeJson(text)) return parseCommandFromJson(text, message, params);
   return parseCommandFromSentence(text);
-}
-
-function looksLikeJson(text: string): boolean {
-  return text.startsWith('{');
 }
 
 function parseCommandFromJson(

@@ -1,13 +1,11 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { sha256, stableStringify } from '../core/id.js';
 import { pathExists } from '../core/io.js';
 import { assertConclusions } from '../core/schema.js';
 import type {
   Conclusion,
   DiagnosticReport,
-  GroundedGenerationMetadata,
   IntentGraph,
   LlmResponseMetadata,
   PipelineStageAudit,
@@ -22,6 +20,7 @@ import { T2C_VERSION } from '../version.js';
 import { TASK_SYNTHESIS_RESPONSE_CONTRACT } from './task-synthesis-contract.js';
 import { materializeTaskSynthesisResponse } from './task-synthesis-materialize.js';
 import { compactSynthesisPayload } from './task-synthesis-payload.js';
+import { taskSynthesisGenerationMetadata } from './task-synthesis-metadata.js';
 import {
   validateAndClassifyTodoProposals,
   type TodoProposalValidationResult,
@@ -159,7 +158,7 @@ async function synthesizeWithCorrection(
     }
     responses.push(completion.metadata);
     try {
-      const generation = generationMetadata(config, mode, completion.metadata);
+      const generation = taskSynthesisGenerationMetadata(config, mode, completion.metadata);
       return { output: materializeTaskSynthesisResponse(completion.value, graph, diagnostics, generation), responses };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -207,28 +206,6 @@ async function fallbackOrThrow(
     audit: synthesisAudit(
       'fallback', 'deterministic', true, 0, 1, reason, Date.now() - startedAt, responses, config,
     ),
-  };
-}
-
-function generationMetadata(
-  config: T2CConfig,
-  mode: TaskSynthesisMode,
-  response: LlmResponseMetadata,
-): GroundedGenerationMetadata {
-  const configuration = openRouterAuditConfiguration(config, config.openRouter.taskModel);
-  return {
-    generator: 't2c/task-synthesis',
-    generatorVersion: '2',
-    runtimeVersion: T2C_VERSION,
-    generatedAt: new Date().toISOString(),
-    requestedMode: mode,
-    effectiveMode: 'llm',
-    degraded: false,
-    model: response.model ?? config.openRouter.taskModel,
-    provider: response.provider ?? 'openrouter',
-    responseId: response.responseId,
-    configurationFingerprint: sha256(stableStringify(configuration)),
-    reason: null,
   };
 }
 

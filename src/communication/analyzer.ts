@@ -180,42 +180,65 @@ function collectAgentActionIssues(
   const issues: CommunicationIssue[] = [];
   for (const record of communication.filter((record) => roleOf(record) === 'agent')) {
     const type = typeOf(record);
-    const isActionableMessage = ['report', 'result', 'claim'].includes(type);
-    if (isActionableMessage && isHumanDecisionClaim(record)) {
-      issues.push(issue(
-        'AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED', 'review_required', ticketOf(record),
-        [participantOf(record)], [record.id],
-        `Agent powołuje się na decyzję człowieka, której nie ma w komunikacji należącej do człowieka: ${record.statement.text}`,
-        'Właściciel zakresu powinien zapisać decyzję we własnym pliku komunikacji; agent nie może zrobić tego w jego imieniu.',
-        'human', participantsForRole(communication, ticketOf(record), 'human'),
-      ));
-    } else if (isActionableMessage && isPositiveImplementationClaim(record)) {
-      const participantGit = matchedGitRecords(record, graph.records);
-      const linked = evidenceByRecord.get(record.id) ?? [];
-      if (participantGit.length === 0 && linked.length === 0) {
-        issues.push(issue(
-          'AGENT_CLAIM_WITHOUT_EVIDENCE', 'review_required', ticketOf(record), [participantOf(record)], [record.id],
-          `Agent raportuje wykonanie bez powiązanego commita lub faktu AST: ${record.statement.text}`,
-          'Dodać ticket do commita albo wskazać paths/symbols i ponownie uruchomić analizę.',
-          'agent', [participantOf(record)],
-        ));
-      }
-    }
-    if (['plan', 'report', 'result', 'claim'].includes(type)
-      && !isHumanDecisionClaim(record)
-      && isActionableAgentWork(record)) {
-      const matchedRequest = agentWorkCoveredByHumanScope(record, humanRequests, agentMessages);
-      if (!matchedRequest) {
-        issues.push(issue(
-          'AGENT_WORK_OUTSIDE_REQUEST', 'warning', ticketOf(record), [participantOf(record)], [record.id],
-          `Plan lub działanie agenta nie ma powiązanej intencji człowieka: ${record.statement.text}`,
-          'Powiązać działanie z poleceniem człowieka albo uzyskać decyzję rozszerzającą zakres ticketu.',
-          'human', participantsForRole(communication, ticketOf(record), 'human'),
-        ));
-      }
-    }
+    const issueItem = classifyAgentActionIssue(record, type, communication, graph, evidenceByRecord, humanRequests, agentMessages);
+    if (issueItem) issues.push(issueItem);
   }
   return issues;
+}
+
+function classifyAgentActionIssue(
+  record: IntentRecord,
+  type: string,
+  communication: IntentRecord[],
+  graph: IntentGraph,
+  evidenceByRecord: Map<string, string[]>,
+  humanRequests: IntentRecord[],
+  agentMessages: IntentRecord[],
+): CommunicationIssue | null {
+  if (isActionableMessage(type) && isHumanDecisionClaim(record)) {
+    return issue(
+      'AGENT_HUMAN_DECISION_CLAIM_UNCONFIRMED', 'review_required', ticketOf(record),
+      [participantOf(record)], [record.id],
+      `Agent powołuje się na decyzję człowieka, której nie ma w komunikacji należącej do człowieka: ${record.statement.text}`,
+      'Właściciel zakresu powinien zapisać decyzję we własnym pliku komunikacji; agent nie może zrobić tego w jego imieniu.',
+      'human', participantsForRole(communication, ticketOf(record), 'human'),
+    );
+  }
+
+  if (isActionableMessage(type) && isPositiveImplementationClaim(record)) {
+    const participantGit = matchedGitRecords(record, graph.records);
+    const linked = evidenceByRecord.get(record.id) ?? [];
+    if (participantGit.length === 0 && linked.length === 0) {
+      return issue(
+        'AGENT_CLAIM_WITHOUT_EVIDENCE', 'review_required', ticketOf(record), [participantOf(record)], [record.id],
+        `Agent raportuje wykonanie bez powiązanego commita lub faktu AST: ${record.statement.text}`,
+        'Dodać ticket do commita albo wskazać paths/symbols i ponownie uruchomić analizę.',
+        'agent', [participantOf(record)],
+      );
+    }
+  }
+
+  if (isWorkTrackingMessage(type) && !isHumanDecisionClaim(record) && isActionableAgentWork(record)) {
+    const matchedRequest = agentWorkCoveredByHumanScope(record, humanRequests, agentMessages);
+    if (!matchedRequest) {
+      return issue(
+        'AGENT_WORK_OUTSIDE_REQUEST', 'warning', ticketOf(record), [participantOf(record)], [record.id],
+        `Plan lub działanie agenta nie ma powiązanej intencji człowieka: ${record.statement.text}`,
+        'Powiązać działanie z poleceniem człowieka albo uzyskać decyzję rozszerzającą zakres ticketu.',
+        'human', participantsForRole(communication, ticketOf(record), 'human'),
+      );
+    }
+  }
+
+  return null;
+}
+
+function isActionableMessage(type: string): boolean {
+  return ['report', 'result', 'claim'].includes(type);
+}
+
+function isWorkTrackingMessage(type: string): boolean {
+  return ['plan', 'report', 'result', 'claim'].includes(type);
 }
 
 function deduplicateCommunicationIssues(issues: CommunicationIssue[]): CommunicationIssue[] {

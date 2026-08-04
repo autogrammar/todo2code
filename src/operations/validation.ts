@@ -2,18 +2,17 @@ import { shortHash, stableStringify } from '../core/id.js';
 import type { JsonValue } from '../core/types.js';
 import type { OperationPlan, VariableContract } from './types.js';
 import { assertGeneration } from './generation-validation.js';
+import { validateOperationStep as validateOperationStepFromModule } from './operation-step-validation.js';
 
 const VARIABLE_ID = /^VAR-[a-f0-9]{20}$/;
 const PLAN_ID = /^OPLAN-[a-f0-9]{20}$/;
 const STEP_ID = /^[a-z][a-z0-9-]{1,79}$/;
 const VARIABLE_NAME = /^[a-z][a-z0-9_]{0,79}$/;
-const PARAMETER_NAME = /^[a-z][a-z0-9_]{0,79}$/;
-const URI = /^[a-z][a-z0-9+.-]*:\/\/[^\s*]+$/i;
+const SHA256 = /^[a-f0-9]{64}$/;
 const PRINCIPAL = /^(?:authority|human|bot|service|machine):[a-z0-9][a-z0-9._-]*$/;
 const VALUE_TYPES = new Set(['string', 'number', 'integer', 'boolean', 'string[]', 'object']);
 const CLASSIFICATIONS = new Set(['public', 'internal', 'confidential', 'secret']);
 const SOURCE_KINDS = new Set(['aql', 'digital_twin', 'vault', 'runtime']);
-const RISK_CLASSES = new Set(['read_only', 'reversible', 'boundary', 'governance']);
 
 function objectValue(value: unknown, name: string): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${name} must be an object`);
@@ -165,17 +164,45 @@ function assertAcyclic(steps: OperationPlan['steps']): void {
   const visited = new Set<string>();
   const byId = new Map(steps.map((step) => [step.id, step]));
   const visit = (id: string): void => {
-    if (visiting.has(id)) throw new Error('Operation step dependencies must be acyclic');
-    if (visited.has(id)) return;
-    visiting.add(id);
+    if (isOperationStepCircularDependency(visiting, id)) {
+      throw new Error('Operation step dependencies must be acyclic');
+    }
+    if (hasOperationStepBeenVisited(visited, id)) return;
+    startOperationStepVisit(visiting, id);
     for (const dependency of byId.get(id)?.dependsOn ?? []) {
-      if (!ids.has(dependency)) throw new Error(`Operation step ${id} references unknown dependency ${dependency}`);
+      validateOperationStepDependency(ids, id, dependency);
       visit(dependency);
     }
-    visiting.delete(id);
-    visited.add(id);
+    completeOperationStepVisit(visiting, visited, id);
   };
   for (const id of ids) visit(id);
+}
+
+function isOperationStepCircularDependency(visiting: Set<string>, id: string): boolean {
+  return visiting.has(id);
+}
+
+function hasOperationStepBeenVisited(visited: Set<string>, id: string): boolean {
+  return visited.has(id);
+}
+
+function startOperationStepVisit(visiting: Set<string>, id: string): void {
+  visiting.add(id);
+}
+
+function validateOperationStepDependency(
+  knownIds: Set<string>,
+  stepId: string,
+  dependency: string,
+): void {
+  if (!knownIds.has(dependency)) {
+    throw new Error(`Operation step ${stepId} references unknown dependency ${dependency}`);
+  }
+}
+
+function completeOperationStepVisit(visiting: Set<string>, visited: Set<string>, id: string): void {
+  visiting.delete(id);
+  visited.add(id);
 }
 
 export function assertOperationPlan(value: unknown): asserts value is OperationPlan {
@@ -241,107 +268,13 @@ function validateOperationSteps(
   let hasCommandStep = false;
   let founderDecisionRequired = false;
   for (const rawStep of steps) {
-    const step = validateOperationStep(rawStep, variableById, stepIds);
+    const step = validateOperationStepFromModule(rawStep, variableById, stepIds);
     validatedSteps.push(step);
     hasCommandStep ||= step.effect === 'command';
     founderDecisionRequired ||= step.effect === 'command' && (step.reversible !== true || ['boundary', 'governance'].includes(step.riskClass));
   }
   assertAcyclic(validatedSteps);
   return { steps: validatedSteps, stepIds, hasCommandStep, founderDecisionRequired };
-}
-
-function validateOperationStep(
-  value: unknown,
-  variableById: Map<string, VariableContract>,
-  stepIds: Set<string>,
-): OperationPlan['steps'][number] {
-  const step = objectValue(value, 'Operation step');
-  exactKeys(step, ['id', 'name', 'capability', 'uriProcess', 'actor', 'effect', 'reversible', 'riskClass', 'parameters', 'dependsOn', 'humanApproval', 'rollback'], `Operation step ${String(step.id)}`);
-  if (typeof step.id !== 'string' || !STEP_ID.test(step.id) || stepIds.has(step.id)) throw new Error('Operation step id is invalid or duplicate');
-  stepIds.add(step.id);
-  nonBlank(step.name, `Operation step ${step.id}: name`);
-  nonBlank(step.capability, `Operation step ${step.id}: capability`);
-  if (typeof step.uriProcess !== 'string' || !URI.test(step.uriProcess)) throw new Error(`Operation step ${step.id}: uriProcess must be concrete and contain no wildcard`);
-  if (typeof step.actor !== 'string' || !PRINCIPAL.test(step.actor) || step.actor.startsWith('human:')) throw new Error(`Operation step ${step.id}: actor must be a non-human registered principal`);
-  if (!['query', 'command'].includes(String(step.effect))) throw new Error(`Operation step ${step.id}: effect is invalid`);
-  if (![true, false, null].includes(step.reversible as boolean | null)) throw new Error(`Operation step ${step.id}: reversible is invalid`);
-  if (!RISK_CLASSES.has(String(step.riskClass))) throw new Error(`Operation step ${step.id}: riskClass is invalid`);
-  if (typeof step.humanApproval !== 'boolean') throw new Error(`Operation step ${step.id}: humanApproval must be a boolean`);
-  const parameters = validateOperationStepParameters(step.parameters, variableById, step.id as string, step.actor as string);
-  uniqueStrings(step.dependsOn, `Operation step ${step.id}: dependsOn`);
-  const rollback = validateOperationStepRollback(step.rollback, step.id as string);
-  if (step.effect === 'query') {
-    if (step.riskClass !== 'read_only' || step.reversible !== true || step.humanApproval || rollback !== null) {
-      throw new Error(`Operation step ${step.id}: queries must be read_only, reversible, autonomous and have no rollback`);
-    }
-  } else {
-    if (step.riskClass === 'read_only' || rollback === null) {
-      throw new Error(`Operation step ${step.id}: commands require a non-read-only risk and rollback declaration`);
-    }
-    if ((step.reversible !== true || ['boundary', 'governance'].includes(String(step.riskClass))) && !step.humanApproval) {
-      throw new Error(`Operation step ${step.id}: safety-sensitive commands require humanApproval`);
-    }
-  }
-  return {
-    id: step.id as string,
-    name: step.name as string,
-    capability: step.capability as string,
-    uriProcess: step.uriProcess as string,
-    actor: step.actor as string,
-    effect: step.effect as OperationPlan['steps'][number]['effect'],
-    reversible: step.reversible as boolean | null,
-    riskClass: step.riskClass as OperationPlan['steps'][number]['riskClass'],
-    parameters,
-    dependsOn: step.dependsOn as string[],
-    humanApproval: step.humanApproval as boolean,
-    rollback,
-  };
-}
-
-function validateOperationStepParameters(
-  value: unknown,
-  variableById: Map<string, VariableContract>,
-  stepId: string,
-  actor: string,
-): Record<string, { kind: 'variable'; variableId: string }> {
-  const parameters = objectValue(value, `Operation step ${stepId}: parameters`);
-  const parsed: Record<string, { kind: 'variable'; variableId: string }> = {};
-  for (const [name, rawReference] of Object.entries(parameters)) {
-    if (!PARAMETER_NAME.test(name)) throw new Error(`Operation step ${stepId}: parameter name ${name} is invalid`);
-    const reference = objectValue(rawReference, `Operation step ${stepId}: parameter ${name}`);
-    exactKeys(reference, ['kind', 'variableId'], `Operation step ${stepId}: parameter ${name}`);
-    if (reference.kind !== 'variable' || typeof reference.variableId !== 'string' || !variableById.has(reference.variableId)) {
-      throw new Error(`Operation step ${stepId}: parameter ${name} must reference a declared variable`);
-    }
-    const variable = variableById.get(reference.variableId);
-    if (variable?.classification === 'secret') {
-      throw new Error(`Operation step ${stepId}: secret variable ${reference.variableId} cannot enter a process envelope payload`);
-    }
-    if (!variable?.access.readers.includes(actor) && actor !== 'authority:founder') {
-      throw new Error(`Operation step ${stepId}: actor cannot read variable ${reference.variableId}`);
-    }
-    parsed[name] = { kind: 'variable', variableId: reference.variableId };
-  }
-  return parsed;
-}
-
-function validateOperationStepRollback(value: unknown, stepId: string): OperationPlan['steps'][number]['rollback'] {
-  if (value === null) return null;
-  const rollback = objectValue(value, `Operation step ${stepId}: rollback`);
-  exactKeys(rollback, ['kind', 'uriProcess', 'reason'], `Operation step ${stepId}: rollback`);
-  if (!['uri_process', 'unavailable'].includes(String(rollback.kind))) throw new Error(`Operation step ${stepId}: rollback.kind is invalid`);
-  if (rollback.kind === 'uri_process') {
-    if (typeof rollback.uriProcess !== 'string' || !URI.test(rollback.uriProcess)) throw new Error(`Operation step ${stepId}: rollback URI is invalid`);
-    if (rollback.reason !== null) throw new Error(`Operation step ${stepId}: URI rollback reason must be null`);
-  } else {
-    if (rollback.uriProcess !== null) throw new Error(`Operation step ${stepId}: unavailable rollback URI must be null`);
-    nonBlank(rollback.reason, `Operation step ${stepId}: unavailable rollback reason`);
-  }
-  return {
-    kind: rollback.kind as OperationPlan['steps'][number]['rollback']['kind'],
-    uriProcess: rollback.uriProcess as string | null,
-    reason: rollback.reason as string | null,
-  };
 }
 
 function validateOperationExpectations(value: unknown, stepIds: Set<string>): void {

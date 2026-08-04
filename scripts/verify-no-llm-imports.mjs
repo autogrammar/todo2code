@@ -25,16 +25,33 @@ const failures = [];
 for (const entrypoint of entrypoints) await visit(path.resolve(entrypoint), [entrypoint]);
 
 async function visit(file, chain) {
-  if (visited.has(file)) return;
-  visited.add(file);
-  if (forbiddenTargets.some((target) => file.includes(target))) {
+  if (isVisited(file)) return;
+  markVisited(file);
+  if (isForbiddenTarget(file)) {
     failures.push(`forbidden dependency: ${chain.join(' -> ')}`);
     return;
   }
+
   const body = await fs.readFile(file, 'utf8');
-  for (const pattern of forbiddenContent) {
+  for (const pattern of forbiddenContentPatterns()) {
     if (pattern.test(body)) failures.push(`${path.relative(process.cwd(), file)} contains ${pattern}`);
   }
+  for (const specifier of collectSourceImports(body)) {
+    if (!specifier.startsWith('.')) continue;
+    const resolved = await resolveSource(path.dirname(file), specifier);
+    if (resolved) await visit(resolved, [...chain, path.relative(process.cwd(), resolved)]);
+  }
+}
+
+function forbiddenContentPatterns() {
+  return forbiddenContent;
+}
+
+function isForbiddenTarget(file) {
+  return forbiddenTargets.some((target) => file.includes(target));
+}
+
+function collectSourceImports(body) {
   const imports = [];
   for (const match of body.matchAll(/import\s+(type\s+)?(?:[^'";]+?\s+from\s+)?['"]([^'"]+)['"]/g)) {
     if (!match[1] && match[2]) imports.push(match[2]);
@@ -45,11 +62,15 @@ async function visit(file, chain) {
   for (const match of body.matchAll(/import\(\s*['"]([^'"]+)['"]\s*\)/g)) {
     if (match[1]) imports.push(match[1]);
   }
-  for (const specifier of imports) {
-    if (!specifier.startsWith('.')) continue;
-    const resolved = await resolveSource(path.dirname(file), specifier);
-    if (resolved) await visit(resolved, [...chain, path.relative(process.cwd(), resolved)]);
-  }
+  return imports;
+}
+
+function isVisited(file) {
+  return visited.has(file);
+}
+
+function markVisited(file) {
+  visited.add(file);
 }
 
 async function resolveSource(directory, specifier) {

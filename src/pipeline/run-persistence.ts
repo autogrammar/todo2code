@@ -3,11 +3,11 @@ import path from 'node:path';
 import { sha256, stableStringify } from '../core/id.js';
 import { writeJson, writeJsonl, writeText } from '../core/io.js';
 import { T2C_VERSION } from '../version.js';
-import { renderCommunicationMarkdown } from '../communication/analyzer.js';
 import { hasOpenRouter } from '../config/env.js';
 import type { PipelineManifest, PipelineOptions, PipelineStageAudit } from '../core/types.js';
 import type { T2CConfig } from '../config/env.js';
 import type { PipelineContext, PipelineExecutionOutput, PipelinePersistedPaths } from './run-types.js';
+import { persistOptionalArtifacts } from './persist-optional-artifacts.js';
 
 export function makePipelineManifest(
   context: PipelineContext,
@@ -180,62 +180,6 @@ async function persistCoreArtifacts(
     codeChangeReviewPath,
     codeChangeReviewAuditPath,
     codeChangeSourcePatchesPath,
-  };
-}
-
-type PersistOptionalArtifactsResult = {
-  files: Record<string, string>;
-  taskSynthesisPath: string | null;
-  todoPatchPath: string | null;
-  todoPatchAuditPath: string | null;
-  communicationAnalysisPath: string | null;
-};
-
-async function persistOptionalArtifacts(
-  runDirectory: string,
-  root: string,
-  taskSynthesis: PipelineExecutionOutput['taskSynthesis'],
-  todoPatch: PipelineExecutionOutput['todoPatch'],
-  communicationAnalysis: PipelineExecutionOutput['communicationAnalysis'],
-): Promise<PersistOptionalArtifactsResult> {
-  const files: Record<string, string> = {};
-
-  const taskSynthesisPath = taskSynthesis ? path.join(runDirectory, 'task-synthesis.json') : null;
-  const todoValidationPath = taskSynthesis ? path.join(runDirectory, 'todo-validation.json') : null;
-  const todoPatchPath = todoPatch ? path.join(runDirectory, 'TODO.patch') : null;
-  const todoPatchAuditPath = todoPatch ? path.join(runDirectory, 'TODO.patch.json') : null;
-
-  const communicationAnalysisPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.json') : null;
-  const communicationMarkdownPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.md') : null;
-
-  if (communicationAnalysisPath && communicationMarkdownPath && communicationAnalysis) {
-    await Promise.all([
-      writeJson(communicationAnalysisPath, communicationAnalysis),
-      writeText(communicationMarkdownPath, renderCommunicationMarkdown(communicationAnalysis)),
-    ]);
-    files.communicationAnalysis = path.relative(root, communicationAnalysisPath).replace(/\\/g, '/');
-    files.communicationAnalysisMarkdown = path.relative(root, communicationMarkdownPath).replace(/\\/g, '/');
-  }
-
-  if (taskSynthesisPath && todoValidationPath && todoPatchPath && todoPatchAuditPath && taskSynthesis && todoPatch) {
-    await Promise.all([
-      writeJson(taskSynthesisPath, taskSynthesis),
-      writeJson(todoValidationPath, taskSynthesis.validation),
-      writeText(todoPatchPath, todoPatch.markdown),
-      writeJson(todoPatchAuditPath, todoPatch.artifact),
-    ]);
-    files.taskSynthesis = path.relative(root, taskSynthesisPath).replace(/\\/g, '/');
-    files.todoValidation = path.relative(root, todoValidationPath).replace(/\\/g, '/');
-    files.todoPatch = path.relative(root, todoPatchPath).replace(/\\/g, '/');
-    files.todoPatchAudit = path.relative(root, todoPatchAuditPath).replace(/\\/g, '/');
-  }
-
-  return {
-    files,
-    taskSynthesisPath,
-    todoPatchPath,
-    todoPatchAuditPath,
-    communicationAnalysisPath,
   };
 }
 

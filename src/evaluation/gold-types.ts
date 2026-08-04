@@ -6,6 +6,7 @@ import type {
   SourceKind,
   TodoPriority,
 } from '../core/types.js';
+import { assertRerankerDecision } from './gold-reranker-validation.js';
 
 export const GOLD_FIXED_TIME = '2026-07-30T00:00:00.000Z';
 
@@ -377,29 +378,5 @@ function assertRerankerDecisions(fixture: GoldLinkingCase): void {
   const seenModules = new Set<string>();
   for (const decision of decisions) {
     assertRerankerDecision(fixture.id, decision, seenModules, recordLabels);
-  }
-}
-
-function assertRerankerDecision(
-  caseId: string,
-  decision: GoldRerankerDecisionFixture,
-  seenModules: Set<string>,
-  recordLabels: Set<string>,
-): void {
-  if (!recordLabels.has(decision.module) || decision.module === 'declaration') {
-    throw new Error(`Gold reranker case ${caseId} references unknown module ${decision.module}`);
-  }
-  if (seenModules.has(decision.module)) {
-    throw new Error(`Gold reranker case ${caseId} repeats module ${decision.module}`);
-  }
-  seenModules.add(decision.module);
-  if (
-    !Number.isFinite(decision.score) || decision.score < -1 || decision.score > 1
-    || !Number.isFinite(decision.confidence) || decision.confidence < 0 || decision.confidence > 1
-  ) {
-    throw new Error(`Gold reranker case ${caseId} has an invalid score or confidence`);
-  }
-  if (!decision.rationale.trim() || !decision.declarationQuote.trim() || !decision.moduleQuote.trim()) {
-    throw new Error(`Gold reranker case ${caseId} has blank grounded decision content`);
   }
 }
