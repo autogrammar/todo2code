@@ -26,3 +26,21 @@ make docker-smoke
 
 ./project/governance-check.sh
 - GOV-PASS: 0 errors, 0 warnings.
+
+2026-08-04 first hosted review response
+
+PR #31 initial checks
+- Push verify: PASS.
+- Pull-request verify: one unrelated CLI watch test timed out after 46 seconds;
+  all other tests passed. The same exact head passed push verify.
+- Koru deterministic gate: REJECT because calculateOpenRouterTimeout CC=31 and
+  OpenRouterClient.request CC=27 exceeded the configured CC=15 limit.
+- Koru advisory model: openrouter/z-ai/glm-5.2.
+
+Complexity repair
+- Decomposed request execution without adding a new deadline or retry budget.
+- `lizard src/llm/openrouter.ts src/llm/openrouter-timeout.ts`: PASS, zero
+  threshold warnings.
+- Focused OpenRouter tests: 26 passed, 0 failed.
+- Full verify after repair: PASS, 342 tests with 0 failures.
+- Docker smoke after repair: PASS.

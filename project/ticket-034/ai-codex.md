@@ -35,6 +35,10 @@ time as much smaller generic calls.
 - Added base/effective timeout diagnostics and a non-secret audit policy.
 - Passed focused tests, the complete 342-test suite, full verification, Docker
   smoke and governance.
+- Responded to the first Koru gate by decomposing request execution into
+  credential/deadline setup, bounded retries, one HTTP attempt, response
+  parsing and error normalization. Local Lizard now reports zero complexity
+  warnings while the focused and full suites preserve behavior.
 
 ## Blockers
 

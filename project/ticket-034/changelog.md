@@ -17,3 +17,6 @@
   multiplier and cap state.
 - Passed 7 focused tests, 342 complete tests, full verification, Docker smoke
   and governance with zero failures.
+- Split the original high-complexity request loop into bounded helper stages
+  after Koru reported two cyclomatic-complexity violations; Lizard now reports
+  no threshold violations and all validation remains green.
