@@ -12,11 +12,6 @@
   `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
   with protected merge review still required.
 
-- [ ] [`ticket-025`](project/ticket-025/README.md) — repair NL type guards and
-  the public markdown batching export after helper splits. Current state:
-  `IN_PROGRESS / VALIDATION`; implementation and all local/Docker gates pass,
-  with protected merge review still required.
-
 - [ ] [`ticket-018`](project/ticket-018/README.md) — enforce the
   `wellmanifest/new-project` manifest as policy-as-code through a deterministic
   validator, trusted approval boundary, reusable governance CI, stack-specific
@@ -42,6 +37,10 @@
   release the overlapping `Makefile` path.
 
 ## Completed tickets
+
+- [x] [`ticket-025`](project/ticket-025/README.md) — restored extractor split
+  contracts and their deterministic regression coverage. Current state:
+  `DONE`; all local, gold and Docker gates pass.
 
 - [x] [`ticket-024`](project/ticket-024/README.md) — repaired current CLI and
   communication split contracts. Current state: `DONE`; all local, protocol

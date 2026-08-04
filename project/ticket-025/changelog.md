@@ -7,3 +7,4 @@
 - Restored NL type guards, markdown batch export, declared Git-author mismatch
   detection and canonical documentation version coverage.
 - Aggregate verification and Docker core/full pass.
+- Marked the fully validated implementation DONE before protected publication.
