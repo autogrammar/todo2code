@@ -9,7 +9,7 @@ Paczka udostępnia dwa tryby:
 Instalacja lokalna:
 
 ```bash
-python3 -m pip install ./sdk/python
+python3 -m pip install .
 ```
 
 Użycie:
@@ -39,8 +39,20 @@ Najpierw zbuduj TypeScript i paczkę Python:
 ```bash
 npm run build
 make python-wheel
-python3 -m pip install .intent-packages/python/todo2code_sdk-*.whl
+python3 -m pip install .intent-packages/python/todo2code-*.whl
 ```
+
+Kanoniczny manifest Python znajduje się w katalogu głównym repozytorium.
+Dystrybucję wheel i sdist do publikacji zbudujesz poleceniem:
+
+```bash
+python3 -m build
+python3 -m twine check dist/todo2code-*
+```
+
+`python3 -m build` dopisuje archiwa Python do współdzielonego `dist/` i nie
+usuwa istniejącego wyniku kompilacji TypeScript. Paczka zawiera wyłącznie
+`todo2code`, moduł zgodności `todo2code_sdk` i metadane dystrybucji.
 
 Następnie Python może uruchomić ten sam pipeline i `Intent vs Reality` bez
 transportu HTTP:

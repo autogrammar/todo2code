@@ -3,15 +3,16 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "todo2code-sdk"
+name = "todo2code"
 version = "0.5.1"
 description = "Dependency-free Python SDK for todo2code A2A and the local TypeScript runtime"
-readme = "README.md"
+readme = "sdk/python/README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
+dependencies = []
 
 [tool.setuptools]
-# `todo2code` holds the implementation; `todo2code_sdk` is the diff-focused facade.
+package-dir = {"" = "sdk/python"}
 packages = ["todo2code"]
 py-modules = ["todo2code_sdk"]

@@ -2,8 +2,8 @@
 
 - **ID**: ticket-019
 - **Owner**: unresolved:human
-- **Status**: BACKLOG
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -22,9 +22,9 @@ and the Goal publish command remains restricted to
 
 `goal.yaml` must declare the Python project type and version the root manifest.
 The existing `make python-wheel` target must build from the root after removal
-of the nested manifest. That Makefile path overlaps active ticket-018, so
-implementation must wait until ticket-018 releases the path or an approved
-integration route resolves the conflict.
+of the nested manifest. Tickets 018 and 035 are now DONE. Ticket-035 declared
+all five publication paths as integration-owned shared contracts, so this
+ticket can perform the atomic change under the `integration` workstream.
 
 ## Planned changed paths
 
@@ -41,24 +41,24 @@ integration route resolves the conflict.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human owner approves this exact scope before build metadata is
+- [x] AC-01: A human owner approves this exact scope before build metadata is
       changed.
-- [ ] AC-02: `python -m build` at the repository root produces
+- [x] AC-02: `python -m build` at the repository root produces
       `todo2code-<version>.tar.gz` and `todo2code-<version>-py3-none-any.whl`
       without deleting the TypeScript contents already present in `dist/`.
-- [ ] AC-03: The wheel contains only the `todo2code` package, the
+- [x] AC-03: The wheel contains only the `todo2code` package, the
       `todo2code_sdk` compatibility module and required distribution metadata;
       it does not contain repository application sources or generated TS files.
-- [ ] AC-04: `sdk/python/pyproject.toml` is removed and root/local installation
+- [x] AC-04: `sdk/python/pyproject.toml` is removed and root/local installation
       instructions use the root `pyproject.toml` without breaking
       `make python-wheel`.
-- [ ] AC-05: `goal info` detects both Node.js and Python, version synchronization
+- [x] AC-05: `goal info` detects both Node.js and Python, version synchronization
       targets the root manifest, and `goal --dry-run -a` selects the bounded
       `twine upload dist/todo2code-{version}*` publication command.
-- [ ] AC-06: `twine check` passes for both artifacts and a clean virtual
+- [x] AC-06: `twine check` passes for both artifacts and a clean virtual
       environment can import `todo2code` and `todo2code_sdk` with the expected
       version and no third-party runtime dependencies.
-- [ ] AC-07: Existing application verification and SDK examples remain green;
+- [x] AC-07: Existing application verification and SDK examples remain green;
       no unrelated ticket-018 or local worktree changes are modified or
       attributed to this ticket.
 
@@ -69,11 +69,24 @@ integration route resolves the conflict.
 
 ## Approval boundary
 
-- Current state: `BACKLOG / WAIT_FOR_APPROVAL`.
+- Current state: `IN_PROGRESS / VALIDATION`.
 - Required response from: `unresolved:human`.
-- Chat approval authorizes implementation for this session but is not trusted
+- The current user instruction authorizes implementation for this session but is not trusted
   merge evidence; the repository still requires its external governance gate.
-- Even after approval, the `Makefile` overlap with active ticket-018 must be
-  released or explicitly routed before implementation begins.
-- The plan was serialized back to backlog on 2026-08-04 so it is not active
-  together with its unfinished dependency or conflicting governance scope.
+- Tickets 018 and 035 are DONE, so there is no active dependency or ownership
+  conflict. The scope update was committed separately as `19b164f`; the
+  implementation is now active in the bounded paths above.
+
+## Validation result
+
+The root wheel and sdist pass Twine checks and clean-environment imports with
+zero declared runtime dependencies. The wheel contains only the Python SDK,
+compatibility module and distribution metadata. `npm run verify`,
+`npm run examples:check`, `make e2e-core` and the local governance gate pass.
+
+Goal 2.1.284 exposed a release-safety defect during AC-05: the command
+`goal --dry-run publish --no-make --version 0.5.1` printed the bounded Twine
+command but still executed it. Consequently Python 0.5.1 was published to PyPI
+before merge. The following npm publication attempt failed with `ENEEDAUTH`;
+an independent registry lookup confirms that `todo2code@0.5.1` is absent from
+npm. No release was removed or yanked.
