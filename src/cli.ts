@@ -94,7 +94,9 @@ function commandHandlers(): Record<string, CommandHandler> {
     init: async (parsed) => initProject(path.resolve(parsed.positionals[0] ?? '.')),
     doctor: async (_parsed, config) => doctor(config),
     mcp: async (_parsed, config) => startMcpServer(config),
-    a2a: async (_parsed, config) => startA2aServer(config),
+    a2a: async (_parsed, config) => {
+      await startA2aServer(config);
+    },
     intake: handleIntake,
     extract: handleExtract,
     communication: handleCommunication,
@@ -501,7 +503,7 @@ async function handleGraphDiff(parsed: ParsedArgs, config: ReturnType<typeof get
   const out = optionString(parsed, 'out');
   const svg = optionString(parsed, 'svg');
   if (out) await writeJson(path.resolve(out), diff);
-  if (svg) await writeText(path.resolve(svg), renderGraphDiffSvg(diff, { maxItems: optionNumber(parsed, 'max-items', 18, 1, 100 }));
+  if (svg) await writeText(path.resolve(svg), renderGraphDiffSvg(diff, { maxItems: optionNumber(parsed, 'max-items', 18, 1, 100) }));
   if (!out && !svg) process.stdout.write(`${JSON.stringify(diff, null, 2)}\n`);
 }
 
@@ -584,7 +586,7 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     docs: handleExtractDocs,
     communication: handleExtractCommunication,
   };
-  const handler = handlers[extractor];
+  const handler = extractor ? handlers[extractor] : undefined;
   if (!handler) {
     throw new Error('Usage: t2c extract <nl|git|ast|config|runtime|markdown|docs|communication> ...');
   }

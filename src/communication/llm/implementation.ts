@@ -29,7 +29,7 @@ import {
   extractCommunicationIntent,
   type CommunicationExtractionOptions,
   type CommunicationRole,
-} from '../extractors/communication.js';
+} from '../../extractors/communication.js';
 
 export interface ParticipantCommunicationSynthesis {
   schemaVersion: 't2c.participant-synthesis/v1';
