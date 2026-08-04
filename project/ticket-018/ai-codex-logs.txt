@@ -301,6 +301,19 @@ root infrastructure error on all four TypeScript files: Vallm --regression
 invoked Python pytest, which was unavailable and is not the project test runner
 correction: remove --regression from Koru only; retain hosted npm verify + JDK
 checks and Koru syntax/complexity/security/semantic gates; semantic model GLM 5.2
+2026-08-04 KORU TRUST-BOUNDARY CORRECTION
+policy basis: P-CORE-016 and P-AGENT-007; required decisions cannot use LLM output
+report: t2c.koru-code-review/v2 with exact repository/base/head/model bindings
+GLM findings/provider availability: advisory-only
+provider bounds: 8192 tokens, 420 seconds, zero retries; job ceiling 10 minutes
+required deterministic checks remain governance / enforce, verify and Java adapter
+2026-08-04 CENTRAL 0.9.0 ADOPTION
+source revision: 78b365272b5b258931f9a66d7124122ec19d7814
+reusable workflow uses and standard-ref: identical immutable SHA
+trusted Validator App input: ifuri-validator-agent[bot]
+approval evidence location: runner.temp outside pull-request checkout
+bindings: repository, pullRequest, headSha, ticket, actor
+legacy checkout-owned resolver: detached from CI; retained for generated-analysis consistency
 historical trusted App reviews resolve the exact login as
 ifuri-validator-agent[bot]; corrected the manifest and workflow default from
 the earlier unverified if-uri-validator-agent[bot] spelling

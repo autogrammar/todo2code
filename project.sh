@@ -1,124 +1,38 @@
 #!/usr/bin/env bash
+# Safe target-repository entry point for wellmanifest/new-project governance.
+
 set -euo pipefail
 
-# Keep routine package checks quiet; this script already controls upgrades.
-export PIP_DISABLE_PIP_VERSION_CHECK=1
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+validator="$repo_root/project/governance-check.sh"
 
-PROJECT_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-SEMCOD_ROOT="${SEMCOD_ROOT:-$(dirname "$PROJECT_ROOT")}"
-ANALYSIS_SOURCE_MODE="${T2C_ANALYSIS_SOURCE:-tracked}"
-APPLY_PREFACT="${T2C_APPLY_PREFACT:-0}"
-
-VENV="$PROJECT_ROOT/venv"
-PIP="$VENV/bin/pip"
-
-cd "$PROJECT_ROOT"
-
-if [ "${T2C_SKIP_GOVERNANCE:-0}" != "1" ]; then
-    bash "$PROJECT_ROOT/project/governance-check.sh" --actor agent
-fi
-
-if [ ! -f "$PIP" ]; then
-    echo "Creating virtual environment..."
-    python3 -m venv "$VENV"
-fi
-
-install_project_package() {
-    local package="$1"
-    local local_package="$SEMCOD_ROOT/$package"
-
-    if [ -f "$local_package/pyproject.toml" ]; then
-        echo "Installing local $package..."
-        "$PIP" install --editable "$local_package" --quiet
-    else
-        echo "Installing $package from PyPI..."
-        "$PIP" install "$package" --upgrade --quiet
-    fi
-}
-
-if [ "${T2C_SKIP_TOOL_INSTALL:-0}" != "1" ]; then
-    for package in regix prefact vallm redup glon goal code2logic code2llm code2docs; do
-        install_project_package "$package"
-    done
-fi
-
-ANALYSIS_TEMP=""
-cleanup_analysis_snapshot() {
-    if [ -n "$ANALYSIS_TEMP" ] && [ -d "$ANALYSIS_TEMP" ]; then
-        git worktree remove --force "$ANALYSIS_TEMP/todo2code" >/dev/null 2>&1 || true
-        rm -rf -- "$ANALYSIS_TEMP"
-    fi
-}
-trap cleanup_analysis_snapshot EXIT
-
-case "$ANALYSIS_SOURCE_MODE" in
-    tracked)
-        ANALYSIS_TEMP="$(mktemp -d /tmp/t2c-analysis.XXXXXX)"
-        ANALYSIS_ROOT="$ANALYSIS_TEMP/todo2code"
-        git worktree add --detach "$ANALYSIS_ROOT" HEAD >/dev/null
-        # Root-level project files and docs/README.md are generated outputs.
-        # Remove their tracked snapshot copies so generators cannot ingest a
-        # stale report and recursively embed it in the next report.
-        find "$ANALYSIS_ROOT/project" -maxdepth 1 -type f -delete
-        find "$ANALYSIS_ROOT/docs" -maxdepth 1 -type f -name README.md -delete
-        ;;
-    workspace)
-        ANALYSIS_ROOT="$PROJECT_ROOT"
-        echo "WARNING: T2C_ANALYSIS_SOURCE=workspace includes uncommitted and untracked files." >&2
-        ;;
-    *)
-        echo "T2C_ANALYSIS_SOURCE must be 'tracked' or 'workspace'" >&2
-        exit 2
-        ;;
-esac
-
-run_analysis_tool() {
-    (cd "$ANALYSIS_ROOT" && "$@")
-}
-
-# Namespace contract: root-level files under project/ are technical analysis;
-# communication lives only under recognised project/<ticket>/ directories.
-# Keep this output path for compatibility with project/analysis.toon.yaml.
-# By default every generator sees a detached snapshot of HEAD, never local
-# untracked files or partially edited tracked files. Set
-# T2C_ANALYSIS_SOURCE=workspace only for an explicitly local, unpublished run.
-#$VENV/bin/code2llm ./ -f toon,evolution,code2logic,project-yaml -o ./project --no-chunk
-run_analysis_tool "$VENV/bin/code2docs" generate ./ --readme-only
-node "$PROJECT_ROOT/scripts/sync-generated-readme-metadata.mjs" "$ANALYSIS_ROOT" "$ANALYSIS_ROOT/docs/README.md"
-run_analysis_tool "$VENV/bin/redup" scan . --format toon --output ./project
-#$VENV/bin/redup scan . --functions-only -f toon --output ./project
-#$VENV/bin/vallm batch ./src --recursive --semantic --model qwen2.5-coder:7b
-#$VENV/bin/vallm batch --parallel .
-set +e
-run_analysis_tool "$VENV/bin/python" "$PROJECT_ROOT/scripts/vallm-compatible.py" \
-    batch . --recursive --no-imports --format toon --output ./project
-VALLM_STATUS=$?
-set -e
-if [ "$VALLM_STATUS" -ne 0 ] && [ "$VALLM_STATUS" -ne 2 ]; then
-    echo "vallm failed to produce a validation report (exit $VALLM_STATUS)" >&2
-    exit "$VALLM_STATUS"
-fi
-
-# Generate the code2llm bundle last, so index.html embeds the fresh redup/vallm
-# reports. Never analyze the generated output directory itself.
-run_analysis_tool "$VENV/bin/code2llm" ./ -f all -o ./project --no-chunk \
-    --exclude project docs/README.md
-#$VENV/bin/code2llm report --format all       # → all views
-rm -f -- "$ANALYSIS_ROOT/project/analysis.json"
-rm -f -- "$ANALYSIS_ROOT/project/analysis.yaml"
-node "$PROJECT_ROOT/scripts/normalize-generated-analysis-roots.mjs" "$ANALYSIS_ROOT" "$ANALYSIS_ROOT"
-
-if [ "$ANALYSIS_ROOT" != "$PROJECT_ROOT" ]; then
-    while IFS= read -r -d '' generated; do
-        cp -- "$generated" "$PROJECT_ROOT/project/$(basename "$generated")"
-    done < <(find "$ANALYSIS_ROOT/project" -maxdepth 1 -type f -print0)
-    cp -- "$ANALYSIS_ROOT/docs/README.md" "$PROJECT_ROOT/docs/README.md"
-fi
-
-node scripts/verify-generated-analysis.mjs "$PROJECT_ROOT"
-
-if [ "$APPLY_PREFACT" = "1" ]; then
-    "$VENV/bin/prefact" -a -e "examples/**"
+if [[ -x "$validator" && -f "$repo_root/.governance/manifest.json" ]]; then
+  "$validator" "$@"
+elif [[ ! -f "$repo_root/.governance/manifest.json" ]]; then
+  echo "GOV-MANIFEST-001: .governance/manifest.json is not installed in this target repository." >&2
+  echo "  remediation: bootstrap the pinned governance package before implementation." >&2
+  exit 1
 else
-    echo "Skipping source refactoring; set T2C_APPLY_PREFACT=1 to apply prefact changes."
+  echo "GOV-BOOT-001: project/governance-check.sh is missing or not executable." >&2
+  echo "  remediation: restore the wrapper from the pinned governance package." >&2
+  exit 1
+fi
+
+# Optional analysis tools must be supplied as an explicitly pinned image.
+# The governance gate above always runs first and no package is installed on the host.
+if [[ -n "${NEW_PROJECT_ANALYSIS_IMAGE:-}" ]]; then
+  if [[ ! "$NEW_PROJECT_ANALYSIS_IMAGE" =~ @sha256:[a-f0-9]{64}$ ]]; then
+    echo "GOV-STACK-001: NEW_PROJECT_ANALYSIS_IMAGE must be pinned by sha256 digest." >&2
+    echo "  remediation: use registry/image@sha256:<64 lowercase hex characters>." >&2
+    exit 1
+  fi
+  command -v docker >/dev/null 2>&1 || {
+    echo "GOV-DOCKER-001: docker command is unavailable." >&2
+    exit 1
+  }
+  docker info >/dev/null
+  docker run --rm --network none \
+    --mount "type=bind,src=$repo_root,dst=/workspace" \
+    --workdir /workspace \
+    "$NEW_PROJECT_ANALYSIS_IMAGE"
 fi

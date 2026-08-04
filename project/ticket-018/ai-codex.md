@@ -195,6 +195,16 @@ Current verified baseline:
   the Python-only Vallm regression plugin invoked missing `pytest` for every
   TypeScript file. Removed that plugin from Koru while retaining the real npm
   verify/JDK checks and syntax, complexity, security and GLM 5.2 semantics.
+- Corrected the trust boundary after policy 0.9.0 review: GLM findings and
+  provider availability are recorded in `t2c.koru-code-review/v2` as advisory.
+  The required merge decision remains in deterministic governance, verify and
+  Java checks; the Koru job enforces exact report bindings, not an LLM verdict.
+- Adopted central standard 0.9.0 at immutable revision
+  `78b365272b5b258931f9a66d7124122ec19d7814`. CI now calls that exact reusable
+  workflow and passes only the observed `ifuri-validator-agent[bot]` App login.
+  Approval evidence is generated in `runner.temp` and bound to repository, PR,
+  current head, ticket and actor. The earlier checkout-owned resolver is detached
+  from CI and retained only until the tracked generated-analysis index is refreshed.
 
 ## Blockers
 
