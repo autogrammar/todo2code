@@ -117,7 +117,7 @@ export async function executeAction(action: T2CAction, input: Record<string, unk
     case 'diff_files':
       return executeDiffFilesAction(input, root, config);
     case 'diff_git':
-      return executeDiffGitAction(input, root, config);
+      return executeDiffGitAction(input, root);
     case 'reality':
       return executeRealityAction(input, config);
     case 'pipeline':
