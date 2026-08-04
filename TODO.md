@@ -4,6 +4,13 @@
 
 None.
 
+## Planned tickets
+
+- [ ] [`ticket-037`](project/ticket-037/README.md) — define the deterministic
+  `t2c.branch/v1` core comparison contract and recommendation rules over
+  immutable, already-materialized branch evidence. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`.
+
 ## Backlog tickets
 
 None.
