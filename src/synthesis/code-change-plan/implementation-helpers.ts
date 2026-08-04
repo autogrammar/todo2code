@@ -109,19 +109,94 @@ export interface CloseCodeChangesOptions {
 export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): ProposeCodeChangePlansResult {
   assertIntentGraph(options.graph);
   assertConclusions([], { graph: options.graph, diagnostics: options.diagnostics });
-  const generatedAt = options.generatedAt ?? new Date().toISOString();
-  if (Number.isNaN(Date.parse(generatedAt))) throw new Error('generatedAt must be an ISO date-time');
-  const maxPlans = options.maxPlans ?? 50;
+  const generatedAt = parseIsoDateTime(options.generatedAt);
+  const maxPlans = parseMaxPlans(options.maxPlans);
+  const context = buildPlanContext(options);
+  const candidates = collectImplementationDiagnostics(options.diagnostics);
+
+  const plans = buildPlansForCandidates(candidates, context, generatedAt, maxPlans);
+  assertCodeChangePlans(plans, {
+    graph: options.graph,
+    diagnostics: options.diagnostics,
+    conclusions: context.conclusions,
+    proposals: context.proposals,
+  });
+  return buildPlanSetResult(options.graph.fingerprint, generatedAt, candidates.length, plans);
+}
+
+function buildPlansForCandidates(
+  candidates: Diagnostic[],
+  context: PlanContext,
+  generatedAt: string,
+  maxPlans: number,
+): CodeChangePlan[] {
+  const plans: CodeChangePlan[] = [];
+  for (const diagnostic of candidates) {
+    if (plans.length >= maxPlans) break;
+    const plan = createPlanForDiagnostic(diagnostic, context, generatedAt);
+    if (plan) plans.push(plan);
+  }
+  return plans;
+}
+
+function buildPlanSetResult(
+  graphFingerprint: string,
+  generatedAt: string,
+  sourceDiagnosticCount: number,
+  plans: CodeChangePlan[],
+): ProposeCodeChangePlansResult {
+  return {
+    schemaVersion: 't2c.code-change-plan-set/v1',
+    plans,
+    generatedAt,
+    graphFingerprint,
+    sourceDiagnosticCount,
+    generation: deterministicGeneration(generatedAt, 't2c/code-change-plan-set'),
+  };
+}
+
+function parseIsoDateTime(value?: string): string {
+  const generatedAt = value ?? new Date().toISOString();
+  if (Number.isNaN(Date.parse(generatedAt))) {
+    throw new Error('generatedAt must be an ISO date-time');
+  }
+  return generatedAt;
+}
+
+function parseMaxPlans(value: number | undefined): number {
+  const maxPlans = value ?? 50;
   if (!Number.isInteger(maxPlans) || maxPlans < 1 || maxPlans > 500) {
     throw new Error('maxPlans must be an integer between 1 and 500');
   }
+  return maxPlans;
+}
+
+interface PlanContext {
+  graph: IntentGraph;
+  recordsById: Map<string, IntentRecord>;
+  proposalsByDiagnostic: Map<string, TodoProposal[]>;
+  conclusionsByDiagnostic: Map<string, Conclusion[]>;
+  conclusions: Conclusion[];
+  proposals: TodoProposal[];
+  pathExists?: (relativePath: string) => boolean;
+}
+
+function buildPlanContext(options: ProposeCodeChangePlansOptions): PlanContext {
   const conclusions = options.conclusions ?? [];
   const proposals = options.proposals ?? [];
-  const recordsById = new Map(options.graph.records.map((record) => [record.id, record]));
-  const proposalsByDiagnostic = indexProposalsByDiagnostic(proposals);
-  const conclusionsByDiagnostic = indexConclusionsByDiagnostic(conclusions);
+  return {
+    graph: options.graph,
+    recordsById: new Map(options.graph.records.map((record) => [record.id, record])),
+    proposalsByDiagnostic: indexProposalsByDiagnostic(proposals),
+    conclusionsByDiagnostic: indexConclusionsByDiagnostic(conclusions),
+    conclusions,
+    proposals,
+    pathExists: options.pathExists,
+  };
+}
 
-  const candidates = options.diagnostics.diagnostics
+function collectImplementationDiagnostics(report: DiagnosticReport): Diagnostic[] {
+  return report.diagnostics
     .filter((diagnostic) => IMPLEMENTATION_DIAGNOSTIC_CODES.has(diagnostic.code))
     // A released CHANGELOG entry is an audit signal; an open TODO is an
     // explicit request for work.  With a bounded plan set, sorting only by
@@ -129,68 +204,112 @@ export function proposeCodeChangePlans(options: ProposeCodeChangePlansOptions): 
     // hide the repository's actual backlog from autonomous executors.
     .sort((left, right) => implementationDiagnosticRank(left)
       - implementationDiagnosticRank(right) || left.id.localeCompare(right.id));
+}
 
-  const plans: CodeChangePlan[] = [];
-  for (const diagnostic of candidates) {
-    if (plans.length >= maxPlans) break;
-    const relatedRecords = diagnostic.recordIds
-      .map((id) => recordsById.get(id))
-      .filter((record): record is IntentRecord => Boolean(record));
-    if (!relatedRecords.length) continue;
+function findRelatedRecords(
+  diagnostic: Diagnostic,
+  recordsById: Map<string, IntentRecord>,
+): IntentRecord[] {
+  return diagnostic.recordIds
+    .map((id) => recordsById.get(id))
+    .filter((record): record is IntentRecord => Boolean(record));
+}
 
-    const matchingProposals = proposalsByDiagnostic.get(diagnostic.id) ?? [];
-    const matchingConclusions = conclusionsByDiagnostic.get(diagnostic.id) ?? [];
-    const target = collectTarget(relatedRecords, matchingProposals);
-    const changes = buildChanges(target, relatedRecords, diagnostic, options.pathExists);
-    if (!changes.length) continue;
+function createPlanForDiagnostic(
+  diagnostic: Diagnostic,
+  context: PlanContext,
+  generatedAt: string,
+): CodeChangePlan | null {
+  const relatedRecords = findRelatedRecords(diagnostic, context.recordsById);
+  if (!relatedRecords.length) return null;
 
-    const generation = deterministicGeneration(generatedAt, 't2c/code-change-plan');
-    const evidence = {
-      graphFingerprint: options.graph.fingerprint,
-      recordIds: uniqueSorted(relatedRecords.map((record) => record.id)),
-      diagnosticIds: [diagnostic.id],
-      conclusionIds: uniqueSorted(matchingConclusions.map((item) => item.id)),
-      proposalIds: uniqueSorted(matchingProposals.map((item) => item.id)),
-    };
-    const semantic = {
-      title: titleFor(diagnostic, relatedRecords),
-      description: descriptionFor(diagnostic, relatedRecords, target),
-      priority: priorityFor(diagnostic),
-      target,
-      acceptanceCriteria: acceptanceCriteriaFor(diagnostic, target),
-      changes,
-      risk: riskFor(diagnostic, changes),
-      rollback: rollbackFor(changes),
-      evidence,
-    };
-    const planHash = createCodeChangePlanHash(semantic);
-    const plan: CodeChangePlan = {
-      schemaVersion: 't2c.code-change-plan/v1',
-      id: createCodeChangePlanId(semantic),
-      planHash,
-      status: 'proposed',
-      createdAt: generatedAt,
-      ...semantic,
-      confidence: confidenceFor(diagnostic, matchingProposals),
-      generation,
-    };
-    plans.push(plan);
-  }
+  const matchingProposals = context.proposalsByDiagnostic.get(diagnostic.id) ?? [];
+  const matchingConclusions = context.conclusionsByDiagnostic.get(diagnostic.id) ?? [];
+  const target = collectTarget(relatedRecords, matchingProposals);
+  const changes = buildChanges(target, relatedRecords, diagnostic, context.pathExists);
+  if (!changes.length) return null;
 
-  assertCodeChangePlans(plans, {
-    graph: options.graph,
-    diagnostics: options.diagnostics,
-    conclusions,
-    proposals,
-  });
+  const evidence = buildPlanEvidence(context.graph.fingerprint, diagnostic.id, relatedRecords, matchingConclusions, matchingProposals);
+  const confidence = confidenceForDiagnostic(diagnostic, matchingProposals);
+  const semantic = buildPlanSemantic(diagnostic, relatedRecords, target, changes, evidence);
+  return buildPlanResult(generatedAt, confidence, semantic);
+}
 
+function confidenceForDiagnostic(
+  diagnostic: Diagnostic,
+  matchingProposals: TodoProposal[],
+): number {
+  return confidenceFor(diagnostic, matchingProposals);
+}
+
+interface CodeChangePlanSemanticDraft {
+  title: string;
+  description: string;
+  priority: TodoPriority;
+  target: IntentTarget;
+  acceptanceCriteria: string[];
+  changes: CodeChangeFile[];
+  risk: CodeChangePlan['risk'];
+  rollback: string;
+  evidence: {
+    graphFingerprint: string;
+    recordIds: string[];
+    diagnosticIds: string[];
+    conclusionIds: string[];
+    proposalIds: string[];
+  };
+}
+
+function buildPlanEvidence(
+  graphFingerprint: string,
+  diagnosticId: string,
+  relatedRecords: IntentRecord[],
+  matchingConclusions: Conclusion[],
+  matchingProposals: TodoProposal[],
+): CodeChangePlanSemanticDraft['evidence'] {
   return {
-    schemaVersion: 't2c.code-change-plan-set/v1',
-    plans,
-    generatedAt,
-    graphFingerprint: options.graph.fingerprint,
-    sourceDiagnosticCount: candidates.length,
-    generation: deterministicGeneration(generatedAt, 't2c/code-change-plan-set'),
+    graphFingerprint,
+    recordIds: uniqueSorted(relatedRecords.map((record) => record.id)),
+    diagnosticIds: [diagnosticId],
+    conclusionIds: uniqueSorted(matchingConclusions.map((item) => item.id)),
+    proposalIds: uniqueSorted(matchingProposals.map((item) => item.id)),
+  };
+}
+
+function buildPlanSemantic(
+  diagnostic: Diagnostic,
+  relatedRecords: IntentRecord[],
+  target: IntentTarget,
+  changes: CodeChangeFile[],
+  evidence: CodeChangePlanSemanticDraft['evidence'],
+): CodeChangePlanSemanticDraft {
+  return {
+    title: titleFor(diagnostic, relatedRecords),
+    description: descriptionFor(diagnostic, relatedRecords, target),
+    priority: priorityFor(diagnostic),
+    target,
+    acceptanceCriteria: acceptanceCriteriaFor(diagnostic, target),
+    changes,
+    risk: riskFor(diagnostic, changes),
+    rollback: rollbackFor(changes),
+    evidence,
+  };
+}
+
+function buildPlanResult(
+  generatedAt: string,
+  confidence: number,
+  semantic: CodeChangePlanSemanticDraft,
+): CodeChangePlan {
+  return {
+    schemaVersion: 't2c.code-change-plan/v1',
+    id: createCodeChangePlanId(semantic),
+    planHash: createCodeChangePlanHash(semantic),
+    status: 'proposed',
+    createdAt: generatedAt,
+    confidence,
+    generation: deterministicGeneration(generatedAt, 't2c/code-change-plan'),
+    ...semantic,
   };
 }
 
@@ -221,6 +340,7 @@ function implementationDiagnosticRank(diagnostic: Diagnostic): number {
  * Diagnostic IDs are content-bound, so a still-open finding on the same
  * records keeps the same ID. Cleared findings simply disappear.
  */
+
 export function evaluateCodeChangeAcceptance(
   options: EvaluateCodeChangeAcceptanceOptions,
 ): CodeChangeAcceptance {
@@ -229,73 +349,128 @@ export function evaluateCodeChangeAcceptance(
   assertConclusions([], options.before);
   assertCodeChangePlanForAcceptance(options.plan, options.before);
 
-  const afterDiagnostics = options.afterDiagnostics ?? diagnoseGraph(
-    options.afterGraph,
-    options.evaluatedAt ?? new Date().toISOString(),
-  );
+  const context = buildAcceptanceContext(options);
+  const reasons = buildAcceptanceReasons(context.remainingDiagnosticIds, context.newBlockingDiagnosticIds);
+  const accepted = isAcceptancePassed(context);
+  appendAcceptanceGateReason(reasons, accepted);
+
+  const acceptance = buildAcceptanceResult(options, context, reasons, accepted);
+  assertCodeChangeAcceptance(acceptance, {
+    plan: options.plan,
+    before: options.before,
+    after: { graph: options.afterGraph, diagnostics: context.afterDiagnostics },
+  });
+  return acceptance;
+}
+
+interface AcceptanceContext {
+  afterDiagnostics: DiagnosticReport;
+  beforeDiagnosticIds: Set<string>;
+  afterDiagnosticIds: string[];
+  clearedDiagnosticIds: string[];
+  remainingDiagnosticIds: string[];
+  newBlockingDiagnosticIds: string[];
+  evaluatedAt: string;
+}
+
+function buildAcceptanceContext(options: EvaluateCodeChangeAcceptanceOptions): AcceptanceContext {
+  const evaluatedAt = options.evaluatedAt ?? new Date().toISOString();
+  const afterDiagnostics = options.afterDiagnostics ?? diagnoseGraph(options.afterGraph, evaluatedAt);
   assertConclusions([], { graph: options.afterGraph, diagnostics: afterDiagnostics });
 
-  const beforeIds = new Set(options.before.diagnostics.diagnostics.map((item) => item.id));
+  const beforeDiagnosticIds = new Set(options.before.diagnostics.diagnostics.map((item) => item.id));
   const afterById = new Map(afterDiagnostics.diagnostics.map((item) => [item.id, item]));
-  const afterIds = [...afterById.keys()].sort();
-  const targeted = options.plan.evidence.diagnosticIds;
-  const clearedDiagnosticIds = targeted.filter((id) => !afterById.has(id)).sort();
-  const remainingDiagnosticIds = targeted.filter((id) => afterById.has(id)).sort();
-  const newBlockingDiagnosticIds = afterDiagnostics.diagnostics
-    .filter((item) => item.severity === 'blocking' && !beforeIds.has(item.id))
-    .map((item) => item.id)
-    .sort();
+  const afterDiagnosticIds = [...afterById.keys()].sort();
+  const targetedDiagnosticIds = options.plan.evidence.diagnosticIds;
 
+  return {
+    afterDiagnostics,
+    beforeDiagnosticIds,
+    afterDiagnosticIds,
+    clearedDiagnosticIds: targetedDiagnosticIds.filter((id) => !afterById.has(id)).sort(),
+    remainingDiagnosticIds: targetedDiagnosticIds.filter((id) => afterById.has(id)).sort(),
+    newBlockingDiagnosticIds: afterDiagnostics.diagnostics
+      .filter((item) => item.severity === 'blocking' && !beforeDiagnosticIds.has(item.id))
+      .map((item) => item.id)
+      .sort(),
+    evaluatedAt,
+  };
+}
+
+function buildAcceptanceReasons(
+  remainingDiagnosticIds: string[],
+  newBlockingDiagnosticIds: string[],
+): string[] {
   const reasons: string[] = [];
   if (remainingDiagnosticIds.length) {
-    reasons.push(
-      `Targeted diagnostics still open: ${remainingDiagnosticIds.join(', ')}.`,
-    );
+    reasons.push(`Targeted diagnostics still open: ${remainingDiagnosticIds.join(', ')}.`);
   } else {
     reasons.push('All targeted diagnostics cleared after re-analysis.');
   }
   if (newBlockingDiagnosticIds.length) {
-    reasons.push(
-      `New blocking diagnostics appeared: ${newBlockingDiagnosticIds.join(', ')}.`,
-    );
+    reasons.push(`New blocking diagnostics appeared: ${newBlockingDiagnosticIds.join(', ')}.`);
   } else {
     reasons.push('No new blocking diagnostics appeared.');
   }
+  return reasons;
+}
 
-  const accepted = remainingDiagnosticIds.length === 0 && newBlockingDiagnosticIds.length === 0;
+function isAcceptancePassed(context: AcceptanceContext): boolean {
+  return context.remainingDiagnosticIds.length === 0 && context.newBlockingDiagnosticIds.length === 0;
+}
+
+function appendAcceptanceGateReason(reasons: string[], accepted: boolean): void {
   if (accepted) {
     reasons.push('Acceptance gate passed; human approval is still required before DONE.');
   } else {
     reasons.push('Acceptance gate failed.');
   }
+}
 
-  const evaluatedAt = options.evaluatedAt ?? new Date().toISOString();
-  const acceptance: CodeChangeAcceptance = {
+function buildAcceptanceResult(
+  options: EvaluateCodeChangeAcceptanceOptions,
+  context: AcceptanceContext,
+  reasons: string[],
+  accepted: boolean,
+): CodeChangeAcceptance {
+  return {
     schemaVersion: 't2c.code-change-acceptance/v1',
     planId: options.plan.id,
     planHash: options.plan.planHash,
     beforeGraphFingerprint: options.before.graph.fingerprint,
     afterGraphFingerprint: options.afterGraph.fingerprint,
-    beforeDiagnosticIds: [...beforeIds].sort(),
-    afterDiagnosticIds: afterIds,
-    clearedDiagnosticIds,
-    remainingDiagnosticIds,
-    newBlockingDiagnosticIds,
+    beforeDiagnosticIds: [...context.beforeDiagnosticIds].sort(),
+    afterDiagnosticIds: context.afterDiagnosticIds,
+    clearedDiagnosticIds: context.clearedDiagnosticIds,
+    remainingDiagnosticIds: context.remainingDiagnosticIds,
+    newBlockingDiagnosticIds: context.newBlockingDiagnosticIds,
     accepted,
     reasons: uniqueSorted(reasons),
-    evaluatedAt,
-    generation: deterministicGeneration(evaluatedAt, 't2c/code-change-acceptance'),
+    evaluatedAt: context.evaluatedAt,
+    generation: deterministicGeneration(context.evaluatedAt, 't2c/code-change-acceptance'),
   };
-  assertCodeChangeAcceptance(acceptance, {
-    plan: options.plan,
-    before: options.before,
-    after: { graph: options.afterGraph, diagnostics: afterDiagnostics },
-  });
-  return acceptance;
 }
 
 /** Evaluate a plan set under one timestamp without applying changes or marking DONE. */
 export function closeCodeChanges(options: CloseCodeChangesOptions): CodeChangeCloseResult {
+  const context = buildCloseCodeChangeContext(options);
+  const acceptances = options.plans.map((plan) => evaluateCodeChangeAcceptance({
+    plan,
+    before: options.before,
+    afterGraph: options.afterGraph,
+    afterDiagnostics: context.afterDiagnostics,
+    evaluatedAt: context.evaluatedAt,
+  }));
+  const acceptedCount = acceptances.filter((item) => item.accepted).length;
+  return buildCloseResult(options, context.evaluatedAt, acceptances, acceptedCount);
+}
+
+interface CloseCodeChangeContext {
+  evaluatedAt: string;
+  afterDiagnostics: DiagnosticReport;
+}
+
+function buildCloseCodeChangeContext(options: CloseCodeChangesOptions): CloseCodeChangeContext {
   const evaluatedAt = options.evaluatedAt ?? new Date().toISOString();
   if (Number.isNaN(Date.parse(evaluatedAt))) throw new Error('evaluatedAt must be an ISO date-time');
   assertIntentGraph(options.before.graph);
@@ -303,17 +478,23 @@ export function closeCodeChanges(options: CloseCodeChangesOptions): CodeChangeCl
   assertConclusions([], options.before);
   const afterDiagnostics = options.afterDiagnostics ?? diagnoseGraph(options.afterGraph, evaluatedAt);
   assertConclusions([], { graph: options.afterGraph, diagnostics: afterDiagnostics });
-  const planIds = options.plans.map((plan) => plan.id);
-  if (new Set(planIds).size !== planIds.length) throw new Error('Code change close plans must have unique ids');
+  ensureClosePlanIdsAreUnique(options.plans);
+  return { evaluatedAt, afterDiagnostics };
+}
 
-  const acceptances = options.plans.map((plan) => evaluateCodeChangeAcceptance({
-    plan,
-    before: options.before,
-    afterGraph: options.afterGraph,
-    afterDiagnostics,
-    evaluatedAt,
-  }));
-  const acceptedCount = acceptances.filter((item) => item.accepted).length;
+function ensureClosePlanIdsAreUnique(plans: CodeChangePlan[]): void {
+  const planIds = plans.map((plan) => plan.id);
+  if (new Set(planIds).size !== planIds.length) {
+    throw new Error('Code change close plans must have unique ids');
+  }
+}
+
+function buildCloseResult(
+  options: CloseCodeChangesOptions,
+  evaluatedAt: string,
+  acceptances: CodeChangeAcceptance[],
+  acceptedCount: number,
+): CodeChangeCloseResult {
   return {
     schemaVersion: 't2c.code-change-close-result/v1',
     evaluatedAt,
@@ -327,7 +508,6 @@ export function closeCodeChanges(options: CloseCodeChangesOptions): CodeChangeCl
     generation: deterministicGeneration(evaluatedAt, 't2c/code-change-close-result'),
   };
 }
-
 function indexProposalsByDiagnostic(proposals: TodoProposal[]): Map<string, TodoProposal[]> {
   const index = new Map<string, TodoProposal[]>();
   for (const proposal of proposals) {
@@ -353,27 +533,60 @@ function indexConclusionsByDiagnostic(conclusions: Conclusion[]): Map<string, Co
 }
 
 function collectTarget(records: IntentRecord[], proposals: TodoProposal[]): IntentTarget {
+  const target = collectTargetComponents(records, proposals);
+  return finalizeTarget(target);
+}
+
+function collectTargetComponents(
+  records: IntentRecord[],
+  proposals: TodoProposal[],
+): {
+  paths: Set<string>;
+  symbols: Set<string>;
+  tickets: Set<string>;
+  versions: Set<string>;
+} {
   const paths = new Set<string>();
   const symbols = new Set<string>();
   const tickets = new Set<string>();
   const versions = new Set<string>();
-  for (const record of records) {
-    for (const path of record.statement.target.paths) paths.add(path);
-    for (const symbol of record.statement.target.symbols) symbols.add(symbol);
-    for (const ticket of record.statement.target.tickets) tickets.add(ticket);
-    for (const version of record.statement.target.versions) versions.add(version);
+  for (const source of records) {
+    addTargetEntries(source.statement.target, paths, symbols, tickets, versions);
   }
   for (const proposal of proposals) {
-    for (const path of proposal.target.paths) paths.add(path);
-    for (const symbol of proposal.target.symbols) symbols.add(symbol);
-    for (const ticket of proposal.target.tickets) tickets.add(ticket);
-    for (const version of proposal.target.versions) versions.add(version);
+    addTargetEntries(proposal.target, paths, symbols, tickets, versions);
   }
+  return { paths, symbols, tickets, versions };
+}
+
+function addTargetEntries(
+  target: IntentTarget,
+  paths: Set<string>,
+  symbols: Set<string>,
+  tickets: Set<string>,
+  versions: Set<string>,
+): void {
+  for (const value of target.paths) paths.add(value);
+  for (const value of target.symbols) symbols.add(value);
+  for (const value of target.tickets) tickets.add(value);
+  for (const value of target.versions) versions.add(value);
+}
+
+function finalizeTarget(target: {
+  paths: Set<string>;
+  symbols: Set<string>;
+  tickets: Set<string>;
+  versions: Set<string>;
+}): IntentTarget {
+  const paths = [...target.paths].filter(isUsefulCodeChangePath);
+  const symbols = [...target.symbols];
+  const tickets = [...target.tickets];
+  const versions = [...target.versions];
   return normalizeTarget({
-    paths: [...paths].filter(isUsefulCodeChangePath),
-    symbols: [...symbols],
-    tickets: [...tickets],
-    versions: [...versions],
+    paths,
+    symbols,
+    tickets,
+    versions,
   });
 }
 
@@ -547,32 +760,69 @@ export interface CreatedCodeChangeReview {
 export function createCodeChangeReviewPatch(
   options: CreateCodeChangeReviewOptions,
 ): CreatedCodeChangeReview {
+  const context = buildCodeChangeReviewContext(options);
+  const markdown = buildCodeChangeReviewMarkdown(context);
+  const artifact = buildCodeChangeReviewArtifact(context, markdown);
+  assertCodeChangeReviewPatch(artifact);
+  return { markdown, artifact };
+}
+
+interface CodeChangeReviewContext {
+  plans: CodeChangePlan[];
+  graphFingerprint: string;
+  createdAt: string;
+}
+
+function buildCodeChangeReviewContext(options: CreateCodeChangeReviewOptions): CodeChangeReviewContext {
   if (typeof options.graphFingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(options.graphFingerprint)) {
     throw new Error('graphFingerprint must be a SHA-256 hex digest');
   }
-  assertCodeChangePlansForReview(options.plans, options.graphFingerprint);
-  const plans = [...options.plans].sort((left, right) =>
-    priorityRank(left.priority) - priorityRank(right.priority) || left.id.localeCompare(right.id));
   const createdAt = options.createdAt ?? new Date().toISOString();
   if (Number.isNaN(Date.parse(createdAt))) throw new Error('createdAt must be an ISO date-time');
-  const markdown = renderCodeChangeReviewMarkdown(plans, options.graphFingerprint);
-  const artifact: CodeChangeReviewPatch = {
-    schemaVersion: 't2c.code-change-review/v1',
-    createdAt,
+  assertCodeChangePlansForReview(options.plans, options.graphFingerprint);
+  return {
+    plans: sortCodeChangeReviewPlans(options.plans),
     graphFingerprint: options.graphFingerprint,
-    planIds: plans.map((plan) => plan.id),
-    planHashes: plans.map((plan) => plan.planHash),
-    renderedPatchHash: sha256(markdown),
-    generation: deterministicGeneration(createdAt, 't2c/code-change-review'),
+    createdAt,
   };
-  assertCodeChangeReviewPatch(artifact);
-  return { markdown, artifact };
+}
+
+function sortCodeChangeReviewPlans(plans: CodeChangePlan[]): CodeChangePlan[] {
+  return [...plans].sort((left, right) =>
+    priorityRank(left.priority) - priorityRank(right.priority) || left.id.localeCompare(right.id));
+}
+
+function buildCodeChangeReviewMarkdown(context: CodeChangeReviewContext): string {
+  return renderCodeChangeReviewMarkdown(context.plans, context.graphFingerprint);
+}
+
+function buildCodeChangeReviewArtifact(
+  context: CodeChangeReviewContext,
+  markdown: string,
+): CodeChangeReviewPatch {
+  return {
+    schemaVersion: 't2c.code-change-review/v1',
+    createdAt: context.createdAt,
+    graphFingerprint: context.graphFingerprint,
+    planIds: context.plans.map((plan) => plan.id),
+    planHashes: context.plans.map((plan) => plan.planHash),
+    renderedPatchHash: sha256(markdown),
+    generation: deterministicGeneration(context.createdAt, 't2c/code-change-review'),
+  };
 }
 
 export function renderCodeChangeReviewMarkdown(
   plans: CodeChangePlan[],
   graphFingerprint: string,
 ): string {
+  const lines = buildCodeChangeReviewMarkdownLines(plans, graphFingerprint);
+  return lines.join('\n');
+}
+
+function buildCodeChangeReviewMarkdownLines(
+  plans: CodeChangePlan[],
+  graphFingerprint: string,
+): string[] {
   const lines = [
     '<!-- t2c.code-change-review/v1 -->',
     '# todo2code proposed code changes',
@@ -586,48 +836,71 @@ export function renderCodeChangeReviewMarkdown(
   ];
   if (!plans.length) {
     lines.push('_No grounded code-change plans. Open diagnostics either cleared or lack repository paths._', '');
-    return lines.join('\n');
+    return lines;
   }
   let currentPriority: CodeChangePlan['priority'] | null = null;
   for (const plan of plans) {
-    if (plan.priority !== currentPriority) {
-      if (currentPriority !== null) lines.push('');
-      currentPriority = plan.priority;
-      lines.push(`## ${plan.priority}`, '');
-    }
-    lines.push(`### ${inline(plan.title)} (\`${plan.id}\`)`, '');
-    lines.push(`- Plan hash: \`${plan.planHash}\``);
-    lines.push(`- Risk: **${plan.risk.level}** — ${plan.risk.reasons.map(inline).join('; ')}`);
-    lines.push(`- Confidence: ${plan.confidence.toFixed(2)}`);
-    lines.push(`- Description: ${inline(plan.description)}`);
-    lines.push('- Changes:');
-    for (const change of plan.changes) {
-      const symbols = change.symbols.length ? ` symbols: ${change.symbols.map((item) => `\`${item}\``).join(', ')}` : '';
-      lines.push(`  - \`${change.action}\` \`${change.path}\`${symbols}`);
-      lines.push(`    - ${inline(change.rationale)}`);
-    }
-    lines.push('- Acceptance criteria:');
-    for (const criterion of plan.acceptanceCriteria) lines.push(`  - [ ] ${inline(criterion)}`);
-    lines.push(`- Diagnostics: ${renderIds(plan.evidence.diagnosticIds)}`);
-    lines.push(`- Evidence records: ${renderIds(plan.evidence.recordIds)}`);
-    if (plan.evidence.proposalIds.length) lines.push(`- TODO proposals: ${renderIds(plan.evidence.proposalIds)}`);
-    if (plan.evidence.conclusionIds.length) lines.push(`- Conclusions: ${renderIds(plan.evidence.conclusionIds)}`);
-    lines.push(`- Rollback: ${inline(plan.rollback)}`);
-    lines.push('');
+    currentPriority = appendPriorityHeader(lines, currentPriority, plan);
+    appendPlanDetails(lines, plan);
   }
+  appendAfterImplementationSection(lines);
+  return lines;
+}
+
+function appendPriorityHeader(
+  lines: string[],
+  currentPriority: CodeChangePlan['priority'] | null,
+  plan: CodeChangePlan,
+): CodeChangePlan['priority'] {
+  if (plan.priority === currentPriority) return currentPriority;
+  if (currentPriority !== null) lines.push('');
+  lines.push(`## ${plan.priority}`, '');
+  return plan.priority;
+}
+
+function appendPlanDetails(lines: string[], plan: CodeChangePlan): void {
+  lines.push(`### ${inline(plan.title)} (\`${plan.id}\`)`, '');
+  lines.push(`- Plan hash: \`${plan.planHash}\``);
+  lines.push(`- Risk: **${plan.risk.level}** — ${plan.risk.reasons.map(inline).join('; ')}`);
+  lines.push(`- Confidence: ${plan.confidence.toFixed(2)}`);
+  lines.push(`- Description: ${inline(plan.description)}`);
+  appendPlanChanges(lines, plan);
+  lines.push('- Acceptance criteria:');
+  for (const criterion of plan.acceptanceCriteria) lines.push(`  - [ ] ${inline(criterion)}`);
+  lines.push(`- Diagnostics: ${renderIds(plan.evidence.diagnosticIds)}`);
+  lines.push(`- Evidence records: ${renderIds(plan.evidence.recordIds)}`);
+  if (plan.evidence.proposalIds.length) lines.push(`- TODO proposals: ${renderIds(plan.evidence.proposalIds)}`);
+  if (plan.evidence.conclusionIds.length) lines.push(`- Conclusions: ${renderIds(plan.evidence.conclusionIds)}`);
+  lines.push(`- Rollback: ${inline(plan.rollback)}`);
+  lines.push('');
+}
+
+function appendPlanChanges(lines: string[], plan: CodeChangePlan): void {
+  lines.push('- Changes:');
+  for (const change of plan.changes) {
+    const symbols = change.symbols.length ? ` symbols: ${change.symbols.map((item) => `\`${item}\``).join(', ')}` : '';
+    lines.push(`  - \`${change.action}\` \`${change.path}\`${symbols}`);
+    lines.push(`    - ${inline(change.rationale)}`);
+  }
+}
+
+function appendAfterImplementationSection(lines: string[]): void {
   lines.push('## After implementation', '');
   lines.push('1. Re-run `t2c pipeline` (or extract + link + diagnose) on the changed tree.');
   lines.push('2. `t2c evaluate-code-change <plan.json> --before-graph … --after-graph … --out acceptance.json`.');
   lines.push('3. Require `accepted=true` and human/CI review before marking work DONE.');
   lines.push('');
-  return lines.join('\n');
 }
 
 export function assertCodeChangeReviewPatch(value: unknown): asserts value is CodeChangeReviewPatch {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Code change review patch must be an object');
-  }
-  const artifact = value as Record<string, unknown>;
+  const artifact = assertSourcePatchObject(value, 'Code change review patch must be an object');
+  validateReviewPatchKeys(artifact);
+  assertCodeChangeReviewPatchSchema(artifact);
+  assertCodeChangeReviewPatchPlanCollections(artifact);
+  assertCodeChangeReviewPatchGeneration(artifact);
+}
+
+function validateReviewPatchKeys(artifact: Record<string, unknown>): void {
   const required = [
     'schemaVersion', 'createdAt', 'graphFingerprint', 'planIds', 'planHashes',
     'renderedPatchHash', 'generation',
@@ -635,9 +908,21 @@ export function assertCodeChangeReviewPatch(value: unknown): asserts value is Co
   for (const key of required) {
     if (!(key in artifact)) throw new Error(`Code change review patch is missing: ${key}`);
   }
+}
+
+function assertCodeChangeReviewPatchSchema(artifact: Record<string, unknown>): void {
+  assertReviewPatchSchemaVersion(artifact);
+  assertReviewPatchDateFields(artifact);
+  assertReviewPatchIds(artifact);
+}
+
+function assertReviewPatchSchemaVersion(artifact: Record<string, unknown>): void {
   if (artifact.schemaVersion !== 't2c.code-change-review/v1') {
     throw new Error('Unsupported code change review schemaVersion');
   }
+}
+
+function assertReviewPatchDateFields(artifact: Record<string, unknown>): void {
   if (typeof artifact.createdAt !== 'string' || Number.isNaN(Date.parse(artifact.createdAt))) {
     throw new Error('Code change review createdAt must be an ISO date-time');
   }
@@ -647,18 +932,27 @@ export function assertCodeChangeReviewPatch(value: unknown): asserts value is Co
   if (typeof artifact.renderedPatchHash !== 'string' || !/^[a-f0-9]{64}$/.test(artifact.renderedPatchHash)) {
     throw new Error('Code change review renderedPatchHash must be SHA-256');
   }
+}
+
+function assertReviewPatchIds(artifact: Record<string, unknown>): void {
   if (!Array.isArray(artifact.planIds) || !artifact.planIds.every((id) => typeof id === 'string' && /^CPLAN-[a-f0-9]{20}$/.test(id))) {
     throw new Error('Code change review planIds must be CPLAN ids');
   }
   if (!Array.isArray(artifact.planHashes) || !artifact.planHashes.every((hash) => typeof hash === 'string' && /^[a-f0-9]{64}$/.test(hash))) {
     throw new Error('Code change review planHashes must be SHA-256 digests');
   }
+}
+
+function assertCodeChangeReviewPatchPlanCollections(artifact: Record<string, unknown>): void {
   if (artifact.planIds.length !== artifact.planHashes.length) {
     throw new Error('Code change review planIds and planHashes must have equal length');
   }
   if (new Set(artifact.planIds as string[]).size !== (artifact.planIds as string[]).length) {
     throw new Error('Code change review planIds must be unique');
   }
+}
+
+function assertCodeChangeReviewPatchGeneration(artifact: Record<string, unknown>): void {
   assertGroundedGenerationMetadata(artifact.generation, 'Code change review generation');
   const generation = artifact.generation as GroundedGenerationMetadata;
   if (generation.generatedAt !== artifact.createdAt) {
@@ -698,7 +992,32 @@ export interface CreateCodeChangeSourcePatchOptions {
 export function createCodeChangeSourcePatch(
   options: CreateCodeChangeSourcePatchOptions,
 ): CodeChangeSourcePatch {
-  const plan = options.plan;
+  const context = buildSourcePatchContext(options);
+  const edits = buildSourcePatchEdits(context);
+  const semantic = buildSourcePatchSemantic(context, edits);
+  const patchHash = createCodeChangeSourcePatchHash(semantic);
+  const patch: CodeChangeSourcePatch = {
+    schemaVersion: 't2c.code-change-source-patch/v1',
+    id: createCodeChangeSourcePatchId(semantic),
+    patchHash,
+    status: 'proposed',
+    createdAt: context.createdAt,
+    ...semantic,
+    generation: deterministicGeneration(context.createdAt, 't2c/code-change-source-patch'),
+  };
+  assertCodeChangeSourcePatch(patch, context.plan);
+  return patch;
+}
+
+interface SourcePatchCreationContext {
+  plan: CodeChangePlan;
+  createdAt: string;
+  allowedPaths: Set<string>;
+  diffs: Record<string, string>;
+}
+
+function buildSourcePatchContext(options: CreateCodeChangeSourcePatchOptions): SourcePatchCreationContext {
+  const { plan, unifiedDiffs = {} } = options;
   const graphFingerprint = plan?.evidence?.graphFingerprint;
   assertCodeChangePlansForReview(
     [plan],
@@ -706,54 +1025,68 @@ export function createCodeChangeSourcePatch(
   );
   const createdAt = options.createdAt ?? new Date().toISOString();
   if (Number.isNaN(Date.parse(createdAt))) throw new Error('createdAt must be an ISO date-time');
-  const allowed = new Set(plan.target.paths.map((path) => path.replace(/\\/g, '/')));
-  const diffs = options.unifiedDiffs ?? {};
-  for (const path of Object.keys(diffs)) {
-    const normalized = path.replace(/\\/g, '/');
-    if (!allowed.has(normalized)) {
-      throw new Error(`Unified diff path ${normalized} is not declared by plan ${plan.id}`);
+  const allowedPaths = collectPlanTargetPaths(plan.target.paths);
+  validateUnifiedDiffsBelongToPlan(plan.id, unifiedDiffs, allowedPaths);
+  return { plan, createdAt, allowedPaths, diffs: unifiedDiffs };
+}
+
+function collectPlanTargetPaths(paths: string[]): Set<string> {
+  return new Set(paths.map((item) => item.replace(/\\/g, '/')));
+}
+
+function validateUnifiedDiffsBelongToPlan(
+  planId: string,
+  diffs: Record<string, string>,
+  allowedPaths: Set<string>,
+): void {
+  for (const diffPath of Object.keys(diffs)) {
+    const normalizedPath = diffPath.replace(/\\/g, '/');
+    if (!allowedPaths.has(normalizedPath)) {
+      throw new Error(`Unified diff path ${normalizedPath} is not declared by plan ${planId}`);
     }
   }
-  const edits: CodeChangeSourceEdit[] = [...plan.changes]
-    .map((change) => {
-      const path = change.path.replace(/\\/g, '/');
-      if (!allowed.has(path)) {
-        throw new Error(`Edit path ${path} is not present in plan target.paths`);
-      }
-      const rawDiff = diffs[path];
-      const unifiedDiff = rawDiff === undefined ? null : normalizeUnifiedDiff(rawDiff, path);
-      return {
-        path,
-        action: change.action,
-        symbols: uniqueSorted(change.symbols),
-        instruction: instructionFor(change, plan),
-        unifiedDiff,
-      };
-    })
-    .sort((left, right) => left.path.localeCompare(right.path) || left.action.localeCompare(right.action));
-  if (!edits.length) throw new Error(`Plan ${plan.id} has no editable paths`);
+}
 
-  const semantic = {
-    planId: plan.id,
-    planHash: plan.planHash,
-    graphFingerprint: plan.evidence.graphFingerprint,
-    diagnosticIds: uniqueSorted(plan.evidence.diagnosticIds),
-    recordIds: uniqueSorted(plan.evidence.recordIds),
+function buildSourcePatchEdits(context: SourcePatchCreationContext): CodeChangeSourceEdit[] {
+  const edits: CodeChangeSourceEdit[] = context.plan.changes
+    .map((change) => buildSourcePatchEdit(context, change))
+    .sort((left, right) => left.path.localeCompare(right.path) || left.action.localeCompare(right.action));
+  if (!edits.length) throw new Error(`Plan ${context.plan.id} has no editable paths`);
+  return edits;
+}
+
+function buildSourcePatchEdit(
+  context: SourcePatchCreationContext,
+  change: CodeChangeFile,
+): CodeChangeSourceEdit {
+  const path = change.path.replace(/\\/g, '/');
+  if (!context.allowedPaths.has(path)) {
+    throw new Error(`Edit path ${path} is not present in plan target.paths`);
+  }
+  const rawDiff = context.diffs[path];
+  const unifiedDiff = rawDiff === undefined ? null : normalizeUnifiedDiff(rawDiff, path);
+  return {
+    path,
+    action: change.action,
+    symbols: uniqueSorted(change.symbols),
+    instruction: instructionFor(change, context.plan),
+    unifiedDiff,
+  };
+}
+
+function buildSourcePatchSemantic(
+  context: SourcePatchCreationContext,
+  edits: CodeChangeSourceEdit[],
+): Omit<CodeChangeSourcePatch, 'schemaVersion' | 'id' | 'status' | 'createdAt' | 'patchHash' | 'generation'> {
+  return {
+    planId: context.plan.id,
+    planHash: context.plan.planHash,
+    graphFingerprint: context.plan.evidence.graphFingerprint,
+    diagnosticIds: uniqueSorted(context.plan.evidence.diagnosticIds),
+    recordIds: uniqueSorted(context.plan.evidence.recordIds),
     edits,
-    acceptanceCriteria: uniqueSorted(plan.acceptanceCriteria),
+    acceptanceCriteria: uniqueSorted(context.plan.acceptanceCriteria),
   };
-  const patchHash = createCodeChangeSourcePatchHash(semantic);
-  const patch: CodeChangeSourcePatch = {
-    schemaVersion: 't2c.code-change-source-patch/v1',
-    id: createCodeChangeSourcePatchId(semantic),
-    patchHash,
-    status: 'proposed',
-    createdAt,
-    ...semantic,
-    generation: deterministicGeneration(createdAt, 't2c/code-change-source-patch'),
-  };
-  assertCodeChangeSourcePatch(patch, plan);
-  return patch;
 }
 
 export function createCodeChangeSourcePatchSet(options: {
@@ -762,35 +1095,80 @@ export function createCodeChangeSourcePatchSet(options: {
   unifiedDiffsByPlanId?: Record<string, Record<string, string>>;
   generatedAt?: string;
 }): CodeChangeSourcePatchSet {
+  const context = normalizePatchSetOptions(options);
+  const patches = buildPatchesForSet(context);
+  const result = buildSourcePatchSet(context, patches);
+  assertCodeChangeSourcePatchSet(result, options.plans);
+  return result;
+}
+
+interface SourcePatchSetBuildContext {
+  plans: CodeChangePlan[];
+  graphFingerprint: string;
+  generatedAt: string;
+  unifiedDiffsByPlanId: Record<string, Record<string, string>>;
+}
+
+function normalizePatchSetOptions(
+  options: {
+    plans: CodeChangePlan[];
+    graphFingerprint: string;
+    unifiedDiffsByPlanId?: Record<string, Record<string, string>>;
+    generatedAt?: string;
+  },
+): SourcePatchSetBuildContext {
   if (typeof options.graphFingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(options.graphFingerprint)) {
     throw new Error('graphFingerprint must be a SHA-256 hex digest');
   }
   assertCodeChangePlansForReview(options.plans, options.graphFingerprint);
   const generatedAt = options.generatedAt ?? new Date().toISOString();
-  const patches = [...options.plans]
+  return {
+    plans: options.plans,
+    graphFingerprint: options.graphFingerprint,
+    generatedAt,
+    unifiedDiffsByPlanId: options.unifiedDiffsByPlanId ?? {},
+  };
+}
+
+function buildPatchesForSet(context: SourcePatchSetBuildContext): CodeChangeSourcePatch[] {
+  return [...context.plans]
     .sort((left, right) => left.id.localeCompare(right.id))
     .map((plan) => createCodeChangeSourcePatch({
       plan,
-      createdAt: generatedAt,
-      ...(options.unifiedDiffsByPlanId?.[plan.id]
-        ? { unifiedDiffs: options.unifiedDiffsByPlanId[plan.id] }
-        : {}),
+      createdAt: context.generatedAt,
+      ...(context.unifiedDiffsByPlanId[plan.id] ? { unifiedDiffs: context.unifiedDiffsByPlanId[plan.id] } : {}),
     }));
-  const result: CodeChangeSourcePatchSet = {
+}
+
+function buildSourcePatchSet(
+  context: SourcePatchSetBuildContext,
+  patches: CodeChangeSourcePatch[],
+): CodeChangeSourcePatchSet {
+  return {
     schemaVersion: 't2c.code-change-source-patch-set/v1',
-    generatedAt,
-    graphFingerprint: options.graphFingerprint,
+    generatedAt: context.generatedAt,
+    graphFingerprint: context.graphFingerprint,
     patches,
-    generation: deterministicGeneration(generatedAt, 't2c/code-change-source-patch-set'),
+    generation: deterministicGeneration(context.generatedAt, 't2c/code-change-source-patch-set'),
   };
-  assertCodeChangeSourcePatchSet(result, options.plans);
-  return result;
 }
 
 export function assertCodeChangeSourcePatch(
   value: unknown,
   plan?: CodeChangePlan,
 ): asserts value is CodeChangeSourcePatch {
+  const patch = assertCodeChangeSourcePatchObject(value, plan);
+  validateSourcePatchSchema(patch);
+  validateSourcePatchIdentifiers(patch);
+  const editPaths = validateSourcePatchEdits(patch);
+  validateSourcePatchHashAndId(patch);
+  validateSourcePatchGeneration(patch);
+  if (plan) {
+    validateSourcePatchAgainstPlan(patch, plan, editPaths);
+  }
+}
+
+function assertCodeChangeSourcePatchObject(value: unknown, plan?: CodeChangePlan): CodeChangeSourcePatch {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('Code change source patch must be an object');
   }
@@ -799,18 +1177,33 @@ export function assertCodeChangeSourcePatch(
     'schemaVersion', 'id', 'patchHash', 'status', 'createdAt', 'planId', 'planHash',
     'graphFingerprint', 'diagnosticIds', 'recordIds', 'edits', 'acceptanceCriteria', 'generation',
   ], 'Source patch');
+  if (plan !== undefined && typeof patch.planId === 'string' && patch.id) {
+    if (patch.planId !== plan.id) {
+      throw new Error('Source patch is not bound to the supplied plan');
+    }
+  }
+  return patch;
+}
+
+function validateSourcePatchSchema(patch: CodeChangeSourcePatch): void {
   if (patch.schemaVersion !== 't2c.code-change-source-patch/v1') {
     throw new Error('Unsupported code change source patch schemaVersion');
   }
+  if (typeof patch.createdAt !== 'string' || Number.isNaN(Date.parse(patch.createdAt))) {
+    throw new Error('Source patch createdAt must be an ISO date-time');
+  }
+  if (patch.status !== 'proposed') throw new Error('Source patch status must be proposed');
+  if (!Array.isArray(patch.edits) || patch.edits.length === 0) {
+    throw new Error('Source patch edits must be a non-empty array');
+  }
+}
+
+function validateSourcePatchIdentifiers(patch: CodeChangeSourcePatch): void {
   if (typeof patch.id !== 'string' || !/^SPATCH-[a-f0-9]{20}$/.test(patch.id)) {
     throw new Error('Source patch id must match SPATCH-<20 hex>');
   }
   if (typeof patch.patchHash !== 'string' || !/^[a-f0-9]{64}$/.test(patch.patchHash)) {
     throw new Error('Source patch patchHash must be SHA-256');
-  }
-  if (patch.status !== 'proposed') throw new Error('Source patch status must be proposed');
-  if (typeof patch.createdAt !== 'string' || Number.isNaN(Date.parse(patch.createdAt))) {
-    throw new Error('Source patch createdAt must be an ISO date-time');
   }
   if (typeof patch.planId !== 'string' || !/^CPLAN-[a-f0-9]{20}$/.test(patch.planId)) {
     throw new Error('Source patch planId must match CPLAN-<20 hex>');
@@ -821,37 +1214,114 @@ export function assertCodeChangeSourcePatch(
   if (typeof patch.graphFingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(patch.graphFingerprint)) {
     throw new Error('Source patch graphFingerprint must be SHA-256');
   }
-  if (!Array.isArray(patch.edits) || patch.edits.length === 0) {
-    throw new Error('Source patch edits must be a non-empty array');
-  }
   assertSourcePatchIds(patch.diagnosticIds, /^DIAG-[a-f0-9]{20}$/, 'diagnosticIds');
   assertSourcePatchIds(patch.recordIds, /^INT-[A-Z]+-[a-f0-9]{20}$/, 'recordIds');
   assertSourcePatchStrings(patch.acceptanceCriteria, 'acceptanceCriteria', false);
+}
+
+function validateSourcePatchEdits(patch: CodeChangeSourcePatch): Set<string> {
+  return collectSourcePatchEditPathActions(patch.edits);
+}
+
+function collectSourcePatchEditPathActions(edits: CodeChangeSourceEdit[]): Set<string> {
   const paths = new Set<string>();
-  for (const edit of patch.edits) {
-    if (!edit || typeof edit !== 'object') throw new Error('Source patch edit must be an object');
-    exactSourcePatchKeys(edit as unknown as Record<string, unknown>, [
-      'path', 'action', 'symbols', 'instruction', 'unifiedDiff',
-    ], 'Source patch edit');
-    const path = edit.path?.trim().replace(/\\/g, '/') ?? '';
-    if (!path || path.startsWith('/') || path.split('/').includes('..')) {
-      throw new Error(`Source patch edit path is not a relative repository path: ${path}`);
-    }
-    if (!['create', 'modify', 'delete'].includes(edit.action)) {
-      throw new Error(`Source patch edit action is unsupported: ${String(edit.action)}`);
-    }
-    if (typeof edit.instruction !== 'string' || !edit.instruction.trim()) {
-      throw new Error('Source patch edit instruction must be non-blank');
-    }
-    assertSourcePatchStrings(edit.symbols, `edits[${path}].symbols`, true);
-    if (edit.unifiedDiff !== null) {
-      if (typeof edit.unifiedDiff !== 'string') throw new Error('Source patch unifiedDiff must be string or null');
-      normalizeUnifiedDiff(edit.unifiedDiff, path);
-    }
-    const key = `${path}::${edit.action}`;
-    if (paths.has(key)) throw new Error(`Duplicate source patch edit for ${path}`);
-    paths.add(key);
+  for (const edit of edits) {
+    const editContext = validateSourcePatchEdit(edit, paths);
+    paths.add(editContext.pathActionKey);
   }
+  return paths;
+}
+
+interface SourcePatchEditValidationContext {
+  pathActionKey: string;
+}
+
+function validateSourcePatchEdit(
+  edit: CodeChangeSourceEdit,
+  seen: Set<string>,
+): SourcePatchEditValidationContext {
+  const normalizedEdit = assertSourcePatchEditObject(edit);
+  const normalizedPath = normalizeSourcePatchEditPath(normalizedEdit.path);
+  validateSourcePatchEditBody(normalizedEdit, normalizedPath);
+  validateSourcePatchEditDiff(normalizedEdit.unifiedDiff, normalizedPath);
+  assertUniqueSourcePatchEditPathAction(seen, normalizedPath, normalizedEdit.action);
+  const pathActionKey = `${normalizedPath}::${normalizedEdit.action}`;
+  return { pathActionKey };
+}
+
+function assertSourcePatchEditObject(edit: CodeChangeSourceEdit | unknown): {
+  path: unknown;
+  action: unknown;
+  symbols: unknown;
+  instruction: unknown;
+  unifiedDiff: string | null;
+} {
+  if (!edit || typeof edit !== 'object') throw new Error('Source patch edit must be an object');
+  exactSourcePatchKeys(edit as unknown as Record<string, unknown>, [
+    'path', 'action', 'symbols', 'instruction', 'unifiedDiff',
+  ], 'Source patch edit');
+  return edit as {
+    path: unknown;
+    action: unknown;
+    symbols: unknown;
+    instruction: unknown;
+    unifiedDiff: string | null;
+  };
+}
+
+function validateSourcePatchEditBody(
+  edit: {
+    path: unknown;
+    action: unknown;
+    symbols: unknown;
+    instruction: unknown;
+    unifiedDiff: string | null;
+  },
+  normalizedPath: string,
+): void {
+  ensureSourcePatchEditAction(edit.action);
+  ensureSourcePatchEditInstruction(edit.instruction);
+  assertSourcePatchStrings(edit.symbols, `edits[${normalizedPath}].symbols`, true);
+}
+
+function validateSourcePatchEditDiff(unifiedDiff: string | null, normalizedPath: string): void {
+  if (unifiedDiff === null) return;
+  if (typeof unifiedDiff !== 'string') {
+    throw new Error(`Source patch unifiedDiff for ${normalizedPath} must be string or null`);
+  }
+  normalizeUnifiedDiff(unifiedDiff, normalizedPath);
+}
+
+function assertUniqueSourcePatchEditPathAction(
+  seen: Set<string>,
+  normalizedPath: string,
+  action: unknown,
+): void {
+  const pathActionKey = `${normalizedPath}::${action}`;
+  if (seen.has(pathActionKey)) throw new Error(`Duplicate source patch edit for ${normalizedPath}`);
+}
+
+function normalizeSourcePatchEditPath(pathValue: unknown): string {
+  const normalizedPath = (typeof pathValue === 'string' ? pathValue.trim() : '').replace(/\\/g, '/');
+  if (!normalizedPath || normalizedPath.startsWith('/') || normalizedPath.split('/').includes('..')) {
+    throw new Error(`Source patch edit path is not a relative repository path: ${normalizedPath}`);
+  }
+  return normalizedPath;
+}
+
+function ensureSourcePatchEditAction(action: unknown): void {
+  if (!['create', 'modify', 'delete'].includes(action as string) || typeof action !== 'string') {
+    throw new Error(`Source patch edit action is unsupported: ${String(action)}`);
+  }
+}
+
+function ensureSourcePatchEditInstruction(instruction: unknown): void {
+  if (typeof instruction !== 'string' || !instruction.trim()) {
+    throw new Error('Source patch edit instruction must be non-blank');
+  }
+}
+
+function validateSourcePatchHashAndId(patch: CodeChangeSourcePatch): void {
   const expectedHash = createCodeChangeSourcePatchHash(patch);
   if (patch.patchHash !== expectedHash) {
     throw new Error(`Source patch patchHash does not match semantic content: expected ${expectedHash}`);
@@ -859,6 +1329,9 @@ export function assertCodeChangeSourcePatch(
   if (patch.id !== createCodeChangeSourcePatchId(patch)) {
     throw new Error('Source patch id does not match semantic content');
   }
+}
+
+function validateSourcePatchGeneration(patch: CodeChangeSourcePatch): void {
   assertGroundedGenerationMetadata(patch.generation, 'Source patch generation');
   if (patch.generation.generatedAt !== patch.createdAt) {
     throw new Error('Source patch generation.generatedAt must match createdAt');
@@ -866,37 +1339,95 @@ export function assertCodeChangeSourcePatch(
   if (patch.generation.generator !== 't2c/code-change-source-patch') {
     throw new Error('Source patch generation.generator must be t2c/code-change-source-patch');
   }
-  if (plan) {
-    if (patch.planId !== plan.id || patch.planHash !== plan.planHash) {
-      throw new Error('Source patch is not bound to the supplied plan');
-    }
-    if (patch.graphFingerprint !== plan.evidence.graphFingerprint) {
-      throw new Error('Source patch graphFingerprint does not match the plan');
-    }
-    const allowed = new Set(plan.target.paths.map((item) => item.replace(/\\/g, '/')));
-    const expectedChanges = new Map(plan.changes.map((item) => [
-      item.path.replace(/\\/g, '/'), item.action,
-    ]));
-    for (const edit of patch.edits) {
-      const editPath = edit.path.replace(/\\/g, '/');
-      if (!allowed.has(editPath)) {
-        throw new Error(`Source patch path ${edit.path} is outside plan target.paths`);
-      }
-      if (expectedChanges.get(editPath) !== edit.action) {
-        throw new Error(`Source patch action for ${edit.path} does not match the plan`);
-      }
-    }
-    exactSourcePatchSet(patch.edits.map((item) => item.path.replace(/\\/g, '/')), [...expectedChanges.keys()], 'edit paths');
-    exactSourcePatchSet(patch.diagnosticIds, plan.evidence.diagnosticIds, 'diagnosticIds');
-    exactSourcePatchSet(patch.recordIds, plan.evidence.recordIds, 'recordIds');
-    exactSourcePatchSet(patch.acceptanceCriteria, plan.acceptanceCriteria, 'acceptanceCriteria');
+}
+
+function validateSourcePatchAgainstPlan(
+  patch: CodeChangeSourcePatch,
+  plan: CodeChangePlan,
+  editPaths: Set<string>,
+): void {
+  assertSourcePatchPlanBinding(patch, plan);
+  const expectedChanges = collectExpectedPlanChanges(plan);
+  validateSourcePatchEditsAgainstPlan(patch, plan, expectedChanges);
+  validateSourcePatchEvidence(patch, plan, expectedChanges, editPaths);
+}
+
+function assertSourcePatchPlanBinding(patch: CodeChangeSourcePatch, plan: CodeChangePlan): void {
+  if (patch.planHash !== plan.planHash) throw new Error('Source patch is not bound to the supplied plan');
+  if (patch.graphFingerprint !== plan.evidence.graphFingerprint) {
+    throw new Error('Source patch graphFingerprint does not match the plan');
   }
+}
+
+function collectExpectedPlanChanges(plan: CodeChangePlan): Map<string, CodeChangeFileAction> {
+  return new Map(plan.changes.map((item) => [
+    item.path.replace(/\\/g, '/'), item.action,
+  ]));
+}
+
+function validateSourcePatchEditsAgainstPlan(
+  patch: CodeChangeSourcePatch,
+  plan: CodeChangePlan,
+  expectedChanges: Map<string, CodeChangeFileAction>,
+): void {
+  const allowed = new Set(plan.target.paths.map((item) => item.replace(/\\/g, '/')));
+  for (const edit of patch.edits) {
+    const editPath = edit.path.replace(/\\/g, '/');
+    if (!allowed.has(editPath)) {
+      throw new Error(`Source patch path ${edit.path} is outside plan target.paths`);
+    }
+    if (expectedChanges.get(editPath) !== edit.action) {
+      throw new Error(`Source patch action for ${edit.path} does not match the plan`);
+    }
+  }
+}
+
+function validateSourcePatchEvidence(
+  patch: CodeChangeSourcePatch,
+  plan: CodeChangePlan,
+  expectedChangePaths: Map<string, CodeChangeFileAction>,
+  editPaths: Set<string>,
+): void {
+  const actualEditPaths = [...editPaths].map((item) => item.split('::')[0]);
+  const expectedPaths = [...expectedChangePaths.keys()];
+  exactSourcePatchSet(actualEditPaths, expectedPaths, 'edit paths');
+  exactSourcePatchSet(patch.diagnosticIds, plan.evidence.diagnosticIds, 'diagnosticIds');
+  exactSourcePatchSet(patch.recordIds, plan.evidence.recordIds, 'recordIds');
+  exactSourcePatchSet(patch.acceptanceCriteria, plan.acceptanceCriteria, 'acceptanceCriteria');
 }
 
 export function assertCodeChangeSourcePatchSet(
   value: unknown,
   plans?: CodeChangePlan[],
 ): asserts value is CodeChangeSourcePatchSet {
+  const set = assertSourcePatchSetObject(value);
+  const context = createSourcePatchSetValidationContext(plans);
+  validateSourcePatchSetSchema(set);
+  validateSourcePatchSetPatches(set, context);
+  validateSourcePatchSetGeneration(set);
+}
+
+interface SourcePatchSetValidationContext {
+  plansById: Map<string, CodeChangePlan>;
+  expectedPlanIds: string[] | null;
+}
+
+function createSourcePatchSetValidationContext(plans?: CodeChangePlan[]): SourcePatchSetValidationContext {
+  const expectedPlanIds = plans?.map((plan) => plan.id) ?? null;
+  return {
+    plansById: new Map((plans ?? []).map((plan) => [plan.id, plan])),
+    expectedPlanIds,
+  };
+}
+
+function assertSourcePatchObject(value: unknown, objectLabel: string): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(objectLabel);
+  }
+  return value as Record<string, unknown>;
+}
+
+function assertSourcePatchSetObject(value: unknown): CodeChangeSourcePatchSet {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('Code change source patch set must be an object');
   }
@@ -904,6 +1435,10 @@ export function assertCodeChangeSourcePatchSet(
   exactSourcePatchKeys(set as unknown as Record<string, unknown>, [
     'schemaVersion', 'generatedAt', 'graphFingerprint', 'patches', 'generation',
   ], 'Source patch set');
+  return set;
+}
+
+function validateSourcePatchSetSchema(set: CodeChangeSourcePatchSet): void {
   if (set.schemaVersion !== 't2c.code-change-source-patch-set/v1') {
     throw new Error('Unsupported code change source patch set schemaVersion');
   }
@@ -914,17 +1449,57 @@ export function assertCodeChangeSourcePatchSet(
     throw new Error('Source patch set graphFingerprint must be SHA-256');
   }
   if (!Array.isArray(set.patches)) throw new Error('Source patch set patches must be an array');
-  const plansById = new Map((plans ?? []).map((plan) => [plan.id, plan]));
+}
+
+function validateSourcePatchSetPatches(
+  set: CodeChangeSourcePatchSet,
+  context: SourcePatchSetValidationContext,
+): void {
   const patchIds = new Set<string>();
   for (const patch of set.patches) {
-    assertCodeChangeSourcePatch(patch, plans ? plansById.get(patch.planId) : undefined);
-    if (patch.graphFingerprint !== set.graphFingerprint) {
-      throw new Error(`Source patch ${patch.id} graphFingerprint does not match its set`);
-    }
-    if (patchIds.has(patch.id)) throw new Error(`Duplicate source patch id: ${patch.id}`);
-    patchIds.add(patch.id);
+    validateSetPatchAndTrackDuplicates(set, patch, context, patchIds);
   }
-  if (plans) exactSourcePatchSet(set.patches.map((patch) => patch.planId), plans.map((plan) => plan.id), 'planIds');
+  validateSetPatchesPlanCoverage(set, context.expectedPlanIds);
+}
+
+function validateSetPatchAndTrackDuplicates(
+  set: CodeChangeSourcePatchSet,
+  patch: CodeChangeSourcePatch,
+  context: SourcePatchSetValidationContext,
+  patchIds: Set<string>,
+): void {
+  const expectedPlan = context.plansById.get(patch.planId);
+  assertCodeChangeSourcePatch(patch, expectedPlan);
+  validateSetPatchGraphFingerprint(set, patch);
+  assertUniqueSetPatchId(patchIds, patch.id);
+  patchIds.add(patch.id);
+}
+
+function validateSetPatchGraphFingerprint(
+  set: CodeChangeSourcePatchSet,
+  patch: CodeChangeSourcePatch,
+): void {
+  if (patch.graphFingerprint !== set.graphFingerprint) {
+    throw new Error(`Source patch ${patch.id} graphFingerprint does not match its set`);
+  }
+}
+
+function assertUniqueSetPatchId(
+  patchIds: Set<string>,
+  patchId: string,
+): void {
+  if (patchIds.has(patchId)) throw new Error(`Duplicate source patch id: ${patchId}`);
+}
+
+function validateSetPatchesPlanCoverage(
+  set: CodeChangeSourcePatchSet,
+  expectedPlanIds: string[] | null,
+): void {
+  if (!expectedPlanIds) return;
+  exactSourcePatchSet(set.patches.map((patch) => patch.planId), expectedPlanIds, 'planIds');
+}
+
+function validateSourcePatchSetGeneration(set: CodeChangeSourcePatchSet): void {
   assertGroundedGenerationMetadata(set.generation, 'Source patch set generation');
   if (set.generation.generatedAt !== set.generatedAt) {
     throw new Error('Source patch set generation.generatedAt must match generatedAt');
@@ -981,30 +1556,74 @@ function instructionFor(change: CodeChangeFile, plan: CodeChangePlan): string {
  * Accepts optional `--- a/path` / `+++ b/path` headers and rejects foreign paths.
  */
 function normalizeUnifiedDiff(diff: string, expectedPath: string): string {
+  const normalized = normalizeUnifiedDiffText(diff, expectedPath);
+  validateUnifiedDiffBody(normalized, expectedPath);
+  validateUnifiedDiffPathHeaders(normalized, expectedPath);
+  return normalized;
+}
+
+function normalizeUnifiedDiffText(diff: string, expectedPath: string): string {
   const normalized = diff.replace(/\r\n/g, '\n');
   if (!normalized.trim()) throw new Error(`Unified diff for ${expectedPath} is empty`);
   if (normalized.includes('\0')) throw new Error(`Unified diff for ${expectedPath} contains NUL bytes`);
-  // Lightweight secret heuristic — refuse obvious credential dumps in proposed diffs.
-  if (/(?:api[_-]?key|secret|password|private[_-]?key)\s*[:=]\s*['"]?[^'"\s]{8,}/i.test(normalized)) {
+  return normalized;
+}
+
+function validateUnifiedDiffBody(diff: string, expectedPath: string): void {
+  if (/(?:api[_-]?key|secret|password|private[_-]?key)\s*[:=]\s*['"]?[^'"\s]{8,}/i.test(diff)) {
     throw new Error(`Unified diff for ${expectedPath} appears to contain a secret assignment`);
   }
-  const headers = [...normalized.matchAll(/^(?:---|\+\+\+)\s+(?:[ab]\/)?(.+)$/gm)].map((match) => match[1]!.trim());
-  for (const header of headers) {
-    if (header === '/dev/null') continue;
-    const path = header.replace(/\\/g, '/');
-    if (path.startsWith('/') || path.split('/').includes('..')) {
-      throw new Error(`Unified diff for ${expectedPath} uses a non-repository path header: ${path}`);
-    }
-    if (path !== expectedPath && path !== `a/${expectedPath}` && path !== `b/${expectedPath}`) {
-      // Headers may include timestamps after a tab; strip them.
-      const bare = path.split('\t')[0] ?? path;
-      const stripped = bare.replace(/^[ab]\//, '');
-      if (stripped !== expectedPath) {
-        throw new Error(`Unified diff for ${expectedPath} references foreign path: ${path}`);
-      }
+}
+
+function validateUnifiedDiffPathHeaders(diff: string, expectedPath: string): void {
+  for (const header of extractUnifiedDiffHeaders(diff)) {
+    validateUnifiedDiffHeaderPath(header, expectedPath);
+  }
+}
+
+function extractUnifiedDiffHeaders(diff: string): string[] {
+  return [...diff.matchAll(/^(?:---|\+\+\+)\s+(?:[ab]\/)?(.+)$/gm)].map((match) => match[1]!.trim());
+}
+
+function validateUnifiedDiffHeaderPath(header: string, expectedPath: string): void {
+  if (header === '/dev/null') return;
+  const normalizedPath = normalizeUnifiedDiffHeaderPath(header);
+  assertUnifiedDiffHeaderPathSafety(normalizedPath, expectedPath);
+}
+
+function normalizeUnifiedDiffHeaderPath(header: string): string {
+  return header.replace(/\\/g, '/').trim();
+}
+
+function assertUnifiedDiffHeaderPathSafety(normalizedPath: string, expectedPath: string): void {
+  if (isUnifiedDiffTraversalHeader(normalizedPath)) {
+    throw new Error(`Unified diff for ${expectedPath} uses a non-repository path header: ${normalizedPath}`);
+  }
+  if (!matchesUnifiedDiffExpectedHeader(normalizedPath, expectedPath)) {
+    const bare = normalizedHeaderPathCandidate(normalizedPath);
+    const stripped = stripLeadingDiffPrefix(bare);
+    if (stripped !== expectedPath) {
+      throw new Error(`Unified diff for ${expectedPath} references foreign path: ${normalizedPath}`);
     }
   }
-  return normalized;
+}
+
+function isUnifiedDiffTraversalHeader(normalizedPath: string): boolean {
+  return normalizedPath.startsWith('/') || normalizedPath.split('/').includes('..');
+}
+
+function matchesUnifiedDiffExpectedHeader(normalizedPath: string, expectedPath: string): boolean {
+  return normalizedPath === expectedPath
+    || normalizedPath === `a/${expectedPath}`
+    || normalizedPath === `b/${expectedPath}`;
+}
+
+function normalizedHeaderPathCandidate(normalizedPath: string): string {
+  return normalizedPath.split('\t')[0] ?? normalizedPath;
+}
+
+function stripLeadingDiffPrefix(pathValue: string): string {
+  return pathValue.replace(/^[ab]\//, '');
 }
 
 export interface ApplyCodeChangeSourcePatchOptions {
@@ -1021,6 +1640,19 @@ export interface ApplyCodeChangeSourcePatchResult {
   receipt: CodeChangeSourceApplyReceipt;
 }
 
+interface NormalizedApplyCodeChangeSourcePatchRequest {
+  root: string;
+  patch: CodeChangeSourcePatch;
+  approval: CodeChangeSourcePatchApproval;
+  receiptPath: string;
+  now?: Date;
+}
+
+interface SourcePatchApplyLock {
+  path: string;
+  lock: Awaited<ReturnType<typeof fs.open>>;
+}
+
 /**
  * Apply a fully-diffed source patch after explicit hash approval.
  *
@@ -1031,113 +1663,244 @@ export interface ApplyCodeChangeSourcePatchResult {
 export async function applyCodeChangeSourcePatch(
   options: ApplyCodeChangeSourcePatchOptions,
 ): Promise<ApplyCodeChangeSourcePatchResult> {
-  assertCodeChangeSourcePatch(options.patch);
-  if (!options.approval?.actor?.trim()) throw new Error('Explicit source patch approval actor is required');
-  if (options.approval.patchHash !== options.patch.patchHash) {
+  const request = assertPatchApplicationRequest(options);
+  const root = path.resolve(request.root);
+  const receiptPath = await assertPathWithinRoot(root, path.resolve(request.receiptPath));
+  await ensureDir(path.dirname(receiptPath));
+  const lock = await acquireApplyLock(receiptPath);
+  try {
+    const idempotentResult = await readExistingReceipt(receiptPath, request.patch, root);
+    if (idempotentResult) return idempotentResult;
+
+    const prepared = await prepareSourceEdits(request.patch, root, receiptPath);
+    const now = (request.now ?? new Date()).toISOString();
+    const receipt = await applyPreparedEdits(prepared, request.patch, request.approval.actor.trim(), now, receiptPath);
+    return { applied: true, idempotent: false, receipt };
+  } finally {
+    await lock.lock.close();
+    await fs.unlink(lock.path).catch(() => undefined);
+  }
+}
+
+async function readExistingReceipt(
+  receiptPath: string,
+  patch: CodeChangeSourcePatch,
+  root: string,
+): Promise<ApplyCodeChangeSourcePatchResult | null> {
+  if (!(await pathExists(receiptPath))) return null;
+  const existing = await readJson<CodeChangeSourceApplyReceipt>(receiptPath, 1024 * 1024);
+  await assertExistingSourceReceipt(existing, patch, root);
+  return { applied: false, idempotent: true, receipt: existing };
+}
+
+function assertPatchApplicationRequest(
+  options: ApplyCodeChangeSourcePatchOptions,
+): NormalizedApplyCodeChangeSourcePatchRequest {
+  const patch = assertCodeChangeSourcePatchAndActorAndEdits(options.patch, options.approval);
+  assertPatchApprovalActor(options.approval);
+  assertPatchApprovalHash(options.patch, options.approval);
+  assertPatchEditsContainDiffs(patch);
+  return {
+    root: options.root,
+    patch: options.patch,
+    approval: options.approval,
+    receiptPath: options.receiptPath,
+    now: options.now,
+  };
+}
+
+function assertCodeChangeSourcePatchAndActorAndEdits(
+  patch: CodeChangeSourcePatch,
+  approval: CodeChangeSourcePatchApproval,
+): CodeChangeSourcePatch {
+  assertCodeChangeSourcePatch(patch);
+  if (!approval) {
+    throw new Error('Source patch approval object is required');
+  }
+  return patch;
+}
+
+function assertPatchApprovalActor(approval: CodeChangeSourcePatchApproval): string {
+  if (!approval.actor?.trim()) {
+    throw new Error('Explicit source patch approval actor is required');
+  }
+  return approval.actor.trim();
+}
+
+function assertPatchApprovalHash(
+  patch: CodeChangeSourcePatch,
+  approval: CodeChangeSourcePatchApproval,
+): void {
+  if (approval.patchHash !== patch.patchHash) {
     throw new Error('Source patch approval hash does not match the patch');
   }
-  for (const edit of options.patch.edits) {
+}
+
+function assertPatchEditsContainDiffs(patch: CodeChangeSourcePatch): void {
+  for (const edit of patch.edits) {
     if (edit.unifiedDiff === null) {
       throw new Error(`Source patch edit ${edit.path} has no unifiedDiff and cannot be applied`);
     }
   }
+}
 
-  const root = path.resolve(options.root);
-  const receiptPath = await assertPathWithinRoot(root, path.resolve(options.receiptPath));
+async function acquireApplyLock(receiptPath: string): Promise<SourcePatchApplyLock> {
   const lockPath = `${receiptPath}.t2c-apply.lock`;
-  await ensureDir(path.dirname(receiptPath));
-  let lock: Awaited<ReturnType<typeof fs.open>> | null = null;
   try {
-    lock = await fs.open(lockPath, 'wx');
+    const lock = await fs.open(lockPath, 'wx');
+    return { path: lockPath, lock };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
       throw new Error('Another source patch apply operation is in progress');
     }
     throw error;
   }
+}
 
-  try {
-    if (await pathExists(receiptPath)) {
-      const existing = await readJson<CodeChangeSourceApplyReceipt>(receiptPath, 1024 * 1024);
-      await assertExistingSourceReceipt(existing, options.patch, root);
-      return { applied: false, idempotent: true, receipt: existing };
-    }
-
-    const prepared: PreparedSourceEdit[] = [];
-    for (const edit of options.patch.edits) {
-      const relative = edit.path.replace(/\\/g, '/');
-      const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
-      if (absolute === receiptPath) {
-        throw new Error(`Source patch target collides with its receipt path: ${relative}`);
-      }
-      const exists = await pathExists(absolute);
-      if (exists && (await fs.lstat(absolute)).isSymbolicLink()) {
-        throw new Error(`Refusing to apply through a symlink: ${relative}`);
-      }
-      if (edit.action === 'create' && exists) throw new Error(`Source patch create target already exists: ${relative}`);
-      if (edit.action === 'delete' && !exists) throw new Error(`Source patch delete target does not exist: ${relative}`);
-      if (edit.action === 'modify' && !exists) {
-        const fromEmpty = /(?:^|\n)---\s+\/dev\/null(?:\n|$)/.test(edit.unifiedDiff!)
-          || /(?:^|\n)@@\s+-0(?:,0)?\s+\+/.test(edit.unifiedDiff!);
-        if (!fromEmpty) throw new Error(`Source patch modify target does not exist: ${relative}`);
-      }
-      const before = exists ? await readText(absolute, 16 * 1024 * 1024) : '';
-      const after = applyUnifiedDiffToText(before, edit.unifiedDiff!, relative);
-      if (edit.action === 'delete' && after !== '') {
-        throw new Error(`Source patch delete diff must remove the complete file: ${relative}`);
-      }
-      prepared.push({ relative, absolute, action: edit.action, before, after, existed: exists });
-    }
-
-    const changed: PreparedSourceEdit[] = [];
-    try {
-      for (const edit of prepared) {
-        if (edit.action === 'delete') await fs.unlink(edit.absolute);
-        else await atomicWriteRaw(edit.absolute, edit.after);
-        changed.push(edit);
-      }
-      const now = (options.now ?? new Date()).toISOString();
-      const fileHashesAfter = Object.fromEntries(prepared
-        .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
-        .sort(([left], [right]) => left.localeCompare(right)));
-      const receipt: CodeChangeSourceApplyReceipt = {
-        schemaVersion: 't2c.code-change-source-apply-receipt/v1',
-        patchId: options.patch.id,
-        patchHash: options.patch.patchHash,
-        planId: options.patch.planId,
-        approvedBy: options.approval.actor.trim(),
-        approvedAt: now,
-        appliedAt: now,
-        appliedPaths: prepared.map((edit) => edit.relative).sort(),
-        fileHashesAfter,
-        generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
-      };
-      assertSourceApplyReceipt(receipt, options.patch);
-      // The receipt is part of the transaction: without it a retry could apply
-      // the same approved patch again. Roll files back if persisting it fails.
-      await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-      return { applied: true, idempotent: false, receipt };
-    } catch (error) {
-      const rollbackErrors: string[] = [];
-      for (const edit of [...changed].reverse()) {
-        try {
-          if (edit.existed) await atomicWriteRaw(edit.absolute, edit.before);
-          else await fs.unlink(edit.absolute).catch((failure: NodeJS.ErrnoException) => {
-            if (failure.code !== 'ENOENT') throw failure;
-          });
-        } catch (rollbackError) {
-          rollbackErrors.push(`${edit.relative}: ${String(rollbackError)}`);
-        }
-      }
-      if (rollbackErrors.length) {
-        throw new Error(`Source patch apply failed (${String(error)}); rollback also failed: ${rollbackErrors.join('; ')}`);
-      }
-      throw error;
-    }
-  } finally {
-    await lock.close();
-    await fs.unlink(lockPath).catch(() => undefined);
+async function prepareSourceEdits(
+  patch: CodeChangeSourcePatch,
+  root: string,
+  receiptPath: string,
+): Promise<PreparedSourceEdit[]> {
+  const prepared: PreparedSourceEdit[] = [];
+  for (const edit of patch.edits) {
+    const target = await prepareSourceEditTarget(edit, root, receiptPath);
+    const before = target.existed ? await readText(target.absolute, 16 * 1024 * 1024) : '';
+    const after = applyUnifiedDiffToText(before, edit.unifiedDiff!, target.relative);
+    assertDeleteEditClearsAll(target.relative, edit.action, after);
+    prepared.push({
+      ...target,
+      action: edit.action,
+      before,
+      after,
+    });
   }
+  return prepared;
+}
+
+interface SourcePatchEditTarget {
+  relative: string;
+  absolute: string;
+  existed: boolean;
+}
+
+async function prepareSourceEditTarget(
+  edit: CodeChangeSourceEdit,
+  root: string,
+  receiptPath: string,
+): Promise<SourcePatchEditTarget> {
+  const relative = edit.path.replace(/\\/g, '/');
+  const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
+  if (absolute === receiptPath) {
+    throw new Error(`Source patch target collides with its receipt path: ${relative}`);
+  }
+  const existed = await pathExists(absolute);
+  await assertSourcePatchTargetNotSymlink(absolute, existed, relative);
+  validatePatchTargetForEdit(edit.action, relative, existed, edit.unifiedDiff!);
+  return { relative, absolute, existed };
+}
+
+async function assertSourcePatchTargetNotSymlink(
+  absolute: string,
+  existed: boolean,
+  relative: string,
+): Promise<void> {
+  if (!existed) return;
+  if ((await fs.lstat(absolute)).isSymbolicLink()) {
+    throw new Error(`Refusing to apply through a symlink: ${relative}`);
+  }
+}
+
+function assertDeleteEditClearsAll(relative: string, action: CodeChangeFileAction, after: string): void {
+  if (action === 'delete' && after !== '') {
+    throw new Error(`Source patch delete diff must remove the complete file: ${relative}`);
+  }
+}
+
+function validatePatchTargetForEdit(
+  action: CodeChangeFileAction,
+  relative: string,
+  exists: boolean,
+  unifiedDiff: string,
+): void {
+  if (action === 'create' && exists) throw new Error(`Source patch create target already exists: ${relative}`);
+  if (action === 'delete' && !exists) throw new Error(`Source patch delete target does not exist: ${relative}`);
+  if (action === 'modify' && !exists) {
+    const fromEmpty = /(?:^|\n)---\s+\/dev\/null(?:\n|$)/.test(unifiedDiff)
+      || /(?:^|\n)@@\s+-0(?:,0)?\s+\+/.test(unifiedDiff);
+    if (!fromEmpty) throw new Error(`Source patch modify target does not exist: ${relative}`);
+  }
+}
+
+async function applyPreparedEdits(
+  prepared: PreparedSourceEdit[],
+  patch: CodeChangeSourcePatch,
+  approvedBy: string,
+  now: string,
+  receiptPath: string,
+): Promise<CodeChangeSourceApplyReceipt> {
+  const changed: PreparedSourceEdit[] = [];
+  try {
+    await writePreparedEdits(prepared, changed);
+    const receipt = buildPatchApplyReceipt(prepared, patch, approvedBy, now);
+    assertSourceApplyReceipt(receipt, patch);
+    // The receipt is part of the transaction: without it a retry could apply
+    // the same approved patch again. Roll files back if persisting it fails.
+    await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+    return receipt;
+  } catch (error) {
+    const rollbackErrors = await rollbackPreparedEdits(changed);
+    if (rollbackErrors.length) {
+      throw new Error(`Source patch apply failed (${String(error)}); rollback also failed: ${rollbackErrors.join('; ')}`);
+    }
+    throw error;
+  }
+}
+
+async function writePreparedEdits(prepared: PreparedSourceEdit[], changed: PreparedSourceEdit[]): Promise<void> {
+  for (const edit of prepared) {
+    if (edit.action === 'delete') await fs.unlink(edit.absolute);
+    else await atomicWriteRaw(edit.absolute, edit.after);
+    changed.push(edit);
+  }
+}
+
+function buildPatchApplyReceipt(
+  prepared: PreparedSourceEdit[],
+  patch: CodeChangeSourcePatch,
+  approvedBy: string,
+  now: string,
+): CodeChangeSourceApplyReceipt {
+  const fileHashesAfter = Object.fromEntries(prepared
+    .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
+    .sort(([left], [right]) => left.localeCompare(right)));
+  return {
+    schemaVersion: 't2c.code-change-source-apply-receipt/v1',
+    patchId: patch.id,
+    patchHash: patch.patchHash,
+    planId: patch.planId,
+    approvedBy,
+    approvedAt: now,
+    appliedAt: now,
+    appliedPaths: prepared.map((edit) => edit.relative).sort(),
+    fileHashesAfter,
+    generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
+  };
+}
+
+async function rollbackPreparedEdits(changes: PreparedSourceEdit[]): Promise<string[]> {
+  const rollbackErrors: string[] = [];
+  for (const edit of [...changes].reverse()) {
+    try {
+      if (edit.existed) await atomicWriteRaw(edit.absolute, edit.before);
+      else await fs.unlink(edit.absolute).catch((failure: NodeJS.ErrnoException) => {
+        if (failure.code !== 'ENOENT') throw failure;
+      });
+    } catch (rollbackError) {
+      rollbackErrors.push(`${edit.relative}: ${String(rollbackError)}`);
+    }
+  }
+  return rollbackErrors;
 }
 
 interface PreparedSourceEdit {
@@ -1178,18 +1941,43 @@ async function assertExistingSourceReceipt(
 }
 
 function assertSourceApplyReceipt(receipt: CodeChangeSourceApplyReceipt, patch: CodeChangeSourcePatch): void {
+  validateSourceApplyReceiptShape(receipt);
+  validateSourceApplyReceiptIdentity(receipt, patch);
+  validateSourceApplyReceiptTimestamps(receipt);
+  validateSourceApplyReceiptPathHashes(receipt, patch);
+  validateSourceApplyReceiptGeneration(receipt);
+}
+
+function validateSourceApplyReceiptShape(receipt: CodeChangeSourceApplyReceipt): void {
   exactSourcePatchKeys(receipt as unknown as Record<string, unknown>, [
     'schemaVersion', 'patchId', 'patchHash', 'planId', 'approvedBy', 'approvedAt',
     'appliedAt', 'appliedPaths', 'fileHashesAfter', 'generation',
   ], 'Code change source apply receipt');
+}
+
+function validateSourceApplyReceiptIdentity(
+  receipt: CodeChangeSourceApplyReceipt,
+  patch: CodeChangeSourcePatch,
+): void {
   if (receipt.schemaVersion !== 't2c.code-change-source-apply-receipt/v1'
-    || receipt.patchId !== patch.id || receipt.patchHash !== patch.patchHash || receipt.planId !== patch.planId) {
+    || receipt.patchId !== patch.id
+    || receipt.patchHash !== patch.patchHash
+    || receipt.planId !== patch.planId) {
     throw new Error('Code change source apply receipt does not match its patch');
   }
+}
+
+function validateSourceApplyReceiptTimestamps(receipt: CodeChangeSourceApplyReceipt): void {
   if (!receipt.approvedBy.trim()) throw new Error('Code change source apply receipt approvedBy is required');
   if (!Number.isFinite(Date.parse(receipt.approvedAt)) || !Number.isFinite(Date.parse(receipt.appliedAt))) {
     throw new Error('Code change source apply receipt timestamps must be ISO date-times');
   }
+}
+
+function validateSourceApplyReceiptPathHashes(
+  receipt: CodeChangeSourceApplyReceipt,
+  patch: CodeChangeSourcePatch,
+): void {
   const expectedPaths = patch.edits.map((edit) => edit.path).sort();
   exactSourcePatchSet(receipt.appliedPaths, expectedPaths, 'receipt appliedPaths');
   const hashPaths = Object.keys(receipt.fileHashesAfter).sort();
@@ -1197,6 +1985,9 @@ function assertSourceApplyReceipt(receipt: CodeChangeSourceApplyReceipt, patch: 
   if (Object.values(receipt.fileHashesAfter).some((value) => !/^[a-f0-9]{64}$/.test(value))) {
     throw new Error('Code change source apply receipt file hashes must be SHA-256');
   }
+}
+
+function validateSourceApplyReceiptGeneration(receipt: CodeChangeSourceApplyReceipt): void {
   assertGroundedGenerationMetadata(receipt.generation, 'Code change source apply receipt generation');
   if (receipt.generation.generatedAt !== receipt.appliedAt
     || receipt.generation.generator !== 't2c/code-change-source-apply') {
@@ -1220,86 +2011,224 @@ async function atomicWriteRaw(target: string, content: string): Promise<void> {
  * Supports standard hunks with space/+/− prefixes. Throws on context mismatch.
  */
 export function applyUnifiedDiffToText(base: string, diff: string, expectedPath: string): string {
-  const normalizedDiff = normalizeUnifiedDiff(diff, expectedPath);
   const baseLines = splitKeep(base);
-  const diffLines = normalizedDiff.split('\n');
-  // Drop trailing empty element only if the original split introduced it
-  // without a final newline — normalize by working on lines as split.
-  const hunks: Array<{ oldStart: number; oldCount: number; newCount: number; lines: string[] }> = [];
-  let current: { oldStart: number; oldCount: number; newCount: number; lines: string[] } | null = null;
-  for (const line of diffLines) {
-    if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff ') || line.startsWith('index ')) {
-      continue;
-    }
-    const header = /^@@\s+-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?\s+@@/.exec(line);
-    if (header) {
-      if (current) hunks.push(current);
-      current = {
-        oldStart: Number(header[1]),
-        oldCount: header[2] === undefined ? 1 : Number(header[2]),
-        newCount: header[4] === undefined ? 1 : Number(header[4]),
-        lines: [],
-      };
-      continue;
-    }
-    if (!current) {
-      if (line === '') continue;
-      throw new Error(`Unified diff for ${expectedPath} has content outside hunks`);
-    }
-    // Blank lines without a unified-diff prefix separate hunks in some emitters.
-    if (line === '') continue;
-    current.lines.push(line);
-  }
-  if (current) hunks.push(current);
-  if (!hunks.length) throw new Error(`Unified diff for ${expectedPath} contains no hunks`);
+  const hunks = parseUnifiedDiffIntoHunks(diff, expectedPath);
+  const output = applyUnifiedDiffHunks(baseLines, expectedPath, hunks);
+  // Reconstruct text. Files without a trailing newline end without an empty last segment.
+  return joinAppliedText(base.endsWith('\n'), output);
+}
 
-  let cursor = 0;
+function joinAppliedText(baseEndsWithNewline: boolean, lines: string[]): string {
+  if (baseEndsWithNewline || lines.length === 0) return `${lines.join('\n')}${lines.length ? '\n' : ''}`;
+  return lines.join('\n');
+}
+
+interface ParsedUnifiedDiffHunk {
+  oldStart: number;
+  oldCount: number;
+  newCount: number;
+  lines: string[];
+}
+
+function parseUnifiedDiffIntoHunks(diff: string, expectedPath: string): ParsedUnifiedDiffHunk[] {
+  const normalizedDiff = normalizeUnifiedDiff(diff, expectedPath);
+  const context = createEmptyUnifiedDiffContext();
+  for (const line of parseUnifiedDiffLines(normalizedDiff)) {
+    applyUnifiedDiffLineToContext(context, line, expectedPath);
+  }
+  return finalizeUnifiedDiffContext(context, expectedPath);
+}
+
+interface UnifiedDiffParsingContext {
+  current: ParsedUnifiedDiffHunk | null;
+  hunks: ParsedUnifiedDiffHunk[];
+}
+
+function createEmptyUnifiedDiffContext(): UnifiedDiffParsingContext {
+  return { current: null, hunks: [] };
+}
+
+function parseUnifiedDiffLines(diff: string): string[] {
+  return diff.split('\n');
+}
+
+function finalizeUnifiedDiffContext(
+  context: UnifiedDiffParsingContext,
+  expectedPath: string,
+): ParsedUnifiedDiffHunk[] {
+  if (context.current) {
+    context.hunks.push(context.current);
+    context.current = null;
+  }
+  if (!context.hunks.length) {
+    throw new Error(`Unified diff for ${expectedPath} contains no hunks`);
+  }
+  return context.hunks;
+}
+
+function applyUnifiedDiffLineToContext(
+  context: UnifiedDiffParsingContext,
+  line: string,
+  expectedPath: string,
+): void {
+  const header = parseUnifiedDiffHeader(line);
+  if (header) {
+    if (context.current) {
+      context.hunks.push(context.current);
+    }
+    context.current = header;
+    return;
+  }
+  if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff ') || line.startsWith('index ')) {
+    return;
+  }
+  if (!context.current) {
+    if (line === '') return;
+    throw new Error(`Unified diff for ${expectedPath} has content outside hunks`);
+  }
+  // Blank lines without a unified-diff prefix separate hunks in some emitters.
+  if (line === '') return;
+  context.current.lines.push(line);
+}
+
+function parseUnifiedDiffHeader(line: string): ParsedUnifiedDiffHunk | null {
+  const match = /^@@\s+-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?\s+@@/.exec(line);
+  if (!match) return null;
+  return buildParsedUnifiedDiffHunk(match);
+}
+
+function buildParsedUnifiedDiffHunk(match: RegExpMatchArray): ParsedUnifiedDiffHunk {
+  return {
+    oldStart: Number(match[1]),
+    oldCount: match[2] === undefined ? 1 : Number(match[2]),
+    newCount: match[4] === undefined ? 1 : Number(match[4]),
+    lines: [],
+  };
+}
+
+interface UnifiedDiffCursor {
+  position: number;
+}
+
+function applyUnifiedDiffHunks(
+  baseLines: string[],
+  expectedPath: string,
+  hunks: ParsedUnifiedDiffHunk[],
+): string[] {
+  const cursor: UnifiedDiffCursor = { position: 0 };
   const output: string[] = [];
   for (const hunk of hunks) {
-    const oldIndex = Math.max(0, hunk.oldStart - 1);
-    if (oldIndex < cursor) throw new Error(`Unified diff for ${expectedPath} has overlapping or unordered hunks`);
-    const oldCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('-')).length;
-    const newCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('+')).length;
-    if (oldCount !== hunk.oldCount || newCount !== hunk.newCount) {
-      throw new Error(`Unified diff hunk counts do not match its header for ${expectedPath}`);
-    }
-    while (cursor < oldIndex) {
-      if (cursor >= baseLines.length) throw new Error(`Unified diff for ${expectedPath} ran past end of file`);
-      output.push(baseLines[cursor]!);
-      cursor += 1;
-    }
-    for (const line of hunk.lines) {
-      if (line.startsWith('\\')) continue; // "\ No newline at end of file"
-      const mark = line[0];
-      const body = line.slice(1);
-      if (mark === ' ') {
-        if (baseLines[cursor] !== body) {
-          throw new Error(`Unified diff context mismatch for ${expectedPath} at line ${cursor + 1}`);
-        }
-        output.push(baseLines[cursor]!);
-        cursor += 1;
-      } else if (mark === '-') {
-        if (baseLines[cursor] !== body) {
-          throw new Error(`Unified diff deletion mismatch for ${expectedPath} at line ${cursor + 1}`);
-        }
-        cursor += 1;
-      } else if (mark === '+') {
-        output.push(body);
-      } else if (line === '') {
-        // empty line inside hunk without prefix is invalid in strict unified diffs
-        throw new Error(`Unified diff for ${expectedPath} has an unprefixed hunk line`);
-      } else {
-        throw new Error(`Unified diff for ${expectedPath} has unsupported hunk line`);
-      }
-    }
+    applyUnifiedDiffHunk(baseLines, expectedPath, cursor, output, hunk);
   }
-  while (cursor < baseLines.length) {
-    output.push(baseLines[cursor]!);
-    cursor += 1;
+  appendRemainingBaseLines(baseLines, cursor, output);
+  return output;
+}
+
+function applyUnifiedDiffHunk(
+  baseLines: string[],
+  expectedPath: string,
+  cursor: UnifiedDiffCursor,
+  output: string[],
+  hunk: ParsedUnifiedDiffHunk,
+): void {
+  const oldIndex = Math.max(0, hunk.oldStart - 1);
+  if (oldIndex < cursor.position) throw new Error(`Unified diff for ${expectedPath} has overlapping or unordered hunks`);
+  validateHunkCounts(expectedPath, hunk);
+  copyBaseLinesToCursor(baseLines, expectedPath, cursor, output, oldIndex);
+  for (const line of hunk.lines) {
+    if (line.startsWith('\\')) continue; // "\ No newline at end of file"
+    applyUnifiedDiffLine(expectedPath, line, cursor, baseLines, output);
   }
-  // Reconstruct text. Files without a trailing newline end without an empty last segment.
-  if (base.endsWith('\n') || output.length === 0) return `${output.join('\n')}${output.length ? '\n' : ''}`;
-  return output.join('\n');
+}
+
+function copyBaseLinesToCursor(
+  baseLines: string[],
+  expectedPath: string,
+  cursor: UnifiedDiffCursor,
+  output: string[],
+  targetIndex: number,
+): void {
+  while (cursor.position < targetIndex) {
+    if (cursor.position >= baseLines.length) throw new Error(`Unified diff for ${expectedPath} ran past end of file`);
+    output.push(baseLines[cursor.position]!);
+    cursor.position += 1;
+  }
+}
+
+function appendRemainingBaseLines(
+  baseLines: string[],
+  cursor: UnifiedDiffCursor,
+  output: string[],
+): void {
+  while (cursor.position < baseLines.length) {
+    output.push(baseLines[cursor.position]!);
+    cursor.position += 1;
+  }
+}
+
+function validateHunkCounts(expectedPath: string, hunk: ParsedUnifiedDiffHunk): void {
+  const oldCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('-')).length;
+  const newCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('+')).length;
+  if (oldCount !== hunk.oldCount || newCount !== hunk.newCount) {
+    throw new Error(`Unified diff hunk counts do not match its header for ${expectedPath}`);
+  }
+}
+
+function applyUnifiedDiffLine(
+  expectedPath: string,
+  line: string,
+  cursor: UnifiedDiffCursor,
+  baseLines: string[],
+  output: string[],
+): void {
+  const mark = line[0];
+  const body = line.slice(1);
+  if (line === '') {
+    throw new Error(`Unified diff for ${expectedPath} has an unprefixed hunk line`);
+  }
+  if (mark === ' ') {
+    applyUnifiedDiffContextLine(expectedPath, body, cursor, baseLines, output);
+    return;
+  }
+  if (mark === '-') {
+    applyUnifiedDiffDeletionLine(expectedPath, body, cursor, baseLines);
+    return;
+  }
+  if (mark === '+') {
+    applyUnifiedDiffAdditionLine(body, output);
+    return;
+  }
+  throw new Error(`Unified diff for ${expectedPath} has unsupported hunk line`);
+}
+
+function applyUnifiedDiffContextLine(
+  expectedPath: string,
+  body: string,
+  cursor: UnifiedDiffCursor,
+  baseLines: string[],
+  output: string[],
+): void {
+  if (baseLines[cursor.position] !== body) {
+    throw new Error(`Unified diff context mismatch for ${expectedPath} at line ${cursor.position + 1}`);
+  }
+  output.push(baseLines[cursor.position]!);
+  cursor.position += 1;
+}
+
+function applyUnifiedDiffDeletionLine(
+  expectedPath: string,
+  body: string,
+  cursor: UnifiedDiffCursor,
+  baseLines: string[],
+): void {
+  if (baseLines[cursor.position] !== body) {
+    throw new Error(`Unified diff deletion mismatch for ${expectedPath} at line ${cursor.position + 1}`);
+  }
+  cursor.position += 1;
+}
+
+function applyUnifiedDiffAdditionLine(body: string, output: string[]): void {
+  output.push(body);
 }
 
 function splitKeep(text: string): string[] {

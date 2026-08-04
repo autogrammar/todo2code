@@ -135,35 +135,70 @@ const EXTENSIONLESS_SOURCE_BASENAMES = new Set([
   'vagrantfile',
 ]);
 
-function isPlannablePath(value: string): boolean {
-  const normalized = value.trim().replace(/\\/g, '/');
-  if (
-    !normalized
-    || normalized.startsWith('/')
-    || normalized.endsWith('/')
-    || /^[a-z][a-z\d+.-]*:/i.test(normalized)
-  ) return false;
-  const segments = normalized.split('/').filter(Boolean);
-  if (!segments.length || segments.includes('.') || segments.includes('..')) return false;
-  // A home-relative or variable-expanded location is not in the repository. A
-  // release note describing runtime state at `~/.urirun-host/mesh.json` would
-  // otherwise plan a literal `~` directory inside the analysed tree.
-  if (/^[~$%]/.test(segments[0] ?? '') || segments.includes('~')) return false;
-  const lowerSegments = segments.map((segment) => segment.toLowerCase());
-  // Shell/glob wildcards are never concrete implementation targets.
-  if (/[*?[\]{}]/.test(normalized)) return false;
+/** Exported for unit tests and koru/ticket2dsl usefulness checks. */
+export function isUsefulCodeChangePath(value: string): boolean {
+  return isPlannablePath(value);
+}
 
-  for (const segment of lowerSegments) {
-    if (NON_SOURCE_DIR_SEGMENTS.has(segment)) return false;
-    if (segment === '.intent' || segment.startsWith('.intent-')) return false;
-    if (segment.endsWith('.egg-info') || segment.endsWith('.dist-info')) return false;
-  }
+function isPlannablePath(value: string): boolean {
+  const normalized = normalizePlannablePath(value);
+  if (!isCandidatePathSyntax(normalized)) return false;
+
+  const segments = splitPathSegments(normalized);
+  if (isInvalidSegmentShape(segments)) return false;
+  const lowerSegments = segments.map((segment) => segment.toLowerCase());
+  if (!isConcretePath(segments, lowerSegments)) return false;
+  if (hasShellPattern(normalized)) return false;
+  if (isDisallowedSegment(lowerSegments)) return false;
 
   const basename = segments[segments.length - 1] ?? '';
+  return isPlannableBasename(lowerSegments, basename);
+}
+
+function normalizePlannablePath(value: string): string {
+  return value.trim().replace(/\\/g, '/');
+}
+
+function isCandidatePathSyntax(normalized: string): boolean {
+  return Boolean(normalized)
+    && !normalized.startsWith('/')
+    && !normalized.endsWith('/')
+    && !/^[a-z][a-z\d+.-]*:/i.test(normalized);
+}
+
+function splitPathSegments(normalized: string): string[] {
+  return normalized.split('/').filter(Boolean);
+}
+
+function isInvalidSegmentShape(segments: string[]): boolean {
+  return !segments.length || segments.includes('.') || segments.includes('..');
+}
+
+function isConcretePath(segments: string[], lowerSegments: string[]): boolean {
+  if (segments.length === 0) return false;
+  if (/^[~$%]/.test(segments[0] ?? '')) return false;
+  if (segments.includes('~')) return false;
+  return lowerSegments.every((segment) => segment !== '');
+}
+
+function hasShellPattern(normalized: string): boolean {
+  return /[*?[\]{}]/.test(normalized);
+}
+
+function isDisallowedSegment(segments: string[]): boolean {
+  for (const segment of segments) {
+    if (NON_SOURCE_DIR_SEGMENTS.has(segment)) return true;
+    if (segment === '.intent' || segment.startsWith('.intent-')) return true;
+    if (segment.endsWith('.egg-info') || segment.endsWith('.dist-info')) return true;
+  }
+  return false;
+}
+
+function isPlannableBasename(lowerSegments: string[], basename: string): boolean {
   const lowerBasename = basename.toLowerCase();
   if (!basename) return false;
   if (T2C_ARTIFACT_BASENAMES.has(lowerBasename)) return false;
-  if (segments.length === 1 && lowerBasename === 'prompt.txt') return false;
+  if (lowerSegments.length === 1 && lowerBasename === 'prompt.txt') return false;
   if (!basename.includes('.') && !EXTENSIONLESS_SOURCE_BASENAMES.has(lowerBasename)) return false;
 
   const dot = basename.lastIndexOf('.');
@@ -172,8 +207,13 @@ function isPlannablePath(value: string): boolean {
     if (BINARY_EXTENSIONS.has(ext)) return false;
   }
 
-  // Generated code2llm / analysis dumps under project/ (or nested batch dirs)
-  // that are not primary product source.
+  if (isGeneratedArtifactPath(lowerSegments, lowerBasename)) return false;
+  if (lowerBasename.includes('code2llm_incremental')) return false;
+
+  return true;
+}
+
+function isGeneratedArtifactPath(lowerSegments: string[], lowerBasename: string): boolean {
   if (
     lowerSegments[0] === 'project'
     && (GENERATED_ANALYSIS_BASENAMES.has(lowerBasename)
@@ -184,21 +224,9 @@ function isPlannablePath(value: string): boolean {
       || lowerBasename === 'prompt.txt'
       || lowerBasename === 'readme.md')
   ) {
-    return false;
+    return true;
   }
 
-  // Local tool state / cache under the project root.
-  if (lowerSegments[0] === '.koru' || lowerSegments[0] === '.code2llm_cache') {
-    return false;
-  }
-  if (lowerBasename.includes('code2llm_incremental')) {
-    return false;
-  }
-
-  return true;
+  return lowerSegments[0] === '.koru' || lowerSegments[0] === '.code2llm_cache';
 }
-
-/** Exported for unit tests and koru/ticket2dsl usefulness checks. */
-export function isUsefulCodeChangePath(value: string): boolean {
-  return isPlannablePath(value);
-}
+ 

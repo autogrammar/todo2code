@@ -69,443 +69,509 @@ export type T2CAction =
   | 'evaluate_code_change'
   | 'close_code_change';
 
+type ActionInputHandler = (input: Record<string, unknown>, root: string, config: T2CConfig) => unknown | Promise<unknown>;
+
+const ACTION_HANDLERS: Record<T2CAction, ActionInputHandler> = {
+  extract_nl: executeExtractNlAction,
+  extract_git: executeExtractGitAction,
+  extract_ast: executeExtractAstAction,
+  extract_config: executeExtractConfigAction,
+  extract_markdown: executeExtractMarkdownAction,
+  extract_docs: executeExtractDocsAction,
+  extract_communication: executeExtractCommunicationAction,
+  analyze_communication: executeAnalyzeCommunicationAction,
+  link: executeLinkAction,
+  diagnose: executeDiagnoseAction,
+  summarize: executeSummarizeAction,
+  diff: executeDiffAction,
+  diff_files: executeDiffFilesAction,
+  diff_git: executeDiffGitAction,
+  reality: executeRealityAction,
+  pipeline: executePipelineAction,
+  compare_workspace: executeCompareWorkspaceAction,
+  propose_todo: executeProposeTodoAction,
+  render_todo: executeRenderTodoAction,
+  apply_todo: executeApplyTodoAction,
+  propose_code_change: executeProposeCodeChangeAction,
+  render_code_change: executeRenderCodeChangeAction,
+  propose_source_patch: executeProposeSourcePatchAction,
+  apply_source_patch: executeApplySourcePatchAction,
+  evaluate_code_change: executeEvaluateCodeChangeAction,
+  close_code_change: executeCloseCodeChangeAction,
+};
+
 export async function executeAction(action: T2CAction, input: Record<string, unknown>, config: T2CConfig): Promise<unknown> {
   const root = await resolveRoot(input.root, config);
-  switch (action) {
-    case 'extract_nl': {
-      const file = await scopedPath(input.file, 'TASK.md', root, config);
-      const text = typeof input.text === 'string' ? input.text : undefined;
-      return extractNlIntentAudited(
-        { root, sourcePath: file, ...(text !== undefined ? { text } : {}) },
-        config,
-        nlModeValue(input.nlMode, config.nlMode),
-      );
-    }
-    case 'extract_git':
-      return extractGitIntent({ root, count: numberValue(input.count, config.gitCommitCount, 1, 100) }, config);
-    case 'extract_ast':
-      return extractAstIntent({ root }, config);
-    case 'extract_config':
-      return extractConfigurationIntent(root, config);
-    case 'extract_markdown':
-      return extractMarkdownIntentAudited({
-        root,
-        todoPath: await nullableScopedPath(input.todo, 'TODO.md', root, config),
-        changelogPath: await nullableScopedPath(input.changelog, 'CHANGELOG.md', root, config),
-      }, config, llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'));
-    case 'extract_docs':
-      return extractDocumentationIntent({
-        root,
-        patterns: stringList(input.patterns, config.documentPatterns),
-        excludes: stringList(input.excludes, config.documentExcludes),
-      }, config);
-    case 'extract_communication':
-      return extractCommunicationIntentAudited({
+  const handler = ACTION_HANDLERS[action];
+  return handler(input, root, config);
+}
+
+async function executeExtractNlAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const file = await scopedPath(input.file, 'TASK.md', root, config);
+  const text = typeof input.text === 'string' ? input.text : undefined;
+  return extractNlIntentAudited(
+    { root, sourcePath: file, ...(text !== undefined ? { text } : {}) },
+    config,
+    nlModeValue(input.nlMode, config.nlMode),
+  );
+}
+
+function executeExtractGitAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  return extractGitIntent({ root, count: numberValue(input.count, config.gitCommitCount, 1, 100) }, config);
+}
+
+function executeExtractAstAction(_input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  return extractAstIntent({ root }, config);
+}
+
+function executeExtractConfigAction(_input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  return extractConfigurationIntent(root, config);
+}
+
+async function executeExtractMarkdownAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  return extractMarkdownIntentAudited({
+    root,
+    todoPath: await nullableScopedPath(input.todo, 'TODO.md', root, config),
+    changelogPath: await nullableScopedPath(input.changelog, 'CHANGELOG.md', root, config),
+  }, config, llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'));
+}
+
+async function executeExtractDocsAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  return extractDocumentationIntent({
+    root,
+    patterns: stringList(input.patterns, config.documentPatterns),
+    excludes: stringList(input.excludes, config.documentExcludes),
+  }, config);
+}
+
+async function executeExtractCommunicationAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  return extractCommunicationIntentAudited({
+    root,
+    projectDir: await scopedPath(input.projectDir, 'project', root, config),
+    ticket: nullableString(input.ticket, null),
+  }, config, llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'));
+}
+
+async function executeAnalyzeCommunicationAction(
+  input: Record<string, unknown>,
+  root: string,
+  config: T2CConfig,
+): Promise<unknown> {
+  let graph: IntentGraph;
+  const warnings: string[] = [];
+  let communicationSyntheses: ParticipantCommunicationSynthesis[] = [];
+  let communicationAudit: PipelineStageAudit | null = null;
+  if (input.graph !== undefined) {
+    graph = objectValue<IntentGraph>(input.graph, 'graph');
+  } else {
+    const [communication, git, ast] = await Promise.all([
+      extractCommunicationIntentAudited({
         root,
         projectDir: await scopedPath(input.projectDir, 'project', root, config),
         ticket: nullableString(input.ticket, null),
-      }, config, llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'));
-    case 'analyze_communication': {
-      let graph: IntentGraph;
-      const warnings: string[] = [];
-      let communicationSyntheses: ParticipantCommunicationSynthesis[] = [];
-      let communicationAudit: PipelineStageAudit | null = null;
-      if (input.graph !== undefined) {
-        graph = objectValue<IntentGraph>(input.graph, 'graph');
-      } else {
-        const [communication, git, ast] = await Promise.all([
-          extractCommunicationIntentAudited({
-            root,
-            projectDir: await scopedPath(input.projectDir, 'project', root, config),
-            ticket: nullableString(input.ticket, null),
-          }, config, llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode')),
-          extractGitIntent({ root, count: numberValue(input.gitCount, config.gitCommitCount, 1, 100) }, config),
-          booleanValue(input.includeAst, true) ? extractAstIntent({ root }, config) : Promise.resolve({ records: [], warnings: [] }),
-        ]);
-        warnings.push(...communication.warnings, ...git.warnings, ...ast.warnings);
-        communicationSyntheses = communication.participants;
-        communicationAudit = communication.audit;
-        graph = linkIntentRecords([...communication.records, ...git.records, ...ast.records]);
-      }
-      const analysis = analyzeCommunication(graph, new Date().toISOString(), communicationSyntheses);
-      return {
-        analysis,
-        markdown: renderCommunicationMarkdown(analysis),
-        warnings: [...new Set(warnings)].sort(),
-        audit: communicationAudit,
-        ...(booleanValue(input.includeGraph, false) ? { graph } : {}),
-      };
-    }
-    case 'link': {
-      const records = await readRecords(input, root, config);
-      return linkIntentRecords(records);
-    }
-    case 'diagnose': {
-      const graph = objectValue<IntentGraph>(input.graph, 'graph');
-      return diagnoseGraph(graph);
-    }
-    case 'summarize': {
-      const graph = objectValue<IntentGraph>(input.graph, 'graph');
-      const diagnostics = input.diagnostics
-        ? objectValue<DiagnosticReport>(input.diagnostics, 'diagnostics')
-        : diagnoseGraph(graph);
-      return summarizeGraph(graph, diagnostics, config, {
-        mode: summaryModeValue(input.mode, input.fallback),
-      });
-    }
-    case 'propose_todo': {
-      const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
-      const diagnostics = input.diagnostics !== undefined || input.diagnosticsPath !== undefined
-        ? await readActionObject<DiagnosticReport>(input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config)
-        : diagnoseGraph(graph);
-      const result = await synthesizeTodoProposals(graph, diagnostics, config, taskSynthesisMode(input.mode));
-      if (input.output !== undefined) {
-        const output = await scopedPath(input.output, '', root, config);
-        await writeJson(output, result);
-        await registerRunArtifacts(root, { taskSynthesis: output });
-      }
-      return result;
-    }
-    case 'render_todo': {
-      const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
-      const diagnostics = await readActionObject<DiagnosticReport>(
-        input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config,
-      );
-      const synthesis = await readActionObject<AuditedTaskSynthesisResult>(
-        input.synthesis, input.synthesisPath, 'synthesis', root, config,
-      );
-      const todoPath = await scopedPath(input.todo, 'TODO.md', root, config);
-      const patchPath = await scopedPath(input.patch, 'TODO.patch', root, config);
-      const auditPath = await scopedPath(input.audit, 'TODO.patch.json', root, config);
-      const todoContent = await readText(todoPath, config.maxFileBytes);
-      const rendered = createTodoPatch({
-        todoPath: path.relative(root, todoPath).replace(/\\/g, '/'),
-        todoContent,
-        graph,
-        diagnostics,
-        conclusions: synthesis.conclusions,
-        proposals: synthesis.proposals,
-        validation: synthesis.validation,
-        synthesisAudit: synthesis.audit,
-      });
-      await Promise.all([writeText(patchPath, rendered.markdown), writeJson(auditPath, rendered.artifact)]);
-      await registerRunArtifacts(root, { todoPatch: patchPath, todoPatchAudit: auditPath });
-      return {
-        schemaVersion: 't2c.todo-render-result/v1',
-        patchPath: path.relative(root, patchPath).replace(/\\/g, '/'),
-        auditPath: path.relative(root, auditPath).replace(/\\/g, '/'),
-        artifact: rendered.artifact,
-      };
-    }
-    case 'apply_todo': {
-      const todoPath = await scopedPath(input.todo, 'TODO.md', root, config);
-      const patchPath = await scopedPath(input.patch, 'TODO.patch', root, config);
-      const auditPath = await scopedPath(input.audit, 'TODO.patch.json', root, config);
-      const receiptPath = await scopedPath(input.receipt, 'TODO.patch.receipt.json', root, config);
-      const result = await applyTodoPatch({
-        todoPath,
-        patchPath,
-        auditPath,
-        receiptPath,
-        approval: {
-          actor: stringValue(input.actor, ''),
-          patchHash: stringValue(input.approvalHash, ''),
-        },
-      });
-      await registerRunArtifacts(root, { todoApplyReceipt: receiptPath });
-      return result;
-    }
-    case 'propose_code_change': {
-      const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
-      const diagnostics = hasInputValue(input.diagnostics) || hasInputValue(input.diagnosticsPath)
-        ? await readActionObject<DiagnosticReport>(input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config)
-        : diagnoseGraph(graph);
-      const conclusions = hasInputValue(input.conclusions) || hasInputValue(input.conclusionsPath)
-        ? await readActionObject<Conclusion[]>(input.conclusions, input.conclusionsPath, 'conclusions', root, config)
-        : undefined;
-      const proposals = hasInputValue(input.proposals) || hasInputValue(input.proposalsPath)
-        ? await readActionObject<TodoProposal[]>(input.proposals, input.proposalsPath, 'proposals', root, config)
-        : undefined;
-      const result = proposeCodeChangePlans({
-        graph,
-        diagnostics,
-        ...(conclusions !== undefined ? { conclusions } : {}),
-        ...(proposals !== undefined ? { proposals } : {}),
-        maxPlans: numberValue(input.maxPlans, 50, 1, 500),
-        pathExists: createRepositoryPathProbe(root),
-      });
-      if (input.output !== undefined) {
-        const output = await scopedPath(input.output, '', root, config);
-        await writeJson(output, result);
-      }
-      return result;
-    }
-    case 'render_code_change': {
-      const planSet = await readActionObject<ProposeCodeChangePlansResult>(
-        input.plans, input.plansPath, 'plans', root, config,
-      );
-      if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
-        throw new Error('render_code_change requires a t2c.code-change-plan-set/v1 object');
-      }
-      const review = createCodeChangeReviewPatch({
-        plans: planSet.plans,
-        graphFingerprint: planSet.graphFingerprint,
-      });
-      const patchPath = input.patch !== undefined
-        ? await scopedPath(input.patch, 'CODE_CHANGE.review.md', root, config)
-        : null;
-      const auditPath = input.audit !== undefined
-        ? await scopedPath(input.audit, 'CODE_CHANGE.review.json', root, config)
-        : null;
-      if (patchPath) await writeText(patchPath, review.markdown);
-      if (auditPath) await writeJson(auditPath, review.artifact);
-      return {
-        schemaVersion: 't2c.code-change-render-result/v1',
-        markdown: review.markdown,
-        artifact: review.artifact,
-        ...(patchPath ? { patchPath: path.relative(root, patchPath).replace(/\\/g, '/') } : {}),
-        ...(auditPath ? { auditPath: path.relative(root, auditPath).replace(/\\/g, '/') } : {}),
-      };
-    }
-    case 'propose_source_patch': {
-      // Single plan path or full plan-set path.
-      if (hasInputValue(input.plan) || hasInputValue(input.planPath)) {
-        const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);
-        const unifiedDiffs = objectMapOfStrings(input.unifiedDiffs);
-        const patch = createCodeChangeSourcePatch({
-          plan,
-          ...(unifiedDiffs ? { unifiedDiffs } : {}),
-        });
-        if (input.output !== undefined) {
-          const output = await scopedPath(input.output, '', root, config);
-          await writeJson(output, patch);
-        }
-        return patch;
-      }
-      const planSet = await readActionObject<ProposeCodeChangePlansResult>(
-        input.plans, input.plansPath, 'plans', root, config,
-      );
-      if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
-        throw new Error('propose_source_patch requires a plan or t2c.code-change-plan-set/v1');
-      }
-      const result = createCodeChangeSourcePatchSet({
-        plans: planSet.plans,
-        graphFingerprint: planSet.graphFingerprint,
-      });
-      if (input.output !== undefined) {
-        const output = await scopedPath(input.output, '', root, config);
-        await writeJson(output, result);
-      }
-      return result;
-    }
-    case 'apply_source_patch': {
-      const patch = await readActionObject<CodeChangeSourcePatch>(input.patch, input.patchPath, 'patch', root, config);
-      const receiptPath = await scopedPath(input.receipt, 'CODE_CHANGE.source.receipt.json', root, config);
-      const result = await applyCodeChangeSourcePatch({
-        root,
-        patch,
-        approval: {
-          actor: stringValue(input.actor, ''),
-          patchHash: stringValue(input.approvalHash, ''),
-        },
-        receiptPath,
-      });
-      return {
-        ...result,
-        receiptPath: path.relative(root, receiptPath).replace(/\\/g, '/'),
-      };
-    }
-    case 'evaluate_code_change': {
-      const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);
-      const beforeGraph = await readActionObject<IntentGraph>(
-        input.beforeGraph, input.beforeGraphPath, 'beforeGraph', root, config,
-      );
-      const beforeDiagnostics = hasInputValue(input.beforeDiagnostics) || hasInputValue(input.beforeDiagnosticsPath)
-        ? await readActionObject<DiagnosticReport>(
-          input.beforeDiagnostics, input.beforeDiagnosticsPath, 'beforeDiagnostics', root, config,
-        )
-        : diagnoseGraph(beforeGraph);
-      const afterGraph = await readActionObject<IntentGraph>(
-        input.afterGraph, input.afterGraphPath, 'afterGraph', root, config,
-      );
-      const afterDiagnostics = hasInputValue(input.afterDiagnostics) || hasInputValue(input.afterDiagnosticsPath)
-        ? await readActionObject<DiagnosticReport>(
-          input.afterDiagnostics, input.afterDiagnosticsPath, 'afterDiagnostics', root, config,
-        )
-        : undefined;
-      const result = evaluateCodeChangeAcceptance({
-        plan,
-        before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
-        afterGraph,
-        ...(afterDiagnostics !== undefined ? { afterDiagnostics } : {}),
-      });
-      if (input.output !== undefined) {
-        const output = await scopedPath(input.output, '', root, config);
-        await writeJson(output, result);
-      }
-      return result;
-    }
-    case 'close_code_change': {
-      // Evaluate one plan or every plan in a set against before/after graphs.
-      const beforeGraph = await readActionObject<IntentGraph>(
-        input.beforeGraph, input.beforeGraphPath, 'beforeGraph', root, config,
-      );
-      const beforeDiagnostics = hasInputValue(input.beforeDiagnostics) || hasInputValue(input.beforeDiagnosticsPath)
-        ? await readActionObject<DiagnosticReport>(
-          input.beforeDiagnostics, input.beforeDiagnosticsPath, 'beforeDiagnostics', root, config,
-        )
-        : diagnoseGraph(beforeGraph);
-      const afterGraph = await readActionObject<IntentGraph>(
-        input.afterGraph, input.afterGraphPath, 'afterGraph', root, config,
-      );
-      const afterDiagnostics = hasInputValue(input.afterDiagnostics) || hasInputValue(input.afterDiagnosticsPath)
-        ? await readActionObject<DiagnosticReport>(
-          input.afterDiagnostics, input.afterDiagnosticsPath, 'afterDiagnostics', root, config,
-        )
-        : diagnoseGraph(afterGraph);
-
-      let plans: CodeChangePlan[];
-      if (hasInputValue(input.input) || hasInputValue(input.inputPath)) {
-        const value = await readActionObject<CodeChangePlan | ProposeCodeChangePlansResult>(
-          input.input, input.inputPath, 'input', root, config,
-        );
-        if (value.schemaVersion === 't2c.code-change-plan/v1') plans = [value];
-        else if (value.schemaVersion === 't2c.code-change-plan-set/v1') plans = value.plans;
-        else throw new Error('close_code_change input must be a code-change plan or plan set');
-      } else if (hasInputValue(input.plan) || hasInputValue(input.planPath)) {
-        plans = [await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config)];
-      } else {
-        const planSet = await readActionObject<ProposeCodeChangePlansResult>(
-          input.plans, input.plansPath, 'plans', root, config,
-        );
-        if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
-          throw new Error('close_code_change requires a plan or t2c.code-change-plan-set/v1');
-        }
-        plans = planSet.plans;
-      }
-
-      const result = closeCodeChanges({
-        plans,
-        before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
-        afterGraph,
-        afterDiagnostics,
-      });
-      if (input.output !== undefined) {
-        const output = await scopedPath(input.output, '', root, config);
-        await writeJson(output, result);
-      }
-      return result;
-    }
-    case 'diff': {
-      const beforeInput = await readGraphInput(input.beforeGraph, input.before, 'before', root, config);
-      const afterInput = await readGraphInput(input.afterGraph, input.after, 'after', root, config);
-      const before = filterCommunicationGraph(beforeInput, input);
-      const after = filterCommunicationGraph(afterInput, input);
-      const diff = diffIntentGraphs(before, after);
-      const svg = booleanValue(input.includeSvg, true)
-        ? renderGraphDiffSvg(diff, { maxItems: numberValue(input.maxItems, 18, 1, 100) })
-        : undefined;
-      if (booleanValue(input.compact, false)) {
-        return {
-          compact: true,
-          diff: {
-            generatedAt: diff.generatedAt,
-            fingerprint: diff.fingerprint,
-            beforeFingerprint: diff.beforeFingerprint,
-            afterFingerprint: diff.afterFingerprint,
-            summary: diff.summary,
-          },
-          ...(svg === undefined ? {} : { svg }),
-        };
-      }
-      return {
-        diff,
-        ...(svg === undefined ? {} : { svg }),
-      };
-    }
-    case 'diff_files': {
-      const beforePath = await scopedPath(input.before, '', root, config);
-      const afterPath = await scopedPath(input.after, '', root, config);
-      const [before, after] = await Promise.all([
-        readText(beforePath, config.maxFileBytes),
-        readText(afterPath, config.maxFileBytes),
-      ]);
-      const diff = diffText(before, after, {
-        path: stringValue(input.path, path.relative(root, afterPath)),
-        beforePath: path.relative(root, beforePath),
-        afterPath: path.relative(root, afterPath),
-        context: numberValue(input.context, 3, 0, 100),
-      });
-      return withTextDiffViews([diff], input);
-    }
-    case 'diff_git': {
-      const result = await collectGitDiff({
-        root,
-        revision: stringValue(input.revision, 'HEAD'),
-        staged: booleanValue(input.staged, false),
-        context: numberValue(input.context, 3, 0, 100),
-        maxFiles: numberValue(input.maxFiles, 50, 1, 500),
-      });
-      return { ...withTextDiffViews(result.diffs, input), revision: result.revision, staged: result.staged, warnings: result.warnings };
-    }
-    case 'reality': {
-      const graph = objectValue<IntentGraph>(input.graph, 'graph');
-      const diagnostics = input.diagnostics
-        ? objectValue<DiagnosticReport>(input.diagnostics, 'diagnostics')
-        : diagnoseGraph(graph);
-      const view = buildRealityView(graph, diagnostics);
-      return {
-        view,
-        markdown: renderRealityMarkdown(view),
-        ...(booleanValue(input.includeSvg, true)
-          ? {
-            svg: renderRealitySvg(view, {
-              maxRows: numberValue(input.maxRows, 30, 1, 500),
-              gapsOnly: booleanValue(input.gapsOnly, false),
-            }),
-          }
-          : {}),
-      };
-    }
-    case 'compare_workspace':
-      return compareWorkspaceIntent({
-        root,
-        baseRef: stringValue(input.base, 'origin/main'),
-        taskFile: nullableString(input.task, null),
-        todoFile: nullableString(input.todo, 'TODO.md'),
-        changelogFile: nullableString(input.changelog, 'CHANGELOG.md'),
-        documentPatterns: stringList(input.docs, config.documentPatterns),
-        documentExcludes: stringList(input.docExcludes, config.documentExcludes),
-        includeDocumentationLlm: booleanValue(input.includeDocsLlm, false),
-        markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
-        communicationMode: llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'),
-        outputDir: stringValue(input.output, config.outputDir),
-        gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
-      }, config);
-    case 'pipeline': {
-      const options: PipelineOptions = {
-        root,
-        taskFile: await nullableScopedPath(input.task, null, root, config),
-        todoFile: await nullableScopedPath(input.todo, 'TODO.md', root, config),
-        changelogFile: await nullableScopedPath(input.changelog, 'CHANGELOG.md', root, config),
-        documentPatterns: stringList(input.docs, config.documentPatterns),
-        includeDocumentationLlm: booleanValue(input.includeDocsLlm, true),
-        outputDir: await scopedPath(input.output, config.outputDir, root, config),
-        gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
-        allowSummaryFallback: booleanValue(input.summaryFallback, false),
-        includeSummaryLlm: booleanValue(input.includeSummaryLlm, true),
-        nlMode: nlModeValue(input.nlMode, config.nlMode),
-        markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
-        communicationMode: llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'),
-        documentExcludes: stringList(input.docExcludes, config.documentExcludes),
-        taskSynthesisMode: pipelineTaskMode(input.taskMode),
-        includeCommunication: booleanValue(input.includeCommunication, true),
-        projectDirectory: stringValue(input.projectDir, 'project'),
-        communicationTicket: nullableString(input.communicationTicket, null),
-      };
-      return runPipeline(options, config);
-    }
+      }, config, llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode')),
+      extractGitIntent({ root, count: numberValue(input.gitCount, config.gitCommitCount, 1, 100) }, config),
+      booleanValue(input.includeAst, true) ? extractAstIntent({ root }, config) : Promise.resolve({ records: [], warnings: [] }),
+    ]);
+    warnings.push(...communication.warnings, ...git.warnings, ...ast.warnings);
+    communicationSyntheses = communication.participants;
+    communicationAudit = communication.audit;
+    graph = linkIntentRecords([...communication.records, ...git.records, ...ast.records]);
   }
+  const analysis = analyzeCommunication(graph, new Date().toISOString(), communicationSyntheses);
+  return {
+    analysis,
+    markdown: renderCommunicationMarkdown(analysis),
+    warnings: [...new Set(warnings)].sort(),
+    audit: communicationAudit,
+    ...(booleanValue(input.includeGraph, false) ? { graph } : {}),
+  };
+}
+
+async function executeLinkAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const records = await readRecords(input, root, config);
+  return linkIntentRecords(records);
+}
+
+function executeDiagnoseAction(input: Record<string, unknown>): unknown {
+  const graph = objectValue<IntentGraph>(input.graph, 'graph');
+  return diagnoseGraph(graph);
+}
+
+function executeSummarizeAction(input: Record<string, unknown>, root: string, config: T2CConfig): unknown {
+  const graph = objectValue<IntentGraph>(input.graph, 'graph');
+  const diagnostics = input.diagnostics
+    ? objectValue<DiagnosticReport>(input.diagnostics, 'diagnostics')
+    : diagnoseGraph(graph);
+  return summarizeGraph(graph, diagnostics, config, {
+    mode: summaryModeValue(input.mode, input.fallback),
+  });
+}
+
+async function executeProposeTodoAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
+  const diagnostics = input.diagnostics !== undefined || input.diagnosticsPath !== undefined
+    ? await readActionObject<DiagnosticReport>(input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config)
+    : diagnoseGraph(graph);
+  const result = await synthesizeTodoProposals(graph, diagnostics, config, taskSynthesisMode(input.mode));
+  if (input.output !== undefined) {
+    const output = await scopedPath(input.output, '', root, config);
+    await writeJson(output, result);
+    await registerRunArtifacts(root, { taskSynthesis: output });
+  }
+  return result;
+}
+
+async function executeRenderTodoAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
+  const diagnostics = await readActionObject<DiagnosticReport>(
+    input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config,
+  );
+  const synthesis = await readActionObject<AuditedTaskSynthesisResult>(
+    input.synthesis, input.synthesisPath, 'synthesis', root, config,
+  );
+  const todoPath = await scopedPath(input.todo, 'TODO.md', root, config);
+  const patchPath = await scopedPath(input.patch, 'TODO.patch', root, config);
+  const auditPath = await scopedPath(input.audit, 'TODO.patch.json', root, config);
+  const todoContent = await readText(todoPath, config.maxFileBytes);
+  const rendered = createTodoPatch({
+    todoPath: path.relative(root, todoPath).replace(/\\/g, '/'),
+    todoContent,
+    graph,
+    diagnostics,
+    conclusions: synthesis.conclusions,
+    proposals: synthesis.proposals,
+    validation: synthesis.validation,
+    synthesisAudit: synthesis.audit,
+  });
+  await Promise.all([writeText(patchPath, rendered.markdown), writeJson(auditPath, rendered.artifact)]);
+  await registerRunArtifacts(root, { todoPatch: patchPath, todoPatchAudit: auditPath });
+  return {
+    schemaVersion: 't2c.todo-render-result/v1',
+    patchPath: path.relative(root, patchPath).replace(/\\/g, '/'),
+    auditPath: path.relative(root, auditPath).replace(/\\/g, '/'),
+    artifact: rendered.artifact,
+  };
+}
+
+async function executeApplyTodoAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const todoPath = await scopedPath(input.todo, 'TODO.md', root, config);
+  const patchPath = await scopedPath(input.patch, 'TODO.patch', root, config);
+  const auditPath = await scopedPath(input.audit, 'TODO.patch.json', root, config);
+  const receiptPath = await scopedPath(input.receipt, 'TODO.patch.receipt.json', root, config);
+  const result = await applyTodoPatch({
+    todoPath,
+    patchPath,
+    auditPath,
+    receiptPath,
+    approval: {
+      actor: stringValue(input.actor, ''),
+      patchHash: stringValue(input.approvalHash, ''),
+    },
+  });
+  await registerRunArtifacts(root, { todoApplyReceipt: receiptPath });
+  return result;
+}
+
+async function executeProposeCodeChangeAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const graph = await readActionObject<IntentGraph>(input.graph, input.graphPath, 'graph', root, config);
+  const diagnostics = hasInputValue(input.diagnostics) || hasInputValue(input.diagnosticsPath)
+    ? await readActionObject<DiagnosticReport>(input.diagnostics, input.diagnosticsPath, 'diagnostics', root, config)
+    : diagnoseGraph(graph);
+  const conclusions = hasInputValue(input.conclusions) || hasInputValue(input.conclusionsPath)
+    ? await readActionObject<Conclusion[]>(input.conclusions, input.conclusionsPath, 'conclusions', root, config)
+    : undefined;
+  const proposals = hasInputValue(input.proposals) || hasInputValue(input.proposalsPath)
+    ? await readActionObject<TodoProposal[]>(input.proposals, input.proposalsPath, 'proposals', root, config)
+    : undefined;
+  const result = proposeCodeChangePlans({
+    graph,
+    diagnostics,
+    ...(conclusions !== undefined ? { conclusions } : {}),
+    ...(proposals !== undefined ? { proposals } : {}),
+    maxPlans: numberValue(input.maxPlans, 50, 1, 500),
+    pathExists: createRepositoryPathProbe(root),
+  });
+  if (input.output !== undefined) {
+    const output = await scopedPath(input.output, '', root, config);
+    await writeJson(output, result);
+  }
+  return result;
+}
+
+async function executeRenderCodeChangeAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const planSet = await readActionObject<ProposeCodeChangePlansResult>(
+    input.plans, input.plansPath, 'plans', root, config,
+  );
+  if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
+    throw new Error('render_code_change requires a t2c.code-change-plan-set/v1 object');
+  }
+  const review = createCodeChangeReviewPatch({
+    plans: planSet.plans,
+    graphFingerprint: planSet.graphFingerprint,
+  });
+  const patchPath = input.patch !== undefined
+    ? await scopedPath(input.patch, 'CODE_CHANGE.review.md', root, config)
+    : null;
+  const auditPath = input.audit !== undefined
+    ? await scopedPath(input.audit, 'CODE_CHANGE.review.json', root, config)
+    : null;
+  if (patchPath) await writeText(patchPath, review.markdown);
+  if (auditPath) await writeJson(auditPath, review.artifact);
+  return {
+    schemaVersion: 't2c.code-change-render-result/v1',
+    markdown: review.markdown,
+    artifact: review.artifact,
+    ...(patchPath ? { patchPath: path.relative(root, patchPath).replace(/\\/g, '/') } : {}),
+    ...(auditPath ? { auditPath: path.relative(root, auditPath).replace(/\\/g, '/') } : {}),
+  };
+}
+
+async function executeProposeSourcePatchAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  if (hasInputValue(input.plan) || hasInputValue(input.planPath)) {
+    const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);
+    const unifiedDiffs = objectMapOfStrings(input.unifiedDiffs);
+    const patch = createCodeChangeSourcePatch({
+      plan,
+      ...(unifiedDiffs ? { unifiedDiffs } : {}),
+    });
+    if (input.output !== undefined) {
+      const output = await scopedPath(input.output, '', root, config);
+      await writeJson(output, patch);
+    }
+    return patch;
+  }
+  const planSet = await readActionObject<ProposeCodeChangePlansResult>(
+    input.plans, input.plansPath, 'plans', root, config,
+  );
+  if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
+    throw new Error('propose_source_patch requires a plan or t2c.code-change-plan-set/v1');
+  }
+  const result = createCodeChangeSourcePatchSet({
+    plans: planSet.plans,
+    graphFingerprint: planSet.graphFingerprint,
+  });
+  if (input.output !== undefined) {
+    const output = await scopedPath(input.output, '', root, config);
+    await writeJson(output, result);
+  }
+  return result;
+}
+
+async function executeApplySourcePatchAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const patch = await readActionObject<CodeChangeSourcePatch>(input.patch, input.patchPath, 'patch', root, config);
+  const receiptPath = await scopedPath(input.receipt, 'CODE_CHANGE.source.receipt.json', root, config);
+  const result = await applyCodeChangeSourcePatch({
+    root,
+    patch,
+    approval: {
+      actor: stringValue(input.actor, ''),
+      patchHash: stringValue(input.approvalHash, ''),
+    },
+    receiptPath,
+  });
+  return {
+    ...result,
+    receiptPath: path.relative(root, receiptPath).replace(/\\/g, '/'),
+  };
+}
+
+async function executeEvaluateCodeChangeAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const plan = await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config);
+  const beforeGraph = await readActionObject<IntentGraph>(
+    input.beforeGraph, input.beforeGraphPath, 'beforeGraph', root, config,
+  );
+  const beforeDiagnostics = hasInputValue(input.beforeDiagnostics) || hasInputValue(input.beforeDiagnosticsPath)
+    ? await readActionObject<DiagnosticReport>(
+      input.beforeDiagnostics, input.beforeDiagnosticsPath, 'beforeDiagnostics', root, config,
+    )
+    : diagnoseGraph(beforeGraph);
+  const afterGraph = await readActionObject<IntentGraph>(
+    input.afterGraph, input.afterGraphPath, 'afterGraph', root, config,
+  );
+  const afterDiagnostics = hasInputValue(input.afterDiagnostics) || hasInputValue(input.afterDiagnosticsPath)
+    ? await readActionObject<DiagnosticReport>(
+      input.afterDiagnostics, input.afterDiagnosticsPath, 'afterDiagnostics', root, config,
+    )
+    : undefined;
+  const result = evaluateCodeChangeAcceptance({
+    plan,
+    before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
+    afterGraph,
+    ...(afterDiagnostics !== undefined ? { afterDiagnostics } : {}),
+  });
+  if (input.output !== undefined) {
+    const output = await scopedPath(input.output, '', root, config);
+    await writeJson(output, result);
+  }
+  return result;
+}
+
+async function executeCloseCodeChangeAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const beforeGraph = await readActionObject<IntentGraph>(
+    input.beforeGraph, input.beforeGraphPath, 'beforeGraph', root, config,
+  );
+  const beforeDiagnostics = hasInputValue(input.beforeDiagnostics) || hasInputValue(input.beforeDiagnosticsPath)
+    ? await readActionObject<DiagnosticReport>(
+      input.beforeDiagnostics, input.beforeDiagnosticsPath, 'beforeDiagnostics', root, config,
+    )
+    : diagnoseGraph(beforeGraph);
+  const afterGraph = await readActionObject<IntentGraph>(
+    input.afterGraph, input.afterGraphPath, 'afterGraph', root, config,
+  );
+  const afterDiagnostics = hasInputValue(input.afterDiagnostics) || hasInputValue(input.afterDiagnosticsPath)
+    ? await readActionObject<DiagnosticReport>(
+      input.afterDiagnostics, input.afterDiagnosticsPath, 'afterDiagnostics', root, config,
+    )
+    : diagnoseGraph(afterGraph);
+
+  let plans: CodeChangePlan[];
+  if (hasInputValue(input.input) || hasInputValue(input.inputPath)) {
+    const value = await readActionObject<CodeChangePlan | ProposeCodeChangePlansResult>(
+      input.input, input.inputPath, 'input', root, config,
+    );
+    if (value.schemaVersion === 't2c.code-change-plan/v1') plans = [value];
+    else if (value.schemaVersion === 't2c.code-change-plan-set/v1') plans = value.plans;
+    else throw new Error('close_code_change input must be a code-change plan or plan set');
+  } else if (hasInputValue(input.plan) || hasInputValue(input.planPath)) {
+    plans = [await readActionObject<CodeChangePlan>(input.plan, input.planPath, 'plan', root, config)];
+  } else {
+    const planSet = await readActionObject<ProposeCodeChangePlansResult>(
+      input.plans, input.plansPath, 'plans', root, config,
+    );
+    if (planSet.schemaVersion !== 't2c.code-change-plan-set/v1') {
+      throw new Error('close_code_change requires a plan or t2c.code-change-plan-set/v1');
+    }
+    plans = planSet.plans;
+  }
+
+  const result = closeCodeChanges({
+    plans,
+    before: { graph: beforeGraph, diagnostics: beforeDiagnostics },
+    afterGraph,
+    afterDiagnostics,
+  });
+  if (input.output !== undefined) {
+    const output = await scopedPath(input.output, '', root, config);
+    await writeJson(output, result);
+  }
+  return result;
+}
+
+async function executeDiffAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const beforeInput = await readGraphInput(input.beforeGraph, input.before, 'before', root, config);
+  const afterInput = await readGraphInput(input.afterGraph, input.after, 'after', root, config);
+  const before = filterCommunicationGraph(beforeInput, input);
+  const after = filterCommunicationGraph(afterInput, input);
+  const diff = diffIntentGraphs(before, after);
+  const svg = booleanValue(input.includeSvg, true)
+    ? renderGraphDiffSvg(diff, { maxItems: numberValue(input.maxItems, 18, 1, 100) })
+    : undefined;
+  if (booleanValue(input.compact, false)) {
+    return {
+      compact: true,
+      diff: {
+        generatedAt: diff.generatedAt,
+        fingerprint: diff.fingerprint,
+        beforeFingerprint: diff.beforeFingerprint,
+        afterFingerprint: diff.afterFingerprint,
+        summary: diff.summary,
+      },
+      ...(svg === undefined ? {} : { svg }),
+    };
+  }
+  return {
+    diff,
+    ...(svg === undefined ? {} : { svg }),
+  };
+}
+
+async function executeDiffFilesAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const beforePath = await scopedPath(input.before, '', root, config);
+  const afterPath = await scopedPath(input.after, '', root, config);
+  const [before, after] = await Promise.all([
+    readText(beforePath, config.maxFileBytes),
+    readText(afterPath, config.maxFileBytes),
+  ]);
+  const diff = diffText(before, after, {
+    path: stringValue(input.path, path.relative(root, afterPath)),
+    beforePath: path.relative(root, beforePath),
+    afterPath: path.relative(root, afterPath),
+    context: numberValue(input.context, 3, 0, 100),
+  });
+  return withTextDiffViews([diff], input);
+}
+
+async function executeDiffGitAction(input: Record<string, unknown>, root: string, _config: T2CConfig): Promise<unknown> {
+  const result = await collectGitDiff({
+    root,
+    revision: stringValue(input.revision, 'HEAD'),
+    staged: booleanValue(input.staged, false),
+    context: numberValue(input.context, 3, 0, 100),
+    maxFiles: numberValue(input.maxFiles, 50, 1, 500),
+  });
+  return { ...withTextDiffViews(result.diffs, input), revision: result.revision, staged: result.staged, warnings: result.warnings };
+}
+
+function executeRealityAction(_input: Record<string, unknown>, _root: string, config: T2CConfig): unknown {
+  const graph = objectValue<IntentGraph>(input.graph, 'graph');
+  const diagnostics = input.diagnostics
+    ? objectValue<DiagnosticReport>(input.diagnostics, 'diagnostics')
+    : diagnoseGraph(graph);
+  const view = buildRealityView(graph, diagnostics);
+  return {
+    view,
+    markdown: renderRealityMarkdown(view),
+    ...(booleanValue(input.includeSvg, true)
+      ? {
+        svg: renderRealitySvg(view, {
+          maxRows: numberValue(input.maxRows, 30, 1, 500),
+          gapsOnly: booleanValue(input.gapsOnly, false),
+        }),
+      }
+      : {}),
+  };
+}
+
+async function executeCompareWorkspaceAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  return compareWorkspaceIntent({
+    root,
+    baseRef: stringValue(input.base, 'origin/main'),
+    taskFile: nullableString(input.task, null),
+    todoFile: nullableString(input.todo, 'TODO.md'),
+    changelogFile: nullableString(input.changelog, 'CHANGELOG.md'),
+    documentPatterns: stringList(input.docs, config.documentPatterns),
+    documentExcludes: stringList(input.docExcludes, config.documentExcludes),
+    includeDocumentationLlm: booleanValue(input.includeDocsLlm, false),
+    markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
+    communicationMode: llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'),
+    outputDir: stringValue(input.output, config.outputDir),
+    gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
+  }, config);
+}
+
+async function executePipelineAction(input: Record<string, unknown>, root: string, config: T2CConfig): Promise<unknown> {
+  const options: PipelineOptions = {
+    root,
+    taskFile: await nullableScopedPath(input.task, null, root, config),
+    todoFile: await nullableScopedPath(input.todo, 'TODO.md', root, config),
+    changelogFile: await nullableScopedPath(input.changelog, 'CHANGELOG.md', root, config),
+    documentPatterns: stringList(input.docs, config.documentPatterns),
+    includeDocumentationLlm: booleanValue(input.includeDocsLlm, true),
+    outputDir: await scopedPath(input.output, config.outputDir, root, config),
+    gitCommitCount: numberValue(input.gitCount, config.gitCommitCount, 1, 100),
+    allowSummaryFallback: booleanValue(input.summaryFallback, false),
+    includeSummaryLlm: booleanValue(input.includeSummaryLlm, true),
+    nlMode: nlModeValue(input.nlMode, config.nlMode),
+    markdownMode: llmModeValue(input.markdownMode, config.markdownMode, 'markdownMode'),
+    communicationMode: llmModeValue(input.communicationMode, config.communicationMode, 'communicationMode'),
+    documentExcludes: stringList(input.docExcludes, config.documentExcludes),
+    taskSynthesisMode: pipelineTaskMode(input.taskMode),
+    includeCommunication: booleanValue(input.includeCommunication, true),
+    projectDirectory: stringValue(input.projectDir, 'project'),
+    communicationTicket: nullableString(input.communicationTicket, null),
+  };
+  return runPipeline(options, config);
 }
 
 function filterCommunicationGraph(graph: IntentGraph, input: Record<string, unknown>): IntentGraph {
