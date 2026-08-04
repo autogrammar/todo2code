@@ -12,15 +12,29 @@ const missing = [...expected].filter((name) => !declared.has(name)).sort();
 const unused = [...declared.keys()].filter((name) => !expected.has(name)).sort();
 const local = await auditLocalKeys(path.join(root, '.env'), declared);
 if (hasContractProblems(missing, unused, local)) {
-  if (duplicates.length) console.error(`Duplicate .env.example keys:\n${duplicates.join('\n')}`);
+  reportContractProblems({
+    duplicates,
+    missing,
+    unused,
+    local,
+  });
+  process.exit(1);
+}
+console.log(`Environment contract verified: ${expected.size} code/Docker variables, ${declared.size} documented keys, no duplicates.`);
+
+function reportContractProblems({
+  duplicates: duplicateKeys,
+  missing,
+  unused,
+  local,
+}) {
+  if (duplicateKeys.length) console.error(`Duplicate .env.example keys:\n${duplicateKeys.join('\n')}`);
   if (missing.length) console.error(`Environment variables missing from .env.example:\n${missing.join('\n')}`);
   if (unused.length) console.error(`Unused environment variables declared in .env.example:\n${unused.join('\n')}`);
   if (local.missing.length) console.error(`Environment variables missing from local .env:\n${local.missing.join('\n')}`);
   if (local.extra.length) console.error(`Unexpected environment variables in local .env:\n${local.extra.join('\n')}`);
   if (local.duplicates.length) console.error(`Duplicate environment variables in local .env:\n${local.duplicates.join('\n')}`);
-  process.exit(1);
 }
-console.log(`Environment contract verified: ${expected.size} code/Docker variables, ${declared.size} documented keys, no duplicates.`);
 
 function parseDeclaredEnv(example) {
   const declared = new Map();
