@@ -2,3 +2,5 @@
 - Fresh base `caf6551`: communication identity mismatch test fails because the
   resolved registry authors are compared with themselves.
 - No production source edited; state remains `WAIT_FOR_APPROVAL`.
+- Human response `kontynuuj` authorized ticket-032; transitioned to
+  `IN_PROGRESS / EDIT`.

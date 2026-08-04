@@ -2,8 +2,8 @@
 
 - **ID**: ticket-032
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -27,7 +27,7 @@ expected implementation time is under 30 minutes.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope is approved by a human owner.
+- [x] AC-01: Scope is approved by a human owner.
 - [ ] AC-02: A declaration differing from the participant registry emits the
       existing `git-authors differ` warning.
 - [ ] AC-03: Emitted record metadata still uses registry-owned Git authors and
@@ -43,6 +43,6 @@ expected implementation time is under 30 minutes.
 
 ## Approval boundary
 
-- Current state: `PLAN / WAIT_FOR_APPROVAL`.
+- Current state: `IN_PROGRESS / EDIT` after explicit chat approval.
 - Chat approval authorizes this interactive implementation only; merge still
   requires trusted independent evidence for the final SHA.

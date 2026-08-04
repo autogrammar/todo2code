@@ -4,7 +4,7 @@
 
 - [ ] [`ticket-032`](project/ticket-032/README.md) — restore the unreachable
   declared Git-author mismatch warning while keeping registry-owned identity
-  authoritative. Current state: `PLAN / WAIT_FOR_APPROVAL`; one production
+  authoritative. Current state: `IN_PROGRESS / EDIT`; one production
   file, estimated under 30 minutes.
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free

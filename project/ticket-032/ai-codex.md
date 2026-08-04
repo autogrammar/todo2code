@@ -26,10 +26,10 @@ warning unreachable.
 
 ## Actual changes
 
-- None; waiting for approval.
+- The human explicitly approved ticket-032 by replying `kontynuuj`; the
+  interactive implementation may enter `EDIT`.
 
 ## Blockers
 
-- Human approval is required before implementation.
 - The separate prompt-path regression remains outside ticket-032.
 - Four inherited ticket-018/ticket-019 governance errors remain outside scope.
