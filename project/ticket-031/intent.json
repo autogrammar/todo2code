@@ -1,0 +1,19 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-031",
+  "summary": "Define repository-scoped evidence identity",
+  "workstream": "core-dsl",
+  "allowedPaths": [
+    "src/core/repository-scope.ts",
+    "src/core/record.ts",
+    "test/target-repository-scope.test.ts",
+    "project/ticket-031/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-022"],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
