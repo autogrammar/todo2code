@@ -10,8 +10,31 @@ import { readText } from '../core/io.js';
 import { T2C_VERSION } from '../version.js';
 import { openRouterAuditConfiguration } from '../llm/audit.js';
 import type { T2CConfig } from '../config/env.js';
-import type { PipelineContext } from './run-types.js';
-import { skippedAudit } from './run-failed.js';
+import type { PipelineFailureStage } from '../core/types.js';
+
+type PipelineContext = {
+  root: string;
+  warnings: string[];
+  bySource: Record<string, IntentRecord[]>;
+  activeStage: PipelineFailureStage;
+};
+
+function skippedAudit(requestedMode: PipelineStageAudit['requestedMode'], message: string): PipelineStageAudit {
+  return {
+    runtimeVersion: T2C_VERSION,
+    configuration: {},
+    status: 'skipped',
+    requestedMode,
+    effectiveMode: 'none',
+    degraded: false,
+    recordCount: 0,
+    warningCount: 0,
+    model: null,
+    durationMs: 0,
+    reason: { code: 'STAGE_SKIPPED', message },
+    responses: [],
+  };
+}
 
 export async function collectCommunicationAnalysis(
   context: PipelineContext,
