@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-025`](project/ticket-025/README.md) — repair NL type guards and
+  the public markdown batching export after helper splits. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`; exact extractor scope is documented.
+
 - [ ] [`ticket-024`](project/ticket-024/README.md) — repair current CLI and
   communication contracts after the parallel module refactors. Current state:
   `IN_PROGRESS / EDIT`; the user's continuation instruction authorizes the

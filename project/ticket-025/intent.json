@@ -1,0 +1,12 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-025",
+  "summary": "Repair current extractor split contracts",
+  "workstream": "extractors",
+  "allowedPaths": ["src/extractors/nl-llm-helpers.ts", "src/extractors/markdown-llm.ts", "test/markdown.test.ts", "project/ticket-025/**", "TODO.md", "project/TICKETS.md"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
