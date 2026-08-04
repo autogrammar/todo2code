@@ -7,3 +7,4 @@
 - Repaired CLI syntax, A2A/extractor narrowing and current communication import
   and prompt paths.
 - Full verification, protocols and Docker core/full pass.
+- Marked the fully validated implementation DONE before protected publication.
