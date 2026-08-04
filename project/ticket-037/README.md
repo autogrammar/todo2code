@@ -2,8 +2,8 @@
 
 - **ID**: ticket-037
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-04
 
 ## Goal
@@ -94,9 +94,10 @@ Recommendations are a read model, not authorization. In particular,
 ## Approval boundary
 
 The user explicitly approved ticket-037 after reviewing this input/output and
-recommendation contract. Current state: `IN_PROGRESS / VALIDATION`. Chat approval
-authorizes this bounded interactive edit only; merge still requires protected
-exact-head evidence.
+recommendation contract. The bounded implementation was independently reviewed
+and merged through the protected path. Chat approval authorized the interactive
+edit only; merge authority came from exact-head App evidence and required
+checks.
 
 ## Validation result
 
@@ -112,3 +113,20 @@ exact-head evidence.
   assertions; typecheck and the 14-test focused suite pass after the repair.
 - No Git/GitHub mutation, LLM call, runtime dependency or cross-workstream
   implementation change was introduced.
+
+## Protected completion evidence
+
+- Koru review run
+  [30953872007](https://github.com/semcod/todo2code/actions/runs/30953872007)
+  passed exact head `50d6dbac0d81f34109c6c2888056c6bd7a5331ff`.
+- Validator run
+  [30953984588](https://github.com/subactor/validator-agent/actions/runs/30953984588)
+  approved the same head for `ticket-037` with
+  `openrouter/z-ai/glm-5.2`; its final advisory verdict was `APPROVE` with no
+  findings.
+- Review-triggered CI run
+  [30954110229](https://github.com/semcod/todo2code/actions/runs/30954110229)
+  passed governance, full verification, Docker smoke and the required Java
+  fixture with the exact-head approval evidence.
+- Protected PR [#42](https://github.com/semcod/todo2code/pull/42) merged as
+  `main@b5d24171b1f66f9b25f1387b494b94ca98f23c06`.

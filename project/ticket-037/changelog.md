@@ -29,3 +29,11 @@
   `verify` check name.
 - Replaced four TypeScript non-null assertions in the focused suite with
   explicit runtime guards; full typecheck and regression verification pass.
+
+## [0.3.0] - 2026-08-04
+
+- Recorded exact-head Koru and Validator App evidence for `50d6dba`; the
+  Validator used `openrouter/z-ai/glm-5.2` and returned no advisory findings.
+- Recorded protected CI completion and PR #42 merge as `main@b5d2417`.
+- Closed ticket-037 without absorbing the separate runtime, interface, Goal,
+  Koru or Validator integration workstreams.
