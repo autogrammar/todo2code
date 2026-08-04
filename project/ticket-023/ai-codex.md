@@ -33,8 +33,10 @@ core/semantic edits will be reapplied on current HEAD.
 - Aggregate testing localized seven behavioral failures to one omitted linker
   score contribution; the existing continuation authorization covers this
   exact core-dsl follow-up.
+- Restored core contracts, semantic validation and the linker's exact scoring
+  semantics. Full verification, both gold datasets and Docker core/full pass.
 
 ## Blockers
 
-- None after the user's continuation instruction; merge approval remains
+- Implementation and validation are complete; protected merge approval remains
   external.

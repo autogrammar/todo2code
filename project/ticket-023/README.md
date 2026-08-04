@@ -3,7 +3,7 @@
 - **ID**: ticket-023
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -31,16 +31,16 @@ the helper extraction.
 ## Acceptance criteria
 
 - [x] AC-01: The human instructed the agent to continue the diagnosed repair.
-- [ ] AC-02: Core artifact types parse and expose the intended public contract
+- [x] AC-02: Core artifact types parse and expose the intended public contract
       exactly once.
-- [ ] AC-03: The semantic reranker validates its schema header and parses after
+- [x] AC-03: The semantic reranker validates its schema header and parses after
       the current refactor.
-- [ ] AC-04: Runtime and package/SDK versions consistently report `0.5.2`.
-- [ ] AC-05: Focused core/semantic validation passes; remaining diagnostics are
+- [x] AC-04: Runtime and package/SDK versions consistently report `0.5.2`.
+- [x] AC-05: Focused core/semantic validation passes; remaining diagnostics are
       attributed to other workstreams.
-- [ ] AC-06: Strict optional-property and runtime-validator types pass without
+- [x] AC-06: Strict optional-property and runtime-validator types pass without
       weakening validation or changing evidence semantics.
-- [ ] AC-07: Text similarity contributes once to pair scoring while
+- [x] AC-07: Text similarity contributes once to pair scoring while
       `textScore` retains the unscaled similarity used by diagnostics and gold
       evaluation.
 
