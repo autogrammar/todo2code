@@ -1004,9 +1004,23 @@ export function assertCodeChangeSourcePatchSet(
   plans?: CodeChangePlan[],
 ): asserts value is CodeChangeSourcePatchSet {
   const set = assertSourcePatchSetObject(value);
+  const context = createSourcePatchSetValidationContext(plans);
   validateSourcePatchSetSchema(set);
-  validateSourcePatchSetPatches(set, plans);
+  validateSourcePatchSetPatches(set, context);
   validateSourcePatchSetGeneration(set);
+}
+
+interface SourcePatchSetValidationContext {
+  plansById: Map<string, CodeChangePlan>;
+  expectedPlanIds: string[] | null;
+}
+
+function createSourcePatchSetValidationContext(plans?: CodeChangePlan[]): SourcePatchSetValidationContext {
+  const expectedPlanIds = plans?.map((plan) => plan.id) ?? null;
+  return {
+    plansById: new Map((plans ?? []).map((plan) => [plan.id, plan])),
+    expectedPlanIds,
+  };
 }
 
 function assertSourcePatchObject(value: unknown, objectLabel: string): Record<string, unknown> {
@@ -1040,19 +1054,52 @@ function validateSourcePatchSetSchema(set: CodeChangeSourcePatchSet): void {
   if (!Array.isArray(set.patches)) throw new Error('Source patch set patches must be an array');
 }
 
-function validateSourcePatchSetPatches(set: CodeChangeSourcePatchSet, plans?: CodeChangePlan[]): void {
-  const plansById = new Map((plans ?? []).map((plan) => [plan.id, plan]));
+function validateSourcePatchSetPatches(
+  set: CodeChangeSourcePatchSet,
+  context: SourcePatchSetValidationContext,
+): void {
   const patchIds = new Set<string>();
   for (const patch of set.patches) {
-    const expectedPlan = plans ? plansById.get(patch.planId) : undefined;
-    assertCodeChangeSourcePatch(patch, expectedPlan);
-    if (patch.graphFingerprint !== set.graphFingerprint) {
-      throw new Error(`Source patch ${patch.id} graphFingerprint does not match its set`);
-    }
-    if (patchIds.has(patch.id)) throw new Error(`Duplicate source patch id: ${patch.id}`);
-    patchIds.add(patch.id);
+    validateSetPatchAndTrackDuplicates(set, patch, context, patchIds);
   }
-  if (plans) exactSourcePatchSet(set.patches.map((patch) => patch.planId), plans.map((plan) => plan.id), 'planIds');
+  validateSetPatchesPlanCoverage(set, context.expectedPlanIds);
+}
+
+function validateSetPatchAndTrackDuplicates(
+  set: CodeChangeSourcePatchSet,
+  patch: CodeChangeSourcePatch,
+  context: SourcePatchSetValidationContext,
+  patchIds: Set<string>,
+): void {
+  const expectedPlan = context.plansById.get(patch.planId);
+  assertCodeChangeSourcePatch(patch, expectedPlan);
+  validateSetPatchGraphFingerprint(set, patch);
+  assertUniqueSetPatchId(patchIds, patch.id);
+  patchIds.add(patch.id);
+}
+
+function validateSetPatchGraphFingerprint(
+  set: CodeChangeSourcePatchSet,
+  patch: CodeChangeSourcePatch,
+): void {
+  if (patch.graphFingerprint !== set.graphFingerprint) {
+    throw new Error(`Source patch ${patch.id} graphFingerprint does not match its set`);
+  }
+}
+
+function assertUniqueSetPatchId(
+  patchIds: Set<string>,
+  patchId: string,
+): void {
+  if (patchIds.has(patchId)) throw new Error(`Duplicate source patch id: ${patchId}`);
+}
+
+function validateSetPatchesPlanCoverage(
+  set: CodeChangeSourcePatchSet,
+  expectedPlanIds: string[] | null,
+): void {
+  if (!expectedPlanIds) return;
+  exactSourcePatchSet(set.patches.map((patch) => patch.planId), expectedPlanIds, 'planIds');
 }
 
 function validateSourcePatchSetGeneration(set: CodeChangeSourcePatchSet): void {
@@ -1152,6 +1199,19 @@ export interface ApplyCodeChangeSourcePatchResult {
   receipt: CodeChangeSourceApplyReceipt;
 }
 
+interface NormalizedApplyCodeChangeSourcePatchRequest {
+  root: string;
+  patch: CodeChangeSourcePatch;
+  approval: CodeChangeSourcePatchApproval;
+  receiptPath: string;
+  now?: Date;
+}
+
+interface SourcePatchApplyLock {
+  path: string;
+  lock: Awaited<ReturnType<typeof fs.open>>;
+}
+
 /**
  * Apply a fully-diffed source patch after explicit hash approval.
  *
@@ -1162,6 +1222,31 @@ export interface ApplyCodeChangeSourcePatchResult {
 export async function applyCodeChangeSourcePatch(
   options: ApplyCodeChangeSourcePatchOptions,
 ): Promise<ApplyCodeChangeSourcePatchResult> {
+  const request = assertPatchApplicationRequest(options);
+  const root = path.resolve(request.root);
+  const receiptPath = await assertPathWithinRoot(root, path.resolve(request.receiptPath));
+  await ensureDir(path.dirname(receiptPath));
+  const lock = await acquireApplyLock(receiptPath);
+  try {
+    if (await pathExists(receiptPath)) {
+      const existing = await readJson<CodeChangeSourceApplyReceipt>(receiptPath, 1024 * 1024);
+      await assertExistingSourceReceipt(existing, request.patch, root);
+      return { applied: false, idempotent: true, receipt: existing };
+    }
+
+    const prepared = await prepareSourceEdits(request.patch, root, receiptPath);
+    const now = (request.now ?? new Date()).toISOString();
+    const receipt = await applyPreparedEdits(prepared, request.patch, request.approval.actor.trim(), now, receiptPath);
+    return { applied: true, idempotent: false, receipt };
+  } finally {
+    await lock.lock.close();
+    await fs.unlink(lock.path).catch(() => undefined);
+  }
+}
+
+function assertPatchApplicationRequest(
+  options: ApplyCodeChangeSourcePatchOptions,
+): NormalizedApplyCodeChangeSourcePatchRequest {
   assertCodeChangeSourcePatch(options.patch);
   if (!options.approval?.actor?.trim()) throw new Error('Explicit source patch approval actor is required');
   if (options.approval.patchHash !== options.patch.patchHash) {
@@ -1172,103 +1257,135 @@ export async function applyCodeChangeSourcePatch(
       throw new Error(`Source patch edit ${edit.path} has no unifiedDiff and cannot be applied`);
     }
   }
+  return {
+    root: options.root,
+    patch: options.patch,
+    approval: options.approval,
+    receiptPath: options.receiptPath,
+    now: options.now,
+  };
+}
 
-  const root = path.resolve(options.root);
-  const receiptPath = await assertPathWithinRoot(root, path.resolve(options.receiptPath));
+async function acquireApplyLock(receiptPath: string): Promise<SourcePatchApplyLock> {
   const lockPath = `${receiptPath}.t2c-apply.lock`;
-  await ensureDir(path.dirname(receiptPath));
-  let lock: Awaited<ReturnType<typeof fs.open>> | null = null;
   try {
-    lock = await fs.open(lockPath, 'wx');
+    const lock = await fs.open(lockPath, 'wx');
+    return { path: lockPath, lock };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
       throw new Error('Another source patch apply operation is in progress');
     }
     throw error;
   }
+}
 
-  try {
-    if (await pathExists(receiptPath)) {
-      const existing = await readJson<CodeChangeSourceApplyReceipt>(receiptPath, 1024 * 1024);
-      await assertExistingSourceReceipt(existing, options.patch, root);
-      return { applied: false, idempotent: true, receipt: existing };
+async function prepareSourceEdits(
+  patch: CodeChangeSourcePatch,
+  root: string,
+  receiptPath: string,
+): Promise<PreparedSourceEdit[]> {
+  const prepared: PreparedSourceEdit[] = [];
+  for (const edit of patch.edits) {
+    const relative = edit.path.replace(/\\/g, '/');
+    const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
+    if (absolute === receiptPath) {
+      throw new Error(`Source patch target collides with its receipt path: ${relative}`);
     }
-
-    const prepared: PreparedSourceEdit[] = [];
-    for (const edit of options.patch.edits) {
-      const relative = edit.path.replace(/\\/g, '/');
-      const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
-      if (absolute === receiptPath) {
-        throw new Error(`Source patch target collides with its receipt path: ${relative}`);
-      }
-      const exists = await pathExists(absolute);
-      if (exists && (await fs.lstat(absolute)).isSymbolicLink()) {
-        throw new Error(`Refusing to apply through a symlink: ${relative}`);
-      }
-      if (edit.action === 'create' && exists) throw new Error(`Source patch create target already exists: ${relative}`);
-      if (edit.action === 'delete' && !exists) throw new Error(`Source patch delete target does not exist: ${relative}`);
-      if (edit.action === 'modify' && !exists) {
-        const fromEmpty = /(?:^|\n)---\s+\/dev\/null(?:\n|$)/.test(edit.unifiedDiff!)
-          || /(?:^|\n)@@\s+-0(?:,0)?\s+\+/.test(edit.unifiedDiff!);
-        if (!fromEmpty) throw new Error(`Source patch modify target does not exist: ${relative}`);
-      }
-      const before = exists ? await readText(absolute, 16 * 1024 * 1024) : '';
-      const after = applyUnifiedDiffToText(before, edit.unifiedDiff!, relative);
-      if (edit.action === 'delete' && after !== '') {
-        throw new Error(`Source patch delete diff must remove the complete file: ${relative}`);
-      }
-      prepared.push({ relative, absolute, action: edit.action, before, after, existed: exists });
+    const exists = await pathExists(absolute);
+    if (exists && (await fs.lstat(absolute)).isSymbolicLink()) {
+      throw new Error(`Refusing to apply through a symlink: ${relative}`);
     }
-
-    const changed: PreparedSourceEdit[] = [];
-    try {
-      for (const edit of prepared) {
-        if (edit.action === 'delete') await fs.unlink(edit.absolute);
-        else await atomicWriteRaw(edit.absolute, edit.after);
-        changed.push(edit);
-      }
-      const now = (options.now ?? new Date()).toISOString();
-      const fileHashesAfter = Object.fromEntries(prepared
-        .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
-        .sort(([left], [right]) => left.localeCompare(right)));
-      const receipt: CodeChangeSourceApplyReceipt = {
-        schemaVersion: 't2c.code-change-source-apply-receipt/v1',
-        patchId: options.patch.id,
-        patchHash: options.patch.patchHash,
-        planId: options.patch.planId,
-        approvedBy: options.approval.actor.trim(),
-        approvedAt: now,
-        appliedAt: now,
-        appliedPaths: prepared.map((edit) => edit.relative).sort(),
-        fileHashesAfter,
-        generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
-      };
-      assertSourceApplyReceipt(receipt, options.patch);
-      // The receipt is part of the transaction: without it a retry could apply
-      // the same approved patch again. Roll files back if persisting it fails.
-      await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-      return { applied: true, idempotent: false, receipt };
-    } catch (error) {
-      const rollbackErrors: string[] = [];
-      for (const edit of [...changed].reverse()) {
-        try {
-          if (edit.existed) await atomicWriteRaw(edit.absolute, edit.before);
-          else await fs.unlink(edit.absolute).catch((failure: NodeJS.ErrnoException) => {
-            if (failure.code !== 'ENOENT') throw failure;
-          });
-        } catch (rollbackError) {
-          rollbackErrors.push(`${edit.relative}: ${String(rollbackError)}`);
-        }
-      }
-      if (rollbackErrors.length) {
-        throw new Error(`Source patch apply failed (${String(error)}); rollback also failed: ${rollbackErrors.join('; ')}`);
-      }
-      throw error;
+    validatePatchTargetForEdit(edit.action, relative, exists, edit.unifiedDiff!);
+    const before = exists ? await readText(absolute, 16 * 1024 * 1024) : '';
+    const after = applyUnifiedDiffToText(before, edit.unifiedDiff!, relative);
+    if (edit.action === 'delete' && after !== '') {
+      throw new Error(`Source patch delete diff must remove the complete file: ${relative}`);
     }
-  } finally {
-    await lock.close();
-    await fs.unlink(lockPath).catch(() => undefined);
+    prepared.push({ relative, absolute, action: edit.action, before, after, existed: exists });
   }
+  return prepared;
+}
+
+function validatePatchTargetForEdit(
+  action: CodeChangeFileAction,
+  relative: string,
+  exists: boolean,
+  unifiedDiff: string,
+): void {
+  if (action === 'create' && exists) throw new Error(`Source patch create target already exists: ${relative}`);
+  if (action === 'delete' && !exists) throw new Error(`Source patch delete target does not exist: ${relative}`);
+  if (action === 'modify' && !exists) {
+    const fromEmpty = /(?:^|\n)---\s+\/dev\/null(?:\n|$)/.test(unifiedDiff)
+      || /(?:^|\n)@@\s+-0(?:,0)?\s+\+/.test(unifiedDiff);
+    if (!fromEmpty) throw new Error(`Source patch modify target does not exist: ${relative}`);
+  }
+}
+
+async function applyPreparedEdits(
+  prepared: PreparedSourceEdit[],
+  patch: CodeChangeSourcePatch,
+  approvedBy: string,
+  now: string,
+  receiptPath: string,
+): Promise<CodeChangeSourceApplyReceipt> {
+  const changed: PreparedSourceEdit[] = [];
+  try {
+    for (const edit of prepared) {
+      if (edit.action === 'delete') await fs.unlink(edit.absolute);
+      else await atomicWriteRaw(edit.absolute, edit.after);
+      changed.push(edit);
+    }
+    const receipt = buildPatchApplyReceipt(prepared, patch, approvedBy, now);
+    assertSourceApplyReceipt(receipt, patch);
+    // The receipt is part of the transaction: without it a retry could apply
+    // the same approved patch again. Roll files back if persisting it fails.
+    await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+    return receipt;
+  } catch (error) {
+    const rollbackErrors = await rollbackPreparedEdits(changed);
+    if (rollbackErrors.length) {
+      throw new Error(`Source patch apply failed (${String(error)}); rollback also failed: ${rollbackErrors.join('; ')}`);
+    }
+    throw error;
+  }
+}
+
+function buildPatchApplyReceipt(
+  prepared: PreparedSourceEdit[],
+  patch: CodeChangeSourcePatch,
+  approvedBy: string,
+  now: string,
+): CodeChangeSourceApplyReceipt {
+  const fileHashesAfter = Object.fromEntries(prepared
+    .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
+    .sort(([left], [right]) => left.localeCompare(right)));
+  return {
+    schemaVersion: 't2c.code-change-source-apply-receipt/v1',
+    patchId: patch.id,
+    patchHash: patch.patchHash,
+    planId: patch.planId,
+    approvedBy,
+    approvedAt: now,
+    appliedAt: now,
+    appliedPaths: prepared.map((edit) => edit.relative).sort(),
+    fileHashesAfter,
+    generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
+  };
+}
+
+async function rollbackPreparedEdits(changes: PreparedSourceEdit[]): Promise<string[]> {
+  const rollbackErrors: string[] = [];
+  for (const edit of [...changes].reverse()) {
+    try {
+      if (edit.existed) await atomicWriteRaw(edit.absolute, edit.before);
+      else await fs.unlink(edit.absolute).catch((failure: NodeJS.ErrnoException) => {
+        if (failure.code !== 'ENOENT') throw failure;
+      });
+    } catch (rollbackError) {
+      rollbackErrors.push(`${edit.relative}: ${String(rollbackError)}`);
+    }
+  }
+  return rollbackErrors;
 }
 
 interface PreparedSourceEdit {
@@ -1351,13 +1468,28 @@ async function atomicWriteRaw(target: string, content: string): Promise<void> {
  * Supports standard hunks with space/+/− prefixes. Throws on context mismatch.
  */
 export function applyUnifiedDiffToText(base: string, diff: string, expectedPath: string): string {
-  const normalizedDiff = normalizeUnifiedDiff(diff, expectedPath);
   const baseLines = splitKeep(base);
+  const hunks = parseUnifiedDiffIntoHunks(diff, expectedPath);
+  const output = applyUnifiedDiffHunks(baseLines, expectedPath, hunks);
+  // Reconstruct text. Files without a trailing newline end without an empty last segment.
+  if (base.endsWith('\n') || output.length === 0) return `${output.join('\n')}${output.length ? '\n' : ''}`;
+  return output.join('\n');
+}
+
+interface ParsedUnifiedDiffHunk {
+  oldStart: number;
+  oldCount: number;
+  newCount: number;
+  lines: string[];
+}
+
+function parseUnifiedDiffIntoHunks(diff: string, expectedPath: string): ParsedUnifiedDiffHunk[] {
+  const normalizedDiff = normalizeUnifiedDiff(diff, expectedPath);
   const diffLines = normalizedDiff.split('\n');
   // Drop trailing empty element only if the original split introduced it
   // without a final newline — normalize by working on lines as split.
-  const hunks: Array<{ oldStart: number; oldCount: number; newCount: number; lines: string[] }> = [];
-  let current: { oldStart: number; oldCount: number; newCount: number; lines: string[] } | null = null;
+  const hunks: ParsedUnifiedDiffHunk[] = [];
+  let current: ParsedUnifiedDiffHunk | null = null;
   for (const line of diffLines) {
     if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff ') || line.startsWith('index ')) {
       continue;
@@ -1383,54 +1515,78 @@ export function applyUnifiedDiffToText(base: string, diff: string, expectedPath:
   }
   if (current) hunks.push(current);
   if (!hunks.length) throw new Error(`Unified diff for ${expectedPath} contains no hunks`);
+  return hunks;
+}
 
-  let cursor = 0;
+interface UnifiedDiffCursor {
+  position: number;
+}
+
+function applyUnifiedDiffHunks(
+  baseLines: string[],
+  expectedPath: string,
+  hunks: ParsedUnifiedDiffHunk[],
+): string[] {
+  const cursor: UnifiedDiffCursor = { position: 0 };
   const output: string[] = [];
   for (const hunk of hunks) {
     const oldIndex = Math.max(0, hunk.oldStart - 1);
-    if (oldIndex < cursor) throw new Error(`Unified diff for ${expectedPath} has overlapping or unordered hunks`);
-    const oldCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('-')).length;
-    const newCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('+')).length;
-    if (oldCount !== hunk.oldCount || newCount !== hunk.newCount) {
-      throw new Error(`Unified diff hunk counts do not match its header for ${expectedPath}`);
-    }
-    while (cursor < oldIndex) {
-      if (cursor >= baseLines.length) throw new Error(`Unified diff for ${expectedPath} ran past end of file`);
-      output.push(baseLines[cursor]!);
-      cursor += 1;
+    if (oldIndex < cursor.position) throw new Error(`Unified diff for ${expectedPath} has overlapping or unordered hunks`);
+    validateHunkCounts(expectedPath, hunk);
+
+    while (cursor.position < oldIndex) {
+      if (cursor.position >= baseLines.length) throw new Error(`Unified diff for ${expectedPath} ran past end of file`);
+      output.push(baseLines[cursor.position]!);
+      cursor.position += 1;
     }
     for (const line of hunk.lines) {
       if (line.startsWith('\\')) continue; // "\ No newline at end of file"
-      const mark = line[0];
-      const body = line.slice(1);
-      if (mark === ' ') {
-        if (baseLines[cursor] !== body) {
-          throw new Error(`Unified diff context mismatch for ${expectedPath} at line ${cursor + 1}`);
-        }
-        output.push(baseLines[cursor]!);
-        cursor += 1;
-      } else if (mark === '-') {
-        if (baseLines[cursor] !== body) {
-          throw new Error(`Unified diff deletion mismatch for ${expectedPath} at line ${cursor + 1}`);
-        }
-        cursor += 1;
-      } else if (mark === '+') {
-        output.push(body);
-      } else if (line === '') {
-        // empty line inside hunk without prefix is invalid in strict unified diffs
-        throw new Error(`Unified diff for ${expectedPath} has an unprefixed hunk line`);
-      } else {
-        throw new Error(`Unified diff for ${expectedPath} has unsupported hunk line`);
-      }
+      applyUnifiedDiffLine(expectedPath, line, cursor, baseLines, output);
     }
   }
-  while (cursor < baseLines.length) {
-    output.push(baseLines[cursor]!);
-    cursor += 1;
+  while (cursor.position < baseLines.length) {
+    output.push(baseLines[cursor.position]!);
+    cursor.position += 1;
   }
-  // Reconstruct text. Files without a trailing newline end without an empty last segment.
-  if (base.endsWith('\n') || output.length === 0) return `${output.join('\n')}${output.length ? '\n' : ''}`;
-  return output.join('\n');
+  return output;
+}
+
+function validateHunkCounts(expectedPath: string, hunk: ParsedUnifiedDiffHunk): void {
+  const oldCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('-')).length;
+  const newCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('+')).length;
+  if (oldCount !== hunk.oldCount || newCount !== hunk.newCount) {
+    throw new Error(`Unified diff hunk counts do not match its header for ${expectedPath}`);
+  }
+}
+
+function applyUnifiedDiffLine(
+  expectedPath: string,
+  line: string,
+  cursor: UnifiedDiffCursor,
+  baseLines: string[],
+  output: string[],
+): void {
+  const mark = line[0];
+  const body = line.slice(1);
+  if (mark === ' ') {
+    if (baseLines[cursor.position] !== body) {
+      throw new Error(`Unified diff context mismatch for ${expectedPath} at line ${cursor.position + 1}`);
+    }
+    output.push(baseLines[cursor.position]!);
+    cursor.position += 1;
+  } else if (mark === '-') {
+    if (baseLines[cursor.position] !== body) {
+      throw new Error(`Unified diff deletion mismatch for ${expectedPath} at line ${cursor.position + 1}`);
+    }
+    cursor.position += 1;
+  } else if (mark === '+') {
+    output.push(body);
+  } else if (line === '') {
+    // empty line inside hunk without prefix is invalid in strict unified diffs
+    throw new Error(`Unified diff for ${expectedPath} has an unprefixed hunk line`);
+  } else {
+    throw new Error(`Unified diff for ${expectedPath} has unsupported hunk line`);
+  }
 }
 
 function splitKeep(text: string): string[] {
