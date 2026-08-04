@@ -2,8 +2,8 @@
 
 - **ID**: ticket-035
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -28,19 +28,19 @@ change the standard version or source revision.
 
 ## Acceptance criteria
 
-- [ ] AC-01: The current user instruction authorizes creating and executing
+- [x] AC-01: The current user instruction authorizes creating and executing
       this bounded prerequisite; it is not treated as merge approval.
-- [ ] AC-02: Integration owns exactly `pyproject.toml`, `goal.yaml`, `Makefile`,
+- [x] AC-02: Integration owns exactly `pyproject.toml`, `goal.yaml`, `Makefile`,
       `sdk/python/pyproject.toml` and `sdk/python/README.md` in addition to its
       existing paths.
-- [ ] AC-03: All five paths are integration-required shared contracts, so an
+- [x] AC-03: All five paths are integration-required shared contracts, so an
       SDK or governance ticket cannot silently modify part of the publication
       transaction.
-- [ ] AC-04: The lock retains standard `wellmanifest/new-project` version
+- [x] AC-04: The lock retains standard `wellmanifest/new-project` version
       `0.10.0` and source revision `9706e63d5f121323e9087d0db47a16acdbd276bb`.
-- [ ] AC-05: The deterministic governance gate passes with zero errors and
+- [x] AC-05: The deterministic governance gate passes with zero errors and
       warnings, including a simulated active ticket-019 ownership check.
-- [ ] AC-06: No runtime source, package metadata or publication command changes
+- [x] AC-06: No runtime source, package metadata or publication command changes
       in this prerequisite ticket.
 
 ## Approval boundary
@@ -48,6 +48,15 @@ change the standard version or source revision.
 The user's instruction to create task proposals, save them to TODO/tickets and
 execute them authorizes the next implementation commit. Protected merge still
 requires an exact-head external approval.
+
+## Validation
+
+- Real branch governance: PASS, 0 errors and 0 warnings.
+- Simulated active ticket-019 with all five implementation paths and
+  `workstream: integration`: PASS, 0 errors and 0 warnings.
+- Adoption preview before refresh reported exactly one update:
+  `.governance/manifest.lock.json`.
+- `git diff --check`: PASS.
 
 ## Participants
 

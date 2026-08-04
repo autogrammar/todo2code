@@ -30,10 +30,20 @@ the ownership check.
 
 ## Actual changes
 
-- Plan and machine scope only; no implementation changed in this commit.
+- Added the five exact publication paths to the existing integration ownership
+  and shared-contract lists in a commit after the plan and intent.
+- Regenerated only the target lock digest using the immutable 0.10.0 adoption
+  source revision.
+- Verified the real branch and an isolated future ticket-019 active state with
+  zero governance findings.
 
 ## Risks and boundaries
 
 - The target-specific manifest changes policy scope, so the exact path list is
   explicit and the standard provenance must remain unchanged.
 - No Python packaging implementation belongs in this ticket.
+
+## Validation result
+
+All acceptance criteria pass. The ticket is ready for protected CI and an
+exact-head external review; no runtime or publication command was changed.

@@ -16,3 +16,27 @@ the current user instruction and is not treated as trusted merge evidence.
 
 The superseded single-commit PR #25 correctly failed GOV-INTENT-003. This branch
 records plan and intent in a separate commit before implementation.
+
+2026-08-04 implementation and validation
+
+$ create_adoption_lock.py --check
+UPDATE .governance/manifest.lock.json
+drift detected: 1 change(s) required
+
+$ create_adoption_lock.py --upgrade
+adopted wellmanifest/new-project 0.10.0 at
+9706e63d5f121323e9087d0db47a16acdbd276bb
+
+$ ./project/governance-check.sh
+GOV-PASS: passed (0 errors, 0 warnings)
+
+$ isolated future ticket-019 ownership check
+Changed paths: pyproject.toml, goal.yaml, Makefile,
+sdk/python/pyproject.toml, sdk/python/README.md
+Workstream: integration
+GOV-PASS: passed (0 errors, 0 warnings)
+
+$ git diff --check
+exit 0
+
+Workflow transition: WAIT_FOR_APPROVAL -> EDIT -> VALIDATION.
