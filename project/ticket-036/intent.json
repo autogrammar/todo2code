@@ -1,0 +1,82 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-036",
+  "summary": "Project the canonical Intent Graph into a deterministic, provenance-preserving multi-source truth map",
+  "workstream": "core-dsl",
+  "allowedPaths": [
+    "src/core/truth-map.ts",
+    "test/graph-truth-map.test.ts",
+    "project/ticket-036/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/types.ts",
+    "src/pipeline/**",
+    "src/interfaces/**",
+    "src/cli.ts",
+    "src/sdk/**",
+    "sdk/**",
+    "schemas/**",
+    "docs/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "9658ebbaac2ebd213d12f42614e054949fa086ab",
+    "targetBranch": "main",
+    "outcome": "Provide a deterministic core truth-map projection with complete record lineage and explicit conflict states",
+    "nonGoals": [
+      "No second extraction DSL",
+      "No automatic conflict winner",
+      "No pipeline artifact or CLI/MCP/A2A exposure",
+      "No LLM call or runtime dependency",
+      "No public IntentRecord or IntentGraph contract change"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "proposed",
+      "decision": "Keep t2c.graph/v1 as the canonical evidence store and derive one lossless, hash-bound t2c.truth-map/v1 projection",
+      "components": [
+        {
+          "name": "truth-map-projector",
+          "paths": ["src/core/truth-map.ts", "test/graph-truth-map.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": ["Add an in-memory derived projection; no persisted format is changed in this ticket"],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Remove the two additive core-dsl files; existing graph and pipeline behavior remain unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02..AC-08",
+        "commands": ["node --test --import tsx test/graph-truth-map.test.ts"],
+        "evidence": "Focused deterministic projection, lineage, conflict and ordering tests pass"
+      },
+      {
+        "criterion": "AC-09",
+        "commands": ["npm run verify", "make governance", "make e2e-core", "git diff --check"],
+        "evidence": "Offline stack, governance and Docker regression gates pass"
+      }
+    ]
+  }
+}

@@ -4,6 +4,14 @@
 
 None.
 
+## Planned tickets
+
+- [ ] [`ticket-036`](project/ticket-036/README.md) — project all normalized
+  source records into one deterministic, provenance-preserving
+  `t2c.truth-map/v1` view as the foundation for exact-snapshot branch and PR
+  intelligence. Current state: `PLAN / WAIT_FOR_APPROVAL`; no runtime or test
+  implementation has started.
+
 ## Backlog tickets
 
 None.
