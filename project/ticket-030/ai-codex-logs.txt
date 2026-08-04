@@ -1,1 +1,8 @@
-
+2026-08-04 ticket-030 validation
+- `node --test dist/test/nl-llm.test.js`: PASS (11/11).
+- `npm run build`: FAIL (17 inherited TypeScript diagnostics outside allowed implementation path).
+- `npm test` after the failed fresh emit: FAIL (292 total, 253 pass, 38 fail, 1 skip); base import/runtime regressions exposed.
+- The user-reported 338-test run was based on stale `dist`; useful for reproducing the hierarchy assertion only, not for clean-source verification.
+- `make governance`: FAIL with the four inherited ticket-018/ticket-019 diagnostics (`GOV-CONFLICT-001`, `GOV-DEPENDENCY-002`, `GOV-WORKSTREAM-003`, `GOV-WORKSTREAM-004`); no ticket-030 diagnostic was reported.
+- Rebased onto updated PR-5 base `caf6551`: `npm run build` PASS.
+- Fresh `npm test`: FAIL (338 total, 327 pass, 10 fail, 1 skip). Failures are AST/linker relation (2 direct plus gold cohorts), communication identity/enrichment (3), and configuration/document relation coverage; the ticket-030 test passes.

@@ -33,13 +33,13 @@ concurrent synthesis refactor or generated `project/` artifacts.
   implementation session is authorized; merge approval remains external.
 - Updated only `test/nl-llm.test.ts`: the hierarchy test now reads the Markdown
   and NL helper modules that own their confidence clamps after refactoring.
-- Emitted a disposable build despite inherited parser errors and ran the
-  focused compiled test: 11 passed, 0 failed, with the hierarchy assertion
-  passing. No provider request was made.
-- Ran the complete test suite in the repository's standard `dist` layout with
-  the repaired test emitted over the last healthy build: 338 tests, 337 passed,
-  0 failed and one JDK-dependent skip. This isolates and validates the approved
-  test-only delta without concealing the unrelated compile failures.
+- Ran the freshly emitted compiled test file: 11 passed, 0 failed, with the
+  hierarchy assertion passing. No provider request was made.
+- Rechecked the updated base from a clean dependency installation. Base
+  `caf6551` builds successfully, and the freshly built complete suite reports
+  327 passed, 10 failed and one skipped out of 338. The confidence-hierarchy
+  test passes; the remaining failures are inherited relation and communication
+  regressions outside this ticket.
 - Renumbered the unpublished local ticket from 023 to 030 after discovering
   that GitHub PR #3 already owns ticket-023; no implementation path or
   acceptance criterion changed.
@@ -51,5 +51,6 @@ concurrent synthesis refactor or generated `project/` artifacts.
   either intent or claim that unrelated blocker.
 - The main worktree contains user-owned generated and synthesis changes. Work
   remains isolated in a separate branch/worktree.
-- Full `npm run verify` is blocked before this test runs by three source parser
-  errors outside the approved ticket paths.
+- Full verification is blocked by ten source-behaviour test failures outside
+  the approved ticket paths. The base branch needs separately scoped repairs
+  before it can be considered merge-ready.

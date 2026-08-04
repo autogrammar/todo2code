@@ -57,13 +57,15 @@ No unrelated refactor or generated artifact belongs to this ticket.
 
 - The freshly emitted `dist/test/nl-llm.test.js` passes `11/11`; the repaired
   hierarchy assertion passes and no live provider is called.
-- The complete `npm test` run reports 338 tests: 337 passed, 0 failed and one
-  environment-dependent JDK test skipped. The test-only repair was emitted over
-  the last healthy build because unrelated source parser errors prevent a new
-  whole-project TypeScript emit.
-- `npm run verify` reaches `tsc` and stops on three inherited parser errors in
-  `src/cli.ts`, `src/core/types/code-change.ts` and
-  `src/semantic/reranker/result.ts`. None is in ticket-030 scope.
+- The reported 338-test run used an older `dist` tree: it correctly exposed the
+  stale hierarchy lookup, but by itself was not proof that current TypeScript
+  sources build cleanly. After rebasing onto base `caf6551`, a clean
+  `npm run build` passes.
+- The full freshly built suite reports 338 tests: 327 passed, 10 failed and one
+  skipped. The repaired confidence-hierarchy test passes. The ten inherited
+  failures concern AST/linker relations, communication identity/enrichment and
+  gold-dataset relations; none is in ticket-030 scope or caused by its two-line
+  source-location update.
 - Scoped `git diff --check` passes. Whole-repository governance continues to
   report only the pre-existing ticket-018/ticket-019 conflict, dependency,
   workstream ownership and shared `Makefile` overlap.

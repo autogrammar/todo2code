@@ -9,7 +9,8 @@
 
 - Repaired the stale Markdown/NL confidence-clamp source locations in the
   hierarchy test without changing production confidence behavior.
-- Focused compiled NL LLM test passes 11/11 and the complete suite passes all
-  337 runnable tests (one environment skip); recorded unrelated parser and
-  governance blockers separately.
+- Focused compiled NL LLM test passes 11/11. After rebasing onto `caf6551`, a
+  clean build passes; the complete fresh suite exposes ten inherited relation
+  and communication failures while the repaired hierarchy assertion stays
+  green.
 - Renumbered the unpublished ticket to 030 to avoid colliding with active PR #3.
