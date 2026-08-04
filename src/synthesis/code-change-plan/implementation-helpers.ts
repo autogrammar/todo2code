@@ -991,30 +991,63 @@ function validateSourcePatchIdentifiers(patch: CodeChangeSourcePatch): void {
 function validateSourcePatchEdits(patch: CodeChangeSourcePatch): Set<string> {
   const paths = new Set<string>();
   for (const edit of patch.edits) {
-    if (!edit || typeof edit !== 'object') throw new Error('Source patch edit must be an object');
-    exactSourcePatchKeys(edit as unknown as Record<string, unknown>, [
-      'path', 'action', 'symbols', 'instruction', 'unifiedDiff',
-    ], 'Source patch edit');
-    const normalizedPath = edit.path?.trim().replace(/\\/g, '/') ?? '';
-    if (!normalizedPath || normalizedPath.startsWith('/') || normalizedPath.split('/').includes('..')) {
-      throw new Error(`Source patch edit path is not a relative repository path: ${normalizedPath}`);
-    }
-    if (!['create', 'modify', 'delete'].includes(edit.action)) {
-      throw new Error(`Source patch edit action is unsupported: ${String(edit.action)}`);
-    }
-    if (typeof edit.instruction !== 'string' || !edit.instruction.trim()) {
-      throw new Error('Source patch edit instruction must be non-blank');
-    }
-    assertSourcePatchStrings(edit.symbols, `edits[${normalizedPath}].symbols`, true);
-    if (edit.unifiedDiff !== null) {
-      if (typeof edit.unifiedDiff !== 'string') throw new Error('Source patch unifiedDiff must be string or null');
-      normalizeUnifiedDiff(edit.unifiedDiff, normalizedPath);
-    }
-    const key = `${normalizedPath}::${edit.action}`;
-    if (paths.has(key)) throw new Error(`Duplicate source patch edit for ${normalizedPath}`);
-    paths.add(key);
+    const editContext = validateSourcePatchEdit(edit, paths);
+    paths.add(editContext.pathActionKey);
   }
   return paths;
+}
+
+interface SourcePatchEditValidationContext {
+  pathActionKey: string;
+}
+
+function validateSourcePatchEdit(
+  edit: CodeChangeSourceEdit,
+  seen: Set<string>,
+): SourcePatchEditValidationContext {
+  if (!edit || typeof edit !== 'object') throw new Error('Source patch edit must be an object');
+  exactSourcePatchKeys(edit as unknown as Record<string, unknown>, [
+    'path', 'action', 'symbols', 'instruction', 'unifiedDiff',
+  ], 'Source patch edit');
+
+  const normalizedPath = normalizeSourcePatchEditPath(edit.path);
+  ensureSourcePatchEditAction(edit.action);
+  ensureSourcePatchEditInstruction(edit.instruction);
+  assertSourcePatchStrings(edit.symbols, `edits[${normalizedPath}].symbols`, true);
+  validateSourcePatchEditDiff(edit.unifiedDiff, normalizedPath);
+
+  const pathActionKey = `${normalizedPath}::${edit.action}`;
+  if (seen.has(pathActionKey)) throw new Error(`Duplicate source patch edit for ${normalizedPath}`);
+  return { pathActionKey };
+}
+
+function normalizeSourcePatchEditPath(pathValue: unknown): string {
+  const normalizedPath = (typeof pathValue === 'string' ? pathValue.trim() : '').replace(/\\/g, '/');
+  if (!normalizedPath || normalizedPath.startsWith('/') || normalizedPath.split('/').includes('..')) {
+    throw new Error(`Source patch edit path is not a relative repository path: ${normalizedPath}`);
+  }
+  return normalizedPath;
+}
+
+function ensureSourcePatchEditAction(action: unknown): void {
+  if (!['create', 'modify', 'delete'].includes(action as string) || typeof action !== 'string') {
+    throw new Error(`Source patch edit action is unsupported: ${String(action)}`);
+  }
+}
+
+function ensureSourcePatchEditInstruction(instruction: unknown): void {
+  if (typeof instruction !== 'string' || !instruction.trim()) {
+    throw new Error('Source patch edit instruction must be non-blank');
+  }
+}
+
+function validateSourcePatchEditDiff(
+  unifiedDiff: string | null,
+  normalizedPath: string,
+): void {
+  if (unifiedDiff === null) return;
+  if (typeof unifiedDiff !== 'string') throw new Error('Source patch unifiedDiff must be string or null');
+  normalizeUnifiedDiff(unifiedDiff, normalizedPath);
 }
 
 function validateSourcePatchHashAndId(patch: CodeChangeSourcePatch): void {
@@ -1042,16 +1075,31 @@ function validateSourcePatchAgainstPlan(
   plan: CodeChangePlan,
   editPaths: Set<string>,
 ): void {
-  if (patch.planHash !== plan.planHash) {
-    throw new Error('Source patch is not bound to the supplied plan');
-  }
+  assertSourcePatchPlanBinding(patch, plan);
+  const expectedChanges = collectExpectedPlanChanges(plan);
+  validateSourcePatchEditsAgainstPlan(patch, plan, expectedChanges);
+  validateSourcePatchEvidence(patch, plan, expectedChanges, editPaths);
+}
+
+function assertSourcePatchPlanBinding(patch: CodeChangeSourcePatch, plan: CodeChangePlan): void {
+  if (patch.planHash !== plan.planHash) throw new Error('Source patch is not bound to the supplied plan');
   if (patch.graphFingerprint !== plan.evidence.graphFingerprint) {
     throw new Error('Source patch graphFingerprint does not match the plan');
   }
-  const allowed = new Set(plan.target.paths.map((item) => item.replace(/\\/g, '/')));
-  const expectedChanges = new Map(plan.changes.map((item) => [
+}
+
+function collectExpectedPlanChanges(plan: CodeChangePlan): Map<string, CodeChangeFileAction> {
+  return new Map(plan.changes.map((item) => [
     item.path.replace(/\\/g, '/'), item.action,
   ]));
+}
+
+function validateSourcePatchEditsAgainstPlan(
+  patch: CodeChangeSourcePatch,
+  plan: CodeChangePlan,
+  expectedChanges: Map<string, CodeChangeFileAction>,
+): void {
+  const allowed = new Set(plan.target.paths.map((item) => item.replace(/\\/g, '/')));
   for (const edit of patch.edits) {
     const editPath = edit.path.replace(/\\/g, '/');
     if (!allowed.has(editPath)) {
@@ -1061,11 +1109,17 @@ function validateSourcePatchAgainstPlan(
       throw new Error(`Source patch action for ${edit.path} does not match the plan`);
     }
   }
-  exactSourcePatchSet(
-    [...editPaths].map((item) => item.split('::')[0]),
-    [...expectedChanges.keys()],
-    'edit paths',
-  );
+}
+
+function validateSourcePatchEvidence(
+  patch: CodeChangeSourcePatch,
+  plan: CodeChangePlan,
+  expectedChangePaths: Map<string, CodeChangeFileAction>,
+  editPaths: Set<string>,
+): void {
+  const actualEditPaths = [...editPaths].map((item) => item.split('::')[0]);
+  const expectedPaths = [...expectedChangePaths.keys()];
+  exactSourcePatchSet(actualEditPaths, expectedPaths, 'edit paths');
   exactSourcePatchSet(patch.diagnosticIds, plan.evidence.diagnosticIds, 'diagnosticIds');
   exactSourcePatchSet(patch.recordIds, plan.evidence.recordIds, 'recordIds');
   exactSourcePatchSet(patch.acceptanceCriteria, plan.acceptanceCriteria, 'acceptanceCriteria');
