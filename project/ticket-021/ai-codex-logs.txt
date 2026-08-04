@@ -1,0 +1,27 @@
+2026-08-04 TICKET-021 VALIDATION
+$ goal governance adopt --standard-repository ../wellmanifest/new-project --source-revision 9706e63d5f121323e9087d0db47a16acdbd276bb --target-root . --check
+up-to-date wellmanifest/new-project 0.10.0 at 9706e63d5f121323e9087d0db47a16acdbd276bb
+
+$ python3 ownership assertions
+OWNERSHIP-PASS: generated root formats belong to integration; nested tickets and governance scripts do not
+
+$ make governance
+GOV-PASS: passed (0 errors, 0 warnings)
+
+$ sha256 manifest versus lock
+manifest_hash=450898fb6a933b9727a5501feaebfe54bb526521107cbf01d75d0e6dc6908b89
+lock_hash=450898fb6a933b9727a5501feaebfe54bb526521107cbf01d75d0e6dc6908b89
+
+$ git diff --check
+PASS
+
+$ make governance after premature DONE transition
+GOV-TICKET-001: implementation diff requires the ticket to remain active
+Action: restored IN_PROGRESS / VALIDATION before publication.
+
+2026-08-04 BASE RECONCILIATION
+old accepted base: bb7d7d7fabb3313d1ba858236b56f4fe02857133
+new protected main: 9658ebbaac2ebd213d12f42614e054949fa086ab
+human response after exact-base request: kontynuuj
+resolution: clean branch from new base retaining Python publication ownership
+and generated analysis formats; unrelated concurrent documentation excluded
