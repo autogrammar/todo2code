@@ -25,3 +25,12 @@
 - Confirmed that 0.8.0 accepts tickets 018 and 020 concurrently; the remaining
   global findings belong only to ticket-019's declared dependency, conflict,
   ownership and overlap state.
+- Confirmed implementation commit `06a2faa` is already contained in protected
+  `main@68b4514`; no stale-branch merge is required.
+- Revalidated the current main implementation with 9 focused intake tests and
+  an explicit invalid-Base64 rejection probe.
+- Re-ran full verification after installing the locked dependencies: 335
+  tests, 334 passed, 0 failed and one explicit local missing-JDK skip.
+- Closed ticket-020 under policy 0.10.0 after governance passed with 0 errors
+  and 0 warnings; the closure is documentation-only and awaits exact-head App
+  review before merge.
