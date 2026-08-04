@@ -39,8 +39,14 @@ time as much smaller generic calls.
   credential/deadline setup, bounded retries, one HTTP attempt, response
   parsing and error normalization. Local Lizard now reports zero complexity
   warnings while the focused and full suites preserve behavior.
+- Reproduced and removed the remaining pinned Vallm parser ambiguity, then
+  obtained a passing Koru review for the exact implementation head.
+- Obtained validator-agent approval for exact head
+  `e09e8323b96cfdd7543e851b57bd1035d640eb84` with
+  `openrouter/z-ai/glm-5.2` and merged protected PR #31 as
+  `main@6116961d8c9674b24c1161903e43f3a7dbb2147b`.
 
 ## Blockers
 
-- None for implementation or local validation. External exact-head review
-  remains a merge gate.
+- None. Implementation, independent exact-head review and protected merge are
+  complete.

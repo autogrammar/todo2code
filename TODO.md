@@ -2,11 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-034`](project/ticket-034/README.md) — scale each OpenRouter
-  request timeout from bounded input, output and structural-complexity pressure,
-  retaining the configured default at baseline and increasing by `2x` steps up
-  to `8x` and 600 seconds. Current state: `IN_PROGRESS / VALIDATION`; focused,
-  full, Docker and governance checks pass.
+None.
 
 ## Backlog tickets
 
@@ -14,6 +10,12 @@ None.
 
 ## Completed tickets
 
+- [x] [`ticket-034`](project/ticket-034/README.md) — scales each OpenRouter
+  request timeout from bounded input, output and structural-complexity pressure,
+  retaining the configured default at baseline and increasing by `2x` steps up
+  to `8x` and 600 seconds. Exact-head Validator approval used
+  `openrouter/z-ai/glm-5.2`; implementation merged in PR #31 as
+  `main@6116961`. Current state: `DONE`.
 - [x] [`ticket-019`](project/ticket-019/README.md) — published the
   dependency-free Python SDK from one root `pyproject.toml`, passed package,
   application, SDK, Docker and protected exact-head validation, and merged PR

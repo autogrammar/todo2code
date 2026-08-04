@@ -23,3 +23,15 @@
 - Worked around a pinned Vallm TypeScript parser ambiguity where `<` inside an
   object literal was interpreted as a generic delimiter; the exact Lizard API
   now reports no function above the configured CC=15 limit.
+
+## [Closure] - 2026-08-04
+
+- Koru accepted the exact implementation head after the complexity and parser
+  repairs.
+- validator-agent run `30948334597` approved exact head
+  `e09e8323b96cfdd7543e851b57bd1035d640eb84` using
+  `openrouter/z-ai/glm-5.2`; the LLM assessment remained advisory while the
+  deterministic decision was the approval trust root.
+- All protected checks passed and PR #31 merged as
+  `main@6116961d8c9674b24c1161903e43f3a7dbb2147b`.
+- Marked ticket-034 `DONE` and cleared the active-ticket list.
