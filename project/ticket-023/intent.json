@@ -1,0 +1,12 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-023",
+  "summary": "Repair current core and semantic parser contracts",
+  "workstream": "core-dsl",
+  "allowedPaths": ["src/core/types/code-change.ts", "src/core/types/index.ts", "src/core/types/intent.ts", "src/core/types/pipeline.ts", "src/core/version.ts", "src/semantic/reranker/result.ts", "project/ticket-023/**", "TODO.md", "project/TICKETS.md"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}

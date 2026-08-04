@@ -2,6 +2,11 @@
 
 ## Active tickets
 
+- [ ] [`ticket-023`](project/ticket-023/README.md) — repair the current-HEAD
+  core artifact contracts, semantic reranker parser guard and canonical runtime
+  version without reverting parallel refactors. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`; exact core-dsl scope is documented.
+
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
   one root `pyproject.toml` and SDK-only artifacts. Current state:
