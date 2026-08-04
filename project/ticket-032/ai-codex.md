@@ -28,8 +28,14 @@ warning unreachable.
 
 - The human explicitly approved ticket-032 by replying `kontynuuj`; the
   interactive implementation may enter `EDIT`.
+- Preserved declared Git authors in the internal communication metadata only
+  for comparison with the registry. Published record metadata still receives
+  the trusted registry-owned list.
+- Clean build and focused identity tests pass. The full isolated suite no
+  longer reports the identity mismatch regression.
 
 ## Blockers
 
 - The separate prompt-path regression remains outside ticket-032.
 - Four inherited ticket-018/ticket-019 governance errors remain outside scope.
+- Trusted merge approval for the final head SHA is still required.

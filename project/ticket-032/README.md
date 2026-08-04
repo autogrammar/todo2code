@@ -3,7 +3,7 @@
 - **ID**: ticket-032
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -28,13 +28,13 @@ expected implementation time is under 30 minutes.
 ## Acceptance criteria
 
 - [x] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: A declaration differing from the participant registry emits the
+- [x] AC-02: A declaration differing from the participant registry emits the
       existing `git-authors differ` warning.
-- [ ] AC-03: Emitted record metadata still uses registry-owned Git authors and
+- [x] AC-03: Emitted record metadata still uses registry-owned Git authors and
       never accepts the conflicting declaration.
-- [ ] AC-04: Communication identity tests, build and full suite are rerun
+- [x] AC-04: Communication identity tests, build and full suite are rerun
       without weakening assertions.
-- [ ] AC-05: Only the allowed production and governance paths change.
+- [x] AC-05: Only the allowed production and governance paths change.
 
 ## Participants
 
@@ -43,6 +43,19 @@ expected implementation time is under 30 minutes.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / EDIT` after explicit chat approval.
+- Current state: `IN_PROGRESS / VALIDATION` after implementing and testing the
+  bounded repair.
 - Chat approval authorizes this interactive implementation only; merge still
   requires trusted independent evidence for the final SHA.
+
+## Validation evidence
+
+- `npm run build`: PASS.
+- Focused communication identity suite: 2 passed, 0 failed.
+- Full fresh suite on isolated base: 338 tests, 327 passed, 10 failed and one
+  skipped. The `git-authors differ` failure is removed. The remaining failures
+  are covered by independent ticket-030/ticket-031 changes plus the two prompt
+  path failures reserved for the next interfaces ticket.
+- `git diff --check`: PASS.
+- `make governance`: only four inherited ticket-018/ticket-019 diagnostics;
+  no ticket-032 scope or workstream finding.
