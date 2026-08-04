@@ -13,6 +13,11 @@ helper. Reuse the arrays already validated by the preceding schema function and
 normalize the bounded edit-path split to a definite string. Runtime validation
 and patch semantics remain unchanged.
 
+Aggregate verification also showed that the confidence hierarchy test still
+reads the pre-split extractor entry modules. Because `test/nl-llm.test.ts` is
+owned by the LLM workstream, this ticket points that coverage at the helper
+modules where the unchanged confidence ceilings now live.
+
 ## Acceptance criteria
 
 - [x] AC-01: The human instructed the agent to continue iterative repair.
@@ -21,6 +26,9 @@ and patch semantics remain unchanged.
 - [ ] AC-03: Edit-path comparison supplies a definite `string[]` without
       dropping or inventing paths.
 - [ ] AC-04: Complete check and code-change tests pass.
+- [ ] AC-05: Confidence hierarchy coverage reads the split Markdown/NL helper
+      modules and continues to enforce the documented 0.94 > 0.90 > 0.85
+      ceilings.
 
 ## Participants
 

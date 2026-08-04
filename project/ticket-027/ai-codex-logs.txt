@@ -1,0 +1,4 @@
+2026-08-04 aggregate test and governance follow-up
+Confidence hierarchy behavior is unchanged, but test/nl-llm.test.ts reads the
+pre-split entry modules. GOV-WORKSTREAM-003 correctly assigns this test to LLM;
+ticket-027 now owns the two source-path updates. Focused test passed.

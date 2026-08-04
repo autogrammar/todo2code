@@ -3,7 +3,7 @@
   "ticket": "ticket-027",
   "summary": "Repair current code-change helper narrowing",
   "workstream": "llm",
-  "allowedPaths": ["src/synthesis/code-change-plan/implementation-helpers.ts", "project/ticket-027/**", "TODO.md", "project/TICKETS.md"],
+  "allowedPaths": ["src/synthesis/code-change-plan/implementation-helpers.ts", "test/nl-llm.test.ts", "project/ticket-027/**", "TODO.md", "project/TICKETS.md"],
   "forbiddenPaths": ["project/ticket-*/user-*.md"],
   "stacks": ["node"],
   "dependsOn": [],
