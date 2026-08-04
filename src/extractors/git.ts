@@ -159,62 +159,119 @@ interface RepositoryDiscoveryResult {
   warnings: string[];
 }
 
+interface DiscoveryState {
+  root: string;
+  cursor: number;
+  directoriesVisited: number;
+  queue: DiscoveredRepository[];
+  repositories: DiscoveredRepository[];
+  warnings: string[];
+}
+
 async function discoverGitRepositories(root: string): Promise<RepositoryDiscoveryResult> {
-  const repositories: DiscoveredRepository[] = [];
-  const warnings: string[] = [];
-  const queue: DiscoveredRepository[] = [{ root, prefix: '' }];
-  let cursor = 0;
-  let directoriesVisited = 0;
-
-  while (cursor < queue.length
-    && repositories.length < MAX_DISCOVERED_REPOSITORIES
-    && directoriesVisited < MAX_DISCOVERY_DIRECTORIES) {
-    const current = queue[cursor];
-    cursor += 1;
+  const state = createDiscoveryState(root);
+  while (hasMoreDiscoveryWork(state)) {
+    const current = takeNextDiscoveryDirectory(state);
     if (!current) continue;
-    directoriesVisited += 1;
+    const entries = await readDiscoveryEntries(current.root, state.warnings);
+    if (!entries) continue;
+    await processDiscoveryDirectory(current, filterDiscoveryChildren(entries), state);
+  }
 
-    let entries: Dirent<string>[];
-    try {
-      entries = await fs.readdir(current.root, { withFileTypes: true });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      warnings.push(`Git repository discovery unavailable at ${current.root}: ${message}`);
+  return finishDiscovery(root, state);
+}
+
+function createDiscoveryState(root: string): DiscoveryState {
+  return {
+    root,
+    cursor: 0,
+    directoriesVisited: 0,
+    queue: [{ root, prefix: '' }],
+    repositories: [],
+    warnings: [],
+  };
+}
+
+function hasMoreDiscoveryWork(state: DiscoveryState): boolean {
+  return state.cursor < state.queue.length
+    && state.repositories.length < MAX_DISCOVERED_REPOSITORIES
+    && state.directoriesVisited < MAX_DISCOVERY_DIRECTORIES;
+}
+
+function takeNextDiscoveryDirectory(state: DiscoveryState): DiscoveredRepository | null {
+  const current = state.queue[state.cursor];
+  state.cursor += 1;
+  if (!current) return null;
+  state.directoriesVisited += 1;
+  return current;
+}
+
+async function readDiscoveryEntries(
+  directory: string,
+  warnings: string[],
+): Promise<Dirent<string>[] | null> {
+  try {
+    return await fs.readdir(directory, { withFileTypes: true });
+  } catch (error) {
+    warnings.push(`Git repository discovery unavailable at ${directory}: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
+function filterDiscoveryChildren(entries: Dirent<string>[]): Dirent<string>[] {
+  return entries
+    .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink())
+    .filter((entry) => !entry.name.startsWith('.') && !DISCOVERY_EXCLUDED_DIRECTORIES.has(entry.name))
+    .sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0);
+}
+
+async function processDiscoveryDirectory(
+  current: DiscoveredRepository,
+  directories: Dirent<string>[],
+  state: DiscoveryState,
+): Promise<void> {
+  for (const entry of directories) {
+    const child = path.join(current.root, entry.name);
+    const prefix = resolveDiscoveryPrefix(current.prefix, entry.name);
+    const marker = await gitMarkerState(child);
+    if (marker === 'unsafe') {
+      state.warnings.push(`Git repository marker is a symlink at ${child}`);
       continue;
     }
-
-    const directories = entries
-      .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink())
-      .filter((entry) => !entry.name.startsWith('.') && !DISCOVERY_EXCLUDED_DIRECTORIES.has(entry.name))
-      .sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0);
-
-    for (const entry of directories) {
-      const absolute = path.join(current.root, entry.name);
-      const prefix = current.prefix ? path.posix.join(current.prefix, entry.name) : entry.name;
-      const marker = await gitMarkerState(absolute);
-      if (marker === 'unsafe') {
-        warnings.push(`Git repository marker is a symlink at ${absolute}`);
-        continue;
-      }
-      if (marker === 'candidate') {
-        if (await isGitWorkTree(absolute)) repositories.push({ root: absolute, prefix });
-        else warnings.push(`Git repository marker is invalid at ${absolute}`);
-        if (repositories.length >= MAX_DISCOVERED_REPOSITORIES) break;
-        // A checkout owns everything below it, including submodules, vendored
-        // repositories and temporary coding-agent worktrees.
-        continue;
-      }
-      queue.push({ root: absolute, prefix });
+    if (marker === 'candidate') {
+      await registerDiscoveredRepository(child, prefix, state);
+      if (state.repositories.length >= MAX_DISCOVERED_REPOSITORIES) break;
+      // A checkout owns everything below it, including submodules, vendored
+      // repositories and temporary coding-agent worktrees.
+      continue;
     }
+    state.queue.push({ root: child, prefix });
   }
+}
 
-  if (repositories.length >= MAX_DISCOVERED_REPOSITORIES) {
-    warnings.push(`Git repository discovery stopped at ${MAX_DISCOVERED_REPOSITORIES} repositories under ${root}`);
-  } else if (directoriesVisited >= MAX_DISCOVERY_DIRECTORIES && cursor < queue.length) {
-    warnings.push(`Git repository discovery stopped after ${MAX_DISCOVERY_DIRECTORIES} directories under ${root}`);
+async function registerDiscoveredRepository(
+  directory: string,
+  prefix: string,
+  state: DiscoveryState,
+): Promise<void> {
+  if (await isGitWorkTree(directory)) {
+    state.repositories.push({ root: directory, prefix });
+    return;
   }
+  state.warnings.push(`Git repository marker is invalid at ${directory}`);
+}
 
-  return { repositories, warnings };
+function resolveDiscoveryPrefix(base: string, childName: string): string {
+  return base ? path.posix.join(base, childName) : childName;
+}
+
+function finishDiscovery(root: string, state: DiscoveryState): RepositoryDiscoveryResult {
+  if (state.repositories.length >= MAX_DISCOVERED_REPOSITORIES) {
+    state.warnings.push(`Git repository discovery stopped at ${MAX_DISCOVERED_REPOSITORIES} repositories under ${root}`);
+  } else if (state.directoriesVisited >= MAX_DISCOVERY_DIRECTORIES && state.cursor < state.queue.length) {
+    state.warnings.push(`Git repository discovery stopped after ${MAX_DISCOVERY_DIRECTORIES} directories under ${root}`);
+  }
+  return { repositories: state.repositories, warnings: state.warnings };
 }
 
 async function gitMarkerState(root: string): Promise<'none' | 'candidate' | 'unsafe'> {

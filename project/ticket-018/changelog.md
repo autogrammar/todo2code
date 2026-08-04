@@ -1,5 +1,17 @@
 # Ticket Changelog (ticket-018)
 
+## [0.3.0] - 2026-08-04
+
+- Confirmed and recorded `koru / code-review` + `governance / enforce` as the
+  required checks for the `main` ruleset `20186914`; enforced state is active,
+  `current_user_can_bypass: never`, and bypass actors are empty.
+- Re-ran required evidence paths after deployment: PR-dispatch workflow syntax,
+  positive and negative Koru probes, attestation upload path, workflow failure
+  handling and local/CI verification commands now satisfy AC-24/AC-25.
+- Advanced `ticket-018` workflow state to `IN_PROGRESS / WAIT_FOR_APPROVAL` with
+  AC-24 and AC-25 checked; AC-17 and the pre-existing `ticket-019` blockers
+  remain tracked separately.
+
 ## [0.2.0] - 2026-08-01
 
 - Evolved the plan for concurrent humans/agents: named workstreams,

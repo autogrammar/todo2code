@@ -13,10 +13,10 @@
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current state: `IN_PROGRESS / EDIT` for the approved AC-18..AC-25: add a
+  Current state: `IN_PROGRESS / WAIT_FOR_APPROVAL` for the approved AC-11..AC-25:
   pinned, read-only and attested `koru / code-review` PR check plus a required
-  ruleset. The workflow and live fail-closed semantic probe are verified;
-  ruleset `20186914` is staged for activation after the bootstrap evidence merge.
+  ruleset. `koru / code-review` and `governance / enforce` now run as required
+  checks on `main`; the ruleset is active with no bypass actors.
   Earlier AC-11..AC-16 pass; AC-17 and the pre-existing publication/external
   governance blockers remain recorded separately.
 

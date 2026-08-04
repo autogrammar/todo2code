@@ -52,6 +52,12 @@ interface ParsedArgs {
   options: Map<string, string | boolean>;
 }
 
+
+type CommandHandler = (parsed: ParsedArgs, config: ReturnType<typeof getConfig>) => Promise<void>;
+type DiffMode = 'graph' | 'files' | 'git';
+type DiffPayload = { diffs: FileDiff[]; title: string };
+type ExtractHandler = (parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>) => Promise<void>;
+
 export async function main(argv = process.argv.slice(2)): Promise<void> {
   await loadEnvFile();
   if (argv[0] === '--help' || argv[0] === '-h') {
@@ -63,321 +69,319 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
   const parsed = parseArgs(argv);
-  const command = parsed.positionals.shift() ?? 'help';
+  const command = resolveMainCommand(parsed.positionals.shift() ?? 'help');
 
-  if (command === 'help' || command === '--help' || command === '-h') {
+  if (command === 'help' || parsed.options.has('help')) {
     printHelp();
     return;
   }
   // `parseArgs` removes options from positionals, so `pipeline --help` would
   // otherwise look exactly like `pipeline` and execute a mutating run. Help is
   // global until command-specific help exists: it must never reach a handler.
-  if (parsed.options.has('help')) {
-    printHelp();
-    return;
-  }
   const config = getConfig();
-  if (command === 'version' || command === '--version' || command === '-v') {
-    process.stdout.write(`todo2code ${T2C_VERSION}\n`);
-    return;
+  const handler = commandHandlers()[command];
+  if (!handler) {
+    throw new Error(`Unknown command: ${command}. Run t2c help.`);
   }
-  if (command === 'init') {
-    await initProject(path.resolve(parsed.positionals[0] ?? '.'));
-    return;
+  await handler(parsed, config);
+}
+
+function commandHandlers(): Record<string, CommandHandler> {
+  return {
+    version: async () => {
+      process.stdout.write(`todo2code ${T2C_VERSION}\n`);
+    },
+    init: async (parsed) => initProject(path.resolve(parsed.positionals[0] ?? '.')),
+    doctor: async (_parsed, config) => doctor(config),
+    mcp: async (_parsed, config) => startMcpServer(config),
+    a2a: async (_parsed, config) => startA2aServer(config),
+    intake: handleIntake,
+    extract: handleExtract,
+    communication: handleCommunication,
+    link: handleLink,
+    diagnose: handleDiagnose,
+    diff: handleDiff,
+    reality: handleReality,
+    summarize: handleSummarize,
+    'propose-todo': handleProposeTodo,
+    'render-todo': handleRenderTodo,
+    'apply-todo': handleApplyTodo,
+    'propose-code-change': handleProposeCodeChange,
+    'render-code-change': handleRenderCodeChange,
+    'propose-source-patch': handleProposeSourcePatch,
+    'apply-source-patch': handleApplySourcePatch,
+    'evaluate-code-change': handleEvaluateCodeChange,
+    'close-code-change': handleCloseCodeChange,
+    watch: handleWatch,
+    'compare-workspace': handleCompareWorkspace,
+    pipeline: handlePipeline,
+  };
+}
+
+function resolveMainCommand(raw: string): string {
+  if (raw === '--help' || raw === '-h') return 'help';
+  if (raw === '--version' || raw === '-v') return 'version';
+  return raw;
+}
+
+async function handleLink(parsed: ParsedArgs): Promise<void> {
+  const files = parsed.positionals;
+  if (!files.length) throw new Error('Usage: t2c link <file.intent.jsonl>... [--out graph.json]');
+  const records = (await Promise.all(files.map((file) => readJsonl(path.resolve(file))))).flat();
+  const graph = linkIntentRecords(records);
+  await emitJson(graph, optionString(parsed, 'out'));
+}
+
+async function handleDiagnose(parsed: ParsedArgs): Promise<void> {
+  const graphFile = parsed.positionals[0];
+  if (!graphFile) throw new Error('Usage: t2c diagnose <intent.graph.json> [--out diagnostics.json]');
+  const graph = await readJson<IntentGraph>(path.resolve(graphFile));
+  await emitJson(diagnoseGraph(graph), optionString(parsed, 'out'));
+}
+
+async function handleSummarize(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const graphFile = parsed.positionals[0];
+  if (!graphFile) throw new Error('Usage: t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--mode deterministic|prefer-llm|require-llm] [--out summary.md]');
+  const graph = await readJson<IntentGraph>(path.resolve(graphFile));
+  const diagnosticsPath = optionString(parsed, 'diagnostics');
+  const diagnostics = diagnosticsPath
+    ? await readJson<DiagnosticReport>(path.resolve(diagnosticsPath))
+    : diagnoseGraph(graph);
+  const result = await summarizeGraph(graph, diagnostics, config, {
+    mode: optionSummaryMode(parsed),
+  });
+  for (const warning of result.warnings) process.stderr.write(`warning: ${warning}\n`);
+  const out = optionString(parsed, 'out');
+  if (out) await writeText(path.resolve(out), result.markdown);
+  else process.stdout.write(result.markdown);
+}
+
+async function handleProposeTodo(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const graphPath = parsed.positionals[0];
+  const diagnosticsPath = optionString(parsed, 'diagnostics');
+  const output = optionString(parsed, 'out');
+  if (!graphPath || !diagnosticsPath || !output) {
+    throw new Error('Usage: t2c propose-todo <graph.json> --diagnostics diagnostics.json [--mode prefer-llm|require-llm] --out synthesis.json');
   }
-  if (command === 'doctor') {
-    await doctor(config);
-    return;
+  const result = await executeAction('propose_todo', {
+    root: optionString(parsed, 'root') ?? config.root,
+    graphPath,
+    diagnosticsPath,
+    mode: optionTaskMode(parsed),
+    output,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleRenderTodo(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const synthesisPath = parsed.positionals[0];
+  const graphPath = optionString(parsed, 'graph');
+  const diagnosticsPath = optionString(parsed, 'diagnostics');
+  const patch = optionString(parsed, 'patch');
+  const audit = optionString(parsed, 'audit');
+  if (!synthesisPath || !graphPath || !diagnosticsPath || !patch || !audit) {
+    throw new Error('Usage: t2c render-todo <synthesis.json> --graph graph.json --diagnostics diagnostics.json --todo TODO.md --patch TODO.patch --audit TODO.patch.json');
   }
-  if (command === 'mcp') {
-    await startMcpServer(config);
-    return;
+  const result = await executeAction('render_todo', {
+    root: optionString(parsed, 'root') ?? config.root,
+    synthesisPath,
+    graphPath,
+    diagnosticsPath,
+    todo: optionString(parsed, 'todo') ?? 'TODO.md',
+    patch,
+    audit,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleApplyTodo(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const patch = optionString(parsed, 'patch');
+  const audit = optionString(parsed, 'audit');
+  const receipt = optionString(parsed, 'receipt');
+  const actor = optionString(parsed, 'actor');
+  const approvalHash = optionString(parsed, 'approval-hash');
+  if (!patch || !audit || !receipt || !actor || !approvalHash) {
+    throw new Error('Usage: t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>');
   }
-  if (command === 'a2a') {
-    await startA2aServer(config);
-    return;
+  const result = await executeAction('apply_todo', {
+    root: optionString(parsed, 'root') ?? config.root,
+    todo: optionString(parsed, 'todo') ?? 'TODO.md',
+    patch,
+    audit,
+    receipt,
+    actor,
+    approvalHash,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleProposeCodeChange(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const graphPath = parsed.positionals[0];
+  const diagnosticsPath = optionString(parsed, 'diagnostics');
+  const output = optionString(parsed, 'out');
+  if (!graphPath || !diagnosticsPath || !output) {
+    throw new Error('Usage: t2c propose-code-change <graph.json> --diagnostics diagnostics.json [--proposals proposals.json] --out plans.json');
   }
-  if (command === 'intake') {
-    await handleIntake(parsed, config);
-    return;
+  const result = await executeAction('propose_code_change', {
+    root: optionString(parsed, 'root') ?? config.root,
+    graphPath,
+    diagnosticsPath,
+    conclusionsPath: optionString(parsed, 'conclusions'),
+    proposalsPath: optionString(parsed, 'proposals'),
+    maxPlans: optionString(parsed, 'max-plans'),
+    output,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleRenderCodeChange(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const plansPath = parsed.positionals[0];
+  const patch = optionString(parsed, 'patch') ?? 'CODE_CHANGE.review.md';
+  const audit = optionString(parsed, 'audit') ?? 'CODE_CHANGE.review.json';
+  if (!plansPath) {
+    throw new Error('Usage: t2c render-code-change <plans.json> [--patch CODE_CHANGE.review.md] [--audit CODE_CHANGE.review.json]');
   }
-  if (command === 'extract') {
-    await handleExtract(parsed, config);
-    return;
+  const result = await executeAction('render_code_change', {
+    root: optionString(parsed, 'root') ?? config.root,
+    plansPath,
+    patch,
+    audit,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleProposeSourcePatch(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const inputPath = parsed.positionals[0];
+  const output = optionString(parsed, 'out');
+  if (!inputPath || !output) {
+    throw new Error('Usage: t2c propose-source-patch <plan.json|plans.json> --out source-patches.json');
   }
-  if (command === 'communication') {
-    await handleCommunication(parsed, config);
-    return;
+  const isPlanSet = inputPath.endsWith('plans.json') || optionString(parsed, 'kind') === 'set';
+  const result = await executeAction('propose_source_patch', {
+    root: optionString(parsed, 'root') ?? config.root,
+    ...(isPlanSet ? { plansPath: inputPath } : { planPath: inputPath }),
+    output,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleApplySourcePatch(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const patchPath = parsed.positionals[0];
+  const actor = optionString(parsed, 'actor');
+  const approvalHash = optionString(parsed, 'approval-hash');
+  const receipt = optionString(parsed, 'receipt') ?? 'CODE_CHANGE.source.receipt.json';
+  if (!patchPath || !actor || !approvalHash) {
+    throw new Error('Usage: t2c apply-source-patch <patch.json> --actor <id> --approval-hash <sha256> [--receipt receipt.json]');
   }
-  if (command === 'link') {
-    const files = parsed.positionals;
-    if (!files.length) throw new Error('Usage: t2c link <file.intent.jsonl>... [--out graph.json]');
-    const records = (await Promise.all(files.map((file) => readJsonl(path.resolve(file))))).flat();
-    const graph = linkIntentRecords(records);
-    await emitJson(graph, optionString(parsed, 'out'));
-    return;
+  const result = await executeAction('apply_source_patch', {
+    root: optionString(parsed, 'root') ?? config.root,
+    patchPath,
+    actor,
+    approvalHash,
+    receipt,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleEvaluateCodeChange(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const planPath = parsed.positionals[0];
+  const beforeGraphPath = optionString(parsed, 'before-graph');
+  const afterGraphPath = optionString(parsed, 'after-graph');
+  const output = optionString(parsed, 'out');
+  if (!planPath || !beforeGraphPath || !afterGraphPath || !output) {
+    throw new Error('Usage: t2c evaluate-code-change <plan.json> --before-graph before.json --after-graph after.json [--before-diagnostics d.json] --out acceptance.json');
   }
-  if (command === 'diagnose') {
-    const graphFile = parsed.positionals[0];
-    if (!graphFile) throw new Error('Usage: t2c diagnose <intent.graph.json> [--out diagnostics.json]');
-    const graph = await readJson<IntentGraph>(path.resolve(graphFile));
-    await emitJson(diagnoseGraph(graph), optionString(parsed, 'out'));
-    return;
+  const result = await executeAction('evaluate_code_change', {
+    root: optionString(parsed, 'root') ?? config.root,
+    planPath,
+    beforeGraphPath,
+    beforeDiagnosticsPath: optionString(parsed, 'before-diagnostics'),
+    afterGraphPath,
+    afterDiagnosticsPath: optionString(parsed, 'after-diagnostics'),
+    output,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleCloseCodeChange(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const inputPath = parsed.positionals[0];
+  const beforeGraphPath = optionString(parsed, 'before-graph');
+  const afterGraphPath = optionString(parsed, 'after-graph');
+  const output = optionString(parsed, 'out');
+  if (!inputPath || !beforeGraphPath || !afterGraphPath || !output) {
+    throw new Error('Usage: t2c close-code-change <plan.json|plans.json> --before-graph before.json --after-graph after.json --out close.json');
   }
-  if (command === 'diff') {
-    await handleDiff(parsed, config);
-    return;
-  }
-  if (command === 'reality') {
-    await handleReality(parsed, config);
-    return;
-  }
-  if (command === 'summarize') {
-    const graphFile = parsed.positionals[0];
-    if (!graphFile) throw new Error('Usage: t2c summarize <intent.graph.json> [--diagnostics diagnostics.json] [--mode deterministic|prefer-llm|require-llm] [--out summary.md]');
-    const graph = await readJson<IntentGraph>(path.resolve(graphFile));
-    const diagnosticsPath = optionString(parsed, 'diagnostics');
-    const diagnostics = diagnosticsPath
-      ? await readJson<DiagnosticReport>(path.resolve(diagnosticsPath))
-      : diagnoseGraph(graph);
-    const result = await summarizeGraph(graph, diagnostics, config, {
-      mode: optionSummaryMode(parsed),
-    });
-    for (const warning of result.warnings) process.stderr.write(`warning: ${warning}\n`);
-    const out = optionString(parsed, 'out');
-    if (out) await writeText(path.resolve(out), result.markdown);
-    else process.stdout.write(result.markdown);
-    return;
-  }
-  if (command === 'propose-todo') {
-    const graphPath = parsed.positionals[0];
-    const diagnosticsPath = optionString(parsed, 'diagnostics');
-    const output = optionString(parsed, 'out');
-    if (!graphPath || !diagnosticsPath || !output) {
-      throw new Error('Usage: t2c propose-todo <graph.json> --diagnostics diagnostics.json [--mode prefer-llm|require-llm] --out synthesis.json');
-    }
-    const result = await executeAction('propose_todo', {
-      root: optionString(parsed, 'root') ?? config.root,
-      graphPath,
-      diagnosticsPath,
-      mode: optionTaskMode(parsed),
-      output,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'render-todo') {
-    const synthesisPath = parsed.positionals[0];
-    const graphPath = optionString(parsed, 'graph');
-    const diagnosticsPath = optionString(parsed, 'diagnostics');
-    const patch = optionString(parsed, 'patch');
-    const audit = optionString(parsed, 'audit');
-    if (!synthesisPath || !graphPath || !diagnosticsPath || !patch || !audit) {
-      throw new Error('Usage: t2c render-todo <synthesis.json> --graph graph.json --diagnostics diagnostics.json --todo TODO.md --patch TODO.patch --audit TODO.patch.json');
-    }
-    const result = await executeAction('render_todo', {
-      root: optionString(parsed, 'root') ?? config.root,
-      synthesisPath,
-      graphPath,
-      diagnosticsPath,
-      todo: optionString(parsed, 'todo') ?? 'TODO.md',
-      patch,
-      audit,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'apply-todo') {
-    const patch = optionString(parsed, 'patch');
-    const audit = optionString(parsed, 'audit');
-    const receipt = optionString(parsed, 'receipt');
-    const actor = optionString(parsed, 'actor');
-    const approvalHash = optionString(parsed, 'approval-hash');
-    if (!patch || !audit || !receipt || !actor || !approvalHash) {
-      throw new Error('Usage: t2c apply-todo --todo TODO.md --patch TODO.patch --audit TODO.patch.json --receipt receipt.json --actor <identity> --approval-hash <sha256>');
-    }
-    const result = await executeAction('apply_todo', {
-      root: optionString(parsed, 'root') ?? config.root,
-      todo: optionString(parsed, 'todo') ?? 'TODO.md',
-      patch,
-      audit,
-      receipt,
-      actor,
-      approvalHash,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'propose-code-change') {
-    const graphPath = parsed.positionals[0];
-    const diagnosticsPath = optionString(parsed, 'diagnostics');
-    const output = optionString(parsed, 'out');
-    if (!graphPath || !diagnosticsPath || !output) {
-      throw new Error('Usage: t2c propose-code-change <graph.json> --diagnostics diagnostics.json [--proposals proposals.json] --out plans.json');
-    }
-    const result = await executeAction('propose_code_change', {
-      root: optionString(parsed, 'root') ?? config.root,
-      graphPath,
-      diagnosticsPath,
-      conclusionsPath: optionString(parsed, 'conclusions'),
-      proposalsPath: optionString(parsed, 'proposals'),
-      maxPlans: optionString(parsed, 'max-plans'),
-      output,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'render-code-change') {
-    const plansPath = parsed.positionals[0];
-    const patch = optionString(parsed, 'patch') ?? 'CODE_CHANGE.review.md';
-    const audit = optionString(parsed, 'audit') ?? 'CODE_CHANGE.review.json';
-    if (!plansPath) {
-      throw new Error('Usage: t2c render-code-change <plans.json> [--patch CODE_CHANGE.review.md] [--audit CODE_CHANGE.review.json]');
-    }
-    const result = await executeAction('render_code_change', {
-      root: optionString(parsed, 'root') ?? config.root,
-      plansPath,
-      patch,
-      audit,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'propose-source-patch') {
-    const inputPath = parsed.positionals[0];
-    const output = optionString(parsed, 'out');
-    if (!inputPath || !output) {
-      throw new Error('Usage: t2c propose-source-patch <plan.json|plans.json> --out source-patches.json');
-    }
-    const isPlanSet = inputPath.endsWith('plans.json') || optionString(parsed, 'kind') === 'set';
-    const result = await executeAction('propose_source_patch', {
-      root: optionString(parsed, 'root') ?? config.root,
-      ...(isPlanSet ? { plansPath: inputPath } : { planPath: inputPath }),
-      output,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'apply-source-patch') {
-    const patchPath = parsed.positionals[0];
-    const actor = optionString(parsed, 'actor');
-    const approvalHash = optionString(parsed, 'approval-hash');
-    const receipt = optionString(parsed, 'receipt') ?? 'CODE_CHANGE.source.receipt.json';
-    if (!patchPath || !actor || !approvalHash) {
-      throw new Error('Usage: t2c apply-source-patch <patch.json> --actor <id> --approval-hash <sha256> [--receipt receipt.json]');
-    }
-    const result = await executeAction('apply_source_patch', {
-      root: optionString(parsed, 'root') ?? config.root,
-      patchPath,
-      actor,
-      approvalHash,
-      receipt,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'evaluate-code-change') {
-    const planPath = parsed.positionals[0];
-    const beforeGraphPath = optionString(parsed, 'before-graph');
-    const afterGraphPath = optionString(parsed, 'after-graph');
-    const output = optionString(parsed, 'out');
-    if (!planPath || !beforeGraphPath || !afterGraphPath || !output) {
-      throw new Error('Usage: t2c evaluate-code-change <plan.json> --before-graph before.json --after-graph after.json [--before-diagnostics d.json] --out acceptance.json');
-    }
-    const result = await executeAction('evaluate_code_change', {
-      root: optionString(parsed, 'root') ?? config.root,
-      planPath,
-      beforeGraphPath,
-      beforeDiagnosticsPath: optionString(parsed, 'before-diagnostics'),
-      afterGraphPath,
-      afterDiagnosticsPath: optionString(parsed, 'after-diagnostics'),
-      output,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'close-code-change') {
-    const inputPath = parsed.positionals[0];
-    const beforeGraphPath = optionString(parsed, 'before-graph');
-    const afterGraphPath = optionString(parsed, 'after-graph');
-    const output = optionString(parsed, 'out');
-    if (!inputPath || !beforeGraphPath || !afterGraphPath || !output) {
-      throw new Error('Usage: t2c close-code-change <plan.json|plans.json> --before-graph before.json --after-graph after.json --out close.json');
-    }
-    const result = await executeAction('close_code_change', {
-      root: optionString(parsed, 'root') ?? config.root,
-      inputPath,
-      beforeGraphPath,
-      beforeDiagnosticsPath: optionString(parsed, 'before-diagnostics'),
-      afterGraphPath,
-      afterDiagnosticsPath: optionString(parsed, 'after-diagnostics'),
-      output,
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'watch') {
-    await handleWatch(parsed, config);
-    return;
-  }
-  if (command === 'compare-workspace') {
-    const root = path.resolve(parsed.positionals[0] ?? config.root);
-    const result = await compareWorkspaceIntent({
-      root,
-      baseRef: optionString(parsed, 'base') ?? 'origin/main',
-      taskFile: optionNullableString(parsed, 'task', null),
-      todoFile: optionNullableString(parsed, 'todo', 'TODO.md'),
-      changelogFile: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
-      documentPatterns: optionList(parsed, 'docs', config.documentPatterns),
-      documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
-      includeDocumentationLlm: optionBoolean(parsed, 'docs-llm', false),
-      markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
-      communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
-      outputDir: optionString(parsed, 'out') ?? config.outputDir,
-      gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
-    }, config);
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    return;
-  }
-  if (command === 'pipeline') {
-    const root = path.resolve(parsed.positionals[0] ?? config.root);
-    const options: PipelineOptions = {
-      root,
-      taskFile: optionNullableString(parsed, 'task', null),
-      todoFile: optionNullableString(parsed, 'todo', 'TODO.md'),
-      changelogFile: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
-      documentPatterns: optionList(parsed, 'docs', config.documentPatterns),
-      includeDocumentationLlm: !optionBoolean(parsed, 'no-docs-llm', false),
-      outputDir: optionString(parsed, 'out') ?? config.outputDir,
-      gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
-      allowSummaryFallback: optionBoolean(parsed, 'summary-fallback', false),
-      includeSummaryLlm: !optionBoolean(parsed, 'no-summary-llm', false),
-      nlMode: optionNlMode(parsed, config.nlMode),
-      markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
-      communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
-      documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
-      taskSynthesisMode: optionPipelineTaskMode(parsed),
-      includeCommunication: !optionBoolean(parsed, 'no-communication', false),
-      projectDirectory: optionString(parsed, 'project-dir') ?? 'project',
-      communicationTicket: optionNullableString(parsed, 'communication-ticket', null),
-      cycleFile: optionNullableString(parsed, 'cycle', null),
-    };
-    const result = await runPipeline(options, config);
-    reportPipelineDegradation(result.manifest);
-    process.stdout.write(`${JSON.stringify({ ...result, manifest: result.manifest }, null, 2)}\n`);
-    return;
-  }
-  throw new Error(`Unknown command: ${command}. Run t2c help.`);
+  const result = await executeAction('close_code_change', {
+    root: optionString(parsed, 'root') ?? config.root,
+    inputPath,
+    beforeGraphPath,
+    beforeDiagnosticsPath: optionString(parsed, 'before-diagnostics'),
+    afterGraphPath,
+    afterDiagnosticsPath: optionString(parsed, 'after-diagnostics'),
+    output,
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handleCompareWorkspace(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const root = resolvePipelineRoot(parsed, config);
+  const result = await compareWorkspaceIntent({
+    ...buildWorkspaceComparisonOptions(parsed, config, root),
+  }, config);
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+}
+
+async function handlePipeline(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const root = resolvePipelineRoot(parsed, config);
+  const options = buildPipelineOptions(parsed, config, root, optionNullableString(parsed, 'task', null));
+  const result = await runPipeline(options, config);
+  reportPipelineDegradation(result.manifest);
+  process.stdout.write(`${JSON.stringify({ ...result, manifest: result.manifest }, null, 2)}\n`);
 }
 
 async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
-  const root = path.resolve(parsed.positionals[0] ?? config.root);
-  const taskFile = parsed.options.has('task')
-    ? optionNullableString(parsed, 'task', null)
-    : await pathExists(path.join(root, 'TASK.md')) ? 'TASK.md' : null;
-  const pipeline: PipelineOptions = {
+  const root = resolvePipelineRoot(parsed, config);
+  const taskFile = await resolveWatchTaskFile(parsed, root);
+  const pipeline = buildPipelineOptions(parsed, config, root, taskFile);
+
+  const controller = new AbortController();
+  const stop = (): void => controller.abort();
+  process.once('SIGINT', stop);
+  process.once('SIGTERM', stop);
+
+  await watchRepository({
+    root,
+    pipeline,
+    minIntervalMs: optionNumber(parsed, 'interval', 60, 0, 86_400) * 1000,
+    scanIntervalMs: optionNumber(parsed, 'scan-interval', 2, 1, 3_600) * 1000,
+    runOnStart: !optionBoolean(parsed, 'no-initial-report', false),
+    signal: controller.signal,
+    onEvent: (event) => process.stderr.write(`${formatWatchEvent(event)}\n`),
+  }, config);
+}
+
+function resolvePipelineRoot(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): string {
+  return path.resolve(parsed.positionals[0] ?? config.root);
+}
+
+function buildPipelineOptions(
+  parsed: ParsedArgs,
+  config: ReturnType<typeof getConfig>,
+  root: string,
+  taskFile: string | null,
+): PipelineOptions {
+  return {
     root,
     taskFile,
+    ...buildCommonPipelineOptions(parsed, config),
+  };
+}
+
+function buildCommonPipelineOptions(
+  parsed: ParsedArgs,
+  config: ReturnType<typeof getConfig>,
+): Omit<PipelineOptions, 'root' | 'taskFile'> {
+  return {
     todoFile: optionNullableString(parsed, 'todo', 'TODO.md'),
     changelogFile: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
     documentPatterns: optionList(parsed, 'docs', config.documentPatterns),
@@ -396,21 +400,45 @@ async function handleWatch(parsed: ParsedArgs, config: ReturnType<typeof getConf
     communicationTicket: optionNullableString(parsed, 'communication-ticket', null),
     cycleFile: optionNullableString(parsed, 'cycle', null),
   };
+}
 
-  const controller = new AbortController();
-  const stop = (): void => controller.abort();
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
+async function resolveWatchTaskFile(parsed: ParsedArgs, root: string): Promise<string | null> {
+  if (parsed.options.has('task')) return optionNullableString(parsed, 'task', null);
+  return (await pathExists(path.join(root, 'TASK.md'))) ? 'TASK.md' : null;
+}
 
-  await watchRepository({
+function buildWorkspaceComparisonOptions(
+  parsed: ParsedArgs,
+  config: ReturnType<typeof getConfig>,
+  root: string,
+): {
+  root: string;
+  baseRef: string;
+  taskFile: string | null;
+  todoFile: string | null;
+  changelogFile: string | null;
+  documentPatterns: string[];
+  documentExcludes: string[];
+  includeDocumentationLlm: boolean;
+  markdownMode: LlmExtractionMode;
+  communicationMode: LlmExtractionMode;
+  outputDir: string;
+  gitCommitCount: number;
+} {
+  return {
     root,
-    pipeline,
-    minIntervalMs: optionNumber(parsed, 'interval', 60, 0, 86_400) * 1000,
-    scanIntervalMs: optionNumber(parsed, 'scan-interval', 2, 1, 3_600) * 1000,
-    runOnStart: !optionBoolean(parsed, 'no-initial-report', false),
-    signal: controller.signal,
-    onEvent: (event) => process.stderr.write(`${formatWatchEvent(event)}\n`),
-  }, config);
+    baseRef: optionString(parsed, 'base') ?? 'origin/main',
+    taskFile: optionNullableString(parsed, 'task', null),
+    todoFile: optionNullableString(parsed, 'todo', 'TODO.md'),
+    changelogFile: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
+    documentPatterns: optionList(parsed, 'docs', config.documentPatterns),
+    documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
+    includeDocumentationLlm: optionBoolean(parsed, 'docs-llm', false),
+    markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
+    communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
+    outputDir: optionString(parsed, 'out') ?? config.outputDir,
+    gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
+  };
 }
 
 function formatWatchEvent(event: WatchEvent): string {
@@ -434,60 +462,16 @@ function formatWatchEvent(event: WatchEvent): string {
 }
 
 async function handleDiff(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
-  const mode = (optionString(parsed, 'mode') ?? 'graph').toLowerCase();
+  const mode = parseDiffMode(parsed);
+  if (mode === 'graph') {
+    await handleGraphDiff(parsed, config);
+    return;
+  }
+  const { diffs, title } = await buildDiffPayload(parsed, config, mode);
   const out = optionString(parsed, 'out');
   const svg = optionString(parsed, 'svg');
   const html = optionString(parsed, 'html');
-
-  if (mode === 'graph') {
-    const beforeFile = parsed.positionals[0];
-    const afterFile = parsed.positionals[1];
-    if (!beforeFile || !afterFile) {
-      throw new Error('Usage: t2c diff <before.graph.json> <after.graph.json> [--out diff.json] [--svg diff.svg]');
-    }
-    const [before, after] = await Promise.all([
-      readJson<IntentGraph>(path.resolve(beforeFile)),
-      readJson<IntentGraph>(path.resolve(afterFile)),
-    ]);
-    const diff = diffIntentGraphs(before, after);
-    if (out) await writeJson(path.resolve(out), diff);
-    if (svg) await writeText(path.resolve(svg), renderGraphDiffSvg(diff, { maxItems: optionNumber(parsed, 'max-items', 18, 1, 100) }));
-    if (!out && !svg) process.stdout.write(`${JSON.stringify(diff, null, 2)}\n`);
-    return;
-  }
-
-  const context = optionNumber(parsed, 'context', 3, 0, 100);
   const maxRows = optionNumber(parsed, 'max-rows', 400, 1, 4000);
-  let diffs: FileDiff[];
-  let title: string;
-
-  if (mode === 'files') {
-    const beforeFile = parsed.positionals[0];
-    const afterFile = parsed.positionals[1];
-    if (!beforeFile || !afterFile) {
-      throw new Error('Usage: t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html]');
-    }
-    const [beforeText, afterText] = await Promise.all([
-      readText(path.resolve(beforeFile), config.maxFileBytes),
-      readText(path.resolve(afterFile), config.maxFileBytes),
-    ]);
-    diffs = [diffText(beforeText, afterText, { beforePath: beforeFile, afterPath: afterFile, path: afterFile, context })];
-    title = `${beforeFile} → ${afterFile}`;
-  } else if (mode === 'git') {
-    const root = path.resolve(parsed.positionals[0] ?? config.root);
-    const result = await collectGitDiff({
-      root,
-      revision: optionString(parsed, 'rev') ?? 'HEAD',
-      staged: optionBoolean(parsed, 'staged', false),
-      context,
-      maxFiles: optionNumber(parsed, 'max-files', 50, 1, 500),
-    });
-    for (const warning of result.warnings) process.stderr.write(`warning: ${warning}\n`);
-    diffs = result.diffs;
-    title = `git diff ${result.staged ? '--cached ' : ''}${result.revision}`;
-  } else {
-    throw new Error(`Unknown --mode ${mode}. Expected graph, files or git.`);
-  }
 
   if (out) await writeJson(path.resolve(out), diffs);
   if (svg) await writeText(path.resolve(svg), renderTextDiffSvg(diffs, { title, maxRows }));
@@ -495,6 +479,69 @@ async function handleDiff(parsed: ParsedArgs, config: ReturnType<typeof getConfi
   if (!out && !svg && !html) {
     for (const diff of diffs) process.stdout.write(renderUnifiedDiff(diff));
   }
+}
+
+function parseDiffMode(parsed: ParsedArgs): DiffMode {
+  const mode = (optionString(parsed, 'mode') ?? 'graph').toLowerCase();
+  if (mode === 'graph' || mode === 'files' || mode === 'git') return mode;
+  throw new Error(`Unknown --mode ${mode}. Expected graph, files or git.`);
+}
+
+async function handleGraphDiff(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
+  const beforeFile = parsed.positionals[0];
+  const afterFile = parsed.positionals[1];
+  if (!beforeFile || !afterFile) {
+    throw new Error('Usage: t2c diff <before.graph.json> <after.graph.json> [--out diff.json] [--svg diff.svg]');
+  }
+  const [before, after] = await Promise.all([
+    readJson<IntentGraph>(path.resolve(beforeFile)),
+    readJson<IntentGraph>(path.resolve(afterFile)),
+  ]);
+  const diff = diffIntentGraphs(before, after);
+  const out = optionString(parsed, 'out');
+  const svg = optionString(parsed, 'svg');
+  if (out) await writeJson(path.resolve(out), diff);
+  if (svg) await writeText(path.resolve(svg), renderGraphDiffSvg(diff, { maxItems: optionNumber(parsed, 'max-items', 18, 1, 100 }));
+  if (!out && !svg) process.stdout.write(`${JSON.stringify(diff, null, 2)}\n`);
+}
+
+async function buildDiffPayload(parsed: ParsedArgs, config: ReturnType<typeof getConfig>, mode: DiffMode): Promise<DiffPayload> {
+  if (mode === 'files') return buildFileDiff(parsed, config);
+  return buildGitDiff(parsed, config);
+}
+
+async function buildFileDiff(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<DiffPayload> {
+  const beforeFile = parsed.positionals[0];
+  const afterFile = parsed.positionals[1];
+  if (!beforeFile || !afterFile) {
+    throw new Error('Usage: t2c diff --mode files <before> <after> [--svg diff.svg] [--html diff.html]');
+  }
+  const context = optionNumber(parsed, 'context', 3, 0, 100);
+  const [beforeText, afterText] = await Promise.all([
+    readText(path.resolve(beforeFile), config.maxFileBytes),
+    readText(path.resolve(afterFile), config.maxFileBytes),
+  ]);
+  return {
+    diffs: [diffText(beforeText, afterText, { beforePath: beforeFile, afterPath: afterFile, path: afterFile, context })],
+    title: `${beforeFile} → ${afterFile}`,
+  };
+}
+
+async function buildGitDiff(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<DiffPayload> {
+  const context = optionNumber(parsed, 'context', 3, 0, 100);
+  const root = path.resolve(parsed.positionals[0] ?? config.root);
+  const result = await collectGitDiff({
+    root,
+    revision: optionString(parsed, 'rev') ?? 'HEAD',
+    staged: optionBoolean(parsed, 'staged', false),
+    context,
+    maxFiles: optionNumber(parsed, 'max-files', 50, 1, 500),
+  });
+  for (const warning of result.warnings) process.stderr.write(`warning: ${warning}\n`);
+  return {
+    diffs: result.diffs,
+    title: `git diff ${result.staged ? '--cached ' : ''}${result.revision}`,
+  };
 }
 
 async function handleReality(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
@@ -527,72 +574,86 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
   const extractor = parsed.positionals.shift();
   const root = path.resolve(optionString(parsed, 'root') ?? config.root);
   const out = optionString(parsed, 'out');
-  if (extractor === 'nl') {
-    const file = parsed.positionals[0];
-    const inline = optionString(parsed, 'text');
-    if (!file && !inline) throw new Error('Usage: t2c extract nl <file> [--text "..."] [--out records.jsonl]');
-    const result = await extractNlIntentAudited(
-      { root, sourcePath: file ?? 'cli-input.md', ...(inline ? { text: inline } : {}) },
-      config,
-      optionNlMode(parsed, config.nlMode),
-    );
-    await emitExtraction(result, out);
-    process.stderr.write(`NL -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
-    return;
+  const handlers: Record<string, ExtractHandler> = {
+    nl: handleExtractNl,
+    git: handleExtractGit,
+    ast: handleExtractAst,
+    config: handleExtractConfig,
+    runtime: handleExtractRuntime,
+    markdown: handleExtractMarkdown,
+    docs: handleExtractDocs,
+    communication: handleExtractCommunication,
+  };
+  const handler = handlers[extractor];
+  if (!handler) {
+    throw new Error('Usage: t2c extract <nl|git|ast|config|runtime|markdown|docs|communication> ...');
   }
-  if (extractor === 'git') {
-    const result = await extractGitIntent({ root, count: optionNumber(parsed, 'count', config.gitCommitCount, 1, 100) }, config);
-    await emitExtraction(result, out);
-    return;
-  }
-  if (extractor === 'ast') {
-    const result = await extractAstIntent({ root: path.resolve(parsed.positionals[0] ?? root) }, config);
-    await emitExtraction(result, out);
-    return;
-  }
-  if (extractor === 'config') {
-    const result = await extractConfigurationIntent(path.resolve(parsed.positionals[0] ?? root), config);
-    await emitExtraction(result, out);
-    return;
-  }
-  if (extractor === 'runtime') {
-    const cycle = parsed.positionals[0];
-    if (!cycle) throw new Error('Usage: t2c extract runtime <cycle.json> [--out runtime.intent.jsonl]');
-    const result = await extractRuntimeCycleIntent(cycle, config, root);
-    await emitExtraction(result, out);
-    return;
-  }
-  if (extractor === 'markdown') {
-    const result = await extractMarkdownIntentAudited({
-      root,
-      todoPath: optionNullableString(parsed, 'todo', 'TODO.md'),
-      changelogPath: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
-    }, config, optionLlmMode(parsed, 'markdown-mode', config.markdownMode));
-    await emitExtraction(result, out);
-    process.stderr.write(`TODO/CHANGELOG -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
-    return;
-  }
-  if (extractor === 'docs') {
-    const result = await extractDocumentationIntent({
-      root,
-      patterns: optionList(parsed, 'patterns', config.documentPatterns),
-      excludes: optionList(parsed, 'excludes', config.documentExcludes),
-    }, config);
-    await emitExtraction(result, out);
-    process.stderr.write(`documentation -> DSL: ${result.audit.status} (${result.audit.effectiveMode}), runtime ${result.audit.runtimeVersion}\n`);
-    return;
-  }
-  if (extractor === 'communication') {
-    const result = await extractCommunicationIntentAudited({
-      root,
-      projectDir: optionString(parsed, 'project-dir') ?? 'project',
-      ticket: optionNullableString(parsed, 'ticket', null),
-    }, config, optionLlmMode(parsed, 'communication-mode', config.communicationMode));
-    await emitExtraction(result, out);
-    process.stderr.write(`communication -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
-    return;
-  }
-  throw new Error('Usage: t2c extract <nl|git|ast|config|runtime|markdown|docs|communication> ...');
+  await handler(parsed, root, out, config);
+}
+
+async function handleExtractNl(parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>): Promise<void> {
+  const file = parsed.positionals[0];
+  const inline = optionString(parsed, 'text');
+  if (!file && !inline) throw new Error('Usage: t2c extract nl <file> [--text "..."] [--out records.jsonl]');
+  const result = await extractNlIntentAudited(
+    { root, sourcePath: file ?? 'cli-input.md', ...(inline ? { text: inline } : {}) },
+    config,
+    optionNlMode(parsed, config.nlMode),
+  );
+  await emitExtraction(result, out);
+  process.stderr.write(`NL -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
+}
+
+async function handleExtractGit(parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>): Promise<void> {
+  const result = await extractGitIntent({ root, count: optionNumber(parsed, 'count', config.gitCommitCount, 1, 100) }, config);
+  await emitExtraction(result, out);
+}
+
+async function handleExtractAst(parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>): Promise<void> {
+  const result = await extractAstIntent({ root: path.resolve(parsed.positionals[0] ?? root) }, config);
+  await emitExtraction(result, out);
+}
+
+async function handleExtractConfig(parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>): Promise<void> {
+  const result = await extractConfigurationIntent(path.resolve(parsed.positionals[0] ?? root), config);
+  await emitExtraction(result, out);
+}
+
+async function handleExtractRuntime(parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>): Promise<void> {
+  const cycle = parsed.positionals[0];
+  if (!cycle) throw new Error('Usage: t2c extract runtime <cycle.json> [--out runtime.intent.jsonl]');
+  const result = await extractRuntimeCycleIntent(cycle, config, root);
+  await emitExtraction(result, out);
+}
+
+async function handleExtractMarkdown(parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>): Promise<void> {
+  const result = await extractMarkdownIntentAudited({
+    root,
+    todoPath: optionNullableString(parsed, 'todo', 'TODO.md'),
+    changelogPath: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
+  }, config, optionLlmMode(parsed, 'markdown-mode', config.markdownMode));
+  await emitExtraction(result, out);
+  process.stderr.write(`TODO/CHANGELOG -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
+}
+
+async function handleExtractDocs(parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>): Promise<void> {
+  const result = await extractDocumentationIntent({
+    root,
+    patterns: optionList(parsed, 'patterns', config.documentPatterns),
+    excludes: optionList(parsed, 'excludes', config.documentExcludes),
+  }, config);
+  await emitExtraction(result, out);
+  process.stderr.write(`documentation -> DSL: ${result.audit.status} (${result.audit.effectiveMode}), runtime ${result.audit.runtimeVersion}\n`);
+}
+
+async function handleExtractCommunication(parsed: ParsedArgs, root: string, out: string | null, config: ReturnType<typeof getConfig>): Promise<void> {
+  const result = await extractCommunicationIntentAudited({
+    root,
+    projectDir: optionString(parsed, 'project-dir') ?? 'project',
+    ticket: optionNullableString(parsed, 'ticket', null),
+  }, config, optionLlmMode(parsed, 'communication-mode', config.communicationMode));
+  await emitExtraction(result, out);
+  process.stderr.write(`communication -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
 }
 
 async function handleCommunication(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {

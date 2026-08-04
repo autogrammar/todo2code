@@ -1,272 +1,367 @@
-# code2llm call graph | <PROJECT_ROOT>
-# generated in 0.21s
-# nodes: 354 | edges: 500 | modules: 18
-# CC̄=4.0
+# code2llm call graph | /home/tom/github/semcod/todo2code
+# generated in 0.23s
+# nodes: 426 | edges: 500 | modules: 29
+# CC̄=3.8
 
 HUBS[20]:
-  src.services.actions.executeAction
-    CC=83  in:0  out:65  total:65
-  src.services.actions.root
-    CC=83  in:0  out:64  total:64
-  src.pipeline.run.runPipeline
-    CC=53  in:0  out:54  total:54
-  src.cli.main
-    CC=95  in:1  out:44  total:45
-  src.web.diff-ui.diffUiHtml
-    CC=52  in:0  out:42  total:42
-  src.synthesis.code-change-plan.applyCodeChangeSourcePatch
-    CC=41  in:0  out:35  total:35
-  src.synthesis.code-change-plan.assertCodeChangeSourcePatch
-    CC=47  in:5  out:26  total:31
-  src.synthesis.code-change-plan.uniqueSorted
-    CC=1  in:20  out:5  total:25
-  src.cli.optionNumber
-    CC=5  in:18  out:5  total:23
-  src.semantic.reranker.assertSemanticRerankResult
-    CC=21  in:2  out:21  total:23
-  src.services.actions.numberValue
-    CC=6  in:18  out:4  total:22
-  src.synthesis.code-change-plan.createCodeChangeSourcePatch
-    CC=13  in:2  out:20  total:22
-  src.synthesis.code-change-plan.deterministicGeneration
-    CC=1  in:18  out:3  total:21
-  src.synthesis.todo-patch.createTodoPatch
-    CC=8  in:1  out:20  total:21
-  src.semantic.reranker.assertSemanticCandidateSet
-    CC=27  in:3  out:18  total:21
-  src.watch.watcher.scanTree
-    CC=12  in:4  out:17  total:21
-  src.synthesis.code-change-plan.evaluateCodeChangeAcceptance
-    CC=9  in:3  out:18  total:21
-  src.synthesis.todo-patch.applyTodoPatch
-    CC=12  in:0  out:20  total:20
-  src.cli.handleDiff
-    CC=24  in:1  out:19  total:20
-  src.cli.handleExtract
-    CC=16  in:1  out:18  total:19
+  src.extractors.ast.typescript.extractTypeScriptFile
+    CC=43  in:0  out:44  total:44
+  src.extractors.ast.typescript.visit
+    CC=25  in:1  out:26  total:27
+  src.extractors.communication.extractCommunicationFile
+    CC=50  in:3  out:24  total:27
+  src.extractors.git.extractRepositoryGitIntent
+    CC=11  in:3  out:21  total:24
+  src.extractors.todo.extractTodo
+    CC=5  in:0  out:24  total:24
+  src.graph.linker.scorePair
+    CC=18  in:6  out:16  total:22
+  src.graph.linker.linkIntentRecords
+    CC=5  in:0  out:22  total:22
+  src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
+    CC=10  in:0  out:22  total:22
+  rust-ast.src.main.main
+    CC=6  in:0  out:21  total:21
+  src.extractors.markdown-llm.MarkdownLlmRequiredError.extractMarkdownIntentAudited
+    CC=19  in:0  out:21  total:21
+  rust-ast.src.main.collect_files
+    CC=9  in:1  out:20  total:21
+  src.extractors.todo.relative
+    CC=5  in:0  out:20  total:20
+  src.extractors.nl.extractNlIntent
+    CC=5  in:0  out:20  total:20
+  src.extractors.todo.body
+    CC=5  in:0  out:20  total:20
+  src.extractors.todo.lines
+    CC=5  in:0  out:20  total:20
+  src.extractors.changelog.extractChangelog
+    CC=10  in:0  out:19  total:19
+  rust-ast.src.main.add
+    CC=1  in:9  out:10  total:19
+  src.graph.diff.diffIntentGraphs
+    CC=11  in:0  out:19  total:19
+  src.extractors.configuration.configurationRecords
+    CC=4  in:4  out:12  total:16
+  java.JavaAstExtract.JavaAstExtract.main
+    CC=10  in:0  out:16  total:16
 
 MODULES:
-  src.cli  [44 funcs]
-    command  CC=4  out:1
-    context  CC=9  out:10
-    controller  CC=1  out:5
-    diagnostics  CC=2  out:5
-    diagnosticsPath  CC=2  out:5
-    diff  CC=2  out:4
-    doctor  CC=6  out:7
-    emitExtraction  CC=4  out:4
-    execFileAsync  CC=2  out:2
-    extractor  CC=6  out:6
-  src.operations.validation  [8 funcs]
-    assertPrincipalList  CC=2  out:4
-    assertVariableContract  CC=20  out:14
-    dateString  CC=2  out:4
-    exactKeys  CC=2  out:5
-    nonBlank  CC=3  out:2
-    objectValue  CC=4  out:2
-    principals  CC=1  out:1
-    uniqueStrings  CC=8  out:5
-  src.pipeline.run  [19 funcs]
-    aborted  CC=1  out:1
-    collectTargetHints  CC=1  out:4
-    communicationAudit  CC=10  out:5
-    communicationInputPresent  CC=10  out:5
-    communicationStartedAt  CC=10  out:5
-    configurationExtraction  CC=10  out:5
-    docs  CC=2  out:4
-    failedAudit  CC=9  out:2
-    failureCode  CC=1  out:2
-    includeCommunication  CC=10  out:5
-  src.semantic.reranker  [23 funcs]
-    acceptedDeclarations  CC=16  out:15
-    applyAcceptedSemanticRelations  CC=2  out:13
-    assertGroundedQuote  CC=3  out:7
-    assertSemanticCandidateSet  CC=27  out:18
-    assertSemanticRerankResult  CC=21  out:21
-    assertSemanticVerdictReason  CC=7  out:2
-    boundedScore  CC=4  out:3
-    byDeclaration  CC=14  out:9
-    createSemanticCandidateSet  CC=8  out:17
-    createSemanticRerankResult  CC=4  out:11
-  src.semantic.reranker-llm  [8 funcs]
-    assertSemanticCandidateSet  CC=2  out:1
-    assertSemanticRerankResult  CC=2  out:1
-    assertTrackedSnapshot  CC=1  out:0
-    model  CC=4  out:2
-    modelRevision  CC=4  out:2
-    payload  CC=1  out:3
-    projectRecord  CC=3  out:3
-    rerankSemanticCandidates  CC=25  out:19
-  src.services.actions  [41 funcs]
-    after  CC=2  out:2
-    afterDiagnostics  CC=8  out:2
-    afterGraph  CC=8  out:2
-    afterInput  CC=2  out:2
-    afterPath  CC=1  out:4
-    analysis  CC=2  out:4
-    before  CC=2  out:2
-    beforeDiagnostics  CC=8  out:2
-    beforeGraph  CC=8  out:2
-    beforeInput  CC=2  out:2
-  src.summary.render  [6 funcs]
-    actions  CC=2  out:2
-    confidence  CC=1  out:2
-    recordCitations  CC=1  out:1
-    renderConclusion  CC=1  out:3
-    renderRecords  CC=2  out:3
-    renderSummaryMarkdown  CC=10  out:9
-  src.summary.summarizer  [15 funcs]
-    assertConclusions  CC=1  out:0
-    conclusions  CC=3  out:3
-    deterministicConclusions  CC=4  out:7
-    generationMetadata  CC=9  out:5
-    materializeConclusions  CC=1  out:7
-    parsed  CC=1  out:4
+  examples.backend.src.server  [12 funcs]
+    createBackend  CC=4  out:5
+    event  CC=1  out:1
+    handleRequest  CC=16  out:12
+    limit  CC=1  out:1
+    offset  CC=1  out:1
+    readBody  CC=3  out:5
+    sendJson  CC=1  out:4
+    server  CC=3  out:4
+    size  CC=3  out:3
+    startBackend  CC=3  out:3
+  examples.backend.src.validation  [7 funcs]
+    ALLOWED_ACTIONS  CC=10  out:5
+    action  CC=2  out:3
+    agent  CC=2  out:3
+    invalid  CC=1  out:0
+    object  CC=2  out:3
+    record  CC=2  out:3
+    validateEventPayload  CC=10  out:5
+  examples.frontend.src.app  [5 funcs]
+    createState  CC=1  out:0
+    mountPanel  CC=1  out:4
+    refresh  CC=4  out:6
+    reload  CC=1  out:1
+    state  CC=1  out:1
+  examples.frontend.src.render  [4 funcs]
+    classifyEvent  CC=4  out:0
+    headerRow  CC=2  out:2
+    renderTable  CC=3  out:4
+    toRows  CC=1  out:2
+  examples.src.runtime  [2 funcs]
+    executeContract  CC=1  out:1
+    validateContract  CC=2  out:1
+  java.JavaAstExtract  [10 funcs]
+    add  CC=1  out:0
+    collect  CC=1  out:11
+    containsIgnored  CC=3  out:2
+    emit  CC=1  out:3
+    escape  CC=9  out:6
+    json  CC=1  out:1
+    main  CC=10  out:16
+    map  CC=1  out:0
+    slash  CC=1  out:1
+    try  CC=3  out:13
+  rust-ast.src.main  [21 funcs]
+    add  CC=1  out:10
+    arguments  CC=5  out:9
+    collect_files  CC=9  out:20
+    excerpt  CC=1  out:7
+    main  CC=6  out:21
+    modifiers  CC=3  out:4
+    qualified  CC=2  out:3
+    slash  CC=1  out:2
+    type_item  CC=1  out:8
+    visit_expr_call  CC=1  out:9
+  src.extractors.ast  [2 funcs]
+    isExtractionResult  CC=5  out:3
+    isIntentRecords  CC=2  out:1
+  src.extractors.ast.external  [3 funcs]
+    execFileAsync  CC=3  out:0
+    result  CC=2  out:1
+    runExternalAstAdapter  CC=9  out:6
+  src.extractors.ast.records  [7 funcs]
+    adapterRecords  CC=2  out:3
+    boundedCapabilities  CC=1  out:6
+    capabilities  CC=1  out:2
+    end  CC=1  out:2
+    moduleRecords  CC=6  out:14
+    moduleTopicText  CC=2  out:1
+    start  CC=1  out:2
+  src.extractors.ast.typescript  [14 funcs]
+    add  CC=14  out:7
+    callee  CC=2  out:2
+    capabilities  CC=1  out:2
+    declarationIsCallable  CC=4  out:2
+    excerpt  CC=1  out:2
+    extractTypeScriptFile  CC=43  out:44
+    isTopLevel  CC=5  out:3
+    languageName  CC=2  out:3
+    lineRange  CC=1  out:3
+    modifiers  CC=4  out:4
+  src.extractors.changelog  [5 funcs]
+    body  CC=7  out:15
+    changelogAction  CC=11  out:3
+    extractChangelog  CC=10  out:19
+    lines  CC=7  out:15
+    relative  CC=7  out:15
+  src.extractors.communication  [34 funcs]
+    basename  CC=1  out:0
+    communicationFiles  CC=3  out:2
+    communicationSegments  CC=14  out:12
+    declaredParticipant  CC=5  out:1
+    declaredParticipantId  CC=5  out:1
+    declaredRole  CC=5  out:1
+    envelope  CC=5  out:1
+    explicitEnvelope  CC=5  out:1
+    extractCommunicationFile  CC=50  out:24
+    extractCommunicationIntent  CC=7  out:10
+  src.extractors.configuration  [23 funcs]
+    MAX_ENTRIES_PER_FILE  CC=4  out:10
+    bounded  CC=1  out:3
+    configurationFormat  CC=6  out:4
+    configurationRecords  CC=4  out:12
+    dockerEntries  CC=6  out:6
+    entries  CC=1  out:3
+    entry  CC=1  out:1
+    extractConfigurationIntent  CC=4  out:10
+    fileAggregate  CC=3  out:10
+    files  CC=4  out:5
+  src.extractors.docs-chunks  [15 funcs]
+    chunkMarkdown  CC=8  out:9
+    chunkPriority  CC=3  out:4
+    flush  CC=2  out:2
+    index  CC=1  out:3
+    item  CC=1  out:3
+    mapConcurrent  CC=3  out:7
+    markdownSections  CC=4  out:2
+    needles  CC=1  out:2
+    prioritizeDocumentChunks  CC=3  out:6
+    sectionLines  CC=2  out:3
+  src.extractors.docs-deterministic  [19 funcs]
+    action  CC=3  out:6
+    codeBlockRecord  CC=2  out:2
+    convertDocument  CC=4  out:4
+    extractDocumentationBaseline  CC=4  out:8
+    handleDocumentationLine  CC=5  out:4
+    heading  CC=1  out:1
+    marker  CC=4  out:2
+    match  CC=2  out:0
+    parseBulletStatement  CC=6  out:3
+    parseFenceBlock  CC=7  out:5
+  src.extractors.docs-llm  [8 funcs]
+    errorMessage  CC=2  out:1
+    extractChunk  CC=12  out:8
+    extractDocumentationIntent  CC=3  out:12
+    files  CC=3  out:7
+    loadDocumentChunks  CC=4  out:8
     readPrompt  CC=2  out:6
-    sortedUnique  CC=2  out:5
-    summarizeWithCorrection  CC=10  out:7
-    summaryMode  CC=7  out:1
-  src.synthesis.code-change-path  [2 funcs]
-    isPlannablePath  CC=38  out:13
-    isUsefulCodeChangePath  CC=1  out:1
-  src.synthesis.code-change-plan  [63 funcs]
-    acceptanceCriteriaFor  CC=4  out:3
-    acceptances  CC=1  out:2
-    acceptedCount  CC=2  out:1
-    applyCodeChangeSourcePatch  CC=41  out:35
-    applyUnifiedDiffToText  CC=47  out:13
-    assertCodeChangeSourcePatch  CC=47  out:26
-    assertCodeChangeSourcePatchSet  CC=18  out:14
-    assertExistingSourceReceipt  CC=8  out:10
-    assertSourceApplyReceipt  CC=11  out:13
-    assertSourcePatchIds  CC=6  out:5
-  src.synthesis.task-synthesis-contract  [5 funcs]
-    RAW_CONCLUSION_CONTRACT  CC=1  out:5
-    RAW_PROPOSAL_CONTRACT  CC=1  out:6
-    nonBlank  CC=1  out:1
-    taskIds  CC=1  out:2
-    taskStrings  CC=1  out:2
-  src.synthesis.task-synthesis-materialize  [17 funcs]
-    conclusionByKey  CC=2  out:10
-    conclusionIdByKey  CC=2  out:10
-    conclusions  CC=1  out:5
-    diagnosticIds  CC=1  out:2
-    keys  CC=2  out:4
-    mapKeys  CC=2  out:5
-    materializeTaskSynthesisResponse  CC=2  out:18
-    normalizeAcceptanceCriteria  CC=4  out:2
-    normalizeLocalKeys  CC=1  out:0
-    normalizeRawTarget  CC=3  out:2
-  src.synthesis.tasks-llm  [11 funcs]
-    assertConclusions  CC=1  out:0
-    client  CC=2  out:2
-    fallbackOrThrow  CC=2  out:6
-    generationMetadata  CC=3  out:5
-    payload  CC=1  out:1
-    prompt  CC=1  out:1
-    readPrompt  CC=2  out:6
-    startedAt  CC=1  out:1
-    synthesisAudit  CC=1  out:1
-    synthesizeTodoProposals  CC=5  out:12
-  src.synthesis.todo-patch  [37 funcs]
-    appendPatch  CC=2  out:1
-    applied  CC=5  out:4
-    applyTodoPatch  CC=12  out:20
-    artifact  CC=6  out:8
-    assertApproval  CC=3  out:2
-    assertReceipt  CC=7  out:4
-    assertTodoPatchArtifact  CC=11  out:16
-    atomicWrite  CC=5  out:13
-    classified  CC=6  out:8
-    createTodoPatch  CC=8  out:20
-  src.synthesis.validation  [12 funcs]
-    dependencyFirstPriorityOrder  CC=11  out:10
-    duplicateEvidence  CC=11  out:9
-    intersects  CC=1  out:5
-    jaccard  CC=5  out:1
-    proposalWords  CC=1  out:1
-    sharedPath  CC=1  out:2
-    sharedSymbol  CC=1  out:2
-    sharedTicket  CC=1  out:2
-    similarity  CC=1  out:2
+    requireConfiguredClient  CC=3  out:4
+    selectWithinBudget  CC=2  out:3
+  src.extractors.docs-record  [20 funcs]
+    OBJECT_PLACEHOLDERS  CC=14  out:13
+    action  CC=11  out:7
+    allowedAction  CC=1  out:1
+    allowedLifecycle  CC=1  out:1
+    allowedModality  CC=1  out:1
+    anchorToSource  CC=7  out:10
+    clampLine  CC=1  out:3
+    fallback  CC=2  out:1
+    hasTarget  CC=4  out:1
+    isPlaceholder  CC=3  out:3
+  src.extractors.docs-schema  [5 funcs]
+    documentRecord  CC=1  out:8
+    documentResponseContract  CC=1  out:2
+    documentResponseSchema  CC=1  out:1
+    strings  CC=1  out:2
     target  CC=1  out:2
-  src.tf.classifier  [6 funcs]
-    classifyAction  CC=17  out:12
-    dynamicImport  CC=1  out:3
-    importer  CC=1  out:0
-    loadAssets  CC=2  out:6
-    loadClassifier  CC=6  out:5
-    vectorize  CC=6  out:5
-  src.watch.watcher  [28 funcs]
-    DEFAULT_MIN_INTERVAL_MS  CC=19  out:14
-    DEFAULT_SCAN_INTERVAL_MS  CC=19  out:14
-    absolute  CC=3  out:3
-    absoluteRoot  CC=11  out:14
-    current  CC=2  out:2
-    defaultSleep  CC=6  out:7
-    delta  CC=2  out:2
-    describeDelta  CC=2  out:4
-    diffSnapshots  CC=6  out:5
-    emit  CC=2  out:0
-  src.web.diff-ui  [9 funcs]
-    byId  CC=1  out:0
-    compareGraphs  CC=15  out:13
-    diffUiHtml  CC=52  out:42
-    fillSelect  CC=6  out:9
-    formatBytes  CC=7  out:2
-    loadRuns  CC=12  out:14
-    requestHeaders  CC=3  out:2
-    selectedRun  CC=7  out:2
-    updateMeta  CC=7  out:3
+  src.extractors.git  [25 funcs]
+    count  CC=2  out:2
+    createDiscoveryState  CC=1  out:0
+    discoverGitRepositories  CC=4  out:7
+    execFileAsync  CC=1  out:0
+    extractChangedSymbols  CC=9  out:3
+    extractGitIntent  CC=6  out:7
+    extractRepositoryGitIntent  CC=11  out:21
+    filterDiscoveryChildren  CC=5  out:6
+    finishDiscovery  CC=4  out:1
+    gitMarkerState  CC=5  out:5
+  src.extractors.markdown-llm  [17 funcs]
+    emptyCoverage  CC=2  out:1
+    enrichBatchCovering  CC=8  out:11
+    enrichMarkdownBatchWithCorrection  CC=1  out:0
+    enrichSplitBatch  CC=2  out:7
+    enrichment  CC=1  out:6
+    failed  CC=1  out:2
+    fallbackOrThrow  CC=2  out:5
+    markDeterministic  CC=2  out:2
+    markdownResponseContract  CC=1  out:7
+    readPrompt  CC=2  out:6
+  src.extractors.markdown-paths  [14 funcs]
+    addBasenameIndexMatch  CC=3  out:4
+    basenames  CC=11  out:10
+    buildBasenameIndex  CC=7  out:7
+    createBasenameIndexState  CC=1  out:1
+    createMarkdownPathResolver  CC=12  out:12
+    headingDirectories  CC=11  out:9
+    headingScopes  CC=4  out:6
+    index  CC=6  out:4
+    isNestedCheckout  CC=2  out:1
+    isRepositoryPath  CC=5  out:3
+  src.extractors.nl  [12 funcs]
+    absolute  CC=2  out:14
+    action  CC=1  out:9
+    assertNlExtractionOptions  CC=9  out:2
+    body  CC=2  out:14
+    classified  CC=1  out:9
+    confidence  CC=1  out:9
+    detectMissingFields  CC=10  out:5
+    extractNlIntent  CC=5  out:20
+    inferActor  CC=5  out:2
+    missing  CC=1  out:9
+  src.extractors.nl-llm  [32 funcs]
+    NL_RECORD_CONTRACT  CC=1  out:7
+    action  CC=1  out:1
+    allowedAction  CC=1  out:1
+    allowedModality  CC=1  out:1
+    audit  CC=1  out:1
+    clampLine  CC=1  out:3
+    deterministic  CC=1  out:1
+    extractNlWithCorrection  CC=1  out:0
+    failedAudit  CC=1  out:2
+    fallback  CC=2  out:0
+  src.extractors.runtime-cycle  [17 funcs]
+    MAX_PER_SECTION  CC=8  out:12
+    boundedArray  CC=8  out:4
+    driftRecord  CC=5  out:5
+    extractRuntimeCycleIntent  CC=8  out:12
+    factsMetadata  CC=5  out:3
+    jsonScalar  CC=6  out:1
+    label  CC=2  out:1
+    parseCycle  CC=7  out:5
+    probeRecord  CC=9  out:8
+    proposalAction  CC=5  out:0
+  src.extractors.todo  [16 funcs]
+    action  CC=2  out:12
+    block  CC=2  out:12
+    body  CC=5  out:20
+    checked  CC=2  out:12
+    classified  CC=2  out:12
+    extractExplicitId  CC=5  out:3
+    extractTodo  CC=5  out:24
+    heading  CC=1  out:1
+    inferOwner  CC=4  out:1
+    lines  CC=5  out:20
+  src.graph.diff  [26 funcs]
+    afterGroups  CC=7  out:6
+    afterRecord  CC=1  out:3
+    assertGraph  CC=3  out:3
+    beforeGroups  CC=7  out:6
+    beforeRecord  CC=1  out:3
+    changedFieldPaths  CC=6  out:6
+    compareRelations  CC=1  out:2
+    diffIntentGraphs  CC=11  out:19
+    escapeXml  CC=2  out:1
+    groupRecords  CC=4  out:6
+  src.graph.linker  [41 funcs]
+    addToBucket  CC=2  out:3
+    aliases  CC=3  out:3
+    astIds  CC=10  out:7
+    buckets  CC=10  out:7
+    byId  CC=4  out:2
+    candidatePairs  CC=5  out:7
+    collectCandidatePairs  CC=10  out:8
+    configurationIds  CC=10  out:7
+    declarationAstIds  CC=10  out:7
+    deduplicateRecords  CC=4  out:3
+  src.graph.symbol-resolution  [10 funcs]
+    buildSymbolResolutionIndex  CC=15  out:13
+    byAlias  CC=9  out:8
+    byNlRecord  CC=4  out:3
+    hasResolvedNlAstSymbolPair  CC=10  out:3
+    isAstDeclaration  CC=3  out:0
+    pathSelects  CC=3  out:5
+    resolveSymbol  CC=8  out:6
+    selected  CC=2  out:1
+    uniquePaths  CC=1  out:3
+    values  CC=2  out:0
 
 EDGES:
-  src.cli.main → src.cli.printHelp
-  src.cli.main → src.cli.parseArgs
-  src.cli.main → src.cli.initProject
-  src.cli.parsed → src.cli.printHelp
-  src.cli.command → src.cli.printHelp
-  src.cli.diagnosticsPath → src.cli.optionNumber
-  src.cli.diagnosticsPath → src.cli.optionBoolean
-  src.cli.diagnostics → src.cli.optionNumber
-  src.cli.diagnostics → src.cli.optionBoolean
-  src.cli.result → src.cli.execFileAsync
-  src.cli.isPlanSet → src.cli.optionString
-  src.cli.root → src.cli.optionString
-  src.cli.root → src.cli.optionNullableString
-  src.cli.root → src.cli.optionLlmMode
-  src.cli.handleWatch → src.cli.optionNullableString
-  src.cli.handleWatch → src.cli.optionList
-  src.cli.handleWatch → src.cli.optionBoolean
-  src.cli.handleWatch → src.cli.optionString
-  src.cli.handleWatch → src.cli.optionNumber
-  src.cli.handleWatch → src.cli.optionNlMode
-  src.cli.taskFile → src.cli.optionNullableString
-  src.cli.taskFile → src.cli.optionList
-  src.cli.taskFile → src.cli.optionBoolean
-  src.cli.taskFile → src.cli.optionString
-  src.cli.taskFile → src.cli.optionNumber
-  src.cli.taskFile → src.cli.optionNlMode
-  src.cli.taskFile → src.cli.optionLlmMode
-  src.cli.taskFile → src.cli.optionPipelineTaskMode
-  src.cli.controller → src.cli.optionNumber
-  src.cli.controller → src.cli.optionBoolean
-  src.cli.controller → src.cli.formatWatchEvent
-  src.cli.stop → src.cli.optionNumber
-  src.cli.stop → src.cli.optionBoolean
-  src.cli.stop → src.cli.formatWatchEvent
-  src.cli.formatWatchEvent → src.cli.file
-  src.cli.stamp → src.cli.file
-  src.cli.handleDiff → src.cli.optionString
-  src.cli.handleDiff → src.cli.optionNumber
-  src.cli.mode → src.cli.optionNumber
-  src.cli.svg → src.cli.optionNumber
-  src.cli.svg → src.cli.optionBoolean
-  src.cli.html → src.cli.optionNumber
-  src.cli.diff → src.cli.optionNumber
-  src.cli.context → src.cli.optionString
-  src.cli.context → src.cli.optionBoolean
-  src.cli.context → src.cli.optionNumber
-  src.cli.maxRows → src.cli.optionString
-  src.cli.maxRows → src.cli.optionBoolean
-  src.cli.maxRows → src.cli.optionNumber
-  src.cli.handleReality → src.cli.optionString
+  rust-ast.src.main.main → rust-ast.src.main.arguments
+  rust-ast.src.main.main → rust-ast.src.main.collect_files
+  rust-ast.src.main.main → rust-ast.src.main.slash
+  rust-ast.src.main.collect_files → rust-ast.src.main.slash
+  rust-ast.src.main.add → rust-ast.src.main.excerpt
+  rust-ast.src.main.visit_item_mod → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_mod → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_use → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_struct → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_enum → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_trait → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_type → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.modifiers
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.modifiers
+  rust-ast.src.main.visit_item_fn → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_fn → rust-ast.src.main.add
+  rust-ast.src.main.visit_impl_item_fn → rust-ast.src.main.add
+  rust-ast.src.main.visit_expr_call → rust-ast.src.main.add
+  rust-ast.src.main.visit_expr_method_call → rust-ast.src.main.add
+  rust-ast.src.main.type_item → rust-ast.src.main.qualified
+  rust-ast.src.main.type_item → rust-ast.src.main.add
+  rust-ast.src.main.type_item → rust-ast.src.main.modifiers
+  examples.backend.src.validation.ALLOWED_ACTIONS → examples.backend.src.validation.invalid
+  examples.backend.src.validation.validateEventPayload → examples.backend.src.validation.invalid
+  examples.backend.src.validation.record → examples.backend.src.validation.invalid
+  examples.backend.src.validation.agent → examples.backend.src.validation.invalid
+  examples.backend.src.validation.action → examples.backend.src.validation.invalid
+  examples.backend.src.validation.object → examples.backend.src.validation.invalid
+  examples.backend.src.server.createBackend → examples.backend.src.server.handleRequest
+  examples.backend.src.server.createBackend → examples.backend.src.server.sendJson
+  examples.backend.src.server.store → examples.backend.src.server.handleRequest
+  examples.backend.src.server.store → examples.backend.src.server.sendJson
+  examples.backend.src.server.server → examples.backend.src.server.handleRequest
+  examples.backend.src.server.server → examples.backend.src.server.sendJson
+  examples.backend.src.server.handleRequest → examples.backend.src.server.sendJson
+  examples.backend.src.server.handleRequest → examples.backend.src.server.size
+  examples.backend.src.server.handleRequest → examples.backend.src.server.readBody
+  examples.backend.src.server.validation → examples.backend.src.server.sendJson
+  examples.backend.src.server.event → examples.backend.src.server.sendJson
+  examples.backend.src.server.offset → examples.backend.src.server.sendJson
+  examples.backend.src.server.limit → examples.backend.src.server.sendJson
+  examples.backend.src.server.startBackend → examples.backend.src.server.createBackend
+  examples.frontend.src.render.toRows → examples.frontend.src.render.classifyEvent
+  examples.frontend.src.render.renderTable → examples.frontend.src.render.headerRow
+  examples.frontend.src.app.mountPanel → examples.frontend.src.app.createState
+  examples.frontend.src.app.mountPanel → examples.frontend.src.app.refresh

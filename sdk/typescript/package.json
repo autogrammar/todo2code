@@ -1,6 +1,6 @@
 {
   "name": "@todo2code/sdk",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "TypeScript SDK for the todo2code A2A v1.0 endpoint.",
   "type": "module",
   "private": true,

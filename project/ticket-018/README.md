@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: WAIT_FOR_APPROVAL
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -157,11 +157,11 @@ agent self-approved.
 - [x] AC-23: The workflow uses least-privilege read permissions, never uses
       `pull_request_target`, and treats fork PRs without secrets as requiring a
       trusted rerun rather than exposing organization credentials.
-- [ ] AC-24: A repository ruleset requires `governance / enforce` and
+- [x] AC-24: A repository ruleset requires `governance / enforce` and
       `koru / code-review`, blocks direct updates to `main`, dismisses stale
       evidence after new commits and cannot be bypassed by the implementation
       agent.
-- [ ] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
+- [x] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
       `npm run verify`, governance and relevant Docker checks pass; the
       pre-existing ticket-019 findings remain separately attributed.
 

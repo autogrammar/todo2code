@@ -30,6 +30,12 @@ const PATH_SEARCH_EXCLUDES = new Set([
 /** Bound the walk so a pathological tree cannot stall extraction. */
 const MAX_INDEXED_FILES = 20_000;
 
+interface BasenameIndexState {
+  base: string;
+  pending: string[];
+  seen: number;
+}
+
 export function createMarkdownPathResolver(root: string): MarkdownPathResolver {
   const repositoryRoot = path.resolve(root);
   let index: Promise<Map<string, string[]>> | null = null;
@@ -83,40 +89,70 @@ function headingScopes(headings: string[]): string[] {
 
 async function buildBasenameIndex(root: string): Promise<Map<string, string[]>> {
   const index = new Map<string, string[]>();
-  const base = path.resolve(root);
-  const pending = [base];
-  let seen = 0;
-  while (pending.length && seen < MAX_INDEXED_FILES) {
-    const directory = pending.pop()!;
-    let entries: Dirent<string>[];
-    try {
-      entries = await fs.readdir(directory, { withFileTypes: true, encoding: 'utf8' });
-    } catch {
-      continue;
-    }
-    // A directory carrying its own `.git` is a nested checkout or agent
-    // worktree. Indexing its copy of the tree duplicates every basename and
-    // blocks resolution repository-wide: on `if-uri/urirun`, 63 worktrees
-    // under `.claude/worktrees/` shadowed the real `docs/ARCHITECTURE.md`.
-    if (directory !== base && entries.some((entry) => entry.name === '.git')) continue;
-    for (const entry of entries) {
-      if (entry.isSymbolicLink()) continue;
-      const absolute = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        if (!PATH_SEARCH_EXCLUDES.has(entry.name) && !entry.name.startsWith('.intent-')) {
-          pending.push(absolute);
-        }
-        continue;
-      }
-      if (!entry.isFile()) continue;
-      seen += 1;
-      if (seen > MAX_INDEXED_FILES) break;
-      const matches = index.get(entry.name);
-      // Two hits already prove ambiguity; more of them change no decision.
-      if (!matches) index.set(entry.name, [relativePosix(root, absolute)]);
-      else if (matches.length < 2) matches.push(relativePosix(root, absolute));
-    }
+  const state = createBasenameIndexState(root);
+  while (state.pending.length && state.seen < MAX_INDEXED_FILES) {
+    const directory = state.pending.pop();
+    if (!directory) continue;
+    const entries = await readBasenameDirectoryEntries(directory);
+    if (!entries) continue;
+    if (isNestedCheckout(directory, state.base, entries)) continue;
+    scanDirectoryForBasenames(directory, entries, root, index, state);
   }
   for (const matches of index.values()) matches.sort();
   return index;
+}
+
+function createBasenameIndexState(root: string): BasenameIndexState {
+  return {
+    base: path.resolve(root),
+    pending: [path.resolve(root)],
+    seen: 0,
+  };
+}
+
+async function readBasenameDirectoryEntries(directory: string): Promise<Dirent<string>[] | null> {
+  try {
+    return await fs.readdir(directory, { withFileTypes: true, encoding: 'utf8' });
+  } catch {
+    return null;
+  }
+}
+
+function isNestedCheckout(directory: string, base: string, entries: Dirent<string>[]): boolean {
+  return directory !== base && entries.some((entry) => entry.name === '.git');
+}
+
+function scanDirectoryForBasenames(
+  directory: string,
+  entries: Dirent<string>[],
+  root: string,
+  index: Map<string, string[]>,
+  state: BasenameIndexState,
+): void {
+  for (const entry of entries) {
+    if (entry.isSymbolicLink()) continue;
+    const absolute = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      if (!PATH_SEARCH_EXCLUDES.has(entry.name) && !entry.name.startsWith('.intent-')) {
+        state.pending.push(absolute);
+      }
+      continue;
+    }
+    if (!entry.isFile()) continue;
+    state.seen += 1;
+    if (state.seen > MAX_INDEXED_FILES) break;
+    addBasenameIndexMatch(index, root, absolute, entry.name);
+  }
+}
+
+function addBasenameIndexMatch(
+  index: Map<string, string[]>,
+  root: string,
+  absolute: string,
+  filename: string,
+): void {
+  const matches = index.get(filename);
+  // Two hits already prove ambiguity; more of them change no decision.
+  if (!matches) index.set(filename, [relativePosix(root, absolute)]);
+  else if (matches.length < 2) matches.push(relativePosix(root, absolute));
 }

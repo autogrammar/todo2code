@@ -14,6 +14,7 @@ import {
   splitIntentLines,
 } from '../core/text.js';
 import type { EpistemicClass, ExtractionResult, LifecycleStatus } from '../core/types.js';
+import type { IntentRecord } from '../core/types.js';
 import { classifyAction } from '../tf/classifier.js';
 import { loadParticipantIdentityRegistry, type ParticipantIdentityEntry } from '../communication/identity.js';
 
@@ -74,142 +75,234 @@ export async function extractCommunicationIntent(
   let communicationFiles = 0;
 
   for (const file of files) {
-    const relativeToProject = relativePosix(projectRoot, file);
-    const parts = relativeToProject.split('/');
-    const pathTicket = parts.length > 1 ? parts[0] ?? '' : '';
-    if (!pathTicket) continue;
-    if (options.ticket && pathTicket.toLowerCase() !== options.ticket.toLowerCase()) continue;
-
-    let body: string;
-    try {
-      body = await readText(file, config.maxFileBytes);
-    } catch (error) {
-      warnings.push(`${relativeToProject}: ${error instanceof Error ? error.message : String(error)}`);
-      continue;
-    }
-    const envelope = parseEnvelope(body);
-    const inferred = inferIdentity(relativeToProject);
-    const explicitEnvelope = Boolean(first(
-      envelope.metadata.participant,
-      envelope.metadata.participant_id,
-      envelope.metadata['participant-id'],
-      envelope.metadata.role,
-      envelope.metadata.type,
-      envelope.metadata.ticket,
-    ));
-    if (!explicitEnvelope && isTicketEvidenceFile(relativeToProject)) continue;
-    if (!options.ticket && !identityRegistry && !looksLikeTicket(pathTicket)
-      && !inferred.role && !explicitEnvelope) continue;
-    communicationFiles += 1;
-    const declaredParticipant = first(envelope.metadata.participant, envelope.metadata.actor, inferred.participant);
-    const declaredRole = normalizeRole(first(envelope.metadata.role, inferred.role));
-    const declaredParticipantId = first(envelope.metadata.participant_id, envelope.metadata['participant-id']);
-    const identity = resolveIdentity(identityRegistry?.byId ?? null, declaredParticipantId);
-    const participant = identity.entry?.id ?? declaredParticipantId ?? declaredParticipant ?? `unknown:${path.basename(file)}`;
-    const role = identity.entry?.role ?? declaredRole;
-    const displayName = identity.entry?.displayName ?? declaredParticipant ?? participant;
-    const explicitMessageType = first(envelope.metadata.type, envelope.metadata.kind);
-    const messageType = normalizeType(first(explicitMessageType, inferred.type));
-    const ticket = first(envelope.metadata.ticket, pathTicket) ?? pathTicket;
-    const recipient = first(envelope.metadata.recipient, envelope.metadata.to);
-    const timestamp = validTimestamp(first(envelope.metadata.timestamp, envelope.metadata.created_at, envelope.metadata.createdat));
-    const declaredGitAuthors = listValue(first(envelope.metadata.git_authors, envelope.metadata['git-authors'], envelope.metadata.git_author));
-    const gitAuthors = identity.entry ? [...identity.entry.gitAuthors] : declaredGitAuthors;
-    const declaredA2aAgentId = first(envelope.metadata.a2a_agent_id, envelope.metadata['a2a-agent-id']);
-    const explicitPaths = listValue(first(envelope.metadata.paths, envelope.metadata.target_paths, envelope.metadata['target-paths']));
-    const explicitSymbols = listValue(first(envelope.metadata.symbols, envelope.metadata.target_symbols, envelope.metadata['target-symbols']));
-
-    if (role === 'unknown') warnings.push(`${relativeToProject}: role must be human or agent`);
-    if (participant.startsWith('unknown:')) warnings.push(`${relativeToProject}: participant is missing`);
-    if (identityRegistry && !declaredParticipantId) {
-      warnings.push(`${relativeToProject}: participant-id is required when project/participants.json exists`);
-    } else if (identityRegistry && !identity.entry) {
-      warnings.push(`${relativeToProject}: participant-id is not present in project/participants.json`);
-    }
-    if (identity.entry && declaredRole !== 'unknown' && declaredRole !== identity.entry.role) {
-      warnings.push(`${relativeToProject}: declared role conflicts with participant registry`);
-    }
-    if (identity.entry && declaredGitAuthors.length
-      && !sameStrings(declaredGitAuthors, identity.entry.gitAuthors)) {
-      warnings.push(`${relativeToProject}: git-authors differ from participant registry and were ignored`);
-    }
-    if (declaredA2aAgentId && (!identity.entry || !identity.entry.a2aAgentIds.includes(declaredA2aAgentId))) {
-      warnings.push(`${relativeToProject}: a2a-agent-id is not assigned to participant-id in the registry`);
-    }
-    if (!timestamp && first(envelope.metadata.timestamp, envelope.metadata.created_at, envelope.metadata.createdat)) {
-      warnings.push(`${relativeToProject}: invalid timestamp`);
-    }
-
-    const segments = communicationSegments(
-      envelope.body,
-      messageType,
-      inferred.governanceParticipantFile && !explicitMessageType ? role : null,
+    const fileResult = await extractCommunicationFile(
+      file,
+      projectRoot,
+      root,
+      options,
+      config,
+      identityRegistry,
     );
-    if (segments.length === 0
-      && inferred.governanceParticipantFile
-      && envelope.body.trim()) {
-      warnings.push(
-        `${relativeToProject}: no recognized intent sections for ${role}:${participant}; `
-        + `${role} participant must classify the content under a supported heading or add explicit type front matter`,
-      );
-    }
-    for (const segment of segments) {
-      const segmentType = segment.type;
-      const semantics = semanticsFor(segmentType, role);
-      const classified = await classifyAction(segment.text, config);
-      const action = segmentType === 'decision' && classified.action === 'unknown' ? 'approve' : classified.action;
-      const line = envelope.bodyStartLine + segment.line - 1;
-      const tickets = [...new Set([ticket.toUpperCase(), ...extractTickets(segment.text)])];
-      const symbols = [...new Set([...explicitSymbols, ...extractSymbols(segment.text)])]
-        .filter((symbol) => !tickets.some((item) => item === symbol.toUpperCase() || item.startsWith(`${symbol.toUpperCase()}-`)));
-      records.push(buildRecord({
-        kind: `communication_${segmentType}`,
-        actor: participant,
-        action,
-        subject: recipient ? `to:${recipient}` : `ticket:${ticket}`,
-        object: inferObject(segment.text, action),
-        target: {
-          paths: [...new Set([...explicitPaths, ...extractPaths(segment.text)])],
-          symbols,
-          tickets,
-          versions: extractVersions(segment.text),
-        },
-        modality: segmentType === 'report' || segmentType === 'result' || segmentType === 'claim'
-          ? 'claimed'
-          : detectModality(segment.text),
-        polarity: detectPolarity(segment.text),
-        text: segment.text,
-        lifecycle: semantics.lifecycle,
-        sourceKind: 'agent_log',
-        sourcePath: relativePosix(root, file),
-        sourceLines: { start: line, end: line },
-        extractor: 't2c/project-communication@1',
-        epistemicClass: semantics.epistemicClass,
-        confidence: role === 'unknown' || participant.startsWith('unknown:') ? 0.55 : 0.88,
-        basis: ['project_ticket_path', 'communication_front_matter', classified.basis],
-        observedAt: timestamp,
-        metadata: {
-          participant,
-          participantId: identity.entry?.id ?? null,
-          displayName,
-          participantRole: role,
-          messageType: segmentType,
-          ticket,
-          recipient,
-          gitAuthors,
-          a2aAgentIds: identity.entry?.a2aAgentIds ?? [],
-          humanAliases: identity.entry?.humanAliases ?? [],
-          identityResolved: identityRegistry ? Boolean(identity.entry) : role !== 'unknown' && !participant.startsWith('unknown:'),
-          identitySource: identity.entry ? 'registry' : identityRegistry ? 'unresolved' : 'legacy',
-          participantRegistry: identityRegistry ? relativePosix(root, identityRegistry.path) : null,
-          llmUsed: false,
-        },
-      }));
-    }
+    if (!fileResult) continue;
+    communicationFiles += fileResult.communicationFiles;
+    records.push(...fileResult.records);
+    warnings.push(...fileResult.warnings);
   }
 
   if (records.length === 0 && communicationFiles > 0) warnings.push('No intent-like communication statements were found');
   return { records, warnings: [...new Set(warnings)].sort() };
+}
+
+interface CommunicationFileOutcome {
+  records: ExtractionResult['records'];
+  warnings: string[];
+  communicationFiles: number;
+}
+
+async function extractCommunicationFile(
+  file: string,
+  projectRoot: string,
+  root: string,
+  options: CommunicationExtractionOptions,
+  config: T2CConfig,
+  identityRegistry: Awaited<ReturnType<typeof loadParticipantIdentityRegistry>> | null,
+): Promise<CommunicationFileOutcome | null> {
+  const relativeToProject = relativePosix(projectRoot, file);
+  const segments = relativeToProject.split('/');
+  const pathTicket = segments.length > 1 ? segments[0] ?? '' : '';
+  if (!pathTicket) return null;
+  if (options.ticket && pathTicket.toLowerCase() !== options.ticket.toLowerCase()) return null;
+
+  let body: string;
+  try {
+    body = await readText(file, config.maxFileBytes);
+  } catch (error) {
+    return {
+      records: [],
+      warnings: [`${relativeToProject}: ${error instanceof Error ? error.message : String(error)}`],
+      communicationFiles: 0,
+    };
+  }
+
+  const envelope = parseEnvelope(body);
+  const inferred = inferIdentity(relativeToProject);
+  const explicitEnvelope = Boolean(first(
+    envelope.metadata.participant,
+    envelope.metadata.participant_id,
+    envelope.metadata['participant-id'],
+    envelope.metadata.role,
+    envelope.metadata.type,
+    envelope.metadata.ticket,
+  ));
+  if (!explicitEnvelope && isTicketEvidenceFile(relativeToProject)) return null;
+  if (!options.ticket && !identityRegistry && !looksLikeTicket(pathTicket)
+    && !inferred.role && !explicitEnvelope) return null;
+
+  const declaredParticipant = first(envelope.metadata.participant, envelope.metadata.actor, inferred.participant);
+  const declaredRole = normalizeRole(first(envelope.metadata.role, inferred.role));
+  const declaredParticipantId = first(envelope.metadata.participant_id, envelope.metadata['participant-id']);
+  const identity = resolveIdentity(identityRegistry?.byId ?? null, declaredParticipantId);
+  const participant = identity.entry?.id ?? declaredParticipantId ?? declaredParticipant ?? `unknown:${path.basename(file)}`;
+  const role = identity.entry?.role ?? declaredRole;
+  const displayName = identity.entry?.displayName ?? declaredParticipant ?? participant;
+  const explicitMessageType = first(envelope.metadata.type, envelope.metadata.kind);
+  const messageType = normalizeType(first(explicitMessageType, inferred.type));
+  const ticket = first(envelope.metadata.ticket, pathTicket) ?? pathTicket;
+  const recipient = first(envelope.metadata.recipient, envelope.metadata.to);
+  const rawTimestamp = first(envelope.metadata.timestamp, envelope.metadata.created_at, envelope.metadata.createdat);
+  const timestamp = validTimestamp(rawTimestamp);
+  const declaredGitAuthors = listValue(first(
+    envelope.metadata.git_authors,
+    envelope.metadata['git-authors'],
+    envelope.metadata.git_author,
+  ));
+  const gitAuthors = identity.entry ? [...identity.entry.gitAuthors] : declaredGitAuthors;
+  const declaredA2aAgentId = first(envelope.metadata.a2a_agent_id, envelope.metadata['a2a-agent-id']);
+  const explicitPaths = listValue(first(
+    envelope.metadata.paths,
+    envelope.metadata.target_paths,
+    envelope.metadata['target-paths'],
+  ));
+  const explicitSymbols = listValue(first(
+    envelope.metadata.symbols,
+    envelope.metadata.target_symbols,
+    envelope.metadata['target-symbols'],
+  ));
+
+  const localWarnings: string[] = [];
+  if (role === 'unknown') localWarnings.push(`${relativeToProject}: role must be human or agent`);
+  if (participant.startsWith('unknown:')) localWarnings.push(`${relativeToProject}: participant is missing`);
+  if (identityRegistry && !declaredParticipantId) {
+    localWarnings.push(`${relativeToProject}: participant-id is required when project/participants.json exists`);
+  } else if (identityRegistry && !identity.entry) {
+    localWarnings.push(`${relativeToProject}: participant-id is not present in project/participants.json`);
+  }
+  if (identity.entry && declaredRole !== 'unknown' && declaredRole !== identity.entry.role) {
+    localWarnings.push(`${relativeToProject}: declared role conflicts with participant registry`);
+  }
+  if (identity.entry && declaredGitAuthors.length
+    && !sameStrings(declaredGitAuthors, identity.entry.gitAuthors)) {
+    localWarnings.push(`${relativeToProject}: git-authors differ from participant registry and were ignored`);
+  }
+  if (declaredA2aAgentId && (!identity.entry || !identity.entry.a2aAgentIds.includes(declaredA2aAgentId))) {
+    localWarnings.push(`${relativeToProject}: a2a-agent-id is not assigned to participant-id in the registry`);
+  }
+  if (!timestamp && rawTimestamp) localWarnings.push(`${relativeToProject}: invalid timestamp`);
+
+  const classifiedSegments = communicationSegments(
+    envelope.body,
+    messageType,
+    inferred.governanceParticipantFile && !explicitMessageType ? role : null,
+  );
+  if (classifiedSegments.length === 0
+    && inferred.governanceParticipantFile
+    && envelope.body.trim()) {
+    localWarnings.push(
+      `${relativeToProject}: no recognized intent sections for ${role}:${participant}; `
+      + `${role} participant must classify the content under a supported heading or add explicit type front matter`,
+    );
+  }
+
+  const newRecords = await buildCommunicationRecords(
+    root,
+    file,
+    role,
+    ticket,
+    participant,
+    identity,
+    recipient,
+    identityRegistry,
+    timestamp,
+    explicitPaths,
+    explicitSymbols,
+    gitAuthors,
+    displayName,
+    classifiedSegments,
+    config,
+    envelope.bodyStartLine,
+  );
+
+  return {
+    records: newRecords,
+    warnings: localWarnings,
+    communicationFiles: 1,
+  };
+}
+
+async function buildCommunicationRecords(
+  root: string,
+  file: string,
+  role: CommunicationRole,
+  ticket: string,
+  participant: string,
+  identity: { entry: ParticipantIdentityEntry | null },
+  recipient: string | null,
+  identityRegistry: Awaited<ReturnType<typeof loadParticipantIdentityRegistry>> | null,
+  timestamp: string | null,
+  explicitPaths: string[],
+  explicitSymbols: string[],
+  gitAuthors: string[],
+  displayName: string,
+  segments: CommunicationSegment[],
+  config: T2CConfig,
+  bodyStartLine: number,
+): Promise<IntentRecord[]> {
+  const records: IntentRecord[] = [];
+  for (const segment of segments) {
+    const segmentType = segment.type;
+    const semantics = semanticsFor(segmentType, role);
+    const classified = await classifyAction(segment.text, config);
+    const action = segmentType === 'decision' && classified.action === 'unknown' ? 'approve' : classified.action;
+    const line = bodyStartLine + segment.line - 1;
+    const segmentTickets = [...new Set([ticket.toUpperCase(), ...extractTickets(segment.text)])];
+    const symbols = [...new Set([...explicitSymbols, ...extractSymbols(segment.text)])]
+      .filter((symbol) => !segmentTickets.some((item) => item === symbol.toUpperCase() || item.startsWith(`${symbol.toUpperCase()}-`)));
+
+    records.push(buildRecord({
+      kind: `communication_${segmentType}`,
+      actor: participant,
+      action,
+      subject: recipient ? `to:${recipient}` : `ticket:${ticket}`,
+      object: inferObject(segment.text, action),
+      target: {
+        paths: [...new Set([...explicitPaths, ...extractPaths(segment.text)])],
+        symbols,
+        tickets: segmentTickets,
+        versions: extractVersions(segment.text),
+      },
+      modality: segmentType === 'report' || segmentType === 'result' || segmentType === 'claim'
+        ? 'claimed'
+        : detectModality(segment.text),
+      polarity: detectPolarity(segment.text),
+      text: segment.text,
+      lifecycle: semantics.lifecycle,
+      sourceKind: 'agent_log',
+      sourcePath: relativePosix(root, file),
+      sourceLines: { start: line, end: line },
+      extractor: 't2c/project-communication@1',
+      epistemicClass: semantics.epistemicClass,
+      confidence: role === 'unknown' || participant.startsWith('unknown:') ? 0.55 : 0.88,
+      basis: ['project_ticket_path', 'communication_front_matter', classified.basis],
+      observedAt: timestamp,
+      metadata: {
+        participant,
+        participantId: identity.entry?.id ?? null,
+        displayName,
+        participantRole: role,
+        messageType: segmentType,
+        ticket,
+        recipient,
+        gitAuthors,
+        a2aAgentIds: identity.entry?.a2aAgentIds ?? [],
+        humanAliases: identity.entry?.humanAliases ?? [],
+        identityResolved: identityRegistry ? Boolean(identity.entry) : role !== 'unknown' && !participant.startsWith('unknown:'),
+        identitySource: identity.entry ? 'registry' : identityRegistry ? 'unresolved' : 'legacy',
+        participantRegistry: identityRegistry ? relativePosix(root, identityRegistry.path) : null,
+        llmUsed: false,
+      },
+    }));
+  }
+  return records;
 }
 
 function resolveIdentity(

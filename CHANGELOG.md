@@ -477,6 +477,29 @@
   from MIT to Apache License 2.0; README and container/package metadata now use
   the same SPDX identity.
 
+## [0.5.2] - 2026-08-04
+
+### Docs
+- Update README.md
+- Update TODO.md
+- Update project/README.md
+- Update project/context.md
+- Update project/ticket-018/README.md
+- Update project/ticket-018/changelog.md
+
+### Other
+- Update project/analysis.toon.yaml
+- Update project/calls.mmd
+- Update project/calls.png
+- Update project/calls.toon.yaml
+- Update project/calls.yaml
+- Update project/compact_flow.mmd
+- Update project/compact_flow.png
+- Update project/evolution.toon.yaml
+- Update project/flow.mmd
+- Update project/flow.png
+- ... and 38 more files
+
 ## [0.5.1] - 2026-08-01
 
 ### Docs

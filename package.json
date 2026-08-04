@@ -1,6 +1,6 @@
 {
   "name": "todo2code",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "todo2code (t2c): audited intent and team-communication extraction, evidence graphs, origin-to-workspace comparison and grounded summaries through CLI, MCP and A2A.",
   "type": "module",
   "private": true,

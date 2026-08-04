@@ -101,69 +101,134 @@ function convertDocument(root: string, filePath: string, body: string, resolvePa
   const relative = relativePosix(root, filePath);
   const lines = body.split(/\r?\n/);
   const records: IntentRecord[] = [];
-  const headings: string[] = [];
-  let fence: string | null = null;
+  const context: DocumentationContext = {
+    relative,
+    headings: [],
+    fence: null,
+  };
 
   for (let index = 0; index < lines.length; index += 1) {
     const raw = lines[index] ?? '';
-
-    // Fenced blocks are transparent to statement scanning: their content is
-    // code, not documentation prose, and would otherwise produce records for
-    // every commented line inside an example.
-    const fenceMatch = raw.match(/^\s*(```+|~~~+)\s*([A-Za-z0-9_+-]*)/);
-    if (fenceMatch) {
-      const marker = fenceMatch[1] ?? '';
-      if (fence === null) {
-        fence = marker;
-        const language = (fenceMatch[2] ?? '').trim();
-        const record = codeBlockRecord(relative, headings, language, index + 1);
-        if (record) records.push(record);
-      } else if (marker.startsWith(fence.slice(0, 3))) {
-        fence = null;
-      }
-      continue;
-    }
-    if (fence !== null) continue;
-
-    const heading = raw.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
-    if (heading) {
-      const level = heading[1]?.length ?? 1;
-      const title = heading[2]?.trim() ?? '';
-      headings.splice(level - 1);
-      headings[level - 1] = title;
-      if (level <= MAX_HEADING_LEVEL && title) {
-        records.push(statementRecord(relative, headings, title, { start: index + 1, end: index + 1 }, 'heading', resolvePaths));
-      }
-      continue;
-    }
-
-    const bullet = raw.match(/^\s*[-*+]\s+(?:\[[ xX]\]\s+)?(.+?)\s*$/);
-    if (bullet) {
-      const block = readListBlock(lines, index, bullet[1] ?? '');
-      index = block.endIndex;
-      const record = qualifyingStatement(relative, headings, block.text, { start: block.startLine, end: block.endLine }, resolvePaths);
-      if (record) records.push(record);
-      continue;
-    }
-
-    if (raw.trim()) {
-      // Prose wraps across lines. Reading one line at a time cuts sentences
-      // mid-clause and drops the very words that name the target — the same
-      // defect the TODO and CHANGELOG converters had.
-      const paragraph = readParagraph(lines, index);
-      index = paragraph.endIndex;
-      const record = qualifyingStatement(
-        relative,
-        headings,
-        paragraph.text,
-        { start: paragraph.startLine, end: paragraph.endLine },
-        resolvePaths,
-      );
-      if (record) records.push(record);
-    }
+    const lineResult = handleDocumentationLine(raw, index, lines, context, resolvePaths);
+    records.push(...lineResult.records);
+    index = lineResult.nextIndex;
   }
 
   return records;
+}
+
+interface DocumentationContext {
+  relative: string;
+  headings: string[];
+  fence: string | null;
+}
+
+interface LineResult {
+  nextIndex: number;
+  records: IntentRecord[];
+  consumed: boolean;
+}
+
+function handleDocumentationLine(
+  raw: string,
+  index: number,
+  lines: string[],
+  context: DocumentationContext,
+  resolvePaths: PathMapper,
+): LineResult {
+  const headingRecord = parseFenceBlock(raw, index, context, resolvePaths);
+  if (headingRecord.consumed) return headingRecord;
+
+  const sectionHeading = parseSectionHeading(raw, index, context, resolvePaths);
+  if (sectionHeading.consumed) return sectionHeading;
+
+  const bulletRecord = parseBulletStatement(raw, index, lines, context, resolvePaths);
+  if (bulletRecord.consumed) return bulletRecord;
+
+  const paragraphResult = parseParagraphStatement(raw, index, lines, context, resolvePaths);
+  if (paragraphResult.consumed) return paragraphResult;
+
+  return { nextIndex: index, records: [], consumed: false };
+}
+
+function parseFenceBlock(
+  raw: string,
+  index: number,
+  context: DocumentationContext,
+  resolvePaths: PathMapper,
+): LineResult {
+  const match = raw.match(/^\s*(```+|~~~+)\s*([A-Za-z0-9_+-]*)/);
+  if (!match) return { nextIndex: index, records: [], consumed: false };
+  const marker = match[1] ?? '';
+  if (context.fence === null) {
+    context.fence = marker;
+    const language = (match[2] ?? '').trim();
+    const record = codeBlockRecord(context.relative, context.headings, language, index + 1);
+    return { nextIndex: index, records: record ? [record] : [], consumed: true };
+  }
+  if (marker.startsWith(context.fence.slice(0, 3))) context.fence = null;
+  return { nextIndex: index, records: [], consumed: true };
+}
+
+function parseSectionHeading(
+  raw: string,
+  index: number,
+  context: DocumentationContext,
+  resolvePaths: PathMapper,
+): LineResult {
+  if (context.fence !== null) return { nextIndex: index, records: [], consumed: false };
+  const heading = raw.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+  if (!heading) return { nextIndex: index, records: [], consumed: false };
+  const level = heading[1]?.length ?? 1;
+  const title = heading[2]?.trim() ?? '';
+  context.headings.splice(level - 1);
+  context.headings[level - 1] = title;
+  if (level > MAX_HEADING_LEVEL || !title) return { nextIndex: index, records: [], consumed: true };
+  const record = statementRecord(context.relative, context.headings, title, { start: index + 1, end: index + 1 }, 'heading', resolvePaths);
+  return { nextIndex: index, records: [record], consumed: true };
+}
+
+function parseBulletStatement(
+  raw: string,
+  index: number,
+  lines: string[],
+  context: DocumentationContext,
+  resolvePaths: PathMapper,
+): LineResult {
+  if (context.fence !== null) return { nextIndex: index, records: [], consumed: false };
+  const bullet = raw.match(/^\s*[-*+]\s+(?:\[[ xX]\]\s+)?(.+?)\s*$/);
+  if (!bullet) return { nextIndex: index, records: [], consumed: false };
+  const block = readListBlock(lines, index, bullet[1] ?? '');
+  const record = qualifyingStatement(
+    context.relative,
+    context.headings,
+    block.text,
+    { start: block.startLine, end: block.endLine },
+    resolvePaths,
+  );
+  return { nextIndex: block.endIndex, records: record ? [record] : [], consumed: true };
+}
+
+function parseParagraphStatement(
+  raw: string,
+  index: number,
+  lines: string[],
+  context: DocumentationContext,
+  resolvePaths: PathMapper,
+): LineResult {
+  if (context.fence !== null || !raw.trim()) return { nextIndex: index, records: [], consumed: false };
+  // Prose wraps across lines. Reading one line at a time cuts sentences
+  // mid-clause and drops the very words that name the target — the same
+  // defect the TODO and CHANGELOG converters had.
+  const paragraph = readParagraph(lines, index);
+  const record = qualifyingStatement(
+    context.relative,
+    context.headings,
+    paragraph.text,
+    { start: paragraph.startLine, end: paragraph.endLine },
+    resolvePaths,
+  );
+  return { nextIndex: paragraph.endIndex, records: record ? [record] : [], consumed: true };
 }
 
 /** Consecutive non-blank prose lines, joined into one statement. */

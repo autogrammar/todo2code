@@ -1,52 +1,52 @@
-# todo2code | 3285 func | 152f | 45160L | typescript | 2026-08-01
+# todo2code | 3586 func | 166f | 39601L | typescript | 2026-08-04
 # generated in 0.00s
 
 HEALTH:
-  CC̄=4.0  critical=276 (limit:10)  dup=28  cycles=0
+  CC̄=3.8  critical=279 (limit:10)  dup=28  cycles=0
 
 ALERTS[20]:
-  !!! cc_exceeded      main = 95 (limit:15)
   !!! cc_exceeded      assertOperationPlan = 84 (limit:15)
   !!! cc_exceeded      executeAction = 83 (limit:15)
   !!! cc_exceeded      root = 83 (limit:15)
-  !!! cc_exceeded      extractCommunicationIntent = 76 (limit:15)
-  !!! cc_exceeded      identityRegistry = 72 (limit:15)
-  !!! cc_exceeded      communicationFiles = 72 (limit:15)
   !!! high_fan_out     executeAction = 65 (limit:10)
   !!! high_fan_out     root = 64 (limit:10)
-  !!! cc_exceeded      parseCommand = 57 (limit:15)
+  !!! cc_exceeded      parseCommand = 63 (limit:15)
+  !!! cc_exceeded      runPipeline = 56 (limit:15)
+  !!! high_fan_out     runPipeline = 56 (limit:10)
+  !!! cc_exceeded      diffUiHtml = 52 (limit:15)
+  !!! cc_exceeded      extractCommunicationFile = 50 (limit:15)
 
-MODULES[262] (top by size):
+MODULES[246] (top by size):
   M[evaluation/gold/v2/dataset.json] 2410L C:0 F:0 CC↑0 D:0 (json)
-  M[src/synthesis/code-change-plan.ts] 1310L C:10 F:127 CC↑47 D:6 (typescript)
-  M[src/core/schema.ts] 922L C:4 F:124 CC↑23 D:0 (typescript)
-  M[docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md] 872L C:0 F:0 CC↑0 D:0 (md)
-  M[docs/reference/original-monitoring-design.md] 872L C:0 F:0 CC↑0 D:0 (md)
-  M[README.md] 871L C:0 F:0 CC↑0 D:0 (md)
-  M[src/cli.ts] 827L C:1 F:83 CC↑95 D:0 (typescript)
+  M[src/synthesis/code-change-plan/implementation.ts] 1310L C:10 F:127 CC↑47 D:3 (typescript)
+  M[src/cli.ts] 908L C:1 F:118 CC↑13 D:0 (typescript)
   M[evaluation/gold/v1/dataset.json] 761L C:0 F:0 CC↑0 D:0 (json)
   M[src/services/actions.ts] 700L C:0 F:74 CC↑83 D:0 (typescript)
-  M[src/core/types.ts] 673L C:41 F:0 CC↑0 D:0 (typescript)
-  M[CHANGELOG.md] 670L C:0 F:0 CC↑0 D:0 (md)
-  M[src/diff/reality.ts] 609L C:3 F:73 CC↑26 D:0 (typescript)
-  M[src/pipeline/run.ts] 602L C:1 F:64 CC↑53 D:0 (typescript)
-  M[docs/TEST_REPORT.md] 587L C:0 F:0 CC↑0 D:0 (md)
+  M[src/diff/reality.ts] 619L C:3 F:74 CC↑26 D:0 (typescript)
+  M[src/pipeline/run.ts] 617L C:1 F:65 CC↑56 D:0 (typescript)
   M[schemas/gold-dataset.schema.json] 585L C:0 F:0 CC↑0 D:0 (json)
-  LANGS: typescript:117/md:52/json:32/javascript:15/python:15/rust:7/go:6/shell:6/php:4/other:2/yml:2/toml:2/java:1/txt:1
+  M[src/interfaces/a2a-task-store.ts] 560L C:3 F:88 CC↑11 D:0 (typescript)
+  M[src/communication/analyzer.ts] 542L C:3 F:72 CC↑48 D:0 (typescript)
+  M[goal.yaml] 530L C:0 F:0 CC↑0 D:0 (yaml)
+  M[src/extractors/communication.ts] 515L C:5 F:76 CC↑50 D:0 (typescript)
+  M[src/communication/llm/implementation.ts] 514L C:8 F:53 CC↑12 D:0 (typescript)
+  M[src/core/text.ts] 491L C:0 F:51 CC↑34 D:0 (typescript)
+  M[src/graph/linker.ts] 489L C:4 F:72 CC↑18 D:3 (typescript)
+  LANGS: typescript:138/json:40/python:16/javascript:15/shell:8/rust:7/go:6/php:4/toml:3/other:2/yml:2/yaml:2/java:1/txt:1/proto:1
 
 HOTSPOTS[10]:
   ★ executeAction fan=65  // Orchestrates 65 calls
   ★ root fan=64  // Orchestrates 64 calls
-  ★ runPipeline fan=54  // Orchestrates 54 calls
-  ★ main fan=44  // Orchestrates 44 calls
+  ★ runPipeline fan=56  // Orchestrates 56 calls
   ★ extractTypeScriptFile fan=44  // Orchestrates 44 calls
+  ★ diffUiHtml fan=42  // Orchestrates 42 calls
 
 REFACTOR[15]:
-  [1] H/L Split main (CC=95)
-  [2] H/L Split diffUiHtml (CC=52)
-  [3] H/L Split assertCodeChangeSourcePatch (CC=47)
-  [4] H/L Split applyCodeChangeSourcePatch (CC=41)
-  [5] H/L Split applyUnifiedDiffToText (CC=47)
+  [1] H/L Split extractCommunicationFile (CC=50)
+  [2] H/L Split extractTypeScriptFile (CC=43)
+  [3] H/L Split visit (CC=25)
+  [4] H/L Split diagnoseGraph (CC=40)
+  [5] H/L Split neighbors (CC=35)
 
 EVOLUTION:
-  2026-08-01 CC̄=4.0 crit=276 45160L // Automated analysis
+  2026-08-04 CC̄=3.8 crit=279 39601L // Automated analysis

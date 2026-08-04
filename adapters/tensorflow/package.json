@@ -1,6 +1,6 @@
 {
   "name": "@todo2code/tensorflow-adapter-runtime",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": true,
   "description": "Isolated optional TensorFlow runtime for todo2code action classification.",
   "license": "Apache-2.0",

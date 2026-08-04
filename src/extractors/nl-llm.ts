@@ -173,14 +173,11 @@ function markDeterministic(records: IntentRecord[], degraded: boolean, fallbackR
 }
 
 function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxLine: number, config: T2CConfig, response: LlmResponseMetadata): IntentRecord {
-  const start = clampLine(raw.sourceLines?.start ?? 1, 1, maxLine);
-  const end = clampLine(raw.sourceLines?.end ?? start, start, maxLine);
   const lines = body.split(/\r?\n/);
-  const excerpt = lines.slice(start - 1, end).join('\n').slice(0, 2000);
-  const action = allowedAction(raw.action) ? raw.action : 'unknown';
-  const { object, missingFields } = resolveObject(raw, action);
+  const { start, end, excerpt } = sourceExcerpt(raw, lines, maxLine);
+  const action = resolveAction(raw.action);
   const normalizedText = nonEmptyText(raw.text);
-  if (normalizedText === null) missingFields.push('text');
+  const { object, missingFields } = resolveObject(raw, action, normalizedText);
   const statementText = normalizedText ?? object;
   return buildRecord({
     kind: raw.kind || 'declared_intent',
@@ -213,6 +210,20 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
   });
 }
 
+function sourceExcerpt(
+  raw: RawNlRecord,
+  lines: string[],
+  maxLine: number,
+): { start: number; end: number; excerpt: string } {
+  const start = clampLine(raw.sourceLines?.start ?? 1, 1, maxLine);
+  const end = clampLine(raw.sourceLines?.end ?? start, start, maxLine);
+  return { start, end, excerpt: lines.slice(start - 1, end).join('\n').slice(0, 2000) };
+}
+
+function resolveAction(rawAction: string): IntentAction {
+  return allowedAction(rawAction) ? rawAction : 'unknown';
+}
+
 /**
  * `statement.object` is free text, but neighbouring fields (`action`, `modality`,
  * `lifecycle`) are enums that include the literal `unknown`. Models copy that
@@ -235,16 +246,26 @@ function isPlaceholder(value: unknown): boolean {
   return text === null || OBJECT_PLACEHOLDERS.has(text.toLowerCase());
 }
 
-function resolveObject(raw: RawNlRecord, action: IntentAction): { object: string; missingFields: string[] } {
+function resolveObject(
+  raw: RawNlRecord,
+  action: IntentAction,
+  normalizedText: string | null,
+): { object: string; missingFields: string[] } {
   const missingFields: string[] = [];
   if (action === 'unknown') missingFields.push('action');
+  if (normalizedText === null) {
+    missingFields.push('text');
+  }
 
   if (!isPlaceholder(raw.object)) return { object: nonEmptyText(raw.object) as string, missingFields };
 
   missingFields.push('object');
   // Falling back to the statement text keeps the record linkable by its own
   // wording instead of by a placeholder shared with unrelated records.
-  const fallback = nonEmptyText(raw.text);
+  const fallback = normalizedText;
+  if (fallback === null) {
+    return { object: 'unspecified', missingFields };
+  }
   return { object: isPlaceholder(fallback) ? 'unspecified' : (fallback as string), missingFields };
 }
 
