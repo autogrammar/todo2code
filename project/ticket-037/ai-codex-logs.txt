@@ -1,0 +1,2 @@
+2026-08-04T21:20:00Z PLAN ticket-037 deterministic branch comparison contract scaffolded
+2026-08-04T21:20:00Z WAIT_FOR_APPROVAL implementation paths unchanged
