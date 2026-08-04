@@ -31,5 +31,6 @@
   `commitIndex` alongside revision and generator provenance.
 - Replaced the unavailable `tsx` validation command with the repository's
   compiled Node test flow.
-- Passed TypeScript checks, 349 host tests (one toolchain skip), governance with
-  zero findings, and Docker core E2E with 343 passes and seven toolchain skips.
+- Passed TypeScript checks, 349 host tests plus one toolchain skip, governance
+  with zero findings, and Docker core E2E with 343 passes and seven toolchain
+  skips.
