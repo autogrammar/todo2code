@@ -415,10 +415,10 @@ COUPLING:
          sdk.python                                    ──                                                                           4                  1                  2                  1  !! fan-out
            src.live                 ←7                                    ──                                                                                                                    hub
            src.diff                 ←2                                                       ──                 ←4                                                                              hub
-             python                                                                           4                 ──                                     1                                      
+             python                                                                           4                 ──                                     1
       src.synthesis                 ←1                 ←4                                                                          ──                                                           hub
-          src.graph                 ←1                 ←1                                                       ←1                                    ──                                      
-               java                                    ←2                                                                                                                ──                   
+          src.graph                 ←1                 ←1                                                       ←1                                    ──
+               java                                    ←2                                                                                                                ──
   examples.frontend                                    ←1                                                                                                                                   ──
   CYCLES: none
   HUB: src.diff/ (fan-in=6)

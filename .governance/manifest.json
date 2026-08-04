@@ -84,7 +84,7 @@
         "ownedPaths": ["src/sdk/**", "sdk/**", "examples/sdk/**", "test/sdk*"]
       },
       "governance": {
-        "ownedPaths": [".governance/**", ".github/workflows/**", "AGENTS.md", "Makefile", "README.md", "TODO.md", "project.sh", "project.bat", "project/governance-check.*", "project/new-ticket.sh", "project/readme.sh", "project/TICKETS.md", "project/ticket-*/**"]
+        "ownedPaths": [".governance/**", ".github/workflows/**", "AGENTS.md", "Makefile", "README.md", "TODO.md", "project.sh", "project.bat", "project/README.md", "project/analysis.toon.yaml", "project/index.html", "project/governance-check.*", "project/new-ticket.sh", "project/readme.sh", "project/TICKETS.md", "project/ticket-*/**"]
       },
       "integration": {
         "ownedPaths": ["package.json", "package-lock.json", "tsconfig.json", "Dockerfile*", "compose*.yml", "scripts/**", "examples/**", "docs/**", "test/fixtures/**", "test/workflow-validation.test.ts", "src/core/types.ts"]

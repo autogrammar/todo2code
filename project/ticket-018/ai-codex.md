@@ -98,6 +98,14 @@ Current verified baseline:
     workflow validation, existing Node/Docker gates and scoped governance.
 20. Configure a `main` ruleset requiring governance and Koru review only after
     the check exists; verify direct pushes and stale evidence are rejected.
+21. Record the exact generated-analysis normalization scope and stop at
+    `WAIT_FOR_APPROVAL` before changing the manifest or generated artifacts.
+22. Assign `project/README.md`, `project/analysis.toon.yaml` and
+    `project/index.html` to the governance workstream and ticket intent.
+23. Run the existing deterministic root normalizer without regenerating the
+    analysis and without invoking `project2.sh`.
+24. Verify the focused generated-analysis gate, governance and the complete
+    repaired aggregate.
 
 ## Actual changes
 
@@ -129,6 +137,11 @@ Current verified baseline:
   non-overlapping and remains untouched; the final whole-workspace gate accepts
   ticket-018 (`governance`) and ticket-019 (`sdk`) as parallel PLAN/VALIDATION
   records while routing this implementation diff uniquely to ticket-018.
+- Assigned exactly the three generated-analysis artifacts to governance and
+  ticket-018, refreshed the manifest lock, and normalized their volatile
+  analysis-worktree roots with the existing deterministic script.
+- The focused generated-analysis and governance gates pass. No analysis was
+  regenerated and `project2.sh` was not executed.
 - Planned only the Koru code-review extension requested by the user. Verified
   published Koru 0.1.444 and Vallm 0.1.94, an organization-level OpenRouter
   secret visible to this repository, and the absence of branch protection,
@@ -174,3 +187,6 @@ Current verified baseline:
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
+- The current follow-up is planned as AC-26..AC-28 in
+  `IN_PROGRESS / EDIT`. The user's `kontynuuj` response authorizes this exact
+  interactive implementation scope, but remains insufficient merge evidence.
