@@ -1,0 +1,17 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-031",
+  "summary": "Restore semantic similarity contribution after linker refactor",
+  "workstream": "core-dsl",
+  "allowedPaths": [
+    "src/graph/linker.ts",
+    "project/ticket-031/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
