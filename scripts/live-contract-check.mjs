@@ -126,12 +126,20 @@ async function runLivePipeline(budget, liveRequestTimeoutMs) {
   try {
     return await runLivePipelineOnce(runPipeline, root, outputDir, config);
   } catch (error) {
-    const failed = await readLatestRunManifest(path.join(root, outputDir), startedAt);
+    const failed = await readFailedLiveManifest(runLiveOutputRoot(root, outputDir), startedAt);
     if (!failed) throw error;
     return failed;
   } finally {
     clearTimeout(deadlineTimer);
   }
+}
+
+function runLiveOutputRoot(root, outputDir) {
+  return path.join(root, outputDir);
+}
+
+async function readFailedLiveManifest(runsRoot, startedAt) {
+  return readLatestRunManifest(runsRoot, startedAt);
 }
 
 function resolveLiveRunOutput() {
