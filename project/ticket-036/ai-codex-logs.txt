@@ -13,3 +13,6 @@
 2026-08-04T21:12:00Z PASS lizard=0-threshold-violations vallm-deterministic=2/2
 2026-08-04T21:13:00Z PASS regression=349-pass,1-skip governance=0-errors,0-warnings
 2026-08-04T21:14:00Z VALIDATION fresh exact-head Koru and Validator review required
+2026-08-04T21:16:00Z APPROVED head=65b4bc1 koru=pass validator=ifuri-validator-agent model=openrouter/z-ai/glm-5.2
+2026-08-04T21:17:00Z MERGED PR=35 main=15d2b26
+2026-08-04T21:18:00Z DONE ticket-036 closed after protected merge evidence

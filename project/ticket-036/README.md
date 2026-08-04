@@ -2,8 +2,8 @@
 
 - **ID**: ticket-036
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -127,9 +127,9 @@ The user approved continuation after reviewing the truth-map, Branch
 Intelligence and live-audit plans by instructing the agent to continue, test
 and repair the ecosystem integrations. The bounded core implementation and
 local validation completed, but the first hosted review found one complexity
-violation in the new validator. The responsibilities are now split into
-bounded helpers; local Lizard reports zero threshold violations and the ticket
-has returned to `IN_PROGRESS / VALIDATION` for fresh exact-head review.
+violation in the new validator. The responsibilities were split into bounded
+helpers, local Lizard reported zero threshold violations, Koru and Validator
+approved exact head `65b4bc1`, and PR #35 merged as `main@15d2b26`.
 
 ## Verification evidence
 

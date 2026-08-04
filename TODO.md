@@ -2,16 +2,17 @@
 
 ## Active tickets
 
-- [ ] [`ticket-036`](project/ticket-036/README.md) — implemented and locally
-  validated the deterministic, provenance-preserving `t2c.truth-map/v1` core
-  projection. Current state: `IN_PROGRESS / VALIDATION`; the hosted CC=21
-  finding is remediated and the exact-head checks must be repeated.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-036`](project/ticket-036/README.md) — deterministic,
+  provenance-preserving `t2c.truth-map/v1` core projection. Koru and Validator
+  approved exact head `65b4bc1` with `openrouter/z-ai/glm-5.2`; PR #35 merged
+  as `main@15d2b26`. Current state: `DONE`.
 - [x] [`ticket-034`](project/ticket-034/README.md) — scales each OpenRouter
   request timeout from bounded input, output and structural-complexity pressure,
   retaining the configured default at baseline and increasing by `2x` steps up

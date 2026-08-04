@@ -34,3 +34,8 @@
 - Passed TypeScript checks, 349 host tests plus one toolchain skip, governance
   with zero findings, and Docker core E2E with 343 passes and seven toolchain
   skips.
+- Refactored the validator after hosted Koru found `CC=21`; the final exact
+  head has zero Lizard threshold violations and preserves all fail-closed
+  tests.
+- Exact-head Koru review and Validator App approval used
+  `openrouter/z-ai/glm-5.2`; PR #35 merged as `main@15d2b26`.
