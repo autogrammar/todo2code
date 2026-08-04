@@ -41,7 +41,7 @@ export async function collectCommunicationAnalysis(
   }, config, options.communicationMode ?? config.communicationMode);
   const foundMissingDirectory = communication.records.length === 0
     && communication.warnings.length === 1
-    && communication.warnings[0]?.startsWith('Communication directory not found:');
+    && !!communication.warnings[0]?.startsWith('Communication directory not found:');
   if (!foundMissingDirectory) warnings.push(...communication.warnings);
   bySource.communication = communication.records;
   communicationSyntheses = communication.participants;
