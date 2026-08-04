@@ -13,6 +13,10 @@
   datasets at 100%, all SDK examples, governance, smoke and Docker smoke.
 - Entered `VALIDATION`; AC-40 remains open until the policy receives a separate
   trusted bootstrap review and the real App reviews todo2code PR #13.
+- Removed Vallm's Python-only `--regression` plugin from the TypeScript Koru
+  review after live evidence showed it called missing `pytest` for every TS
+  file. Regression remains strictly enforced by the separate `verify` and Java
+  checks; Koru retains syntax, complexity, security and GLM 5.2 semantic review.
 
 ## [0.5.0] - 2026-08-04
 

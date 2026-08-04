@@ -32,7 +32,7 @@ jobs:
     env:
       KORU_VERSION: '0.1.444'
       VALLM_VERSION: '0.1.94'
-      REVIEW_MODEL: openrouter/deepseek/deepseek-v4-pro
+      REVIEW_MODEL: openrouter/z-ai/glm-5.2
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       BASE_SHA: ${{ inputs.base_sha || github.event.pull_request.base.sha }}
       HEAD_SHA: ${{ inputs.head_sha || github.event.pull_request.head.sha }}
@@ -119,7 +119,7 @@ jobs:
           export VALLM_LLM_MODEL="$REVIEW_MODEL"
           export VALLM_LLM_BASE_URL=https://openrouter.ai/api/v1
           vallm batch "${files[@]}" \
-            --semantic --security --regression \
+            --semantic --security \
             --model "$REVIEW_MODEL" \
             --format json --output .koru-review/vallm --show-issues
           BASH

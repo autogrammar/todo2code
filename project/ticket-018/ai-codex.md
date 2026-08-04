@@ -191,6 +191,10 @@ Current verified baseline:
 - Full local and container validation passes, including Validator 96/96,
   todo2code full E2E with JDK 17 at 342/342, gold v1/v2, SDK examples,
   governance and Docker smoke. AC-40 remains an external bootstrap sequence.
+- Audited Koru's failed PR #13 artifact and found a deterministic tool mismatch:
+  the Python-only Vallm regression plugin invoked missing `pytest` for every
+  TypeScript file. Removed that plugin from Koru while retaining the real npm
+  verify/JDK checks and syntax, complexity, security and GLM 5.2 semantics.
 
 ## Blockers
 

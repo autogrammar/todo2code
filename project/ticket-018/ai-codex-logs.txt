@@ -295,3 +295,9 @@ $ SKILLS_AGENT_PROCESS_ROOT=../skills-agent/SKILLS python -m pytest -q
 validator-agent PASS: 96 tests
 state EDIT -> VALIDATION; AC-40 remains open for separately trusted bootstrap
 merge and real Validator App review of todo2code PR #13
+2026-08-04 KORU PR #13 BLOCKER AUDIT
+run 30912643992 artifact review.json: reject
+root infrastructure error on all four TypeScript files: Vallm --regression
+invoked Python pytest, which was unavailable and is not the project test runner
+correction: remove --regression from Koru only; retain hosted npm verify + JDK
+checks and Koru syntax/complexity/security/semantic gates; semantic model GLM 5.2
