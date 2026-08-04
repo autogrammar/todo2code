@@ -22,7 +22,7 @@ module boundary.
 
 ## Actual changes
 
-- None; waiting at the plan boundary.
+- Plan completed and the user-authorized repair entered `EDIT`.
 
 ## Blockers
 
