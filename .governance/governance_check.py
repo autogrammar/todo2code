@@ -373,6 +373,26 @@ def patterns_may_overlap(first: str, second: str) -> bool:
     return visit(0, 0)
 
 
+def segment_pattern_covered_by(pattern: str, owner_pattern: str) -> bool:
+    if pattern == owner_pattern:
+        return True
+    if not any(char in pattern for char in "*?["):
+        return fnmatch.fnmatchcase(pattern, owner_pattern)
+    if owner_pattern == "*":
+        return True
+    if "?" in owner_pattern or "[" in owner_pattern or owner_pattern.count("*") != 1:
+        return False
+    owner_prefix, owner_suffix = owner_pattern.split("*", 1)
+    first_magic = min(
+        (pattern.find(char) for char in "*?[" if char in pattern),
+        default=len(pattern),
+    )
+    last_magic = max(pattern.rfind(char) for char in "*?[")
+    pattern_prefix = pattern[:first_magic]
+    pattern_suffix = pattern[last_magic + 1:]
+    return pattern_prefix.startswith(owner_prefix) and pattern_suffix.endswith(owner_suffix)
+
+
 def pattern_covered_by(pattern: str, owner_pattern: str) -> bool:
     if pattern == owner_pattern:
         return True
@@ -383,11 +403,13 @@ def pattern_covered_by(pattern: str, owner_pattern: str) -> bool:
     if owner_parts and owner_parts[-1] == "**" and len(pattern_parts) >= len(owner_parts) - 1:
         prefix = owner_parts[:-1]
         return all(
-            allowed == owned or (
-                not any(char in allowed for char in "*?[")
-                and fnmatch.fnmatchcase(allowed, owned)
-            )
+            segment_pattern_covered_by(allowed, owned)
             for allowed, owned in zip(pattern_parts, prefix)
+        )
+    if len(pattern_parts) == len(owner_parts) and "**" not in owner_parts:
+        return all(
+            segment_pattern_covered_by(allowed, owned)
+            for allowed, owned in zip(pattern_parts, owner_parts)
         )
     return False
 

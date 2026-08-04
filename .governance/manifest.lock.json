@@ -4,13 +4,13 @@
     "id": "wellmanifest/new-project",
     "version": "0.9.0",
     "sourceRepository": "wellmanifest/new-project",
-    "sourceRevision": "3e54e3a17dee971ebe2ef62fcd824b05e1f5b004",
+    "sourceRevision": "0901114453890e2846dadb0499e9a3ddb19fc215",
     "sourceBaseRevision": "0b33a8a865b73c6826c27cd249111d204a297d6a",
     "publicationStatus": "local-commit"
   },
   "managedFiles": {
     ".governance/diagnostics.json": "2b2d5243cf18b7d95e94a96bcb220eafee9291566aa6a6814b4a9693e5c6aa6e",
-    ".governance/governance_check.py": "7f364bf0441e2907556b47dab2b7072aa8504383ec65fac6bf440366bc7d6a3e",
+    ".governance/governance_check.py": "6b717929a899b3204cfc4e831a47ab04947b223cf5427ddd0c3440873f3b2cda",
     ".governance/intent.schema.json": "d618a2c7ef4b4a24fbf95d516bf8c8231836e7752b28f0450cc96f02f07b6780",
     ".governance/manifest.json": "053150cbc7b38e86e8f7b010c311d90b097bab28098ee94749b2df0a3b5b4dd1",
     ".governance/manifest.schema.json": "a24a6cd544573298861ed1d05b90b1e3fe5044481a991a4b3a205e7381f6ef34",
