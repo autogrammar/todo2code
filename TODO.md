@@ -4,7 +4,8 @@
 
 - [ ] [`ticket-021`](project/ticket-021/README.md) — assign root-level generated
   analysis formats to the integration workstream. Current state:
-  `IN_PROGRESS / EDIT`; the approved plan precedes the bounded implementation.
+  `IN_PROGRESS / VALIDATION`; the approved plan precedes the two-file
+  implementation and focused checks pass.
 
 ## Backlog tickets
 

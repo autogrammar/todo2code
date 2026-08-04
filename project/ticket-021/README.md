@@ -3,7 +3,7 @@
 - **ID**: ticket-021
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -34,17 +34,17 @@ selected, content-addressed environment.
 ## Acceptance criteria
 
 - [x] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: Root-level generated analysis formats in `project/` resolve to the
+- [x] AC-02: Root-level generated analysis formats in `project/` resolve to the
       `integration` workstream without transferring ownership of
       `project/ticket-*/**`.
-- [ ] AC-03: `project.sh` remains the managed fail-closed governance wrapper;
+- [x] AC-03: `project.sh` remains the managed fail-closed governance wrapper;
       no host package upgrade, source refactoring or unpinned analyzer is
       introduced.
-- [ ] AC-04: The manifest lock records the real manifest content through the
+- [x] AC-04: The manifest lock records the real manifest content through the
       supported lock/adoption workflow.
-- [ ] AC-05: `make governance`, manifest validation and a negative ownership
+- [x] AC-05: `make governance`, manifest validation and a negative ownership
       probe pass deterministically.
-- [ ] AC-06: The follow-up integration boundary is explicit: generator,
+- [x] AC-06: The follow-up integration boundary is explicit: generator,
       freshness verification and regenerated artifacts are not mixed into
       this policy ticket.
 
@@ -56,11 +56,11 @@ selected, content-addressed environment.
 ## Approval boundary
 
 The human approved this exact XS plan by replying `kontynuuj` after the approval
-request. Current state: `IN_PROGRESS / EDIT`. This commit records the approved
-plan before either implementation file changes. Merge evidence remains
-independently governed.
+request. Current state: `IN_PROGRESS / VALIDATION`. The approved plan exists in
+commit `477f64d` before either implementation file changes; focused checks now
+pass. Merge evidence remains independently governed.
 
 After `main` advanced through tickets 019/035, the human explicitly continued
 against exact replacement base
-`9658ebbaac2ebd213d12f42614e054949fa086ab`. Planned reconciliation must
-preserve both Python-publication ownership and the generated-analysis patterns.
+`9658ebbaac2ebd213d12f42614e054949fa086ab`. The implemented reconciliation
+preserves both Python-publication ownership and the generated-analysis patterns.

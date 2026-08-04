@@ -10,3 +10,7 @@
 - Recorded explicit approval for exact base
   `9658ebbaac2ebd213d12f42614e054949fa086ab` and entered `EDIT` without changing
   either implementation file.
+- Added the generated-analysis formats without dropping Python publication
+  ownership and regenerated genuine standard lock evidence.
+- Focused deterministic validation passed; the ticket remains in
+  `IN_PROGRESS / VALIDATION` pending independent publication evidence.

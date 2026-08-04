@@ -44,9 +44,20 @@ diff and keeps each delivery within the 30-minute policy budget.
 - Bound the plan to the new accepted base and transitioned to
   `IN_PROGRESS / EDIT`. No implementation file changes are included in this
   plan commit.
+- Commit `477f64d` establishes the approved ticket and intent before
+  implementation.
+- Added only root-level generated analysis extensions to the integration
+  workstream, preserving the Python publication ownership introduced on the
+  accepted base. Nested ticket paths and governance scripts remain outside
+  integration ownership.
+- Refreshed the manifest lock through pinned `goal governance adopt` at
+  standard SHA `9706e63d5f121323e9087d0db47a16acdbd276bb`.
+- Pinned adoption freshness, positive and negative ownership assertions,
+  exact manifest/lock hash equality, `make governance` and
+  `git diff --check` pass. Transitioned to `IN_PROGRESS / VALIDATION`.
 
 ## Blockers
 
-- Implementation and publication evidence are still required before ticket 021
-  can become `DONE`.
+- Independent publication evidence is still required before ticket 021 can
+  become `DONE`.
 - The generator remains a separate integration delivery.
