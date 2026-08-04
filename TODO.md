@@ -7,7 +7,7 @@
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current state: `IN_PROGRESS / WAIT_FOR_APPROVAL` for AC-30..AC-40:
+  Current state: `IN_PROGRESS / EDIT` for approved AC-30..AC-40:
   allowlisted independent Validator App reviews bound to the exact PR head SHA
   plus a non-mutating `direct-pr` strategy in `subactor/validator-agent`.
   No governance, workflow, source or test implementation file has changed for

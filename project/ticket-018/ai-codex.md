@@ -212,3 +212,5 @@ Current verified baseline:
 - Current follow-up state: `IN_PROGRESS / WAIT_FOR_APPROVAL` for AC-30..AC-40.
   The user's request authorizes planning and policy evolution; executable edits
   begin only after explicit approval of this exact allowlist/direct-PR design.
+- The user explicitly approved AC-30..AC-40 on 2026-08-04. Current state:
+  `IN_PROGRESS / EDIT`; protected merge evidence remains independent.

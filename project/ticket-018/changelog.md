@@ -12,6 +12,8 @@
   `openrouter/z-ai/glm-5.2` without dispatching a live review.
 - Stopped at `IN_PROGRESS / WAIT_FOR_APPROVAL`; no executable implementation
   file changed.
+- Recorded explicit approval of AC-30..AC-40 and entered `EDIT` before any
+  executable change.
 
 ## [0.4.0] - 2026-08-04
 

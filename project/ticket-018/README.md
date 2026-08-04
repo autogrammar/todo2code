@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Workflow state**: EDIT
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -222,7 +222,7 @@ existing README/runbook/permissions documentation. No application source in
 - [x] AC-29: The runtime workstream owns its Python runtime adapter test so the
       canonical `0.5.2` release assertion can be repaired without cross-stream
       scope laundering.
-- [ ] AC-30: A human approves AC-30..AC-40 and the exact cross-repository paths
+- [x] AC-30: A human approves AC-30..AC-40 and the exact cross-repository paths
       before governance, workflow, source or test implementation changes.
 - [ ] AC-31: The manifest/schema version a narrow trusted Validator review
       actor allowlist without treating every GitHub bot as trusted.

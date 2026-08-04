@@ -276,3 +276,4 @@ project2.sh: NOT RUN
 2026-08-04 AC-30..AC-40 planned: allowlisted Validator App review plus direct-pr strategy
 2026-08-04 deployed validator model variable set to openrouter/z-ai/glm-5.2; no live review dispatched
 2026-08-04 state VALIDATION -> WAIT_FOR_APPROVAL; no executable implementation files changed
+2026-08-04 user approval: "zatwierdzam AC-30..AC-40 ticket-018"; state WAIT_FOR_APPROVAL -> EDIT
