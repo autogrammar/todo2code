@@ -260,6 +260,13 @@ Current verified baseline:
   for exact head `346895b...` and merged as published commit `5267cf3...`.
   Resumed the approved target adoption in `IN_PROGRESS / EDIT`; the lock will
   bind to the merge commit rather than the former review branch or PR head.
+- Adopted the reviewed 0.10.0 tree and added the local lifecycle migration:
+  only `IN_PROGRESS` is active, while `PLAN`, `BACKLOG` and `BLOCKED` are
+  explicitly non-active. GitHub App review is a configured trusted source with
+  exact repository/PR/head/ticket/actor bindings.
+- Post-adoption checks pass: central validator/scripts/adoption fixtures,
+  lock `--check`, target governance, workflow YAML, full `npm run verify`
+  (334 passed, one JDK skip) and Docker smoke. No live LLM request was made.
 
 ## Blockers
 

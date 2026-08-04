@@ -22,6 +22,11 @@
 - Verified independent Validator App approval for the exact upstream head and
   publication as merge commit `5267cf3`; resumed the approved immutable-SHA
   adoption without treating the former review branch as a release.
+- Adopted canonical 0.10.0 and regenerated the managed lock against published
+  merge `5267cf3`; migrated lifecycle status classes and trusted App evidence.
+- Central fixtures, target governance, workflow validation, all 335 Node tests
+  (one JDK skip) and Docker smoke pass without a live LLM request. Marked
+  AC-37, AC-38 and AC-40 complete and entered `VALIDATION`.
 
 ## [0.4.1] - 2026-08-04
 

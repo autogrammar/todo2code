@@ -456,3 +456,18 @@ sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
 - upstream open pull requests after merge: 0
 - transition: BLOCKED / VALIDATION -> IN_PROGRESS / EDIT
 - target managed files written during transition: 0
+
+2026-08-04 CANONICAL 0.10 TARGET ADOPTION
+- source revision: 5267cf3b365959770e070e96e9157573a5d8c04b
+- source publication status: published
+- adoption check after write: up-to-date
+- lifecycle: active=IN_PROGRESS; non-active=BACKLOG,PLAN,BLOCKED
+- trusted App review: github-app-review with exact binding schema
+- central governance validator/scripts/adoption-lock tests: PASS
+- target make governance: PASS (0 errors, 0 warnings)
+- workflow YAML: PASS (2 files)
+- npm run verify: PASS (335 total, 334 passed, 0 failed, 1 JDK skip)
+- Docker smoke: PASS
+- git diff --check: PASS
+- live OpenRouter requests: 0
+- transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION

@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -293,16 +293,16 @@ to this migration.
 - [x] AC-36: A human approves upstream reconciliation, exact-SHA adoption,
       diagnostic comparison and the GLM cost correction before managed files
       or workflow configuration change.
-- [ ] AC-37: The adopted standard is one reviewed full SHA identified as
+- [x] AC-37: The adopted standard is one reviewed full SHA identified as
       0.10.0; lock hashes match every managed file and no moving branch or
       remote-branch publication claim remains.
-- [ ] AC-38: Bounded delivery remains available while only `IN_PROGRESS`
+- [x] AC-38: Bounded delivery remains available while only `IN_PROGRESS`
       reserves scope; planning/backlog/blocked tickets do not create active
       conflict, dependency, ownership or overlap diagnostics.
 - [x] AC-39: Koru uses `openrouter/z-ai/glm-5.2`; executable configuration and
       current guidance contain no Gemini 3.1 Pro Preview default, while
       historical evidence remains explicitly historical.
-- [ ] AC-40: Adoption preflight, governance fixtures, workflow validation,
+- [x] AC-40: Adoption preflight, governance fixtures, workflow validation,
       `npm run verify`, Docker-relevant checks and `git diff --check` pass
       without a live LLM request or application-source edit.
 
@@ -329,11 +329,10 @@ to this migration.
 
 ## Approval boundary
 
-- Current follow-up state: `IN_PROGRESS / EDIT` for AC-37, AC-38 and AC-40.
-  Local GLM configuration and the full deterministic suite pass. Upstream PR #1
-  was independently approved for exact head `346895b` and published as merge
-  commit `5267cf3b365959770e070e96e9157573a5d8c04b`; adoption may now use that
-  immutable source revision.
+- Current follow-up state: `IN_PROGRESS / VALIDATION`; AC-37..AC-40 pass
+  locally. Upstream PR #1 was independently approved for exact head `346895b`
+  and published as merge commit `5267cf3b365959770e070e96e9157573a5d8c04b`;
+  the target lock now uses that immutable source revision.
 - A changed upstream SHA, managed-file plan or workflow model returns this
   phase to planning.
 - Required response from: `unresolved:human`.
