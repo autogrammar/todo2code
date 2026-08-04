@@ -24,38 +24,66 @@ console.log(`Environment contract verified: ${expected.size} code/Docker variabl
 
 function parseDeclaredEnv(example) {
   const declared = new Map();
-  const lines = example.split(/\r?\n/);
-  for (const [index, line] of lines.entries()) {
-    const match = line.match(/^([A-Z][A-Z0-9_]*)=/);
-    if (!match?.[1]) continue;
-    if (declared.has(match[1])) duplicates.push(`${match[1]} (lines ${declared.get(match[1])} and ${index + 1})`);
-    declared.set(match[1], index + 1);
+  for (const declaration of collectDeclaredEnvEntries(example)) {
+    const { name, line } = declaration;
+    if (declared.has(name)) {
+      duplicates.push(`${name} (lines ${declared.get(name)} and ${line})`);
+    }
+    declared.set(name, line);
   }
   return declared;
 }
 
 async function collectExpectedVariables(rootPath) {
   const expected = new Set();
-  for (const value of await collectConfigKeys(path.join(rootPath, 'src', 'config', 'env.ts'))) {
+  await addConfigEnvKeys(path.join(rootPath, 'src', 'config', 'env.ts'), expected);
+  await addSourceReferences(await collectExisting(['src', 'sdk', 'examples', 'scripts']), expected);
+  await addMakefileReferences(path.join(rootPath, 'Makefile'), expected);
+  await addDockerReferences([path.join(rootPath, 'docker-compose.yml'), path.join(rootPath, 'Dockerfile')], expected);
+  return expected;
+}
+
+async function addConfigEnvKeys(configFile, expected) {
+  for (const value of await collectConfigKeys(configFile)) {
     expected.add(value);
   }
-  for (const file of await collectExisting(['src', 'sdk', 'examples', 'scripts'])) {
+}
+
+async function addSourceReferences(files, expected) {
+  for (const file of files) {
     const body = await fs.readFile(file, 'utf8');
     for (const match of collectEnvReferences(file, body)) expected.add(match);
   }
-  for (const name of collectMakefileReferences(await fs.readFile(path.join(rootPath, 'Makefile'), 'utf8'))) {
+}
+
+async function addMakefileReferences(makefile, expected) {
+  const makefileBody = await fs.readFile(makefile, 'utf8');
+  for (const name of collectMakefileReferences(makefileBody)) {
     expected.add(name);
   }
-  for (const file of ['docker-compose.yml', 'Dockerfile']) {
-    const body = await fs.readFile(path.join(rootPath, file), 'utf8');
+}
+
+async function addDockerReferences(files, expected) {
+  for (const file of files) {
+    const body = await fs.readFile(file, 'utf8');
     for (const name of collectDockerReferences(body)) expected.add(name);
   }
-  return expected;
 }
 
 async function collectConfigKeys(configFile) {
   const body = await fs.readFile(configFile, 'utf8');
   return [...body.matchAll(/env(?:String|Optional|Number|Boolean|List|LlmMode)\('([A-Z][A-Z0-9_]+)'/g)].map((match) => match[1]);
+}
+
+function collectDeclaredEnvEntries(example) {
+  const lines = example.split(/\r?\n/);
+  const declarations = [];
+  for (const [index, line] of lines.entries()) {
+    const match = line.match(/^([A-Z][A-Z0-9_]*)=/);
+    if (!match?.[1]) continue;
+    declarations.push({ name: match[1], line: index + 1 });
+  }
+  return declarations;
 }
 
 function collectEnvReferences(file, body) {

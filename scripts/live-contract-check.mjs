@@ -112,23 +112,15 @@ async function runLivePipeline(budget, liveRequestTimeoutMs) {
   const { runPipeline } = await import('../dist/src/pipeline/run.js');
   const { getConfig } = await import('../dist/src/config/env.js');
   const root = path.join(REPO_ROOT, 'examples');
-  const outputDir = process.env.T2C_LIVE_RUN_OUTPUT ?? DEFAULTS.runOutput;
-  const config = getConfig(root);
-  config.root = root;
-  // The previous defaults allowed 300 s per stage but killed each provider
-  // request after 120 s, so the advertised stage budget could never be used.
-  config.openRouter.timeoutMs = liveRequestTimeoutMs(
-    config.openRouter.timeoutMs,
-    budget.maxStageLatencyMs,
-  );
-  config.documentTimeoutMs = liveRequestTimeoutMs(
-    config.documentTimeoutMs,
-    budget.maxStageLatencyMs,
-  );
-  const deadline = new AbortController();
-  const deadlineTimer = setTimeout(() => deadline.abort(), budget.maxTotalLatencyMs);
+  const outputDir = resolveLiveRunOutput();
+  const config = prepareLiveRunConfig({
+    root,
+    budget,
+    liveRequestTimeoutMs,
+    getConfig,
+  });
+  const { deadline, deadlineTimer } = createLiveDeadlineTimer(budget.maxTotalLatencyMs);
   config.openRouter.signal = deadline.signal;
-  applyLiveBudgetTimeouts(config, budget, liveRequestTimeoutMs);
   const startedAt = Date.now();
 
   try {
@@ -140,6 +132,25 @@ async function runLivePipeline(budget, liveRequestTimeoutMs) {
   } finally {
     clearTimeout(deadlineTimer);
   }
+}
+
+function resolveLiveRunOutput() {
+  return process.env.T2C_LIVE_RUN_OUTPUT ?? DEFAULTS.runOutput;
+}
+
+function prepareLiveRunConfig({ root, budget, liveRequestTimeoutMs, getConfig }) {
+  const config = getConfig(root);
+  config.root = root;
+  // The previous defaults allowed 300 s per stage but killed each provider
+  // request after 120 s, so the advertised stage budget could never be used.
+  applyLiveBudgetTimeouts(config, budget, liveRequestTimeoutMs);
+  return config;
+}
+
+function createLiveDeadlineTimer(maxTotalLatencyMs) {
+  const deadline = new AbortController();
+  const deadlineTimer = setTimeout(() => deadline.abort(), maxTotalLatencyMs);
+  return { deadline, deadlineTimer };
 }
 
 function applyLiveBudgetTimeouts(config, budget, liveRequestTimeoutMs) {
@@ -154,8 +165,19 @@ function applyLiveBudgetTimeouts(config, budget, liveRequestTimeoutMs) {
 }
 
 async function runLivePipelineOnce(runPipeline, root, outputDir, config) {
-  const result = await runPipeline({
-    root,
+  const result = await runPipeline(
+    {
+      root,
+      ...makeLivePipelineOptions(outputDir),
+    },
+    config,
+  );
+
+  return result.manifest;
+}
+
+function makeLivePipelineOptions(outputDir) {
+  return {
     taskFile: 'task.md',
     todoFile: 'TODO.md',
     changelogFile: 'CHANGELOG.md',
@@ -170,9 +192,7 @@ async function runLivePipelineOnce(runPipeline, root, outputDir, config) {
     allowSummaryFallback: false,
     gitCommitCount: 20,
     outputDir,
-  }, config);
-
-  return result.manifest;
+  };
 }
 
 /** Newest run manifest under an output directory, or null when there is none. */
