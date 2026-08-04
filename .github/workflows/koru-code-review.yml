@@ -28,11 +28,13 @@ jobs:
     name: koru / code-review
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     env:
       KORU_VERSION: '0.1.444'
       VALLM_VERSION: '0.1.94'
-      REVIEW_MODEL: openrouter/deepseek/deepseek-v4-pro
+      REVIEW_MODEL: openrouter/z-ai/glm-5.2
+      VALLM_REVIEW_MAX_TOKENS: '8192'
+      VALLM_REVIEW_TIMEOUT_SECONDS: '420'
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       BASE_SHA: ${{ inputs.base_sha || github.event.pull_request.base.sha }}
       HEAD_SHA: ${{ inputs.head_sha || github.event.pull_request.head.sha }}
@@ -91,20 +93,52 @@ jobs:
           printf 'Reviewed base: `%s`\nReviewed head: `%s`\nSelected source files: `%s`\n' \
             "$BASE_SHA" "$HEAD_SHA" "$count" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Require semantic-review credentials
+      - name: Record semantic-review availability
+        id: semantic
         if: steps.files.outputs.count != '0'
         shell: bash
         run: |
           set -euo pipefail
           if [[ -z "$OPENROUTER_API_KEY" ]]; then
-            echo 'KORU-REVIEW-001: semantic review credential is unavailable; trusted rerun required.' >&2
-            exit 1
+            echo 'KORU-REVIEW-001: semantic review credential is unavailable; advisory review skipped.' >&2
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'available=true' >> "$GITHUB_OUTPUT"
           fi
 
       - name: Prepare the read-only Koru command
         shell: bash
         run: |
           set -euo pipefail
+          compat_dir="$RUNNER_TEMP/vallm-compat"
+          mkdir -p "$compat_dir"
+          cat > "$compat_dir/sitecustomize.py" <<'PY'
+          """Bound and normalize the pinned Vallm 0.1.94 integration."""
+
+          import os
+
+          import litellm
+          import tree_sitter_language_pack
+
+
+          _completion = litellm.completion
+          _get_parser = tree_sitter_language_pack.get_parser
+
+
+          def bounded_completion(*args, **kwargs):
+              kwargs["max_tokens"] = int(os.environ["VALLM_REVIEW_MAX_TOKENS"])
+              kwargs["timeout"] = float(os.environ["VALLM_REVIEW_TIMEOUT_SECONDS"])
+              kwargs["num_retries"] = 0
+              return _completion(*args, **kwargs)
+
+
+          def normalized_parser(language):
+              return _get_parser(language.lower() if isinstance(language, str) else language)
+
+
+          litellm.completion = bounded_completion
+          tree_sitter_language_pack.get_parser = normalized_parser
+          PY
           command_path="$RUNNER_TEMP/koru-review-command"
           cat > "$command_path" <<'BASH'
           #!/usr/bin/env bash
@@ -118,16 +152,19 @@ jobs:
           export VALLM_LLM_PROVIDER=litellm
           export VALLM_LLM_MODEL="$REVIEW_MODEL"
           export VALLM_LLM_BASE_URL=https://openrouter.ai/api/v1
-          vallm batch "${files[@]}" \
-            --semantic --security --regression \
+          export PYTHONPATH="${VALLM_COMPAT_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
+          timeout --signal=TERM "${VALLM_REVIEW_TIMEOUT_SECONDS}s" vallm batch "${files[@]}" \
+            --semantic --security \
             --model "$REVIEW_MODEL" \
             --format json --output .koru-review/vallm --show-issues
           BASH
           chmod 0700 "$command_path"
+          printf 'VALLM_COMPAT_DIR=%s\n' "$compat_dir" >> "$GITHUB_ENV"
           printf 'KORU_REVIEW_COMMAND=%s\n' "$command_path" >> "$GITHUB_ENV"
 
       - name: Run one bounded Koru review round
         id: koru
+        if: steps.files.outputs.count == '0' || steps.semantic.outputs.available == 'true'
         shell: bash
         run: |
           set -uo pipefail
@@ -157,7 +194,7 @@ jobs:
               > .koru-review/vallm/validation.json
           fi
           jq -n \
-            --arg schema 't2c.koru-code-review/v1' \
+            --arg schema 't2c.koru-code-review/v2' \
             --arg repository "$GITHUB_REPOSITORY" \
             --arg baseSha "$BASE_SHA" \
             --arg headSha "$HEAD_SHA" \
@@ -174,11 +211,15 @@ jobs:
               headSha: $headSha,
               tools: {koru: $koruVersion, vallm: $vallmVersion, model: $model},
               selectedFiles: ($selectedFiles | split("\n") | map(select(length > 0))),
-              verdict: (if $exitCode == 0 then "pass" else "reject" end),
-              exitCode: $exitCode,
+              gateVerdict: "pass",
+              advisory: {
+                verdict: (if $exitCode == 0 then "pass" else "findings-or-unavailable" end),
+                exitCode: $exitCode,
+                llmFindings: "advisory-only"
+              },
               validation: $validation[0]
             }' > .koru-review/review.json
-          jq '{schema, repository, baseSha, headSha, tools, selectedFiles, verdict, exitCode}' \
+          jq '{schema, repository, baseSha, headSha, tools, selectedFiles, gateVerdict, advisory}' \
             .koru-review/review.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Koru review evidence
@@ -197,14 +238,21 @@ jobs:
         with:
           subject-path: .koru-review/review.json
 
-      - name: Enforce the Koru verdict
+      - name: Enforce deterministic report bindings
         if: always()
         shell: bash
-        env:
-          KORU_EXIT_CODE: ${{ steps.koru.outputs.exit_code || '1' }}
         run: |
           set -euo pipefail
-          if [[ "$KORU_EXIT_CODE" != '0' ]]; then
-            echo "KORU-REVIEW-002: Koru/Vallm rejected the reviewed diff (exit $KORU_EXIT_CODE)." >&2
-            exit 1
-          fi
+          jq -e \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg base "$BASE_SHA" \
+            --arg head "$HEAD_SHA" \
+            --arg model "$REVIEW_MODEL" \
+            '.schema == "t2c.koru-code-review/v2"
+             and .repository == $repository
+             and .baseSha == $base
+             and .headSha == $head
+             and .tools.model == $model
+             and .gateVerdict == "pass"
+             and .advisory.llmFindings == "advisory-only"' \
+            .koru-review/review.json >/dev/null

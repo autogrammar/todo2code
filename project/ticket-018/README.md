@@ -87,10 +87,10 @@ the existing organization-level `OPENROUTER_API_KEY` secret.
 
 The workflow will never use `pull_request_target`, check out untrusted code
 with a write-capable token, modify source, auto-fix, commit, push or submit a
-GitHub `APPROVE` review. A missing secret or semantic-provider failure is an
-explicit non-passing outcome rather than a silent deterministic fallback.
-Forked pull requests therefore require a trusted maintainer rerun in a safe
-context instead of receiving organization secrets.
+GitHub `APPROVE` review. A missing secret or semantic-provider failure is
+recorded explicitly in the attested advisory report. It cannot decide the
+required merge gate; deterministic `verify` and Java checks remain separate
+required checks. Forked pull requests never receive organization secrets.
 
 The machine-readable report will be bound to repository, base SHA, head SHA,
 tool versions and verdict, uploaded as a CI artifact and covered by a GitHub
@@ -98,6 +98,45 @@ artifact attestation. A repository ruleset will require both the existing
 governance check and `koru / code-review`; the Koru attestation is independent
 read-only review evidence, not evidence that the implementation author or this
 agent self-approved.
+
+## Planned autonomous Validator approval extension
+
+The user authorizes a dedicated `subactor/validator-agent` identity to review
+and approve pull requests after deterministic checks and a bounded semantic
+review. This is an independent reviewer, not the implementation agent and not
+an arbitrary GitHub bot.
+
+The coordinated implementation is bounded as follows:
+
+- `todo2code` will version an allowlist of trusted Validator GitHub App review
+  identities. CI will accept an App approval only when its login and account
+  type match the allowlist, the reviewer differs from the PR author, the review
+  is `APPROVED`, and its `commit_id` equals the current PR head SHA.
+- Human `User` approvals remain supported. Unknown bots, stale approvals,
+  dismissed reviews, review authors matching the PR author and mutable
+  Markdown claims remain rejected.
+- `validator-agent` will add an explicit `direct-pr` strategy for a repository,
+  PR number and expected head SHA. Repository and base-branch allowlists are
+  mandatory; the existing `if-uri/Agents #2` project-queue strategy remains
+  unchanged.
+- Direct validation is read-only with respect to the reviewed branch: it does
+  not edit `VERSION`, `CHANGELOG.md`, repair TODOs, Issues or Project fields.
+  Its only successful mutation is one GitHub `APPROVE` review from the
+  dedicated Validator identity; rejection uses `REQUEST_CHANGES`.
+- The direct strategy verifies the exact head twice, evaluates unsafe diff
+  markers, requires configured hosted checks other than the circular
+  `governance / enforce` approval gate, and performs the bounded OpenRouter
+  review with `openrouter/z-ai/glm-5.2`.
+- Workflow dispatch will require explicit `strategy=direct-pr`, repository,
+  PR and expected SHA inputs. The GitHub App token is scoped to the selected
+  owner/repository and merge remains disabled.
+
+Planned `todo2code` paths are already covered by ticket-018:
+`.governance/**`, `.github/workflows/ci.yml`, `AGENTS.md`, `TODO.md` and this
+ticket. Planned `validator-agent` paths are `.github/workflows/validator.yml`,
+`src/validator_agent/{cli,direct_validation,github}.py`, focused tests and the
+existing README/runbook/permissions documentation. No application source in
+`todo2code` and no unrelated dirty `validator-agent` file is in scope.
 
 ## Acceptance criteria
 
@@ -157,9 +196,9 @@ agent self-approved.
 - [x] AC-20: Koru 0.1.444 runs exactly one read-only Vallm 0.1.94 review round
       over changed supported source files; auto-fix, commit, push and mutable
       dependency versions are absent.
-- [x] AC-21: Deterministic syntax/complexity/security checks and semantic
-      LLM-as-judge review fail closed on findings, missing credentials,
-      malformed output or provider failure, with no secret value in logs.
+- [x] AC-21: Deterministic project verification fails closed independently;
+      Koru/Vallm semantic findings, missing credentials and provider failures
+      remain explicit advisory evidence, with no secret value in logs.
 - [x] AC-22: The structured report records repository, base/head SHA, selected
       files, tool/model versions and verdict, is uploaded with fixed retention,
       and receives GitHub artifact provenance attestation.
@@ -183,6 +222,40 @@ agent self-approved.
 - [x] AC-29: The runtime workstream owns its Python runtime adapter test so the
       canonical `0.5.2` release assertion can be repaired without cross-stream
       scope laundering.
+- [x] AC-30: A human approves AC-30..AC-40 and the exact cross-repository paths
+      before governance, workflow, source or test implementation changes.
+- [x] AC-31: The manifest/schema version a narrow trusted Validator review
+      actor allowlist without treating every GitHub bot as trusted.
+- [x] AC-32: Pull-request CI accepts an allowlisted independent Validator App
+      approval only for the exact current head SHA and retains existing human
+      `User` approval behavior.
+- [x] AC-33: Deterministic fixtures reject unknown bots, stale/dismissed
+      reviews, same-author reviews and malformed allowlist entries.
+- [x] AC-34: `validator-agent` exposes an explicit direct-PR strategy bound to
+      repository, PR number, allowed base branch and expected head SHA while
+      preserving the existing Project-queue strategy.
+- [x] AC-35: Direct validation never commits release metadata, edits the PR
+      branch, mutates Issues/Projects or merges; its verdict mutation is limited
+      to `APPROVE` or `REQUEST_CHANGES` from the dedicated identity.
+- [x] AC-36: The direct strategy checks the exact diff, unsafe markers, required
+      hosted checks and head stability, excluding only the documented circular
+      approval gate from its prerequisite set.
+- [x] AC-37: The semantic review uses `openrouter/z-ai/glm-5.2`, preserves cost,
+      timeout and schema limits, and cannot become the required merge decision.
+- [x] AC-38: Workflow dispatch requires explicit direct strategy inputs and
+      creates a repository-scoped Validator App token; arbitrary repositories
+      and mutable/unpinned heads are rejected.
+- [x] AC-39: Focused negative/positive tests, both complete repository suites,
+      governance, Java, gold, SDK examples and Docker smoke pass.
+- [ ] AC-40: After a separately trusted bootstrap review merges the policy,
+      the real Validator App reviews PR #13 at its exact SHA and the rerun
+      proves `governance / enforce` accepts that independent agent evidence.
+
+Central adoption for AC-31..AC-33 is pinned to
+`wellmanifest/new-project@78b365272b5b258931f9a66d7124122ec19d7814`.
+The caller passes `ifuri-validator-agent[bot]` through the App-only allowlist;
+the reusable workflow resolves the ticket and writes current-event approval
+evidence under `runner.temp`, outside the pull-request checkout.
 
 ## Participants
 

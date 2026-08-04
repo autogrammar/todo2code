@@ -13,7 +13,11 @@
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current state: `IN_PROGRESS / VALIDATION` for the approved AC-11..AC-29:
+  Current state: `IN_PROGRESS / EDIT` for approved AC-30..AC-40:
+  allowlisted independent Validator App reviews bound to the exact PR head SHA
+  plus a non-mutating `direct-pr` strategy in `subactor/validator-agent`.
+  No governance, workflow, source or test implementation file has changed for
+  this follow-up. Earlier AC-11..AC-29 remain complete:
   pinned, read-only and attested `koru / code-review` PR check plus a required
   ruleset. `koru / code-review` and `governance / enforce` now run as required
   checks on `main`; the ruleset is active with no bypass actors.

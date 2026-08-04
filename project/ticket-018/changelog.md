@@ -1,5 +1,67 @@
 # Ticket Changelog (ticket-018)
 
+## [0.6.0] - 2026-08-04
+
+- Added a versioned, exact Validator GitHub App allowlist and current-head
+  approval resolver while preserving independent human `User` reviews.
+- Added deterministic rejection fixtures for unknown bots, stale/dismissed
+  reviews, self-review and malformed or duplicate allowlist entries.
+- Added the non-mutating `direct-pr` strategy to `validator-agent`, pinned it to
+  explicit repository/PR/base/SHA inputs and `openrouter/z-ai/glm-5.2`, and
+  scoped its workflow App token to one repository.
+- Verified 96 Validator tests, 342 full Docker E2E tests with JDK 17, both gold
+  datasets at 100%, all SDK examples, governance, smoke and Docker smoke.
+- Entered `VALIDATION`; AC-40 remains open until the policy receives a separate
+  trusted bootstrap review and the real App reviews todo2code PR #13.
+- Removed Vallm's Python-only `--regression` plugin from the TypeScript Koru
+  review after live evidence showed it called missing `pytest` for every TS
+  file. Regression remains strictly enforced by the separate `verify` and Java
+  checks; Koru retains syntax, complexity, security and GLM 5.2 semantic review.
+- Replaced the LLM-derived Koru gate verdict with commit-bound advisory evidence
+  (`t2c.koru-code-review/v2`). Added a 420-second/8192-token/zero-retry provider
+  boundary and TypeScript parser normalization; deterministic CI remains the
+  only required decision source.
+- Corrected the allowlisted actor to the observed GitHub review identity
+  `ifuri-validator-agent[bot]` from existing Validator App approvals.
+- Bound trusted App evidence to the exact active `ticket-NNN` and safe
+  correlation ID recorded in the current-head review body; human review
+  behavior remains unchanged.
+- Adopted central standard 0.9.0 at immutable commit `78b3652`, including the
+  reusable protected resolver and ephemeral current-event approval evidence.
+- Verified PR #14 remotely: Koru v2, Node/Docker verification and required Java
+  passed. Live Validator run `30918035304` stopped before review because the App
+  is not installed in `semcod/todo2code`; ticket state moved to `BLOCKED` and
+  releases its reservation until that external installation is completed.
+- Rechecked installation in non-mutating run `30918421022` after user approval;
+  token creation still returned 404, confirming that the remaining step is the
+  interactive GitHub App installation rather than a code or secret defect.
+- Recorded the user's completed App installation and returned ticket-018 to
+  `IN_PROGRESS` before producing the new current-head validation request.
+- Advanced the immutable standard pin to `d082373` after its push-event fix
+  excluded only the injected standard checkout through `.git/info/exclude`.
+- Confirmed the central push gate, Node/Docker, Java and Koru checks on exact
+  head `4ab9c254`. Live run `30921738666` still received installation 404, and
+  the organization API reports `semcod` installation count zero; returned the
+  ticket to `BLOCKED` without emitting a review.
+- Confirmed the new `semcod` installation `151227156` for
+  `ifuri-validator-agent` with repository selection `all`; resumed
+  `IN_PROGRESS / VALIDATION` before creating fresh current-head evidence.
+
+## [0.5.0] - 2026-08-04
+
+- Planned AC-30..AC-40 for allowlisted independent Validator App approvals
+  bound to the exact PR head SHA.
+- Planned a non-mutating `direct-pr` validator strategy alongside the existing
+  Project-queue strategy.
+- Kept arbitrary bots, stale reviews, self-review, metadata commits and merge
+  authority outside the trusted path.
+- Updated the deployed Validator model variable to
+  `openrouter/z-ai/glm-5.2` without dispatching a live review.
+- Stopped at `IN_PROGRESS / WAIT_FOR_APPROVAL`; no executable implementation
+  file changed.
+- Recorded explicit approval of AC-30..AC-40 and entered `EDIT` before any
+  executable change.
+
 ## [0.4.0] - 2026-08-04
 
 - Planned AC-26..AC-28 to assign and normalize exactly three tracked generated

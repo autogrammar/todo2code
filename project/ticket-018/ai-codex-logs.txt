@@ -273,3 +273,86 @@ $ make e2e-full
 PASS: cargo fetch --locked; 338 tests passed, 0 failed, 0 skipped
 gold v1/v2: 100% precision and recall; repeated-run stability PASS
 project2.sh: NOT RUN
+2026-08-04 AC-30..AC-40 planned: allowlisted Validator App review plus direct-pr strategy
+2026-08-04 deployed validator model variable set to openrouter/z-ai/glm-5.2; no live review dispatched
+2026-08-04 state VALIDATION -> WAIT_FOR_APPROVAL; no executable implementation files changed
+2026-08-04 user approval: "zatwierdzam AC-30..AC-40 ticket-018"; state WAIT_FOR_APPROVAL -> EDIT
+2026-08-04 AC-31..AC-39 IMPLEMENTATION AND VALIDATION
+$ node --test .governance/resolve-approval.test.mjs
+PASS: 5/5 approval trust-boundary fixtures
+$ make governance
+GOV-PASS: 0 errors, 0 warnings
+$ npm run verify
+PASS: 342 tests; 341 pass, 0 fail, 1 local JDK skip
+$ make smoke && make examples-check && make docker-smoke
+PASS: smoke; five SDK languages; Docker smoke
+$ npm run evaluate:gold
+PASS: gold v2 100% precision/recall and repeated-run stability
+$ docker compose -f compose.e2e.yml run --rm --no-deps e2e-full
+PASS: 342 tests, 0 failed, 0 skipped; JDK 17 Java adapter PASS; gold v1/v2,
+MCP, A2A, CLI smoke and examples PASS
+$ SKILLS_AGENT_PROCESS_ROOT=../skills-agent/SKILLS python -m pytest -q
+validator-agent PASS: 96 tests
+state EDIT -> VALIDATION; AC-40 remains open for separately trusted bootstrap
+merge and real Validator App review of todo2code PR #13
+2026-08-04 KORU PR #13 BLOCKER AUDIT
+run 30912643992 artifact review.json: reject
+root infrastructure error on all four TypeScript files: Vallm --regression
+invoked Python pytest, which was unavailable and is not the project test runner
+correction: remove --regression from Koru only; retain hosted npm verify + JDK
+checks and Koru syntax/complexity/security/semantic gates; semantic model GLM 5.2
+2026-08-04 KORU TRUST-BOUNDARY CORRECTION
+policy basis: P-CORE-016 and P-AGENT-007; required decisions cannot use LLM output
+report: t2c.koru-code-review/v2 with exact repository/base/head/model bindings
+GLM findings/provider availability: advisory-only
+provider bounds: 8192 tokens, 420 seconds, zero retries; job ceiling 10 minutes
+required deterministic checks remain governance / enforce, verify and Java adapter
+2026-08-04 CENTRAL 0.9.0 ADOPTION
+source revision: 78b365272b5b258931f9a66d7124122ec19d7814
+reusable workflow uses and standard-ref: identical immutable SHA
+trusted Validator App input: ifuri-validator-agent[bot]
+approval evidence location: runner.temp outside pull-request checkout
+bindings: repository, pullRequest, headSha, ticket, actor
+legacy checkout-owned resolver: detached from CI; retained for generated-analysis consistency
+historical trusted App reviews resolve the exact login as
+ifuri-validator-agent[bot]; corrected the manifest and workflow default from
+the earlier unverified if-uri-validator-agent[bot] spelling
+2026-08-04 PR #14 HOSTED VALIDATION
+head: 646cea89582633f99ce0ef549811771023ee25de
+verify: PASS; Java adapter: PASS; koru / code-review v2: PASS
+governance: expected GOV-APPROVAL-001/002 only, pending independent review
+validator-agent run: 30918035304 at main 431ba7936d759f45da9670eb80010b2dfc7074f2
+validator tests: PASS
+repository-scoped App token: BLOCKED before validation
+GitHub API: GET /repos/semcod/todo2code/installation -> 404 Not Found
+required external action: install ifuri-validator-agent on semcod/todo2code only
+state: IN_PROGRESS -> BLOCKED; reservation released until installation
+2026-08-04 APP INSTALLATION RECHECK AFTER USER APPROVAL
+validator-agent dry-run: 30918421022
+tests: PASS; no review or target mutation requested
+repository-scoped App token: still 404 Not Found
+conclusion: chat approval authorizes continuation but cannot create a GitHub App
+installation; interactive installation remains required at the App settings boundary
+2026-08-04 USER CONFIRMED APP INSTALLATION
+target: semcod/todo2code
+transition: BLOCKED -> IN_PROGRESS / VALIDATION
+next boundary: publish a new head, require exact-head hosted checks, then live review
+2026-08-04 CENTRAL PUSH-EVENT FOLLOW-UP
+old standard: 78b365272b5b258931f9a66d7124122ec19d7814
+new standard: d082373f314191dba794aba58aca2d4475ea497a
+change: workflow-owned .new-project-standard/ excluded through .git/info/exclude
+security property: tracked target paths remain visible to governance diff checks
+2026-08-04 LIVE VALIDATION AFTER REPORTED INSTALLATION
+head: 4ab9c2544798ff851ee3235036e8ecb9fc24252c
+push governance: PASS; verify: PASS; Java: PASS; Koru v2: PASS
+validator-agent run: 30921738666
+App JWT repository lookup: GET /repos/semcod/todo2code/installation -> 404
+authenticated org audit: GET /orgs/semcod/installations -> total_count=0
+result: no review emitted; BLOCKED and reservation released
+2026-08-04 SEMCOD APP INSTALLATION CONFIRMED
+organization installation: 151227156
+App slug: ifuri-validator-agent
+repository selection: all
+transition: BLOCKED -> IN_PROGRESS / VALIDATION
+next boundary: publish a fresh ticket-only head, pass deterministic hosted
+checks, then request an exact-head direct-pr review from the installed App
