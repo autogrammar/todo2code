@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -329,15 +329,16 @@ to this migration.
 
 ## Approval boundary
 
-- Current follow-up state: `IN_PROGRESS / PUBLICATION`; AC-34 and AC-37..AC-40
-  pass locally. Upstream hardening PR #4 was independently approved for exact
+- Current follow-up state: `DONE / DONE`; AC-34 and AC-37..AC-40 pass. Upstream
+  hardening PR #4 was independently approved for exact
   head `898041d` and published as merge commit
   `9706e63d5f121323e9087d0db47a16acdbd276bb`; the target lock and reusable
   governance workflow use that same immutable source revision. Hosted Koru run
   `30935659179` is bound to GLM 5.2 and exact head `a01816b`; its semantic
   status is honestly `unavailable` because the provider key reached its weekly
-  limit, while all deterministic blocking gates passed. The next commit
-  intentionally invalidates that review and requires a fresh App approval.
+  limit, while all deterministic blocking gates passed. Target head `d716c6e`
+  then received a fresh exact-head App approval and all protected checks before
+  merge commit `6ad85bdf3a18ee427f2bc03171c96e0892bea0e0`.
 - A changed upstream SHA, managed-file plan or workflow model returns this
   phase to planning.
 - Required response from: `unresolved:human`.
@@ -362,6 +363,8 @@ to this migration.
   and `git diff --check` pass. Node: 335 total, 334 passed, zero failed, one
   explicit local JDK skip. No application source or live LLM request was added
   by this hardening slice.
+- Post-merge CI run `30938509879` passed reusable governance, full verify,
+  Docker smoke and the required Java fixture on `main@6ad85bd`.
 
 ## Validation result and publication blockers
 
