@@ -3,7 +3,7 @@
 - **ID**: ticket-018
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -116,6 +116,57 @@ governance check and `koru / code-review`; the Koru attestation is independent
 read-only review evidence, not evidence that the implementation author or this
 agent self-approved.
 
+## Planned bounded-delivery extension
+
+The follow-up changes the central `wellmanifest/new-project` contract and its
+`todo2code` adoption so implementation tickets are small, predictable delivery
+slices rather than open-ended projects. A slice owns exactly one observable
+outcome in one workstream and has a hard active-execution timebox of at most 30
+minutes. At 25 minutes the implementer records a checkpoint; at 30 minutes it
+must stop. Unfinished work becomes a newly planned dependency slice and may not
+be hidden by widening the current intent or PR.
+
+Before `EDIT`, every slice will declare a machine-readable delivery budget:
+
+- accepted base SHA and the exact target branch;
+- one outcome plus explicit non-goals;
+- complexity class `XS` (up to 10 minutes) or `S` (up to 30 minutes); larger
+  work is rejected until decomposed;
+- maximum implementation-file count, affected components, public-interface
+  changes, dependency changes and migration/UI risk;
+- architecture impact covering ownership, component boundaries, dependency
+  direction, data/API flow, UI states and rollback;
+- deterministic validation commands and evidence expected for each acceptance
+  criterion.
+
+Default hard limits will be conservative: one workstream, one capability, at
+most five implementation files, at most two affected components, no new
+runtime dependency and no public API/schema/database migration unless a
+separately approved integration slice owns that contract. File count excludes
+ticket evidence but not generated application artifacts. Line count and commit
+count remain descriptive signals, never the sole measure of complexity.
+
+Architecture is decided before coding, proportionally to risk. Every ticket
+has a short architecture-impact record. An ADR/diagram is additionally required
+only when the slice moves responsibility, changes a component/interface edge,
+alters persistent data or adds a multi-state UI flow. UI slices must enumerate
+loading, empty, error and success states as applicable and name their visual,
+accessibility and interaction checks before implementation.
+
+The validator will fail closed when the budget is absent, over 30 minutes,
+larger than `S`, exceeded by the actual diff, or when architecture/validation
+decisions remain unresolved. It will also compare the approved base with the
+current branch, reject a mixed-ticket diff, require explicit dependencies and
+conflicts, and invalidate approval after a base, scope or architecture change.
+Before publication the slice is refreshed against the target branch and tested
+again; a semantic or textual conflict returns it to planning rather than being
+resolved opportunistically inside the PR.
+
+Pull requests remain a protected publication boundary for implementation, but
+their size is now bounded by the delivery contract. Documentation-only,
+generated-artifact and emergency exceptions require an explicit manifest mode
+and equivalent signed evidence; they are not a general direct-push bypass.
+
 ## Acceptance criteria
 
 - [x] AC-01: A human approves this understanding and execution checklist before
@@ -190,6 +241,36 @@ agent self-approved.
 - [ ] AC-25: Workflow syntax, local Koru/Vallm probes, negative failure paths,
       `npm run verify`, governance and relevant Docker checks pass; the
       pre-existing ticket-019 findings remain separately attributed.
+- [x] AC-26: A human approves the bounded-delivery design and AC-26..AC-35
+      before central policy, schemas, validator, templates or target adoption
+      files are changed.
+- [x] AC-27: The central manifest and intent schema define a maximum 30-minute
+      slice, `XS|S` complexity, one outcome/workstream and explicit budgets for
+      files, components, interfaces, dependencies, data and UI risk.
+- [x] AC-28: Every implementation slice records its accepted base SHA, target,
+      non-goals, architecture impact, rollback and criterion-specific validation
+      before it can enter `EDIT`.
+- [x] AC-29: Deterministic validation rejects missing/invalid budgets, estimates
+      above 30 minutes, unresolved architecture, mixed-ticket diffs and actual
+      file/component/interface/dependency scope above the approved limits.
+- [x] AC-30: Reaching the 30-minute timebox or discovering additional outcome,
+      workstream, contract or migration work stops the slice and creates an
+      explicitly dependent plan; silent scope expansion is forbidden.
+- [x] AC-31: Base-SHA drift, target-branch movement, changed architecture or a
+      merge conflict invalidates stale approval and requires refresh, re-test
+      and, where intent changed, fresh human approval.
+- [x] AC-32: UI work declares applicable loading/empty/error/success states and
+      visual, interaction and accessibility evidence; architecture diagrams or
+      ADRs are required only for genuine boundary/flow changes.
+- [x] AC-33: Central fixtures cover an accepted 10-minute fix, an accepted
+      30-minute slice, over-budget decomposition, file-budget overflow,
+      unresolved architecture, stale base and overlapping branch scenarios.
+- [ ] AC-34: `todo2code` adopts the pinned contract in `AGENTS.md`, managed
+      governance files and ticket templates without changing application code
+      or claiming existing unrelated PRs.
+- [ ] AC-35: Central tests, target governance fixtures and documentation
+      consistency pass; the diff contains only approved governance paths in
+      each repository and records inherited repository blockers separately.
 
 ## Participants
 
@@ -212,11 +293,34 @@ agent self-approved.
 - Live LLM behavior is nondeterministic and provider-dependent. It may produce
   advisory findings but cannot be a required merge gate.
 
+## Approval boundary
+
+- Current state: `IN_PROGRESS / VALIDATION` for AC-26..AC-35. Upstream 0.9.0 is
+  implemented on an isolated local branch; target adoption is staged without
+  retroactive enforcement against the historical ticket-018 branch.
+- Required response from: `unresolved:human`.
+- The user explicitly approved AC-26..AC-35 in chat. This authorizes the
+  implementation session but is not merge-time evidence.
+
 ## Validation result and publication blockers
 
 The multi-workstream extension was explicitly approved by the user in chat on
 2026-08-01. The results below describe the already executed 0.7.0 baseline and
 remain historical evidence, not evidence for AC-11..AC-17.
+
+- `wellmanifest/new-project` 0.9.0 is implemented as five local commits on
+  `feat/bounded-delivery-contract`, each changing at most five files. JSON
+  Schema Draft 2020-12 validation, Python compilation, scaffolder tests and
+  validator positive/negative fixtures pass.
+- The target copies the 0.9.0 schemas, diagnostics, validator and scaffolder and
+  pins their hashes to local upstream commit `3e54e3a`. The manifest keeps
+  `delivery.requiredForImplementation=false` during migration because the
+  historical ticket-018 branch already exceeds the new five-file slice limit.
+  New repositories enable the bounded gate by default.
+- Target schema and lock validation pass. `make governance` emits no new
+  delivery/base/architecture/budget finding; it continues to report five
+  inherited coordination findings for tickets 018/019/020. Full activation
+  (AC-34) waits for those historical branches to be serialized or completed.
 
 - Central scaffolder and validator fixtures pass, including allowed/denied
   approval, ownership, scope, executable-ticket content, manifest integrity and

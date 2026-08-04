@@ -35,6 +35,14 @@ exact PR diff, produces a commit-bound attested report, and exposes a required
 GitHub status. It may reject a change but may not edit it, push it or impersonate
 a human `APPROVE` review.
 
+The newest follow-up addresses the cause of repeated integration friction: work
+was path-scoped, but not bounded by delivery time, component count, interface
+risk or an accepted base SHA. The central standard should make one ticket/PR a
+single independently testable slice that fits within 30 minutes. Architecture,
+UI states, rollback and validation evidence are decided before coding. Crossing
+the time, outcome, workstream or contract boundary stops the slice and creates
+an explicit dependency instead of growing the current diff.
+
 Current verified baseline:
 
 - Docker CLI and engine are available; engine version reported `29.1.3`.
@@ -98,6 +106,23 @@ Current verified baseline:
     workflow validation, existing Node/Docker gates and scoped governance.
 20. Configure a `main` ruleset requiring governance and Koru review only after
     the check exists; verify direct pushes and stale evidence are rejected.
+21. Return to `WAIT_FOR_APPROVAL` for AC-26..AC-35; change no central or target
+    policy/implementation files until the bounded-delivery plan is approved.
+22. In `wellmanifest/new-project`, add manifest and intent contracts for one
+    outcome, accepted base SHA, `XS|S`/30-minute budget, architecture impact,
+    rollback, UI risk and criterion-specific validation evidence.
+23. Add stable deterministic diagnostics and fixtures for over-budget work,
+    unresolved architecture, actual-diff overflow, stale bases, mixed tickets
+    and conflicting or overlapping slices.
+24. Update central documentation and templates. Require a concise architecture
+    impact for every slice; require ADR/diagrams only when component, interface,
+    persistence or UI-flow boundaries actually change.
+25. Adopt the published/pinned contract in `todo2code` governance files and
+    `AGENTS.md`, without changing application source or absorbing unrelated
+    active PRs or tickets.
+26. Run central fixtures and target governance checks, compare managed-file
+    hashes, review each repository diff separately and record inherited
+    blockers without weakening the new limits.
 
 ## Actual changes
 
@@ -174,6 +199,21 @@ Current verified baseline:
   24 seconds. The attested Gemini report records both expected files, 2/2 pass,
   zero blocking/parser/provider findings and all five semantic observations as
   advisory; its final Koru exit is 0 while preserving Vallm's original exit 2.
+- Planned AC-26..AC-35 only. Confirmed that `todo2code/AGENTS.md` is an adoption
+  of `wellmanifest/new-project` policy and template material. No central policy,
+  schema, validator, template, workflow, ruleset or application file changed in
+  this plan phase.
+- After explicit approval, implemented upstream 0.9.0 in five bounded local
+  commits: delivery schemas/defaults; deterministic gate/diagnostics/fixtures;
+  scaffolder/templates; policy documentation; release metadata. Central script,
+  validator and Draft 2020-12 schema checks pass.
+- Staged the target adoption with managed hashes bound to upstream commit
+  `3e54e3a`. Kept enforcement disabled only for migration because applying the
+  five-file hard limit retroactively to the accumulated ticket-018 branch would
+  make the standard reject its own bootstrap. No application file changed.
+- Target schema and lock checks pass. The target governance gate reports only
+  inherited ticket-018/019/020 coordination errors and no new delivery,
+  architecture, base or budget diagnostic.
 
 ## Blockers
 
@@ -193,8 +233,7 @@ Current verified baseline:
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / EDIT` for approved AC-18..AC-25. AC-11..AC-16 are
-  implemented; AC-17 and the earlier publication/external blockers remain open.
+- Current state: `IN_PROGRESS / VALIDATION` for AC-26..AC-35.
 - Required response from: `unresolved:human`.
-- The user explicitly approved AC-18..AC-25 in chat. This authorizes the
-  implementation workflow but is not itself merge-time review evidence.
+- The user explicitly approved the bounded-delivery extension. Interactive
+  approval authorized implementation but is not trusted merge evidence.

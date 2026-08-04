@@ -1,5 +1,17 @@
 # Ticket Changelog (ticket-018)
 
+## [0.4.0] - 2026-08-04
+
+- Approved and implemented the upstream bounded-delivery contract as
+  `wellmanifest/new-project` 0.9.0 with <=30-minute XS/S slices,
+  architecture-first planning, component ownership and deterministic budgets.
+- Added positive/negative fixtures for checkpoints, timebox stop, stale bases,
+  ambiguous ownership and actual-diff overflow; central tests pass.
+- Staged pinned `todo2code` adoption without retroactively enabling the new
+  five-file limit against the historical ticket-018 branch.
+- Target schemas and lock pass; five inherited ticket coordination findings
+  remain separately attributed and block full activation.
+
 ## [0.2.1] - 2026-08-01
 
 - Replaced the stale DeepSeek Koru judge with benchmark-qualified

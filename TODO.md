@@ -21,12 +21,12 @@
   validator, trusted approval boundary, reusable governance CI, stack-specific
   gates and pinned adoption in `todo2code`; extend it with safe concurrent
   workstreams, dependency-aware intents and non-overlapping write scopes.
-  Current state: `IN_PROGRESS / EDIT` for the approved AC-18..AC-25: add a
-  pinned, read-only and attested `koru / code-review` PR check plus a required
-  ruleset. The workflow and live fail-closed semantic probe are verified;
-  ruleset `20186914` is staged for activation after the bootstrap evidence merge.
-  Earlier AC-11..AC-16 pass; AC-17 and the pre-existing publication/external
-  governance blockers remain recorded separately.
+  Current state: `IN_PROGRESS / VALIDATION` for AC-26..AC-35: add one
+  outcome per slice, an `XS|S` complexity budget, a hard 30-minute timebox,
+  accepted base SHA, pre-implementation architecture/UI/rollback decisions and
+  deterministic stop/split rules. Upstream 0.9.0 and the pinned target files
+  validate; enforcement is staged off until historical 018/019/020 branch
+  conflicts are serialized. AC-17 and inherited blockers remain separate.
 
 ## Completed tickets
 
