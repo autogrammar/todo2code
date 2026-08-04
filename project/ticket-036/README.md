@@ -2,8 +2,8 @@
 
 - **ID**: ticket-036
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -89,30 +89,30 @@ NL / tickets / docs / Git / AST / tests / config
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: A typed `t2c.truth-map/v1` projection accepts a validated
+- [x] AC-01: Scope is approved by a human owner.
+- [x] AC-02: A typed `t2c.truth-map/v1` projection accepts a validated
       `t2c.graph/v1` graph and binds its output to the graph fingerprint.
-- [ ] AC-03: Every graph record appears in exactly one assertion and in the
+- [x] AC-03: Every graph record appears in exactly one assertion and in the
       reverse `recordToAssertion` map; no record or relation is fabricated.
-- [ ] AC-04: Each assertion separates declaration/plan records, factual
+- [x] AC-04: Each assertion separates declaration/plan records, factual
       observations and claim/inference records while retaining source IDs and
       all graph relation IDs used for mapping.
-- [ ] AC-05: Status is deterministic and limited to `supported`,
+- [x] AC-05: Status is deterministic and limited to `supported`,
       `declared_only`, `observed_only`, `claimed_only`, `mixed` or
       `conflicted`; explicit contradictions fail visibly as `conflicted`.
-- [ ] AC-06: Generic `related_to`, `depends_on` and `blocks` relations cannot
+- [x] AC-06: Generic `related_to`, `depends_on` and `blocks` relations cannot
       collapse otherwise independent assertions.
-- [ ] AC-07: Stable IDs, sorted arrays and the content fingerprint are
+- [x] AC-07: Stable IDs, sorted arrays and the content fingerprint are
       invariant to input record/relation order and to `generatedAt`.
-- [ ] AC-08: Invalid graphs, dangling relation endpoints and duplicate reverse
+- [x] AC-08: Invalid graphs, dangling relation endpoints and duplicate reverse
       mappings fail closed with deterministic errors.
-- [ ] AC-09: Focused unit tests, TypeScript compilation, the full offline
+- [x] AC-09: Focused unit tests, TypeScript compilation, the full offline
       verification suite, governance and Docker core E2E pass without an LLM,
       network access or new dependency.
-- [ ] AC-10: Follow-up boundaries for pipeline materialization and interface
+- [x] AC-10: Follow-up boundaries for pipeline materialization and interface
       exposure are recorded; this ticket does not smuggle cross-workstream
       changes into the core contract.
-- [ ] AC-11: The dependent Branch Intelligence blueprint binds decisions to
+- [x] AC-11: The dependent Branch Intelligence blueprint binds decisions to
       exact base/head/merge-base SHAs and a portfolio fingerprint, separates
       repository responsibilities and forbids automatic branch mutation.
 
@@ -123,8 +123,19 @@ NL / tickets / docs / Git / AST / tests / config
 
 ## Approval boundary
 
-Current state: `PLAN / WAIT_FOR_APPROVAL`. The user requested the capability,
-but governance requires review of this concrete grouping and conflict policy
-before implementation paths are changed. Chat approval authorizes only the
-interactive implementation; protected exact-head evidence remains required
-for merge.
+The user approved continuation after reviewing the truth-map, Branch
+Intelligence and live-audit plans by instructing the agent to continue, test
+and repair the ecosystem integrations. The bounded core implementation and
+local validation are complete; the ticket stays `IN_PROGRESS / VALIDATION` until
+protected exact-head review and merge evidence exist.
+
+## Verification evidence
+
+- Focused truth-map suite: 8 passed, 0 failed.
+- Full offline verification: 349 passed, 1 environment-dependent skip, 0
+  failed.
+- Docker core E2E: 343 passed, 7 toolchain-dependent skips, both gold datasets
+  at 100% precision and recall, CLI/MCP/A2A/examples smoke checks passed.
+- Governance: `GOV-PASS` with 0 errors and 0 warnings.
+- No OpenRouter call, new runtime dependency or cross-workstream source change
+  was introduced by this ticket.

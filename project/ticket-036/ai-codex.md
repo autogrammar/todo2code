@@ -60,12 +60,29 @@ this ticket's core-dsl implementation paths.
 
 ## Actual changes
 
-- Governance scaffold and concrete architecture plan only; runtime and tests
-  remain unchanged while approval is pending.
+- The user approved continuation after review of the truth-map, live branch
+  audit and cross-repository integration design.
+- Rebased the isolated ticket worktree from the stale planning base to
+  `main@dcaae33d16637bd7b64d5ead0e66b34546ec2f5c` and accepted the bounded
+  architecture without widening implementation paths.
+- Runtime and focused test implementation is now authorized under the two-file
+  core-dsl budget.
 - Added incident-grounded diagnostic and ecosystem-integration planning only;
   no validator, CLI, Git hook or GitHub state was changed.
+- Implemented the additive truth-map projector and its focused suite without a
+  runtime dependency or public pipeline/interface change.
+- Hardened validation against omitted mapping relations, split endpoints and
+  artificial grouping of disconnected records; retained the Git commit index
+  with the source revision and generator provenance.
+- Corrected the LLM fixture to satisfy the existing provenance invariant
+  (`llm_inference` requires `generation.used=llm`) rather than weakening the
+  graph validator.
+- Eight focused tests, 349 host tests, 343 Docker tests, gold evaluations,
+  governance and protocol smoke tests passed. Ticket 036 is locally complete;
+  ecosystem adapters remain scoped to their documented follow-up workstreams.
 
 ## Blockers
 
-- Human approval of the concrete `t2c.truth-map/v1` semantics is required
-  before editing either implementation path.
+- No core implementation blocker remains. Protected exact-head review and
+  merge are pending. Cross-repository Goal, Koru and Validator changes remain
+  separate dependent tickets.

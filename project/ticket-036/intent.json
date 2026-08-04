@@ -28,7 +28,7 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "9658ebbaac2ebd213d12f42614e054949fa086ab",
+    "acceptedBaseSha": "dcaae33d16637bd7b64d5ead0e66b34546ec2f5c",
     "targetBranch": "main",
     "outcome": "Provide a deterministic core truth-map projection with complete record lineage and explicit conflict states",
     "nonGoals": [
@@ -47,7 +47,7 @@
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Keep t2c.graph/v1 as the canonical evidence store and derive one lossless, hash-bound t2c.truth-map/v1 projection",
       "components": [
         {
@@ -68,9 +68,39 @@
     "runtimeDependencies": [],
     "validation": [
       {
-        "criterion": "AC-02..AC-08",
-        "commands": ["node --test --import tsx test/graph-truth-map.test.ts"],
-        "evidence": "Focused deterministic projection, lineage, conflict and ordering tests pass"
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/graph-truth-map.test.js"],
+        "evidence": "Focused deterministic projection and graph binding tests pass"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["npm run build", "node --test dist/test/graph-truth-map.test.js"],
+        "evidence": "Exactly-once record and reverse-index tests pass"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["npm run build", "node --test dist/test/graph-truth-map.test.js"],
+        "evidence": "Evidence-lane and relation-lineage tests pass"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["npm run build", "node --test dist/test/graph-truth-map.test.js"],
+        "evidence": "Status and explicit-conflict tests pass"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["npm run build", "node --test dist/test/graph-truth-map.test.js"],
+        "evidence": "Structural relation exclusion tests pass"
+      },
+      {
+        "criterion": "AC-07",
+        "commands": ["npm run build", "node --test dist/test/graph-truth-map.test.js"],
+        "evidence": "Ordering and timestamp invariance tests pass"
+      },
+      {
+        "criterion": "AC-08",
+        "commands": ["npm run build", "node --test dist/test/graph-truth-map.test.js"],
+        "evidence": "Malformed and dangling graph tests fail closed"
       },
       {
         "criterion": "AC-09",

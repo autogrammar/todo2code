@@ -1,0 +1,10 @@
+2026-08-04T20:00:00Z PLAN ticket-036 bounded core truth-map projection approved
+2026-08-04T20:45:00Z EDIT added truth-map projector and focused contract tests
+2026-08-04T20:46:00Z TEST corrected invalid llm_inference fixture provenance
+2026-08-04T20:47:00Z PASS focused=7/7 governance=0-errors,0-warnings
+2026-08-04T20:52:00Z PASS host=348-pass,1-skip docker=342-pass,7-skip
+2026-08-04T20:53:00Z READY ticket-036 locally complete; exact-head review and merge pending
+2026-08-04T21:00:00Z AUDIT rejected omitted relations and disconnected artificial assertions
+2026-08-04T21:01:00Z PASS focused=8/8 host=349-pass,1-skip governance=0-errors,0-warnings
+2026-08-04T21:02:00Z PASS docker-core=343-pass,7-skip suite=T2C-E2E-000
+2026-08-04T21:03:00Z VALIDATION ticket-036 exact-head protected review pending
