@@ -60,6 +60,15 @@ export interface TruthMap {
   };
 }
 
+type AssertionByRecord = Map<string, string>;
+type EvidenceLane = keyof TruthMapEvidenceLanes;
+type IntentRecordIndex = Map<string, IntentRecord>;
+type IntentRelationIndex = Map<string, IntentRelation>;
+type RecordIdSet = Set<string>;
+type StatusCounts = Record<TruthMapStatus, number>;
+type TruthMapFingerprintInput = Omit<TruthMap, 'fingerprint'> | TruthMap;
+type Identified = { id: string };
+
 const ASSERTION_ID = /^TRUTH-[a-f0-9]{20}$/;
 const MAPPING_RELATIONS = new Set<RelationType>([
   'declares',
@@ -97,8 +106,8 @@ class RecordComponents {
     const leftRoot = this.find(left);
     const rightRoot = this.find(right);
     if (leftRoot === rightRoot) return;
-    const [root, child] = [leftRoot, rightRoot].sort();
-    if (root === undefined || child === undefined) throw new Error('Truth map component is empty');
+    const root = leftRoot.localeCompare(rightRoot) <= 0 ? leftRoot : rightRoot;
+    const child = root === leftRoot ? rightRoot : leftRoot;
     this.parent.set(child, root);
   }
 }
@@ -169,38 +178,65 @@ export function assertTruthMap(value: TruthMap, graph: IntentGraph): void {
 
   const knownRecords = new Map(graph.records.map((record) => [record.id, record]));
   const knownRelations = new Map(graph.relations.map((relation) => [relation.id, relation]));
+  const mappedRecords = validateAssertions(value.assertions, knownRecords, knownRelations);
+  validateRecordCoverage(value, knownRecords, mappedRecords);
+  validateMappingEndpoints(knownRelations, mappedRecords);
+  validateProjectionSummary(value, graph);
+}
+
+const validateAssertions = (
+  assertions: TruthMapAssertion[],
+  knownRecords: IntentRecordIndex,
+  knownRelations: IntentRelationIndex,
+): AssertionByRecord => {
   const assertionIds = new Set<string>();
   const mappedRecords = new Map<string, string>();
-  assertSortedUnique(value.assertions.map((assertion) => assertion.id), 'Truth map assertions');
+  assertSortedUnique(assertions.map((assertion) => assertion.id), 'Truth map assertions');
 
-  for (const assertion of value.assertions) {
+  for (const assertion of assertions) {
     if (!ASSERTION_ID.test(assertion.id)) throw new Error(`Invalid truth map assertion id: ${assertion.id}`);
     if (assertionIds.has(assertion.id)) throw new Error(`Duplicate truth map assertion id: ${assertion.id}`);
     assertionIds.add(assertion.id);
-    assertSortedUnique(assertion.recordIds, `Truth map assertion ${assertion.id} recordIds`);
-    assertSortedUnique(assertion.relationIds, `Truth map assertion ${assertion.id} relationIds`);
-    if (assertion.recordIds.length === 0) throw new Error(`Truth map assertion ${assertion.id} is empty`);
-
-    const component = new Set(assertion.recordIds);
-    for (const recordId of assertion.recordIds) {
-      if (!knownRecords.has(recordId)) throw new Error(`Truth map assertion references unknown record ${recordId}`);
-      if (mappedRecords.has(recordId)) throw new Error(`Truth map record ${recordId} belongs to more than one assertion`);
-      mappedRecords.set(recordId, assertion.id);
-    }
-    validateEvidencePartition(assertion, component);
-    validateSources(assertion, knownRecords);
-    validateRelations(assertion, component, knownRelations);
-
-    const conflicted = assertion.relationIds.some((id) => knownRelations.get(id)?.type === 'contradicts');
-    const expectedStatus = classifyStatus(assertion.evidence, conflicted);
-    if (assertion.status !== expectedStatus) {
-      throw new Error(`Truth map assertion ${assertion.id} status must be ${expectedStatus}`);
-    }
-    if (assertion.id !== assertionId(assertion.recordIds, assertion.relationIds)) {
-      throw new Error(`Truth map assertion ${assertion.id} does not match its content`);
-    }
+    validateAssertion(assertion, knownRecords, knownRelations, mappedRecords);
   }
+  return mappedRecords;
+};
 
+const validateAssertion = (
+  assertion: TruthMapAssertion,
+  knownRecords: IntentRecordIndex,
+  knownRelations: IntentRelationIndex,
+  mappedRecords: AssertionByRecord,
+): void => {
+  assertSortedUnique(assertion.recordIds, `Truth map assertion ${assertion.id} recordIds`);
+  assertSortedUnique(assertion.relationIds, `Truth map assertion ${assertion.id} relationIds`);
+  if (assertion.recordIds.length === 0) throw new Error(`Truth map assertion ${assertion.id} is empty`);
+
+  const component = new Set(assertion.recordIds);
+  for (const recordId of assertion.recordIds) {
+    if (!knownRecords.has(recordId)) throw new Error(`Truth map assertion references unknown record ${recordId}`);
+    if (mappedRecords.has(recordId)) throw new Error(`Truth map record ${recordId} belongs to more than one assertion`);
+    mappedRecords.set(recordId, assertion.id);
+  }
+  validateEvidencePartition(assertion, component);
+  validateSources(assertion, knownRecords);
+  validateRelations(assertion, component, knownRelations);
+
+  const conflicted = assertion.relationIds.some((id) => knownRelations.get(id)?.type === 'contradicts');
+  const expectedStatus = classifyStatus(assertion.evidence, conflicted);
+  if (assertion.status !== expectedStatus) {
+    throw new Error(`Truth map assertion ${assertion.id} status must be ${expectedStatus}`);
+  }
+  if (assertion.id !== assertionId(assertion.recordIds, assertion.relationIds)) {
+    throw new Error(`Truth map assertion ${assertion.id} does not match its content`);
+  }
+};
+
+const validateRecordCoverage = (
+  value: TruthMap,
+  knownRecords: IntentRecordIndex,
+  mappedRecords: AssertionByRecord,
+): void => {
   if (mappedRecords.size !== knownRecords.size) {
     const missing = [...knownRecords.keys()].filter((id) => !mappedRecords.has(id)).sort();
     throw new Error(`Truth map does not map every graph record: ${missing.join(', ')}`);
@@ -215,6 +251,12 @@ export function assertTruthMap(value: TruthMap, graph: IntentGraph): void {
       throw new Error(`Truth map reverse index mismatch for ${recordId}`);
     }
   }
+};
+
+const validateMappingEndpoints = (
+  knownRelations: IntentRelationIndex,
+  mappedRecords: AssertionByRecord,
+): void => {
   for (const relation of knownRelations.values()) {
     if (!MAPPING_RELATIONS.has(relation.type)) continue;
     const fromAssertion = mappedRecords.get(relation.from);
@@ -223,7 +265,9 @@ export function assertTruthMap(value: TruthMap, graph: IntentGraph): void {
       throw new Error(`Truth map relation ${relation.id} endpoints belong to different assertions`);
     }
   }
+};
 
+const validateProjectionSummary = (value: TruthMap, graph: IntentGraph): void => {
   const expectedStats = {
     assertions: value.assertions.length,
     records: graph.records.length,
@@ -235,12 +279,12 @@ export function assertTruthMap(value: TruthMap, graph: IntentGraph): void {
   if (value.fingerprint !== truthMapFingerprint(value)) {
     throw new Error('Truth map fingerprint does not match projection content');
   }
-}
+};
 
-function buildAssertion(
+const buildAssertion = (
   records: IntentRecord[],
   relations: IntentRelation[],
-): TruthMapAssertion {
+): TruthMapAssertion => {
   const recordIds = records.map((record) => record.id).sort();
   const component = new Set(recordIds);
   const componentRelations = relations
@@ -261,15 +305,15 @@ function buildAssertion(
     evidence,
     sources: records.map(sourceReference).sort((left, right) => left.recordId.localeCompare(right.recordId)),
   };
-}
+};
 
-function laneFor(record: IntentRecord): keyof TruthMapEvidenceLanes {
+const laneFor = (record: IntentRecord): EvidenceLane => {
   if (record.epistemic.class === 'declaration' || record.epistemic.class === 'plan') return 'declared';
   if (record.epistemic.class === 'fact') return 'observed';
   return 'claimed';
-}
+};
 
-function classifyStatus(evidence: TruthMapEvidenceLanes, conflicted: boolean): TruthMapStatus {
+const classifyStatus = (evidence: TruthMapEvidenceLanes, conflicted: boolean): TruthMapStatus => {
   if (conflicted) return 'conflicted';
   const declared = evidence.declared.length > 0;
   const observed = evidence.observed.length > 0;
@@ -279,9 +323,9 @@ function classifyStatus(evidence: TruthMapEvidenceLanes, conflicted: boolean): T
   if (declared) return 'declared_only';
   if (observed) return 'observed_only';
   return 'claimed_only';
-}
+};
 
-function sourceReference(record: IntentRecord): TruthMapSourceReference {
+const sourceReference = (record: IntentRecord): TruthMapSourceReference => {
   return {
     recordId: record.id,
     kind: record.source.kind,
@@ -294,14 +338,14 @@ function sourceReference(record: IntentRecord): TruthMapSourceReference {
     extractor: record.source.extractor,
     generation: { ...record.metadata.generation },
   };
-}
+};
 
-function assertionId(recordIds: string[], relationIds: string[]): string {
+const assertionId = (recordIds: string[], relationIds: string[]): string => {
   return `TRUTH-${shortHash(stableStringify({ recordIds: [...recordIds].sort(), relationIds: [...relationIds].sort() }), 20)}`;
-}
+};
 
-function countStatuses(assertions: TruthMapAssertion[]): Record<TruthMapStatus, number> {
-  const counts: Record<TruthMapStatus, number> = {
+const countStatuses = (assertions: TruthMapAssertion[]): StatusCounts => {
+  const counts: StatusCounts = {
     supported: 0,
     declared_only: 0,
     observed_only: 0,
@@ -311,9 +355,11 @@ function countStatuses(assertions: TruthMapAssertion[]): Record<TruthMapStatus, 
   };
   for (const assertion of assertions) counts[assertion.status] += 1;
   return counts;
-}
+};
 
-function truthMapFingerprint(value: Omit<TruthMap, 'fingerprint'> | TruthMap): string {
+const truthMapFingerprint = (value: TruthMapFingerprintInput): string => {
+  // generatedAt is display metadata by contract. Identity must stay stable
+  // when the same projection is reproduced at a different wall-clock time.
   return sha256(stableStringify({
     schemaVersion: value.schemaVersion,
     graphFingerprint: value.graphFingerprint,
@@ -321,9 +367,9 @@ function truthMapFingerprint(value: Omit<TruthMap, 'fingerprint'> | TruthMap): s
     recordToAssertion: value.recordToAssertion,
     stats: value.stats,
   }));
-}
+};
 
-function validateEvidencePartition(assertion: TruthMapAssertion, component: Set<string>): void {
+const validateEvidencePartition = (assertion: TruthMapAssertion, component: RecordIdSet): void => {
   const lanes = [assertion.evidence.declared, assertion.evidence.observed, assertion.evidence.claimed];
   const seen = new Set<string>();
   for (const [index, values] of lanes.entries()) {
@@ -335,9 +381,9 @@ function validateEvidencePartition(assertion: TruthMapAssertion, component: Set<
     }
   }
   if (seen.size !== component.size) throw new Error(`Truth map assertion ${assertion.id} evidence is incomplete`);
-}
+};
 
-function validateSources(assertion: TruthMapAssertion, records: Map<string, IntentRecord>): void {
+const validateSources = (assertion: TruthMapAssertion, records: IntentRecordIndex): void => {
   const sourceIds = assertion.sources.map((source) => source.recordId);
   assertSortedUnique(sourceIds, `Truth map assertion ${assertion.id} source recordIds`);
   if (stableStringify(sourceIds) !== stableStringify(assertion.recordIds)) {
@@ -349,13 +395,13 @@ function validateSources(assertion: TruthMapAssertion, records: Map<string, Inte
       throw new Error(`Truth map source does not match graph record ${source.recordId}`);
     }
   }
-}
+};
 
-function validateRelations(
+const validateRelations = (
   assertion: TruthMapAssertion,
-  component: Set<string>,
-  relations: Map<string, IntentRelation>,
-): void {
+  component: RecordIdSet,
+  relations: IntentRelationIndex,
+): void => {
   for (const relationId of assertion.relationIds) {
     const relation = relations.get(relationId);
     if (!relation) throw new Error(`Truth map assertion references unknown relation ${relationId}`);
@@ -375,12 +421,12 @@ function validateRelations(
     throw new Error(`Truth map assertion ${assertion.id} must retain every mapping relation`);
   }
   assertConnected(assertion, relations);
-}
+};
 
-function assertConnected(
+const assertConnected = (
   assertion: TruthMapAssertion,
-  relations: Map<string, IntentRelation>,
-): void {
+  relations: IntentRelationIndex,
+): void => {
   if (assertion.recordIds.length < 2) return;
   const adjacent = new Map(assertion.recordIds.map((recordId) => [recordId, new Set<string>()]));
   for (const relationId of assertion.relationIds) {
@@ -405,17 +451,17 @@ function assertConnected(
   if (visited.size !== assertion.recordIds.length) {
     throw new Error(`Truth map assertion ${assertion.id} contains disconnected records`);
   }
-}
+};
 
-function assertSortedUnique(values: string[], name: string): void {
+const assertSortedUnique = (values: string[], name: string): void => {
   const sorted = [...new Set(values)].sort();
   if (stableStringify(values) !== stableStringify(sorted)) throw new Error(`${name} must be sorted and unique`);
-}
+};
 
-function requireDateTime(value: string, name: string): void {
+const requireDateTime = (value: string, name: string): void => {
   if (typeof value !== 'string' || !value || Number.isNaN(Date.parse(value))) throw new Error(`${name} must be an ISO date-time`);
-}
+};
 
-function compareById<T extends { id: string }>(left: T, right: T): number {
+const compareById = (left: Identified, right: Identified): number => {
   return left.id.localeCompare(right.id);
-}
+};

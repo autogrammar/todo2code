@@ -4,8 +4,8 @@
 
 - [ ] [`ticket-036`](project/ticket-036/README.md) — implemented and locally
   validated the deterministic, provenance-preserving `t2c.truth-map/v1` core
-  projection. Current state: `IN_PROGRESS / VALIDATION`, awaiting protected
-  exact-head review and merge.
+  projection. Current state: `IN_PROGRESS / VALIDATION`; the hosted CC=21
+  finding is remediated and the exact-head checks must be repeated.
 
 ## Backlog tickets
 
