@@ -24,3 +24,6 @@
   bounded candidate, assertion, citation and PR collections.
 - Added fourteen focused regression cases; full host verification, Lizard,
   governance and Docker core E2E pass without an LLM or network dependency.
+- Recorded the exact compiled focused-test command and its 14/14 pass result so
+  exact-head review does not have to infer feature coverage from the aggregate
+  `verify` check name.

@@ -43,6 +43,9 @@ on a stable contract from this ticket and later runtime/interface tickets.
 - Added fourteen offline tests for disjoint, duplicate, textual/semantic
   conflict, stale, unknown, ordered, rebased, invariant, malformed and
   tampered evidence cases.
+- Re-ran the exact compiled focused suite
+  `node --test dist/test/graph-branch-portfolio.test.js`: 14/14 passed with no
+  skips, making the feature-specific evidence explicit for protected review.
 - Kept the implementation at 499 NLOC with maximum function CC 11 and passed
   the complete host and Docker regression gates.
 

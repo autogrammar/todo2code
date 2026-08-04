@@ -100,7 +100,9 @@ exact-head evidence.
 
 ## Validation result
 
-- Focused branch portfolio suite: 14 passed, 0 failed.
+- Exact focused command:
+  `npm run build && node --test dist/test/graph-branch-portfolio.test.js` —
+  14 tests, 14 passed, 0 failed, 0 skipped.
 - Full host verification: 363 passed, 1 environment-dependent skip, 0 failed.
 - Docker core E2E: 357 passed, 7 toolchain-dependent skips; both gold datasets,
   CLI, MCP, A2A and examples passed with `T2C-E2E-000`.
