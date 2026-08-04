@@ -35,6 +35,8 @@
 - Rechecked installation in non-mutating run `30918421022` after user approval;
   token creation still returned 404, confirming that the remaining step is the
   interactive GitHub App installation rather than a code or secret defect.
+- Recorded the user's completed App installation and returned ticket-018 to
+  `IN_PROGRESS` before producing the new current-head validation request.
 
 ## [0.5.0] - 2026-08-04
 

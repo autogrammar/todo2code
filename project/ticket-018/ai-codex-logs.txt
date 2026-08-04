@@ -333,3 +333,7 @@ tests: PASS; no review or target mutation requested
 repository-scoped App token: still 404 Not Found
 conclusion: chat approval authorizes continuation but cannot create a GitHub App
 installation; interactive installation remains required at the App settings boundary
+2026-08-04 USER CONFIRMED APP INSTALLATION
+target: semcod/todo2code
+transition: BLOCKED -> IN_PROGRESS / VALIDATION
+next boundary: publish a new head, require exact-head hosted checks, then live review

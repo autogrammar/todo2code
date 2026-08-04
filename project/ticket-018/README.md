@@ -2,7 +2,7 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: BLOCKED
+- **Status**: IN_PROGRESS
 - **Workflow state**: VALIDATION
 - **Created**: 2026-08-01
 

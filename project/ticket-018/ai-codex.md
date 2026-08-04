@@ -226,9 +226,9 @@ Current verified baseline:
 
 ## Approval boundary
 
-- Current state: `BLOCKED / VALIDATION`. Local and hosted deterministic checks
-  pass; the write-scope reservation is released while the Validator App awaits
-  installation on the single target repository.
+- Current state: `IN_PROGRESS / VALIDATION`. The user confirmed installation of
+  the Validator App on the target repository; the workstream reservation is
+  reacquired before publishing a new exact head and requesting live validation.
 - Required response from: `unresolved:human`.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
@@ -239,4 +239,4 @@ Current verified baseline:
   The user's request authorizes planning and policy evolution; executable edits
   begin only after explicit approval of this exact allowlist/direct-PR design.
 - The user explicitly approved AC-30..AC-40 on 2026-08-04. Current state:
-  `BLOCKED / VALIDATION`; protected merge evidence remains independent.
+  `IN_PROGRESS / VALIDATION`; protected merge evidence remains independent.
