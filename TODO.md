@@ -5,7 +5,8 @@
 - [ ] [`ticket-034`](project/ticket-034/README.md) — scale each OpenRouter
   request timeout from bounded input, output and structural-complexity pressure,
   retaining the configured default at baseline and increasing by `2x` steps up
-  to `8x` and 600 seconds. Current state: `IN_PROGRESS / EDIT`.
+  to `8x` and 600 seconds. Current state: `IN_PROGRESS / VALIDATION`; focused,
+  full, Docker and governance checks pass.
 
 ## Backlog tickets
 

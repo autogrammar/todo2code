@@ -6,3 +6,23 @@
   Validator review remains configured for openrouter/z-ai/glm-5.2.
 - Current main is clean and contains the compatible OpenRouter request base.
 - Plan commit contains governance artifacts only.
+
+2026-08-04 implementation validation
+
+npm run build && node --test dist/test/openrouter-timeout.test.js
+- PASS: 7 tests, 0 failures.
+- Covered baseline, 2x/4x/8x thresholds, output pressure, structured complexity,
+  600-second cap, malformed values, audit safety, immediate cancellation and
+  retry deadline containment.
+
+npm run verify
+- PASS: TypeScript, module/env/workflow boundaries, generated analysis,
+  structured schemas, build and complete tests.
+- Complete tests: 342 total, 341 passed, 1 skipped because JDK is unavailable,
+  0 failed.
+
+make docker-smoke
+- PASS: image build and runtime smoke.
+
+./project/governance-check.sh
+- GOV-PASS: 0 errors, 0 warnings.

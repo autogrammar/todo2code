@@ -3,7 +3,7 @@
 - **ID**: ticket-034
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -53,21 +53,21 @@ fallback and the `/models` endpoint are out of scope.
 ## Acceptance criteria
 
 - [x] AC-01: The user approves this exact formula and bounded implementation.
-- [ ] AC-02: Requests at or below all baselines retain the exact configured base
+- [x] AC-02: Requests at or below all baselines retain the exact configured base
       timeout.
-- [ ] AC-03: Crossing one, two and four baseline units produces `2x`, `4x` and
+- [x] AC-03: Crossing one, two and four baseline units produces `2x`, `4x` and
       `8x` timeouts respectively.
-- [ ] AC-04: The result never exceeds 600 seconds and rejects non-finite or
+- [x] AC-04: The result never exceeds 600 seconds and rejects non-finite or
       malformed request values without silently granting an unbounded timeout.
-- [ ] AC-05: Structured schemas and response-healing complexity contribute to
+- [x] AC-05: Structured schemas and response-healing complexity contribute to
       scaling independently of raw character count.
-- [ ] AC-06: External `AbortSignal` cancellation remains immediate and is never
+- [x] AC-06: External `AbortSignal` cancellation remains immediate and is never
       extended by adaptive timeout logic.
-- [ ] AC-07: Retry backoff remains inside one effective request deadline; the
+- [x] AC-07: Retry backoff remains inside one effective request deadline; the
       change does not multiply each retry into a separate unbounded deadline.
-- [ ] AC-08: Timeout errors state both base and effective milliseconds; audit
+- [x] AC-08: Timeout errors state both base and effective milliseconds; audit
       configuration records the factor, baselines and cap without secrets.
-- [ ] AC-09: Focused tests, full `npm run verify`, Docker smoke and governance
+- [x] AC-09: Focused tests, full `npm run verify`, Docker smoke and governance
       pass on the integrated base.
 
 ## Base readiness
@@ -81,6 +81,13 @@ refactoring base. The stale blockers from the earlier proposal no longer apply.
 The user's earlier adaptive-timeout instruction and current execute instruction
 authorize the bounded implementation. They are not trusted merge evidence; an
 external Validator App exact-head review remains required.
+
+## Validation result
+
+All seven focused timeout tests pass. The complete suite passes 341 tests with
+one environment-dependent Java test skipped, full verification has zero
+failures, Docker smoke passes, and the local governance gate reports zero
+errors and warnings. The branch is ready for protected exact-head review.
 
 ## Participants
 

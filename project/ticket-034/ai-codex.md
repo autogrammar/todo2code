@@ -28,7 +28,15 @@ time as much smaller generic calls.
 - Created the active ticket and recorded the approved deterministic formula.
 - Confirmed the current main branch is a clean compatible base.
 - No executable source, test, build or CI file changed in this plan commit.
+- Added a pure timeout-decision module with validated load inputs, power-of-two
+  pressure scaling, an 8x multiplier ceiling and a 600-second absolute cap.
+- Applied the decision once to the complete chat request, including retry
+  backoff, while preserving immediate external cancellation.
+- Added base/effective timeout diagnostics and a non-secret audit policy.
+- Passed focused tests, the complete 342-test suite, full verification, Docker
+  smoke and governance.
 
 ## Blockers
 
-- None for implementation. External exact-head review remains a merge gate.
+- None for implementation or local validation. External exact-head review
+  remains a merge gate.
