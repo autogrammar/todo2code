@@ -4,14 +4,8 @@ import path from 'node:path';
 
 const root = process.cwd();
 const examplePath = path.join(root, '.env.example');
-const example = await fs.readFile(examplePath, 'utf8');
-const duplicates = [];
-const declared = parseDeclaredEnv(example);
-const expected = await collectExpectedVariables(root);
-const missing = [...expected].filter((name) => !declared.has(name)).sort();
-const unused = [...declared.keys()].filter((name) => !expected.has(name)).sort();
-const local = await auditLocalKeys(path.join(root, '.env'), declared);
-if (hasContractProblems(missing, unused, local)) {
+const { duplicates, declared, expected, missing, unused, local } = await buildEnvContractReport(root, examplePath);
+if (hasContractProblems({ duplicates, missing, unused, local })) {
   reportContractProblems({
     duplicates,
     missing,
@@ -21,6 +15,25 @@ if (hasContractProblems(missing, unused, local)) {
   process.exit(1);
 }
 console.log(`Environment contract verified: ${expected.size} code/Docker variables, ${declared.size} documented keys, no duplicates.`);
+
+async function buildEnvContractReport(rootPath, envExamplePath) {
+  const example = await fs.readFile(envExamplePath, 'utf8');
+  const duplicates = [];
+  const declared = parseDeclaredEnv(example, duplicates);
+  const expected = await collectExpectedVariables(rootPath);
+  const missing = [...expected].filter((name) => !declared.has(name)).sort();
+  const unused = [...declared.keys()].filter((name) => !expected.has(name)).sort();
+  const local = await auditLocalKeys(path.join(rootPath, '.env'), declared);
+
+  return {
+    duplicates,
+    declared,
+    expected,
+    missing,
+    unused,
+    local,
+  };
+}
 
 function reportContractProblems({
   duplicates: duplicateKeys,
@@ -36,7 +49,7 @@ function reportContractProblems({
   if (local.duplicates.length) console.error(`Duplicate environment variables in local .env:\n${local.duplicates.join('\n')}`);
 }
 
-function parseDeclaredEnv(example) {
+function parseDeclaredEnv(example, duplicates) {
   const declared = new Map();
   for (const declaration of collectDeclaredEnvEntries(example)) {
     const { name, line } = declaration;
@@ -136,8 +149,13 @@ function extractMatches(body, pattern) {
   return names;
 }
 
-function hasContractProblems(missing, unused, local) {
-  return duplicates.length
+function hasContractProblems({
+  duplicates: duplicateKeys,
+  missing,
+  unused,
+  local,
+}) {
+  return duplicateKeys.length
     || missing.length
     || unused.length
     || local.missing.length
