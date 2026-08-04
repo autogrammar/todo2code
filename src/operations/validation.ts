@@ -1,8 +1,8 @@
 import { shortHash, stableStringify } from '../core/id.js';
 import type { JsonValue } from '../core/types.js';
 import type { OperationPlan, VariableContract } from './types.js';
+import { assertGeneration } from './generation-validation.js';
 
-const SHA256 = /^[a-f0-9]{64}$/;
 const VARIABLE_ID = /^VAR-[a-f0-9]{20}$/;
 const PLAN_ID = /^OPLAN-[a-f0-9]{20}$/;
 const STEP_ID = /^[a-z][a-z0-9-]{1,79}$/;
@@ -157,30 +157,6 @@ function buildVariableContractId(
   };
   const expectedId = `VAR-${shortHash(stableStringify(semanticValue), 20)}`;
   return expectedId;
-}
-
-function assertGeneration(value: unknown): void {
-  const generation = objectValue(value, 'Operation plan generation');
-  exactKeys(generation, [
-    'generator', 'generatorVersion', 'runtimeVersion', 'generatedAt', 'requestedMode', 'effectiveMode', 'degraded',
-    'model', 'provider', 'responseId', 'configurationFingerprint', 'reason',
-  ], 'Operation plan generation');
-  for (const field of ['generator', 'generatorVersion', 'runtimeVersion'] as const) nonBlank(generation[field], `generation.${field}`);
-  dateString(generation.generatedAt, 'generation.generatedAt');
-  if (!['deterministic', 'prefer-llm', 'require-llm'].includes(String(generation.requestedMode))) throw new Error('generation.requestedMode is invalid');
-  if (!['deterministic', 'llm'].includes(String(generation.effectiveMode))) throw new Error('generation.effectiveMode is invalid');
-  if (typeof generation.degraded !== 'boolean') throw new Error('generation.degraded must be a boolean');
-  if (typeof generation.configurationFingerprint !== 'string' || !SHA256.test(generation.configurationFingerprint)) throw new Error('generation.configurationFingerprint must be SHA-256');
-  for (const field of ['model', 'provider', 'responseId', 'reason'] as const) {
-    if (generation[field] !== null) nonBlank(generation[field], `generation.${field}`);
-  }
-  if (generation.effectiveMode === 'llm' && (generation.model === null || generation.provider === null)) {
-    throw new Error('LLM operation plans require model and provider provenance');
-  }
-  if (generation.effectiveMode === 'deterministic'
-    && (generation.model !== null || generation.provider !== null || generation.responseId !== null)) {
-    throw new Error('Deterministic operation plans cannot claim LLM provenance');
-  }
 }
 
 function assertAcyclic(steps: OperationPlan['steps']): void {
