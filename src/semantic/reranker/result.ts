@@ -94,7 +94,31 @@ export function assertSemanticRerankResult(
   graph: IntentGraph,
 ): void {
   assertSemanticCandidateSet(candidateSet, graph);
+  const { candidates, records } = createCandidateAndRecordIndex(candidateSet, graph);
+  const seenDecisions = new Set<string>();
+  const acceptedDeclarations = new Set<string>();
 
+  assertSemanticRerankHeader(value, candidateSet, graph);
+  if (value.schemaVersion !== 't2c.semantic-rerank/v1') {
+  for (const decision of value.decisions) {
+    const candidate = validateSemanticDecisionCandidate(decision, candidates, seenDecisions);
+    validateSemanticDecisionDecision(decision);
+    validateSemanticDecisionEvidence(decision, candidate, records);
+    validateDecisionEvidenceScope(decision, candidate);
+    validateSemanticDecisionVerdict(decision, candidate, acceptedDeclarations);
+  }
+
+  if (seenDecisions.size !== candidates.size) {
+    throw new Error('Semantic rerank result must decide every bounded candidate');
+  }
+  assertRerankResultHash(value);
+}
+
+function assertSemanticRerankHeader(
+  value: SemanticRerankResult,
+  candidateSet: SemanticCandidateSet,
+  graph: IntentGraph,
+): void {
   if (value.schemaVersion !== 't2c.semantic-rerank/v1') {
     throw new Error('Unsupported semantic rerank schemaVersion');
   }
@@ -103,68 +127,92 @@ export function assertSemanticRerankResult(
   if (value.graphFingerprint !== graph.fingerprint || value.candidateSetHash !== candidateSet.candidateSetHash) {
     throw new Error('Semantic rerank result does not match its graph or candidate set');
   }
-
   validateGeneration(value.generation);
+}
 
-  const candidates = new Map(candidateSet.candidates.map((candidate) => [candidate.id, candidate]));
-  const records = new Map(graph.records.map((record) => [record.id, record]));
-  const seenDecisions = new Set<string>();
-  const acceptedDeclarations = new Set<string>();
+function createCandidateAndRecordIndex(candidateSet: SemanticCandidateSet, graph: IntentGraph) {
+  return {
+    candidates: new Map(candidateSet.candidates.map((candidate) => [candidate.id, candidate])),
+    records: new Map(graph.records.map((record) => [record.id, record])),
+  };
+}
 
-  for (const decision of value.decisions) {
-    if (!/^SDEC-[a-f0-9]{20}$/.test(decision.id)) {
-      throw new Error(`Invalid semantic decision ID: ${decision.id}`);
-    }
-    if (seenDecisions.has(decision.candidateId)) {
-      throw new Error(`Duplicate decision for candidate ${decision.candidateId}`);
-    }
-    seenDecisions.add(decision.candidateId);
+function validateSemanticDecisionCandidate(
+  decision: SemanticRerankDecision,
+  candidates: Map<string, SemanticCandidateSet['candidates'][number]>,
+  seenDecisions: Set<string>,
+): SemanticCandidateSet['candidates'][number] {
+  if (!/^SDEC-[a-f0-9]{20}$/.test(decision.id)) {
+    throw new Error(`Invalid semantic decision ID: ${decision.id}`);
+  }
+  if (seenDecisions.has(decision.candidateId)) {
+    throw new Error(`Duplicate decision for candidate ${decision.candidateId}`);
+  }
+  seenDecisions.add(decision.candidateId);
 
-    const candidate = candidates.get(decision.candidateId);
-    if (!candidate) {
-      throw new Error(`Semantic decision cites unknown candidate ${decision.candidateId}`);
-    }
+  const candidate = candidates.get(decision.candidateId);
+  if (!candidate) {
+    throw new Error(`Semantic decision cites unknown candidate ${decision.candidateId}`);
+  }
+  return candidate;
+}
 
-    roundedConfidence(decision.confidence);
-    validateVerdictReason(decision);
-    requiredText(decision.rationale, `Decision ${decision.id} rationale`);
+function validateSemanticDecisionDecision(decision: SemanticRerankDecision): void {
+  roundedConfidence(decision.confidence);
+  validateVerdictReason(decision);
+  requiredText(decision.rationale, `Decision ${decision.id} rationale`);
+}
 
-    const expectedRecords = [candidate.declarationRecordId, candidate.moduleRecordId].sort();
-    const citedRecords = [...new Set(decision.citedRecordIds)].sort();
-    if (stableStringify(citedRecords) !== stableStringify(expectedRecords)) {
-      throw new Error(`Decision ${decision.id} must cite exactly both candidate records`);
-    }
-
-    for (const recordId of expectedRecords) {
-      const citations = decision.evidence.filter((item) => item.recordId === recordId);
-      if (citations.length === 0) {
-        throw new Error(`Decision ${decision.id} lacks evidence for ${recordId}`);
-      }
-      const record = records.get(recordId);
-      if (!record) {
-        throw new Error(`Decision ${decision.id} cites unknown record ${recordId}`);
-      }
-      for (const citation of citations) {
-        assertGroundedQuote(citation, record, decision.id);
-      }
-    }
-
-    if (decision.evidence.some((item) => !expectedRecords.includes(item.recordId))) {
-      throw new Error(`Decision ${decision.id} evidence escapes its candidate pair`);
-    }
-
-    if (decision.verdict === 'accept') {
-      if (acceptedDeclarations.has(candidate.declarationRecordId)) {
-        throw new Error(`Reranker accepted more than one module for ${candidate.declarationRecordId}`);
-      }
-      acceptedDeclarations.add(candidate.declarationRecordId);
-    }
+function validateSemanticDecisionEvidence(
+  decision: SemanticRerankDecision,
+  candidate: SemanticCandidateSet['candidates'][number],
+  records: Map<string, IntentGraph['records'][number]>,
+): void {
+  const expectedRecords = [candidate.declarationRecordId, candidate.moduleRecordId].sort();
+  const citedRecords = [...new Set(decision.citedRecordIds)].sort();
+  if (stableStringify(citedRecords) !== stableStringify(expectedRecords)) {
+    throw new Error(`Decision ${decision.id} must cite exactly both candidate records`);
   }
 
-  if (seenDecisions.size !== candidates.size) {
-    throw new Error('Semantic rerank result must decide every bounded candidate');
+  for (const recordId of expectedRecords) {
+    const citations = decision.evidence.filter((item) => item.recordId === recordId);
+    if (citations.length === 0) {
+      throw new Error(`Decision ${decision.id} lacks evidence for ${recordId}`);
+    }
+    const record = records.get(recordId);
+    if (!record) {
+      throw new Error(`Decision ${decision.id} cites unknown record ${recordId}`);
+    }
+    for (const citation of citations) {
+      assertGroundedQuote(citation, record, decision.id);
+    }
   }
+}
 
+function validateDecisionEvidenceScope(
+  decision: SemanticRerankDecision,
+  candidate: SemanticCandidateSet['candidates'][number],
+): void {
+  const expectedRecords = [candidate.declarationRecordId, candidate.moduleRecordId].sort();
+  if (decision.evidence.some((item) => !expectedRecords.includes(item.recordId))) {
+    throw new Error(`Decision ${decision.id} evidence escapes its candidate pair`);
+  }
+}
+
+function validateSemanticDecisionVerdict(
+  decision: SemanticRerankDecision,
+  candidate: SemanticCandidateSet['candidates'][number],
+  acceptedDeclarations: Set<string>,
+): void {
+  if (decision.verdict === 'accept') {
+    if (acceptedDeclarations.has(candidate.declarationRecordId)) {
+      throw new Error(`Reranker accepted more than one module for ${candidate.declarationRecordId}`);
+    }
+    acceptedDeclarations.add(candidate.declarationRecordId);
+  }
+}
+
+function assertRerankResultHash(value: SemanticRerankResult): void {
   const expectedHash = sha256(stableStringify({
     graphFingerprint: value.graphFingerprint,
     candidateSetHash: value.candidateSetHash,
