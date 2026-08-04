@@ -22,6 +22,12 @@ two local variables shadowing their predicate functions, and an optional
 reranker response ID passed without null normalization. These exact files are
 included in the continuing core-dsl repair.
 
+Full aggregate tests then exposed a semantic regression in the refactored
+linker: object similarity is computed but no longer added to the pair score,
+and the scaled contribution is incorrectly returned as raw `textScore`. The
+continuing repair restores the pre-split scoring contract without reverting
+the helper extraction.
+
 ## Acceptance criteria
 
 - [x] AC-01: The human instructed the agent to continue the diagnosed repair.
@@ -34,6 +40,9 @@ included in the continuing core-dsl repair.
       attributed to other workstreams.
 - [ ] AC-06: Strict optional-property and runtime-validator types pass without
       weakening validation or changing evidence semantics.
+- [ ] AC-07: Text similarity contributes once to pair scoring while
+      `textScore` retains the unscaled similarity used by diagnostics and gold
+      evaluation.
 
 ## Participants
 

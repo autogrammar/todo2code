@@ -3,7 +3,7 @@
   "ticket": "ticket-023",
   "summary": "Repair current core and semantic parser contracts",
   "workstream": "core-dsl",
-  "allowedPaths": ["src/core/io.ts", "src/core/schema/intent.ts", "src/core/types/code-change.ts", "src/core/types/index.ts", "src/core/types/intent.ts", "src/core/types/pipeline.ts", "src/core/version.ts", "src/graph/diagnostics.ts", "src/semantic/reranker/result.ts", "src/semantic/reranker-llm.ts", "project/ticket-023/**", "TODO.md", "project/TICKETS.md"],
+  "allowedPaths": ["src/core/io.ts", "src/core/schema/intent.ts", "src/core/types/code-change.ts", "src/core/types/index.ts", "src/core/types/intent.ts", "src/core/types/pipeline.ts", "src/core/version.ts", "src/graph/diagnostics.ts", "src/graph/linker.ts", "src/semantic/reranker/result.ts", "src/semantic/reranker-llm.ts", "project/ticket-023/**", "TODO.md", "project/TICKETS.md"],
   "forbiddenPaths": ["project/ticket-*/user-*.md"],
   "stacks": ["node"],
   "dependsOn": [],
