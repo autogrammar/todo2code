@@ -24,10 +24,15 @@ core/semantic edits will be reapplied on current HEAD.
 5. Route CLI/interface failures to a separate non-overlapping ticket.
 6. Repair the four strict-type regressions exposed after all parser errors
    clear, preserving current runtime validation behavior.
+7. Restore the linker's pre-split object-similarity contribution and raw
+   `textScore`, then run linker and gold regressions.
 
 ## Actual changes
 
 - Plan completed and the user-authorized current-HEAD repair entered `EDIT`.
+- Aggregate testing localized seven behavioral failures to one omitted linker
+  score contribution; the existing continuation authorization covers this
+  exact core-dsl follow-up.
 
 ## Blockers
 

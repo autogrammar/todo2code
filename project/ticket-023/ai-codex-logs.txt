@@ -25,3 +25,8 @@ PASS
 
 $ bash project/governance-check.sh --actor agent
 GOV-PASS: passed (0 errors, 0 warnings)
+2026-08-04 aggregate test diagnosis
+Seven AST/linker/gold regressions share one cause in src/graph/linker.ts:
+scoreObjectSimilarity returns a scaled contribution, scorePair does not add it,
+and textScore receives the scaled value. Planned restoration of the pre-split
+raw similarity and its single 0.48 contribution; user authorization: kontynuuj.
