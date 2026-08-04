@@ -17,6 +17,8 @@
 - Full deterministic verification passes 334/335 tests with one JDK skip;
   governance reports zero findings. Final 0.10 lock adoption remains blocked
   on independent review and merge of upstream PR #1.
+- Read-only adoption preflight against the PR head made zero writes and stopped
+  on the expected target-manifest 0.9.0 versus source 0.10.0 precondition.
 
 ## [0.4.1] - 2026-08-04
 

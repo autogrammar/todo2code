@@ -253,6 +253,9 @@ Current verified baseline:
 - Upstream PR #1 has green checks but no independent review. Returned this
   ticket to `BLOCKED / VALIDATION` rather than generating a false `published`
   lock or self-approving the governance source SHA.
+- Adoption `--check` against PR head `e0a8e5c...` stopped before writes on the
+  expected 0.9.0 -> 0.10.0 target-manifest version precondition. The explicit
+  upgrade must update that local contract only after the source SHA is trusted.
 
 ## Blockers
 

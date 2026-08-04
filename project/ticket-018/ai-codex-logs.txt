@@ -438,3 +438,12 @@ sdk/rust/Cargo.toml version change; no ticket-018 path caused or changed it
 - live OpenRouter requests: 0
 - upstream PR #1 checks: PASS; independent review: missing
 - state: BLOCKED / VALIDATION pending published upstream SHA
+
+2026-08-04 ADOPTION PREFLIGHT
+- source revision: e0a8e5c2d7dea3e65697f07e83ffeaadf2c98b11 (upstream PR #1 head)
+- command: create_adoption_lock.py --check
+- result: stopped before writes because target manifest is 0.9.0 and source is 0.10.0
+- diagnostic: target manifest version must equal adopted standard version 0.10.0
+- interpretation: expected safe-upgrade precondition; do not change target
+  manifest or claim published provenance until independent review/merge
+- target files written: 0
