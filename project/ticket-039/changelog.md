@@ -6,3 +6,4 @@
 - No human participant identity or content was generated.
 - Defined the bounded read-only Git observation contract, risks, tests and
   explicit semantic/interface follow-up boundary.
+- Recorded explicit human approval and entered `IN_PROGRESS / EDIT`.

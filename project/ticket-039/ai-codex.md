@@ -60,9 +60,9 @@ In particular, no public interface or cross-repository adapter is implied.
 
 ## Actual changes
 
-- Governance scaffold and implementation plan only.
-- No source or test file has been created.
+- Governance scaffold and implementation plan approved by the user.
+- Implementation is entering the bounded `EDIT` state.
 
 ## Blockers
 
-- Explicit human approval is required before implementation.
+- None at implementation start.

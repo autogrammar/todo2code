@@ -2,8 +2,8 @@
 
 - **ID**: ticket-039
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-04
 
 ## Goal
@@ -71,7 +71,7 @@ ticket-037 projector.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves this exact read-only input/output and delivery
+- [x] AC-01: A human approves this exact read-only input/output and delivery
       boundary.
 - [ ] AC-02: The service rejects a non-repository root, malformed repository
       identity, unsafe/missing/symbolic refs, duplicate candidates and more
@@ -101,6 +101,7 @@ ticket-037 projector.
 
 ## Approval boundary
 
-The implementation remains blocked in `WAIT_FOR_APPROVAL`. Chat approval will
-authorize only the bounded interactive edit. A protected exact-head review or
-verified attestation remains required merge evidence.
+The user explicitly approved continuation and testing of ticket-039 on
+2026-08-05 after reviewing the initialized plan. Chat approval authorizes only
+the bounded interactive edit. A protected exact-head review or verified
+attestation remains required merge evidence.
