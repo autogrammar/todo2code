@@ -2,8 +2,8 @@
 
 - **ID**: ticket-018
 - **Owner**: unresolved:human
-- **Status**: BLOCKED
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-01
 
 ## Goal and scope
@@ -343,8 +343,8 @@ remain historical evidence, not evidence for AC-11..AC-17.
   `68b0c0985f0aa95f8a41e252399491fe7aea29ca` for `ticket-034`; the rerun proved
   `governance / enforce` accepts the independent App evidence. Validator did
   not merge either pull request.
-- The remaining blocker is central `wellmanifest/new-project` PR #2 at exact
-  head `d082373f314191dba794aba58aca2d4475ea497a`. It is green and mergeable but
-  has no independent review, and the `wellmanifest` organization currently has
-  no Validator App installation. Ticket-018 therefore remains
-  `BLOCKED / PUBLICATION` and does not reserve its write scope while waiting.
+- Installation `151239784` made the Validator App available to
+  `wellmanifest/new-project`. Validator run `30929133625` approved central PR
+  #2 at exact head `d082373f314191dba794aba58aca2d4475ea497a` after its required
+  `test` check passed. The human maintainer merged it as
+  `c54694a568fe074c93a586e4de75e8903b13a2ca`; ticket-018 is complete.

@@ -206,24 +206,20 @@ Current verified baseline:
   current head, ticket and actor. The earlier checkout-owned resolver is detached
   from CI and retained only until the tracked generated-analysis index is refreshed.
 
-## Publication blocker
+## Publication status
 
 - Central standard 0.9.0 is published at immutable commit
-  `d082373f314191dba794aba58aca2d4475ea497a`; its PR #2 is green and still
-  awaits an independent merge review. The `wellmanifest` organization reports
-  zero App installations, so the existing Validator identity cannot yet
-  provide that review.
+  `d082373f314191dba794aba58aca2d4475ea497a`. Installation `151239784` enabled
+  the exact-head Validator App review, and central PR #2 was merged by the
+  human maintainer as `c54694a568fe074c93a586e4de75e8903b13a2ca`.
 
 ## Approval boundary
 
-- Current state: `BLOCKED / PUBLICATION`. GitHub now reports installation
+- Current state: `DONE`. GitHub reports installation
   `151227156` for App `ifuri-validator-agent` in organization `semcod`, with
-  repository selection `all`; todo2code publication evidence is complete.
-  Central PR #2 still requires an independent reviewer or installation of the
-  Validator App in `wellmanifest`.
-- Required response from: `unresolved:human`.
+  repository selection `all`; todo2code and central publication evidence are
+  complete. No response is required.
 - The user explicitly approved AC-18..AC-25 in chat. This authorizes the
   implementation workflow but is not itself merge-time review evidence.
-- The user explicitly approved AC-26..AC-40 on 2026-08-04. Those criteria are
-  complete; current `BLOCKED / PUBLICATION` state concerns only the independent
-  review of central PR #2.
+- The user explicitly approved AC-26..AC-40 on 2026-08-04. Those criteria and
+  the independent central publication review are complete.

@@ -53,6 +53,11 @@
   and mergeable, but `wellmanifest` has no Validator App installation and the
   author cannot supply an independent self-review. Released the workstream at
   `BLOCKED / PUBLICATION`.
+- Installed the Validator App in `wellmanifest`, added a closed
+  repository/check profile in Validator without a direct-PR PAT fallback, and
+  passed 106 Validator tests.
+- Validator run `30929133625` approved central PR #2 at exact head `d082373`;
+  the human maintainer merged it as `c54694a5` and ticket-018 moved to `DONE`.
 
 ## [0.5.0] - 2026-08-04
 

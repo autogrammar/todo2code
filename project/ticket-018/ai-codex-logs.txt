@@ -367,3 +367,11 @@ wellmanifest/new-project PR #2 head: d082373f314191dba794aba58aca2d4475ea497a
 PR state: OPEN, CLEAN, tests PASS, no reviews
 wellmanifest organization App installations: 0
 transition: IN_PROGRESS / VALIDATION -> BLOCKED / PUBLICATION; reservation released
+2026-08-04 WELLMANIFEST APP INSTALLATION CONFIRMED
+organization installation: 151239784
+Validator profile: wellmanifest/new-project -> required check test
+direct-pr token policy: repository App token only; no queue PAT fallback
+Validator tests: 106 PASS
+central Validator run 30929133625: APPROVED exact head d082373f314191dba794aba58aca2d4475ea497a, ticket-003
+wellmanifest/new-project PR #2 merged by tom-sapletta-com as c54694a568fe074c93a586e4de75e8903b13a2ca
+transition: BLOCKED / PUBLICATION -> DONE
