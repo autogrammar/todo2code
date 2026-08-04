@@ -2,8 +2,8 @@
 
 - **ID**: ticket-034
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -92,6 +92,16 @@ fallback and the `/models` endpoint are out of scope.
 
 The user's `kontynuuj` on 2026-08-04 approves this formula and bounded scope.
 The ticket may enter `EDIT`; protected review remains required for merge.
+
+## Publication evidence
+
+- PR #13 received an independent `ifuri-validator-agent[bot]` approval bound
+  to exact head `68b0c0985f0aa95f8a41e252399491fe7aea29ca` and this ticket.
+- Governance, Node/Docker verification, the JDK 17 adapter and Koru review all
+  passed on that head.
+- PR #13 was merged by `tom-sapletta-com` as
+  `4387943e4095926fe2466628b767c3dd83034281`; Validator auto-merge remained
+  disabled.
 
 ## Participants
 

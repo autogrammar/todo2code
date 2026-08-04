@@ -36,8 +36,10 @@ JSON requests can therefore receive less time than much smaller generic calls.
 - Added seven boundary, cap, malformed-input, audit and cancellation tests.
 - Full verify, gold, SDK examples, governance and Docker smoke pass on the
   validated ticket-027 publication base.
+- The installed Validator App approved the exact PR #13 head after all required
+  hosted checks passed, and the human maintainer merged it into the publication
+  branch.
 
 ## Blockers
 
-- Implementation and validation are complete. Protected review remains an
-  external publication requirement.
+- None. Implementation, independent validation and publication are complete.

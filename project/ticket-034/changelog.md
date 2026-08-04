@@ -18,3 +18,7 @@
   with base/effective values.
 - Passed governance, 349-test verification, gold v2, five SDK examples and
   Docker smoke on the validated publication base.
+- Received exact-head approval from `ifuri-validator-agent[bot]` after required
+  hosted checks passed; PR #13 was merged by the human maintainer as
+  `4387943e4095926fe2466628b767c3dd83034281`.
+- Marked ticket-034 `DONE`; Validator auto-merge remained disabled.
