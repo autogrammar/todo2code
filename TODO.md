@@ -4,8 +4,8 @@
 
 - [ ] [`ticket-031`](project/ticket-031/README.md) — restore the semantic
   similarity score contribution dropped during the linker split. Current
-  state: `IN_PROGRESS / EDIT`; one production file, no threshold or test
-  expectation changes, estimated under 30 minutes.
+  state: `IN_PROGRESS / VALIDATION`; one production file changed, no threshold
+  or test expectation changes, and all seven targeted failures are removed.
 
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with

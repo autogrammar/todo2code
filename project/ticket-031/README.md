@@ -3,7 +3,7 @@
 - **ID**: ticket-031
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-04
 
 ## Goal and scope
@@ -30,15 +30,15 @@ under 30 minutes.
 ## Acceptance criteria
 
 - [x] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: `scorePair` adds object/text similarity to the aggregate score and
+- [x] AC-02: `scorePair` adds object/text similarity to the aggregate score and
       continues to expose the same value as `textScore`.
-- [ ] AC-03: The shared-path plan/AST and configuration/document regression
+- [x] AC-03: The shared-path plan/AST and configuration/document regression
       tests pass without lowering the `0.42` relation threshold.
-- [ ] AC-04: The versioned gold evaluation returns to its accepted precision,
+- [x] AC-04: The versioned gold evaluation returns to its accepted precision,
       recall, known-gap and v1-compatibility results.
-- [ ] AC-05: The full suite reduces by the seven linker-related failures; no
+- [x] AC-05: The full suite reduces by the seven linker-related failures; no
       unrelated test or fixture is weakened.
-- [ ] AC-06: Clean build, focused tests, `git diff --check` and governance are
+- [x] AC-06: Clean build, focused tests, `git diff --check` and governance are
       recorded with inherited blockers kept separate.
 
 ## Participants
@@ -48,7 +48,20 @@ under 30 minutes.
 
 ## Approval boundary
 
-- Current state: `IN_PROGRESS / EDIT` after explicit chat approval.
+- Current state: `IN_PROGRESS / VALIDATION` after implementing and testing the
+  bounded repair.
 - Chat approval authorizes this interactive implementation only.
 - Trusted merge evidence still requires an independent protected review or
   signed attestation bound to the final head SHA.
+
+## Validation evidence
+
+- `npm run build`: PASS.
+- Focused AST, linker-pairing and gold evaluation: 27 passed, 0 failed.
+- Full fresh suite: 338 tests, 333 passed, 4 failed and one skipped. The seven
+  linker failures are gone. The remaining failures are the three separately
+  diagnosed communication regressions plus the confidence-hierarchy test
+  repaired independently by ticket-030/PR #7.
+- `git diff --check`: PASS.
+- `make governance`: reports only the four inherited ticket-018/ticket-019
+  diagnostics; ticket-031 adds no scope or workstream finding.

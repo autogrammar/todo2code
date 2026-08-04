@@ -7,3 +7,10 @@
 - Renumbered the unpublished scaffold from 023 to 031 because remote PR #3
   already owns ticket-023.
 - Documented the pre-implementation regression evidence and bounded repair.
+
+## [0.2.0] - 2026-08-04
+
+- Restored raw object/text similarity as relation-classification evidence and
+  its weighted contribution to the aggregate linker score.
+- Removed seven fresh-suite regressions without changing thresholds, fixtures
+  or gold expectations; focused verification passes 27/27.

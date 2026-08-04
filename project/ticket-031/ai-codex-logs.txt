@@ -4,3 +4,9 @@
 - No production source edited; state remains `WAIT_FOR_APPROVAL`.
 - Human response `kontynuuj` authorized the bounded ticket-031 implementation;
   transitioned to `IN_PROGRESS / EDIT`.
+- `npm run build`: PASS.
+- Focused `ast`, `linker-pairing`, `gold-evaluation`: PASS (27/27).
+- Fresh full suite: 338 total, 333 pass, 4 fail, 1 skip; all seven linker
+  regressions removed. Remaining: three communication tests and ticket-030.
+- `git diff --check`: PASS.
+- `make governance`: four inherited ticket-018/ticket-019 errors, no ticket-031 finding.

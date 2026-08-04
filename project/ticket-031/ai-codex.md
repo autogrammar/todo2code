@@ -28,8 +28,15 @@ test expectations because it recreates the pre-refactor algorithm.
 
 - The human explicitly approved ticket-031 by replying `kontynuuj`; the
   interactive implementation may enter `EDIT`.
+- Restored the pre-refactor scoring contract in `src/graph/linker.ts`: raw
+  similarity remains available to relation classification, while its weighted
+  `0.48` contribution is added exactly once to the aggregate score.
+- Clean build and all 27 focused AST/linker/gold tests pass. The full suite no
+  longer contains any of the seven linker failures and stops only on three
+  communication regressions plus ticket-030's independently repaired test.
 
 ## Blockers
 
 - Repository governance already has four unrelated ticket-018/ticket-019
   blockers; ticket-031 must not rewrite them.
+- Trusted merge approval for the final head SHA is still required.
