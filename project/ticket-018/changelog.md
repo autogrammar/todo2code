@@ -9,8 +9,10 @@
   ambiguous ownership and actual-diff overflow; central tests pass.
 - Staged pinned `todo2code` adoption without retroactively enabling the new
   five-file limit against the historical ticket-018 branch.
-- Target schemas and lock pass; five inherited ticket coordination findings
-  remain separately attributed and block full activation.
+- Fixed conservative wildcard ownership containment with central regression
+  coverage; the false ticket-020 workstream finding is gone.
+- Target schemas and lock pass; four inherited ticket-018/019 coordination
+  findings remain separately attributed and block full activation.
 
 ## [0.2.1] - 2026-08-01
 

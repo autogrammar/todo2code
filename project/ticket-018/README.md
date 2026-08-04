@@ -308,18 +308,19 @@ The multi-workstream extension was explicitly approved by the user in chat on
 2026-08-01. The results below describe the already executed 0.7.0 baseline and
 remain historical evidence, not evidence for AC-11..AC-17.
 
-- `wellmanifest/new-project` 0.9.0 is implemented as five local commits on
+- `wellmanifest/new-project` 0.9.0 is implemented as six local commits on
   `feat/bounded-delivery-contract`, each changing at most five files. JSON
   Schema Draft 2020-12 validation, Python compilation, scaffolder tests and
   validator positive/negative fixtures pass.
 - The target copies the 0.9.0 schemas, diagnostics, validator and scaffolder and
-  pins their hashes to local upstream commit `3e54e3a`. The manifest keeps
+  pins their hashes to local upstream commit `0901114`. The manifest keeps
   `delivery.requiredForImplementation=false` during migration because the
   historical ticket-018 branch already exceeds the new five-file slice limit.
   New repositories enable the bounded gate by default.
 - Target schema and lock validation pass. `make governance` emits no new
-  delivery/base/architecture/budget finding; it continues to report five
-  inherited coordination findings for tickets 018/019/020. Full activation
+  delivery/base/architecture/budget finding. A central wildcard-ownership
+  regression removed the false ticket-020 finding; four inherited coordination
+  findings for tickets 018/019 remain. Full activation
   (AC-34) waits for those historical branches to be serialized or completed.
 
 - Central scaffolder and validator fixtures pass, including allowed/denied

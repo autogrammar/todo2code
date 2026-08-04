@@ -208,12 +208,15 @@ Current verified baseline:
   scaffolder/templates; policy documentation; release metadata. Central script,
   validator and Draft 2020-12 schema checks pass.
 - Staged the target adoption with managed hashes bound to upstream commit
-  `3e54e3a`. Kept enforcement disabled only for migration because applying the
+  `0901114`. Kept enforcement disabled only for migration because applying the
   five-file hard limit retroactively to the accumulated ticket-018 branch would
   make the standard reject its own bootstrap. No application file changed.
 - Target schema and lock checks pass. The target governance gate reports only
-  inherited ticket-018/019/020 coordination errors and no new delivery,
-  architecture, base or budget diagnostic.
+  four inherited ticket-018/019 coordination errors and no new delivery,
+  architecture, base or budget diagnostic. The central wildcard containment
+  regression proves `test/cli*.test.ts` is owned by `test/cli*` without treating
+  unrelated `test/mcp*.test.ts` as owned; this removed the false ticket-020
+  workstream finding.
 
 ## Blockers
 

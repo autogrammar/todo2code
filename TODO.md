@@ -25,7 +25,7 @@
   outcome per slice, an `XS|S` complexity budget, a hard 30-minute timebox,
   accepted base SHA, pre-implementation architecture/UI/rollback decisions and
   deterministic stop/split rules. Upstream 0.9.0 and the pinned target files
-  validate; enforcement is staged off until historical 018/019/020 branch
+  validate; enforcement is staged off until historical 018/019 branch
   conflicts are serialized. AC-17 and inherited blockers remain separate.
 
 ## Completed tickets
