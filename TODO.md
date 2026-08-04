@@ -2,6 +2,13 @@
 
 ## Active tickets
 
+- [ ] [`ticket-030`](project/ticket-030/README.md) — repair the test-only
+  confidence hierarchy check after Markdown and NL clamping moved into helper
+  modules. Production ceilings remain unchanged. Current state:
+  `IN_PROGRESS / VALIDATION`; the focused suite passes 11/11 and the complete
+  test suite passes 337/337 runnable tests (one environment skip). The combined
+  verification command remains blocked by three inherited parser errors.
+
 - [ ] [`ticket-019`](project/ticket-019/README.md) — publish the dependency-free
   Python SDK as the root PyPI distribution `todo2code` through `goal -a`, with
   one root `pyproject.toml` and SDK-only artifacts. Current state:

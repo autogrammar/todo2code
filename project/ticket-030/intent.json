@@ -1,0 +1,17 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-030",
+  "summary": "Repair confidence hierarchy test after extractor refactor",
+  "workstream": "llm",
+  "allowedPaths": [
+    "test/nl-llm.test.ts",
+    "project/ticket-030/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
