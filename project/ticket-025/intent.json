@@ -3,7 +3,7 @@
   "ticket": "ticket-025",
   "summary": "Repair current extractor split contracts",
   "workstream": "extractors",
-  "allowedPaths": ["src/extractors/communication-file-helpers.ts", "src/extractors/nl-llm-helpers.ts", "src/extractors/markdown-llm.ts", "test/docs.test.ts", "test/markdown.test.ts", "test/nl-llm.test.ts", "project/ticket-025/**", "TODO.md", "project/TICKETS.md"],
+  "allowedPaths": ["src/extractors/communication-file-helpers.ts", "src/extractors/nl-llm-helpers.ts", "src/extractors/markdown-llm.ts", "test/docs.test.ts", "test/markdown.test.ts", "project/ticket-025/**", "TODO.md", "project/TICKETS.md"],
   "forbiddenPaths": ["project/ticket-*/user-*.md"],
   "stacks": ["node"],
   "dependsOn": [],

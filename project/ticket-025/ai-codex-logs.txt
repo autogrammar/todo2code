@@ -3,3 +3,6 @@ communication identity warning missing because declaredGitAuthors was replaced
 by registry gitAuthors before comparison; confidence test reads pre-split files;
 docs runtime version expectation remains 0.5.0 while canonical release is 0.5.2.
 Scope expanded within extractors; user authorization: kontynuuj.
+2026-08-04 governance routing correction
+GOV-WORKSTREAM-003 identified test/nl-llm.test.ts as LLM-owned. Removed that
+path from ticket-025; ticket-027 owns the confidence test update.

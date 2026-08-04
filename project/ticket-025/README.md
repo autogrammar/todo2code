@@ -29,8 +29,8 @@ expects release `0.5.0` instead of canonical `0.5.2`.
 - [ ] AC-04: Focused extractor tests and aggregate verification pass.
 - [ ] AC-05: Registry alignment compares declared Git authors with the
       canonical registry entry and emits the established mismatch warning.
-- [ ] AC-06: Confidence hierarchy coverage follows the split helper modules,
-      and deterministic documentation asserts canonical release `0.5.2`.
+- [ ] AC-06: Deterministic documentation asserts canonical release `0.5.2`;
+      confidence hierarchy coverage is routed to its owning LLM ticket.
 
 ## Participants
 
