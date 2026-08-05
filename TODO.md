@@ -5,7 +5,7 @@
 - [ ] [`ticket-046`](project/ticket-046/README.md) — generate a canonical,
   atomic `logs.dsl.txt` beside every succeeded, degraded and failed pipeline
   manifest. Depends on completed ticket-045. Current state:
-  `IN_PROGRESS / EDIT`.
+  `IN_PROGRESS / VALIDATION`.
 
 ## Backlog tickets
 

@@ -86,3 +86,10 @@ protected publication still requires independent exact-head evidence.
 - `make docker-smoke`: passed using the repository image build.
 - `git diff --check`: passed; codec and persistence modules are 414 and 190
   lines respectively, below the repository GOD-file size threshold.
+- The first hosted Koru run correctly rejected the changed legacy
+  `runPipeline` function at `CC=65` and 372 lines. Its orchestration is now
+  split into bounded private stages with a measured maximum of `CC=5` and 20
+  lines per function; the public signature and all pipeline outputs remain
+  unchanged.
+- Post-refactor focused tests remain 15/15; full host verification, governance,
+  Docker smoke and `git diff --check` pass again.

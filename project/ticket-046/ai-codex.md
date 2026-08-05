@@ -55,6 +55,12 @@ immutable run log.
 - Replaced a secret-shaped literal in a negative query-reference fixture after
   Validator App correctly enforced the repository's patch secret heuristic;
   the test still proves that all query-bearing evidence references fail closed.
+- The first hosted Koru report rejected two inherited deterministic metrics in
+  the touched `runPipeline` function (`CC=65`, 372 lines). Refactored only the
+  approved `run.ts` path into bounded internal stages without suppression or a
+  public API change; local Lizard now reports a maximum `CC=5` and 20 lines.
+- Re-ran the 15 focused tests, full verification, governance, Docker smoke and
+  whitespace validation after the refactor; all deterministic gates pass.
 
 ## Blockers
 

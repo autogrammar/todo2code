@@ -28,3 +28,9 @@
   directory; compiler-disproved type/control-flow claims remain advisory.
 - Removed a secret-shaped token literal from the negative query-reference test
   while preserving the same fail-closed contract after Validator App review.
+- Responded to the first hosted Koru rejection by decomposing the touched
+  legacy `runPipeline` orchestration from `CC=65`/372 lines to bounded internal
+  stages with a maximum `CC=5`/20 lines, without suppressions or public API
+  changes.
+- Re-ran focused, full host, governance, Docker smoke and whitespace checks
+  successfully after the orchestration refactor.
