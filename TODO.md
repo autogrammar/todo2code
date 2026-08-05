@@ -2,7 +2,10 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-043`](project/ticket-043/README.md) — expose ticket-040's
+  deterministic read-only workspace observer through an explicit integration
+  command without changing runtime semantics or governance. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Backlog tickets
 

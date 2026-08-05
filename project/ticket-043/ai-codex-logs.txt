@@ -1,0 +1,3 @@
+2026-08-05T08:24:13Z PLAN ticket-043 scaffolded workstream=integration
+2026-08-05T08:25:00Z ARCHITECTURE command=make-preflight implementation-files=3 runtime-service=unchanged
+2026-08-05T08:25:01Z WAIT_FOR_APPROVAL base=4d9a793d13e6eb0fd0a8b60e59692b6aa5f173ef
