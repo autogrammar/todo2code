@@ -2,8 +2,8 @@
 
 - **ID**: ticket-045
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -25,19 +25,20 @@ the reviewed SHA and cause an audit recursion.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope and the artifact-not-commit architecture are approved by a
+- [x] AC-01: Scope and the artifact-not-commit architecture are approved by a
   human owner.
-- [ ] AC-02: `docs/EVENT_LOG_DSL.md` defines a closed versioned grammar,
+- [x] AC-02: `docs/EVENT_LOG_DSL.md` defines a closed versioned grammar,
   mandatory provenance, stable event types, deterministic ordering and secret
   redaction.
-- [ ] AC-03: The canonical `logs.dsl.txt` fixture represents ticket, Git, PR,
+- [x] AC-03: The canonical `logs.dsl.txt` fixture represents ticket, Git, PR,
   check, diagnostic, review, merge, branch cleanup, test and governance events.
-- [ ] AC-04: Every event binds a correlation ID, actor, subject, source,
+- [x] AC-04: Every event binds a correlation ID, actor, subject, source,
   timestamp, outcome, evidence digest, previous digest and its own digest.
-- [ ] AC-05: The contract separates system facts, human decisions and advisory
+- [x] AC-05: The contract separates system facts, human decisions and advisory
   inference; an LLM event can never become trusted approval evidence.
-- [ ] AC-06: A subsequent runtime ticket depends on ticket-045 and generates
-  the same artifact for successful, degraded and failed executions.
+- [x] AC-06: The contract records that a subsequent runtime ticket must depend
+  on ticket-045 and generate the same artifact for successful, degraded and
+  failed executions.
 
 ## Participants
 
@@ -55,5 +56,21 @@ the reviewed SHA and cause an audit recursion.
 
 ## Approval boundary
 
-The ticket remains `PLAN / WAIT_FOR_APPROVAL`. Source and test implementation
-may begin only after explicit human approval of this exact contract slice.
+The user approved continuation and testing on 2026-08-05. This authorizes the
+two-file integration slice declared in `intent.json`; protected merge evidence
+will still require independent exact-head review.
+
+## Validation evidence
+
+- Deterministic fixture validation: PASS for 17 ordered events; all required
+  event families and the SHA-256 chain resolve to stream digest
+  `sha256:f3f1efe96911b393f0d7035c6f12cf8cc46acbb8e4166ce35f1322d710285d93`.
+- `make governance`: PASS with zero errors and warnings.
+- `make verify`: PASS, 383 tests with no failures and one
+  toolchain-dependent skip.
+- `make docker-smoke`: PASS.
+- `git diff --check`: PASS.
+
+The contract slice is locally complete. Runtime production, persistence and
+GitHub event acquisition are deliberately deferred to a dependent ticket and
+must not be inferred from these results.

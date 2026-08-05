@@ -63,9 +63,24 @@
     "runtimeDependencies": [],
     "validation": [
       {
-        "criterion": "AC-02..AC-05",
+        "criterion": "AC-02",
         "commands": ["make governance", "git diff --check"],
-        "evidence": "The integration contract is bounded, internally consistent and governance-valid"
+        "evidence": "The closed grammar and bounded integration scope are governance-valid"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node <inline deterministic fixture validator>"],
+        "evidence": "The canonical fixture has all required event families and a valid digest chain"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["node <inline deterministic fixture validator>"],
+        "evidence": "Every event has mandatory provenance and cryptographic bindings"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["make verify"],
+        "evidence": "Repository checks preserve the fact, decision and advisory trust boundary"
       }
     ]
   }

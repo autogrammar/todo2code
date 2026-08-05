@@ -29,8 +29,18 @@ chain before runtime integration.
 
 ## Actual changes
 
-- None; waiting for approval.
+- Human approval received; ticket transitioned to `IN_PROGRESS / EDIT`.
+- Defined the closed `t2c.event-log/v1` grammar, stable event taxonomy,
+  trust classes, evidence rules, secret boundary and SHA-256 chain.
+- Added a canonical `logs.dsl.txt` fixture covering 17 lifecycle events from
+  ticket creation through protected merge, branch cleanup and governance.
+- Kept implementation limited to the normative contract and canonical fixture
+  declared by the integration slice; no runtime capability is claimed.
+- Deterministic fixture validation, governance, full Node verification, Docker
+  smoke validation and whitespace checks pass.
+- Ticket transitioned to `IN_PROGRESS / VALIDATION` pending independent
+  exact-head review.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- Independent protected review is still required before merge.
