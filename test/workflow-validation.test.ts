@@ -90,6 +90,7 @@ test('Make preflight reserves stdout for one canonical report', async (t) => {
   t.after(() => fs.rm(fixture.parent, { recursive: true, force: true }));
   const before = await repositoryState(fixture.root);
   const result = await run('make', [
+    '--no-print-directory',
     'preflight',
     `PREFLIGHT_ROOT=${fixture.root}`,
     'PREFLIGHT_BASELINE=refs/remotes/origin/main',
