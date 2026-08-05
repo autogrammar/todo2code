@@ -1,0 +1,92 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-046",
+  "summary": "Generate canonical pipeline event logs",
+  "workstream": "runtime",
+  "allowedPaths": [
+    "project/ticket-046/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/pipeline/event-log.ts",
+    "src/pipeline/run.ts",
+    "test/event-log.test.ts",
+    "test/pipeline.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/types.ts",
+    "src/interfaces/**",
+    "src/sdk/**",
+    "sdk/**",
+    ".github/workflows/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-045"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "ba5f925f309be13bfbfb0bef00a2c197d3262b01",
+    "targetBranch": "main",
+    "outcome": "Generate one valid atomic t2c.event-log/v1 artifact for every persisted pipeline run",
+    "nonGoals": [
+      "No GitHub event acquisition or workflow-level stream",
+      "No mutation of a completed pipeline log",
+      "No public interface, CLI, SDK, workflow or dependency change",
+      "No trusted approval derived from an LLM"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 4,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "proposed",
+      "decision": "A dependency-free pipeline codec atomically publishes an immutable per-run logs.dsl.txt after manifest persistence; a later integration producer creates a separate workflow-level stream from GitHub evidence",
+      "components": [
+        {
+          "name": "pipeline-event-log-codec",
+          "paths": ["src/pipeline/event-log.ts", "test/event-log.test.ts"]
+        },
+        {
+          "name": "pipeline-event-log-persistence",
+          "paths": ["src/pipeline/run.ts", "test/pipeline.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Every persisted pipeline run gains logs.dsl.txt and manifest.files.eventLog"
+      ],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Remove event-log persistence and the registered manifest path; existing run artifacts remain readable"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/event-log.test.js"],
+        "evidence": "The canonical fixture and negative structural/digest cases exercise one codec"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node --test dist/test/event-log.test.js"],
+        "evidence": "Atomic publication, unsafe references and bounded values are tested"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["node --test dist/test/pipeline.test.js"],
+        "evidence": "Succeeded, degraded and failed manifests each have a valid adjacent event log"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["make governance", "make verify", "make docker-smoke", "git diff --check"],
+        "evidence": "Deterministic, repository-wide and container gates pass"
+      }
+    ]
+  }
+}
