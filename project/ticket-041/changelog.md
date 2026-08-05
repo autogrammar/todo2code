@@ -21,3 +21,16 @@
 - Added seven focused regression cases. Full host verification passed 375 with
   one skip; Docker passed 369 with seven explicit toolchain skips; governance,
   complexity, MCP/A2A and example gates passed.
+
+## [0.2.0] - 2026-08-05
+
+- Rebuilt the branch into the required plan → approval → implementation →
+  validation order after the parallel ticket-ID collision.
+- Passed Koru and deterministic Validator App review for exact head `3779613`;
+  Validator used `openrouter/z-ai/glm-5.2`.
+- Verified that the advisory type findings did not reproduce: the asserted
+  object guard and required completeness union are explicit in source.
+- Re-ran a timing-only `cli-watch` failure without changing code; both the
+  independent same-SHA run and the retry passed.
+- Passed review-triggered governance, full verification, Docker smoke and Java
+  gates, then merged protected PR #48 as `main@f188025`.

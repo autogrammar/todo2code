@@ -2,8 +2,8 @@
 
 - **ID**: ticket-041
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-05
 
 ## Goal
@@ -109,9 +109,9 @@ The user explicitly approved the assembler contract and instructed autonomous
 implementation before any source or test edit. The later `db368c0` refresh
 contains only the independently planned ticket-040 governance files and does
 not change this ticket's intent, architecture or implementation paths. Chat
-approval authorizes only this bounded interactive edit. Protected exact-head
-Koru and Validator App evidence remains required before merge; hosted advisory
-review must use `openrouter/z-ai/glm-5.2`, never Gemini 3.1 Pro Preview.
+approval authorized only this bounded interactive edit. Merge authority came
+from protected exact-head Koru, Validator App and required CI evidence. Hosted
+advisory review used `openrouter/z-ai/glm-5.2`, never Gemini 3.1 Pro Preview.
 
 The contract was originally reviewed under the concurrently selected ID
 `ticket-040`. PR #47 allocated that ID to a non-overlapping workspace-preflight
@@ -133,5 +133,32 @@ was moved to the first free ID, `ticket-041`, on governance-only
 - Lizard: 1,124 NLOC across the three bounded files, 113 functions and 0
   violations at CCN 15, length 100 and 5-parameter thresholds.
 - No test used a live LLM, network call, repository mutation or unsafe
-  validation shortcut. Protected exact-head Koru and Validator evidence is
-  intentionally pending publication of the rebuilt PR head.
+  validation shortcut.
+
+## Protected completion evidence
+
+- Koru run
+  [30984869809](https://github.com/semcod/todo2code/actions/runs/30984869809)
+  passed exact head `377961369d41ee877e3e1fed283048a5df020904`.
+- Validator run
+  [30985086826](https://github.com/subactor/validator-agent/actions/runs/30985086826)
+  approved the same head for `ticket-041` and correlation ID
+  `todo2code-pr-48-ticket-041-3779613` using
+  `openrouter/z-ai/glm-5.2`. Its LLM verdict was explicitly advisory and did
+  not act as the trust root.
+- The two advisory type concerns were checked against the exact source. There
+  is no reported `as` cast; `requireObject` uses an `asserts value is object`
+  signature, and `BranchCandidateEvidence.semanticEvidence` is a required
+  `complete | unknown` field. Strict runtime validation plus focused and full
+  suites remained green, so neither concern was reproduced.
+- Review-triggered CI run
+  [30985253214](https://github.com/semcod/todo2code/actions/runs/30985253214)
+  passed governance, full verification, Docker smoke and the required Java
+  fixture using exact-head approval evidence.
+- Pull-request CI run
+  [30984870362](https://github.com/semcod/todo2code/actions/runs/30984870362)
+  was rerun after one timing-only `cli-watch` timeout and again after approval.
+  It passed without a source change or policy bypass; the independent push run
+  for the same SHA had also passed.
+- Protected PR [#48](https://github.com/semcod/todo2code/pull/48) merged exact
+  head `3779613` as `main@f188025af4603e0e7aba3fa3313a6b6fe1438279`.
