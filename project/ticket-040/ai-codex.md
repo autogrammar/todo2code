@@ -64,4 +64,5 @@ truth and could incorrectly bless a change rejected by `make governance`.
 
 ## Blockers
 
-- Protected exact-head review and merge remain required before `DONE`.
+- None. Koru and Validator reviewed exact head `567424b` with
+  `openrouter/z-ai/glm-5.2`; protected PR #49 merged it as `main@008bee5`.
