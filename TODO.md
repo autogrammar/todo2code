@@ -2,7 +2,10 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-044`](project/ticket-044/README.md) — adopt immutable
+  new-project 0.11.0 and its canonical work-classification package through
+  local Goal. Current state: `IN_PROGRESS / VALIDATION`; all local gates pass
+  and independent exact-head publication evidence remains pending.
 
 ## Backlog tickets
 
