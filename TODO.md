@@ -2,7 +2,9 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-039`](project/ticket-039/README.md) — bound the aggregate
+  semantic deadline of `compare-workspace` across both pipelines and all
+  document chunks. Current state: `IN_PROGRESS / EDIT`.
 
 ## Planned tickets
 
