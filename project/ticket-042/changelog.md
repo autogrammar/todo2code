@@ -8,3 +8,6 @@
   moved the scoped work to EDIT.
 - Added bounded aggregate comparison cancellation and regression coverage.
 - Passed focused, full, governance and Docker validation; moved to PUBLICATION.
+- Koru and Validator approved exact head `5b51880` using
+  `openrouter/z-ai/glm-5.2`; review-triggered CI passed and protected PR #52
+  merged it as `main@2c16449` without an administrative bypass.

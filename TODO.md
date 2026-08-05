@@ -2,15 +2,18 @@
 
 ## Active tickets
 
-- [ ] [`ticket-042`](project/ticket-042/README.md) — bound the aggregate
-  semantic deadline of `compare-workspace` across both pipelines and all
-  document chunks. Current state: `IN_PROGRESS / PUBLICATION`.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-042`](project/ticket-042/README.md) — bounded the aggregate
+  semantic deadline of `compare-workspace` across both pipelines and all
+  document chunks with 2x scaling and a 40-minute ceiling. Koru and Validator
+  approved exact head `5b51880` with `openrouter/z-ai/glm-5.2`; protected PR
+  #52 merged as `main@2c16449`. Current state: `DONE`.
 - [x] [`ticket-040`](project/ticket-040/README.md) — bounded, read-only
   workspace preflight binding exact local Git state, managed governance and the
   active ticket before governed edits. Ten focused tests plus host, Docker,

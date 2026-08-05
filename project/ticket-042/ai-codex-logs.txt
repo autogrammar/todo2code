@@ -25,3 +25,14 @@ Preview. Workflow transition: WAIT_FOR_APPROVAL -> EDIT.
 - git diff --check: PASS.
 
 Workflow transition: EDIT -> VALIDATION -> PUBLICATION.
+
+2026-08-05 protected completion
+
+- Koru passed exact head 5b51880 in run 30987747726.
+- Validator App approved exact head 5b51880 in run 30987864973 with
+  openrouter/z-ai/glm-5.2.
+- Review-triggered CI run 30987963474 passed governance, verify, Java and
+  Docker smoke.
+- Protected PR #52 merged without administrative bypass as main@2c16449.
+
+Workflow transition: PUBLICATION -> DONE.
