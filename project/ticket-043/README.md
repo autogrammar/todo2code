@@ -3,7 +3,7 @@
 - **ID**: ticket-043
 - **Owner**: human:founder
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -46,16 +46,16 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 ## Acceptance criteria
 
 - [x] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: Missing or unsafe expected-branch/baseline input fails before the
+- [x] AC-02: Missing or unsafe expected-branch/baseline input fails before the
       workspace observer runs and help is successful and non-mutating.
-- [ ] AC-03: A valid invocation emits exactly one schema-valid canonical JSON
+- [x] AC-03: A valid invocation emits exactly one schema-valid canonical JSON
       report and maps `PASS` to exit 0 and `BLOCKED` to a documented non-zero
       exit without changing report evidence.
-- [ ] AC-04: The wrapper imports the existing runtime service and contains no
+- [x] AC-04: The wrapper imports the existing runtime service and contains no
       Git command, governance matcher, diagnostic derivation or repair logic.
-- [ ] AC-05: Before/after HEAD, index, worktree, refs, stash and remotes are
+- [x] AC-05: Before/after HEAD, index, worktree, refs, stash and remotes are
       identical for successful and blocked fixture runs.
-- [ ] AC-06: Focused tests, full offline verification, governance, Docker smoke
+- [x] AC-06: Focused tests, full offline verification, governance, Docker smoke
       and `git diff --check` pass without a network call or live LLM.
 
 ## Participants
@@ -66,5 +66,18 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 ## Approval boundary
 
 The Founder approved this exact command, scope and accepted base in the active
-session with an explicit `tak`. The ticket is therefore in `EDIT`; protected
-merge approval still requires independent exact-head evidence.
+session with an explicit `tak`, authorizing the transition to `EDIT`.
+Implementation was completed inside that boundary and is now in `VALIDATION`.
+Protected merge approval still requires independent exact-head evidence.
+
+## Validation evidence
+
+- Focused command boundary: 5/5 tests passed, including real Make invocation,
+  canonical stdout, exit mapping and complete before/after Git state equality.
+- Live clean-worktree invocation returned one canonical report, exit 0,
+  `PASS`, active `ticket-043` and only the expected ahead-only warning.
+- `npm run verify`, `make governance`, `make docker-smoke` and
+  `git diff --check` passed without a live LLM call.
+- Lizard reported no threshold violations; wrapper maximum complexity is
+  `CC=9`, below the project limit of 15.
+- Independent protected review and exact-head attestation remain pending.

@@ -8,3 +8,13 @@
   ticket-040's existing read-only workspace observer.
 - Kept runtime semantics, project.sh, governance, public interfaces,
   dependencies and all Git mutation outside the approved delivery boundary.
+
+## [0.2.0] - 2026-08-05
+
+- Added `make preflight PREFLIGHT_EXPECTED_BRANCH=<branch>` over the existing
+  ticket-040 observer without duplicating runtime semantics.
+- Reserved stdout for one canonical JSON report and mapped `PASS`/`BLOCKED`
+  to stable exit codes 0/2.
+- Added deterministic argument, shell-quoting, report and complete Git-state
+  non-mutation tests.
+- Passed focused, full offline, governance, Docker and complexity validation.
