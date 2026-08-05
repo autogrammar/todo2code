@@ -13,6 +13,12 @@
 None.
 
 ## Completed tickets
+- [x] [`ticket-041`](project/ticket-041/README.md) — strict immutable Git
+  materialization validation and exact-tree graph/truth-map evidence assembly
+  into the existing `t2c.branch/v1` projector. Focused, host, Docker,
+  governance and complexity gates passed; Koru and Validator approved exact
+  head `3779613` with `openrouter/z-ai/glm-5.2`; protected PR #48 merged as
+  `main@f188025`. Current state: `DONE`.
 - [x] [`ticket-021`](project/ticket-021/README.md) — assigned root-level
   generated analysis formats to the integration workstream without changing
   ticket-directory ownership or the managed wrapper. Koru and Validator
