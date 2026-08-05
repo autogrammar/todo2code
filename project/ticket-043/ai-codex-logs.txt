@@ -6,3 +6,5 @@
 2026-08-05 IMPLEMENTATION commit=ec1720c files=3 runtime-service=unchanged
 2026-08-05 VALIDATION focused=5/5 verify=PASS governance=PASS docker-smoke=PASS diff-check=PASS max-cc=9
 2026-08-05 PREFLIGHT schema=t2c.workspace-preflight/v1 verdict=PASS stdout-documents=1 active-ticket=ticket-043 git-mutation=none
+2026-08-05 HOSTED-REGRESSION head=400d047 test=make-preflight cause=inherited-MAKEFLAGS-directory-banner product-report=valid
+2026-08-05 REPAIR commit=b405ae8 change=child-make-no-print-directory make-verify=391-tests-390-pass-1-skip

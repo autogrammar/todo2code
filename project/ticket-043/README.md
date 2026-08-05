@@ -76,8 +76,12 @@ Protected merge approval still requires independent exact-head evidence.
   canonical stdout, exit mapping and complete before/after Git state equality.
 - Live clean-worktree invocation returned one canonical report, exit 0,
   `PASS`, active `ticket-043` and only the expected ahead-only warning.
-- `npm run verify`, `make governance`, `make docker-smoke` and
-  `git diff --check` passed without a live LLM call.
+- `make verify` passed 391 tests (390 pass, one declared local JDK skip), and
+  `make governance`, `make docker-smoke` plus `git diff --check` passed without
+  a live LLM call.
+- The first hosted run exposed inherited GNU Make directory banners in the
+  Make-boundary test. Commit `b405ae8` isolates that subprocess with
+  `--no-print-directory`; the exact hosted invocation now passes locally.
 - Lizard reported no threshold violations; wrapper maximum complexity is
   `CC=9`, below the project limit of 15.
 - Independent protected review and exact-head attestation remain pending.

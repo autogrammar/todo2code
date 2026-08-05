@@ -18,3 +18,5 @@
 - Added deterministic argument, shell-quoting, report and complete Git-state
   non-mutation tests.
 - Passed focused, full offline, governance, Docker and complexity validation.
+- Isolated nested Make test output after hosted CI exposed an inherited
+  `Entering directory` banner; product stdout remains one canonical report.

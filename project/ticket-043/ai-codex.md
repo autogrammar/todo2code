@@ -36,6 +36,9 @@ governance wrapper and not a second Git/policy implementation.
   worktree, refs, stash and remotes for successful and blocked runs.
 - Focused tests, full offline verification, governance, Docker smoke,
   whitespace checks and complexity checks passed; wrapper maximum is `CC=9`.
+- Reproduced the first hosted failure: nested `make verify` exported GNU Make
+  directory banners into the child Make stdout. Isolated the test subprocess
+  with `--no-print-directory` and passed the exact `make verify` boundary.
 
 ## Blockers
 
