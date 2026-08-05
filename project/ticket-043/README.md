@@ -1,9 +1,9 @@
 # Ticket 043: Add a governed workspace preflight command
 
 - **ID**: ticket-043
-- **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Owner**: human:founder
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -34,7 +34,7 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 
 - Workstream: `integration` because `Makefile` and `scripts/**` are shared
   integration contracts.
-- Accepted base: `main@4d9a793d13e6eb0fd0a8b60e59692b6aa5f173ef`.
+- Accepted base: `main@1d926eb1bc540ff25377c47bc7c22590f8579288`.
 - Complexity: `XS`; at most three implementation files and one component.
 - Implementation paths: `Makefile`, `scripts/workspace-preflight.mjs` and
   `test/workflow-validation.test.ts`.
@@ -45,7 +45,7 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope is approved by a human owner.
+- [x] AC-01: Scope is approved by a human owner.
 - [ ] AC-02: Missing or unsafe expected-branch/baseline input fails before the
       workspace observer runs and help is successful and non-mutating.
 - [ ] AC-03: A valid invocation emits exactly one schema-valid canonical JSON
@@ -65,6 +65,6 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 
 ## Approval boundary
 
-This plan records the user's instruction to continue improving efficiency,
-but it remains in `PLAN / WAIT_FOR_APPROVAL`. No implementation path may be
-edited until the human approves this exact command, scope and accepted base.
+The Founder approved this exact command, scope and accepted base in the active
+session with an explicit `tak`. The ticket is therefore in `EDIT`; protected
+merge approval still requires independent exact-head evidence.

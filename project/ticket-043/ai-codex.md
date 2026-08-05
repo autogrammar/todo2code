@@ -24,8 +24,11 @@ governance wrapper and not a second Git/policy implementation.
 
 ## Actual changes
 
-- None; waiting for approval.
+- The Founder approved the exact three-file boundary at
+  `main@1d926eb1bc540ff25377c47bc7c22590f8579288`; governance transitioned to
+  `EDIT` before any implementation path was changed.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- None for implementation. Independent exact-head protected review remains
+  required before merge.
