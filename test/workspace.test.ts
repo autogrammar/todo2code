@@ -5,12 +5,34 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
-import { classifyWorkspaceTrend, compareWorkspaceIntent } from '../src/comparison/workspace.js';
+import {
+  calculateWorkspaceComparisonDeadline,
+  classifyWorkspaceTrend,
+  compareWorkspaceIntent,
+} from '../src/comparison/workspace.js';
 import { pathExists, readJson } from '../src/core/io.js';
 import type { PipelineManifest } from '../src/core/types.js';
 import { makeConfig } from './helpers.js';
 
 const exec = promisify(execFile);
+
+test('workspace comparison deadline scales aggregate input and LLM work in bounded 2x steps', () => {
+  const baseline = calculateWorkspaceComparisonDeadline({ inputBytes: 128 * 1024, llmWorkUnits: 16 });
+  assert.equal(baseline.multiplier, 1);
+  assert.equal(baseline.effectiveDeadlineMs, 600_000);
+
+  const doubled = calculateWorkspaceComparisonDeadline({ inputBytes: (128 * 1024) + 1, llmWorkUnits: 16 });
+  assert.equal(doubled.multiplier, 2);
+  assert.equal(doubled.effectiveDeadlineMs, 1_200_000);
+
+  const quadrupled = calculateWorkspaceComparisonDeadline({ inputBytes: 1, llmWorkUnits: 33 });
+  assert.equal(quadrupled.multiplier, 4);
+  assert.equal(quadrupled.effectiveDeadlineMs, 2_400_000);
+  assert.throws(
+    () => calculateWorkspaceComparisonDeadline({ inputBytes: -1, llmWorkUnits: 1 }),
+    /input bytes must be a non-negative safe integer/,
+  );
+});
 
 test('workspace headline trend ignores AST-only topic and source churn', () => {
   const direction = classifyWorkspaceTrend({
@@ -58,7 +80,7 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   config.enableGoAst = false;
   config.nlMode = 'deterministic';
   config.markdownMode = 'deterministic';
-  config.openRouter.apiKey = 'must-not-be-used';
+  config.openRouter.apiKey = 'test-placeholder';
   config.openRouter.baseUrl = 'http://127.0.0.1:1';
   const comparison = await compareWorkspaceIntent({
     root,
