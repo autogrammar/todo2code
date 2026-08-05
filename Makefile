@@ -13,8 +13,15 @@ OUT ?= .intent
 PACKAGE ?= todo2code.zip
 PYTHON_WHEEL_DIR ?= .intent-packages/python
 E2E_COMPOSE ?= compose.e2e.yml
+PREFLIGHT_ROOT ?= .
+PREFLIGHT_BASELINE ?= refs/remotes/origin/main
+PREFLIGHT_EXPECTED_BRANCH ?=
+PREFLIGHT_ACTOR ?= agent
 
-.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env governance smoke doctor mcp-probe a2a-probe protocol-smoke validate live-contract-check live-model-comparison demo demollm examples-check pipeline compare-workspace mcp a2a docker-build docker-smoke docker-up docker-down e2e-core e2e-full e2e-clean python-wheel package clean
+# Quote raw Make values as one Bash argument without recursively expanding them.
+shell_quote = '$(subst ','"'"',$(value $(1)))'
+
+.PHONY: help setup install install-tf build check test verify verify-no-llm verify-modules verify-env governance smoke doctor mcp-probe a2a-probe protocol-smoke validate live-contract-check live-model-comparison demo demollm examples-check pipeline compare-workspace preflight mcp a2a docker-build docker-smoke docker-up docker-down e2e-core e2e-full e2e-clean python-wheel package clean
 
 help: ## Pokaż dostępne cele
 	@awk 'BEGIN {FS = ":.*## "; printf "todo2code targets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -91,6 +98,14 @@ pipeline: build ## Uruchom pipeline; parametry ROOT/TASK/TODO/CHANGELOG/DOCS/OUT
 
 compare-workspace: build ## Porównaj intencje origin/main z bieżącym filesystemem
 	$(NODE) dist/src/cli.js compare-workspace "$(ROOT)" --base "$${BASE_REF:-origin/main}" --out "$(OUT)"
+
+preflight: ## Sprawdź workspace przed edycją; wymaga PREFLIGHT_EXPECTED_BRANCH
+	@$(NPM) run build >&2
+	@$(NODE) scripts/workspace-preflight.mjs \
+		--root $(call shell_quote,PREFLIGHT_ROOT) \
+		--baseline $(call shell_quote,PREFLIGHT_BASELINE) \
+		--expected-branch $(call shell_quote,PREFLIGHT_EXPECTED_BRANCH) \
+		--actor $(call shell_quote,PREFLIGHT_ACTOR)
 
 mcp: build ## Uruchom serwer MCP stdio
 	$(NODE) dist/src/interfaces/mcp.js
