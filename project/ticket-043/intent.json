@@ -1,0 +1,85 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-043",
+  "summary": "Add a governed workspace preflight command",
+  "workstream": "integration",
+  "allowedPaths": [
+    "Makefile",
+    "scripts/workspace-preflight.mjs",
+    "test/workflow-validation.test.ts",
+    "project/ticket-043/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "project.sh",
+    "project2.sh",
+    ".governance/**",
+    ".github/**",
+    "package.json",
+    "package-lock.json",
+    "schemas/**"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-040"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "4d9a793d13e6eb0fd0a8b60e59692b6aa5f173ef",
+    "targetBranch": "main",
+    "outcome": "Expose the existing read-only workspace preflight through one explicit local Make command",
+    "nonGoals": [
+      "No Git fetch, stash, checkout, reset, clean or other mutation",
+      "No new governance or diagnostic implementation",
+      "No project.sh, CLI, MCP, A2A, SDK or schema change",
+      "No automatic branch or ticket inference"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "proposed",
+      "decision": "Keep runtime semantics in inspectWorkspace and add only an integration-owned Make/Node invocation boundary",
+      "components": [
+        {
+          "name": "workspace-preflight-command",
+          "paths": [
+            "Makefile",
+            "scripts/workspace-preflight.mjs",
+            "test/workflow-validation.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Remove the Make target, wrapper and its boundary tests; the ticket-040 runtime service remains unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/workflow-validation.test.js"],
+        "evidence": "Help and invalid-input tests pass without observer or Git mutation"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["npm run build", "node --test dist/test/workflow-validation.test.js"],
+        "evidence": "PASS/BLOCKED fixtures preserve canonical report bytes and stable exits"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["npm run verify", "make governance", "make docker-smoke", "git diff --check"],
+        "evidence": "Offline regression, governance and Docker gates pass"
+      }
+    ]
+  }
+}
