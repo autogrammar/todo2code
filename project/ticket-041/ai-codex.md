@@ -50,8 +50,11 @@ runtime orchestration slice.
 
 ## Actual changes
 
-- Governance plan only; no implementation file has changed.
+- The user approved the unchanged assembler contract for autonomous execution
+  on the refreshed governance-only base. Implementation may begin inside the
+  three declared paths.
 
 ## Blockers
 
-- Human approval of the exact ticket-041 contract is required before EDIT.
+- None before bounded implementation. Protected exact-head review remains a
+  publication requirement.

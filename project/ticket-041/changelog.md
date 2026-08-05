@@ -10,3 +10,5 @@
   of scope; no implementation file changed before approval.
 - Reallocated the unchanged plan from the concurrently occupied `ticket-040`
   to the first free `ticket-041` on governance-only `main@db368c0`.
+- Recorded the user's pre-implementation approval and entered
+  `IN_PROGRESS / EDIT` before adding source or test changes.

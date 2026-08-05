@@ -9,7 +9,8 @@
 - [ ] [`ticket-041`](project/ticket-041/README.md) — validate exact tree-keyed
   graph/truth-map bundles and assemble them with ticket-039 Git evidence into
   the existing `t2c.branch/v1` projector. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`.
+  `IN_PROGRESS / EDIT`; unchanged assembler contract approved for autonomous
+  implementation on governance-only `main@db368c0`.
 
 ## Backlog tickets
 

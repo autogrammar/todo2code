@@ -2,8 +2,8 @@
 
 - **ID**: ticket-041
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-05
 
 ## Goal
@@ -71,7 +71,7 @@ artifacts but does not itself check out or scan trees.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves this exact input, derivation and delivery
+- [x] AC-01: A human approves this exact input, derivation and delivery
       boundary before implementation.
 - [ ] AC-02: A strict exported internal validator rejects a malformed or
       tampered `BranchGitMaterialization`, including a wrong fingerprint.
@@ -105,13 +105,16 @@ artifacts but does not itself check out or scan trees.
 
 ## Approval boundary
 
-Implementation remains blocked in `WAIT_FOR_APPROVAL`. Chat approval will
-authorize only this bounded interactive edit. Protected exact-head Koru and
-Validator App evidence remains required before merge; hosted advisory review
-must use `openrouter/z-ai/glm-5.2`, never Gemini 3.1 Pro Preview.
+The user explicitly approved the assembler contract and instructed autonomous
+implementation before any source or test edit. The later `db368c0` refresh
+contains only the independently planned ticket-040 governance files and does
+not change this ticket's intent, architecture or implementation paths. Chat
+approval authorizes only this bounded interactive edit. Protected exact-head
+Koru and Validator App evidence remains required before merge; hosted advisory
+review must use `openrouter/z-ai/glm-5.2`, never Gemini 3.1 Pro Preview.
 
 The contract was originally reviewed under the concurrently selected ID
 `ticket-040`. PR #47 allocated that ID to a non-overlapping workspace-preflight
 plan while this work was still validating, so this unchanged assembler scope
 was moved to the first free ID, `ticket-041`, on governance-only
-`main@db368c0`. No source or test is part of this plan commit.
+`main@db368c0`. No source or test was part of the preceding plan commit.
