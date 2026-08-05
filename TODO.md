@@ -2,16 +2,18 @@
 
 ## Active tickets
 
-- [ ] [`ticket-021`](project/ticket-021/README.md) — assign root-level generated
-  analysis formats to the integration workstream. Current state:
-  `IN_PROGRESS / VALIDATION`; the approved plan precedes the two-file
-  implementation and focused checks pass.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-021`](project/ticket-021/README.md) — assigned root-level
+  generated analysis formats to the integration workstream without changing
+  ticket-directory ownership or the managed wrapper. Koru and Validator
+  approved exact head `9e2feff` with `openrouter/z-ai/glm-5.2`; PR #33 merged
+  as `main@8ebeb66`. Current state: `DONE`.
 - [x] [`ticket-039`](project/ticket-039/README.md) — bounded, read-only local
   Git materializer for exact branch/tree/merge-base/ahead-behind, stable patch
   identity and textual collision evidence. Focused, full host/Docker,
