@@ -388,19 +388,16 @@ const requiredGovernanceString = (value: unknown): string => {
   if (typeof value !== 'string' || value.length === 0) throw governanceContractViolation();
   return value;
 };
-
 const governanceStatus = (value: unknown): 'passed' | 'failed' => {
   if (value !== 'passed' && value !== 'failed') throw governanceContractViolation();
   return value;
 };
-
 const governanceSummary = (value: unknown): WorkspaceGovernanceReport['summary'] => {
   if (!isObject(value) || !isCount(value.errors) || !isCount(value.findings) || !isCount(value.warnings)) {
     throw governanceContractViolation();
   }
   return { errors: value.errors, findings: value.findings, warnings: value.warnings };
 };
-
 const governanceFindings = (value: unknown, expectedCount: number): unknown[] => {
   if (!Array.isArray(value) || value.length !== expectedCount) throw governanceContractViolation();
   for (const finding of value) {
@@ -410,12 +407,10 @@ const governanceFindings = (value: unknown, expectedCount: number): unknown[] =>
   }
   return value;
 };
-
 const governanceContractViolation = (): WorkspacePreflightError => new WorkspacePreflightError(
   'WS-GOVERNANCE-006',
   'managed governance report violates its JSON contract',
 );
-
 function buildDiagnostics(facts: WorkspaceDiagnosticFacts): WorkspaceDiagnostic[] {
   const { expectedBranch, branch, aheadBy, behindBy, dirty, governance } = facts;
   const diagnostics: WorkspaceDiagnostic[] = [];
@@ -445,7 +440,6 @@ function buildDiagnostics(facts: WorkspaceDiagnosticFacts): WorkspaceDiagnostic[
   });
   return diagnostics.sort((left, right) => left.code.localeCompare(right.code));
 }
-
 function actionsFor(diagnostics: WorkspaceDiagnostic[]): WorkspaceSafeAction[] {
   const codes = new Set(diagnostics.map((item) => item.code));
   const actions = new Set<WorkspaceSafeAction>();
@@ -455,19 +449,15 @@ function actionsFor(diagnostics: WorkspaceDiagnostic[]): WorkspaceSafeAction[] {
   if (codes.has('WS-GOVERNANCE-006') || codes.has('WS-TICKET-007')) actions.add('RESOLVE_TICKET_SCOPE');
   return [...actions].sort();
 }
-
 const isObject = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isCount = (value: unknown): value is number => Number.isSafeInteger(value) && (value as number) >= 0;
-
 async function requiredGit(root: string, args: string[], label: string): Promise<CommandResult> {
   const result = await runGit(root, args);
   if (result.exitCode !== 0) throw new WorkspacePreflightError('WS-ROOT-001', `Git ${label} failed`);
   return result;
 }
-
 const runGit = (root: string, args: string[]): Promise<CommandResult> =>
   run(root, 'git', ['--no-optional-locks', ...args], { ...process.env, GIT_OPTIONAL_LOCKS: '0' });
-
 function run(
   root: string, command: string, args: string[], env: NodeJS.ProcessEnv = process.env,
   failureCode: WorkspaceDiagnosticCode = 'WS-ROOT-001',

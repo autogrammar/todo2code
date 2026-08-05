@@ -55,11 +55,12 @@ truth and could incorrectly bless a change rejected by `make governance`.
 - Focused, full host, governance and Docker core validation pass. A live run on
   this worktree blocked its two uncommitted files while resolving ticket-040,
   proving the motivating path without mutating it.
-- The first protected Koru pass found one blocking CC=16 result for
+- Two protected Koru passes found the same blocking CC=16 result for
   `runGovernance`. Refactored it into a small orchestrator with separately
   testable checker, argument, process, JSON and ticket boundaries; retained
   command-specific diagnostics and added redacted digest evidence for checker
-  failures. The five semantic LLM remarks remained advisory.
+  failures. The semantic LLM remarks remained advisory; the service is 498
+  physical lines after the structural repair.
 
 ## Blockers
 

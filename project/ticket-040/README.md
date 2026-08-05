@@ -126,9 +126,9 @@ before either implementation file was created. It has since moved to
   examples and SDK smoke gates; unavailable language toolchains were explicit
   skips rather than false passes.
 - Lizard over both implementation files reports zero CC, function-length or
-  argument-count threshold violations.
+  argument-count threshold violations; the service is 498 physical lines.
 - `make governance` and `git diff --check` pass with zero findings.
-- First exact-head Koru review correctly blocked `runGovernance` at CC=16. It
+- Two exact-head Koru reviews correctly blocked `runGovernance` at CC=16. It
   is now a small orchestrator over checker discovery, argument construction,
   process execution, JSON validation and ticket reading. Command-start/output
   failures retain their owning `WS-*` code and expose only stderr/stdout size
