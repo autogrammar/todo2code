@@ -1,0 +1,129 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-041",
+  "summary": "Assemble validated immutable Git and semantic tree evidence into t2c.branch/v1",
+  "workstream": "runtime",
+  "allowedPaths": [
+    "src/services/branch-snapshot.ts",
+    "src/services/branch-portfolio-assembler.ts",
+    "test/git-branch-portfolio-assembler.test.ts",
+    "project/ticket-041/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/**",
+    "src/pipeline/**",
+    "src/interfaces/**",
+    "src/cli.ts",
+    "src/sdk/**",
+    "sdk/**",
+    "schemas/**",
+    "docs/**",
+    ".github/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-037", "ticket-039"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "db368c020876ccac537538c9e8cac03c9ae2f02f",
+    "targetBranch": "main",
+    "outcome": "Produce one conservative t2c.branch/v1 portfolio from a validated immutable Git snapshot and exact tree-keyed graph/truth-map bundles",
+    "nonGoals": [
+      "No exact-tree checkout, pipeline execution or artifact persistence",
+      "No Git or GitHub call and no PR metadata",
+      "No CLI, MCP, A2A, SDK or published schema",
+      "No repository, ref, index, worktree or branch mutation",
+      "No LLM or runtime dependency",
+      "No Goal, Koru or Validator consumer adapter"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Keep exact-tree analysis outside the assembler, validate real graph/truth bundles for every snapshot tree, and reuse the existing t2c.branch/v1 projector without another public DSL",
+      "components": [
+        {
+          "name": "branch-git-snapshot-validation",
+          "paths": ["src/services/branch-snapshot.ts"]
+        },
+        {
+          "name": "branch-semantic-evidence-assembler",
+          "paths": [
+            "src/services/branch-portfolio-assembler.ts",
+            "test/git-branch-portfolio-assembler.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Add an internal in-memory assembly envelope; the only canonical portfolio remains t2c.branch/v1"
+      ],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Remove the assembler and its focused test, and restore branch-snapshot.ts from accepted base; ticket-037 and ticket-039 behavior remain independently usable"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/git-branch-portfolio-assembler.test.js"],
+        "evidence": "Malformed and fingerprint-tampered Git materializations fail closed"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["npm run build", "node --test dist/test/git-branch-portfolio-assembler.test.js"],
+        "evidence": "Exact unique-tree bundle coverage and shared-tree reuse tests pass"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["npm run build", "node --test dist/test/git-branch-portfolio-assembler.test.js"],
+        "evidence": "Added, removed and modified records retain valid assertion/record/relation citations"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["npm run build", "node --test dist/test/git-branch-portfolio-assembler.test.js"],
+        "evidence": "Semantic conflict and fail-closed unknown/manual-review cases pass"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["npm run build", "node --test dist/test/git-branch-portfolio-assembler.test.js"],
+        "evidence": "Textual and semantic outcomes remain independently asserted"
+      },
+      {
+        "criterion": "AC-07",
+        "commands": ["npm run build", "node --test dist/test/git-branch-portfolio-assembler.test.js"],
+        "evidence": "Order/time invariance and changed-binding invalidation tests pass"
+      },
+      {
+        "criterion": "AC-08",
+        "commands": ["npm run build", "node --test dist/test/git-branch-portfolio-assembler.test.js"],
+        "evidence": "Output stays t2c.branch/v1 and excludes authority, mutation and secret fields"
+      },
+      {
+        "criterion": "AC-09",
+        "commands": ["npm run verify", "make governance", "make e2e-core", "git diff --check"],
+        "evidence": "Offline regression, governance, complexity and Docker gates pass"
+      },
+      {
+        "criterion": "AC-10",
+        "commands": ["./project/governance-check.sh"],
+        "evidence": "Follow-up workstreams remain excluded by allowedPaths and forbiddenPaths"
+      }
+    ]
+  }
+}

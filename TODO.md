@@ -6,6 +6,13 @@
   read-only workspace preflight that binds local Git state to the active ticket
   and existing governance diagnostics before any governed edit. Current state:
   `PLAN / WAIT_FOR_APPROVAL`.
+- [ ] [`ticket-041`](project/ticket-041/README.md) — validate exact tree-keyed
+  graph/truth-map bundles and assemble them with ticket-039 Git evidence into
+  the existing `t2c.branch/v1` projector. Current state:
+  `IN_PROGRESS / VALIDATION`; ordered implementation `e0532ee` passed 7 focused
+  tests, full host verification (375 pass, 1 skip), Docker core E2E (369 pass,
+  7 skips), governance and complexity gates. Exact-head Koru, Validator and CI
+  evidence remains pending rebuilt PR publication.
 
 ## Backlog tickets
 
