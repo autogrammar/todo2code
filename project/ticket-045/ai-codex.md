@@ -38,9 +38,12 @@ chain before runtime integration.
   declared by the integration slice; no runtime capability is claimed.
 - Deterministic fixture validation, governance, full Node verification, Docker
   smoke validation and whitespace checks pass.
-- Ticket transitioned to `IN_PROGRESS / VALIDATION` pending independent
-  exact-head review.
+- Koru and Validator approved exact head `46210e1`; all protected checks
+  passed, PR #60 merged as `main@a66eb40`, and the implementation branch was
+  deleted.
+- Ticket transitioned from `IN_PROGRESS / VALIDATION` to `DONE`.
 
 ## Blockers
 
-- Independent protected review is still required before merge.
+- None for the contract slice. Runtime production remains a separately
+  governed follow-up, not a blocker for this architecture ticket.
