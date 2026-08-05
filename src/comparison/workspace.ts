@@ -5,14 +5,69 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import type { T2CConfig } from '../config/env.js';
 import { newRunId } from '../core/id.js';
-import { pathExists, readJson, writeJson, writeText } from '../core/io.js';
+import { pathExists, readJson, resolveGlobs, writeJson, writeText } from '../core/io.js';
 import { assertPathWithinRoot } from '../core/security.js';
 import type { DiagnosticReport, IntentGraph, LlmExtractionMode, PipelineManifest, PipelineOptions } from '../core/types.js';
 import { buildRealityView, renderRealityMarkdown, renderRealitySvg, type IntentRealityView } from '../diff/reality.js';
 import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
+import { OPENROUTER_TIMEOUT_POLICY } from '../llm/openrouter-timeout.js';
 import { runPipeline } from '../pipeline/run.js';
 
 const execFileAsync = promisify(execFile);
+
+export const WORKSPACE_COMPARISON_DEADLINE_POLICY = Object.freeze({
+  inputBytesBaseline: 128 * 1024,
+  llmWorkUnitsBaseline: 16,
+  scaleFactor: 2,
+  maximumMultiplier: 4,
+  maximumDeadlineMs: 40 * 60 * 1000,
+});
+
+export interface WorkspaceComparisonDeadlineLoad {
+  inputBytes: number;
+  llmWorkUnits: number;
+}
+
+export interface WorkspaceComparisonDeadlineDecision extends WorkspaceComparisonDeadlineLoad {
+  baseDeadlineMs: number;
+  pressure: number;
+  multiplier: number;
+  effectiveDeadlineMs: number;
+  capped: boolean;
+}
+
+/** Bound the two-pipeline operation, not only each individual provider call. */
+export function calculateWorkspaceComparisonDeadline(
+  load: WorkspaceComparisonDeadlineLoad,
+): WorkspaceComparisonDeadlineDecision {
+  assertNonNegativeInteger(load.inputBytes, 'input bytes');
+  assertNonNegativeInteger(load.llmWorkUnits, 'LLM work units');
+  const baseDeadlineMs = OPENROUTER_TIMEOUT_POLICY.maximumTimeoutMs;
+  const pressure = Math.max(
+    1,
+    load.inputBytes / WORKSPACE_COMPARISON_DEADLINE_POLICY.inputBytesBaseline,
+    load.llmWorkUnits / WORKSPACE_COMPARISON_DEADLINE_POLICY.llmWorkUnitsBaseline,
+  );
+  const steps = pressure <= 1 ? 0 : Math.ceil(Math.log2(pressure));
+  const multiplier = Math.min(
+    WORKSPACE_COMPARISON_DEADLINE_POLICY.maximumMultiplier,
+    WORKSPACE_COMPARISON_DEADLINE_POLICY.scaleFactor ** steps,
+  );
+  const scaledDeadlineMs = baseDeadlineMs * multiplier;
+  const effectiveDeadlineMs = Math.min(
+    WORKSPACE_COMPARISON_DEADLINE_POLICY.maximumDeadlineMs,
+    scaledDeadlineMs,
+  );
+  const capped = effectiveDeadlineMs < scaledDeadlineMs;
+  return {
+    ...load,
+    baseDeadlineMs,
+    pressure,
+    multiplier,
+    effectiveDeadlineMs,
+    capped,
+  };
+}
 
 export interface WorkspaceComparisonOptions {
   root: string;
@@ -92,7 +147,19 @@ export async function compareWorkspaceIntent(
   const status = await git(repositoryRoot, ['status', '--porcelain=v1', '--untracked-files=all']);
   const changedFiles = status.split(/\r?\n/).filter(Boolean).map((line) => line.slice(3)).sort();
   const [behind, ahead] = parseAheadBehind(await git(repositoryRoot, ['rev-list', '--left-right', '--count', `${baseCommit}...HEAD`]));
-
+  const deadlineDecision = calculateWorkspaceComparisonDeadline(
+    await workspaceComparisonDeadlineLoad(root, options, config),
+  );
+  const deadlineController = new AbortController();
+  const inheritedSignal = config.openRouter.signal;
+  const abortFromInheritedSignal = (): void => deadlineController.abort();
+  inheritedSignal?.addEventListener('abort', abortFromInheritedSignal, { once: true });
+  if (inheritedSignal?.aborted) deadlineController.abort();
+  let deadlineExpired = false;
+  const deadlineTimer = setTimeout(() => {
+    deadlineExpired = true;
+    deadlineController.abort();
+  }, deadlineDecision.effectiveDeadlineMs);
   const temporaryParent = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workspace-compare-'));
   const baseWorktree = path.join(temporaryParent, 'base');
   try {
@@ -101,11 +168,24 @@ export async function compareWorkspaceIntent(
     const pipelineOptions = commonPipelineOptions({ ...options, outputDir }, config);
     const baseOptions = await optionsForRoot(baseRoot, { ...pipelineOptions, root: baseRoot, outputDir: '.intent-compare-base' });
     const currentOptions = await optionsForRoot(root, { ...pipelineOptions, root, outputDir });
-    const baseConfig = { ...config, root: baseRoot };
-    const currentConfig = { ...config, root };
+    const boundedOpenRouter = { ...config.openRouter, signal: deadlineController.signal };
+    const baseConfig = { ...config, root: baseRoot, openRouter: boundedOpenRouter };
+    const currentConfig = { ...config, root, openRouter: boundedOpenRouter };
 
-    const baseRun = await runPipeline(baseOptions, baseConfig);
-    const currentRun = await runPipeline(currentOptions, currentConfig);
+    let baseRun: Awaited<ReturnType<typeof runPipeline>>;
+    let currentRun: Awaited<ReturnType<typeof runPipeline>>;
+    try {
+      baseRun = await runPipeline(baseOptions, baseConfig);
+      currentRun = await runPipeline(currentOptions, currentConfig);
+    } catch (error) {
+      if (deadlineExpired) {
+        throw new Error(
+          `Workspace comparison LLM deadline exceeded after ${deadlineDecision.effectiveDeadlineMs} ms `
+          + `(base ${deadlineDecision.baseDeadlineMs} ms, adaptive ${deadlineDecision.multiplier}x)`,
+        );
+      }
+      throw error;
+    }
     const [baseGraph, currentGraph, baseDiagnostics, currentDiagnostics] = await Promise.all([
       readJson<IntentGraph>(baseRun.graphPath),
       readJson<IntentGraph>(currentRun.graphPath),
@@ -174,6 +254,8 @@ export async function compareWorkspaceIntent(
     ]);
     return result;
   } finally {
+    clearTimeout(deadlineTimer);
+    inheritedSignal?.removeEventListener('abort', abortFromInheritedSignal);
     try {
       await git(repositoryRoot, ['worktree', 'remove', '--force', baseWorktree]);
     } catch {
@@ -181,6 +263,63 @@ export async function compareWorkspaceIntent(
       // still removed below and Git can prune a stale registration later.
     }
     await fs.rm(temporaryParent, { recursive: true, force: true });
+  }
+}
+
+async function workspaceComparisonDeadlineLoad(
+  root: string,
+  options: WorkspaceComparisonOptions,
+  config: T2CConfig,
+): Promise<WorkspaceComparisonDeadlineLoad> {
+  const files = new Set<string>();
+  const addIfPresent = async (file: string | null | undefined): Promise<void> => {
+    if (!file) return;
+    const absolute = path.resolve(root, file);
+    const relative = path.relative(root, absolute);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) return;
+    try {
+      if ((await fs.stat(absolute)).isFile()) files.add(absolute);
+    } catch {
+      // Missing optional inputs are skipped by the pipeline too.
+    }
+  };
+  await Promise.all([
+    addIfPresent(options.taskFile),
+    addIfPresent(options.todoFile === undefined ? 'TODO.md' : options.todoFile),
+    addIfPresent(options.changelogFile === undefined ? 'CHANGELOG.md' : options.changelogFile),
+  ]);
+  const documentFiles = await resolveGlobs(
+    root,
+    options.documentPatterns ?? config.documentPatterns,
+    options.documentExcludes ?? config.documentExcludes,
+  );
+  const documentFileSet = new Set(documentFiles);
+  for (const file of documentFiles) files.add(file);
+
+  let inputBytes = 0;
+  let documentChunks = 0;
+  for (const file of files) {
+    const size = (await fs.stat(file)).size;
+    inputBytes += size;
+    if (documentFileSet.has(file)) {
+      documentChunks += Math.min(config.documentMaxChunks, Math.max(1, Math.ceil(size / config.documentChunkChars)));
+    }
+  }
+  const markdownMode = options.markdownMode ?? config.markdownMode;
+  const communicationMode = options.communicationMode ?? config.communicationMode;
+  const semanticUnitsPerPipeline = (options.includeDocumentationLlm ? documentChunks : 0)
+    + (markdownMode === 'deterministic' ? 0 : 2)
+    + (config.nlMode === 'deterministic' || !options.taskFile ? 0 : 1)
+    + (communicationMode === 'deterministic' ? 0 : 1);
+  return {
+    inputBytes: inputBytes * 2,
+    llmWorkUnits: semanticUnitsPerPipeline * 2,
+  };
+}
+
+function assertNonNegativeInteger(value: number, name: string): void {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new Error(`Workspace comparison ${name} must be a non-negative safe integer`);
   }
 }
 
@@ -207,20 +346,24 @@ async function scopedOutputDirectory(
 function commonPipelineOptions(options: WorkspaceComparisonOptions, config: T2CConfig): PipelineOptions {
   return {
     root: options.root,
-    taskFile: options.taskFile ?? null,
+    taskFile: defaulted(options.taskFile, null),
     todoFile: options.todoFile === undefined ? 'TODO.md' : options.todoFile,
     changelogFile: options.changelogFile === undefined ? 'CHANGELOG.md' : options.changelogFile,
-    documentPatterns: options.documentPatterns ?? config.documentPatterns,
-    documentExcludes: options.documentExcludes ?? config.documentExcludes,
-    includeDocumentationLlm: options.includeDocumentationLlm ?? false,
-    outputDir: options.outputDir ?? config.outputDir,
-    gitCommitCount: options.gitCommitCount ?? config.gitCommitCount,
+    documentPatterns: defaulted(options.documentPatterns, config.documentPatterns),
+    documentExcludes: defaulted(options.documentExcludes, config.documentExcludes),
+    includeDocumentationLlm: defaulted(options.includeDocumentationLlm, false),
+    outputDir: defaulted(options.outputDir, config.outputDir),
+    gitCommitCount: defaulted(options.gitCommitCount, config.gitCommitCount),
     allowSummaryFallback: true,
     includeSummaryLlm: false,
     nlMode: config.nlMode,
-    markdownMode: options.markdownMode ?? config.markdownMode,
-    communicationMode: options.communicationMode ?? config.communicationMode,
+    markdownMode: defaulted(options.markdownMode, config.markdownMode),
+    communicationMode: defaulted(options.communicationMode, config.communicationMode),
   };
+}
+
+function defaulted<T>(value: T | undefined, fallback: T): T {
+  return value === undefined ? fallback : value;
 }
 
 async function optionsForRoot(root: string, options: PipelineOptions): Promise<PipelineOptions> {

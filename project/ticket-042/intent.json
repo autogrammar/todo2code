@@ -1,0 +1,18 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-042",
+  "summary": "Bound aggregate LLM deadline for workspace comparison",
+  "workstream": "core-dsl",
+  "allowedPaths": [
+    "project/ticket-042/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/comparison/workspace.ts",
+    "test/workspace.test.ts"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
