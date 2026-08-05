@@ -2,8 +2,8 @@
 
 - **ID**: ticket-046
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -93,3 +93,13 @@ protected publication still requires independent exact-head evidence.
   unchanged.
 - Post-refactor focused tests remain 15/15; full host verification, governance,
   Docker smoke and `git diff --check` pass again.
+- Koru commit-bound review passed for exact head
+  `1180e45e017c435839c4a3b526cca105a09c7b4f` after the deterministic
+  complexity repair.
+- Validator App approved that exact head using advisory model
+  `openrouter/z-ai/glm-5.2`. Its LLM requested changes, but the findings were
+  advisory and contradicted by the complete-file context, deterministic
+  chain validation and passing tamper tests; they were not used as authority.
+- Protected PR #62 merged as
+  `main@c1decdb817acb06603a3051bc3370649566e1367`; the implementation branch
+  was deleted, leaving only `main` remotely.

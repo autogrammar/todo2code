@@ -2,16 +2,18 @@
 
 ## Active tickets
 
-- [ ] [`ticket-046`](project/ticket-046/README.md) — generate a canonical,
-  atomic `logs.dsl.txt` beside every succeeded, degraded and failed pipeline
-  manifest. Depends on completed ticket-045. Current state:
-  `IN_PROGRESS / VALIDATION`.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-046`](project/ticket-046/README.md) — generates a canonical,
+  atomic `logs.dsl.txt` beside every succeeded, degraded and failed pipeline
+  manifest. Koru and Validator approved exact head `1180e45` with
+  `openrouter/z-ai/glm-5.2`; protected PR #62 merged as `main@c1decdb` and its
+  implementation branch was deleted. Current state: `DONE`.
 - [x] [`ticket-045`](project/ticket-045/README.md) — defined the canonical,
   tamper-evident `t2c.event-log/v1` contract and validated its 17-event
   `logs.dsl.txt` fixture. Koru and Validator approved exact head `46210e1`

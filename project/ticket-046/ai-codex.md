@@ -64,4 +64,6 @@ immutable run log.
 
 ## Blockers
 
-- Independent exact-head protected review is still required before merge.
+- None. Koru passed, Validator App approved exact head `1180e45`, all
+  protected checks passed, PR #62 merged as `main@c1decdb`, and the
+  implementation branch was deleted.

@@ -34,3 +34,10 @@
   changes.
 - Re-ran focused, full host, governance, Docker smoke and whitespace checks
   successfully after the orchestration refactor.
+- Koru passed and Validator App approved exact head `1180e45` using advisory
+  model `openrouter/z-ai/glm-5.2`; deterministic evidence remained the trust
+  root when the LLM returned advisory findings.
+- Protected PR #62 merged as `main@c1decdb` and its implementation branch was
+  deleted.
+- Closed the runtime producer slice as `DONE`; workflow-level GitHub event
+  acquisition remains a separate follow-up and is not claimed here.

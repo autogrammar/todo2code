@@ -11,3 +11,9 @@ transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
 2026-08-05 hosted Koru: rejected inherited runPipeline metrics CC=65 and length=372; semantic LLM findings remained advisory
 2026-08-05 refactor: split runPipeline orchestration inside approved src/pipeline/run.ts; max function CC=5, length=20
 2026-08-05 revalidation: focused 15/15; full verify PASS; governance PASS; docker smoke PASS; diff check PASS
+2026-08-05 Koru exact-head review 1180e45e017c435839c4a3b526cca105a09c7b4f: PASS
+2026-08-05 Validator App exact-head review: APPROVED; model openrouter/z-ai/glm-5.2; LLM findings advisory-only
+2026-08-05 protected governance, verify, Java and Docker checks: PASS
+2026-08-05 PR #62: MERGED as main@c1decdb817acb06603a3051bc3370649566e1367
+2026-08-05 remote implementation branch: DELETED
+transition: IN_PROGRESS / VALIDATION -> DONE
