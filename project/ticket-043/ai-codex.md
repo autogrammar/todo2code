@@ -42,4 +42,5 @@ governance wrapper and not a second Git/policy implementation.
 
 ## Blockers
 
-- Independent exact-head protected review remains required before merge.
+- None. Koru and Validator reviewed exact head `87ce55c` with
+  `openrouter/z-ai/glm-5.2`; protected PR #56 merged it as `main@4a7445a`.

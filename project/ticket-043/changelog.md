@@ -20,3 +20,6 @@
 - Passed focused, full offline, governance, Docker and complexity validation.
 - Isolated nested Make test output after hosted CI exposed an inherited
   `Entering directory` banner; product stdout remains one canonical report.
+- Koru and Validator approved exact head `87ce55c` using
+  `openrouter/z-ai/glm-5.2`; review-triggered CI passed and protected PR #56
+  merged as `main@4a7445a`.
