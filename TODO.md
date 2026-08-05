@@ -2,17 +2,18 @@
 
 ## Active tickets
 
-- [ ] [`ticket-045`](project/ticket-045/README.md) — define the canonical,
-  tamper-evident `t2c.event-log/v1` contract and representative
-  `logs.dsl.txt` fixture. Local contract, fixture and validation are complete;
-  independent exact-head review remains. Current state:
-  `IN_PROGRESS / VALIDATION`.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-045`](project/ticket-045/README.md) — defined the canonical,
+  tamper-evident `t2c.event-log/v1` contract and validated its 17-event
+  `logs.dsl.txt` fixture. Koru and Validator approved exact head `46210e1`
+  with `openrouter/z-ai/glm-5.2`; protected PR #60 merged as `main@a66eb40`
+  and its implementation branch was deleted. Current state: `DONE`.
 - [x] [`ticket-044`](project/ticket-044/README.md) — adopted immutable
   new-project 0.11.0 and its canonical work-classification package through
   local Goal. Koru and Validator approved exact head `80f860c` with

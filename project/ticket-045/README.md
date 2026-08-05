@@ -2,8 +2,8 @@
 
 - **ID**: ticket-045
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -70,6 +70,14 @@ will still require independent exact-head review.
   toolchain-dependent skip.
 - `make docker-smoke`: PASS.
 - `git diff --check`: PASS.
+- Koru commit-bound review: PASS for exact head
+  `46210e142446099f21cc87cddd81fd8b38eb44bd`.
+- Validator App review: APPROVED exact head
+  `46210e142446099f21cc87cddd81fd8b38eb44bd` using advisory model
+  `openrouter/z-ai/glm-5.2`; advisory findings: none.
+- Protected PR #60 merged as
+  `main@a66eb406b89578cca4cf55c79e36303fd9757b10`; its implementation branch
+  was deleted, leaving only `main` remotely.
 
 The contract slice is locally complete. Runtime production, persistence and
 GitHub event acquisition are deliberately deferred to a dependent ticket and
