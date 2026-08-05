@@ -224,3 +224,38 @@ The dependent runtime ticket must:
 4. publish the log as a workflow artifact and bind it to evaluation/attestation;
 5. add GitHub event acquisition separately, using least-privilege API fields;
 6. prove repeated rendering of identical inputs is byte-for-byte stable.
+
+## GitHub event acquisition boundary (ticket-047)
+
+This repository now defines a dedicated, bounded boundary:
+
+`node scripts/github-event-log.mjs`
+
+Input:
+
+* one GitHub Actions JSON payload (`--event-path`)
+* one event name (`push|pull_request|pull_request_review|workflow_run`)
+* explicit `--output` path for the produced `logs.dsl.txt`
+
+Behavior:
+
+* no payload is committed to `main` from this script,
+* only allowlisted fields are normalized and projected into evidence,
+* unsupported events/actions fail closed,
+* SHA/actor/repository/ticket/relation bindings are validated,
+* emitted trust class is `SYSTEM_FACT`,
+* output is immutable via the existing `t2c.event-log/v1` atomic writer.
+
+Invocation example:
+
+```bash
+node scripts/github-event-log.mjs \
+  --event-name pull_request \
+  --event-path "$GITHUB_EVENT_PATH" \
+  --repository "semcod/todo2code" \
+  --ticket "ticket-047" \
+  --recorded-at "$GITHUB_EVENT_TIME" \
+  --correlation-id "$GITHUB_RUN_ID" \
+  --stream-id "todo2code/github" \
+  --output "artifacts/logs.dsl.txt"
+```

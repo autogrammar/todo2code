@@ -5,10 +5,13 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
+import { parseEventLog } from '../src/pipeline/event-log.js';
 
 const exec = promisify(execFile);
 const verifier = path.resolve('scripts/verify-workflow-yaml.mjs');
 const workspacePreflight = path.resolve('scripts/workspace-preflight.mjs');
+const githubEventLog = path.resolve('scripts/github-event-log.mjs');
+const eventLogFixtures = path.resolve('test/fixtures/event-log/v1/github-event-payloads.json');
 
 test('workflow verifier rejects duplicate top-level YAML keys', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workflow-yaml-'));
@@ -105,6 +108,179 @@ test('Make preflight reserves stdout for one canonical report', async (t) => {
   assert.equal(result.stdout, `${JSON.stringify(report)}\n`);
   assert.match(result.stderr, /> todo2code@.* build/);
   assert.deepEqual(await repositoryState(fixture.root), before);
+});
+
+test('GitHub event collector maps supported push payloads to canonical event logs', async (t) => {
+  const payloads = JSON.parse(await fs.readFile(eventLogFixtures, 'utf8')) as Record<string, unknown>;
+  const fixture = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-github-event-'));
+  t.after(() => fs.rm(fixture, { recursive: true, force: true }));
+  const payload = path.join(fixture, 'push.json');
+  const output = path.join(fixture, 'push.dsl.txt');
+  await fs.writeFile(payload, JSON.stringify(payloads.push, null, 2), 'utf8');
+
+  const runResult = await run(process.execPath, [
+    githubEventLog,
+    '--event-name',
+    'push',
+    '--event-path',
+    payload,
+    '--output',
+    output,
+    '--repository',
+    'semcod/todo2code',
+    '--ticket',
+    'ticket-047',
+    '--recorded-at',
+    '2026-08-05T08:20:00Z',
+    '--correlation-id',
+    'push-047',
+    '--stream-id',
+    'stream-push-047',
+  ]);
+
+  assert.equal(runResult.code, 0);
+  const commandResult = JSON.parse(runResult.stdout);
+  assert.equal(commandResult.status, 'ok');
+  const log = parseEventLog(await fs.readFile(output, 'utf8'));
+  assert.equal(log.events.length, 2);
+  const pushEvent = log.events.at(0);
+  assert.ok(pushEvent);
+  const commitEvent = log.events.at(1);
+  assert.ok(commitEvent);
+  const eventTypes = [pushEvent.type, commitEvent.type].sort();
+  assert.deepEqual(eventTypes, ['git.commit.created', 'git.push.received'].sort());
+  assert.equal(pushEvent.trustClass, 'SYSTEM_FACT');
+  assert.equal(commitEvent.trustClass, 'SYSTEM_FACT');
+  assert.match([pushEvent.subjectId, commitEvent.subjectId].join(','), /git:ref\/refs\/heads\/main/);
+});
+
+test('GitHub review events are SYSTEM_FACT and cannot become approval attestation', async (t) => {
+  const payloads = JSON.parse(await fs.readFile(eventLogFixtures, 'utf8')) as Record<string, unknown>;
+  const fixture = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-github-review-'));
+  t.after(() => fs.rm(fixture, { recursive: true, force: true }));
+  const payload = path.join(fixture, 'review.json');
+  const output = path.join(fixture, 'review.dsl.txt');
+  await fs.writeFile(payload, JSON.stringify(payloads.pull_request_review, null, 2), 'utf8');
+
+  const runResult = await run(process.execPath, [
+    githubEventLog,
+    '--event-name',
+    'pull_request_review',
+    '--event-path',
+    payload,
+    '--output',
+    output,
+    '--repository',
+    'semcod/todo2code',
+    '--ticket',
+    'ticket-047',
+    '--recorded-at',
+    '2026-08-05T08:20:00Z',
+    '--correlation-id',
+    'review-047',
+    '--stream-id',
+    'stream-review-047',
+  ]);
+
+  assert.equal(runResult.code, 0);
+  const log = parseEventLog(await fs.readFile(output, 'utf8'));
+  assert.equal(log.events.length, 1);
+  const event = log.events.at(0);
+  assert.ok(event);
+  assert.equal(event.type, 'pull_request.reviewed');
+  assert.equal(event.trustClass, 'SYSTEM_FACT');
+  assert.equal(event.outcome, 'APPROVED');
+});
+
+test('GitHub review with unsupported state fails closed', async (t) => {
+  const payloads = JSON.parse(await fs.readFile(eventLogFixtures, 'utf8')) as Record<string, unknown>;
+  const fixture = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-github-review-fail-'));
+  t.after(() => fs.rm(fixture, { recursive: true, force: true }));
+  const payload = path.join(fixture, 'review.json');
+  const output = path.join(fixture, 'review.dsl.txt');
+  await fs.writeFile(payload, JSON.stringify(payloads.pull_request_review_unsupported, null, 2), 'utf8');
+
+  const runResult = await run(process.execPath, [
+    githubEventLog,
+    '--event-name',
+    'pull_request_review',
+    '--event-path',
+    payload,
+    '--output',
+    output,
+    '--repository',
+    'semcod/todo2code',
+    '--recorded-at',
+    '2026-08-05T08:20:00Z',
+    '--correlation-id',
+    'review-047',
+    '--stream-id',
+    'stream-review-fail-047',
+  ]);
+
+  assert.equal(runResult.code, 1);
+  assert.match(runResult.stderr, /unsupported pull_request_review state: needs_reply/);
+});
+
+test('Evidence projection is allowlisted and extra payload fields do not leak into logs', async (t) => {
+  const payloads = JSON.parse(await fs.readFile(eventLogFixtures, 'utf8')) as Record<string, unknown>;
+  const fixture = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-github-evidence-'));
+  t.after(() => fs.rm(fixture, { recursive: true, force: true }));
+
+  const basePayload = path.join(fixture, 'workflow-run.json');
+  const leakPayload = path.join(fixture, 'workflow-run-leak.json');
+  const baseOutput = path.join(fixture, 'workflow-run.dsl.txt');
+  const leakOutput = path.join(fixture, 'workflow-run-leak.dsl.txt');
+  await fs.writeFile(basePayload, JSON.stringify(payloads.workflow_run, null, 2), 'utf8');
+  await fs.writeFile(leakPayload, JSON.stringify(payloads.workflow_run_secret, null, 2), 'utf8');
+
+  const runBase = await run(process.execPath, [
+    githubEventLog,
+    '--event-name',
+    'workflow_run',
+    '--event-path',
+    basePayload,
+    '--output',
+    baseOutput,
+    '--repository',
+    'semcod/todo2code',
+    '--recorded-at',
+    '2026-08-05T08:20:00Z',
+    '--correlation-id',
+    'workflow-run-047',
+    '--stream-id',
+    'stream-workflow-047',
+  ]);
+
+  const runLeak = await run(process.execPath, [
+    githubEventLog,
+    '--event-name',
+    'workflow_run',
+    '--event-path',
+    leakPayload,
+    '--output',
+    leakOutput,
+    '--repository',
+    'semcod/todo2code',
+    '--recorded-at',
+    '2026-08-05T08:20:00Z',
+    '--correlation-id',
+    'workflow-run-047',
+    '--stream-id',
+    'stream-workflow-047',
+  ]);
+
+  assert.equal(runBase.code, 0);
+  assert.equal(runLeak.code, 0);
+  const baseContent = await fs.readFile(baseOutput, 'utf8');
+  const leakContent = await fs.readFile(leakOutput, 'utf8');
+  assert.equal(baseContent, leakContent);
+  const log = parseEventLog(baseContent);
+  const event = log.events.at(0);
+  assert.ok(event);
+  assert.match(event.evidenceRef, /^github:check-run\/\d+$/);
+  assert.doesNotMatch(baseContent, /query/);
+  assert.doesNotMatch(baseContent, /raw_payload/);
 });
 
 interface CommandResult {
