@@ -17,3 +17,11 @@
 - Rebound unchanged scope and architecture to exact protected base
   `9cfc3a8f90a9669ef5b37c44928e0b0e6a191ae5` after the human replied
   `kontynuuj`; no implementation file changed during the reconciliation.
+
+## [0.2.0] - 2026-08-05
+
+- Recorded exact-head Koru and Validator App evidence for `9e2feff`; Validator
+  used `openrouter/z-ai/glm-5.2`, returned `APPROVE` and reported no findings.
+- Recorded protected CI completion and PR #33 merge as `main@8ebeb66`.
+- Closed ticket-021 while preserving the separate integration boundary for
+  analyzer execution, freshness verification and regenerated artifacts.

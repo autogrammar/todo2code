@@ -62,6 +62,7 @@ diff and keeps each delivery within the 30-minute policy budget.
 
 ## Blockers
 
-- Independent publication evidence is still required before ticket 021 can
-  become `DONE`.
-- The generator remains a separate integration delivery.
+- None for ticket-021. Exact-head Koru, Validator App and protected CI passed,
+  and PR #33 merged as `main@8ebeb66`.
+- The generator remains a separate, explicitly unimplemented integration
+  delivery rather than a blocker for this governance ticket.
