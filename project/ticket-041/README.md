@@ -3,7 +3,7 @@
 - **ID**: ticket-041
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-05
 
 ## Goal
@@ -73,28 +73,28 @@ artifacts but does not itself check out or scan trees.
 
 - [x] AC-01: A human approves this exact input, derivation and delivery
       boundary before implementation.
-- [ ] AC-02: A strict exported internal validator rejects a malformed or
+- [x] AC-02: A strict exported internal validator rejects a malformed or
       tampered `BranchGitMaterialization`, including a wrong fingerprint.
-- [ ] AC-03: The assembler requires exactly one valid graph/truth-map bundle
+- [x] AC-03: The assembler requires exactly one valid graph/truth-map bundle
       for every unique tree SHA, reuses shared-tree evidence, and rejects
       missing, extra, duplicate or mismatched bundles.
-- [ ] AC-04: Added, removed and modified record evidence maps to cited
+- [x] AC-04: Added, removed and modified record evidence maps to cited
       candidate/base truth assertions without fabricating IDs or fingerprints.
-- [ ] AC-05: Changed conflicted assertions remain semantic conflicts; ambiguous
+- [x] AC-05: Changed conflicted assertions remain semantic conflicts; ambiguous
       or incomplete semantic mappings produce `unknown` and conservative
       `manual_review` rather than a false merge-ready result.
-- [ ] AC-06: Git textual conflict/clean/unknown evidence is copied only from
+- [x] AC-06: Git textual conflict/clean/unknown evidence is copied only from
       the validated immutable snapshot and remains separate from semantics.
-- [ ] AC-07: Candidate, semantic-bundle and property ordering plus generated
+- [x] AC-07: Candidate, semantic-bundle and property ordering plus generated
       time cannot alter the portfolio fingerprint; a changed tree, graph,
       truth-map or Git snapshot does alter or invalidate it.
-- [ ] AC-08: The result is the existing `t2c.branch/v1` portfolio with internal
+- [x] AC-08: The result is the existing `t2c.branch/v1` portfolio with internal
       assembly evidence only; it contains no path, token, approval, mutation
       command, automatic conflict winner or new public schema.
-- [ ] AC-09: Focused tests, full offline verification, governance, Lizard and
+- [x] AC-09: Focused tests, full offline verification, governance, Lizard and
       Docker core E2E pass without network access, a live LLM or repository
       mutation.
-- [ ] AC-10: Exact-tree pipeline orchestration, persistence, PR metadata,
+- [x] AC-10: Exact-tree pipeline orchestration, persistence, PR metadata,
       CLI/MCP/A2A, Goal, Koru and Validator consumption remain explicit
       follow-up tickets.
 
@@ -118,3 +118,20 @@ The contract was originally reviewed under the concurrently selected ID
 plan while this work was still validating, so this unchanged assembler scope
 was moved to the first free ID, `ticket-041`, on governance-only
 `main@db368c0`. No source or test was part of the preceding plan commit.
+
+## Validation evidence
+
+- Ordered implementation commit: `e0532ee` (the same three-file source change
+  previously validated as `519bbcd` before the ticket-ID history repair).
+- Focused assembler suite: 7 passed, 0 failed.
+- Full host verification: 376 tests, 375 passed, 1 explicit JDK skip, 0
+  failed; every module, environment, workflow, schema and generated-analysis
+  gate passed.
+- Docker core E2E: 376 tests, 369 passed, 7 explicit unavailable-toolchain
+  skips, 0 failed; MCP, A2A and examples smoke tests passed.
+- Governance: `GOV-PASS` with 0 errors and 0 warnings.
+- Lizard: 1,124 NLOC across the three bounded files, 113 functions and 0
+  violations at CCN 15, length 100 and 5-parameter thresholds.
+- No test used a live LLM, network call, repository mutation or unsafe
+  validation shortcut. Protected exact-head Koru and Validator evidence is
+  intentionally pending publication of the rebuilt PR head.

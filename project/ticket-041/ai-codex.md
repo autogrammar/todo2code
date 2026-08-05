@@ -50,11 +50,21 @@ runtime orchestration slice.
 
 ## Actual changes
 
-- The user approved the unchanged assembler contract for autonomous execution
-  on the refreshed governance-only base. Implementation may begin inside the
-  three declared paths.
+- Added strict shape, ordering, pair-coverage and SHA-256 fingerprint validation
+  for `BranchGitMaterialization`; the materializer validates its own result.
+- Added a pure assembler that validates the exact unique tree-bundle set,
+  graph/truth-map bindings and completeness before deriving cited assertion
+  changes and calling the existing `projectBranchPortfolio` projector.
+- Preserved textual merge evidence independently from semantic evidence.
+  Conflicted assertions remain conflicts; ambiguous identities and unanchored
+  cross-branch additions fail closed to `unknown` plus `manual_review`.
+- Added seven focused cases covering all change kinds, semantic/textual
+  separation, ambiguous and incomplete evidence, shared-tree reuse, tampering
+  and order/time invariance.
+- Focused, full host, Docker core E2E, governance and Lizard validation passed
+  without a live LLM or network input.
 
 ## Blockers
 
-- None before bounded implementation. Protected exact-head review remains a
-  publication requirement.
+- No implementation blocker. The rebuilt exact PR head still requires Koru,
+  Validator App and protected CI evidence before a normal merge.
