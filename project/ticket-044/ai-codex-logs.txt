@@ -19,3 +19,9 @@ transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
 2026-08-05 make docker-smoke: PASS
 2026-08-05 git diff --check: PASS
 transition: EDIT -> VALIDATION
+2026-08-05 Koru code-review exact head 80f860ca150e55a43120c28e2a40a703fa691563: PASS
+2026-08-05 Validator App exact-head review: APPROVED; model openrouter/z-ai/glm-5.2
+2026-08-05 protected governance, verify and Java checks: PASS
+2026-08-05 PR #58: MERGED as main@aae9ec5c699df2d2028e99e02fe334b2dad2e5c9
+2026-08-05 remote implementation branch: DELETED
+transition: VALIDATION -> DONE

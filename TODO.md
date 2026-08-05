@@ -2,16 +2,18 @@
 
 ## Active tickets
 
-- [ ] [`ticket-044`](project/ticket-044/README.md) — adopt immutable
-  new-project 0.11.0 and its canonical work-classification package through
-  local Goal. Current state: `IN_PROGRESS / VALIDATION`; all local gates pass
-  and independent exact-head publication evidence remains pending.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-044`](project/ticket-044/README.md) — adopted immutable
+  new-project 0.11.0 and its canonical work-classification package through
+  local Goal. Koru and Validator approved exact head `80f860c` with
+  `openrouter/z-ai/glm-5.2`; protected PR #58 merged as `main@aae9ec5` and its
+  implementation branch was deleted. Current state: `DONE`.
 - [x] [`ticket-043`](project/ticket-043/README.md) — exposed ticket-040's
   deterministic read-only observer through `make preflight`, with canonical
   stdout, stable exit codes and complete Git-state non-mutation tests. Koru and

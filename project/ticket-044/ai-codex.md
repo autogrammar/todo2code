@@ -33,10 +33,12 @@ manifest until its declared standard version is reviewed and changed to
   manifest, work-classification DSL and its schema to the managed lock.
 - Repeated adoption check, governance, full Node verification and Docker smoke
   all pass.
+- Koru and Validator approved exact head `80f860c`; protected PR #58 merged as
+  `main@aae9ec5` and removed the implementation branch.
 
 ## Blockers
 
-- Independent current-head merge authority remains required for publication.
+- None.
 
 ## Preflight evidence
 

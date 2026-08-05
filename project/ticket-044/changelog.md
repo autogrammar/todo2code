@@ -10,3 +10,5 @@
 - Adopted new-project 0.11.0 at its immutable release SHA through Goal.
 - Added the managed package manifest, classification DSL and schema.
 - Passed governance, full host verification and Docker smoke validation.
+- Passed exact-head Koru and Validator review and merged protected PR #58 as
+  `main@aae9ec5`.

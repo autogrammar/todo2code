@@ -2,8 +2,8 @@
 
 - **ID**: ticket-044
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -55,3 +55,8 @@ still requires an independent exact-head authority.
 - `make verify`: PASS, 391 tests, 390 passed and one toolchain-dependent skip.
 - `make docker-smoke`: PASS.
 - `git diff --check`: PASS.
+- Koru commit-bound review: PASS for exact head `80f860c`.
+- Validator App review: APPROVED exact head `80f860c` using advisory model
+  `openrouter/z-ai/glm-5.2`.
+- Protected PR #58 merged as `main@aae9ec5`; its implementation branch was
+  deleted.
