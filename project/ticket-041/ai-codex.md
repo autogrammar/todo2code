@@ -63,8 +63,13 @@ runtime orchestration slice.
   and order/time invariance.
 - Focused, full host, Docker core E2E, governance and Lizard validation passed
   without a live LLM or network input.
+- Rebuilt the branch history after a parallel ticket-ID collision so the
+  ticket-041 plan and approval precede implementation, then passed exact-head
+  Koru, Validator and protected CI before PR #48 merged as `main@f188025`.
+- Checked the advisory Validator findings against the types and runtime guards;
+  neither claimed unsafe cast nor optional completeness field exists.
 
 ## Blockers
 
-- No implementation blocker. The rebuilt exact PR head still requires Koru,
-  Validator App and protected CI evidence before a normal merge.
+- None. The bounded delivery is merged; exact-tree orchestration and public
+  consumers remain explicitly separate follow-up work.

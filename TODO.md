@@ -6,19 +6,18 @@
   read-only workspace preflight that binds local Git state to the active ticket
   and existing governance diagnostics before any governed edit. Current state:
   `PLAN / WAIT_FOR_APPROVAL`.
-- [ ] [`ticket-041`](project/ticket-041/README.md) — validate exact tree-keyed
-  graph/truth-map bundles and assemble them with ticket-039 Git evidence into
-  the existing `t2c.branch/v1` projector. Current state:
-  `IN_PROGRESS / VALIDATION`; ordered implementation `e0532ee` passed 7 focused
-  tests, full host verification (375 pass, 1 skip), Docker core E2E (369 pass,
-  7 skips), governance and complexity gates. Exact-head Koru, Validator and CI
-  evidence remains pending rebuilt PR publication.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-041`](project/ticket-041/README.md) — strict immutable Git
+  materialization validation and exact-tree graph/truth-map evidence assembly
+  into the existing `t2c.branch/v1` projector. Focused, host, Docker,
+  governance and complexity gates passed; Koru and Validator approved exact
+  head `3779613` with `openrouter/z-ai/glm-5.2`; protected PR #48 merged as
+  `main@f188025`. Current state: `DONE`.
 - [x] [`ticket-021`](project/ticket-021/README.md) — assigned root-level
   generated analysis formats to the integration workstream without changing
   ticket-directory ownership or the managed wrapper. Koru and Validator
