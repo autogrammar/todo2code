@@ -1,0 +1,108 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-040",
+  "summary": "Detect unsafe workspace state before governed edits",
+  "workstream": "runtime",
+  "allowedPaths": [
+    "src/services/workspace-preflight.ts",
+    "test/git-workspace-preflight.test.ts",
+    "project/ticket-040/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "project.sh",
+    "project2.sh",
+    "Makefile",
+    ".github/**",
+    "src/interfaces/**",
+    "src/cli.ts",
+    "src/sdk/**",
+    "sdk/**",
+    "schemas/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-021", "ticket-039"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "45221496ef7391d3eceb4f07b6a4dece5ae1ced5",
+    "targetBranch": "main",
+    "outcome": "Report unsafe local workspace state before governed edits without mutating user data or duplicating governance policy",
+    "nonGoals": [
+      "No automatic stash, checkout, reset, clean, fetch or branch update",
+      "No network or remote mutation",
+      "No CLI, MCP, A2A, SDK or public schema",
+      "No lease or push compare-and-swap",
+      "No reimplementation of governance path/workstream matching"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "proposed",
+      "decision": "Combine bounded local Git observation with the existing governance checker JSON in one read-only runtime report",
+      "components": [
+        {
+          "name": "workspace-preflight-service",
+          "paths": [
+            "src/services/workspace-preflight.ts",
+            "test/git-workspace-preflight.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Add an in-memory t2c.workspace-preflight/v1 report; no persisted or public schema"
+      ],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Remove the two additive runtime files; governance and Git behavior remain unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/git-workspace-preflight.test.js"],
+        "evidence": "Strict root/ref/checker/report/path-bound validation tests pass"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["npm run build", "node --test dist/test/git-workspace-preflight.test.js"],
+        "evidence": "Exact local Git topology matches independent fixture commands"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["npm run build", "node --test dist/test/git-workspace-preflight.test.js"],
+        "evidence": "Porcelain-v2 tracked/untracked/rename/conflict fixtures pass"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["npm run build", "node --test dist/test/git-workspace-preflight.test.js"],
+        "evidence": "Governance JSON is preserved and no policy matcher is introduced"
+      },
+      {
+        "criterion": "AC-08",
+        "commands": ["npm run build", "node --test dist/test/git-workspace-preflight.test.js"],
+        "evidence": "Before/after Git state and forbidden-output assertions pass"
+      },
+      {
+        "criterion": "AC-09",
+        "commands": ["npm run verify", "make governance", "make e2e-core", "git diff --check"],
+        "evidence": "Offline regression, governance, complexity and Docker gates pass"
+      }
+    ]
+  }
+}
