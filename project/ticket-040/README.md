@@ -119,19 +119,20 @@ before either implementation file was created. It has since moved to
   and the seven stable `WS-*` diagnostic families.
 - The service passes the union of baseline-to-HEAD and dirty paths to the
   managed Python checker; only its protected output can select `activeTicket`.
-- Focused build and test: 9 passed, 0 failed, 0 skipped.
-- Full host verification after synchronizing completed ticket-041: 384 passed,
+- Focused build and test: 10 passed, 0 failed, 0 skipped.
+- Full host verification after synchronizing completed ticket-041: 385 passed,
   0 failed and one missing-JDK skip.
 - Docker core E2E passed the full deterministic verification and protocol,
   examples and SDK smoke gates; unavailable language toolchains were explicit
   skips rather than false passes.
 - Lizard over both implementation files reports zero CC, function-length or
-  argument-count threshold violations; the service remains below 500 lines.
+  argument-count threshold violations.
 - `make governance` and `git diff --check` pass with zero findings.
-- First exact-head Koru review correctly blocked its alternate Lizard parser's
-  CC=16 grouping at `runGovernance`. The function is now an independently
-  parsed boundary; command-start/output failures retain their owning `WS-*`
-  code and expose only stderr/stdout size plus SHA-256, never raw content.
+- First exact-head Koru review correctly blocked `runGovernance` at CC=16. It
+  is now a small orchestrator over checker discovery, argument construction,
+  process execution, JSON validation and ticket reading. Command-start/output
+  failures retain their owning `WS-*` code and expose only stderr/stdout size
+  plus SHA-256, never raw content.
 
 ## Live read-only audit
 

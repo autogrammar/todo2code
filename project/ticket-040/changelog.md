@@ -21,3 +21,6 @@
 - Repaired Koru's alternate-parser CC=16 finding and made subprocess failures
   preserve the correct workspace diagnostic family with non-secret digest
   evidence instead of raw stderr.
+- Replaced the parser-oriented workaround with a structural split of checker,
+  argument, execution, JSON and ticket boundaries; added a tenth regression
+  test proving governance error typing and stderr redaction.

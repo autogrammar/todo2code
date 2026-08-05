@@ -46,19 +46,20 @@ truth and could incorrectly bless a change rejected by `make governance`.
 - Kept ticket resolution inside `.governance/governance_check.py`; the service
   passes a bounded changed-path union and neither reproduces ownership globs
   nor converts advisory output into approval.
-- Added nine offline fixture tests covering clean, dirty, rename, conflict,
+- Added ten offline fixture tests covering clean, dirty, rename, conflict,
   stale, detached, wrong-branch, governance-failure, malformed-checker and
-  read-only invariants.
-- Split the two initially over-complex validation functions after Lizard found
-  CC 23 and CC 20; final analysis has zero threshold violations and the service
-  is 499 physical lines.
+  read-only invariants, including redaction of failing checker stderr.
+- Split the initially over-complex validation functions after Lizard found CC
+  23, CC 20 and Koru independently found CC 16; final analysis has zero
+  threshold violations.
 - Focused, full host, governance and Docker core validation pass. A live run on
   this worktree blocked its two uncommitted files while resolving ticket-040,
   proving the motivating path without mutating it.
-- The first protected Koru pass found one blocking parser-specific CC=16 result
-  for `runGovernance`. Converted that boundary to an independently parsed
-  function, retained command-specific diagnostics and added redacted digest
-  evidence for checker failures; the five LLM remarks remained advisory.
+- The first protected Koru pass found one blocking CC=16 result for
+  `runGovernance`. Refactored it into a small orchestrator with separately
+  testable checker, argument, process, JSON and ticket boundaries; retained
+  command-specific diagnostics and added redacted digest evidence for checker
+  failures. The five semantic LLM remarks remained advisory.
 
 ## Blockers
 

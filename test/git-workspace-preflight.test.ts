@@ -136,6 +136,22 @@ test('managed governance findings remain authoritative and unresolved scope bloc
   assert.ok(result.safeActions.includes('RESOLVE_TICKET_SCOPE'));
 });
 
+test('governance process failures keep their domain code and redact stderr', async (t) => {
+  const fixture = await createFixture();
+  t.after(() => fs.rm(fixture.parent, { recursive: true, force: true }));
+  const sensitiveStderr = 'fixture-sensitive-stderr';
+  const checker = `#!/usr/bin/env python3\nimport sys\nsys.stderr.write('${sensitiveStderr}')\nsys.exit(2)\n`;
+  await fs.writeFile(path.join(fixture.root, '.governance', 'governance_check.py'), checker, { mode: 0o755 });
+
+  await assert.rejects(() => inspect(fixture), (error: unknown) => {
+    assert.ok(error instanceof WorkspacePreflightError);
+    assert.equal(error.code, 'WS-GOVERNANCE-006');
+    assert.equal(error.message.includes(sensitiveStderr), false);
+    assert.match(error.message, /stderrBytes=24 stderrSha256=[a-f0-9]{64}$/);
+    return true;
+  });
+});
+
 test('implementation paths receive only the ticket selected by managed governance', async (t) => {
   const fixture = await createFixture();
   t.after(() => fs.rm(fixture.parent, { recursive: true, force: true }));

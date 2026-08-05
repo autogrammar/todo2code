@@ -53,6 +53,13 @@ export interface WorkspacePreflightReport {
 }
 interface CommandResult { exitCode: number; stdout: Buffer; stderr: string }
 interface GovernanceResult { report: WorkspaceGovernanceReport; activeTicket: string | null }
+interface GovernanceInvocation {
+  root: string; options: WorkspacePreflightOptions; baselineSha: string; headSha: string; changedPaths: string[];
+}
+interface WorkspaceDiagnosticFacts {
+  expectedBranch: string; branch: string | null; aheadBy: number; behindBy: number;
+  dirty: WorkspaceDirtyEntry[]; governance: GovernanceResult;
+}
 const SHA = /^[a-f0-9]{40}$/;
 const FULL_REF = /^refs\/(?:heads|remotes)\/[A-Za-z0-9][A-Za-z0-9._/-]{0,190}$/;
 const BRANCH = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,190}$/;
@@ -77,8 +84,10 @@ export async function inspectWorkspace(options: WorkspacePreflightOptions): Prom
     'status', '--porcelain=v2', '-z', '--untracked-files=all',
   ], 'status')).stdout);
   const changedPaths = await governanceChangedPaths(root, baselineSha, headSha, dirtyEntries);
-  const governance = await runGovernance(root, options, baselineSha, headSha, changedPaths);
-  const diagnostics = buildDiagnostics(options, branch, aheadBy, behindBy, dirtyEntries, governance);
+  const governance = await runGovernance({ root, options, baselineSha, headSha, changedPaths });
+  const diagnostics = buildDiagnostics({
+    expectedBranch: options.expectedBranch, branch, aheadBy, behindBy, dirty: dirtyEntries, governance,
+  });
   const safeActions = actionsFor(diagnostics);
   const semantic = {
     schemaVersion: 't2c.workspace-preflight/v1' as const,
@@ -285,71 +294,84 @@ async function governanceChangedPaths(
   }
   return sorted;
 }
-const runGovernance = async (
-  root: string,
-  options: WorkspacePreflightOptions,
-  baselineSha: string,
-  headSha: string,
-  changedPaths: string[],
-): Promise<GovernanceResult> => {
+const runGovernance = async (invocation: GovernanceInvocation): Promise<GovernanceResult> => {
+  const { root, options, baselineSha, headSha, changedPaths } = invocation;
+  const checker = await requiredGovernanceChecker(root);
+  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workspace-preflight-'));
+  const ticketOutput = path.join(temporary, 'ticket.txt');
+  try {
+    const report = await executeGovernance({
+      root,
+      pythonExecutable: options.pythonExecutable ?? 'python3',
+      args: governanceArguments({
+        checker, baselineSha, headSha, actor: options.actor ?? 'agent', ticketOutput, changedPaths,
+      }),
+    });
+    return { report, activeTicket: await readActiveTicket(ticketOutput) };
+  } finally {
+    await fs.rm(temporary, { recursive: true, force: true });
+  }
+};
+const requiredGovernanceChecker = async (root: string): Promise<string> => {
   const checker = path.join(root, '.governance', 'governance_check.py');
   try {
     if (!(await fs.stat(checker)).isFile()) throw new Error('not a file');
   } catch {
     throw new WorkspacePreflightError('WS-GOVERNANCE-006', 'managed governance checker is missing');
   }
-  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workspace-preflight-'));
-  const ticketOutput = path.join(temporary, 'ticket.txt');
-  try {
-    const args = [
-      checker,
-      '--root', '.',
-      '--manifest', '.governance/manifest.json',
-      '--lock', '.governance/manifest.lock.json',
-      '--stack-profiles', '.governance/stack-profiles.json',
-      '--base', baselineSha,
-      '--head', headSha,
-      '--actor', options.actor ?? 'agent',
-      '--resolved-ticket-output', ticketOutput,
-      '--format', 'json',
-      ...changedPaths.flatMap((item) => ['--changed-file', item]),
-    ];
-    const result = await run(root, options.pythonExecutable ?? 'python3', args, {
-      ...process.env,
-      PYTHONDONTWRITEBYTECODE: '1',
-    }, 'WS-GOVERNANCE-006');
-    if (result.exitCode !== 0 && result.exitCode !== 1) {
-      throw new WorkspacePreflightError(
-        'WS-GOVERNANCE-006',
-        `managed governance checker could not run; ${digestEvidence('stderr', result.stderr)}`,
-      );
-    }
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(result.stdout.toString('utf8'));
-    } catch {
-      throw new WorkspacePreflightError(
-        'WS-GOVERNANCE-006',
-        `managed governance JSON is malformed; ${digestEvidence('stdout', result.stdout)}`,
-      );
-    }
-    const report = validateGovernanceReport(parsed);
-    if ((result.exitCode === 0) !== (report.status === 'passed')) {
-      throw new WorkspacePreflightError('WS-GOVERNANCE-006', 'managed governance exit status contradicts its report');
-    }
-    let activeTicket: string | null = null;
-    try {
-      activeTicket = (await fs.readFile(ticketOutput, 'utf8')).trim() || null;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-    }
-    if (activeTicket !== null && !TICKET.test(activeTicket)) {
-      throw new WorkspacePreflightError('WS-TICKET-007', 'managed governance returned an invalid ticket identifier');
-    }
-    return { report, activeTicket };
-  } finally {
-    await fs.rm(temporary, { recursive: true, force: true });
+  return checker;
+};
+interface GovernanceArguments {
+  checker: string; baselineSha: string; headSha: string; actor: WorkspaceActor;
+  ticketOutput: string; changedPaths: string[];
+}
+const governanceArguments = (input: GovernanceArguments): string[] => [
+  input.checker, '--root', '.', '--manifest', '.governance/manifest.json',
+  '--lock', '.governance/manifest.lock.json', '--stack-profiles', '.governance/stack-profiles.json',
+  '--base', input.baselineSha, '--head', input.headSha, '--actor', input.actor,
+  '--resolved-ticket-output', input.ticketOutput, '--format', 'json',
+  ...input.changedPaths.flatMap((item) => ['--changed-file', item]),
+];
+interface GovernanceExecution { root: string; pythonExecutable: string; args: string[] }
+const executeGovernance = async (execution: GovernanceExecution): Promise<WorkspaceGovernanceReport> => {
+  const result = await run(execution.root, execution.pythonExecutable, execution.args, {
+    ...process.env,
+    PYTHONDONTWRITEBYTECODE: '1',
+  }, 'WS-GOVERNANCE-006');
+  if (result.exitCode !== 0 && result.exitCode !== 1) {
+    throw new WorkspacePreflightError(
+      'WS-GOVERNANCE-006',
+      `managed governance checker could not run; ${digestEvidence('stderr', result.stderr)}`,
+    );
   }
+  const report = parseGovernanceReport(result.stdout);
+  if ((result.exitCode === 0) !== (report.status === 'passed')) {
+    throw new WorkspacePreflightError('WS-GOVERNANCE-006', 'managed governance exit status contradicts its report');
+  }
+  return report;
+};
+const parseGovernanceReport = (output: Buffer): WorkspaceGovernanceReport => {
+  try {
+    return validateGovernanceReport(JSON.parse(output.toString('utf8')));
+  } catch (error) {
+    if (error instanceof WorkspacePreflightError) throw error;
+    throw new WorkspacePreflightError(
+      'WS-GOVERNANCE-006',
+      `managed governance JSON is malformed; ${digestEvidence('stdout', output)}`,
+    );
+  }
+};
+const readActiveTicket = async (ticketOutput: string): Promise<string | null> => {
+  let activeTicket: string | null = null;
+  try {
+    activeTicket = (await fs.readFile(ticketOutput, 'utf8')).trim() || null;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+  }
+  if (activeTicket !== null && !TICKET.test(activeTicket)) {
+    throw new WorkspacePreflightError('WS-TICKET-007', 'managed governance returned an invalid ticket identifier');
+  }
+  return activeTicket;
 };
 const digestEvidence = (label: string, value: string | Buffer): string =>
   `${label}Bytes=${Buffer.byteLength(value)} ${label}Sha256=${sha256(value)}`;
@@ -394,19 +416,13 @@ const governanceContractViolation = (): WorkspacePreflightError => new Workspace
   'managed governance report violates its JSON contract',
 );
 
-function buildDiagnostics(
-  options: WorkspacePreflightOptions,
-  branch: string | null,
-  aheadBy: number,
-  behindBy: number,
-  dirty: WorkspaceDirtyEntry[],
-  governance: GovernanceResult,
-): WorkspaceDiagnostic[] {
+function buildDiagnostics(facts: WorkspaceDiagnosticFacts): WorkspaceDiagnostic[] {
+  const { expectedBranch, branch, aheadBy, behindBy, dirty, governance } = facts;
   const diagnostics: WorkspaceDiagnostic[] = [];
-  if (branch !== options.expectedBranch) diagnostics.push({
+  if (branch !== expectedBranch) diagnostics.push({
     code: 'WS-BRANCH-003', severity: 'ERROR',
     message: branch === null ? 'HEAD is detached' : 'current branch differs from expected branch',
-    evidence: [branch ?? 'DETACHED', options.expectedBranch].sort(),
+    evidence: [branch ?? 'DETACHED', expectedBranch].sort(),
   });
   if (aheadBy !== 0 || behindBy !== 0) diagnostics.push({
     code: 'WS-SYNC-004', severity: behindBy > 0 ? 'ERROR' : 'WARNING',
@@ -449,18 +465,11 @@ async function requiredGit(root: string, args: string[], label: string): Promise
   return result;
 }
 
-const runGit = (root: string, args: string[]): Promise<CommandResult> => run(
-  root,
-  'git',
-  ['--no-optional-locks', ...args],
-  { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
-);
+const runGit = (root: string, args: string[]): Promise<CommandResult> =>
+  run(root, 'git', ['--no-optional-locks', ...args], { ...process.env, GIT_OPTIONAL_LOCKS: '0' });
 
 function run(
-  root: string,
-  command: string,
-  args: string[],
-  env: NodeJS.ProcessEnv = process.env,
+  root: string, command: string, args: string[], env: NodeJS.ProcessEnv = process.env,
   failureCode: WorkspaceDiagnosticCode = 'WS-ROOT-001',
 ): Promise<CommandResult> {
   return new Promise((resolve, reject) => {
