@@ -1,0 +1,4 @@
+2026-08-05T07:01:26Z PLAN ticket-040 scaffolded
+2026-08-05T07:02:00Z OBSERVED concurrent generator dirtied main after clean audit
+2026-08-05T07:03:00Z ISOLATED plan worktree base=45221496ef7391d3eceb4f07b6a4dece5ae1ced5
+2026-08-05T07:04:00Z WAIT_FOR_APPROVAL source-and-test-paths=unchanged

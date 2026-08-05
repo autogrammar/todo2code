@@ -2,7 +2,10 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-040`](project/ticket-040/README.md) — define a bounded,
+  read-only workspace preflight that binds local Git state to the active ticket
+  and existing governance diagnostics before any governed edit. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Backlog tickets
 
