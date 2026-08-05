@@ -27,7 +27,7 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "4d9a793d13e6eb0fd0a8b60e59692b6aa5f173ef",
+    "acceptedBaseSha": "1d926eb1bc540ff25377c47bc7c22590f8579288",
     "targetBranch": "main",
     "outcome": "Expose the existing read-only workspace preflight through one explicit local Make command",
     "nonGoals": [
@@ -45,7 +45,7 @@
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Keep runtime semantics in inspectWorkspace and add only an integration-owned Make/Node invocation boundary",
       "components": [
         {

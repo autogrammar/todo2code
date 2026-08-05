@@ -1,9 +1,9 @@
 # Ticket 043: Add a governed workspace preflight command
 
 - **ID**: ticket-043
-- **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Owner**: human:founder
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -34,7 +34,7 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 
 - Workstream: `integration` because `Makefile` and `scripts/**` are shared
   integration contracts.
-- Accepted base: `main@4d9a793d13e6eb0fd0a8b60e59692b6aa5f173ef`.
+- Accepted base: `main@1d926eb1bc540ff25377c47bc7c22590f8579288`.
 - Complexity: `XS`; at most three implementation files and one component.
 - Implementation paths: `Makefile`, `scripts/workspace-preflight.mjs` and
   `test/workflow-validation.test.ts`.
@@ -45,17 +45,17 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: Missing or unsafe expected-branch/baseline input fails before the
+- [x] AC-01: Scope is approved by a human owner.
+- [x] AC-02: Missing or unsafe expected-branch/baseline input fails before the
       workspace observer runs and help is successful and non-mutating.
-- [ ] AC-03: A valid invocation emits exactly one schema-valid canonical JSON
+- [x] AC-03: A valid invocation emits exactly one schema-valid canonical JSON
       report and maps `PASS` to exit 0 and `BLOCKED` to a documented non-zero
       exit without changing report evidence.
-- [ ] AC-04: The wrapper imports the existing runtime service and contains no
+- [x] AC-04: The wrapper imports the existing runtime service and contains no
       Git command, governance matcher, diagnostic derivation or repair logic.
-- [ ] AC-05: Before/after HEAD, index, worktree, refs, stash and remotes are
+- [x] AC-05: Before/after HEAD, index, worktree, refs, stash and remotes are
       identical for successful and blocked fixture runs.
-- [ ] AC-06: Focused tests, full offline verification, governance, Docker smoke
+- [x] AC-06: Focused tests, full offline verification, governance, Docker smoke
       and `git diff --check` pass without a network call or live LLM.
 
 ## Participants
@@ -65,6 +65,23 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 
 ## Approval boundary
 
-This plan records the user's instruction to continue improving efficiency,
-but it remains in `PLAN / WAIT_FOR_APPROVAL`. No implementation path may be
-edited until the human approves this exact command, scope and accepted base.
+The Founder approved this exact command, scope and accepted base in the active
+session with an explicit `tak`, authorizing the transition to `EDIT`.
+Implementation was completed inside that boundary and is now in `VALIDATION`.
+Protected merge approval still requires independent exact-head evidence.
+
+## Validation evidence
+
+- Focused command boundary: 5/5 tests passed, including real Make invocation,
+  canonical stdout, exit mapping and complete before/after Git state equality.
+- Live clean-worktree invocation returned one canonical report, exit 0,
+  `PASS`, active `ticket-043` and only the expected ahead-only warning.
+- `make verify` passed 391 tests (390 pass, one declared local JDK skip), and
+  `make governance`, `make docker-smoke` plus `git diff --check` passed without
+  a live LLM call.
+- The first hosted run exposed inherited GNU Make directory banners in the
+  Make-boundary test. Commit `b405ae8` isolates that subprocess with
+  `--no-print-directory`; the exact hosted invocation now passes locally.
+- Lizard reported no threshold violations; wrapper maximum complexity is
+  `CC=9`, below the project limit of 15.
+- Independent protected review and exact-head attestation remain pending.
