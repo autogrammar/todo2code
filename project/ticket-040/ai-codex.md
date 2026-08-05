@@ -51,10 +51,14 @@ truth and could incorrectly bless a change rejected by `make governance`.
   read-only invariants.
 - Split the two initially over-complex validation functions after Lizard found
   CC 23 and CC 20; final analysis has zero threshold violations and the service
-  is 497 physical lines.
+  is 499 physical lines.
 - Focused, full host, governance and Docker core validation pass. A live run on
   this worktree blocked its two uncommitted files while resolving ticket-040,
   proving the motivating path without mutating it.
+- The first protected Koru pass found one blocking parser-specific CC=16 result
+  for `runGovernance`. Converted that boundary to an independently parsed
+  function, retained command-specific diagnostics and added redacted digest
+  evidence for checker failures; the five LLM remarks remained advisory.
 
 ## Blockers
 

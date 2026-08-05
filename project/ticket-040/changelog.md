@@ -18,3 +18,6 @@
   while adding stable `WS-*` diagnostics and non-executable safe actions.
 - Passed focused, full host, governance, Lizard and Docker core validation;
   moved the ticket to `IN_PROGRESS / VALIDATION` pending protected review.
+- Repaired Koru's alternate-parser CC=16 finding and made subprocess failures
+  preserve the correct workspace diagnostic family with non-secret digest
+  evidence instead of raw stderr.

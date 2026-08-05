@@ -9,3 +9,6 @@
 2026-08-05T07:28:00Z COMPLEXITY lizard-warnings=0 service-lines=497
 2026-08-05T07:29:00Z LIVE verdict=BLOCKED dirty=2 active-ticket=ticket-040 governance=passed
 2026-08-05T07:30:00Z VALIDATION waiting-for=protected-exact-head-review
+2026-08-05T07:38:44Z KORU rejected head=18b4d60 blocker=runGovernance-CC16
+2026-08-05T07:40:00Z REPAIRED parser-boundary=arrow command-errors=typed stderr=hashed
+2026-08-05T07:41:00Z REVALIDATED host=384/385 governance=pass lizard-warnings=0

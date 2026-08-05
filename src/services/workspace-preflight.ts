@@ -60,14 +60,12 @@ const TICKET = /^ticket-\d{3,}$/;
 const MAX_OUTPUT = 64 * 1024 * 1024;
 const MAX_DIRTY_PATHS = 4096;
 const MAX_CHANGED_ARGUMENT_BYTES = 256 * 1024;
-
 export class WorkspacePreflightError extends Error {
   constructor(public readonly code: WorkspaceDiagnosticCode, message: string) {
     super(`${code}: ${message}`);
     this.name = 'WorkspacePreflightError';
   }
 }
-
 export async function inspectWorkspace(options: WorkspacePreflightOptions): Promise<WorkspacePreflightReport> {
   validateOptions(options);
   const root = await repositoryRoot(options.root);
@@ -98,7 +96,6 @@ export async function inspectWorkspace(options: WorkspacePreflightOptions): Prom
   };
   return { ...semantic, fingerprint: sha256(stableStringify(semantic)) };
 }
-
 const validateOptions = (options: WorkspacePreflightOptions): void => {
   if (!options || typeof options !== 'object') {
     throw new WorkspacePreflightError('WS-ROOT-001', 'workspace preflight options are required');
@@ -108,13 +105,11 @@ const validateOptions = (options: WorkspacePreflightOptions): void => {
   validateBranchOption(options.expectedBranch);
   validateRuntimeOptions(options.actor, options.pythonExecutable);
 };
-
 const validateRootOption = (root: string): void => {
   if (typeof root !== 'string' || root.trim() === '') {
     throw new WorkspacePreflightError('WS-ROOT-001', 'root must name a Git worktree');
   }
 };
-
 const validateBaselineOption = (baselineRef: string): void => {
   const invalidRef = typeof baselineRef !== 'string'
     || !FULL_REF.test(baselineRef)
@@ -125,7 +120,6 @@ const validateBaselineOption = (baselineRef: string): void => {
     || baselineRef.endsWith('.lock');
   if (invalidRef) throw new WorkspacePreflightError('WS-BASE-002', 'baselineRef must be a safe full local ref');
 };
-
 const validateBranchOption = (expectedBranch: string): void => {
   if (typeof expectedBranch !== 'string'
     || !BRANCH.test(expectedBranch)
@@ -134,7 +128,6 @@ const validateBranchOption = (expectedBranch: string): void => {
     throw new WorkspacePreflightError('WS-BRANCH-003', 'expectedBranch is invalid');
   }
 };
-
 const validateRuntimeOptions = (actor: WorkspaceActor | undefined, pythonExecutable: string | undefined): void => {
   if (actor !== undefined && !['agent', 'human', 'ci'].includes(actor)) {
     throw new WorkspacePreflightError('WS-GOVERNANCE-006', 'actor must be agent, human or ci');
@@ -143,7 +136,6 @@ const validateRuntimeOptions = (actor: WorkspaceActor | undefined, pythonExecuta
     throw new WorkspacePreflightError('WS-GOVERNANCE-006', 'pythonExecutable is invalid');
   }
 };
-
 async function repositoryRoot(requestedRoot: string): Promise<string> {
   let requested: string;
   try {
@@ -160,7 +152,6 @@ async function repositoryRoot(requestedRoot: string): Promise<string> {
   }
   return requested;
 }
-
 async function resolveBaseline(root: string, ref: string): Promise<string> {
   const symbolic = await runGit(root, ['symbolic-ref', '-q', ref]);
   if (symbolic.exitCode === 0) {
@@ -171,7 +162,6 @@ async function resolveBaseline(root: string, ref: string): Promise<string> {
   }
   return requiredSha(root, ['rev-parse', '--verify', `${ref}^{commit}`], `baseline ref ${ref}`);
 }
-
 async function requiredSha(root: string, args: string[], label: string): Promise<string> {
   const result = await runGit(root, args);
   const value = result.stdout.toString('utf8').trim();
@@ -180,7 +170,6 @@ async function requiredSha(root: string, args: string[], label: string): Promise
   }
   return value;
 }
-
 async function currentBranch(root: string): Promise<string | null> {
   const result = await runGit(root, ['symbolic-ref', '--quiet', '--short', 'HEAD']);
   if (result.exitCode === 1) return null;
@@ -189,7 +178,6 @@ async function currentBranch(root: string): Promise<string | null> {
   }
   return result.stdout.toString('utf8').trim();
 }
-
 async function aheadBehind(root: string, baselineSha: string, headSha: string): Promise<{ aheadBy: number; behindBy: number }> {
   const result = await requiredGit(root, ['rev-list', '--left-right', '--count', `${baselineSha}...${headSha}`], 'rev-list');
   const match = /^(\d+)\s+(\d+)\s*$/.exec(result.stdout.toString('utf8'));
@@ -201,7 +189,6 @@ async function aheadBehind(root: string, baselineSha: string, headSha: string): 
   }
   return { aheadBy, behindBy };
 }
-
 export function parsePorcelainV2(raw: Buffer): WorkspaceDirtyEntry[] {
   const records = raw.toString('utf8').split('\0');
   const output: WorkspaceDirtyEntry[] = [];
@@ -244,7 +231,6 @@ export function parsePorcelainV2(raw: Buffer): WorkspaceDirtyEntry[] {
     || left.kind.localeCompare(right.kind)
     || (left.originalPath ?? '').localeCompare(right.originalPath ?? ''));
 }
-
 function splitFixed(record: string, count: number): { fields: string[]; remainder: string } {
   const fields: string[] = [];
   let remainder = record;
@@ -257,20 +243,17 @@ function splitFixed(record: string, count: number): { fields: string[]; remainde
   if (!remainder) throw new WorkspacePreflightError('WS-DIRTY-005', 'porcelain-v2 path is empty');
   return { fields, remainder };
 }
-
 const status = (fields: string[], field: number, offset: number): string => {
   const pair = fields[field];
   if (!pair || pair.length !== 2) throw new WorkspacePreflightError('WS-DIRTY-005', 'porcelain-v2 status is malformed');
   return pair[offset] ?? '.';
 };
-
 const entry = (
   kind: WorkspaceEntryKind,
   relativePath: string,
   indexStatus: string,
   worktreeStatus: string,
 ): WorkspaceDirtyEntry => ({ kind, path: relativePath, indexStatus, worktreeStatus });
-
 function safePath(value: string): string {
   const normalized = value.replace(/\\/g, '/');
   if (!normalized || normalized.includes('\0') || path.posix.isAbsolute(normalized)
@@ -279,7 +262,6 @@ function safePath(value: string): string {
   }
   return normalized;
 }
-
 async function governanceChangedPaths(
   root: string,
   baselineSha: string,
@@ -303,14 +285,13 @@ async function governanceChangedPaths(
   }
   return sorted;
 }
-
-async function runGovernance(
+const runGovernance = async (
   root: string,
   options: WorkspacePreflightOptions,
   baselineSha: string,
   headSha: string,
   changedPaths: string[],
-): Promise<GovernanceResult> {
+): Promise<GovernanceResult> => {
   const checker = path.join(root, '.governance', 'governance_check.py');
   try {
     if (!(await fs.stat(checker)).isFile()) throw new Error('not a file');
@@ -336,15 +317,21 @@ async function runGovernance(
     const result = await run(root, options.pythonExecutable ?? 'python3', args, {
       ...process.env,
       PYTHONDONTWRITEBYTECODE: '1',
-    });
+    }, 'WS-GOVERNANCE-006');
     if (result.exitCode !== 0 && result.exitCode !== 1) {
-      throw new WorkspacePreflightError('WS-GOVERNANCE-006', 'managed governance checker could not run');
+      throw new WorkspacePreflightError(
+        'WS-GOVERNANCE-006',
+        `managed governance checker could not run; ${digestEvidence('stderr', result.stderr)}`,
+      );
     }
     let parsed: unknown;
     try {
       parsed = JSON.parse(result.stdout.toString('utf8'));
     } catch {
-      throw new WorkspacePreflightError('WS-GOVERNANCE-006', 'managed governance JSON is malformed');
+      throw new WorkspacePreflightError(
+        'WS-GOVERNANCE-006',
+        `managed governance JSON is malformed; ${digestEvidence('stdout', result.stdout)}`,
+      );
     }
     const report = validateGovernanceReport(parsed);
     if ((result.exitCode === 0) !== (report.status === 'passed')) {
@@ -363,8 +350,9 @@ async function runGovernance(
   } finally {
     await fs.rm(temporary, { recursive: true, force: true });
   }
-}
-
+};
+const digestEvidence = (label: string, value: string | Buffer): string =>
+  `${label}Bytes=${Buffer.byteLength(value)} ${label}Sha256=${sha256(value)}`;
 const validateGovernanceReport = (value: unknown): WorkspaceGovernanceReport => {
   if (!isObject(value)) throw governanceContractViolation();
   const schema = requiredGovernanceString(value.schema);
@@ -374,7 +362,6 @@ const validateGovernanceReport = (value: unknown): WorkspaceGovernanceReport => 
   const findings = governanceFindings(value.findings, summary.findings);
   return { schema, runtimeVersion, status, summary, findings };
 };
-
 const requiredGovernanceString = (value: unknown): string => {
   if (typeof value !== 'string' || value.length === 0) throw governanceContractViolation();
   return value;
@@ -469,26 +456,41 @@ const runGit = (root: string, args: string[]): Promise<CommandResult> => run(
   { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
 );
 
-function run(root: string, command: string, args: string[], env: NodeJS.ProcessEnv = process.env): Promise<CommandResult> {
+function run(
+  root: string,
+  command: string,
+  args: string[],
+  env: NodeJS.ProcessEnv = process.env,
+  failureCode: WorkspaceDiagnosticCode = 'WS-ROOT-001',
+): Promise<CommandResult> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
     const stdout: Buffer[] = [];
     const stderr: Buffer[] = [];
     let size = 0;
+    let overflowed = false;
     child.stdout.on('data', (chunk: Buffer) => {
+      if (overflowed) return;
       size += chunk.length;
-      if (size > MAX_OUTPUT) child.kill('SIGKILL');
+      if (size > MAX_OUTPUT) {
+        overflowed = true;
+        child.kill('SIGKILL');
+      }
       else stdout.push(chunk);
     });
     child.stderr.on('data', (chunk: Buffer) => {
+      if (overflowed) return;
       size += chunk.length;
-      if (size > MAX_OUTPUT) child.kill('SIGKILL');
+      if (size > MAX_OUTPUT) {
+        overflowed = true;
+        child.kill('SIGKILL');
+      }
       else stderr.push(chunk);
     });
-    child.once('error', reject);
+    child.once('error', () => reject(new WorkspacePreflightError(failureCode, 'local command could not start')));
     child.once('close', (code, signal) => {
-      if (signal || size > MAX_OUTPUT) {
-        reject(new WorkspacePreflightError('WS-ROOT-001', 'local command exceeded its output bound'));
+      if (signal || overflowed) {
+        reject(new WorkspacePreflightError(failureCode, 'local command exceeded its output bound'));
         return;
       }
       resolve({ exitCode: code ?? 1, stdout: Buffer.concat(stdout), stderr: Buffer.concat(stderr).toString('utf8') });

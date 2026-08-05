@@ -171,6 +171,10 @@ test('invalid roots, refs, checker output and options fail closed with stable co
   await assert.rejects(() => inspect(fixture), (error: unknown) => hasCode(error, 'WS-GOVERNANCE-006'));
   await fs.rm(path.join(fixture.root, '.governance', 'governance_check.py'));
   await assert.rejects(() => inspect(fixture), (error: unknown) => hasCode(error, 'WS-GOVERNANCE-006'));
+  await fs.writeFile(path.join(fixture.root, '.governance', 'governance_check.py'), CHECKER, { mode: 0o755 });
+  await assert.rejects(() => inspectWorkspace({
+    root: fixture.root, baselineRef: BASELINE, expectedBranch: 'main', pythonExecutable: 'missing-python-command',
+  }), (error: unknown) => hasCode(error, 'WS-GOVERNANCE-006'));
 });
 
 test('report has no command, credential or absolute-root output and failure is read-only', async (t) => {
