@@ -35,4 +35,5 @@ completed because there was no aggregate deadline.
 
 ## Blockers
 
-- Protected exact-head review is still required before merge.
+- None. Koru and Validator reviewed exact head `5b51880` with
+  `openrouter/z-ai/glm-5.2`; protected PR #52 merged it as `main@2c16449`.

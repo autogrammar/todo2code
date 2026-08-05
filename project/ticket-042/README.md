@@ -2,8 +2,8 @@
 
 - **ID**: ticket-042
 - **Owner**: human:founder
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -33,3 +33,22 @@ Gemini 3.1 Pro Preview. No human-owned participant file is synthesized.
 - Human participant: `human:founder`, evidenced by the active conversation;
   no `user-*` file was generated or edited.
 - Agent participant: [ai-codex.md](ai-codex.md)
+
+## Protected completion evidence
+
+- Koru run
+  [30987747726](https://github.com/semcod/todo2code/actions/runs/30987747726)
+  passed exact head `5b51880cd448c295fbfdcb7bcc2e892864ac910f`.
+- Validator run
+  [30987864973](https://github.com/subactor/validator-agent/actions/runs/30987864973)
+  approved that same head for `ticket-042` and correlation ID
+  `todo2code-pr52-5b51880cd448` using `openrouter/z-ai/glm-5.2`. The semantic
+  verdict remained advisory rather than the approval trust root.
+- Review-triggered CI run
+  [30987963474](https://github.com/semcod/todo2code/actions/runs/30987963474)
+  passed governance, full verification, Docker smoke and the required Java
+  fixture with current-head Validator evidence.
+- Protected PR [#52](https://github.com/semcod/todo2code/pull/52) merged exact
+  head `5b51880` as
+  `main@2c164492e7aa751b0fd159b80e07ee0fcc22384f` without an administrative
+  bypass.
