@@ -7,13 +7,14 @@
   command without changing runtime semantics or governance. Current state:
   `IN_PROGRESS / VALIDATION`; local validation passed and exact-head protected
   review remains pending.
+- [ ] [`ticket-044`](project/ticket-044/README.md) — adopt immutable
+  new-project 0.11.0 and its canonical work-classification package through
+  local Goal. Current state: `IN_PROGRESS / VALIDATION`; all local gates pass
+  and independent exact-head publication evidence remains pending.
 
 ## Backlog tickets
 
-- [ ] [`ticket-044`](project/ticket-044/README.md) — adopt immutable
-  new-project 0.11.0 and its canonical work-classification package through
-  local Goal. Current state: `PLAN / WAIT_FOR_APPROVAL`; governance-only scope
-  does not reserve or overlap ticket-043's integration workstream.
+None.
 
 ## Completed tickets
 - [x] [`ticket-042`](project/ticket-042/README.md) — bounded the aggregate

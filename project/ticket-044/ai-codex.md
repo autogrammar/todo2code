@@ -27,11 +27,16 @@ manifest until its declared standard version is reviewed and changed to
 
 ## Actual changes
 
-- None; waiting for approval.
+- User approval received; ticket transitioned to `IN_PROGRESS / EDIT`.
+- Advanced only the standard version in the customized target manifest.
+- Goal adopted the immutable 0.11.0 package and added the canonical package
+  manifest, work-classification DSL and its schema to the managed lock.
+- Repeated adoption check, governance, full Node verification and Docker smoke
+  all pass.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- Independent current-head merge authority remains required for publication.
 
 ## Preflight evidence
 
@@ -40,3 +45,6 @@ manifest until its declared standard version is reviewed and changed to
 - Local `.venv/bin/goal` exposes `governance adopt`.
 - Read-only adoption preflight stops on the expected 0.10.0 -> 0.11.0 manifest
   compatibility boundary before writing.
+- Applied adoption is idempotent at exact release SHA `cc9b04673bbd85cb4e35fb683d288ef34be1485f`.
+- Host verification required `npm ci` in the clean worktree; after dependency
+  restoration all 391 tests completed without failures.

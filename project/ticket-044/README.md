@@ -2,8 +2,8 @@
 
 - **ID**: ticket-044
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -20,14 +20,14 @@ ticket.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope and immutable source SHA are approved by a human owner.
-- [ ] AC-02: The target manifest keeps repository-specific ownership and uses
+- [x] AC-01: Scope and immutable source SHA are approved by a human owner.
+- [x] AC-02: The target manifest keeps repository-specific ownership and uses
   standard version 0.11.0.
-- [ ] AC-03: `goal governance adopt --check` reports only the reviewed upgrade,
+- [x] AC-03: `goal governance adopt --check` reports only the reviewed upgrade,
   then `--upgrade` installs it without unmanaged drift.
-- [ ] AC-04: The lock records version 0.11.0, published status and the exact
+- [x] AC-04: The lock records version 0.11.0, published status and the exact
   release SHA; both work-classification files are managed.
-- [ ] AC-05: Governance, Node verification and Docker smoke tests pass.
+- [x] AC-05: Governance, Node verification and Docker smoke tests pass.
 
 ## Participants
 
@@ -36,7 +36,22 @@ ticket.
 
 ## Risks
 
-- `ticket-043` remains in validation on `main`; ticket-044 stays `PLAN` and
-  does not reserve scope until approved.
+- `ticket-043` completed independently on `main`; synchronizing that closure
+  must preserve ticket-044's governance-only diff.
 - The target manifest version must be advanced before the immutable adoption
   generator can calculate a cross-version upgrade.
+
+## Session authorization
+
+The user approved ticket-044 with the instruction to continue on 2026-08-05.
+This authorizes implementation in the declared intent; protected merge evidence
+still requires an independent exact-head authority.
+
+## Validation evidence
+
+- Immutable adoption check: up to date at new-project 0.11.0,
+  `cc9b04673bbd85cb4e35fb683d288ef34be1485f`.
+- `./project/governance-check.sh`: PASS with zero errors and warnings.
+- `make verify`: PASS, 391 tests, 390 passed and one toolchain-dependent skip.
+- `make docker-smoke`: PASS.
+- `git diff --check`: PASS.
