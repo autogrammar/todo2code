@@ -10,7 +10,10 @@
 
 ## Backlog tickets
 
-None.
+- [ ] [`ticket-044`](project/ticket-044/README.md) — adopt immutable
+  new-project 0.11.0 and its canonical work-classification package through
+  local Goal. Current state: `PLAN / WAIT_FOR_APPROVAL`; governance-only scope
+  does not reserve or overlap ticket-043's integration workstream.
 
 ## Completed tickets
 - [x] [`ticket-042`](project/ticket-042/README.md) — bounded the aggregate

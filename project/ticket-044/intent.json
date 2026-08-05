@@ -1,0 +1,68 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-044",
+  "summary": "Adopt immutable new-project 0.11.0",
+  "workstream": "governance",
+  "allowedPaths": [
+    ".governance/**",
+    "AGENTS.md",
+    "project.sh",
+    "project.bat",
+    "project/governance-check.sh",
+    "project/governance-check.bat",
+    "project/new-ticket.sh",
+    "project/readme.sh",
+    "project/ticket-044/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "test/**",
+    "package.json",
+    "package-lock.json",
+    "Dockerfile*",
+    "compose*.yml"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "4a7445a06e79248f162595272912f017a9b28708",
+    "targetBranch": "main",
+    "outcome": "Pin todo2code to immutable new-project 0.11.0 and install its canonical work-classification package",
+    "nonGoals": [
+      "No todo2code runtime classification implementation",
+      "No source, test, dependency or Docker configuration changes",
+      "No moving tag or branch-based adoption"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 5,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Preserve the customized target manifest and replace only standard-managed artifacts through Goal's immutable adoption adapter",
+      "components": [
+        {"name": "target-governance-manifest", "paths": [".governance/manifest.json"]},
+        {"name": "managed-governance-package", "paths": [".governance/**", "AGENTS.md", "project.sh", "project.bat", "project/governance-check.*", "project/new-ticket.sh", "project/readme.sh"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": ["Governance lock advances from 0.10.0 to immutable 0.11.0"],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Use the prior full sourceRevision through the same reviewed adoption flow; never move either release tag"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-03", "commands": ["goal governance adopt --source-revision cc9b04673bbd85cb4e35fb683d288ef34be1485f --target-root . --check"], "evidence": "Reviewed deterministic upgrade plan"},
+      {"criterion": "AC-05", "commands": ["make governance", "make verify", "make docker-smoke"], "evidence": "Target governance, runtime and container checks pass"}
+    ]
+  }
+}
