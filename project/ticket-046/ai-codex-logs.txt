@@ -1,0 +1,13 @@
+2026-08-05 APPROVAL: human owner explicitly approved ticket-046
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+2026-08-05 architecture correction: manifest.files is post-run mutable; event evidence uses a stable manifest projection
+2026-08-05 complexity checkpoint: split 580-line codec/persistence draft into two cohesive modules
+2026-08-05 semantic checkpoint: pipeline log does not claim merge evaluation or ALLOWED verdict
+2026-08-05 validation: focused 15/15; full 396 pass, 1 JDK-local skip, 0 fail
+2026-08-05 validation: governance 0 errors/0 warnings; docker smoke PASS; diff check PASS
+transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
+2026-08-05 review triage: accepted persisted-manifest consistency and test cleanup; rejected compiler-disproved advisory type findings
+2026-08-05 validator review: removed secret-shaped literal from negative query-reference fixture
+2026-08-05 hosted Koru: rejected inherited runPipeline metrics CC=65 and length=372; semantic LLM findings remained advisory
+2026-08-05 refactor: split runPipeline orchestration inside approved src/pipeline/run.ts; max function CC=5, length=20
+2026-08-05 revalidation: focused 15/15; full verify PASS; governance PASS; docker smoke PASS; diff check PASS

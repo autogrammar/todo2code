@@ -35,6 +35,7 @@ import {
 import { synthesizeTodoProposals, TaskSynthesisRequiredError, type AuditedTaskSynthesisResult } from '../synthesis/tasks-llm.js';
 import { createTodoPatch, type CreatedTodoPatch } from '../synthesis/todo-patch.js';
 import { T2C_VERSION } from '../version.js';
+import { persistPipelineEventLog } from './event-log-persistence.js';
 
 export interface PipelineResult {
   runDirectory: string;
@@ -54,394 +55,568 @@ export interface PipelineResult {
 }
 
 export async function runPipeline(options: PipelineOptions, config: T2CConfig): Promise<PipelineResult> {
-  const root = path.resolve(options.root);
-  if (!(await pathExists(root))) throw new Error(`Root does not exist: ${root}`);
-  const runId = newRunId();
-  const baseOutput = path.resolve(root, options.outputDir);
-  const runDirectory = path.join(baseOutput, 'runs', runId);
-  await ensureDir(runDirectory);
-  let activeStage: PipelineFailureStage = 'setup';
-  const completedStages: Partial<PipelineManifest['stages']> = {};
+  return new PipelineRun(options, config).run();
+}
 
-  try {
+type IntentGraphResult = ReturnType<typeof linkIntentRecords>;
+type CommunicationAnalysisResult = ReturnType<typeof analyzeCommunication>;
+type CodeChangePlansResult = ReturnType<typeof proposeCodeChangePlans>;
+type CodeChangeReviewResult = ReturnType<typeof createCodeChangeReviewPatch>;
+type CodeChangeSourcePatchesResult = ReturnType<typeof createCodeChangeSourcePatchSet>;
+type SummaryResult = Awaited<ReturnType<typeof summarizeGraph>>;
 
-  const warnings: string[] = [];
-  const bySource: Record<string, IntentRecord[]> = {
-    nl: [],
-    git: [],
-    ast: [],
-    todo: [],
-    changelog: [],
-    document: [],
-    configuration: [],
-    runtime: [],
-    communication: [],
+interface ExtractionResult {
+  naturalLanguageAudit: PipelineStageAudit;
+  markdownAudit: PipelineStageAudit;
+  documentationAudit: PipelineStageAudit;
+  communicationAudit: PipelineStageAudit;
+  communicationInputPresent: boolean;
+  communicationSyntheses: ParticipantCommunicationSynthesis[];
+}
+
+interface AnalysisResult {
+  generatedAt: string;
+  graph: IntentGraphResult;
+  diagnostics: DiagnosticReport;
+  communicationAnalysis: CommunicationAnalysisResult | null;
+}
+
+interface SynthesisResult {
+  taskSynthesis: AuditedTaskSynthesisResult | null;
+  todoPatch: CreatedTodoPatch | null;
+  audit: PipelineStageAudit;
+}
+
+interface PlanningResult {
+  plans: CodeChangePlansResult;
+  review: CodeChangeReviewResult;
+  sourcePatches: CodeChangeSourcePatchesResult;
+  audit: PipelineStageAudit;
+}
+
+interface PipelineSummaryResult {
+  summary: SummaryResult;
+  audit: PipelineStageAudit;
+}
+
+interface OutputPaths {
+  graphPath: string;
+  diagnosticsPath: string;
+  summaryPath: string;
+  summaryConclusionsPath: string;
+  taskSynthesisPath: string | null;
+  todoValidationPath: string | null;
+  todoPatchPath: string | null;
+  todoPatchAuditPath: string | null;
+  codeChangePlansPath: string;
+  codeChangeReviewPath: string;
+  codeChangeReviewAuditPath: string;
+  codeChangeSourcePatchesPath: string;
+  communicationAnalysisPath: string | null;
+  communicationMarkdownPath: string | null;
+  eventLogPath: string;
+}
+
+class PipelineRun {
+  private readonly root: string;
+  private readonly runId = newRunId();
+  private readonly baseOutput: string;
+  private readonly runDirectory: string;
+  private activeStage: PipelineFailureStage = 'setup';
+  private readonly completedStages: Partial<PipelineManifest['stages']> = {};
+  private readonly warnings: string[] = [];
+  private readonly bySource: Record<string, IntentRecord[]> = {
+    nl: [], git: [], ast: [], todo: [], changelog: [], document: [],
+    configuration: [], runtime: [], communication: [],
   };
 
-  let naturalLanguageAudit = skippedAudit('disabled', 'No NL task file was selected');
-
-  if (options.taskFile) {
-    activeStage = 'naturalLanguageExtraction';
-    const result = await extractNlIntentAudited(
-      { root, sourcePath: options.taskFile },
-      config,
-      options.nlMode ?? config.nlMode,
-    );
-    bySource.nl = result.records;
-    warnings.push(...result.warnings);
-    naturalLanguageAudit = result.audit;
+  constructor(private readonly options: PipelineOptions, private readonly config: T2CConfig) {
+    this.root = path.resolve(options.root);
+    this.baseOutput = path.resolve(this.root, options.outputDir);
+    this.runDirectory = path.join(this.baseOutput, 'runs', this.runId);
   }
-  completedStages.naturalLanguageExtraction = naturalLanguageAudit;
 
-  activeStage = 'gitExtraction';
-  const git = await extractGitIntent({ root, count: options.gitCommitCount }, config);
-  bySource.git = git.records;
-  warnings.push(...git.warnings);
-
-  activeStage = 'astExtraction';
-  const ast = await extractAstIntent({ root }, config);
-  bySource.ast = ast.records;
-  warnings.push(...ast.warnings);
-
-  activeStage = 'markdownExtraction';
-  const markdown = await extractMarkdownIntentAudited(
-    { root, todoPath: options.todoFile, changelogPath: options.changelogFile },
-    config,
-    options.markdownMode ?? config.markdownMode,
-  );
-  bySource.todo = markdown.records.filter((record) => record.source.kind === 'todo');
-  bySource.changelog = markdown.records.filter((record) => record.source.kind === 'changelog');
-  warnings.push(...markdown.warnings);
-  completedStages.markdownExtraction = markdown.audit;
-
-  activeStage = 'documentationExtraction';
-  const deterministicDocumentFiles = await resolveGlobs(
-    root,
-    options.documentPatterns,
-    options.documentExcludes ?? config.documentExcludes,
-  );
-  const documentationStartedAt = Date.now();
-  const deterministicDocs = await extractDocumentationBaseline({ root, files: deterministicDocumentFiles }, config);
-  bySource.document = deterministicDocs.records;
-  warnings.push(...deterministicDocs.warnings);
-  let documentationAudit: PipelineStageAudit = deterministicDocumentFiles.length === 0
-    ? skippedAudit('deterministic', 'No documentation files matched the configured patterns')
-    : {
-        runtimeVersion: T2C_VERSION,
-        configuration: { generator: 't2c/markdown-documentation', generatorVersion: '2' },
-        status: deterministicDocs.warnings.length ? 'partial' : 'succeeded',
-        requestedMode: 'deterministic',
-        effectiveMode: 'deterministic',
-        degraded: deterministicDocs.warnings.length > 0,
-        recordCount: deterministicDocs.records.length,
-        warningCount: deterministicDocs.warnings.length,
-        model: null,
-        durationMs: Date.now() - documentationStartedAt,
-        reason: deterministicDocs.warnings.length
-          ? { code: 'DOCUMENT_EXTRACTION_PARTIAL', message: `${deterministicDocs.warnings.length} deterministic documentation warning(s)` }
-          : null,
-        responses: [],
-      };
-  if (options.includeDocumentationLlm) {
-    if (hasOpenRouter(config)) {
-      activeStage = 'documentationExtraction';
-      const docs = await extractDocumentationIntent({
-        root,
-        patterns: options.documentPatterns,
-        excludes: options.documentExcludes ?? config.documentExcludes,
-        targetHints: collectTargetHints(Object.values(bySource).flat()),
-      }, config);
-      bySource.document.push(...docs.records);
-      warnings.push(...docs.warnings);
-      documentationAudit = {
-        ...docs.audit,
-        recordCount: bySource.document.length,
-        configuration: {
-          ...docs.audit.configuration,
-          deterministicGenerator: 't2c/markdown-documentation@2',
-          deterministicRecordCount: deterministicDocs.records.length,
-        },
-      };
-    } else {
-      const message = 'OPENROUTER_API_KEY is not configured; documentation -> Intent DSL was skipped';
-      warnings.push(message);
-      documentationAudit = {
-        ...skippedAudit('llm', message),
-        configuration: openRouterAuditConfiguration(config, config.openRouter.documentModel, config.documentTimeoutMs),
-        status: deterministicDocs.records.length ? 'fallback' : 'failed',
-        effectiveMode: deterministicDocs.records.length ? 'deterministic' : 'none',
-        degraded: true,
-        recordCount: deterministicDocs.records.length,
-        model: config.openRouter.documentModel,
-        reason: { code: 'LLM_NOT_CONFIGURED', message },
-        responses: [],
-      };
-    }
-  }
-  completedStages.documentationExtraction = documentationAudit;
-
-  activeStage = 'configurationExtraction';
-  const configurationExtraction = await extractConfigurationIntent(root, config);
-  bySource.configuration = configurationExtraction.records;
-  warnings.push(...configurationExtraction.warnings);
-
-  // Runtime evidence is optional: most repositories have no observer running,
-  // and a missing cycle must degrade the run rather than fail it.
-  activeStage = 'runtimeExtraction';
-  if (options.cycleFile) {
+  async run(): Promise<PipelineResult> {
+    if (!(await pathExists(this.root))) throw new Error(`Root does not exist: ${this.root}`);
+    await ensureDir(this.runDirectory);
     try {
-      const runtime = await extractRuntimeCycleIntent(options.cycleFile, config, root);
-      bySource.runtime = runtime.records;
-      warnings.push(...runtime.warnings);
+      return await this.execute();
     } catch (error) {
-      warnings.push(`runtime cycle ignored: ${error instanceof Error ? error.message : String(error)}`);
+      await persistFailedRun(
+        this.runId, this.root, this.runDirectory, this.options, this.config,
+        error, this.activeStage, this.completedStages,
+      );
+      throw error;
     }
   }
 
-  const includeCommunication = options.includeCommunication !== false;
-  const communicationStartedAt = Date.now();
-  let communicationAudit = skippedAudit('disabled', 'Communication analysis was disabled');
-  let communicationInputPresent = false;
-  let communicationSyntheses: ParticipantCommunicationSynthesis[] = [];
-  if (includeCommunication) {
-    activeStage = 'communicationAnalysis';
+  private async execute(): Promise<PipelineResult> {
+    const extraction = await this.extractSources();
+    const analysis = this.analyze(extraction);
+    const synthesis = await this.synthesizeTasks(analysis);
+    const planning = this.planChanges(analysis, synthesis);
+    const summary = await this.summarize(analysis);
+    return this.persist(extraction, analysis, synthesis, planning, summary);
+  }
+
+  private async extractSources(): Promise<ExtractionResult> {
+    const naturalLanguageAudit = await this.extractNaturalLanguage();
+    this.activeStage = 'gitExtraction';
+    const git = await extractGitIntent({ root: this.root, count: this.options.gitCommitCount }, this.config);
+    this.bySource.git = git.records;
+    this.warnings.push(...git.warnings);
+    this.activeStage = 'astExtraction';
+    const ast = await extractAstIntent({ root: this.root }, this.config);
+    this.bySource.ast = ast.records;
+    this.warnings.push(...ast.warnings);
+    const markdownAudit = await this.extractMarkdown();
+    const documentationAudit = await this.extractDocumentation();
+    await this.extractConfigurationAndRuntime();
+    const communication = await this.extractCommunication();
+    return { naturalLanguageAudit, markdownAudit, documentationAudit, ...communication };
+  }
+
+  private async extractNaturalLanguage(): Promise<PipelineStageAudit> {
+    let audit = skippedAudit('disabled', 'No NL task file was selected');
+    if (this.options.taskFile) {
+      this.activeStage = 'naturalLanguageExtraction';
+      const result = await extractNlIntentAudited(
+        { root: this.root, sourcePath: this.options.taskFile },
+        this.config,
+        this.options.nlMode ?? this.config.nlMode,
+      );
+      this.bySource.nl = result.records;
+      this.warnings.push(...result.warnings);
+      audit = result.audit;
+    }
+    this.completedStages.naturalLanguageExtraction = audit;
+    return audit;
+  }
+
+  private async extractMarkdown(): Promise<PipelineStageAudit> {
+    this.activeStage = 'markdownExtraction';
+    const markdown = await extractMarkdownIntentAudited(
+      { root: this.root, todoPath: this.options.todoFile, changelogPath: this.options.changelogFile },
+      this.config,
+      this.options.markdownMode ?? this.config.markdownMode,
+    );
+    this.bySource.todo = markdown.records.filter((record) => record.source.kind === 'todo');
+    this.bySource.changelog = markdown.records.filter((record) => record.source.kind === 'changelog');
+    this.warnings.push(...markdown.warnings);
+    this.completedStages.markdownExtraction = markdown.audit;
+    return markdown.audit;
+  }
+
+  private async extractDocumentation(): Promise<PipelineStageAudit> {
+    this.activeStage = 'documentationExtraction';
+    const files = await resolveGlobs(
+      this.root, this.options.documentPatterns,
+      this.options.documentExcludes ?? this.config.documentExcludes,
+    );
+    const startedAt = Date.now();
+    const deterministic = await extractDocumentationBaseline({ root: this.root, files }, this.config);
+    this.bySource.document = deterministic.records;
+    this.warnings.push(...deterministic.warnings);
+    let audit = this.deterministicDocumentationAudit(files.length, deterministic, startedAt);
+    if (this.options.includeDocumentationLlm) {
+      audit = hasOpenRouter(this.config)
+        ? await this.enrichDocumentation(deterministic.records.length)
+        : this.missingDocumentationLlmAudit(deterministic.records.length);
+    }
+    this.completedStages.documentationExtraction = audit;
+    return audit;
+  }
+
+  private deterministicDocumentationAudit(
+    fileCount: number,
+    result: Awaited<ReturnType<typeof extractDocumentationBaseline>>,
+    startedAt: number,
+  ): PipelineStageAudit {
+    if (fileCount === 0) return skippedAudit('deterministic', 'No documentation files matched the configured patterns');
+    return {
+      runtimeVersion: T2C_VERSION,
+      configuration: { generator: 't2c/markdown-documentation', generatorVersion: '2' },
+      status: result.warnings.length ? 'partial' : 'succeeded',
+      requestedMode: 'deterministic', effectiveMode: 'deterministic',
+      degraded: result.warnings.length > 0,
+      recordCount: result.records.length, warningCount: result.warnings.length,
+      model: null, durationMs: Date.now() - startedAt,
+      reason: result.warnings.length
+        ? { code: 'DOCUMENT_EXTRACTION_PARTIAL', message: `${result.warnings.length} deterministic documentation warning(s)` }
+        : null,
+      responses: [],
+    };
+  }
+
+  private async enrichDocumentation(deterministicRecordCount: number): Promise<PipelineStageAudit> {
+    this.activeStage = 'documentationExtraction';
+    const docs = await extractDocumentationIntent({
+      root: this.root,
+      patterns: this.options.documentPatterns,
+      excludes: this.options.documentExcludes ?? this.config.documentExcludes,
+      targetHints: collectTargetHints(Object.values(this.bySource).flat()),
+    }, this.config);
+    this.bySource.document!.push(...docs.records);
+    this.warnings.push(...docs.warnings);
+    return {
+      ...docs.audit,
+      recordCount: this.bySource.document!.length,
+      configuration: {
+        ...docs.audit.configuration,
+        deterministicGenerator: 't2c/markdown-documentation@2',
+        deterministicRecordCount,
+      },
+    };
+  }
+
+  private missingDocumentationLlmAudit(deterministicRecordCount: number): PipelineStageAudit {
+    const message = 'OPENROUTER_API_KEY is not configured; documentation -> Intent DSL was skipped';
+    this.warnings.push(message);
+    return {
+      ...skippedAudit('llm', message),
+      configuration: openRouterAuditConfiguration(
+        this.config, this.config.openRouter.documentModel, this.config.documentTimeoutMs,
+      ),
+      status: deterministicRecordCount ? 'fallback' : 'failed',
+      effectiveMode: deterministicRecordCount ? 'deterministic' : 'none',
+      degraded: true, recordCount: deterministicRecordCount,
+      model: this.config.openRouter.documentModel,
+      reason: { code: 'LLM_NOT_CONFIGURED', message }, responses: [],
+    };
+  }
+
+  private async extractConfigurationAndRuntime(): Promise<void> {
+    this.activeStage = 'configurationExtraction';
+    const configuration = await extractConfigurationIntent(this.root, this.config);
+    this.bySource.configuration = configuration.records;
+    this.warnings.push(...configuration.warnings);
+    this.activeStage = 'runtimeExtraction';
+    if (!this.options.cycleFile) return;
+    try {
+      const runtime = await extractRuntimeCycleIntent(this.options.cycleFile, this.config, this.root);
+      this.bySource.runtime = runtime.records;
+      this.warnings.push(...runtime.warnings);
+    } catch (error) {
+      this.warnings.push(`runtime cycle ignored: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async extractCommunication(): Promise<Pick<ExtractionResult,
+    'communicationAudit' | 'communicationInputPresent' | 'communicationSyntheses'>> {
+    let communicationAudit = skippedAudit('disabled', 'Communication analysis was disabled');
+    if (this.options.includeCommunication === false) {
+      this.completedStages.communicationAnalysis = communicationAudit;
+      return { communicationAudit, communicationInputPresent: false, communicationSyntheses: [] };
+    }
+    this.activeStage = 'communicationAnalysis';
+    const startedAt = Date.now();
     const communication = await extractCommunicationIntentAudited({
-      root,
-      projectDir: options.projectDirectory ?? 'project',
-      ticket: options.communicationTicket ?? null,
-    }, config, options.communicationMode ?? config.communicationMode);
-    const missingDirectory = communication.records.length === 0
-      && communication.warnings.length === 1
+      root: this.root,
+      projectDir: this.options.projectDirectory ?? 'project',
+      ticket: this.options.communicationTicket ?? null,
+    }, this.config, this.options.communicationMode ?? this.config.communicationMode);
+    const missing = communication.records.length === 0 && communication.warnings.length === 1
       && communication.warnings[0]?.startsWith('Communication directory not found:');
-    communicationInputPresent = !missingDirectory;
-    bySource.communication = communication.records;
-    communicationSyntheses = communication.participants;
-    if (!missingDirectory) warnings.push(...communication.warnings);
-    communicationAudit = missingDirectory
+    this.bySource.communication = communication.records;
+    if (!missing) this.warnings.push(...communication.warnings);
+    communicationAudit = missing
       ? skippedAudit('deterministic', communication.warnings[0] ?? 'Communication directory not found')
-      : { ...communication.audit, durationMs: Date.now() - communicationStartedAt };
+      : { ...communication.audit, durationMs: Date.now() - startedAt };
+    this.completedStages.communicationAnalysis = communicationAudit;
+    return {
+      communicationAudit,
+      communicationInputPresent: !missing,
+      communicationSyntheses: communication.participants,
+    };
   }
-  completedStages.communicationAnalysis = communicationAudit;
 
-  activeStage = 'linking';
-  const allRecords = Object.values(bySource).flat();
-  const generatedAt = new Date().toISOString();
-  const graph = linkIntentRecords(allRecords, generatedAt);
-  activeStage = 'diagnostics';
-  const communicationAnalysis = communicationInputPresent
-    ? analyzeCommunication(graph, generatedAt, communicationSyntheses)
-    : null;
-  let diagnostics = diagnoseGraph(graph, generatedAt);
-  if (communicationAnalysis) diagnostics = addCommunicationIssuesToDiagnostics(diagnostics, communicationAnalysis);
-  if (options.includeDocumentationLlm && !hasOpenRouter(config)) appendLlmNotConfigured(diagnostics);
-  const taskSynthesisMode = options.taskSynthesisMode ?? 'disabled';
-  let taskSynthesis: AuditedTaskSynthesisResult | null = null;
-  let todoPatch: CreatedTodoPatch | null = null;
-  let taskSynthesisAudit = skippedAudit('disabled', 'Task synthesis was disabled');
-  if (taskSynthesisMode !== 'disabled') {
-    activeStage = 'taskSynthesis';
-    taskSynthesis = await synthesizeTodoProposals(graph, diagnostics, config, taskSynthesisMode);
-    warnings.push(...taskSynthesis.warnings);
-    taskSynthesisAudit = taskSynthesis.audit;
-    completedStages.taskSynthesis = taskSynthesisAudit;
-    if (!options.todoFile) throw new Error('Task synthesis rendering requires a TODO source file');
-    activeStage = 'todoRendering';
-    const todoContent = await readText(path.resolve(root, options.todoFile), config.maxFileBytes);
-    todoPatch = createTodoPatch({
-      todoPath: path.relative(root, path.resolve(root, options.todoFile)).replace(/\\/g, '/'),
-      todoContent,
-      graph,
-      diagnostics,
-      conclusions: taskSynthesis.conclusions,
-      proposals: taskSynthesis.proposals,
-      validation: taskSynthesis.validation,
-      synthesisAudit: taskSynthesis.audit,
+  private analyze(extraction: ExtractionResult): AnalysisResult {
+    this.activeStage = 'linking';
+    const generatedAt = new Date().toISOString();
+    const graph = linkIntentRecords(Object.values(this.bySource).flat(), generatedAt);
+    this.activeStage = 'diagnostics';
+    const communicationAnalysis = extraction.communicationInputPresent
+      ? analyzeCommunication(graph, generatedAt, extraction.communicationSyntheses)
+      : null;
+    let diagnostics = diagnoseGraph(graph, generatedAt);
+    if (communicationAnalysis) diagnostics = addCommunicationIssuesToDiagnostics(diagnostics, communicationAnalysis);
+    if (this.options.includeDocumentationLlm && !hasOpenRouter(this.config)) appendLlmNotConfigured(diagnostics);
+    return { generatedAt, graph, diagnostics, communicationAnalysis };
+  }
+
+  private async synthesizeTasks(analysis: AnalysisResult): Promise<SynthesisResult> {
+    const mode = this.options.taskSynthesisMode ?? 'disabled';
+    let taskSynthesis: AuditedTaskSynthesisResult | null = null;
+    let todoPatch: CreatedTodoPatch | null = null;
+    let audit = skippedAudit('disabled', 'Task synthesis was disabled');
+    if (mode !== 'disabled') {
+      this.activeStage = 'taskSynthesis';
+      taskSynthesis = await synthesizeTodoProposals(analysis.graph, analysis.diagnostics, this.config, mode);
+      this.warnings.push(...taskSynthesis.warnings);
+      audit = taskSynthesis.audit;
+      this.completedStages.taskSynthesis = audit;
+      if (!this.options.todoFile) throw new Error('Task synthesis rendering requires a TODO source file');
+      this.activeStage = 'todoRendering';
+      const todoPath = path.resolve(this.root, this.options.todoFile);
+      const todoContent = await readText(todoPath, this.config.maxFileBytes);
+      todoPatch = createTodoPatch({
+        todoPath: path.relative(this.root, todoPath).replace(/\\/g, '/'), todoContent,
+        graph: analysis.graph, diagnostics: analysis.diagnostics,
+        conclusions: taskSynthesis.conclusions, proposals: taskSynthesis.proposals,
+        validation: taskSynthesis.validation, synthesisAudit: taskSynthesis.audit,
+      });
+    }
+    this.completedStages.taskSynthesis = audit;
+    return { taskSynthesis, todoPatch, audit };
+  }
+
+  private planChanges(analysis: AnalysisResult, synthesis: SynthesisResult): PlanningResult {
+    this.activeStage = 'codeChangePlanning';
+    const plans = proposeCodeChangePlans({
+      graph: analysis.graph, diagnostics: analysis.diagnostics,
+      ...(synthesis.taskSynthesis ? {
+        conclusions: synthesis.taskSynthesis.conclusions,
+        proposals: synthesis.taskSynthesis.proposals,
+      } : {}),
+      generatedAt: analysis.generatedAt,
+      pathExists: createRepositoryPathProbe(this.root),
     });
+    const review = createCodeChangeReviewPatch({
+      plans: plans.plans, graphFingerprint: analysis.graph.fingerprint,
+      createdAt: analysis.generatedAt,
+    });
+    const sourcePatches = createCodeChangeSourcePatchSet({
+      plans: plans.plans, graphFingerprint: analysis.graph.fingerprint,
+      generatedAt: analysis.generatedAt,
+    });
+    const audit: PipelineStageAudit = {
+      runtimeVersion: T2C_VERSION, configuration: openRouterAuditConfiguration(this.config, null),
+      status: 'succeeded', requestedMode: 'deterministic', effectiveMode: 'deterministic',
+      degraded: false, recordCount: plans.plans.length, warningCount: 0,
+      model: null, durationMs: 0, reason: null, responses: [],
+    };
+    this.completedStages.codeChangePlanning = audit;
+    return { plans, review, sourcePatches, audit };
   }
-  completedStages.taskSynthesis = taskSynthesisAudit;
 
-  // Deterministic code-change plans from open implementation diagnostics.
-  // Never applies source edits; only materialises grounded review proposals.
-  activeStage = 'codeChangePlanning';
-  const codeChangePlans = proposeCodeChangePlans({
-    graph,
-    diagnostics,
-    ...(taskSynthesis
-      ? { conclusions: taskSynthesis.conclusions, proposals: taskSynthesis.proposals }
-      : {}),
-    generatedAt,
-    pathExists: createRepositoryPathProbe(root),
-  });
-  const codeChangeReview = createCodeChangeReviewPatch({
-    plans: codeChangePlans.plans,
-    graphFingerprint: graph.fingerprint,
-    createdAt: generatedAt,
-  });
-  const codeChangeSourcePatches = createCodeChangeSourcePatchSet({
-    plans: codeChangePlans.plans,
-    graphFingerprint: graph.fingerprint,
-    generatedAt,
-  });
-  const codeChangePlanningAudit: PipelineStageAudit = {
-    runtimeVersion: T2C_VERSION,
-    configuration: openRouterAuditConfiguration(config, null),
-    status: 'succeeded',
-    requestedMode: 'deterministic',
-    effectiveMode: 'deterministic',
-    degraded: false,
-    recordCount: codeChangePlans.plans.length,
-    warningCount: 0,
-    model: null,
-    durationMs: 0,
-    reason: null,
-    responses: [],
-  };
-  completedStages.codeChangePlanning = codeChangePlanningAudit;
-
-  activeStage = 'summary';
-  const summaryStartedAt = Date.now();
-  const includeSummaryLlm = options.includeSummaryLlm !== false;
-  const summary = await summarizeGraph(graph, diagnostics, config, {
-    allowDeterministicFallback: options.allowSummaryFallback,
-    preferLlm: includeSummaryLlm,
-  });
-  warnings.push(...summary.warnings);
-  const summaryAudit: PipelineStageAudit = !includeSummaryLlm
-    ? {
-        runtimeVersion: T2C_VERSION,
-        configuration: openRouterAuditConfiguration(config, null),
-        status: 'skipped', requestedMode: 'deterministic', effectiveMode: 'deterministic', degraded: false,
-        recordCount: summary.conclusions.length, warningCount: 0, model: null,
-        durationMs: Date.now() - summaryStartedAt,
-        reason: { code: 'LLM_DISABLED', message: 'LLM summary was disabled; generated the deterministic report' },
-        responses: [],
-      }
-    : summary.llmUsed
-    ? {
-        runtimeVersion: T2C_VERSION,
-        configuration: openRouterAuditConfiguration(config, config.openRouter.summaryModel),
-        status: 'succeeded', requestedMode: 'llm', effectiveMode: 'llm', degraded: false,
-        recordCount: summary.conclusions.length, warningCount: summary.warnings.length, model: config.openRouter.summaryModel,
-        durationMs: Date.now() - summaryStartedAt, reason: null, responses: summary.responses,
-      }
-    : {
-        runtimeVersion: T2C_VERSION,
-        configuration: openRouterAuditConfiguration(config, config.openRouter.summaryModel),
-        status: 'fallback', requestedMode: 'llm', effectiveMode: 'deterministic', degraded: true,
-        recordCount: summary.conclusions.length, warningCount: summary.warnings.length, model: config.openRouter.summaryModel,
-        durationMs: Date.now() - summaryStartedAt,
-        reason: { code: hasOpenRouter(config) ? 'LLM_UNAVAILABLE' : 'LLM_NOT_CONFIGURED', message: summary.warnings[0] ?? 'Deterministic summary fallback was used' },
-        responses: [],
-      };
-  completedStages.summary = summaryAudit;
-
-  activeStage = 'persistence';
-  const files: Record<string, string> = {};
-  for (const [source, records] of Object.entries(bySource)) {
-    const filePath = path.join(runDirectory, `${source}.intent.jsonl`);
-    await writeJsonl(filePath, records);
-    files[`${source}Intent`] = path.relative(root, filePath).replace(/\\/g, '/');
+  private async summarize(analysis: AnalysisResult): Promise<PipelineSummaryResult> {
+    this.activeStage = 'summary';
+    const startedAt = Date.now();
+    const includeLlm = this.options.includeSummaryLlm !== false;
+    const summary = await summarizeGraph(analysis.graph, analysis.diagnostics, this.config, {
+      allowDeterministicFallback: this.options.allowSummaryFallback,
+      preferLlm: includeLlm,
+    });
+    this.warnings.push(...summary.warnings);
+    let audit: PipelineStageAudit;
+    if (!includeLlm) audit = this.disabledSummaryAudit(summary, startedAt);
+    else if (summary.llmUsed) audit = this.successfulSummaryAudit(summary, startedAt);
+    else audit = this.fallbackSummaryAudit(summary, startedAt);
+    this.completedStages.summary = audit;
+    return { summary, audit };
   }
-  const graphPath = path.join(runDirectory, 'intent.graph.json');
-  const diagnosticsPath = path.join(runDirectory, 'diagnostics.json');
-  const summaryPath = path.join(runDirectory, 'team-summary.md');
-  const summaryConclusionsPath = path.join(runDirectory, 'summary-conclusions.json');
-  const taskSynthesisPath = taskSynthesis ? path.join(runDirectory, 'task-synthesis.json') : null;
-  const todoValidationPath = taskSynthesis ? path.join(runDirectory, 'todo-validation.json') : null;
-  const todoPatchPath = todoPatch ? path.join(runDirectory, 'TODO.patch') : null;
-  const todoPatchAuditPath = todoPatch ? path.join(runDirectory, 'TODO.patch.json') : null;
-  const codeChangePlansPath = path.join(runDirectory, 'code-change-plans.json');
-  const codeChangeReviewPath = path.join(runDirectory, 'CODE_CHANGE.review.md');
-  const codeChangeReviewAuditPath = path.join(runDirectory, 'CODE_CHANGE.review.json');
-  const codeChangeSourcePatchesPath = path.join(runDirectory, 'code-change-source-patches.json');
-  const communicationAnalysisPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.json') : null;
-  const communicationMarkdownPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.md') : null;
-  await writeJson(graphPath, graph);
-  await writeJson(diagnosticsPath, diagnostics);
-  await writeText(summaryPath, summary.markdown);
-  await writeJson(summaryConclusionsPath, summary.conclusions);
-  await writeJson(codeChangePlansPath, codeChangePlans);
-  await writeText(codeChangeReviewPath, codeChangeReview.markdown);
-  await writeJson(codeChangeReviewAuditPath, codeChangeReview.artifact);
-  await writeJson(codeChangeSourcePatchesPath, codeChangeSourcePatches);
-  files.codeChangePlans = path.relative(root, codeChangePlansPath).replace(/\\/g, '/');
-  files.codeChangeReview = path.relative(root, codeChangeReviewPath).replace(/\\/g, '/');
-  files.codeChangeReviewAudit = path.relative(root, codeChangeReviewAuditPath).replace(/\\/g, '/');
-  files.codeChangeSourcePatches = path.relative(root, codeChangeSourcePatchesPath).replace(/\\/g, '/');
-  if (communicationAnalysisPath && communicationMarkdownPath && communicationAnalysis) {
-    await Promise.all([
-      writeJson(communicationAnalysisPath, communicationAnalysis),
-      writeText(communicationMarkdownPath, renderCommunicationMarkdown(communicationAnalysis)),
-    ]);
-    files.communicationAnalysis = path.relative(root, communicationAnalysisPath).replace(/\\/g, '/');
-    files.communicationAnalysisMarkdown = path.relative(root, communicationMarkdownPath).replace(/\\/g, '/');
-  }
-  if (taskSynthesisPath && todoValidationPath && todoPatchPath && todoPatchAuditPath && taskSynthesis && todoPatch) {
-    await Promise.all([
-      writeJson(taskSynthesisPath, taskSynthesis),
-      writeJson(todoValidationPath, taskSynthesis.validation),
-      writeText(todoPatchPath, todoPatch.markdown),
-      writeJson(todoPatchAuditPath, todoPatch.artifact),
-    ]);
-    files.taskSynthesis = path.relative(root, taskSynthesisPath).replace(/\\/g, '/');
-    files.todoValidation = path.relative(root, todoValidationPath).replace(/\\/g, '/');
-    files.todoPatch = path.relative(root, todoPatchPath).replace(/\\/g, '/');
-    files.todoPatchAudit = path.relative(root, todoPatchAuditPath).replace(/\\/g, '/');
-  }
-  files.graph = path.relative(root, graphPath).replace(/\\/g, '/');
-  files.diagnostics = path.relative(root, diagnosticsPath).replace(/\\/g, '/');
-  files.summary = path.relative(root, summaryPath).replace(/\\/g, '/');
-  files.summaryConclusions = path.relative(root, summaryConclusionsPath).replace(/\\/g, '/');
 
-  const configuration = manifestConfiguration(options, config);
-  const stageAudits = {
-    naturalLanguageExtraction: naturalLanguageAudit,
-    markdownExtraction: markdown.audit,
-    documentationExtraction: documentationAudit,
-    communicationAnalysis: communicationAudit,
-    taskSynthesis: taskSynthesisAudit,
-    codeChangePlanning: codeChangePlanningAudit,
-    summary: summaryAudit,
-  };
-  const manifest: PipelineManifest = {
-    schemaVersion: 't2c.run/v1',
-    runId,
-    root,
-    createdAt: generatedAt,
-    graphFingerprint: graph.fingerprint,
-    files,
-    warnings: [...new Set(warnings)].sort(),
-    status: Object.values(stageAudits).some((stage) => stage.degraded) ? 'degraded' : 'succeeded',
-    failure: null,
-    runtime: { name: 'todo2code', version: T2C_VERSION },
-    configuration,
-    stages: stageAudits,
-    llm: {
-      naturalLanguageExtraction: naturalLanguageAudit.effectiveMode === 'llm',
-      markdownExtraction: markdown.audit.effectiveMode === 'llm',
-      documentationExtraction: documentationAudit.effectiveMode === 'llm',
-      communicationEnrichment: communicationAudit.effectiveMode === 'llm',
-      taskSynthesis: taskSynthesisAudit.effectiveMode === 'llm',
-      summary: summary.llmUsed,
-    },
-  };
-  await writeJson(path.join(runDirectory, 'manifest.json'), manifest);
-  await writeJson(path.join(baseOutput, 'latest.json'), {
-    runId,
-    runDirectory: path.relative(root, runDirectory).replace(/\\/g, '/'),
-    graphFingerprint: graph.fingerprint,
-    summary: files.summary,
-    summaryConclusions: files.summaryConclusions,
-  });
-  return {
-    runDirectory, manifest, graphPath, diagnosticsPath, summaryPath, summaryConclusionsPath,
-    taskSynthesisPath, todoPatchPath, todoPatchAuditPath, codeChangePlansPath,
-    codeChangeReviewPath, codeChangeReviewAuditPath, codeChangeSourcePatchesPath,
-    communicationAnalysisPath,
-  };
-  } catch (error) {
-    await persistFailedRun(runId, root, runDirectory, options, config, error, activeStage, completedStages);
-    throw error;
+  private disabledSummaryAudit(summary: SummaryResult, startedAt: number): PipelineStageAudit {
+    return {
+      runtimeVersion: T2C_VERSION, configuration: openRouterAuditConfiguration(this.config, null),
+      status: 'skipped', requestedMode: 'deterministic', effectiveMode: 'deterministic', degraded: false,
+      recordCount: summary.conclusions.length, warningCount: 0, model: null,
+      durationMs: Date.now() - startedAt,
+      reason: { code: 'LLM_DISABLED', message: 'LLM summary was disabled; generated the deterministic report' },
+      responses: [],
+    };
+  }
+
+  private successfulSummaryAudit(summary: SummaryResult, startedAt: number): PipelineStageAudit {
+    return {
+      runtimeVersion: T2C_VERSION,
+      configuration: openRouterAuditConfiguration(this.config, this.config.openRouter.summaryModel),
+      status: 'succeeded', requestedMode: 'llm', effectiveMode: 'llm', degraded: false,
+      recordCount: summary.conclusions.length, warningCount: summary.warnings.length,
+      model: this.config.openRouter.summaryModel, durationMs: Date.now() - startedAt,
+      reason: null, responses: summary.responses,
+    };
+  }
+
+  private fallbackSummaryAudit(summary: SummaryResult, startedAt: number): PipelineStageAudit {
+    return {
+      runtimeVersion: T2C_VERSION,
+      configuration: openRouterAuditConfiguration(this.config, this.config.openRouter.summaryModel),
+      status: 'fallback', requestedMode: 'llm', effectiveMode: 'deterministic', degraded: true,
+      recordCount: summary.conclusions.length, warningCount: summary.warnings.length,
+      model: this.config.openRouter.summaryModel, durationMs: Date.now() - startedAt,
+      reason: {
+        code: hasOpenRouter(this.config) ? 'LLM_UNAVAILABLE' : 'LLM_NOT_CONFIGURED',
+        message: summary.warnings[0] ?? 'Deterministic summary fallback was used',
+      },
+      responses: [],
+    };
+  }
+
+  private async persist(
+    extraction: ExtractionResult,
+    analysis: AnalysisResult,
+    synthesis: SynthesisResult,
+    planning: PlanningResult,
+    summary: PipelineSummaryResult,
+  ): Promise<PipelineResult> {
+    this.activeStage = 'persistence';
+    const files: Record<string, string> = {};
+    await this.writeIntentFiles(files);
+    const paths = this.outputPaths(synthesis, analysis.communicationAnalysis);
+    await this.writeRequiredOutputs(paths, analysis, planning, summary, files);
+    await this.writeOptionalOutputs(paths, analysis.communicationAnalysis, synthesis, files);
+    const manifest = this.createManifest(files, extraction, analysis, synthesis, planning, summary);
+    await writeJson(path.join(this.runDirectory, 'manifest.json'), manifest);
+    await persistPipelineEventLog({ root: this.root, runDirectory: this.runDirectory, manifest });
+    await writeJson(path.join(this.baseOutput, 'latest.json'), {
+      runId: this.runId,
+      runDirectory: this.relative(this.runDirectory),
+      graphFingerprint: analysis.graph.fingerprint,
+      summary: files.summary,
+      summaryConclusions: files.summaryConclusions,
+    });
+    return this.pipelineResult(paths, manifest);
+  }
+
+  private async writeIntentFiles(files: Record<string, string>): Promise<void> {
+    for (const [source, records] of Object.entries(this.bySource)) {
+      const filePath = path.join(this.runDirectory, `${source}.intent.jsonl`);
+      await writeJsonl(filePath, records);
+      files[`${source}Intent`] = this.relative(filePath);
+    }
+  }
+
+  private outputPaths(
+    synthesis: SynthesisResult,
+    communicationAnalysis: CommunicationAnalysisResult | null,
+  ): OutputPaths {
+    const run = this.runDirectory;
+    return {
+      graphPath: path.join(run, 'intent.graph.json'),
+      diagnosticsPath: path.join(run, 'diagnostics.json'),
+      summaryPath: path.join(run, 'team-summary.md'),
+      summaryConclusionsPath: path.join(run, 'summary-conclusions.json'),
+      taskSynthesisPath: synthesis.taskSynthesis ? path.join(run, 'task-synthesis.json') : null,
+      todoValidationPath: synthesis.taskSynthesis ? path.join(run, 'todo-validation.json') : null,
+      todoPatchPath: synthesis.todoPatch ? path.join(run, 'TODO.patch') : null,
+      todoPatchAuditPath: synthesis.todoPatch ? path.join(run, 'TODO.patch.json') : null,
+      codeChangePlansPath: path.join(run, 'code-change-plans.json'),
+      codeChangeReviewPath: path.join(run, 'CODE_CHANGE.review.md'),
+      codeChangeReviewAuditPath: path.join(run, 'CODE_CHANGE.review.json'),
+      codeChangeSourcePatchesPath: path.join(run, 'code-change-source-patches.json'),
+      communicationAnalysisPath: communicationAnalysis ? path.join(run, 'communication-analysis.json') : null,
+      communicationMarkdownPath: communicationAnalysis ? path.join(run, 'communication-analysis.md') : null,
+      eventLogPath: path.join(run, 'logs.dsl.txt'),
+    };
+  }
+
+  private async writeRequiredOutputs(
+    paths: OutputPaths,
+    analysis: AnalysisResult,
+    planning: PlanningResult,
+    summary: PipelineSummaryResult,
+    files: Record<string, string>,
+  ): Promise<void> {
+    await writeJson(paths.graphPath, analysis.graph);
+    await writeJson(paths.diagnosticsPath, analysis.diagnostics);
+    await writeText(paths.summaryPath, summary.summary.markdown);
+    await writeJson(paths.summaryConclusionsPath, summary.summary.conclusions);
+    await writeJson(paths.codeChangePlansPath, planning.plans);
+    await writeText(paths.codeChangeReviewPath, planning.review.markdown);
+    await writeJson(paths.codeChangeReviewAuditPath, planning.review.artifact);
+    await writeJson(paths.codeChangeSourcePatchesPath, planning.sourcePatches);
+    files.codeChangePlans = this.relative(paths.codeChangePlansPath);
+    files.codeChangeReview = this.relative(paths.codeChangeReviewPath);
+    files.codeChangeReviewAudit = this.relative(paths.codeChangeReviewAuditPath);
+    files.codeChangeSourcePatches = this.relative(paths.codeChangeSourcePatchesPath);
+    files.graph = this.relative(paths.graphPath);
+    files.diagnostics = this.relative(paths.diagnosticsPath);
+    files.summary = this.relative(paths.summaryPath);
+    files.summaryConclusions = this.relative(paths.summaryConclusionsPath);
+    files.eventLog = this.relative(paths.eventLogPath);
+  }
+
+  private async writeOptionalOutputs(
+    paths: OutputPaths,
+    communicationAnalysis: CommunicationAnalysisResult | null,
+    synthesis: SynthesisResult,
+    files: Record<string, string>,
+  ): Promise<void> {
+    if (paths.communicationAnalysisPath && paths.communicationMarkdownPath && communicationAnalysis) {
+      await Promise.all([
+        writeJson(paths.communicationAnalysisPath, communicationAnalysis),
+        writeText(paths.communicationMarkdownPath, renderCommunicationMarkdown(communicationAnalysis)),
+      ]);
+      files.communicationAnalysis = this.relative(paths.communicationAnalysisPath);
+      files.communicationAnalysisMarkdown = this.relative(paths.communicationMarkdownPath);
+    }
+    if (paths.taskSynthesisPath && paths.todoValidationPath && paths.todoPatchPath
+      && paths.todoPatchAuditPath && synthesis.taskSynthesis && synthesis.todoPatch) {
+      await Promise.all([
+        writeJson(paths.taskSynthesisPath, synthesis.taskSynthesis),
+        writeJson(paths.todoValidationPath, synthesis.taskSynthesis.validation),
+        writeText(paths.todoPatchPath, synthesis.todoPatch.markdown),
+        writeJson(paths.todoPatchAuditPath, synthesis.todoPatch.artifact),
+      ]);
+      files.taskSynthesis = this.relative(paths.taskSynthesisPath);
+      files.todoValidation = this.relative(paths.todoValidationPath);
+      files.todoPatch = this.relative(paths.todoPatchPath);
+      files.todoPatchAudit = this.relative(paths.todoPatchAuditPath);
+    }
+  }
+
+  private createManifest(
+    files: Record<string, string>,
+    extraction: ExtractionResult,
+    analysis: AnalysisResult,
+    synthesis: SynthesisResult,
+    planning: PlanningResult,
+    summary: PipelineSummaryResult,
+  ): PipelineManifest {
+    const stages = {
+      naturalLanguageExtraction: extraction.naturalLanguageAudit,
+      markdownExtraction: extraction.markdownAudit,
+      documentationExtraction: extraction.documentationAudit,
+      communicationAnalysis: extraction.communicationAudit,
+      taskSynthesis: synthesis.audit,
+      codeChangePlanning: planning.audit,
+      summary: summary.audit,
+    };
+    return {
+      schemaVersion: 't2c.run/v1', runId: this.runId, root: this.root,
+      createdAt: analysis.generatedAt, graphFingerprint: analysis.graph.fingerprint,
+      files, warnings: [...new Set(this.warnings)].sort(),
+      status: Object.values(stages).some((stage) => stage.degraded) ? 'degraded' : 'succeeded',
+      failure: null, runtime: { name: 'todo2code', version: T2C_VERSION },
+      configuration: manifestConfiguration(this.options, this.config), stages,
+      llm: {
+        naturalLanguageExtraction: extraction.naturalLanguageAudit.effectiveMode === 'llm',
+        markdownExtraction: extraction.markdownAudit.effectiveMode === 'llm',
+        documentationExtraction: extraction.documentationAudit.effectiveMode === 'llm',
+        communicationEnrichment: extraction.communicationAudit.effectiveMode === 'llm',
+        taskSynthesis: synthesis.audit.effectiveMode === 'llm',
+        summary: summary.summary.llmUsed,
+      },
+    };
+  }
+
+  private pipelineResult(paths: OutputPaths, manifest: PipelineManifest): PipelineResult {
+    return {
+      runDirectory: this.runDirectory, manifest,
+      graphPath: paths.graphPath, diagnosticsPath: paths.diagnosticsPath,
+      summaryPath: paths.summaryPath, summaryConclusionsPath: paths.summaryConclusionsPath,
+      taskSynthesisPath: paths.taskSynthesisPath, todoPatchPath: paths.todoPatchPath,
+      todoPatchAuditPath: paths.todoPatchAuditPath, codeChangePlansPath: paths.codeChangePlansPath,
+      codeChangeReviewPath: paths.codeChangeReviewPath,
+      codeChangeReviewAuditPath: paths.codeChangeReviewAuditPath,
+      codeChangeSourcePatchesPath: paths.codeChangeSourcePatchesPath,
+      communicationAnalysisPath: paths.communicationAnalysisPath,
+    };
+  }
+
+  private relative(filePath: string): string {
+    return path.relative(this.root, filePath).replace(/\\/g, '/');
   }
 }
 
@@ -568,7 +743,9 @@ async function persistFailedRun(
     root,
     createdAt: new Date().toISOString(),
     graphFingerprint: null,
-    files: {},
+    files: {
+      eventLog: path.relative(root, path.join(runDirectory, 'logs.dsl.txt')).replace(/\\/g, '/'),
+    },
     warnings: [message],
     status: 'failed',
     failure: { stage: failedStage, code: reason.code, message: reason.message },
@@ -585,6 +762,7 @@ async function persistFailedRun(
     },
   };
   await writeJson(path.join(runDirectory, 'manifest.json'), manifest);
+  await persistPipelineEventLog({ root, runDirectory, manifest, replaceUnfinished: true });
 }
 
 function failureCode(stage: PipelineFailureStage): string {
