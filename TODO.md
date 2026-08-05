@@ -6,6 +6,10 @@
   read-only workspace preflight that binds local Git state to the active ticket
   and existing governance diagnostics before any governed edit. Current state:
   `PLAN / WAIT_FOR_APPROVAL`.
+- [ ] [`ticket-041`](project/ticket-041/README.md) — validate exact tree-keyed
+  graph/truth-map bundles and assemble them with ticket-039 Git evidence into
+  the existing `t2c.branch/v1` projector. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Backlog tickets
 
