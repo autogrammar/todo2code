@@ -34,10 +34,34 @@ truth and could incorrectly bless a change rejected by `make governance`.
 
 ## Actual changes
 
-- None; waiting for approval.
+- The user approved the exact contract and current protected base by replying
+  `tak` after plan PR #47 merged.
+- Transitioned to `IN_PROGRESS / EDIT` before creating either implementation
+  file; scope, budgets and architecture remain unchanged.
 - The main workspace changed concurrently while this plan was being created;
   the plan was therefore isolated from clean `origin/main` in its own worktree.
+- Added a dependency-free workspace observer that binds exact local Git facts,
+  sorted porcelain-v2 entries and managed governance JSON into one canonical
+  `t2c.workspace-preflight/v1` report.
+- Kept ticket resolution inside `.governance/governance_check.py`; the service
+  passes a bounded changed-path union and neither reproduces ownership globs
+  nor converts advisory output into approval.
+- Added ten offline fixture tests covering clean, dirty, rename, conflict,
+  stale, detached, wrong-branch, governance-failure, malformed-checker and
+  read-only invariants, including redaction of failing checker stderr.
+- Split the initially over-complex validation functions after Lizard found CC
+  23, CC 20 and Koru independently found CC 16; final analysis has zero
+  threshold violations.
+- Focused, full host, governance and Docker core validation pass. A live run on
+  this worktree blocked its two uncommitted files while resolving ticket-040,
+  proving the motivating path without mutating it.
+- Two protected Koru passes found the same blocking CC=16 result for
+  `runGovernance`. Refactored it into a small orchestrator with separately
+  testable checker, argument, process, JSON and ticket boundaries; retained
+  command-specific diagnostics and added redacted digest evidence for checker
+  failures. The semantic LLM remarks remained advisory; the service is 498
+  physical lines after the structural repair.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- Protected exact-head review and merge remain required before `DONE`.

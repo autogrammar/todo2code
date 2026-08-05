@@ -2,3 +2,16 @@
 2026-08-05T07:02:00Z OBSERVED concurrent generator dirtied main after clean audit
 2026-08-05T07:03:00Z ISOLATED plan worktree base=45221496ef7391d3eceb4f07b6a4dece5ae1ced5
 2026-08-05T07:04:00Z WAIT_FOR_APPROVAL source-and-test-paths=unchanged
+2026-08-05T07:05:39Z MERGED plan-pr=47 main=db368c020876ccac537538c9e8cac03c9ae2f02f
+2026-08-05T07:06:00Z APPROVED response=tak base=db368c020876ccac537538c9e8cac03c9ae2f02f
+2026-08-05T07:06:01Z EDIT implementation-files=2 architecture=accepted
+2026-08-05T07:27:00Z VALIDATED focused=9/9 host=377/378 docker=pass governance=pass
+2026-08-05T07:28:00Z COMPLEXITY lizard-warnings=0 service-lines=497
+2026-08-05T07:29:00Z LIVE verdict=BLOCKED dirty=2 active-ticket=ticket-040 governance=passed
+2026-08-05T07:30:00Z VALIDATION waiting-for=protected-exact-head-review
+2026-08-05T07:38:44Z KORU rejected head=18b4d60 blocker=runGovernance-CC16
+2026-08-05T07:40:00Z REPAIRED parser-boundary=arrow command-errors=typed stderr=hashed
+2026-08-05T07:41:00Z REVALIDATED host=384/385 governance=pass lizard-warnings=0
+2026-08-05T07:45:00Z KORU rejected head=897e2e3 blocker=runGovernance-CC16
+2026-08-05T07:47:00Z REFACTORED run-governance=orchestrator boundaries=checker,args,process,json,ticket
+2026-08-05T07:48:00Z VALIDATED focused=10/10 host=385/386 skipped=1 failures=0 lizard-warnings=0 service-lines=498
