@@ -75,7 +75,7 @@ test('parser fails closed on tampered chains and non-canonical encoding', () => 
 test('unsafe evidence, secrets and advisory approval are rejected before rendering', () => {
   for (const invalid of [
     event({ evidenceRef: '/home/user/report.json' }),
-    event({ evidenceRef: 'artifact:report.json?token=secret' }),
+    event({ evidenceRef: 'artifact:report.json?page=1' }),
     event({ actorId: 'Bearer abcdefghijklmnop' }),
     event({ type: 'approval.attested', trustClass: 'ADVISORY_INFERENCE' }),
   ]) {

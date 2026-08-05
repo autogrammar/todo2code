@@ -52,6 +52,9 @@ immutable run log.
 - Triaged the advisory Koru report: compiler-proven `Buffer`/`Uint8Array` and
   `never` findings were false positives, while its persisted-state consistency
   and new-test cleanup observations were accepted and corrected.
+- Replaced a secret-shaped literal in a negative query-reference fixture after
+  Validator App correctly enforced the repository's patch secret heuristic;
+  the test still proves that all query-bearing evidence references fail closed.
 
 ## Blockers
 

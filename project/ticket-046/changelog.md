@@ -26,3 +26,5 @@
 - Reconciled advisory Koru findings: event derivation now consistently uses the
   persisted manifest, and the new atomic-writer test removes its temporary
   directory; compiler-disproved type/control-flow claims remain advisory.
+- Removed a secret-shaped token literal from the negative query-reference test
+  while preserving the same fail-closed contract after Validator App review.

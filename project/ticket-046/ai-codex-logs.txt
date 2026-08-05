@@ -7,3 +7,4 @@ transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
 2026-08-05 validation: governance 0 errors/0 warnings; docker smoke PASS; diff check PASS
 transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
 2026-08-05 review triage: accepted persisted-manifest consistency and test cleanup; rejected compiler-disproved advisory type findings
+2026-08-05 validator review: removed secret-shaped literal from negative query-reference fixture
