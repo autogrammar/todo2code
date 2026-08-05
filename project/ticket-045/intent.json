@@ -1,0 +1,72 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-045",
+  "summary": "Kanoniczny kontrakt dziennika zdarzen logs.dsl.txt",
+  "workstream": "integration",
+  "allowedPaths": [
+    "project/ticket-045/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "docs/EVENT_LOG_DSL.md",
+    "test/fixtures/event-log/v1/logs.dsl.txt"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "sdk/**",
+    ".github/workflows/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "f78c47e7dba65d10e8c2e8c989c9fd74bb3ad19d",
+    "targetBranch": "main",
+    "outcome": "Define one canonical tamper-evident logs.dsl.txt contract for governed lifecycle events",
+    "nonGoals": [
+      "No runtime, CLI, SDK or workflow implementation in this architecture slice",
+      "No tracked post-merge log mutation or audit recursion",
+      "No secret values or unbounded provider payloads",
+      "No reconstruction claims without retained trusted evidence"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Persist logs.dsl.txt as an immutable run or workflow artifact with canonical event ordering and a SHA-256 digest chain, never as a post-merge self-mutating commit",
+      "components": [
+        {
+          "name": "event-log-contract",
+          "paths": [
+            "docs/EVENT_LOG_DSL.md",
+            "test/fixtures/event-log/v1/logs.dsl.txt"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Introduce the versioned t2c.event-log/v1 persistent artifact contract"
+      ],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Remove the unimplemented contract and fixture before any runtime producer adopts t2c.event-log/v1"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02..AC-05",
+        "commands": ["make governance", "git diff --check"],
+        "evidence": "The integration contract is bounded, internally consistent and governance-valid"
+      }
+    ]
+  }
+}
