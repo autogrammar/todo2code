@@ -2,8 +2,8 @@
 
 - **ID**: ticket-043
 - **Owner**: human:founder
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -60,15 +60,16 @@ fetches, stashes, checks out, resets, cleans or otherwise mutates Git state.
 
 ## Participants
 
-- Human participant: unresolved; no user-* file was created by this script.
+- Human participant: `human:founder`, evidenced by the active approval session;
+  no user-* file was generated or edited.
 - Agent participant: [ai-codex.md](ai-codex.md)
 
 ## Approval boundary
 
 The Founder approved this exact command, scope and accepted base in the active
 session with an explicit `tak`, authorizing the transition to `EDIT`.
-Implementation was completed inside that boundary and is now in `VALIDATION`.
-Protected merge approval still requires independent exact-head evidence.
+Implementation was completed inside that boundary and independently validated
+before protected merge.
 
 ## Validation evidence
 
@@ -84,4 +85,24 @@ Protected merge approval still requires independent exact-head evidence.
   `--no-print-directory`; the exact hosted invocation now passes locally.
 - Lizard reported no threshold violations; wrapper maximum complexity is
   `CC=9`, below the project limit of 15.
-- Independent protected review and exact-head attestation remain pending.
+
+## Protected completion evidence
+
+- Koru run
+  [30991223497](https://github.com/semcod/todo2code/actions/runs/30991223497)
+  passed exact head `87ce55cea08fdfab01dc1c81f8bed093d17d5912` using
+  `openrouter/z-ai/glm-5.2` and published an attested report.
+- Validator App run
+  [30991349104](https://github.com/subactor/validator-agent/actions/runs/30991349104)
+  approved the same head as `ifuri-validator-agent[bot]` for `ticket-043` and
+  correlation ID `todo2code-pr56-87ce55cea08f`, using
+  `openrouter/z-ai/glm-5.2`; its semantic output remained advisory.
+- Review-triggered CI run
+  [30991457928](https://github.com/semcod/todo2code/actions/runs/30991457928)
+  passed governance, full verification, required Java and Docker smoke.
+  Rerun [30991224257](https://github.com/semcod/todo2code/actions/runs/30991224257)
+  replaced the historical pre-review governance failure with exact-head
+  approval evidence.
+- Protected PR [#56](https://github.com/semcod/todo2code/pull/56) merged exact
+  head `87ce55c` without administrative bypass as
+  `main@4a7445a06e79248f162595272912f017a9b28708`.

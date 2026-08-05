@@ -2,11 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-043`](project/ticket-043/README.md) — expose ticket-040's
-  deterministic read-only workspace observer through an explicit integration
-  command without changing runtime semantics or governance. Current state:
-  `IN_PROGRESS / VALIDATION`; local validation passed and exact-head protected
-  review remains pending.
 - [ ] [`ticket-044`](project/ticket-044/README.md) — adopt immutable
   new-project 0.11.0 and its canonical work-classification package through
   local Goal. Current state: `IN_PROGRESS / VALIDATION`; all local gates pass
@@ -17,6 +12,11 @@
 None.
 
 ## Completed tickets
+- [x] [`ticket-043`](project/ticket-043/README.md) — exposed ticket-040's
+  deterministic read-only observer through `make preflight`, with canonical
+  stdout, stable exit codes and complete Git-state non-mutation tests. Koru and
+  Validator approved exact head `87ce55c` with `openrouter/z-ai/glm-5.2`;
+  protected PR #56 merged as `main@4a7445a`. Current state: `DONE`.
 - [x] [`ticket-042`](project/ticket-042/README.md) — bounded the aggregate
   semantic deadline of `compare-workspace` across both pipelines and all
   document chunks with 2x scaling and a 40-minute ceiling. Koru and Validator
