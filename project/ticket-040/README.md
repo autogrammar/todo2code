@@ -2,8 +2,8 @@
 
 - **ID**: ticket-040
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -71,7 +71,7 @@ is returned or executed.
 - Complexity: `S`; maximum two implementation files and one component.
 - Proposed implementation paths: `src/services/workspace-preflight.ts` and
   `test/git-workspace-preflight.test.ts`.
-- Accepted base: `main@45221496ef7391d3eceb4f07b6a4dece5ae1ced5`.
+- Accepted base: `main@db368c020876ccac537538c9e8cac03c9ae2f02f`.
 - No CLI, MCP, A2A, SDK, schema publication, `project.sh`, Makefile, workflow,
   dependency manifest, automatic fix, network access or remote mutation.
 - Lease acquisition, compare-and-swap push, exact-head Check Run publication
@@ -106,7 +106,7 @@ is returned or executed.
 
 ## Approval boundary
 
-The user asked to continue after reviewing the workspace-doctor recommendation.
-This ticket now makes the first bounded delivery exact. Current state:
-`PLAN / WAIT_FOR_APPROVAL`; no source or test file has been edited. A separate
-explicit approval of this contract is required before transition to `EDIT`.
+The user approved this exact contract and replacement base
+`db368c020876ccac537538c9e8cac03c9ae2f02f` by replying `tak` after plan PR #47
+merged. Current state: `IN_PROGRESS / EDIT`; the approval was recorded before
+either implementation file was created.

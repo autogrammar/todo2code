@@ -10,3 +10,5 @@
   publication outside this ticket.
 - Recorded the concurrent dirty-main incident as motivating evidence and
   isolated the plan in a clean worktree without modifying source or tests.
+- Recorded explicit approval for exact protected base `db368c0` and entered
+  `IN_PROGRESS / EDIT` without widening the two-file implementation scope.

@@ -29,7 +29,7 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "45221496ef7391d3eceb4f07b6a4dece5ae1ced5",
+    "acceptedBaseSha": "db368c020876ccac537538c9e8cac03c9ae2f02f",
     "targetBranch": "main",
     "outcome": "Report unsafe local workspace state before governed edits without mutating user data or duplicating governance policy",
     "nonGoals": [
@@ -48,7 +48,7 @@
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Combine bounded local Git observation with the existing governance checker JSON in one read-only runtime report",
       "components": [
         {

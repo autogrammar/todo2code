@@ -34,10 +34,13 @@ truth and could incorrectly bless a change rejected by `make governance`.
 
 ## Actual changes
 
-- None; waiting for approval.
+- The user approved the exact contract and current protected base by replying
+  `tak` after plan PR #47 merged.
+- Transitioned to `IN_PROGRESS / EDIT` before creating either implementation
+  file; scope, budgets and architecture remain unchanged.
 - The main workspace changed concurrently while this plan was being created;
   the plan was therefore isolated from clean `origin/main` in its own worktree.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- None during bounded implementation.
