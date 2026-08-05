@@ -3,7 +3,7 @@
 - **ID**: ticket-040
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -79,24 +79,24 @@ is returned or executed.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope is approved by a human owner.
-- [ ] AC-02: Invalid roots, option-like or symbolic baseline refs, missing
+- [x] AC-01: Scope is approved by a human owner.
+- [x] AC-02: Invalid roots, option-like or symbolic baseline refs, missing
       checker output, malformed JSON and more than 4096 dirty paths fail closed.
-- [ ] AC-03: The report binds exact HEAD/baseline SHAs, branch state and
+- [x] AC-03: The report binds exact HEAD/baseline SHAs, branch state and
       ahead/behind counts to independently verified local Git results.
-- [ ] AC-04: Porcelain-v2 parsing deterministically preserves tracked,
+- [x] AC-04: Porcelain-v2 parsing deterministically preserves tracked,
       untracked, rename and conflict facts without absolute paths.
-- [ ] AC-05: Existing governance JSON is retained as authoritative evidence;
+- [x] AC-05: Existing governance JSON is retained as authoritative evidence;
       the TypeScript service does not reproduce policy glob or ownership logic.
-- [ ] AC-06: A clean expected branch yields `PASS`; a dirty, stale, detached or
+- [x] AC-06: A clean expected branch yields `PASS`; a dirty, stale, detached or
       wrongly scoped fixture yields stable diagnostics and safe-action enums.
-- [ ] AC-07: Reordered filesystem/ref enumeration and generated time cannot
+- [x] AC-07: Reordered filesystem/ref enumeration and generated time cannot
       change the report fingerprint.
-- [ ] AC-08: Success and failure leave HEAD, index, worktree, refs, stash and
+- [x] AC-08: Success and failure leave HEAD, index, worktree, refs, stash and
       remotes unchanged; output contains no executable command or credential.
-- [ ] AC-09: Focused tests, full offline verification, governance, complexity
+- [x] AC-09: Focused tests, full offline verification, governance, complexity
       and Docker core E2E pass without network access or an LLM.
-- [ ] AC-10: CLI integration and any mutating repair remain explicit follow-up
+- [x] AC-10: CLI integration and any mutating repair remain explicit follow-up
       scopes requiring separate approval.
 
 ## Participants
@@ -108,5 +108,31 @@ is returned or executed.
 
 The user approved this exact contract and replacement base
 `db368c020876ccac537538c9e8cac03c9ae2f02f` by replying `tak` after plan PR #47
-merged. Current state: `IN_PROGRESS / EDIT`; the approval was recorded before
-either implementation file was created.
+merged. The ticket entered `IN_PROGRESS / EDIT` and the approval was recorded
+before either implementation file was created. It has since moved to
+`IN_PROGRESS / VALIDATION` without widening that approval.
+
+## Validation result
+
+- Added dependency-free `inspectWorkspace()` with bounded local Git reads,
+  strict full-ref/root validation, porcelain-v2 parsing, canonical fingerprint
+  and the seven stable `WS-*` diagnostic families.
+- The service passes the union of baseline-to-HEAD and dirty paths to the
+  managed Python checker; only its protected output can select `activeTicket`.
+- Focused build and test: 9 passed, 0 failed, 0 skipped.
+- Full host verification: 377 passed, 0 failed and one missing-JDK skip.
+- Docker core E2E passed the full deterministic verification and protocol,
+  examples and SDK smoke gates; unavailable language toolchains were explicit
+  skips rather than false passes.
+- Lizard over both implementation files reports zero CC, function-length or
+  argument-count threshold violations; the service remains below 500 lines.
+- `make governance` and `git diff --check` pass with zero findings.
+
+## Live read-only audit
+
+The built service inspected its own in-progress isolated worktree against
+`refs/remotes/origin/main`. It correctly returned `BLOCKED` because two
+implementation files were uncommitted, retained governance `passed`, resolved
+exactly `ticket-040`, reported one local plan/approval commit and emitted
+fingerprint `dade38bc751e87da9edcb044bc8f0c0d97f33b5c02c27edf0cafdf937b351d62`.
+This is the intended pre-edit safety behavior; no Git state changed.

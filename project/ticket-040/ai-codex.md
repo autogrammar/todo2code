@@ -40,7 +40,22 @@ truth and could incorrectly bless a change rejected by `make governance`.
   file; scope, budgets and architecture remain unchanged.
 - The main workspace changed concurrently while this plan was being created;
   the plan was therefore isolated from clean `origin/main` in its own worktree.
+- Added a dependency-free workspace observer that binds exact local Git facts,
+  sorted porcelain-v2 entries and managed governance JSON into one canonical
+  `t2c.workspace-preflight/v1` report.
+- Kept ticket resolution inside `.governance/governance_check.py`; the service
+  passes a bounded changed-path union and neither reproduces ownership globs
+  nor converts advisory output into approval.
+- Added nine offline fixture tests covering clean, dirty, rename, conflict,
+  stale, detached, wrong-branch, governance-failure, malformed-checker and
+  read-only invariants.
+- Split the two initially over-complex validation functions after Lizard found
+  CC 23 and CC 20; final analysis has zero threshold violations and the service
+  is 497 physical lines.
+- Focused, full host, governance and Docker core validation pass. A live run on
+  this worktree blocked its two uncommitted files while resolving ticket-040,
+  proving the motivating path without mutating it.
 
 ## Blockers
 
-- None during bounded implementation.
+- Protected exact-head review and merge remain required before `DONE`.

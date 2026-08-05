@@ -12,3 +12,9 @@
   isolated the plan in a clean worktree without modifying source or tests.
 - Recorded explicit approval for exact protected base `db368c0` and entered
   `IN_PROGRESS / EDIT` without widening the two-file implementation scope.
+- Added the deterministic `t2c.workspace-preflight/v1` runtime service and nine
+  offline read-only Git/governance contract tests.
+- Preserved authoritative `GOV-*` findings and checker-selected ticket identity
+  while adding stable `WS-*` diagnostics and non-executable safe actions.
+- Passed focused, full host, governance, Lizard and Docker core validation;
+  moved the ticket to `IN_PROGRESS / VALIDATION` pending protected review.
