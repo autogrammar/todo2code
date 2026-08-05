@@ -58,13 +58,14 @@ export function calculateWorkspaceComparisonDeadline(
     WORKSPACE_COMPARISON_DEADLINE_POLICY.maximumDeadlineMs,
     scaledDeadlineMs,
   );
+  const capped = effectiveDeadlineMs < scaledDeadlineMs;
   return {
     ...load,
     baseDeadlineMs,
     pressure,
     multiplier,
     effectiveDeadlineMs,
-    capped: effectiveDeadlineMs < scaledDeadlineMs,
+    capped,
   };
 }
 
@@ -159,8 +160,6 @@ export async function compareWorkspaceIntent(
     deadlineExpired = true;
     deadlineController.abort();
   }, deadlineDecision.effectiveDeadlineMs);
-  deadlineTimer.unref();
-
   const temporaryParent = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workspace-compare-'));
   const baseWorktree = path.join(temporaryParent, 'base');
   try {
@@ -294,6 +293,7 @@ async function workspaceComparisonDeadlineLoad(
     options.documentPatterns ?? config.documentPatterns,
     options.documentExcludes ?? config.documentExcludes,
   );
+  const documentFileSet = new Set(documentFiles);
   for (const file of documentFiles) files.add(file);
 
   let inputBytes = 0;
@@ -301,7 +301,7 @@ async function workspaceComparisonDeadlineLoad(
   for (const file of files) {
     const size = (await fs.stat(file)).size;
     inputBytes += size;
-    if (documentFiles.includes(file)) {
+    if (documentFileSet.has(file)) {
       documentChunks += Math.min(config.documentMaxChunks, Math.max(1, Math.ceil(size / config.documentChunkChars)));
     }
   }
@@ -346,20 +346,24 @@ async function scopedOutputDirectory(
 function commonPipelineOptions(options: WorkspaceComparisonOptions, config: T2CConfig): PipelineOptions {
   return {
     root: options.root,
-    taskFile: options.taskFile ?? null,
+    taskFile: defaulted(options.taskFile, null),
     todoFile: options.todoFile === undefined ? 'TODO.md' : options.todoFile,
     changelogFile: options.changelogFile === undefined ? 'CHANGELOG.md' : options.changelogFile,
-    documentPatterns: options.documentPatterns ?? config.documentPatterns,
-    documentExcludes: options.documentExcludes ?? config.documentExcludes,
-    includeDocumentationLlm: options.includeDocumentationLlm ?? false,
-    outputDir: options.outputDir ?? config.outputDir,
-    gitCommitCount: options.gitCommitCount ?? config.gitCommitCount,
+    documentPatterns: defaulted(options.documentPatterns, config.documentPatterns),
+    documentExcludes: defaulted(options.documentExcludes, config.documentExcludes),
+    includeDocumentationLlm: defaulted(options.includeDocumentationLlm, false),
+    outputDir: defaulted(options.outputDir, config.outputDir),
+    gitCommitCount: defaulted(options.gitCommitCount, config.gitCommitCount),
     allowSummaryFallback: true,
     includeSummaryLlm: false,
     nlMode: config.nlMode,
-    markdownMode: options.markdownMode ?? config.markdownMode,
-    communicationMode: options.communicationMode ?? config.communicationMode,
+    markdownMode: defaulted(options.markdownMode, config.markdownMode),
+    communicationMode: defaulted(options.communicationMode, config.communicationMode),
   };
+}
+
+function defaulted<T>(value: T | undefined, fallback: T): T {
+  return value === undefined ? fallback : value;
 }
 
 async function optionsForRoot(root: string, options: PipelineOptions): Promise<PipelineOptions> {

@@ -56,8 +56,9 @@ test('workspace headline trend ignores AST-only topic and source churn', () => {
   }), 'regressed');
 });
 
-test('workspace comparison measures origin/main against uncommitted filesystem intent', async () => {
+test('workspace comparison measures origin/main against uncommitted filesystem intent', async (t) => {
   const parent = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workspace-test-'));
+  t.after(async () => fs.rm(parent, { recursive: true, force: true }));
   const root = path.join(parent, 'repo');
   const remote = path.join(parent, 'origin.git');
   await fs.mkdir(root);
