@@ -2,7 +2,11 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-045`](project/ticket-045/README.md) — define the canonical,
+  tamper-evident `t2c.event-log/v1` contract and representative
+  `logs.dsl.txt` fixture. Local contract, fixture and validation are complete;
+  independent exact-head review remains. Current state:
+  `IN_PROGRESS / VALIDATION`.
 
 ## Backlog tickets
 
