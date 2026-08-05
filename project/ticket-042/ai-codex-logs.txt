@@ -1,0 +1,27 @@
+2026-08-05 measured regression (ticket-042)
+
+Target: semcod/planfile, compare HEAD~3 with the dirty workspace.
+Model: z-ai/glm-5.2 through OpenRouter.
+Configured request timeout: 240000 ms; documentation timeout: 90000 ms.
+Observed: deterministic comparison completed and classified the trend as
+improved with zero blocking diagnostics. Semantic compare remained alive for
+more than 20 minutes because per-request adaptive deadlines multiplied across
+two pipelines and sequential document-chunk waves. The process was terminated
+without claiming semantic success. One completed provider chunk remains
+auditable in the temporary cache; no repository source mutation was performed
+by the analysis.
+
+Founder authorization from the active session covers adaptive timeout scaling,
+continued implementation and use of z-ai/glm-5.2 instead of Gemini 3.1 Pro
+Preview. Workflow transition: WAIT_FOR_APPROVAL -> EDIT.
+
+2026-08-05 validation
+
+- focused workspace tests: 3/3 PASS,
+- npm run verify: PASS; full Node suite PASS (local JDK fixture remains its
+  declared skip),
+- governance: GOV-PASS, 0 errors and 0 warnings,
+- Docker build/health/doctor smoke: PASS,
+- git diff --check: PASS.
+
+Workflow transition: EDIT -> VALIDATION -> PUBLICATION.
