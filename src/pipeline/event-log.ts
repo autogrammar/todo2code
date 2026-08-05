@@ -290,6 +290,7 @@ function validateEvent(event: EventLogEvent): void {
 }
 
 function canonicalEventPayload(event: EventLogEvent): string {
+  // EVENT_DIGEST is excluded by the v1 contract to avoid hashing a value into itself.
   return `${eventLines(event).slice(0, -1).join('\n')}\n`;
 }
 

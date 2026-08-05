@@ -87,14 +87,18 @@ test('unsafe evidence, secrets and advisory approval are rejected before renderi
 
 test('writer publishes one validated file atomically and refuses an immutable overwrite', async () => {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-event-log-'));
-  const output = path.join(directory, 'logs.dsl.txt');
-  const document = createEventLog({
-    streamId: 'atomic-run', generatedAt: timestamp, events: [event()],
-  });
-  await writeEventLogAtomic(output, document);
-  const written = await fs.readFile(output, 'utf8');
-  assert.equal(renderEventLog(parseEventLog(written)), written);
-  await assert.rejects(() => writeEventLogAtomic(output, document), (error: unknown) =>
-    error instanceof EventLogError && /Refusing to overwrite/.test(error.message));
-  assert.deepEqual((await fs.readdir(directory)).sort(), ['logs.dsl.txt']);
+  try {
+    const output = path.join(directory, 'logs.dsl.txt');
+    const document = createEventLog({
+      streamId: 'atomic-run', generatedAt: timestamp, events: [event()],
+    });
+    await writeEventLogAtomic(output, document);
+    const written = await fs.readFile(output, 'utf8');
+    assert.equal(renderEventLog(parseEventLog(written)), written);
+    await assert.rejects(() => writeEventLogAtomic(output, document), (error: unknown) =>
+      error instanceof EventLogError && /Refusing to overwrite/.test(error.message));
+    assert.deepEqual((await fs.readdir(directory)).sort(), ['logs.dsl.txt']);
+  } finally {
+    await fs.rm(directory, { recursive: true, force: true });
+  }
 });

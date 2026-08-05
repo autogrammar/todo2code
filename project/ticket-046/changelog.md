@@ -23,3 +23,6 @@
 - Passed focused tests, full host verification, deterministic governance,
   Docker smoke and whitespace validation; publication awaits independent
   exact-head review.
+- Reconciled advisory Koru findings: event derivation now consistently uses the
+  persisted manifest, and the new atomic-writer test removes its temporary
+  directory; compiler-disproved type/control-flow claims remain advisory.

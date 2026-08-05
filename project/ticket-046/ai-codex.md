@@ -49,6 +49,9 @@ immutable run log.
   projection remains valid.
 - Focused tests (15/15), full verification (396 passed, 1 JDK-local skip),
   deterministic governance, Docker smoke and diff checks all pass.
+- Triaged the advisory Koru report: compiler-proven `Buffer`/`Uint8Array` and
+  `never` findings were false positives, while its persisted-state consistency
+  and new-test cleanup observations were accepted and corrected.
 
 ## Blockers
 

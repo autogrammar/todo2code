@@ -26,30 +26,30 @@ export async function persistPipelineEventLog(input: {
   replaceUnfinished?: boolean;
 }): Promise<string> {
   const manifestPath = path.join(input.runDirectory, 'manifest.json');
-  const persistedManifest = JSON.parse(await fs.readFile(manifestPath, 'utf8')) as PipelineManifest;
-  const manifestEvidence = canonicalPipelineManifestEvidence(persistedManifest);
+  const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8')) as PipelineManifest;
+  const manifestEvidence = canonicalPipelineManifestEvidence(manifest);
   const identity = await pipelineIdentity(input.root);
   const common: CommonEventFields = {
-    occurredAt: input.manifest.createdAt,
-    recordedAt: input.manifest.createdAt,
+    occurredAt: manifest.createdAt,
+    recordedAt: manifest.createdAt,
     repository: identity.repository,
-    ticketId: input.manifest.configuration.communicationTicket,
-    correlationId: input.manifest.runId,
+    ticketId: manifest.configuration.communicationTicket,
+    correlationId: manifest.runId,
     baseSha: null,
     headSha: identity.headSha,
   };
-  const statusOutcome: EventLogOutcome = input.manifest.status === 'succeeded'
-    ? 'PASSED' : input.manifest.status === 'degraded' ? 'DEGRADED' : 'FAILED';
-  const events = baseEvents(input.manifest, common, statusOutcome, manifestEvidence);
-  await appendDiagnosticEvent(events, input, common);
-  if (Object.values(input.manifest.llm).some(Boolean)) {
+  const statusOutcome: EventLogOutcome = manifest.status === 'succeeded'
+    ? 'PASSED' : manifest.status === 'degraded' ? 'DEGRADED' : 'FAILED';
+  const events = baseEvents(manifest, common, statusOutcome, manifestEvidence);
+  await appendDiagnosticEvent(events, { ...input, manifest }, common);
+  if (Object.values(manifest.llm).some(Boolean)) {
     events.push({
       ...common,
-      eventId: `${input.manifest.runId}:llm-analysis`,
+      eventId: `${manifest.runId}:llm-analysis`,
       type: 'analysis.completed',
       trustClass: 'ADVISORY_INFERENCE',
       actorId: 'todo2code:llm-stage',
-      subjectId: `run:${input.manifest.runId}`,
+      subjectId: `run:${manifest.runId}`,
       source: 'todo2code:pipeline',
       outcome: statusOutcome,
       evidenceKind: 'pipeline_manifest',
@@ -58,8 +58,8 @@ export async function persistPipelineEventLog(input: {
     });
   }
   const document = createEventLog({
-    streamId: input.manifest.runId,
-    generatedAt: input.manifest.createdAt,
+    streamId: manifest.runId,
+    generatedAt: manifest.createdAt,
     events,
   });
   const output = path.join(input.runDirectory, 'logs.dsl.txt');
