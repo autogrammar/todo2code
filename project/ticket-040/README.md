@@ -2,8 +2,8 @@
 
 - **ID**: ticket-040
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -110,7 +110,9 @@ The user approved this exact contract and replacement base
 `db368c020876ccac537538c9e8cac03c9ae2f02f` by replying `tak` after plan PR #47
 merged. The ticket entered `IN_PROGRESS / EDIT` and the approval was recorded
 before either implementation file was created. It has since moved to
-`IN_PROGRESS / VALIDATION` without widening that approval.
+`DONE` without widening that approval. Chat approval authorized the bounded
+interactive edit; merge authority came from protected exact-head Koru,
+Validator App and required CI evidence.
 
 ## Validation result
 
@@ -142,3 +144,30 @@ implementation files were uncommitted, retained governance `passed`, resolved
 exactly `ticket-040`, reported one local plan/approval commit and emitted
 fingerprint `dade38bc751e87da9edcb044bc8f0c0d97f33b5c02c27edf0cafdf937b351d62`.
 This is the intended pre-edit safety behavior; no Git state changed.
+
+## Protected completion evidence
+
+- Koru run
+  [30986666719](https://github.com/semcod/todo2code/actions/runs/30986666719)
+  passed exact head `567424b58234907eb1d7faedf399a700f808da19`
+  after two earlier exact-head reviews correctly blocked CC=16.
+- Validator run
+  [30986780768](https://github.com/subactor/validator-agent/actions/runs/30986780768)
+  approved that same head for `ticket-040` and correlation ID
+  `t2c-ticket-040-workspace-preflight-20260805-final` using
+  `openrouter/z-ai/glm-5.2`. Its semantic verdict was explicitly advisory and
+  not the trust root.
+- The advisory report first suspected swapped ahead/behind counts and command
+  injection, then correctly re-evaluated both: Git reports the baseline-left
+  count as `behindBy`, the head-right count as `aheadBy`, and all commands use
+  `spawn` argument arrays rather than a shell. Its remaining `@{` concern does
+  not pass the branch regex; stale test counts in the PR body were corrected
+  without changing the reviewed commit.
+- Review-triggered CI run
+  [30986929576](https://github.com/semcod/todo2code/actions/runs/30986929576)
+  passed governance, full verification, Docker smoke and the required Java
+  fixture with current-head Validator evidence.
+- Protected PR [#49](https://github.com/semcod/todo2code/pull/49) merged exact
+  head `567424b` as
+  `main@008bee503b45a78d463d8802b61deb74d23c1124` without an administrative
+  bypass.

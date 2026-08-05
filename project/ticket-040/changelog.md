@@ -24,3 +24,6 @@
 - Replaced the parser-oriented workaround with a structural split of checker,
   argument, execution, JSON and ticket boundaries; added a tenth regression
   test proving governance error typing and stderr redaction.
+- Koru and Validator approved exact head `567424b` using
+  `openrouter/z-ai/glm-5.2`; review-triggered CI passed and protected PR #49
+  merged it as `main@008bee5` without an administrative bypass.

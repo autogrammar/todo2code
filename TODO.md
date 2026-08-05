@@ -2,17 +2,19 @@
 
 ## Active tickets
 
-- [ ] [`ticket-040`](project/ticket-040/README.md) — define a bounded,
-  read-only workspace preflight that binds local Git state to the active ticket
-  and existing governance diagnostics before any governed edit. Current state:
-  `IN_PROGRESS / VALIDATION`; focused, full host/Docker, governance, complexity
-  and live read-only checks pass, pending protected exact-head review.
+None.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-040`](project/ticket-040/README.md) — bounded, read-only
+  workspace preflight binding exact local Git state, managed governance and the
+  active ticket before governed edits. Ten focused tests plus host, Docker,
+  governance and complexity gates passed; Koru and Validator approved exact
+  head `567424b` with `openrouter/z-ai/glm-5.2`; protected PR #49 merged as
+  `main@008bee5`. Current state: `DONE`.
 - [x] [`ticket-041`](project/ticket-041/README.md) — strict immutable Git
   materialization validation and exact-tree graph/truth-map evidence assembly
   into the existing `t2c.branch/v1` projector. Focused, host, Docker,
