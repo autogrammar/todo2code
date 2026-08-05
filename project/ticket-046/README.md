@@ -2,8 +2,8 @@
 
 - **ID**: ticket-046
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-05
 
 ## Goal and scope
@@ -20,22 +20,23 @@ it must not append to an immutable completed pipeline log.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Scope, the two-level run/workflow artifact architecture and the
+- [x] AC-01: Scope, the two-level run/workflow artifact architecture and the
   deterministic local repository identity fallback are approved by a human
   owner.
-- [ ] AC-02: One dependency-free codec parses, validates and renders the exact
+- [x] AC-02: One dependency-free codec parses, validates and renders the exact
   `t2c.event-log/v1` field order, enums, bounds, event IDs, sequence and digest
   chain and accepts the ticket-045 canonical fixture.
-- [ ] AC-03: The writer publishes through a same-directory temporary file plus
+- [x] AC-03: The writer publishes through a same-directory temporary file plus
   atomic rename, rejects unsafe evidence references and never serializes a
   secret, host path or LLM payload.
-- [ ] AC-04: Every succeeded, degraded and persisted failed pipeline run has a
+- [x] AC-04: Every succeeded, degraded and persisted failed pipeline run has a
   valid `logs.dsl.txt` beside `manifest.json`; the manifest registers its
-  repository-relative path before the log hashes the exact manifest bytes.
-- [ ] AC-05: Pipeline events are derived from runtime-owned manifest and
+  repository-relative path before the log hashes a canonical immutable
+  projection of the persisted manifest.
+- [x] AC-05: Pipeline events are derived from runtime-owned manifest and
   diagnostic evidence. LLM use may be recorded only as
   `ADVISORY_INFERENCE` and can never produce approval evidence.
-- [ ] AC-06: Repeated rendering of identical semantic inputs is byte-for-byte
+- [x] AC-06: Repeated rendering of identical semantic inputs is byte-for-byte
   stable; focused, full host, governance and Docker checks pass.
 
 ## Participants
@@ -45,15 +46,21 @@ it must not append to an immutable completed pipeline log.
 
 ## Architecture and bounds
 
-- Component 1: `src/pipeline/event-log.ts` owns the closed codec, validation,
-  repository identity resolution and atomic writer.
+- Component 1: `src/pipeline/event-log.ts` owns the closed codec, validation
+  and atomic writer; `src/pipeline/event-log-persistence.ts` adapts persisted
+  pipeline evidence without mixing acquisition into the codec.
 - Component 2: `src/pipeline/run.ts` registers and writes the stream after the
   manifest for success/degradation and after the failed manifest for errors.
-- Tests are limited to `test/event-log.test.ts` and `test/pipeline.test.ts`.
+- Tests are limited to `test/pipeline-event-log.test.ts` and
+  `test/pipeline.test.ts`.
 - A valid Git remote supplies `owner/repository`. Without one, the producer
   uses `local/<sha256-derived-id>` so it neither guesses an owner nor leaks the
   absolute worktree path.
-- Complexity class: S; maximum 30 minutes, four implementation files, two
+- Manifest evidence excludes only the mutable `files` registry. This prevents
+  a later approved receipt registration from invalidating the completed log;
+  all status, failure, stage, configuration, runtime and LLM audit fields
+  remain covered by the evidence digest.
+- Complexity class: S; maximum 30 minutes, five implementation files, two
   affected components, no public interface or dependency change.
 
 ## Non-goals
@@ -66,5 +73,16 @@ it must not append to an immutable completed pipeline log.
 
 ## Approval boundary
 
-The ticket remains `PLAN / WAIT_FOR_APPROVAL`. No source or test file may be
-edited until the human owner explicitly approves ticket-046.
+The human owner explicitly approved ticket-046 on 2026-08-05. This authorizes
+the five implementation files and architecture declared in `intent.json`;
+protected publication still requires independent exact-head evidence.
+
+## Validation evidence
+
+- Focused codec and pipeline tests: 15 passed, 0 failed.
+- Full host verification: 397 tests, 396 passed, 1 environment-dependent JDK
+  skip, 0 failed; TypeScript module graph has no cycles.
+- `make governance`: passed with 0 errors and 0 warnings.
+- `make docker-smoke`: passed using the repository image build.
+- `git diff --check`: passed; codec and persistence modules are 414 and 190
+  lines respectively, below the repository GOD-file size threshold.

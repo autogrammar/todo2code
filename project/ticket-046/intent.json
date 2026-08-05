@@ -8,8 +8,9 @@
     "TODO.md",
     "project/TICKETS.md",
     "src/pipeline/event-log.ts",
+    "src/pipeline/event-log-persistence.ts",
     "src/pipeline/run.ts",
-    "test/event-log.test.ts",
+    "test/pipeline-event-log.test.ts",
     "test/pipeline.test.ts"
   ],
   "forbiddenPaths": [
@@ -39,18 +40,22 @@
     "complexity": "S",
     "estimatedMinutes": 30,
     "budgets": {
-      "maxImplementationFiles": 4,
+      "maxImplementationFiles": 5,
       "maxAffectedComponents": 2,
       "maxPublicInterfaceChanges": 0,
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "A dependency-free pipeline codec atomically publishes an immutable per-run logs.dsl.txt after manifest persistence; a later integration producer creates a separate workflow-level stream from GitHub evidence",
       "components": [
         {
           "name": "pipeline-event-log-codec",
-          "paths": ["src/pipeline/event-log.ts", "test/event-log.test.ts"]
+          "paths": [
+            "src/pipeline/event-log.ts",
+            "src/pipeline/event-log-persistence.ts",
+            "test/pipeline-event-log.test.ts"
+          ]
         },
         {
           "name": "pipeline-event-log-persistence",
@@ -60,7 +65,8 @@
       "responsibilityChanges": false,
       "interfaceChanges": [],
       "dataChanges": [
-        "Every persisted pipeline run gains logs.dsl.txt and manifest.files.eventLog"
+        "Every persisted pipeline run gains logs.dsl.txt and manifest.files.eventLog",
+        "Manifest evidence uses a canonical immutable projection that excludes the post-run mutable files registry"
       ],
       "ui": {"impact": "none", "states": [], "evidence": []},
       "rollback": "Remove event-log persistence and the registered manifest path; existing run artifacts remain readable"
@@ -69,18 +75,18 @@
     "validation": [
       {
         "criterion": "AC-02",
-        "commands": ["npm run build", "node --test dist/test/event-log.test.js"],
+        "commands": ["npm run build", "node --test dist/test/pipeline-event-log.test.js"],
         "evidence": "The canonical fixture and negative structural/digest cases exercise one codec"
       },
       {
         "criterion": "AC-03",
-        "commands": ["node --test dist/test/event-log.test.js"],
+        "commands": ["node --test dist/test/pipeline-event-log.test.js"],
         "evidence": "Atomic publication, unsafe references and bounded values are tested"
       },
       {
         "criterion": "AC-04",
         "commands": ["node --test dist/test/pipeline.test.js"],
-        "evidence": "Succeeded, degraded and failed manifests each have a valid adjacent event log"
+        "evidence": "Succeeded, degraded and failed manifests each have a valid adjacent event log whose evidence survives receipt registration"
       },
       {
         "criterion": "AC-06",

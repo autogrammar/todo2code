@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -9,6 +10,8 @@ import { pathExists, readJson } from '../src/core/io.js';
 import type { Conclusion, IntentGraph, PipelineManifest } from '../src/core/types.js';
 import { buildRealityView } from '../src/diff/reality.js';
 import { runPipeline } from '../src/pipeline/run.js';
+import { parseEventLog } from '../src/pipeline/event-log.js';
+import { canonicalPipelineManifestEvidence } from '../src/pipeline/event-log-persistence.js';
 import { executeAction } from '../src/services/actions.js';
 import { makeConfig } from './helpers.js';
 
@@ -81,12 +84,47 @@ test('Offline pipeline writes a complete run', async () => {
   assert.ok(conclusions.length > 0);
   assert.ok(conclusions.every((item) => item.schemaVersion === 't2c.conclusion/v1'));
   assert.equal(result.manifest.files.summaryConclusions?.endsWith('/summary-conclusions.json'), true);
+  assert.equal(result.manifest.files.eventLog?.endsWith('/logs.dsl.txt'), true);
+  const eventLog = parseEventLog(await fs.readFile(path.join(result.runDirectory, 'logs.dsl.txt'), 'utf8'));
+  assert.equal(eventLog.streamId, result.manifest.runId);
+  assert.ok(eventLog.events.some((event) => event.type === 'analysis.completed'
+    && event.outcome === 'DEGRADED' && event.trustClass === 'SYSTEM_FACT'));
+  assert.equal(eventLog.events.some((event) => event.trustClass === 'ADVISORY_INFERENCE'), false);
   assert.ok(graph.records.some((record) => record.source.kind === 'nl'));
   assert.ok(graph.records.some((record) => record.source.kind === 'git'));
   assert.ok(graph.records.some((record) => record.source.kind === 'ast'));
   assert.ok(graph.records.some((record) => record.source.kind === 'todo'));
   assert.ok(graph.records.some((record) => record.source.kind === 'document'
     && record.source.extractor === 't2c/markdown-documentation@2'));
+});
+
+test('Pipeline writes a canonical event log for a successful deterministic run', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-pipeline-event-success-'));
+  await fs.writeFile(path.join(root, 'TODO.md'), '# TODO\n');
+  const config = makeConfig(root);
+  const result = await runPipeline({
+    root,
+    taskFile: null,
+    todoFile: 'TODO.md',
+    changelogFile: null,
+    documentPatterns: [],
+    includeDocumentationLlm: false,
+    outputDir: '.intent-success',
+    gitCommitCount: 1,
+    allowSummaryFallback: true,
+    includeSummaryLlm: false,
+    includeCommunication: false,
+    nlMode: 'deterministic',
+    markdownMode: 'deterministic',
+  }, config);
+  assert.equal(result.manifest.status, 'succeeded');
+  const logPath = path.join(result.runDirectory, 'logs.dsl.txt');
+  const eventLog = parseEventLog(await fs.readFile(logPath, 'utf8'));
+  assert.equal(result.manifest.files.eventLog, path.relative(root, logPath).replace(/\\/g, '/'));
+  assert.ok(eventLog.events.some((event) => event.type === 'analysis.completed'
+    && event.outcome === 'PASSED' && event.trustClass === 'SYSTEM_FACT'));
+  assert.equal(eventLog.events.some((event) => event.type === 'evaluation.generated'), false);
+  assert.equal(eventLog.events.some((event) => event.trustClass === 'ADVISORY_INFERENCE'), false);
 });
 
 test('Pipeline persists synthesis, validation and review patch, then registers approval receipt', async () => {
@@ -135,6 +173,12 @@ test('Pipeline persists synthesis, validation and review patch, then registers a
   assert.equal(applied.idempotent, true);
   const updatedManifest = await readJson<PipelineManifest>(path.join(result.runDirectory, 'manifest.json'));
   assert.equal(updatedManifest.files.todoApplyReceipt?.endsWith('/TODO.patch.receipt.json'), true);
+  const eventLog = parseEventLog(await fs.readFile(path.join(result.runDirectory, 'logs.dsl.txt'), 'utf8'));
+  const manifestEvent = eventLog.events.find((event) => event.eventId.endsWith(':analysis')
+    && event.trustClass === 'SYSTEM_FACT');
+  const projectionDigest = `sha256:${createHash('sha256')
+    .update(canonicalPipelineManifestEvidence(updatedManifest)).digest('hex')}`;
+  assert.equal(manifestEvent?.evidenceDigest, projectionDigest);
 });
 
 test('Pipeline integrates multi-participant communication into graph, diagnostics, reality and run artifacts', async () => {
@@ -209,6 +253,11 @@ test('Pipeline require-llm task synthesis failure is audited and never publishes
   assert.equal(manifest.failure?.stage, 'taskSynthesis');
   assert.equal(manifest.failure?.code, 'LLM_NOT_CONFIGURED');
   assert.equal(manifest.stages.taskSynthesis.status, 'failed');
+  assert.equal(manifest.files.eventLog?.endsWith('/logs.dsl.txt'), true);
+  const eventLog = parseEventLog(await fs.readFile(path.join(runsRoot, runIds[0] ?? '', 'logs.dsl.txt'), 'utf8'));
+  assert.ok(eventLog.events.some((event) => event.type === 'analysis.completed'
+    && event.outcome === 'FAILED'));
+  assert.equal(eventLog.events.some((event) => event.type === 'evaluation.generated'), false);
   assert.equal(await pathExists(path.join(root, '.intent-failed', 'latest.json')), false);
 });
 

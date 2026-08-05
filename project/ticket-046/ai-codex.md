@@ -29,9 +29,27 @@ immutable run log.
 
 ## Actual changes
 
-- Architecture and four-file implementation budget are documented; no source
-  or test file has been changed.
+- Human approval received; ticket transitioned from
+  `PLAN / WAIT_FOR_APPROVAL` to `IN_PROGRESS / EDIT`.
+- Architecture and implementation budget are accepted; source and
+  test work is starting inside that boundary.
+- Code inspection found that approved post-run actions mutate only
+  `manifest.files`; hashing the complete file would make a correct immutable
+  log stale. The implementation therefore hashes an allowlisted stable
+  projection while retaining all semantic run and audit fields.
+- Split persistence acquisition from the codec after the first implementation
+  reached 580 lines; both modules now remain cohesive and below the repository
+  GOD-file threshold within the global five-file budget.
+- Kept merge evaluation out of the pipeline stream: this producer observes
+  analysis and diagnostics but has no authority to claim `ALLOWED`.
+- Implemented the closed codec, SHA-256 evidence/event chain, strict parser,
+  safe evidence references and same-directory atomic publication.
+- Integrated immutable logs for succeeded, degraded and failed pipeline runs;
+  receipt registration is covered by a regression proving the stable manifest
+  projection remains valid.
+- Focused tests (15/15), full verification (396 passed, 1 JDK-local skip),
+  deterministic governance, Docker smoke and diff checks all pass.
 
 ## Blockers
 
-- Human approval of ticket-046 is required before implementation.
+- Independent exact-head protected review is still required before merge.

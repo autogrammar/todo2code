@@ -2,14 +2,14 @@
 
 ## Active tickets
 
-None.
-
-## Backlog tickets
-
 - [ ] [`ticket-046`](project/ticket-046/README.md) — generate a canonical,
   atomic `logs.dsl.txt` beside every succeeded, degraded and failed pipeline
   manifest. Depends on completed ticket-045. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`.
+  `IN_PROGRESS / EDIT`.
+
+## Backlog tickets
+
+None.
 
 ## Completed tickets
 - [x] [`ticket-045`](project/ticket-045/README.md) — defined the canonical,

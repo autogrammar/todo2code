@@ -35,6 +35,7 @@ import {
 import { synthesizeTodoProposals, TaskSynthesisRequiredError, type AuditedTaskSynthesisResult } from '../synthesis/tasks-llm.js';
 import { createTodoPatch, type CreatedTodoPatch } from '../synthesis/todo-patch.js';
 import { T2C_VERSION } from '../version.js';
+import { persistPipelineEventLog } from './event-log-persistence.js';
 
 export interface PipelineResult {
   runDirectory: string;
@@ -356,6 +357,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   const codeChangeSourcePatchesPath = path.join(runDirectory, 'code-change-source-patches.json');
   const communicationAnalysisPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.json') : null;
   const communicationMarkdownPath = communicationAnalysis ? path.join(runDirectory, 'communication-analysis.md') : null;
+  const eventLogPath = path.join(runDirectory, 'logs.dsl.txt');
   await writeJson(graphPath, graph);
   await writeJson(diagnosticsPath, diagnostics);
   await writeText(summaryPath, summary.markdown);
@@ -392,6 +394,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
   files.diagnostics = path.relative(root, diagnosticsPath).replace(/\\/g, '/');
   files.summary = path.relative(root, summaryPath).replace(/\\/g, '/');
   files.summaryConclusions = path.relative(root, summaryConclusionsPath).replace(/\\/g, '/');
+  files.eventLog = path.relative(root, eventLogPath).replace(/\\/g, '/');
 
   const configuration = manifestConfiguration(options, config);
   const stageAudits = {
@@ -426,6 +429,7 @@ export async function runPipeline(options: PipelineOptions, config: T2CConfig): 
     },
   };
   await writeJson(path.join(runDirectory, 'manifest.json'), manifest);
+  await persistPipelineEventLog({ root, runDirectory, manifest });
   await writeJson(path.join(baseOutput, 'latest.json'), {
     runId,
     runDirectory: path.relative(root, runDirectory).replace(/\\/g, '/'),
@@ -568,7 +572,9 @@ async function persistFailedRun(
     root,
     createdAt: new Date().toISOString(),
     graphFingerprint: null,
-    files: {},
+    files: {
+      eventLog: path.relative(root, path.join(runDirectory, 'logs.dsl.txt')).replace(/\\/g, '/'),
+    },
     warnings: [message],
     status: 'failed',
     failure: { stage: failedStage, code: reason.code, message: reason.message },
@@ -585,6 +591,7 @@ async function persistFailedRun(
     },
   };
   await writeJson(path.join(runDirectory, 'manifest.json'), manifest);
+  await persistPipelineEventLog({ root, runDirectory, manifest, replaceUnfinished: true });
 }
 
 function failureCode(stage: PipelineFailureStage): string {
