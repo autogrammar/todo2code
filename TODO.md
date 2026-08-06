@@ -20,6 +20,12 @@ None. (ticket-048 publication is open as PR #66 on branch
 - [ ] [`ticket-052`](project/ticket-052/README.md) — promote the Validator
   autonomy operator checklist into agent-facing governance (`AGENTS.md`).
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
+- [ ] [`ticket-053`](project/ticket-053/README.md) — expose the CI-form
+  governance check as a documented pre-push gate, so branch-level diagnostics
+  (`GOV-INTENT-003`, `GOV-TICKET-001`) stop being discovered from failed pull
+  requests. Current state: `PLAN / WAIT_FOR_APPROVAL`; workstream assignment is
+  an open owner decision because `Makefile` is owned by both `governance` and
+  `integration`.
 
 ## Completed tickets
 - [x] [`ticket-046`](project/ticket-046/README.md) — generates a canonical,

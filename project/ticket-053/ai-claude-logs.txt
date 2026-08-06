@@ -1,0 +1,5 @@
+2026-08-06 observed: PR #64 consumed a full CI round on four jobs, failed GOV-TICKET-001 and was closed without merging
+2026-08-06 observed: the same verdict is reproducible locally in under a second with project/governance-check.sh --actor ci --base --head
+2026-08-06 observed: the ticket-047 squashed topology also fails GOV-INTENT-003, which no working-tree check can detect
+2026-08-06 scope: wrap the existing checker; no second implementation, no new diagnostic, no Git hook
+2026-08-06 open question: Makefile is owned by both governance and integration; integration is held by ticket-048

@@ -1,0 +1,85 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-053",
+  "summary": "Match the local governance gate to CI before push",
+  "workstream": "integration",
+  "allowedPaths": [
+    "project/ticket-053/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "Makefile",
+    "AGENTS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    ".governance/**",
+    ".github/workflows/**",
+    "project/governance-check.sh",
+    "src/**",
+    "package.json",
+    "package-lock.json",
+    "sdk/**"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "b8392f76592138e006ca5dff9af52082208acee5",
+    "targetBranch": "main",
+    "outcome": "The CI-form governance check is a documented, first-class gate run before a push, so branch-level diagnostics stop being discovered from failed pull requests",
+    "nonGoals": [
+      "No change to .governance, the manifest, the lock or the pinned standard",
+      "No new governance diagnostic, rule or trust decision",
+      "No reimplementation of any check; the existing project/governance-check.sh is only invoked",
+      "No automatically installed pre-push Git hook",
+      "No change to the working-tree semantics of make governance"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "proposed",
+      "decision": "A single Makefile target wraps the existing checker in its CI form against the merge base with origin/main, because the checker already supports --actor ci --base --head and the only missing piece is that nobody runs it before pushing; documenting it in AGENTS.md makes the pre-push gate explicit rather than folklore",
+      "components": [
+        {
+          "name": "pre-push-governance-gate",
+          "paths": ["Makefile", "AGENTS.md"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Remove the Makefile target and the AGENTS.md paragraph; project/governance-check.sh and make governance are untouched"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["make governance-ci"],
+        "evidence": "The target runs the checker in CI form against the merge base and mirrors the CI job's exit code"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["bash project/governance-check.sh --actor ci --base b8392f76592138e006ca5dff9af52082208acee5 --head <squashed-047-head>"],
+        "evidence": "The squashed ticket-047 topology reports GOV-INTENT-003 and GOV-TICKET-001 while the ticket-048 plan-then-implementation topology reports GOV-PASS"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["git merge-base origin/main HEAD"],
+        "evidence": "Base resolution needs no network when origin/main is fetched, and the failure message names the required fetch"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["make governance", "make verify", "make docker-smoke", "git diff --check"],
+        "evidence": "Deterministic, repository-wide and container gates pass"
+      }
+    ]
+  }
+}
