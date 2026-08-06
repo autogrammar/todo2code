@@ -1,0 +1,15 @@
+2026-08-06 APPROVAL: human owner directed that the previous changes be carried forward and the underlying problem fixed
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+2026-08-06 finding: make governance compares the working tree to HEAD; CI compares base..head, which is why three blockers were invisible locally
+2026-08-06 finding: GOV-INTENT-003 requires intent.json in a strictly earlier commit than the implementation it authorizes
+2026-08-06 finding: GOV-TICKET-001 rejects implementation paths under a DONE ticket
+2026-08-06 finding: .env.example is owned by no workstream and .governance/manifest.json is hash-locked to the pinned standard, so no ticket can declare the two GITHUB_* keys
+2026-08-06 decision: fix at the cause by removing both process.env fallbacks from scripts/github-event-log.mjs instead of seeking ownership over .env.example
+2026-08-06 branch cut from the protected base b8392f7 so .env.example never enters the diff
+2026-08-06 plan-only commit b82e10a published before any implementation
+2026-08-06 implementation: removed process.env.GITHUB_EVENT_PATH and process.env.GITHUB_REPOSITORY; the missing repository error now names --repository
+2026-08-06 evidence: added a case that sets both variables in the child environment and asserts fail-closed behavior, no output file and no echo of the ambient repository
+2026-08-06 documentation: docs/EVENT_LOG_DSL.md records the required flags and why an environment-reading acquisition boundary cannot be published here
+2026-08-06 validation: focused workflow-validation 10/10; npm run build PASS
+2026-08-06 validation: verify:env PASS with .env.example byte-identical to origin/main
+transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION

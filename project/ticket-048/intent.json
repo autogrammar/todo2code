@@ -47,7 +47,7 @@
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "The adapter is republished from the protected base with its plan committed strictly before its implementation, and its two process.env fallbacks are removed so the acquisition boundary resolves input only from explicit flags; this eliminates the verify:env demand on .env.example, a path no workstream owns and the hash-locked manifest cannot be extended to cover",
       "components": [
         {

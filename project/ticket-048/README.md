@@ -2,8 +2,8 @@
 
 - **ID**: ticket-048
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -40,23 +40,23 @@ or Validator approval — are preserved verbatim, not rewritten.
 
 ## Acceptance criteria
 
-- [ ] AC-01: The republication route, the removal of the two `process.env`
+- [x] AC-01: The republication route, the removal of the two `process.env`
   fallbacks and the carried-over ticket-047 record are approved by a human
   owner.
-- [ ] AC-02: `scripts/github-event-log.mjs` resolves the event path and the
+- [x] AC-02: `scripts/github-event-log.mjs` resolves the event path and the
   repository only from `--event-path` and `--repository`, fails closed with a
   named error when either is absent, and reads no `process.env` key.
-- [ ] AC-03: `npm run verify:env` passes with `.env.example` unchanged from
+- [x] AC-03: `npm run verify:env` passes with `.env.example` unchanged from
   `main`, proving the unownable-path conflict is resolved at its cause.
-- [ ] AC-04: The adapter's behavior is otherwise identical to ticket-047 —
+- [x] AC-04: The adapter's behavior is otherwise identical to ticket-047 —
   same event mappings, same allowlisted canonical evidence, same
   `SYSTEM_FACT` trust class, same immutable atomic publication.
-- [ ] AC-05: `docs/EVENT_LOG_DSL.md` documents both flags as required and
+- [x] AC-05: `docs/EVENT_LOG_DSL.md` documents both flags as required and
   records that the adapter deliberately reads no environment variable.
-- [ ] AC-06: The branch carries the plan in a strictly earlier commit than the
+- [x] AC-06: The branch carries the plan in a strictly earlier commit than the
   implementation, and `project/governance-check.sh --actor ci --base <base>
   --head <head>` passes against the PR base.
-- [ ] AC-07: Governance, full host verification and Docker checks pass with no
+- [x] AC-07: Governance, full host verification and Docker checks pass with no
   dependency or public-interface change.
 
 ## Participants
@@ -92,6 +92,11 @@ or Validator approval — are preserved verbatim, not rewritten.
 
 ## Approval boundary
 
-Awaiting human approval. Implementation may not start before this ticket moves
-to `IN_PROGRESS / EDIT`, and the plan commit that carries this file and
-`intent.json` must precede any implementation commit.
+The human owner approved this ticket on 2026-08-06, directing that the previous
+changes be carried forward and the underlying problem fixed. The plan commit
+carrying this file and `intent.json` precedes the implementation commit, as the
+standard requires.
+
+Publication remains open: this ticket is `IN_PROGRESS / VALIDATION` until its
+pull request passes protected checks and is merged. It is not marked `DONE`
+before that, which is precisely the mistake that stranded ticket-047.

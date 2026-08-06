@@ -1,0 +1,196 @@
+{
+  "push": {
+    "ref": "refs/heads/main",
+    "before": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "after": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "deleted": false,
+    "timestamp": "2026-08-05T08:10:00Z",
+    "pusher": {
+      "name": "alice",
+      "login": "alice"
+    },
+    "sender": {
+      "login": "alice"
+    },
+    "repository": {
+      "full_name": "semcod/todo2code"
+    },
+    "head_commit": {
+      "timestamp": "2026-08-05T08:10:10Z"
+    },
+    "commits": [
+      {
+        "id": "cccccccccccccccccccccccccccccccccccccccc",
+        "message": "Adjust event-log fixtures",
+        "author": {
+          "username": "alice"
+        },
+        "timestamp": "2026-08-05T08:10:20Z",
+        "distinct": true
+      }
+    ]
+  },
+  "pull_request_opened": {
+    "action": "opened",
+    "pull_request": {
+      "number": 123,
+      "state": "open",
+      "merged": false,
+      "created_at": "2026-08-05T08:11:00Z",
+      "updated_at": "2026-08-05T08:11:05Z",
+      "base": {
+        "sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "head": {
+        "sha": "cccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "sender": {
+      "login": "alice"
+    }
+  },
+  "pull_request_review": {
+    "action": "submitted",
+    "review": {
+      "id": 555,
+      "state": "approved",
+      "submitted_at": "2026-08-05T08:12:00Z",
+      "user": {
+        "login": "carol"
+      }
+    },
+    "pull_request": {
+      "number": 123,
+      "base": {
+        "sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "head": {
+        "sha": "cccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "sender": {
+      "login": "carol"
+    }
+  },
+  "workflow_run": {
+    "action": "completed",
+    "workflow_run": {
+      "id": 9876543,
+      "name": "ci",
+      "status": "completed",
+      "conclusion": "success",
+      "updated_at": "2026-08-05T08:13:00Z",
+      "created_at": "2026-08-05T08:12:30Z",
+      "head_sha": "cccccccccccccccccccccccccccccccccccccccc",
+      "actor": {
+        "login": "github-actions"
+      }
+    },
+    "sender": {
+      "login": "github-actions"
+    },
+    "repository": {
+      "full_name": "semcod/todo2code"
+    }
+  },
+  "pull_request_review_unsupported": {
+    "action": "submitted",
+    "review": {
+      "id": 666,
+      "state": "needs_reply"
+    },
+    "pull_request": {
+      "number": 123,
+      "base": {
+        "sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "head": {
+        "sha": "cccccccccccccccccccccccccccccccccccccccc"
+      }
+    }
+  },
+  "workflow_run_secret": {
+    "action": "completed",
+    "workflow_run": {
+      "id": 9876543,
+      "name": "ci",
+      "status": "completed",
+      "conclusion": "success",
+      "updated_at": "2026-08-05T08:13:00Z",
+      "created_at": "2026-08-05T08:13:30Z",
+      "head_sha": "cccccccccccccccccccccccccccccccccccccccc",
+      "actor": {
+        "login": "github-actions"
+      }
+    },
+    "sender": {
+      "login": "github-actions"
+    },
+    "secret": "this-field-should-not-be-in-canonical-evidence",
+    "raw_payload": {
+      "query": "should-never-land",
+      "headers": {
+        "x-ignore": "ignored"
+      }
+    }
+  },
+  "workflow_run_with_bad_timestamp": {
+    "action": "completed",
+    "workflow_run": {
+      "id": 9876545,
+      "name": "ci",
+      "status": "completed",
+      "conclusion": "success",
+      "updated_at": "2026-08-05 08:13:00",
+      "created_at": "2026-08-05T08:13:30Z"
+    },
+    "sender": {
+      "login": "github-actions"
+    },
+    "repository": {
+      "full_name": "semcod/todo2code"
+    },
+    "head_sha": "cccccccccccccccccccccccccccccccccccccccc"
+  },
+  "pull_request_synchronize": {
+    "action": "synchronize",
+    "pull_request": {
+      "number": 123,
+      "state": "open",
+      "merged": false,
+      "created_at": "2026-08-05T08:11:00Z",
+      "updated_at": "2026-08-05T08:15:00Z",
+      "base": {
+        "sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "head": {
+        "sha": "cccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "sender": {
+      "login": "alice"
+    }
+  },
+  "pull_request_closed": {
+    "action": "closed",
+    "pull_request": {
+      "number": 123,
+      "state": "closed",
+      "merged": false,
+      "created_at": "2026-08-05T08:11:00Z",
+      "updated_at": "2026-08-05T08:16:00Z",
+      "base": {
+        "sha": "bbbbbbbbccccbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "head": {
+        "sha": "dddddddddddddddddddddddddddddddddddddddd"
+      }
+    },
+    "sender": {
+      "login": "alice"
+    },
+    "merged_by": {
+      "login": "maintainer"
+    }
+  }
+}

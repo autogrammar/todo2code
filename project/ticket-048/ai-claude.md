@@ -39,8 +39,25 @@ should take its input explicitly, not inherit ambient process state.
 
 ## Actual changes
 
-- None; waiting for approval.
+- `scripts/github-event-log.mjs`: both `process.env` reads removed. The event
+  path resolves only from `--event-path`, and the repository only from
+  `--repository` or the payload's own `repository.full_name`. The missing
+  repository error now names the flag.
+- `test/workflow-validation.test.ts`: added a case that sets
+  `GITHUB_EVENT_PATH` and `GITHUB_REPOSITORY` in the child environment and
+  asserts the adapter still fails closed on both, writes no output file, and
+  never echoes the ambient repository value.
+- `docs/EVENT_LOG_DSL.md`: documents the required flags, states that the
+  adapter reads no environment variable, and records why an environment-reading
+  acquisition boundary cannot be published in this repository at all.
+- `test/fixtures/event-log/v1/github-event-payloads.json`: carried across
+  unchanged from ticket-047.
+- `TODO.md`, `project/TICKETS.md`, `project/ticket-047/**`: record carried and
+  registered.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- None. The three obstacles in the plan are resolved: the plan sits in an
+  earlier commit, this ticket is active over its own implementation paths, and
+  `npm run verify:env` passes with `.env.example` byte-identical to the
+  protected base.

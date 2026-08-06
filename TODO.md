@@ -6,7 +6,7 @@
   GitHub acquisition adapter through a route governance accepts, with the plan
   committed before the implementation, and removes the two `process.env`
   fallbacks whose `verify:env` requirement forced an edit to `.env.example`, a
-  path no workstream owns. Current state: `PLAN / WAIT_FOR_APPROVAL`.
+  path no workstream owns. Current state: `IN_PROGRESS / VALIDATION`.
 
 ## Backlog tickets
 
