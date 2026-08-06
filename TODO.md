@@ -2,11 +2,24 @@
 
 ## Active tickets
 
-None.
+None. (ticket-048 publication is open as PR #66 on branch
+`ticket/048-publish-event-log-adapter`; it is not present on this plan branch.)
 
 ## Backlog tickets
 
-None.
+- [ ] [`ticket-049`](project/ticket-049/README.md) — Validator autonomy audit,
+  operator guide and refactor plan (docs only). Current state:
+  `PLAN / WAIT_FOR_APPROVAL`. See
+  [AUTONOMY_AND_REFACTOR_PLAN.md](project/ticket-049/AUTONOMY_AND_REFACTOR_PLAN.md).
+- [ ] [`ticket-050`](project/ticket-050/README.md) — own or explicitly exclude
+  unpublishable root paths (`CHANGELOG.md`, `.env.example`). Current state:
+  `PLAN / WAIT_FOR_APPROVAL`.
+- [ ] [`ticket-051`](project/ticket-051/README.md) — wire
+  `scripts/github-event-log.mjs` into CI with explicit flags only. Current
+  state: `PLAN / WAIT_FOR_APPROVAL` (prefer after ticket-048 merges).
+- [ ] [`ticket-052`](project/ticket-052/README.md) — promote the Validator
+  autonomy operator checklist into agent-facing governance (`AGENTS.md`).
+  Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
 - [x] [`ticket-046`](project/ticket-046/README.md) — generates a canonical,

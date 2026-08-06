@@ -1,0 +1,7 @@
+# ai-grok logs — ticket-049
+
+2026-08-06 — Created plan ticket after live autonomy work on PR #66 / validator-agent.
+Findings: DIRECT_PR_SCAN_* variables set earlier were insufficient; scan-direct
+landed on validator-agent main via PR #8 with todo2code matrix; dry-run failed
+on GitHub Actions CDN 503; live direct-pr re-dispatched. Documentation and
+sibling tickets written; status remains PLAN / WAIT_FOR_APPROVAL.

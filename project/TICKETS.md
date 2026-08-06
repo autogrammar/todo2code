@@ -40,4 +40,9 @@ of `project/README.md`, which remains a generated technical-analysis artifact.
 | **ticket-044** | [`README.md`](./ticket-044/README.md) | [`preprompt.md`](./ticket-044/preprompt.md) | - |  [`ai-codex.md`](./ticket-044/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-044/ai-codex-logs.txt) | [`changelog.md`](./ticket-044/changelog.md) |
 | **ticket-045** | [`README.md`](./ticket-045/README.md) | [`preprompt.md`](./ticket-045/preprompt.md) | - |  [`ai-codex.md`](./ticket-045/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-045/ai-codex-logs.txt) | [`changelog.md`](./ticket-045/changelog.md) |
 | **ticket-046** | [`README.md`](./ticket-046/README.md) | [`preprompt.md`](./ticket-046/preprompt.md) | - |  [`ai-codex.md`](./ticket-046/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-046/ai-codex-logs.txt) | [`changelog.md`](./ticket-046/changelog.md) |
+| **ticket-049** | [`README.md`](./ticket-049/README.md) | [`preprompt.md`](./ticket-049/preprompt.md) | - |  [`ai-grok.md`](./ticket-049/ai-grok.md) |  [`ai-grok-logs.txt`](./ticket-049/ai-grok-logs.txt) | [`changelog.md`](./ticket-049/changelog.md) |
+| **ticket-050** | [`README.md`](./ticket-050/README.md) | [`preprompt.md`](./ticket-050/preprompt.md) | - |  [`ai-grok.md`](./ticket-050/ai-grok.md) |  [`ai-grok-logs.txt`](./ticket-050/ai-grok-logs.txt) | [`changelog.md`](./ticket-050/changelog.md) |
+| **ticket-051** | [`README.md`](./ticket-051/README.md) | [`preprompt.md`](./ticket-051/preprompt.md) | - |  [`ai-grok.md`](./ticket-051/ai-grok.md) |  [`ai-grok-logs.txt`](./ticket-051/ai-grok-logs.txt) | [`changelog.md`](./ticket-051/changelog.md) |
+| **ticket-052** | [`README.md`](./ticket-052/README.md) | [`preprompt.md`](./ticket-052/preprompt.md) | - |  [`ai-grok.md`](./ticket-052/ai-grok.md) |  [`ai-grok-logs.txt`](./ticket-052/ai-grok-logs.txt) | [`changelog.md`](./ticket-052/changelog.md) |
+ Stashed changes
 <!-- AUTO:TICKET_INDEX:END -->

@@ -1,0 +1,39 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-050",
+  "summary": "Own or explicitly exclude unpublishable root paths (CHANGELOG, .env.example)",
+  "workstream": "governance",
+  "allowedPaths": [
+    "project/ticket-050/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    ".governance/**",
+    "AGENTS.md",
+    "project/governance-check.sh"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "scripts/**"
+  ],
+  "stacks": ["node"],
+  "dependsOn": ["ticket-049"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "targetBranch": "main",
+    "outcome": "CHANGELOG.md and .env.example are either owned with checkable edit rules or explicitly excluded with agent-visible fail-closed guidance",
+    "nonGoals": [
+      "No silent ownership expansion without standard alignment",
+      "No removal of verify:env scanning"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 90,
+    "budgets": {
+      "maxImplementationFiles": 5,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    }
+  }
+}

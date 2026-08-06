@@ -1,0 +1,40 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-052",
+  "summary": "Hardening notes for external Validator App autonomy (operator checklist)",
+  "workstream": "governance",
+  "allowedPaths": [
+    "project/ticket-052/**",
+    "project/ticket-049/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "AGENTS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    ".github/workflows/**",
+    "src/**",
+    "scripts/**"
+  ],
+  "stacks": [],
+  "dependsOn": ["ticket-049"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "targetBranch": "main",
+    "outcome": "AGENTS.md and ticket evidence make Validator autonomy preconditions checkable so agents stop treating variable-only setup as success",
+    "nonGoals": [
+      "No validator-agent code change in this ticket",
+      "No new trusted approval source",
+      "No self-dispatch workflow in todo2code"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 40,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    }
+  }
+}
