@@ -1,0 +1,101 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-047",
+  "summary": "Collect bounded GitHub evidence into event logs",
+  "workstream": "integration",
+  "allowedPaths": [
+    "project/ticket-047/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "scripts/github-event-log.mjs",
+    "test/workflow-validation.test.ts",
+    "test/fixtures/event-log/v1/github-event-payloads.json",
+    "docs/EVENT_LOG_DSL.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    ".github/workflows/**",
+    ".governance/**",
+    "src/**",
+    "package.json",
+    "package-lock.json",
+    "sdk/**"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-046"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "b8392f76592138e006ca5dff9af52082208acee5",
+    "targetBranch": "main",
+    "outcome": "Convert one bounded GitHub Actions event payload into one canonical immutable workflow logs.dsl.txt artifact",
+    "nonGoals": [
+      "No GitHub workflow or repository-setting change",
+      "No GitHub API polling or historical reconstruction",
+      "No mutation or commit of a completed event log",
+      "No new DSL, public interface, dependency or LLM-derived approval"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 4,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+    "status": "accepted",
+      "decision": "A dependency-free integration script allowlists one GitHub event payload into canonical evidence and delegates all DSL rendering, validation, hashing and atomic publication to the ticket-046 runtime codec; a later governance ticket only wires this stable command into Actions",
+      "components": [
+        {
+          "name": "github-event-acquisition-adapter",
+          "paths": ["scripts/github-event-log.mjs"]
+        },
+        {
+          "name": "github-event-acquisition-evidence",
+          "paths": [
+            "test/workflow-validation.test.ts",
+            "test/fixtures/event-log/v1/github-event-payloads.json",
+            "docs/EVENT_LOG_DSL.md"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Each supported GitHub Actions event can produce a separate immutable workflow-run logs.dsl.txt",
+        "Evidence digests cover only event-specific allowlisted canonical JSON fields"
+      ],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Remove the standalone acquisition script, fixture and its workflow-validation cases; the ticket-046 codec and pipeline logs remain unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/workflow-validation.test.js"],
+        "evidence": "Supported event/action mappings and unsupported cases are exercised from bounded fixtures"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node --test dist/test/workflow-validation.test.js"],
+        "evidence": "Canonical allowlisting, unsafe values and non-leakage of raw payload fields are tested"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["node --test dist/test/workflow-validation.test.js"],
+        "evidence": "Output is parsed by the existing codec and immutable atomic publication is verified"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["node --test dist/test/workflow-validation.test.js"],
+        "evidence": "Review payloads remain SYSTEM_FACT and cannot synthesize an approval attestation"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["make governance", "make verify", "make docker-smoke", "git diff --check"],
+        "evidence": "Deterministic, repository-wide and container gates pass"
+      }
+    ]
+  }
+}
