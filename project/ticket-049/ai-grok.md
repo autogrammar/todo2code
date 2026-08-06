@@ -29,9 +29,11 @@ must stay.
 - Added `AUTONOMY_AND_REFACTOR_PLAN.md` and `OPERATOR_GUIDE.md`.
 - Completed ticket README, intent, preprompt, changelog and this participant file.
 - Scaffolded tickets 050–052 with scoped intents.
+- 0.2.0: cross-linked twin-probes `publication.gate`, validator freeze docs,
+  skills-agent 0014; recorded external PR landings and Actions outage note.
 
 ## Blockers
 
 - AC-05 requires human acceptance of the plan before sibling implementation.
 - PR #66 still needs a live Validator (or trusted human) review on the exact
-  head; Actions flakiness delayed that path during this session.
+  head; GitHub Actions major_outage / CDN failures delayed hosted checks.

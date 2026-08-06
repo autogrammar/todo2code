@@ -1,9 +1,35 @@
 # Autonomy audit, operator guide, and refactor plan
 
 **Ticket**: ticket-049  
-**Date**: 2026-08-06  
+**Date**: 2026-08-06 (updated same day after freeze + publication.gate landings)  
 **Repos**: ticket-048 / PR #66 publication path; agent misconfiguration of
 `subactor/validator-agent` "autonomy"
+
+## 0. External documentation map (canonical)
+
+| Topic | Repository | Path |
+| --- | --- | --- |
+| **publication.gate** (what / where / not trust) | `subactor/twin-probes` | `docs/PUBLICATION_PROBE.md`, `docs/ECOSYSTEM.md` |
+| Exact-head freeze + dispatcher | `subactor/validator-agent` | `docs/PUBLICATION_FREEZE.md`, `bin/dispatch-direct-pr.sh` |
+| Validator runbook | `subactor/validator-agent` | `docs/VALIDATOR_RUNBOOK.md` |
+| Coding-agent skill | `subactor/skills-agent` | `SKILLS/0014_publication-freeze/`, process `publication-freeze.v1` |
+| Grok skill | user home | `~/.grok/skills/publish-validate/SKILL.md` |
+
+**`publication.gate` is a probe inside `twin-probes`, not a separate product.**
+It measures open-PR readiness and emits NEXT tasks; it never approves or merges.
+
+### Landed outside this ticket (2026-08-06)
+
+- validator-agent PR #8: `scan-direct` + todo2code matrix  
+- validator-agent PR #10: freeze dispatcher + PUBLICATION_FREEZE.md  
+- skills-agent PR #11: publication-freeze.v1 + skill 0014  
+- twin-probes PR #1: `publication.gate` probe + docs  
+
+### Still blocking PR #66 (snapshot)
+
+- No Validator APPROVE on current head  
+- Hosted checks may be queued during **GitHub Actions major_outage** while
+  local build/tests pass — wait for Actions, do not invent product defects  
 
 ---
 
@@ -14,8 +40,10 @@
 - Adapter behavior for ticket-048 is complete: no `process.env`, required
   flags, `SOURCE "github-actions"`, tests and docs updated.
 - Host gates: `make verify`, `verify:env`, docker-smoke, CI-equivalent
-  governance structure checks report pass for the PR head.
-- Koru code-review on #66 is green.
+  governance structure checks report pass for the PR head when Actions is
+  healthy. Local focused tests: 10/10 on acquisition cases.
+- Koru may fail on **attestation ID-token 503** during infra incidents even
+  when the review body would pass.
 
 ### 1.2 Publication gate (not working)
 
@@ -36,7 +64,8 @@ Markdown comments and agent narratives are **not** merge authorization
 | Assume scheduled cron reviews every allowlisted repo | Matrix was hardcoded without `semcod/todo2code` | Fixed on validator-agent `main` (PR #8 + matrix commit) |
 | Assume `DIRECT_PR_SCAN_CONFIG` repo variable is read by the workflow | Workflow embeds config in YAML env; Python reads `DIRECT_PR_SCAN_CONFIG` from process env injected by the job | Variable useful only if workflow assigns it; embedded baseline is source of truth today |
 | Treat `direct-pr` form as the autonomous path | Form is manual; `scan-direct` was designed to replace it | Manual `direct-pr` remains the **fast path** for one PR; scan is **steady-state** autonomy |
-| Queue saturation / Actions CDN outage | Cancelling peers + retries needed; agents reported "configured" while jobs never ran | Operational fragility remains |
+| Queue saturation / Actions CDN outage | Cancelling peers + retries needed; agents reported "configured" while jobs never ran | Still real: 2026-08-06 **Actions major_outage** left check runs `queued`; use status.github.com + publication.gate NEXT=wait |
+| twin-probes ignored / misused as trust root | Agents either never diagnosed or expected twin-probes to unlock merge | **publication.gate** landed for diagnosis; freeze + App remain trust path |
 | Intent-conformance noise on validator-agent | Blocking diagnostics on large feature PRs slow landing | PR #8 merged despite unstable checks (private repo protection weak); not a model for todo2code |
 
 ### 1.4 What AI still needs to improve (process, not model)
@@ -151,11 +180,20 @@ requires `force=true`.
 
 | # | Work | Notes |
 | --- | --- | --- |
-| B1 | Keep `semcod/todo2code` in matrix + config | Done on main as of `8cf40bf` / merge `95c62a2` |
+| B1 | Keep `semcod/todo2code` in matrix + config | **Done** on main (PR #8) |
+| B1b | Publication freeze script + docs | **Done** (PR #10) |
 | B2 | Optionally read config from `vars.DIRECT_PR_SCAN_CONFIG` **merged** with embedded baseline (never replace wholesale with a partial var) | External PR |
 | B3 | Separate concurrency groups for `direct-scan` vs `project-queue` | Avoid mutual queueing |
-| B4 | Surface skip reasons as PR comments when dry-run finds candidates but live is off | Observability |
+| B4 | Surface skip reasons as PR comments when dry-run finds candidates but live is off | Observability; also feed twin-probes publication.gate facts |
 | B5 | Fix intent-conformance noise so feature PRs do not rely on weak branch protection | External |
+
+### Phase B′ — measurement (twin-probes)
+
+| # | Work | Notes |
+| --- | --- | --- |
+| B′1 | `publication.gate` probe + PUBLICATION_PROBE + ECOSYSTEM docs | **Done** (PR #1) |
+| B′2 | Fleet/cron host for todo2code publication.gate | Follow-up |
+| B′3 | Ingest scan-direct skip reasons + Actions infra facts | Follow-up |
 
 ### Phase C — todo2code governance ergonomics
 

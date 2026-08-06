@@ -5,3 +5,5 @@ Findings: DIRECT_PR_SCAN_* variables set earlier were insufficient; scan-direct
 landed on validator-agent main via PR #8 with todo2code matrix; dry-run failed
 on GitHub Actions CDN 503; live direct-pr re-dispatched. Documentation and
 sibling tickets written; status remains PLAN / WAIT_FOR_APPROVAL.
+
+2026-08-06 — Docs 0.2.0: publication.gate (twin-probes probe), freeze, ecosystem map, Actions outage note.
