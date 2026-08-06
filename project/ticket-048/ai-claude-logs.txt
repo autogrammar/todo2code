@@ -21,3 +21,8 @@ transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
 2026-08-06 autonomy: DIRECT_PR_SCAN_* variables alone did not produce reviews; scan-direct was not on validator-agent main and matrix lacked todo2code until PR #8 merge 95c62a2
 2026-08-06 autonomy: dry-run direct-pr failed on GitHub Actions CDN Service Unavailable; live direct-pr re-dispatched for head 95a4d91
 2026-08-06 follow-up: ticket-049 plan + tickets 050-052 record operator guide and refactor work; GOV-APPROVAL remains the sole publication blocker for PR #66
+2026-08-06 verification: DIRECT_PR_SCAN_CONFIG and DIRECT_PR_SCAN_ENABLED=true are set on subactor/validator-agent; the config includes semcod/todo2code with required checks verify, Java adapter (JDK 17 required), koru / code-review and allowed base main
+2026-08-06 verification: scan-direct is present in .github/workflows/validator.yml on validator-agent origin/main; the earlier missing-job explanation is withdrawn
+2026-08-06 root cause: scheduled validator run 31122590798 recorded zero steps for the gate job test, was cancelled after 23 minutes, and skipped validate and scan-direct; the job never obtained a runner
+2026-08-06 root cause evidence: 18 of the last 40 runs in subactor/validator-agent are queued across all six workflows, oldest over 90 minutes, while semcod/todo2code drains normally
+2026-08-06 conclusion: the autonomy configuration is correct and the executor is starved; no change in this repository can clear an Actions capacity or spending-limit condition in the subactor organization

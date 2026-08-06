@@ -58,7 +58,26 @@ should take its input explicitly, not inherit ambient process state.
 ## Blockers
 
 - **GOV-APPROVAL on PR #66**: product checks and structural governance pass;
-  merge waits for a trusted Validator App (or trusted human) review on exact
-  head `95a4d91e94862b9d745422341aceb8368e0a0cae`. Setting scan variables alone
-  did not produce reviews while `scan-direct` was missing from validator-agent
-  `main` / matrix. See ticket-049 plan (branch `ticket/049-validator-autonomy-plan`).
+  merge waits for a trusted Validator App (or trusted human) review on the exact
+  current head. See ticket-049 plan (branch `ticket/049-validator-autonomy-plan`).
+
+  An earlier note here blamed a missing `scan-direct` job in validator-agent
+  `main`. That is not the cause, and both halves of it were re-checked:
+
+  - `DIRECT_PR_SCAN_CONFIG` and `DIRECT_PR_SCAN_ENABLED=true` are set on
+    `subactor/validator-agent`, and the config carries a `semcod/todo2code`
+    entry with the required checks and `main` as an allowed base.
+  - `scan-direct` is present in `.github/workflows/validator.yml` on
+    validator-agent `origin/main`.
+
+  The actual cause is runner starvation in the `subactor` organization. In the
+  failing scheduled run, the gate job `test` recorded **zero steps** and was
+  cancelled after 23 minutes, so `validate` and `scan-direct` were skipped —
+  the job never obtained a runner. The backlog spans all six workflows in that
+  repository (`ci`, `contribution-policy`, `intent-conformance`,
+  `koru-code-review`, `Sync Tickets project`, `validator-agent`), with runs
+  queued for over 90 minutes, while `semcod/todo2code` drains normally.
+
+  The autonomy configuration is therefore correct and the executor is starved.
+  No change in this repository can clear it; it is an Actions capacity or
+  spending-limit matter in the `subactor` organization.
