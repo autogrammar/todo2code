@@ -70,14 +70,21 @@ should take its input explicitly, not inherit ambient process state.
   - `scan-direct` is present in `.github/workflows/validator.yml` on
     validator-agent `origin/main`.
 
-  The actual cause is runner starvation in the `subactor` organization. In the
-  failing scheduled run, the gate job `test` recorded **zero steps** and was
-  cancelled after 23 minutes, so `validate` and `scan-direct` were skipped —
-  the job never obtained a runner. The backlog spans all six workflows in that
-  repository (`ci`, `contribution-policy`, `intent-conformance`,
-  `koru-code-review`, `Sync Tickets project`, `validator-agent`), with runs
-  queued for over 90 minutes, while `semcod/todo2code` drains normally.
+  The actual cause is a GitHub-wide **Actions `major_outage`**, confirmed
+  against `status.github.com` while this was written. In the failing scheduled
+  run, the gate job `test` recorded **zero steps** and was cancelled after 23
+  minutes, so `validate` and `scan-direct` were skipped — the job never
+  obtained a runner. The backlog spans all six workflows in that repository
+  (`ci`, `contribution-policy`, `intent-conformance`, `koru-code-review`,
+  `Sync Tickets project`, `validator-agent`), with runs queued for over 90
+  minutes.
 
-  The autonomy configuration is therefore correct and the executor is starved.
-  No change in this repository can clear it; it is an Actions capacity or
-  spending-limit matter in the `subactor` organization.
+  An earlier revision of this note attributed the stall to an Actions capacity
+  or spending limit in the `subactor` organization, reasoning that
+  `semcod/todo2code` kept draining. That inference was wrong: during a
+  `major_outage` repositories stall unevenly, so one that keeps draining is not
+  a control group.
+
+  The autonomy configuration is therefore correct and the executor is stalled.
+  No change in this repository can clear it. Analysis lives in ticket-049
+  §2.2.1.

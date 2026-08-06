@@ -25,4 +25,5 @@ transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
 2026-08-06 verification: scan-direct is present in .github/workflows/validator.yml on validator-agent origin/main; the earlier missing-job explanation is withdrawn
 2026-08-06 root cause: scheduled validator run 31122590798 recorded zero steps for the gate job test, was cancelled after 23 minutes, and skipped validate and scan-direct; the job never obtained a runner
 2026-08-06 root cause evidence: 18 of the last 40 runs in subactor/validator-agent are queued across all six workflows, oldest over 90 minutes, while semcod/todo2code drains normally
-2026-08-06 conclusion: the autonomy configuration is correct and the executor is starved; no change in this repository can clear an Actions capacity or spending-limit condition in the subactor organization
+2026-08-06 correction: attributing the stall to a subactor Actions capacity or spending limit was wrong; status.github.com reported Actions in major_outage, and during an outage repositories stall unevenly so a draining repository is not a control group
+2026-08-06 conclusion: the autonomy configuration is correct and the executor is stalled by a GitHub-wide Actions outage; no change in this repository can clear it
