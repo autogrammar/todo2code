@@ -27,15 +27,29 @@ verdict arrives from a failed pull request instead.
    `git merge-base origin/main HEAD` and delegating to the existing checker.
 3. Prove the gate against real history: the squashed ticket-047 topology must
    fail, the ticket-048 topology must pass.
-4. State in `AGENTS.md` that this gate, not `make governance`, is what must be
-   green before a push.
+4. State in the governance documentation that this gate, not `make
+   governance`, is what must be green before a push.
 
 ## Actual changes
 
-- None; waiting for approval.
+- `README.md`, section "Bramka governance przed pushem": the CI-form
+  invocation is now a documented pre-push obligation with a blocking exit
+  policy, naming the diagnostics the working-tree form cannot see and requiring
+  the check to run from the branch being pushed.
+
+The original plan targeted `Makefile`, then `AGENTS.md`. Both were dropped
+after the constraints were verified rather than assumed: `Makefile` matches
+`requiredForPaths` and raises `GOV-INTEGRATION-001` under a `governance`
+ticket, and `AGENTS.md` is hash-locked in `managedFiles` — the attempted edit
+raised `GOV-SYNC-001` and was reverted. `README.md` is the only
+governance-owned, unlocked document outside ticket directories.
+
+Little is lost: the capability already existed and only the obligation was
+missing. Two follow-ups remain — a `make governance-ci` wrapper as an
+`integration` ticket, and moving the rule into `AGENTS.md` through a pinned
+standard upgrade.
 
 ## Blockers
 
-- Human approval is required before implementation.
-- The workstream assignment is undecided, and `integration` is unavailable
-  while ticket-048 is active.
+- Publication only: the GitHub Actions `major_outage` means a push would move a
+  pull-request head onto a commit with no check runs.

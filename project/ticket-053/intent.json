@@ -2,25 +2,30 @@
   "schema": "new-project.intent/v2",
   "ticket": "ticket-053",
   "summary": "Match the local governance gate to CI before push",
-  "workstream": "integration",
+  "workstream": "governance",
   "allowedPaths": [
     "project/ticket-053/**",
     "TODO.md",
     "project/TICKETS.md",
-    "Makefile",
-    "AGENTS.md"
+    "README.md"
   ],
   "forbiddenPaths": [
-    "project/ticket-*/user-*.md",
-    ".governance/**",
     ".github/workflows/**",
-    "project/governance-check.sh",
-    "src/**",
-    "package.json",
+    ".governance/**",
+    "AGENTS.md",
+    "Makefile",
     "package-lock.json",
-    "sdk/**"
+    "package.json",
+    "project/governance-check.sh",
+    "project/ticket-*/user-*.md",
+    "scripts/**",
+    "sdk/**",
+    "src/**"
   ],
-  "stacks": ["node", "docker"],
+  "stacks": [
+    "node",
+    "docker"
+  ],
   "dependsOn": [],
   "conflictsWith": [],
   "integrationTicket": null,
@@ -38,46 +43,63 @@
     "complexity": "XS",
     "estimatedMinutes": 30,
     "budgets": {
-      "maxImplementationFiles": 2,
+      "maxImplementationFiles": 1,
       "maxAffectedComponents": 1,
       "maxPublicInterfaceChanges": 0,
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
-      "decision": "A single Makefile target wraps the existing checker in its CI form against the merge base with origin/main, because the checker already supports --actor ci --base --head and the only missing piece is that nobody runs it before pushing; documenting it in AGENTS.md makes the pre-push gate explicit rather than folklore",
+      "status": "accepted",
+      "decision": "The pre-push gate is established as a documented rule in README.md rather than as a Makefile target or an AGENTS.md rule, because Makefile matches coordination.integration.requiredForPaths and raises GOV-INTEGRATION-001 under a governance ticket, while AGENTS.md, project/governance-check.sh and the other agent-facing wrappers are hash-locked in manifest.lock.json managedFiles; the checker already supports --actor ci --base --head, so the missing piece is the obligation to run it, not the capability",
       "components": [
         {
-          "name": "pre-push-governance-gate",
-          "paths": ["Makefile", "AGENTS.md"]
+          "name": "pre-push-governance-rule",
+          "paths": [
+            "README.md"
+          ]
         }
       ],
       "responsibilityChanges": false,
       "interfaceChanges": [],
       "dataChanges": [],
-      "ui": {"impact": "none", "states": [], "evidence": []},
-      "rollback": "Remove the Makefile target and the AGENTS.md paragraph; project/governance-check.sh and make governance are untouched"
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Remove the README.md section; no executable path, no locked file and no make target is touched"
     },
     "runtimeDependencies": [],
     "validation": [
       {
         "criterion": "AC-02",
-        "commands": ["make governance-ci"],
-        "evidence": "The target runs the checker in CI form against the merge base and mirrors the CI job's exit code"
+        "commands": [
+          "bash project/governance-check.sh --actor ci --base $(git merge-base origin/main HEAD) --head HEAD"
+        ],
+        "evidence": "README.md states the documented invocation, that a non-zero exit is blocking, and that it must be run from the branch being pushed"
       },
       {
         "criterion": "AC-03",
-        "commands": ["bash project/governance-check.sh --actor ci --base b8392f76592138e006ca5dff9af52082208acee5 --head <squashed-047-head>"],
+        "commands": [
+          "bash project/governance-check.sh --actor ci --base b8392f76592138e006ca5dff9af52082208acee5 --head <squashed-047-head>"
+        ],
         "evidence": "The squashed ticket-047 topology reports GOV-INTENT-003 and GOV-TICKET-001 while the ticket-048 plan-then-implementation topology reports GOV-PASS"
       },
       {
         "criterion": "AC-04",
-        "commands": ["git merge-base origin/main HEAD"],
+        "commands": [
+          "git merge-base origin/main HEAD"
+        ],
         "evidence": "Base resolution needs no network when origin/main is fetched, and the failure message names the required fetch"
       },
       {
         "criterion": "AC-06",
-        "commands": ["make governance", "make verify", "make docker-smoke", "git diff --check"],
+        "commands": [
+          "make governance",
+          "make verify",
+          "make docker-smoke",
+          "git diff --check"
+        ],
         "evidence": "Deterministic, repository-wide and container gates pass"
       }
     ]

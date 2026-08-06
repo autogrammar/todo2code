@@ -38,6 +38,29 @@ graf zależności, zakres, Docker oraz profile Node/Docker. W Pull Request CI
 wymaga niezależnego GitHub Review; wpis agenta w Markdown nie jest zaufanym
 zatwierdzeniem merge. Trwałe instrukcje zawiera [`AGENTS.md`](AGENTS.md).
 
+### Bramka governance przed pushem
+
+`make governance` porównuje **drzewo robocze z `HEAD`**. CI porównuje
+**`base..head`** całej gałęzi. To są różne pytania, więc część diagnostyk jest
+lokalnie niewidoczna i potrafi odrzucić Pull Request dopiero po pełnej rundzie
+CI. Przed każdym pushem uruchom formę CI, **z gałęzi, którą wypychasz**, i
+traktuj niezerowy kod wyjścia jako blokujący:
+
+```bash
+bash project/governance-check.sh --actor ci \
+  --base "$(git merge-base origin/main HEAD)" --head HEAD
+```
+
+Forma robocza nie widzi `GOV-INTENT-003` (intent musi trafić do commitu
+wcześniejszego niż autoryzowana przez niego implementacja), `GOV-TICKET-001`
+(zamknięty ticket nie ma władzy nad ścieżkami implementacyjnymi) ani zakresu
+workstreamu liczonego po całym diffie gałęzi.
+
+Uruchamiaj to z właściwej gałęzi: `--base`/`--head` wybierają diff, ale aktywny
+ticket i intent są nadal czytane z drzewa roboczego, więc wywołanie z innej
+gałęzi ocenia diff jednej gałęzi względem ticketu drugiej i zwraca werdykt bez
+znaczenia.
+
 ## Stan projektu
 
 Wersja `0.5.0` ma działającą ścieżkę źródła → kanoniczny DSL → graf →

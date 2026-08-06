@@ -3,3 +3,15 @@
 2026-08-06 observed: the ticket-047 squashed topology also fails GOV-INTENT-003, which no working-tree check can detect
 2026-08-06 scope: wrap the existing checker; no second implementation, no new diagnostic, no Git hook
 2026-08-06 open question: Makefile is owned by both governance and integration; integration is held by ticket-048
+2026-08-06 APPROVAL: human owner selected workstream governance and a blocking failure policy
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+2026-08-06 verified risk: GOV-INTEGRATION-001 fires when a changed path matches coordination.integration.requiredForPaths and the ticket workstream is not integration; Makefile is on that list, so a governance ticket cannot carry the make target
+2026-08-06 verified risk: project/governance-check.sh is listed in manifest.lock.json managedFiles, so extending the checker itself is also unavailable
+2026-08-06 scope reduction: deliverable is the AGENTS.md rule 8 obligation; the make governance-ci wrapper is deferred to an integration ticket after ticket-048 releases that workstream
+2026-08-06 AC-03 proof, first attempt invalid: running the CI form from another branch judged the 048 diff against ticket-053 intent, because the checker reads the active ticket from the working tree rather than from --head
+2026-08-06 AC-03 proof, isolated worktrees: squashed ticket-047 topology -> GOV-TICKET-001 FAIL; ticket-048 plan-then-implementation topology -> GOV-PASS
+2026-08-06 rule extended with that finding: the check must be run from the branch being pushed
+transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
+2026-08-06 verified risk: AGENTS.md is also listed in manifest.lock.json managedFiles; editing it raised GOV-SYNC-001 and the edit was reverted
+2026-08-06 governance-owned and unlocked: README.md, TODO.md, project/TICKETS.md, project/ticket-*/**, .github/workflows/**; Makefile is unlocked but routed to integration by requiredForPaths
+2026-08-06 final scope: the pre-push rule lives in README.md; AGENTS.md remains the canonical agent-facing home and would require a pinned-standard upgrade
