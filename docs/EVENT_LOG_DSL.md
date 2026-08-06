@@ -267,12 +267,23 @@ Behavior:
 ### Publication and autonomy note
 
 Ticket-048 publishes the adapter script and tests; it does **not** wire a
-GitHub Actions job (tracked as follow-up ticket-051 on branch
-`ticket/049-validator-autonomy-plan`). Merging still requires trusted review
-evidence (`GOV-APPROVAL`) from outside this repository's PR checkout. Operator
-guide and refactor plan: ticket-049 on that same plan branch. Do not add a
-workflow in this repository that dispatches the Validator App against itself;
-that would collapse the trust root established by ticket-018.
+GitHub Actions job (follow-up: ticket-051 / plan ticket-049). Merging still
+requires trusted review evidence (`GOV-APPROVAL`) from outside this
+repository's PR checkout. Do not add a workflow here that dispatches the
+Validator App against itself (ticket-018 trust root).
+
+**Where operators look (external repos, not this tree):**
+
+| Need | Where |
+| --- | --- |
+| Why is the PR blocked / what NEXT? | `subactor/twin-probes` probe **`publication.gate`** — docs: `docs/PUBLICATION_PROBE.md`, map: `docs/ECOSYSTEM.md` |
+| Exact-head freeze + dispatch | `subactor/validator-agent` — `bin/dispatch-direct-pr.sh`, `docs/PUBLICATION_FREEZE.md` |
+| App review (trust root) | `ifuri-validator-agent[bot]` via validator-agent `direct-pr` / `scan-direct` |
+| Plan ticket in this repo | `project/ticket-049` (branch `ticket/049-validator-autonomy-plan`, PR #67) |
+
+`publication.gate` is a **measurement probe**, not a separate product and not a
+merge gate. Local green tests do not replace hosted checks when GitHub Actions
+is degraded.
 
 Invocation example:
 
