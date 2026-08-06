@@ -50,7 +50,9 @@ or Validator approval — are preserved verbatim, not rewritten.
   `main`, proving the unownable-path conflict is resolved at its cause.
 - [x] AC-04: The adapter's behavior is otherwise identical to ticket-047 —
   same event mappings, same allowlisted canonical evidence, same
-  `SYSTEM_FACT` trust class, same immutable atomic publication.
+  `SYSTEM_FACT` trust class, same immutable atomic publication — except that
+  every event now records `SOURCE "github-actions"` instead of `github-api`,
+  because the adapter reads a delivered payload and makes no API call.
 - [x] AC-05: `docs/EVENT_LOG_DSL.md` documents both flags as required and
   records that the adapter deliberately reads no environment variable.
 - [x] AC-06: The branch carries the plan in a strictly earlier commit than the

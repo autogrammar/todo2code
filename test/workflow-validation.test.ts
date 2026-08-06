@@ -342,6 +342,30 @@ test('GitHub acquisition ignores ambient environment and requires explicit input
   assert.match(withoutRepository.stderr, /repository is required; pass --repository/);
   assert.doesNotMatch(withoutRepository.stderr, /attacker\/elsewhere/);
   await assert.rejects(fs.access(output));
+
+  const accepted = await run(process.execPath, [
+    githubEventLog,
+    '--event-name',
+    'push',
+    '--event-path',
+    payload,
+    '--output',
+    output,
+    '--repository',
+    'semcod/todo2code',
+    '--recorded-at',
+    '2026-08-05T08:20:00Z',
+    '--correlation-id',
+    'push-048',
+    '--stream-id',
+    'stream-push-048',
+  ], ambient);
+
+  assert.equal(accepted.code, 0);
+  const log = parseEventLog(await fs.readFile(output, 'utf8'));
+  for (const event of log.events) {
+    assert.equal(event.source, 'github-actions');
+  }
 });
 
 interface CommandResult {

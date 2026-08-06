@@ -13,3 +13,8 @@ transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
 2026-08-06 validation: focused workflow-validation 10/10; npm run build PASS
 2026-08-06 validation: verify:env PASS with .env.example byte-identical to origin/main
 transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
+2026-08-06 pre-review audit: scanned the diff for secret-shaped literals after the Validator rejected PR #62 for a token= pattern; none present
+2026-08-06 defect found in carried-over ticket-047 code: every event recorded SOURCE "github-api" while the adapter makes no API call and its own ticket declares no API polling
+2026-08-06 fix: all four mappings now record SOURCE "github-actions", a value already established in the ticket-045 golden fixture; false provenance contradicts the contract rule that missing knowledge is never guessed
+2026-08-06 evidence: the ambient-environment case now also asserts every emitted event carries SOURCE "github-actions"
+2026-08-06 validation: focused workflow-validation 10/10; documented invocation verified end-to-end against a real payload

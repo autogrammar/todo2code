@@ -196,7 +196,7 @@ function createPushEvents(payload, context) {
   const subjectId = `git:ref/${ref}`;
   const events = [];
   const base = {
-    source: 'github-api',
+    source: 'github-actions',
     repository: context.repository,
     ticketId: context.ticket,
     correlationId: context.correlationId,
@@ -320,7 +320,7 @@ function createPullRequestEvents(payload, context) {
   const occurredAt = asTimestamp(mapping.occurredAt, 'pull_request occurred_at');
   const subjectId = `github:pull-request/${number}`;
   return [makeCommonEvent({
-    source: 'github-api',
+    source: 'github-actions',
     occurredAt,
     recordedAt: context.recordedAt,
     actorId: actor,
@@ -380,7 +380,7 @@ function createPullRequestReviewEvents(payload, context) {
     'pull_request_review.submitted_at',
   );
   return [makeCommonEvent({
-    source: 'github-api',
+    source: 'github-actions',
     occurredAt,
     recordedAt: context.recordedAt,
     actorId: actor,
@@ -438,7 +438,7 @@ function createWorkflowRunEvents(payload, context) {
   );
   const headSha = asSha(workflowRun.head_sha, 'workflow_run.head_sha', true);
   return [makeCommonEvent({
-    source: 'github-api',
+    source: 'github-actions',
     occurredAt,
     recordedAt: context.recordedAt,
     actorId: actor,

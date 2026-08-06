@@ -256,6 +256,10 @@ Behavior:
 * only allowlisted fields are normalized and projected into evidence,
 * unsupported events/actions fail closed,
 * missing required flags fail closed with a named error,
+* every emitted event records `SOURCE "github-actions"`, never `github-api`:
+  the adapter reads a delivered payload and makes no API call, and claiming
+  provenance it does not have would violate the contract's rule that missing
+  knowledge is never guessed,
 * SHA/actor/repository/ticket/relation bindings are validated,
 * emitted trust class is `SYSTEM_FACT`,
 * output is immutable via the existing `t2c.event-log/v1` atomic writer.

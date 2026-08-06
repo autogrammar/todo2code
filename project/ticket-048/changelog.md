@@ -14,6 +14,9 @@
   boundary cannot be published in this repository.
 - Verified `npm run verify:env` with `.env.example` byte-identical to the
   protected base, closing the unownable-path conflict at its cause.
+- Corrected false provenance carried over from ticket-047: every emitted event
+  recorded `SOURCE "github-api"` although the adapter makes no API call. All
+  four mappings now record `SOURCE "github-actions"`.
 
 ## [0.1.0] - 2026-08-06
 
