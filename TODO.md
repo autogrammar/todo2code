@@ -2,13 +2,25 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-048`](project/ticket-048/README.md) — reconciles the governance
+  record of ticket-047, which the cherry-pick onto `main` dropped when it
+  resolved `TODO.md` with `--ours`. Registers the completed ticket in both
+  governance indexes and restores the two required scaffold files its directory
+  was published without. Current state: `IN_PROGRESS / VALIDATION`.
 
 ## Backlog tickets
 
 None.
 
 ## Completed tickets
+- [x] [`ticket-047`](project/ticket-047/README.md) — added the first GitHub
+  acquisition adapter for the `t2c.event-log/v1` codec, mapping one bounded
+  `push`, `pull_request`, `pull_request_review` or completed `workflow_run`
+  payload onto the closed event vocabulary and publishing one immutable
+  `logs.dsl.txt` from allowlisted canonical evidence. Host, governance, Docker
+  and focused checks passed locally at `4428ec2`. No Koru or Validator approval
+  is recorded; branch protection rejected the direct push, so the work is
+  published as open PR #64 rather than merged. Current state: `DONE`.
 - [x] [`ticket-046`](project/ticket-046/README.md) — generates a canonical,
   atomic `logs.dsl.txt` beside every succeeded, degraded and failed pipeline
   manifest. Koru and Validator approved exact head `1180e45` with

@@ -1,0 +1,12 @@
+2026-08-05 APPROVAL: human owner selected the ticket-047 record-reconciliation scope over GitHub Actions wiring
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+2026-08-05 finding: cherry-pick of the ticket-047 commit onto main resolved TODO.md with --ours, dropping its completed-ticket entry
+2026-08-05 finding: project/ticket-047 was published without preprompt.md and ai-codex-logs.txt, both required by the manifest
+2026-08-05 finding: project/TICKETS.md had no ticket-047 row
+2026-08-05 publication: direct push to main rejected by branch protection; ticket-047 commits published on branch ticket/047-event-log-acquisition as PR #64
+2026-08-05 boundary: no ticket-047 implementation, test, fixture, doc or status was modified; no approval evidence was fabricated
+2026-08-05 restored ticket-047 preprompt.md and ai-codex-logs.txt from observed facts only
+2026-08-05 regenerated project/TICKETS.md via the managed project/readme.sh wrapper
+2026-08-05 validation: governance PASS (0 errors, 0 warnings); make verify 401 tests, 400 pass, 1 skip, 0 fail; git diff --check PASS
+2026-08-05 validation: project/readme.sh regeneration confirmed idempotent
+transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
