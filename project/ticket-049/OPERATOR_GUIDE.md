@@ -40,6 +40,26 @@ twin-probes. It never approves or merges.
 5. **`DIRECT_PR_SCAN_ENABLED=true`** for scheduled live approve?
 6. **App installed** on `semcod/todo2code`?
 7. **No push** after you freeze a head for dispatch.
+8. **Did the validator run actually get a runner?** Checks 1–7 only prove the
+   PR is *eligible*. If they all pass and no review appears, the run may never
+   have started:
+
+   ```bash
+   gh run list --repo subactor/validator-agent --limit 40 \
+     --json status,workflowName,createdAt \
+     --jq '[.[] | select(.status!="completed")]
+           | group_by(.workflowName)
+           | map({wf:.[0].workflowName, n:length, oldest:(map(.createdAt)|min)})'
+   ```
+
+   A gate job that reports **zero steps** and is then cancelled never obtained
+   a runner — that signature separates an infrastructure stall from a validator
+   rejection, which always produces steps and a verdict. Re-check step 0
+   first: during an Actions `major_outage` some repositories keep draining
+   while others stall, so a healthy-looking repository is not a control group
+   and an uneven backlog is not evidence of a budget problem. A manual
+   `direct-pr` dispatch queues in the same place. Wait it out, or take a review
+   from a trusted human in `trusted-reviewers`.
 
 ## Commands
 

@@ -133,6 +133,46 @@ subactor/validator-agent  ──>  discovers / validates / reviews externally
 7. Required checks green; no prior Validator approval on that exact head.
 8. Within ~5 minutes of the schedule, the bot posts a review; `ci.yml`
    re-runs on `pull_request_review` and GOV-APPROVAL can clear.
+9. The validator workflow actually obtains a runner. Conditions 1–8 are all
+   about *eligibility*; this one is about *execution*, and it is the condition
+   that is currently unmet.
+
+#### 2.2.1 Observed failure with conditions 1–8 satisfied
+
+On 2026-08-06 every eligibility condition above held — variables set with the
+`semcod/todo2code` entry, `scan-direct` on `main`, PR #66 carrying both
+attribution lines, base `main`, not draft, required checks green — and no
+review appeared. This is the **Actions `major_outage`** case already recorded
+in §1, seen from the validator's side:
+
+| Evidence | Observation |
+| --- | --- |
+| scheduled run `31122590798` | gate job `test` recorded **zero steps**, was cancelled after 23 minutes; `validate` and `scan-direct` reported `skipped` |
+| `subactor/validator-agent` queue | 18 of the last 40 runs queued, oldest over 90 minutes |
+| affected workflows | all six: `ci`, `contribution-policy`, `intent-conformance`, `koru-code-review`, `Sync Tickets project`, `validator-agent` |
+
+The diagnostic worth keeping is the **zero-steps signature**: a job that
+records no steps and is then cancelled never started, it waited for a runner.
+That distinguishes an infrastructure stall from a validator rejection, which
+always produces steps and a verdict.
+
+Do not read an uneven backlog as evidence of an organization-specific budget
+problem. During a `major_outage` some repositories keep draining while others
+stall, so a repository that looks healthy is not a control group. Check
+`status.github.com` first; only if Actions is operational is a per-organization
+capacity or spending limit worth investigating.
+
+This matters for the plan's premise: **a complete autonomy configuration is
+necessary but not sufficient.** Steady-state autonomy depends on a shared
+execution substrate that no reviewed repository controls or can observe from
+its own checks — the reviewed side sees only a missing review, never the
+reason.
+
+Operationally, the manual `direct-pr` dispatch in 2.3 is no workaround during
+an outage: it queues in the same place. While Actions is stalled, GOV-APPROVAL
+clears only by waiting it out, or by a review from a trusted human in
+`trusted-reviewers`, which bypasses the stalled bot without weakening the trust
+boundary.
 
 ### 2.3 Immediate path for one PR
 

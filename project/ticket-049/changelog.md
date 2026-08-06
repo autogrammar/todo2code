@@ -1,5 +1,15 @@
 # Ticket Changelog (ticket-049)
 
+## [0.3.0] - 2026-08-06
+
+- Added precondition 9 to steady-state autonomy: eligibility (conditions 1-8)
+  does not imply execution; the validator run must obtain a runner.
+- Recorded the zero-steps signature as the diagnostic that separates an
+  infrastructure stall from a validator rejection.
+- Warned against reading an uneven backlog as an organization budget problem
+  during an Actions `major_outage`; a healthy-looking repository is not a
+  control group.
+
 ## [0.2.0] - 2026-08-06
 
 - Documented external landings: freeze dispatcher (validator-agent #10),
