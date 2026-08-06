@@ -6,11 +6,16 @@
   GitHub acquisition adapter through a route governance accepts, with the plan
   committed before the implementation, and removes the two `process.env`
   fallbacks whose `verify:env` requirement forced an edit to `.env.example`, a
-  path no workstream owns. Current state: `IN_PROGRESS / VALIDATION`.
+  path no workstream owns. Current state: `IN_PROGRESS / VALIDATION`. Product
+  checks and structural governance pass on PR #66; merge remains blocked on
+  trusted `GOV-APPROVAL` (Validator App or trusted human) for exact head
+  `95a4d91…`. Autonomy path analysis: [ticket-049](project/ticket-049/README.md).
 
 ## Backlog tickets
 
-None.
+Follow-up PLAN tickets for autonomy/refactor live on branch
+`ticket/049-validator-autonomy-plan` (tickets 049–052). They are intentionally
+not mixed into this PR so ticket-048 keeps exclusive write scope.
 
 ## Completed tickets
 - [x] [`ticket-047`](project/ticket-047/README.md) — built the first GitHub

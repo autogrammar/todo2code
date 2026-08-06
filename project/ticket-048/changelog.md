@@ -17,6 +17,12 @@
 - Corrected false provenance carried over from ticket-047: every emitted event
   recorded `SOURCE "github-api"` although the adapter makes no API call. All
   four mappings now record `SOURCE "github-actions"`.
+- Validation path: PR #66 remains merge-blocked on trusted `GOV-APPROVAL`.
+  Autonomy investigation showed `DIRECT_PR_SCAN_*` variables alone were a no-op
+  until `scan-direct` landed on `subactor/validator-agent` main with a
+  `semcod/todo2code` matrix leg. Follow-up plan and tickets:
+  ticket-049 (branch `ticket/049-validator-autonomy-plan`) et seq. `docs/EVENT_LOG_DSL.md` notes
+  the publication/autonomy boundary.
 
 ## [0.1.0] - 2026-08-06
 

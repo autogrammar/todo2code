@@ -18,3 +18,6 @@ transition: IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
 2026-08-06 fix: all four mappings now record SOURCE "github-actions", a value already established in the ticket-045 golden fixture; false provenance contradicts the contract rule that missing knowledge is never guessed
 2026-08-06 evidence: the ambient-environment case now also asserts every emitted event carries SOURCE "github-actions"
 2026-08-06 validation: focused workflow-validation 10/10; documented invocation verified end-to-end against a real payload
+2026-08-06 autonomy: DIRECT_PR_SCAN_* variables alone did not produce reviews; scan-direct was not on validator-agent main and matrix lacked todo2code until PR #8 merge 95c62a2
+2026-08-06 autonomy: dry-run direct-pr failed on GitHub Actions CDN Service Unavailable; live direct-pr re-dispatched for head 95a4d91
+2026-08-06 follow-up: ticket-049 plan + tickets 050-052 record operator guide and refactor work; GOV-APPROVAL remains the sole publication blocker for PR #66

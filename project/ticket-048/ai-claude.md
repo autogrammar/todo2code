@@ -57,7 +57,8 @@ should take its input explicitly, not inherit ambient process state.
 
 ## Blockers
 
-- None. The three obstacles in the plan are resolved: the plan sits in an
-  earlier commit, this ticket is active over its own implementation paths, and
-  `npm run verify:env` passes with `.env.example` byte-identical to the
-  protected base.
+- **GOV-APPROVAL on PR #66**: product checks and structural governance pass;
+  merge waits for a trusted Validator App (or trusted human) review on exact
+  head `95a4d91e94862b9d745422341aceb8368e0a0cae`. Setting scan variables alone
+  did not produce reviews while `scan-direct` was missing from validator-agent
+  `main` / matrix. See ticket-049 plan (branch `ticket/049-validator-autonomy-plan`).

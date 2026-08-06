@@ -264,6 +264,16 @@ Behavior:
 * emitted trust class is `SYSTEM_FACT`,
 * output is immutable via the existing `t2c.event-log/v1` atomic writer.
 
+### Publication and autonomy note
+
+Ticket-048 publishes the adapter script and tests; it does **not** wire a
+GitHub Actions job (tracked as follow-up ticket-051 on branch
+`ticket/049-validator-autonomy-plan`). Merging still requires trusted review
+evidence (`GOV-APPROVAL`) from outside this repository's PR checkout. Operator
+guide and refactor plan: ticket-049 on that same plan branch. Do not add a
+workflow in this repository that dispatches the Validator App against itself;
+that would collapse the trust root established by ticket-018.
+
 Invocation example:
 
 ```bash
