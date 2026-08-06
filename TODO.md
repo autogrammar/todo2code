@@ -9,6 +9,15 @@ None.
 None.
 
 ## Completed tickets
+- [x] [`ticket-047`](project/ticket-047/README.md) — added the first GitHub
+  acquisition adapter for the `t2c.event-log/v1` codec, mapping one bounded
+  `push`, `pull_request`, `pull_request_review` or completed `workflow_run`
+  payload onto the closed event vocabulary and publishing one immutable
+  `logs.dsl.txt` from allowlisted canonical evidence. Host, governance, Docker
+  and focused checks passed locally at `4428ec2`. Unlike ticket-046, it carries
+  no Koru or Validator approval and is not merged through a protected PR: the
+  work sits on local `main` only, because branch protection rejects the direct
+  push and the squashed commits fail CI governance. Current state: `DONE`.
 - [x] [`ticket-046`](project/ticket-046/README.md) — generates a canonical,
   atomic `logs.dsl.txt` beside every succeeded, degraded and failed pipeline
   manifest. Koru and Validator approved exact head `1180e45` with

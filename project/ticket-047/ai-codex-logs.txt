@@ -1,0 +1,19 @@
+2026-08-05 APPROVAL: human owner explicitly approved ticket-047
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+2026-08-05 boundary: acquisition adapter maps one payload; the ticket-046 codec stays the single renderer, validator, digest chain and atomic writer
+2026-08-05 implementation ran in a detached git worktree on branch ticket/047-github-event-log
+2026-08-05 fixture correction: push.before was a 48-character literal; reduced to a full 40-character SHA
+2026-08-05 defect fix: workflow_run mapping referenced an undefined conclusion binding; bound to the normalized value
+2026-08-05 test correction: workflow-validation cases guarded optional event indexing to satisfy strict TypeScript
+2026-08-05 validation: focused workflow-validation 9/9; npm run build PASS
+2026-08-05 validation: governance 0 errors/0 warnings; docker smoke PASS; git diff --check PASS
+2026-08-05 governance gap: verify:env failed because GITHUB_EVENT_PATH and GITHUB_REPOSITORY were undeclared in .env.example
+2026-08-05 follow-up 4428ec2: declared both keys in .env.example; make verify 401/401 PASS
+transition: IN_PROGRESS / EDIT -> DONE
+2026-08-05 record gap: the cherry-pick onto main resolved TODO.md with --ours, dropping the TODO.md and project/TICKETS.md entries and the preprompt.md and ai-codex-logs.txt scaffold files
+2026-08-06 publication attempt: direct push to main rejected by branch protection
+2026-08-06 publication attempt: PR #64 opened from the squashed commits; CI governance failed GOV-TICKET-001 because a DONE ticket holds no active-ticket authority over implementation paths
+2026-08-06 finding: the squashed branch also fails GOV-INTENT-003 because intent.json and the implementation landed in one commit; the original two-commit branch ticket/047-github-event-log passes CI governance cleanly
+2026-08-06 finding: .env.example is owned by no workstream in .governance/manifest.json, and the manifest is hash-locked to the upstream standard, so the 4428ec2 change cannot be claimed by any ticket; its cause is the two process.env fallbacks in scripts/github-event-log.mjs
+2026-08-06 PR #64 and PR #65 closed and their branches deleted; the record was restored on main instead
+2026-08-06 NOT PERFORMED: no Koru review, no Validator App attestation, no protected-check run and no merge to main were recorded for this ticket
