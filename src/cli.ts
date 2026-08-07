@@ -25,7 +25,9 @@ import { extractDocumentationIntent } from './extractors/docs-llm.js';
 import { extractGitIntent } from './extractors/git.js';
 import { extractMarkdownIntentAudited } from './extractors/markdown-llm.js';
 import { extractNlIntentAudited } from './extractors/nl-llm.js';
+import { extractDocsIntentBlocks } from './extractors/docs-intent-block.js';
 import { extractRuntimeCycleIntent } from './extractors/runtime-cycle.js';
+import { extractRuntimeIntentLedger } from './extractors/runtime-intent.js';
 import { diagnoseGraph } from './graph/diagnostics.js';
 import { diffIntentGraphs, renderGraphDiffSvg } from './graph/diff.js';
 import { linkIntentRecords } from './graph/linker.js';
@@ -562,6 +564,20 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
     await emitExtraction(result, out);
     return;
   }
+  if (extractor === 'runtime-intent') {
+    const ledger = parsed.positionals[0];
+    if (!ledger) throw new Error('Usage: t2c extract runtime-intent <ledger.json> [--out runtime-intent.intent.jsonl]');
+    const result = await extractRuntimeIntentLedger(ledger, config, root);
+    await emitExtraction(result, out);
+    return;
+  }
+  if (extractor === 'doc-intent') {
+    const doc = parsed.positionals[0];
+    if (!doc) throw new Error('Usage: t2c extract doc-intent <file.md> [--out doc-intent.intent.jsonl]');
+    const result = await extractDocsIntentBlocks(doc, config, root);
+    await emitExtraction(result, out);
+    return;
+  }
   if (extractor === 'markdown') {
     const result = await extractMarkdownIntentAudited({
       root,
@@ -828,6 +844,8 @@ function printHelp(): void {
   process.stdout.write(`  t2c extract git [--root .] [--count 10] [--out git.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract ast [root] [--out ast.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract runtime <cycle.json> [--out runtime.intent.jsonl]\n`);
+  process.stdout.write(`  t2c extract runtime-intent <ledger.json> [--out runtime-intent.intent.jsonl]\n`);
+  process.stdout.write(`  t2c extract doc-intent <file.md> [--out doc-intent.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract markdown [--todo TODO.md] [--changelog CHANGELOG.md] [--markdown-mode require-llm] [--out records.jsonl]\n`);
   process.stdout.write(`  t2c extract docs [--patterns 'README.md,docs/**/*.md'] [--out docs.intent.jsonl]\n`);
   process.stdout.write(`  t2c extract communication [--root .] [--project-dir project] [--ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--out communication.intent.jsonl]\n`);
