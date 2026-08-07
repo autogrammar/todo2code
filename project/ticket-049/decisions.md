@@ -73,3 +73,21 @@ REJECTED REQUEST_CHANGES BECAUSE NO_UNSAFE_CHANGE_REASON_FOUND
 ADVISORY llm_verdict = "BLOCK" MODEL "openrouter/z-ai/glm-5.2"
 ASSERT VERDICT_AUTHORITY != "ADVISORY"
 ```
+
+```dsl
+DECISION D-049-2111
+TICKET ticket-049
+HEAD_SHA 1a9e04eca27b23bfe94a2ff885784455681dfaca
+CORRELATION_ID todo2code-pr-ticket-049-plan
+ACTOR agent:ifuri-validator-agent[bot]
+APPLIED_RULE P-CORE-015
+INPUT author_login = "tom-sapletta-com"
+INPUT observed_checks = ["Live OpenRouter contract (opt-in)=SKIPPING","verify=PASS","Java adapter (JDK 17 required)=PASS","Live OpenRouter contract (opt-in)=SKIPPING","verify=PASS","Java adapter (JDK 17 required)=PASS","koru / code-review=PASS","Live OpenRouter contract (opt-in)=SKIPPING","Java adapter (JDK 17 required)=PASS","verify=PASS"]
+INPUT required_checks = ["verify","Java adapter (JDK 17 required)","koru / code-review"]
+INPUT required_checks_source = "env/request"
+INPUT reviewer_login = "ifuri-validator-agent[bot]"
+VERDICT APPROVE AUTHORITY DETERMINISTIC
+REJECTED REQUEST_CHANGES BECAUSE NO_UNSAFE_CHANGE_REASON_FOUND
+ADVISORY llm_verdict = "" MODEL "openrouter/z-ai/glm-5.2"
+ASSERT VERDICT_AUTHORITY != "ADVISORY"
+```
