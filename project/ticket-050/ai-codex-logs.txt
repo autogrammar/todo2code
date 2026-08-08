@@ -26,3 +26,11 @@ release_sha=7be2e266dfebfe91de1b78abf30ac8e518453216
 release tag type=annotated; GitHub Release published
 2026-08-08 session authorization reused from approved Option A plan
 transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+2026-08-08 upstream atomic-adoption completion
+new-project ticket-038: DONE
+new-project ticket-039: DONE
+release=v0.13.0
+release_sha=12158ef0c009428deddceebb1049ddc3cb898eb3
+release closure merged as new-project main@cdb3661462e68966ecb195a8479899c49eccc8ea
+2026-08-08 user authorized continuation
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT

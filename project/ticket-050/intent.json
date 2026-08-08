@@ -51,14 +51,14 @@
     },
     "architecture": {
       "status": "accepted",
-      "decision": "Keep upstream Option A, but first add a narrow upstream rule that accounts for a complete provenance-bound managed-file adoption atomically across its standard-managed ownership boundaries; publish and adopt a new immutable release",
+      "decision": "Use the published provenance-bound atomic standard-adoption rule for the complete managed payload, while keeping every target-local file under ordinary governance ownership and budgets",
       "components": [
         {"name": "upstream-standard", "paths": ["wellmanifest/new-project governance manifest and regression tests"]},
         {"name": "target-adoption", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example"]}
       ],
-      "responsibilityChanges": true,
+      "responsibilityChanges": false,
       "interfaceChanges": ["The governance workstream becomes the sole owner of CHANGELOG.md and .env.example"],
-      "dataChanges": ["The governance lock will advance from 0.11.0 to a new immutable release that contains the 0.12.0 ownership contract and atomic-adoption rule"],
+      "dataChanges": [],
       "ui": {"impact": "none", "states": [], "evidence": []},
       "rollback": "Adopt the prior immutable source revision through the same reviewed Goal flow; never move or rewrite a release tag"
     },
@@ -66,7 +66,7 @@
     "validation": [
       {"criterion": "AC-02", "commands": ["./project/governance-check.sh"], "evidence": "Managed ownership declarations and target intent pass governance validation"},
       {"criterion": "AC-03", "commands": ["upstream tests/governance-validator.test.sh at the approved release"], "evidence": "A non-governance claim for either root path fails with GOV-WORKSTREAM-003, and only a complete provenance-bound managed adoption receives atomic accounting"},
-      {"criterion": "AC-05", "commands": ["venv/bin/goal governance adopt --source-revision <approved-immutable-sha> --target-root . --check", "make verify", "make docker-smoke"], "evidence": "Adoption is pinned, idempotent, stays within the revised bounded policy and leaves host and Docker checks green"}
+      {"criterion": "AC-05", "commands": ["venv/bin/goal governance adopt --source-revision 12158ef0c009428deddceebb1049ddc3cb898eb3 --target-root . --check", "make verify", "make docker-smoke"], "evidence": "Adoption is pinned, idempotent, stays within the revised bounded policy and leaves host and Docker checks green"}
     ]
   }
 }

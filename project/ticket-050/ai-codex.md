@@ -51,10 +51,13 @@ one-workstream ownership gate cannot represent the atomic diff. No target
 implementation file was changed; ticket-050 returned to
 `PLAN / WAIT_FOR_APPROVAL`.
 
+The approved prerequisite is now published as immutable new-project v0.13.0
+at `12158ef0c009428deddceebb1049ddc3cb898eb3`. The user authorized
+continuation, so ticket-050 resumed `IN_PROGRESS / EDIT`. The implementation
+will bind the installed v0.11.0 revision to that exact release and keep the target seed
+manifest, lock and changelog under ordinary governance accounting.
+
 ## Blockers
 
-- A new upstream, provenance-bound atomic-adoption accounting rule and immutable
-  release require explicit approval. The rule must cover only the complete
-  managed set for one published source revision, account for its standard-owned
-  paths atomically, and leave target-local files under ordinary ownership and
-  delivery budgets.
+- None. The provenance-bound atomic-adoption rule and immutable release are
+  published and approved for use.

@@ -2,8 +2,8 @@
 
 - **ID**: ticket-050
 - **Owner**: agent:codex
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -35,9 +35,10 @@ ownership model: permanently exclude both paths, make wrong claims fail
 closed, and designate an owned release-note surface.
 
 The user approved ticket-049, selected Option A and authorized the upstream
-work on 2026-08-08. Ticket-049 is complete. Upstream tickets 036 and 037 are
-complete, and immutable `v0.12.0` is published at
-`7be2e266dfebfe91de1b78abf30ac8e518453216`.
+work on 2026-08-08. Ticket-049 is complete. Upstream tickets 036 and 037
+published the ownership contract in immutable `v0.12.0`. Upstream tickets 038
+and 039 then published the bounded atomic-adoption contract in immutable
+`v0.13.0` at `12158ef0c009428deddceebb1049ddc3cb898eb3`.
 
 A read-only adoption comparison found that `v0.12.0` would replace 15 managed
 target files and update the customized manifest, lock and changelog. The
@@ -58,6 +59,11 @@ budget bypass: it must recognize only the complete managed set bound to one
 published source revision, account for that managed set without transferring
 ordinary path ownership, and leave all target-local changes normally budgeted
 and owned.
+
+That prerequisite is now complete and the user authorized continuation. This
+ticket resumed `IN_PROGRESS / EDIT` on 2026-08-08. Its intent binds the exact
+installed revision and exact `v0.13.0` release revision; the seed manifest,
+lock and changelog remain ordinary governance-owned implementation files.
 
 ## Acceptance criteria
 
