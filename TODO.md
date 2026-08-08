@@ -2,15 +2,13 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-050`](project/ticket-050/README.md) — adopt immutable
+  new-project `0.12.0` at `7be2e266`, assign `CHANGELOG.md` and `.env.example`
+  to governance and close ticket-048's release-note gap. Current state:
+  `IN_PROGRESS / EDIT`.
 
 ## Backlog tickets
 
-- [ ] [`ticket-050`](project/ticket-050/README.md) — implement approved Option A
-  for governance ownership of `CHANGELOG.md` and `.env.example` through a
-  governed upstream release and immutable Goal adoption. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; ticket-049 is complete and upstream
-  `wellmanifest/new-project` ticket-036 awaits approval of its exact scope.
 - [ ] [`ticket-051`](project/ticket-051/README.md) — wire
   `scripts/github-event-log.mjs` into CI with explicit flags only. Current
   state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.

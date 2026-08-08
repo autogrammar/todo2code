@@ -15,3 +15,9 @@
 - Recorded human approval of ticket-049 and Option A.
 - Recorded the governance dependency gate: ticket-050 remains
   `PLAN / WAIT_FOR_APPROVAL` until ticket-049 is formally completed.
+
+## [0.4.0] - 2026-08-08
+
+- Bound adoption to immutable new-project `v0.12.0` at full release SHA
+  `7be2e266dfebfe91de1b78abf30ac8e518453216`.
+- Transitioned to `IN_PROGRESS / EDIT` after all dependencies completed.

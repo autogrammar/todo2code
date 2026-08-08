@@ -12,8 +12,6 @@
     "project/governance-check.bat",
     "project/new-ticket.sh",
     "project/readme.sh",
-    "CHANGELOG.md",
-    ".env.example",
     "project/ticket-050/**",
     "TODO.md",
     "project/TICKETS.md"
@@ -33,13 +31,13 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "fd454d528ea25a2dbb271e1207e8ec2edf2404e8",
+    "acceptedBaseSha": "b23d255c6bafbcc204ad7ec1e84e0a48ca675f97",
     "targetBranch": "main",
-    "outcome": "Adopt an immutable standard release that assigns CHANGELOG.md and .env.example to the governance workstream, or implement the explicitly approved exclusion fallback",
+    "outcome": "Adopt immutable new-project 0.12.0 at 7be2e266dfebfe91de1b78abf30ac8e518453216 and assign CHANGELOG.md and .env.example to the governance workstream",
     "nonGoals": [
       "No silent ownership expansion without standard alignment",
       "No removal of verify:env scanning",
-      "No direct mutation of hash-locked managed files",
+      "No standalone mutation of hash-locked managed files outside the reviewed adoption transaction",
       "No moving tag or branch-based adoption"
     ],
     "complexity": "S",
@@ -59,15 +57,15 @@
       ],
       "responsibilityChanges": true,
       "interfaceChanges": ["The governance workstream becomes the sole owner of CHANGELOG.md and .env.example"],
-      "dataChanges": ["The governance lock advances from 0.11.0 to an approved immutable release"],
+      "dataChanges": ["The governance lock advances from 0.11.0 to immutable 0.12.0 at 7be2e266dfebfe91de1b78abf30ac8e518453216"],
       "ui": {"impact": "none", "states": [], "evidence": []},
       "rollback": "Adopt the prior immutable source revision through the same reviewed Goal flow; never move or rewrite a release tag"
     },
     "runtimeDependencies": [],
     "validation": [
       {"criterion": "AC-02", "commands": ["./project/governance-check.sh"], "evidence": "Managed ownership declarations and target intent pass governance validation"},
-      {"criterion": "AC-03", "commands": ["upstream focused ownership regression command selected by the approved upstream ticket"], "evidence": "A non-governance claim for either root path fails closed"},
-      {"criterion": "AC-05", "commands": ["goal governance adopt --source-revision <approved-immutable-sha> --target-root . --check", "make verify", "make docker-smoke"], "evidence": "Adoption is pinned, idempotent and leaves host and Docker checks green"}
+      {"criterion": "AC-03", "commands": ["upstream tests/governance-validator.test.sh at v0.12.0"], "evidence": "A non-governance claim for either root path fails with GOV-WORKSTREAM-003"},
+      {"criterion": "AC-05", "commands": [".venv/bin/goal governance adopt --source-revision 7be2e266dfebfe91de1b78abf30ac8e518453216 --target-root . --check", "make verify", "make docker-smoke"], "evidence": "Adoption is pinned, idempotent and leaves host and Docker checks green"}
     ]
   }
 }

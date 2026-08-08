@@ -18,3 +18,11 @@ workflow state retained: PLAN / WAIT_FOR_APPROVAL
 2026-08-08 ticket-049 PR #69 merged as main@b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
 dependency ticket-049: DONE
 upstream ticket-036 plan commit: 6aa7d50; WAIT_FOR_APPROVAL
+2026-08-08 upstream completion
+new-project ticket-036: DONE
+new-project ticket-037: DONE
+release=v0.12.0
+release_sha=7be2e266dfebfe91de1b78abf30ac8e518453216
+release tag type=annotated; GitHub Release published
+2026-08-08 session authorization reused from approved Option A plan
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT

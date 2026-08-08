@@ -2,8 +2,8 @@
 
 - **ID**: ticket-050
 - **Owner**: agent:codex
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -21,7 +21,7 @@ governance and integration scopes.
 
 The installed manifest is managed and hash-locked to immutable
 `wellmanifest/new-project` 0.11.0. The ownership change therefore cannot be
-made as a local patch. Implementation must proceed upstream-first:
+made as a standalone local patch. Implementation proceeds upstream-first:
 
 1. Create and approve a governed ticket in `wellmanifest/new-project`.
 2. Add the two ownership rules and regression coverage to the standard.
@@ -34,10 +34,11 @@ made as a local patch. Implementation must proceed upstream-first:
 ownership model: permanently exclude both paths, make wrong claims fail
 closed, and designate an owned release-note surface.
 
-The user approved ticket-049, selected Option A and authorized an upstream
-ticket on 2026-08-08. Ticket-049 is now formally complete on protected `main`.
-Implementation remains paused while the exact scope of upstream
-`wellmanifest/new-project` ticket-036 awaits approval.
+The user approved ticket-049, selected Option A and authorized the upstream
+work on 2026-08-08. Ticket-049 is complete. Upstream tickets 036 and 037 are
+complete, and immutable `v0.12.0` is published at
+`7be2e266dfebfe91de1b78abf30ac8e518453216`. Ticket-050 is now authorized to
+adopt that exact release.
 
 ## Acceptance criteria
 
@@ -62,7 +63,8 @@ Implementation remains paused while the exact scope of upstream
 
 - No ad-hoc one-off edit of `.env.example` to land an unrelated feature.
 - No weakening of `verify:env` fail-closed behavior.
-- No direct edit of hash-locked managed governance files.
+- No standalone edit of hash-locked managed governance files; the reviewed
+  target-manifest update and lock regeneration form one Goal adoption change.
 - No moving tag or branch-based standard adoption.
 
 ## Related

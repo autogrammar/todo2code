@@ -38,12 +38,13 @@ ownership model.
 
 ## Current state
 
-The user approved ticket-049, selected Option A and authorized a governed
-upstream ticket on 2026-08-08. Ticket-049 is complete on protected `main`.
-Upstream `wellmanifest/new-project` ticket-036 now holds the bounded standard
-change plan and waits for approval before implementation.
+The user approved ticket-049, selected Option A and authorized the governed
+upstream work on 2026-08-08. Ticket-049 and upstream tickets 036–037 are
+complete. Immutable `v0.12.0` is published at
+`7be2e266dfebfe91de1b78abf30ac8e518453216`; ticket-050 transitioned to
+`IN_PROGRESS / EDIT` for exact-SHA adoption.
 
 ## Blockers
 
-- The future standard version and immutable source SHA do not exist yet.
-- Upstream ticket-036 remains `PLAN / WAIT_FOR_APPROVAL`.
+- None before implementation. Root-path claims will be added to the intent only
+  in the same transaction that installs their ownership contract.
