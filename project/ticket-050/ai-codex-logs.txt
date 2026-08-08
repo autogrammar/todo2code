@@ -88,3 +88,11 @@ validator_app=APPROVED exact_head
 protected_pr_governance=PASS
 merge=BLOCKED duplicate push governance lacks base and PR context
 workflow transition: VALIDATION -> EDIT
+caller_condition_commit=72549610767b07fb0f73f1ad26655f7acef70667
+feature_push_governance=SKIPPED
+default_branch_push_governance=RETAINED
+pull_request_governance=RETAINED
+pull_request_review_governance=RETAINED
+verify_workflows=PASS files=2
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+workflow transition: EDIT -> VALIDATION

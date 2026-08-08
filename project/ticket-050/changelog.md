@@ -100,3 +100,11 @@
   check without the base and PR bindings required for atomic adoption.
 - Returned to `EDIT` to retain push governance on the default branch while
   leaving pull-request and review gates unchanged.
+
+## [1.4.0] - 2026-08-08
+
+- Limited the duplicate `push` governance invocation to the repository's
+  default branch; feature branches remain governed by PR and review events.
+- Passed workflow YAML and exact-base governance after the caller change.
+- Advanced from `EDIT` to `IN_PROGRESS / VALIDATION` for a new exact-head
+  protected review.

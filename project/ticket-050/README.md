@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -97,6 +97,13 @@ The caller currently invokes the reusable governance job for both event
 classes under the same required-check name. Ticket-050 therefore returned to
 `EDIT` to run push governance only for the default branch while retaining the
 PR and review gates unchanged.
+
+The caller fix is implemented at
+`72549610767b07fb0f73f1ad26655f7acef70667`: feature-branch pushes skip only
+the duplicate governance invocation, default-branch pushes retain it, and
+`pull_request` plus `pull_request_review` continue to run the protected gate.
+Workflow YAML and exact-base governance pass, so the ticket returned to
+`VALIDATION` for a fresh exact-head review.
 
 ## Acceptance criteria
 

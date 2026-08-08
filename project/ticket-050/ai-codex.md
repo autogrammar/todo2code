@@ -111,6 +111,12 @@ under the same required-check context. The ticket returned to `EDIT` to bound
 push governance to the default branch; pull-request and review validation stay
 mandatory and unchanged.
 
+The bounded caller condition is implemented at
+`72549610767b07fb0f73f1ad26655f7acef70667`. Workflow YAML and exact-base
+governance pass. The ticket returned to `VALIDATION`; the next push will create
+no failing feature-push governance context, while PR and review events still
+exercise the exact same protected reusable workflow.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are
