@@ -7,7 +7,7 @@
   the published provenance-bound atomic-adoption rule. The verified managed
   payload is handled atomically; the target manifest, lock and changelog remain
   within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / EDIT`.
+  `IN_PROGRESS / VALIDATION`.
 
 ## Backlog tickets
 

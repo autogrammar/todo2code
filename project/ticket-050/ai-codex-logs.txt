@@ -26,6 +26,15 @@ release_sha=7be2e266dfebfe91de1b78abf30ac8e518453216
 release tag type=annotated; GitHub Release published
 2026-08-08 session authorization reused from approved Option A plan
 transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+implementation_commit=bc2dab6
+goal_adoption=wellmanifest/new-project 0.13.0 at 12158ef0c009428deddceebb1049ddc3cb898eb3
+goal_check=idempotent PASS
+npm_ci=3 packages installed from lock; 0 vulnerabilities
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+make_verify=PASS; 402 tests, 401 pass, 1 controlled JDK skip
+make_docker-smoke=PASS
+ticket-048 stale active header reconciled with merged PR #66 evidence
+workflow transition: EDIT -> VALIDATION
 2026-08-08 upstream atomic-adoption completion
 new-project ticket-038: DONE
 new-project ticket-039: DONE

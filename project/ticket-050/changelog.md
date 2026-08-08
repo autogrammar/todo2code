@@ -29,3 +29,13 @@
   contract.
 - Prepared the intent transition from installed v0.11.0 to v0.13.0 and resumed
   `IN_PROGRESS / EDIT` after explicit user authorization.
+
+## [0.6.0] - 2026-08-08
+
+- Adopted the complete hash-locked v0.13.0 managed package and preserved local
+  workstream customization.
+- Assigned `CHANGELOG.md` and `.env.example` to governance, recorded the
+  ticket-048 release note and reconciled its stale active header with merged
+  PR #66 evidence.
+- Passed exact-base governance, idempotent Goal check, full host verification
+  and Docker smoke; advanced to `IN_PROGRESS / VALIDATION`.

@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -69,14 +69,27 @@ lock and changelog remain ordinary governance-owned implementation files.
 
 - [x] AC-01: Human selected Option A and authorized the governed upstream
   ticket on 2026-08-08.
-- [ ] AC-02: Manifest / standard / agent docs updated so the chosen policy is
+- [x] AC-02: Manifest / standard / agent docs updated so the chosen policy is
   machine-checkable.
-- [ ] AC-03: A regression test or governance diagnostic fails when an agent
+- [x] AC-03: A regression test or governance diagnostic fails when an agent
   plan claims those paths under the wrong policy.
-- [ ] AC-04: Ticket-048's known gap is closed or explicitly re-homed under the
+- [x] AC-04: Ticket-048's known gap is closed or explicitly re-homed under the
   new policy.
-- [ ] AC-05: Adoption binds an immutable standard version and source revision,
+- [x] AC-05: Adoption binds an immutable standard version and source revision,
   preserves local workstream customization, and is idempotent under Goal.
+
+## Validation evidence
+
+- Governance passed against accepted base
+  `b23d255c6bafbcc204ad7ec1e84e0a48ca675f97`, including verification of both
+  immutable package revisions, locks and managed-file hashes.
+- A repeated Goal `--check` reported v0.13.0 up to date at
+  `12158ef0c009428deddceebb1049ddc3cb898eb3`.
+- `make verify` passed 401 tests with one controlled JDK-unavailable skip;
+  environment, module, generated-analysis, schema and workflow checks passed.
+- `make docker-smoke` built the runtime image and passed.
+- Ticket-048's stale active header now agrees with its already merged PR #66,
+  and its missing release note is recorded in the newly owned changelog.
 
 ## Participants
 

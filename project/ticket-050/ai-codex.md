@@ -54,8 +54,14 @@ implementation file was changed; ticket-050 returned to
 The approved prerequisite is now published as immutable new-project v0.13.0
 at `12158ef0c009428deddceebb1049ddc3cb898eb3`. The user authorized
 continuation, so ticket-050 resumed `IN_PROGRESS / EDIT`. The implementation
-will bind the installed v0.11.0 revision to that exact release and keep the target seed
+binds the installed v0.11.0 revision to that exact release and keeps the target seed
 manifest, lock and changelog under ordinary governance accounting.
+
+The adoption is now implemented and in `VALIDATION`. Goal reports the package
+up to date, governance passes against the accepted base, `make verify` passes
+401 tests with one controlled JDK skip, and Docker smoke passes. Ticket-048's
+stale active header and omitted release note are reconciled with its already
+merged PR #66 evidence.
 
 ## Blockers
 
