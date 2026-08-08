@@ -1,0 +1,86 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-056",
+  "summary": "Repair Docker E2E tool and Rust dependency contract",
+  "workstream": "integration",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-056/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "Dockerfile.e2e"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "test/**",
+    "scripts/**",
+    "sdk/**",
+    "package.json",
+    "package-lock.json",
+    "Cargo.lock",
+    "**/Cargo.lock"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "11dff0d5d4dd28a72a2274c5e4f0ec4d9c21a459",
+    "targetBranch": "main",
+    "outcome": "Both Docker E2E profiles provide the tools and dependency-resolution behavior required by their existing test commands",
+    "nonGoals": [
+      "No application or test behavior change",
+      "No committed Rust library lockfile",
+      "No dependency manifest or public interface change",
+      "No runtime Docker image change"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 1,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Keep Docker E2E self-contained by installing its invoked build tool and resolving the intentionally unlocked Rust library inside the disposable full image",
+      "components": [
+        {"name": "docker-e2e", "paths": ["Dockerfile.e2e"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore the prior E2E package list and locked Cargo fetch if a tracked Rust lockfile is adopted in a separately governed change"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": ["make e2e-core"],
+        "evidence": "Complete core E2E passes including workflow tests that spawn make"
+      },
+      {
+        "criterion": "AC-02",
+        "commands": ["make e2e-full"],
+        "evidence": "Full image resolves and tests the Rust library without requiring an absent committed lockfile"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke", "make e2e-core", "make e2e-full"],
+        "evidence": "All required host and Docker gates pass"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["git diff --check", "git diff --name-only"],
+        "evidence": "The implementation diff contains only Dockerfile.e2e plus ticket evidence"
+      }
+    ]
+  }
+}

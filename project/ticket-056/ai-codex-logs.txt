@@ -1,0 +1,36 @@
+2026-08-08 pre-implementation evidence
+
+FAIL make e2e-core
+  396 passed, 7 skipped, 2 failed
+  workflow-validation tests: spawn make ENOENT
+
+FAIL make e2e-full
+  Dockerfile.e2e cargo fetch --locked requires sdk/rust/Cargo.lock
+  sdk/rust/Cargo.lock is absent and matched by the repository Cargo.lock ignore
+
+No implementation file changed; waiting for approval.
+
+2026-08-08 implementation and validation
+
+PASS npm ci
+  3 packages audited, 0 vulnerabilities
+
+PASS npm run verify
+  TypeScript, boundaries, environment, workflows, schemas, build and tests
+
+PASS make docker-smoke
+
+PASS make e2e-core
+  402 tests: 395 passed, 7 expected skips, 0 failures
+  gold v2/v1, CLI, MCP, A2A and examples passed
+  T2C-E2E-000: PASS suite=core
+
+PASS make e2e-full
+  image resolved sdk/rust/Cargo.toml without a committed Cargo.lock
+  402 tests passed with Go, Rust, Java and PHP toolchains available
+  gold v2/v1, CLI, MCP, A2A and five-language SDK examples passed
+  T2C-E2E-000: PASS suite=full
+
+Implementation scope
+  Dockerfile.e2e: add make to e2e-base; remove --locked from image-time cargo fetch
+  No application source, test, dependency manifest, lockfile or public interface change

@@ -2,7 +2,9 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-056`](project/ticket-056/README.md) — repair Docker E2E's
+  missing `make` command and contradictory locked Rust-library fetch. Current
+  state: `IN_PROGRESS / PUBLICATION`; all local host and Docker gates pass.
 
 ## Backlog tickets
 
