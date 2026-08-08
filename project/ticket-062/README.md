@@ -45,10 +45,17 @@ created. Its expanded plan was published as
 implemented. The implementation is now published as
 `wellmanifest/new-project#67` at exact head
 `3d7ac45bb4359db96dba2825c3654fdb47c5b483`. Linux `test` and
-`windows-governance` both pass; the PR correctly remains blocked on an
-independent exact-head review. The contract separates a hash-bound
+`windows-governance` passed, the independent Validator approved the exact
+head, and the implementation merged as `main@2fbf23f`. Closure PR #68 passed
+the same protected gates and merged as `main@a70b5b8`; upstream ticket-024 is
+`DONE / DONE`. The contract separates a hash-bound
 `.governance/manifest.base.json` from the target-extendable
 `.governance/manifest.json` and validates the extension fail-closed.
+
+The remaining publication owner is upstream `ticket-044`, planned on
+`ticket/044-publish-extendable-manifest@cac0ddb` as immutable minor `v0.14.0`.
+It remains `PLAN / WAIT_FOR_APPROVAL`; no tag, release or downstream adoption
+has been performed.
 
 ## Integration evidence
 

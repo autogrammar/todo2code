@@ -39,3 +39,15 @@ PASS ./project/governance-check.sh
   PASS Linux test
   PASS windows-governance
   WAIT independent exact-head review, merge, immutable release and adoption
+
+2026-08-09 upstream completion
+  APPROVED exact head 3d7ac45bb4359db96dba2825c3654fdb47c5b483
+  MERGED implementation PR #67 as main@2fbf23fb3abc6c62f04b22b012f6138922fd05a4
+  MERGED closure PR #68 as main@a70b5b84f6005353426cd4ddb80d7086c671c364
+  STATUS upstream ticket-024 DONE / DONE
+
+2026-08-09 release dependency
+  PLAN wellmanifest/new-project:ticket-044@cac0ddb
+  TARGET immutable v0.14.0
+  STATUS PLAN / WAIT_FOR_APPROVAL
+  NO tag, GitHub Release or downstream adoption performed
