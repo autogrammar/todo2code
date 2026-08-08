@@ -11,3 +11,7 @@ workflow state: PLAN / WAIT_FOR_APPROVAL
 python3 -m json.tool project/ticket-050/intent.json: PASS
 git diff --check: PASS
 ./project/governance-check.sh: GOV-PASS (0 errors, 0 warnings)
+2026-08-08 APPROVAL: user approved ticket-049, ticket-050 Option A and creation of a governed upstream ticket
+transition preflight: BLOCKED before implementation; ticket-049 must first be DONE
+scope preflight: CHANGELOG.md and .env.example remain unowned until standard adoption
+workflow state retained: PLAN / WAIT_FOR_APPROVAL

@@ -8,13 +8,13 @@ None.
 
 - [ ] [`ticket-049`](project/ticket-049/README.md) — Validator autonomy audit,
   operator guide and refactor plan (docs only). Current state:
-  `PLAN / WAIT_FOR_APPROVAL`. See
+  `PLAN / WAIT_FOR_APPROVAL`; its plan was approved on 2026-08-08 and must now
+  be formally completed before dependent ticket-050 can enter `EDIT`. See
   [AUTONOMY_AND_REFACTOR_PLAN.md](project/ticket-049/AUTONOMY_AND_REFACTOR_PLAN.md).
-- [ ] [`ticket-050`](project/ticket-050/README.md) — own or explicitly exclude
-  unpublishable root paths (`CHANGELOG.md`, `.env.example`). Current state:
-  `PLAN / WAIT_FOR_APPROVAL`. Option A is recommended: publish ownership in a
-  new immutable `wellmanifest/new-project` release, then adopt it through Goal;
-  implementation depends on approval of ticket-049 and the selected option.
+- [ ] [`ticket-050`](project/ticket-050/README.md) — implement approved Option A
+  for governance ownership of `CHANGELOG.md` and `.env.example` through a
+  governed upstream release and immutable Goal adoption. Current state:
+  `PLAN / WAIT_FOR_APPROVAL`, pending formal completion of ticket-049.
 - [ ] [`ticket-051`](project/ticket-051/README.md) — wire
   `scripts/github-event-log.mjs` into CI with explicit flags only. Current
   state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.

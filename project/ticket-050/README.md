@@ -1,7 +1,7 @@
 # Ticket 050: Own or explicitly exclude unpublishable root paths
 
 - **ID**: ticket-050
-- **Owner**: unresolved:human
+- **Owner**: agent:codex
 - **Status**: PLAN
 - **Workflow state**: WAIT_FOR_APPROVAL
 - **Created**: 2026-08-06
@@ -34,13 +34,14 @@ made as a local patch. Implementation must proceed upstream-first:
 ownership model: permanently exclude both paths, make wrong claims fail
 closed, and designate an owned release-note surface.
 
-This plan depends on approval of ticket-049 and an explicit human choice for
-Option A or B. No implementation or upstream ticket creation occurs before
-AC-01.
+The user approved ticket-049, selected Option A and authorized an upstream
+ticket on 2026-08-08. Implementation remains paused until ticket-049 is
+formally completed, as required by the dependency gate.
 
 ## Acceptance criteria
 
-- [ ] AC-01: Human selects Option A or B (or a written hybrid).
+- [x] AC-01: Human selected Option A and authorized the governed upstream
+  ticket on 2026-08-08.
 - [ ] AC-02: Manifest / standard / agent docs updated so the chosen policy is
   machine-checkable.
 - [ ] AC-03: A regression test or governance diagnostic fails when an agent

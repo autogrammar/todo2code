@@ -43,20 +43,19 @@
       "No moving tag or branch-based adoption"
     ],
     "complexity": "S",
-    "estimatedMinutes": 90,
+    "estimatedMinutes": 30,
     "budgets": {
-      "maxImplementationFiles": 12,
-      "maxAffectedComponents": 3,
+      "maxImplementationFiles": 5,
+      "maxAffectedComponents": 2,
       "maxPublicInterfaceChanges": 0,
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Prefer upstream Option A: make CHANGELOG.md and .env.example governance-owned in a new immutable new-project release, then adopt it through Goal",
       "components": [
         {"name": "upstream-standard", "paths": ["wellmanifest/new-project governance manifest and regression tests"]},
-        {"name": "target-governance-package", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*"]},
-        {"name": "owned-root-contracts", "paths": ["CHANGELOG.md", ".env.example"]}
+        {"name": "target-adoption", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example"]}
       ],
       "responsibilityChanges": true,
       "interfaceChanges": ["The governance workstream becomes the sole owner of CHANGELOG.md and .env.example"],
