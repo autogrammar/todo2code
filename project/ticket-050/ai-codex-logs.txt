@@ -112,3 +112,15 @@ workflow_dispatch_governance=RETAINED
 verify_workflows=PASS files=2
 governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
 workflow transition: EDIT -> VALIDATION
+pr=70 head=fee491aac475ecbe6ce843d5fdbba25471c1db0e
+koru=PASS
+validator_app=ifuri-validator-agent[bot] APPROVED exact_head
+protected_governance=PASS
+protected_verify=PASS
+protected_java=PASS
+merge_state=CLEAN
+merge_commit=f60d3cc317995bc618fea1c25d9c4ec9bf09bc30
+implementation_branch=DELETED
+diagit_archive=diagit/archive/ticket/050-root-path-ownership-plan-aa8594fd00ff
+workflow transition: VALIDATION -> DONE
+ticket_status: IN_PROGRESS -> DONE

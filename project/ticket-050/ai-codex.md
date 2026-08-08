@@ -129,7 +129,12 @@ The authoritative-event condition is implemented at
 governance pass, and the ticket returned to `VALIDATION` for one clean
 exact-head publication cycle.
 
+Protected PR #70 completed successfully. Trusted Validator App approval bound
+exact head `fee491aac475ecbe6ce843d5fdbba25471c1db0e`; Koru and every required
+check passed, and the ruleset permitted a normal merge as
+`main@f60d3cc317995bc618fea1c25d9c4ec9bf09bc30`. The branch was deleted and
+archived by Diagit. Ticket-050 is complete.
+
 ## Blockers
 
-- None. The provenance-bound atomic-adoption rule and immutable release are
-  published and approved for use.
+- None. The implementation is merged on protected `main`.

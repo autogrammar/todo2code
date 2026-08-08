@@ -2,8 +2,8 @@
 
 - **ID**: ticket-050
 - **Owner**: agent:codex
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -118,6 +118,14 @@ submission and same-HEAD dismissal checks without creating a pre-approval
 failure on a new SHA. Workflow YAML and exact-base governance pass, so the
 ticket returned to `VALIDATION`.
 
+Protected PR #70 then passed Koru, host, Java, Docker and governance checks.
+Trusted Validator App `ifuri-validator-agent[bot]` approved exact head
+`fee491aac475ecbe6ce843d5fdbba25471c1db0e`, and the ruleset reported a clean
+merge state. The PR merged without bypass as
+`main@f60d3cc317995bc618fea1c25d9c4ec9bf09bc30`; the implementation branch was
+deleted and archived by Diagit. All acceptance criteria are satisfied, so the
+ticket is `DONE`.
+
 ## Acceptance criteria
 
 - [x] AC-01: Human selected Option A and authorized the governed upstream
@@ -150,6 +158,8 @@ ticket returned to `VALIDATION`.
 - `make docker-smoke` built the runtime image and passed.
 - Ticket-048's stale active header now agrees with its already merged PR #66,
   and its missing release note is recorded in the newly owned changelog.
+- PR #70 passed protected exact-head Koru, Validator and governance review and
+  merged as `main@f60d3cc317995bc618fea1c25d9c4ec9bf09bc30`.
 
 ## Participants
 
