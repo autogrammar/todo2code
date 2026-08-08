@@ -37,3 +37,15 @@ PASS ./project/governance-check.sh
   APPROVED creation of owner-workstream tickets
   NOT trusted merge authorization
   ticket-058 remains non-active while ticket-054 reserves integration
+
+2026-08-09 owner-ticket planning
+  PASS ticket-059 core-dsl plan, governance 0 errors / 0 warnings
+  PASS ticket-060 extractors plan, governance 0 errors / 0 warnings
+  PASS ticket-061 runtime plan, governance 0 errors / 0 warnings
+  PASS ticket-062 governance route, governance 0 errors / 0 warnings
+  PASS ticket-063 sdk plan, governance 0 errors / 0 warnings
+
+DISCOVERY
+  test/python-runtime.test.ts matches no current workstream ownership glob
+  .governance/manifest.json is immutable-lock protected
+  no manifest or lock hash was changed

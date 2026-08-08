@@ -21,8 +21,8 @@ tests. Historical artifacts must not be rewritten.
 
 ## Execution plan after approval
 
-1. Create separate `core-dsl`, `extractors` and `runtime` tickets with
-   ticket-058 as their integration coordinator.
+1. Create separate `core-dsl`, `extractors`, `runtime`, governance-routing and
+   `sdk` tickets with ticket-058 as their integration coordinator.
 2. Align the core runtime version and replace only current-behavior literals in
    the owning test workstreams.
 3. Once the active integration reservation permits it, add the no-dependency
@@ -41,7 +41,11 @@ tests. Historical artifacts must not be rewritten.
 - Confirmed doDSL faithfully persists that emitted producer version.
 - Created planning evidence only; no implementation file changed.
 - Recorded the human approval of this plan and authorization to create the
-  three owner-workstream tickets.
+  owner-workstream tickets.
+- Created tickets 059–063 on isolated branches. Each plan passes governance;
+  none authorizes an implementation edit.
+- Detected that `test/python-runtime.test.ts` is unowned and selected the
+  protected governance route instead of claiming the path ad hoc.
 
 ## Blockers
 
@@ -49,3 +53,5 @@ tests. Historical artifacts must not be rewritten.
   `--force-new` exception created this ticket but does not silently
   override active-scope enforcement.
 - Each non-integration path requires its owning workstream ticket.
+- Ticket-063 additionally depends on the protected ownership resolution in
+  ticket-062.
