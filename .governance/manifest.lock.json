@@ -9,7 +9,7 @@
     ".governance/governance_check.py": "2a3e50801f9174b102db4f79780f4949ffd97303f35f966e8a56ab2cd6f53e8e",
     ".governance/intent.schema.json": "c5cee010aabcc09dce13e12583848371a7b3eacc898b253cd9bb455d4eba6801",
     ".governance/lock.schema.json": "fc6f1143ef713c993b61270dd2d7545a52cb0b8501aadb188e6d0152a208b207",
-    ".governance/manifest.json": "ba7b17bc63b2c18420ed97fb43584abd61f84565367214f50552aff5e21bb992",
+    ".governance/manifest.json": "e7ac42e440a1b24f93f60738f54a078a8582e447e693d37a29f219104e11d877",
     ".governance/manifest.schema.json": "d48f258e3397ac2d8c5010e5ccdeef9eaf87b0b015d56798d11d5916c5f70a18",
     ".governance/package-manifest.json": "8bf10862f2b30eb57652b130f7aa1231907e2bb6affd9b68fcb232747658ddde",
     ".governance/required-checks.json": "579e008e2dba9110ce45d34fdd96768fa28c003a339cf338378d28fe00fb83a2",
@@ -30,7 +30,7 @@
     "id": "wellmanifest/new-project",
     "publicationStatus": "published",
     "sourceRepository": "wellmanifest/new-project",
-    "sourceRevision": "7979cfe76797a4da6925be49496ff2462e78b3f7",
-    "version": "0.13.1"
+    "sourceRevision": "85631ea24d127f1f4797d2a67f3524a63cbbc95a",
+    "version": "0.13.2"
   }
 }
