@@ -17,3 +17,11 @@
   protected and clean detached validation.
 - Bound the approved atomic adoption from installed v0.13.2 SHA `85631ea` to
   exact v0.14.0 SHA and entered `IN_PROGRESS / EDIT` before mutation.
+
+## [0.3.0] - 2026-08-09
+
+- Atomically adopted the full v0.14.0 managed payload and added the exact
+  Python bridge test path to the now target-owned SDK workstream.
+- Passed idempotent adoption, exact-base governance, managed hash/base
+  invariants and all 405 project tests (one explicit JDK-unavailable skip).
+- Completed all local acceptance criteria and advanced to `VALIDATION`.

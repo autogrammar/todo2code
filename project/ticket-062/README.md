@@ -3,7 +3,7 @@
 - **ID**: ticket-062
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -21,11 +21,11 @@ the required upstream extension/adoption instead of modifying authority.
 
 - [x] AC-01: A human approves routing this ownership gap through the protected
       governance adoption path.
-- [ ] AC-02: A published governance mechanism assigns the Python runtime bridge
+- [x] AC-02: A published governance mechanism assigns the Python runtime bridge
       test to `sdk` without hand-editing managed hashes.
-- [ ] AC-03: The complete managed set is adopted atomically and governance
+- [x] AC-03: The complete managed set is adopted atomically and governance
       passes before ticket-063 enters `EDIT`.
-- [ ] AC-04: No application or test behavior changes in this ticket.
+- [x] AC-04: No application or test behavior changes in this ticket.
 
 ## Participants
 
@@ -73,6 +73,24 @@ Python bridge assertion in `test/python-runtime.test.ts`: corrected runtime
 output is `todo2code 0.5.1`, while the unowned test still expects `0.5.0`.
 Ticket 063 owns that assertion but cannot enter `EDIT` until this ticket has
 adopted a published upstream mechanism and governance passes.
+
+## Adoption validation
+
+- The published v0.14.0 adoption tool installed exact SHA
+  `a22eb47ca0e7c06ac927d1c0d843eabb798bfadd`; a repeated `--check` reports
+  `up-to-date`.
+- The complete managed set is hash-valid, `.governance/manifest.base.json` is
+  locked, and the target `.governance/manifest.json` is intentionally absent
+  from `managedFiles`.
+- All eight todo2code workstreams were preserved. The `sdk` workstream now
+  owns exact path `test/python-runtime.test.ts`.
+- `./project/governance-check.sh --base 132f879...` passes with zero errors and
+  warnings under the atomic standard-adoption contract.
+- `npm run verify` passes 405 tests (404 PASS, one explicit JDK-unavailable
+  SKIP), including TypeScript, module/LLM boundaries, env, workflows, schemas,
+  generated analysis and build checks.
+- No file below `src/`, `test/`, `sdk/`, dependency metadata, Docker or runtime
+  behavior changed in this ticket.
 
 ## Non-goals
 

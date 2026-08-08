@@ -41,6 +41,11 @@ or a supported project-extension mechanism.
 - Bound the approved downstream adoption from exact installed v0.13.2 SHA to
   that immutable v0.14.0 SHA and entered `IN_PROGRESS / EDIT` before target
   mutation.
+- Adopted the complete managed payload with the published tool, then added the
+  exact Python bridge path to the now target-owned SDK workstream.
+- Passed idempotent package check, hash/base invariants, exact-base governance
+  with zero findings, and full `npm run verify` (405 tests; one explicit
+  JDK-unavailable skip). The ticket is now in `VALIDATION`.
 - Recorded the combined 059+060+061 validation: every pre-test gate passed and
   the only observed test failure is the ticket-063 assertion blocked by this
   ownership gap.
@@ -50,5 +55,5 @@ or a supported project-extension mechanism.
 
 ## Blockers
 
-- None before deterministic exact-SHA adoption. Ticket-063 remains blocked
-  until the adopted project passes governance.
+- Protected PR checks and exact-head review remain before merge. Ticket-063
+  stays blocked until this adoption reaches protected `main`.

@@ -60,3 +60,13 @@ PASS ./project/governance-check.sh
   STATE ticket-062 IN_PROGRESS / EDIT before target mutation
   ADOPTION from 85631ea24d127f1f4797d2a67f3524a63cbbc95a
   ADOPTION to   a22eb47ca0e7c06ac927d1c0d843eabb798bfadd
+
+2026-08-09 downstream adoption validation
+  PASS package check up-to-date wellmanifest/new-project 0.14.0 at a22eb47
+  PASS managed base locked and target manifest excluded from managedFiles
+  PASS 8/8 local workstreams preserved
+  PASS sdk owns test/python-runtime.test.ts
+  PASS exact-base governance 0 errors 0 warnings
+  PASS npm run verify 405 tests, 404 pass, 1 JDK-unavailable skip
+  BOUNDARY no src, test, sdk, dependency, Docker or runtime behavior change
+  STATE ticket-062 IN_PROGRESS / VALIDATION; ticket-063 still blocked pending merge
