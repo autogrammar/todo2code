@@ -2,8 +2,8 @@
 
 - **ID**: ticket-049
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -32,13 +32,14 @@ code lives outside this repository, into explicit external follow-ups listed in
   workstream, and whether the item is blocked on ticket-048 publication.
 - [x] AC-04: Sibling tickets 050–052 exist in `PLAN`/`BACKLOG` with scoped
   intent stubs and no overlapping `IN_PROGRESS` claim against ticket-048.
-- [ ] AC-05: A human owner accepts this plan (or amends it) before any sibling
-  ticket moves to `IN_PROGRESS`.
+- [x] AC-05: The user accepted the plan on 2026-08-08 before ticket-050 moved
+  to `IN_PROGRESS`.
 
 ## Participants
 
 - Human participant: unresolved; no user-* file was created by this script.
-- Agent participant: [ai-grok.md](ai-grok.md)
+- Agent participants: [ai-grok.md](ai-grok.md),
+  [ai-codex.md](ai-codex.md)
 
 ## Architecture and bounds
 
@@ -80,8 +81,8 @@ code lives outside this repository, into explicit external follow-ups listed in
 | [ticket-051](../ticket-051/README.md) | Wire acquisition into CI without ambient env |
 | [ticket-052](../ticket-052/README.md) | Operator checklist for external Validator App autonomy |
 
-## Approval boundary
+## Approval outcome
 
-Stop in `WAIT_FOR_APPROVAL`. No implementation outside this ticket directory
-until a human owner moves a sibling ticket to `IN_PROGRESS` with an approved
-scope.
+The user accepted this documentation plan on 2026-08-08. Sibling tickets may
+now move independently to `IN_PROGRESS` only after their own scope is approved
+and their dependency and ownership checks pass.
