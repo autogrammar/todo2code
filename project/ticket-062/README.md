@@ -2,8 +2,8 @@
 
 - **ID**: ticket-062
 - **Owner**: agent:codex
-- **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -23,7 +23,7 @@ the required upstream extension/adoption instead of modifying authority.
       governance adoption path.
 - [x] AC-02: A published governance mechanism assigns the Python runtime bridge
       test to `sdk` without hand-editing managed hashes.
-- [ ] AC-03: The complete managed set is adopted atomically and governance
+- [x] AC-03: The complete managed set is adopted atomically and governance
       passes before ticket-063 enters `EDIT`.
 - [x] AC-04: No application or test behavior changes in this ticket.
 
@@ -34,9 +34,9 @@ the required upstream extension/adoption instead of modifying authority.
 
 ## Approval gate
 
-The human approved the protected routing plan on 2026-08-09. The ticket remains
-non-active and makes no authority change while it waits for a published
-upstream mechanism or existing supported extension.
+The human approved the protected routing plan on 2026-08-09. The ticket
+remained non-active and made no authority change while it waited for the
+published upstream mechanism.
 
 The matching upstream owner is the existing
 `wellmanifest/new-project:ticket-024`; no competing governance ticket was
@@ -97,6 +97,15 @@ adopted a published upstream mechanism and governance passes.
   cannot validate the new `extendable` strategy. The ticket returned to
   `EDIT` and now binds both the reusable workflow and its `standard-ref` input
   to the adopted exact v0.14.0 SHA `a22eb47`.
+- Fresh exact head `b33e49ce2d90bd13dc98961dbaf467172cd4a7c4`
+  passed verify, required Java, Koru and review-triggered governance. The
+  deterministic Validator approved it as decision `D-062-0715`; its advisory
+  LLM output was not used as authority.
+- Protected PR #77 merged as
+  `a7625806a57ef859802eec47175653a6039c1c4a`. The immediate default-branch
+  governance run then failed closed because the merged ticket was still
+  active while a push event has no PR base. This docs-only closure marks the
+  completed adoption inactive; it does not change the adopted package.
 
 ## Non-goals
 

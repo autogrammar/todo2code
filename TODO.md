@@ -9,11 +9,6 @@
 
 ## Backlog tickets
 
-- [ ] [`ticket-062`](project/ticket-062/README.md) — route the unowned Python
-  SDK bridge test through protected governance evolution. Current state:
-  `IN_PROGRESS / EDIT`; protected review exposed and is repairing stale
-  reusable-workflow caller pins after exact-SHA adoption; coordinated by
-  ticket-058.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:
@@ -26,6 +21,11 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-062`](project/ticket-062/README.md) — adopted immutable
+  new-project v0.14.0 at exact SHA `a22eb47`, preserved all eight target
+  workstreams, assigned `test/python-runtime.test.ts` to `sdk`, aligned the
+  reusable workflow caller and passed protected PR #77. Current state:
+  `DONE / DONE`; merge `main@a762580`.
 - [x] [`ticket-055`](project/ticket-055/README.md) — identifies OpenRouter
   usage with explicit `OPENROUTER_APP_NAME`, falling back to the analysed
   project's folder name. Koru, Validator App and protected checks approved

@@ -81,3 +81,15 @@ PASS ./project/governance-check.sh
   ROOT .github/workflows/ci.yml still pinned uses and standard-ref to 85631ea
   STATE returned to IN_PROGRESS / EDIT
   REPAIR both caller references aligned to exact a22eb47
+
+2026-08-09 protected completion
+  PASS exact head b33e49ce2d90bd13dc98961dbaf467172cd4a7c4 verify
+  PASS exact head required Java adapter
+  PASS exact head Koru code-review
+  PASS exact head review-triggered governance
+  APPROVED deterministic Validator D-062-0715
+  ADVISORY LLM REQUEST_CHANGES not used as authority
+  MERGED PR 77 as a7625806a57ef859802eec47175653a6039c1c4a
+  DIAGNOSTIC default-branch push lacks BASE_SHA while completed adoption ticket remained active
+  REPAIR closure sets ticket-062 DONE / DONE; adopted package stays unchanged
+  UNBLOCK ticket-063 may enter separately approved EDIT

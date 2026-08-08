@@ -36,3 +36,13 @@
   parser against the adopted v0.14.0 package contract.
 - Returned to `EDIT`, expanded the ordinary adoption budget from two to three
   files, and aligned both workflow references to exact SHA `a22eb47`.
+
+## [0.5.0] - 2026-08-09
+
+- Passed fresh verify, Java, Koru, deterministic exact-head Validator and
+  review-triggered governance on final head `b33e49c`.
+- Merged protected PR #77 as `main@a762580` and recorded the transient
+  no-PR-base push diagnostic while the completed adoption ticket remained
+  active.
+- Completed all acceptance criteria and closed the ticket as `DONE / DONE`,
+  unblocking ticket-063.

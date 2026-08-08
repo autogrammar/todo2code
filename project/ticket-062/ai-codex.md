@@ -50,14 +50,22 @@ or a supported project-extension mechanism.
   `standard-ref` still selected v0.13.2, so that old parser rejected the
   adopted package strategy with `GOV-SYNC-001`. Returned to `EDIT` and aligned
   both immutable references with exact v0.14.0 SHA `a22eb47`.
+- Fresh exact-head verify, Java, Koru, deterministic Validator decision
+  `D-062-0715` and review-triggered governance passed. PR #77 merged as
+  `a7625806a57ef859802eec47175653a6039c1c4a`.
+- Recorded the expected post-merge push diagnostic caused by leaving a
+  completed `standardAdoption` ticket active without a PR base, then closed
+  the ticket as `DONE / DONE` so the record no longer participates in active
+  atomic-adoption resolution.
 - Recorded the combined 059+060+061 validation: every pre-test gate passed and
   the only observed test failure is the ticket-063 assertion blocked by this
   ownership gap.
-- Made no governance, implementation or test change.
+- The initial routing phase made no governance, implementation or test change;
+  the approved delivery later changed only the governed adoption surfaces.
 - Human approved the routing plan on 2026-08-09; its external release
   dependency is now satisfied.
 
 ## Blockers
 
-- Fresh protected checks and exact-head review remain after caller alignment.
-  Ticket-063 stays blocked until this adoption reaches protected `main`.
+- None. The adopted ownership is on protected `main`; ticket-063 may enter
+  `EDIT` under its separately approved scope.
