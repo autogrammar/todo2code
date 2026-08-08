@@ -14,3 +14,12 @@ PASS ./project/governance-check.sh
 2026-08-09 approval
   APPROVED ticket-060 plan and transition to EDIT
   ticket-058 retained as integrationTicket, not dependsOn
+
+2026-08-09 implementation validation
+  PASS npm ci (3 packages, 0 vulnerabilities)
+  PASS npm run build
+  PASS node --test dist/test/docs.test.js (5/5)
+  PASS ./project/governance-check.sh (0 errors, 0 warnings)
+
+Implementation scope
+  test/docs.test.ts: current runtime assertion now uses T2C_VERSION

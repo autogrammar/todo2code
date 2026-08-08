@@ -8,3 +8,5 @@
 - Passed governance with zero errors and zero warnings.
 - Recorded human approval and transition to `IN_PROGRESS / EDIT`.
 - Corrected ticket-058 to the dedicated integration relationship.
+- Replaced the documentation test's stale current-version literal with
+  `T2C_VERSION`; five focused tests pass.

@@ -3,7 +3,7 @@
 - **ID**: ticket-060
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -15,7 +15,7 @@ provenance while no longer preserving a stale release identity.
 ## Acceptance criteria
 
 - [x] AC-01: A human approves the one-test-file scope.
-- [ ] AC-02: `test/docs.test.ts` asserts current provenance through
+- [x] AC-02: `test/docs.test.ts` asserts current provenance through
       `T2C_VERSION`, not a copied version string.
 - [ ] AC-03: Documentation extraction tests pass with ticket-059's runtime
       correction and no historical fixture is changed.

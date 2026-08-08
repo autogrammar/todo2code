@@ -23,7 +23,8 @@ value but copied `0.5.0` directly. That made the suite encode the regression.
 
 - Classified the literal as a current assertion, not historical evidence.
 - Human approved the exact scope and transition to `EDIT` on 2026-08-09.
-- No test file changed yet.
+- Imported `T2C_VERSION` and replaced the one current-version literal.
+- Build, all five documentation tests and governance pass.
 
 ## Blockers
 
