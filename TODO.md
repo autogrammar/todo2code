@@ -2,15 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-050`](project/ticket-050/README.md) — adopt immutable
-  new-project v0.13.2 ownership for `CHANGELOG.md` and `.env.example` through
-  the published provenance-bound atomic-adoption rule. The verified managed
-  payload is handled atomically; the target manifest, lock and changelog remain
-  within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / VALIDATION`; the managed package and reusable caller select
-  exact release SHA `85631ea`. Governance now runs on authoritative submitted
-  reviews, same-HEAD dismissals, default-branch pushes and explicit dispatches
-  without creating pre-approval same-name failures.
+None.
 
 ## Backlog tickets
 
@@ -22,6 +14,11 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-050`](project/ticket-050/README.md) — adopted immutable
+  new-project v0.13.2, assigned `CHANGELOG.md` and `.env.example` to the
+  governance workstream, and made governance checks recoverable while retaining
+  fail-closed exact-head approval. Koru, Validator and protected checks passed;
+  PR #70 merged as `main@f60d3cc`. Current state: `DONE`.
 - [x] [`ticket-049`](project/ticket-049/README.md) — Validator autonomy audit,
   operator guide and refactor plan accepted by the user on 2026-08-08. Sibling
   tickets 050–052 retain independent approval and ownership gates. Current

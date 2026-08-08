@@ -123,3 +123,10 @@
 - Passed workflow YAML and exact-base governance after the trigger repair.
 - Returned to `IN_PROGRESS / VALIDATION` for a clean exact-head publication
   cycle.
+
+## [1.7.0] - 2026-08-08
+
+- Recorded trusted Validator approval, green Koru/governance/stack checks and
+  the clean protected merge of PR #70 as `main@f60d3cc`.
+- Recorded automatic implementation-branch deletion and Diagit archival.
+- Closed ticket-050 as `DONE / DONE` with all acceptance criteria satisfied.
