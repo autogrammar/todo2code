@@ -1,0 +1,38 @@
+2026-08-08 ticket-055 validation summary
+
+PASS npm ci (3 packages, 0 vulnerabilities)
+PASS npm run build
+PASS node --test dist/test/config-openrouter-app-name.test.js (3/3)
+PASS npm run verify (339/339 host tests; 1 expected toolchain skip)
+PASS ./project/governance-check.sh (0 errors, 0 warnings)
+PASS git diff --check
+PASS make docker-smoke
+FAIL make e2e-core: 396 passed, 7 skipped, 2 failed because `make` is not
+     installed in the e2e-base image (`spawn make ENOENT`).
+FAIL make e2e-full: image build stopped because `cargo fetch --locked` requires
+     sdk/rust/Cargo.lock, which is absent and ignored by `.gitignore`.
+
+No live OpenRouter request was made and no credential was read or logged.
+
+2026-08-08 protected governance false-positive correction
+
+The protected governance run rejected the changed configuration file with
+GOV-SECRET-001. Exact local reproduction showed that the scanner matched the
+pre-existing display-only redaction of the `apiKey` field from runtime config,
+not a credential or the new application label. Parenthesizing that conditional
+keeps runtime behavior identical while preventing an identifier from being
+classified as a 12-character literal secret. No scanner rule or exception was
+weakened. The updated head requires fresh exact-head validation and approval.
+
+2026-08-08 validation after ticket-056 publication
+
+Rebased onto main@8606860ea7fa26a26052b5a9bd8853c75f10e9c1
+PASS focused OpenRouter app-name tests (3/3)
+PASS npm run verify (405 tests: 404 passed, 1 expected local JDK skip)
+PASS ./project/governance-check.sh (0 errors, 0 warnings)
+PASS git diff --check
+PASS make docker-smoke
+PASS make e2e-core (405 tests; 7 expected toolchain skips; suite=core)
+PASS make e2e-full (405 tests; all toolchains; five SDKs; suite=full)
+
+No live OpenRouter request was made and no credential was read or logged.
