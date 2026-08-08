@@ -1,5 +1,11 @@
 # Ticket Changelog (ticket-049)
 
+## [0.4.0] - 2026-08-08
+
+- Recorded human acceptance of the audit and refactor plan.
+- Completed the documentation-only ticket and released sibling tickets to
+  proceed through their own governance gates.
+
 ## [0.3.0] - 2026-08-06
 
 - Added precondition 9 to steady-state autonomy: eligibility (conditions 1-8)

@@ -6,10 +6,6 @@ None.
 
 ## Backlog tickets
 
-- [ ] [`ticket-049`](project/ticket-049/README.md) — Validator autonomy audit,
-  operator guide and refactor plan (docs only). Current state:
-  `PLAN / WAIT_FOR_APPROVAL`. See
-  [AUTONOMY_AND_REFACTOR_PLAN.md](project/ticket-049/AUTONOMY_AND_REFACTOR_PLAN.md).
 - [ ] [`ticket-050`](project/ticket-050/README.md) — own or explicitly exclude
   unpublishable root paths (`CHANGELOG.md`, `.env.example`). Current state:
   `PLAN / WAIT_FOR_APPROVAL`.
@@ -21,6 +17,11 @@ None.
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-049`](project/ticket-049/README.md) — Validator autonomy audit,
+  operator guide and refactor plan accepted by the user on 2026-08-08. Sibling
+  tickets 050–052 retain independent approval and ownership gates. Current
+  state: `DONE`. See
+  [AUTONOMY_AND_REFACTOR_PLAN.md](project/ticket-049/AUTONOMY_AND_REFACTOR_PLAN.md).
 - [x] [`ticket-053`](project/ticket-053/README.md) — documents the existing
   CI-form governance check as a blocking pre-push gate. Koru and Validator
   approved exact head `079de29`; protected PR #67 merged as `main@100a7d2`
