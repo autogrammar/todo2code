@@ -97,7 +97,7 @@ def load_json(path: Path) -> Any:
         return json.load(handle)
 
 
-def work_classification_error(value: Any) -> str | None:
+def work_classification_header_error(value: Any) -> str | None:
     fields = {"$schema", "schema", "dimensions", "ordering", "priorityDerivation", "evaluation", "rules"}
     if not isinstance(value, dict) or set(value) != fields:
         return "work classification contract fields are invalid"
@@ -131,6 +131,70 @@ def work_classification_error(value: Any) -> str | None:
         "mode": "first-match", "unmatchedPolicy": "reject", "llmRole": "advisory-only",
     }:
         return "work classification evaluation policy drifted"
+    return None
+
+
+def complexity_rule_assignment(when: dict[str, Any]) -> tuple[tuple[str, str] | None, str | None]:
+    if when.get("baseline") == "measured":
+        if when.get("delta") == "increased" or when.get("threshold") == "crossed":
+            return ("BUG", "regression"), "impact"
+    if when == {
+        "signal": "cyclomatic-complexity",
+        "baseline": "pre-existing",
+        "delta": "not-increased",
+    }:
+        return ("SERVICE", "health"), "service-default"
+    return None, None
+
+
+def expected_rule_assignment(when: dict[str, Any]) -> tuple[tuple[str, str] | None, str | None]:
+    signal = when.get("signal")
+    if signal == "defect" and when.get("impact") in {"outage-or-security", "functional"}:
+        return ("BUG", "regression"), "impact"
+    if signal == "cyclomatic-complexity":
+        return complexity_rule_assignment(when)
+    if signal == "work-request" and when.get("request") == "new-behavior":
+        return ("FEATURE", "requested"), "declared"
+    if signal == "work-request" and when.get("request") == "maintenance":
+        return ("SERVICE", "health"), "service-default"
+    return None, None
+
+
+def work_classification_rule_error(rule: dict[str, Any]) -> str | None:
+    if set(rule) != {"id", "when", "assign", "prioritySource"}:
+        return "work classification rule fields are invalid"
+    when = rule.get("when")
+    assignment = rule.get("assign")
+    if not isinstance(when, dict) or not isinstance(assignment, dict):
+        return "work classification rule condition or assignment is invalid"
+    expected_when_fields = {
+        "defect": [{"signal", "impact"}],
+        "cyclomatic-complexity": [
+            {"signal", "baseline", "delta"},
+            {"signal", "baseline", "threshold"},
+        ],
+        "work-request": [{"signal", "request"}],
+    }.get(when.get("signal"))
+    if expected_when_fields is None or set(when) not in expected_when_fields:
+        return f"work classification rule {rule['id']} mixes incompatible signal fields"
+    expected_assignment, expected_priority_source = expected_rule_assignment(when)
+    if expected_assignment is None:
+        return f"work classification rule {rule['id']} has invalid condition values"
+    if set(assignment) != {"kind", "origin"}:
+        return f"work classification rule {rule['id']} has an invalid assignment"
+    actual_assignment = assignment.get("kind"), assignment.get("origin")
+    if actual_assignment != expected_assignment:
+        return f"work classification rule {rule['id']} has an invalid assignment"
+    if rule.get("prioritySource") != expected_priority_source:
+        return f"work classification rule {rule['id']} has an invalid priority source"
+    return None
+
+
+def work_classification_error(value: Any) -> str | None:
+    header_error = work_classification_header_error(value)
+    if header_error:
+        return header_error
+    assert isinstance(value, dict)
     rules = value.get("rules")
     if not isinstance(rules, list) or len(rules) != 7:
         return "work classification must contain exactly seven rules"
@@ -139,55 +203,10 @@ def work_classification_error(value: Any) -> str | None:
     if identifiers != expected_identifiers:
         return "work classification rule identifiers or first-match order drifted"
     for rule in rules:
-        if set(rule) != {"id", "when", "assign", "prioritySource"}:
-            return "work classification rule fields are invalid"
-        when = rule.get("when")
-        assignment = rule.get("assign")
-        if not isinstance(when, dict) or not isinstance(assignment, dict):
-            return "work classification rule condition or assignment is invalid"
-        signal = when.get("signal")
-        expected_when_fields = {
-            "defect": [{"signal", "impact"}],
-            "cyclomatic-complexity": [
-                {"signal", "baseline", "delta"},
-                {"signal", "baseline", "threshold"},
-            ],
-            "work-request": [{"signal", "request"}],
-        }.get(signal)
-        if expected_when_fields is None or set(when) not in expected_when_fields:
-            return f"work classification rule {rule['id']} mixes incompatible signal fields"
-        expected_assignment: tuple[str, str] | None = None
-        expected_priority_source: str | None = None
-        if signal == "defect" and when.get("impact") in {"outage-or-security", "functional"}:
-            expected_assignment = ("BUG", "regression")
-            expected_priority_source = "impact"
-        elif signal == "cyclomatic-complexity":
-            if when.get("baseline") == "measured" and (
-                when.get("delta") == "increased" or when.get("threshold") == "crossed"
-            ):
-                expected_assignment = ("BUG", "regression")
-                expected_priority_source = "impact"
-            elif when == {
-                "signal": "cyclomatic-complexity",
-                "baseline": "pre-existing",
-                "delta": "not-increased",
-            }:
-                expected_assignment = ("SERVICE", "health")
-                expected_priority_source = "service-default"
-        elif signal == "work-request" and when.get("request") == "new-behavior":
-            expected_assignment = ("FEATURE", "requested")
-            expected_priority_source = "declared"
-        elif signal == "work-request" and when.get("request") == "maintenance":
-            expected_assignment = ("SERVICE", "health")
-            expected_priority_source = "service-default"
-        if expected_assignment is None:
-            return f"work classification rule {rule['id']} has invalid condition values"
-        if set(assignment) != {"kind", "origin"} or (
-            assignment.get("kind"), assignment.get("origin")
-        ) != expected_assignment:
-            return f"work classification rule {rule['id']} has an invalid assignment"
-        if rule.get("prioritySource") != expected_priority_source:
-            return f"work classification rule {rule['id']} has an invalid priority source"
+        assert isinstance(rule, dict)
+        rule_error = work_classification_rule_error(rule)
+        if rule_error:
+            return rule_error
     return None
 
 
@@ -2221,6 +2240,21 @@ def git_revision_file(root: Path, revision: str, raw_path: str) -> bytes | None:
         return None
 
 
+def package_entry(item: Any) -> tuple[str, str, str]:
+    if not isinstance(item, dict) or set(item) != {"source", "target", "strategy", "executable"}:
+        raise ValueError("package manifest entry fields are invalid")
+    source, target = item.get("source"), item.get("target")
+    if not isinstance(source, str) or not isinstance(target, str):
+        raise ValueError("package manifest entry is invalid")
+    if not relative_pattern(source) or not relative_pattern(target):
+        raise ValueError("package manifest entry is invalid")
+    if item.get("strategy") not in {"managed", "seed"}:
+        raise ValueError("package manifest entry is invalid")
+    if not isinstance(item.get("executable"), bool):
+        raise ValueError("package manifest entry is invalid")
+    return source, target, item["strategy"]
+
+
 def package_strategies(content: bytes) -> dict[str, str]:
     document = json.loads(content)
     if not isinstance(document, dict) or set(document) != {"schema", "files"}:
@@ -2230,44 +2264,41 @@ def package_strategies(content: bytes) -> dict[str, str]:
     strategies: dict[str, str] = {}
     sources: set[str] = set()
     for item in document["files"]:
-        if not isinstance(item, dict) or set(item) != {"source", "target", "strategy", "executable"}:
-            raise ValueError("package manifest entry fields are invalid")
-        source, target = item.get("source"), item.get("target")
-        if (
-            not isinstance(source, str)
-            or not isinstance(target, str)
-            or not relative_pattern(source)
-            or not relative_pattern(target)
-            or item.get("strategy") not in {"managed", "seed"}
-            or not isinstance(item.get("executable"), bool)
-        ):
-            raise ValueError("package manifest entry is invalid")
+        source, target, strategy = package_entry(item)
         if source in sources or target in strategies:
             raise ValueError("package manifest paths must be unique")
         sources.add(source)
-        strategies[target] = item["strategy"]
+        strategies[target] = strategy
     if not strategies:
         raise ValueError("package manifest is empty")
     return strategies
+
+
+def adoption_standard_binding_is_valid(document: dict[str, Any], expected_revision: str) -> bool:
+    standard = document.get("standard")
+    if document.get("schema") != "new-project.lock/v1" or not isinstance(standard, dict):
+        return False
+    fields = {"id", "version", "sourceRepository", "sourceRevision", "publicationStatus"}
+    if set(standard) != fields:
+        return False
+    expected = {
+        "id": "wellmanifest/new-project",
+        "sourceRepository": "wellmanifest/new-project",
+        "sourceRevision": expected_revision,
+        "publicationStatus": "published",
+    }
+    if any(standard.get(key) != value for key, value in expected.items()):
+        return False
+    version = standard.get("version")
+    return isinstance(version, str) and re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version) is not None
 
 
 def adoption_lock(content: bytes, expected_revision: str) -> dict[str, str]:
     document = json.loads(content)
     if not isinstance(document, dict) or set(document) != {"schema", "standard", "managedFiles"}:
         raise ValueError("adoption lock fields are invalid")
-    standard, managed = document.get("standard"), document.get("managedFiles")
-    if (
-        document.get("schema") != "new-project.lock/v1"
-        or not isinstance(standard, dict)
-        or set(standard) != {"id", "version", "sourceRepository", "sourceRevision", "publicationStatus"}
-        or standard.get("id") != "wellmanifest/new-project"
-        or standard.get("sourceRepository") != "wellmanifest/new-project"
-        or standard.get("sourceRevision") != expected_revision
-        or standard.get("publicationStatus") != "published"
-        or not isinstance(standard.get("version"), str)
-        or re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", standard["version"]) is None
-        or not isinstance(managed, dict)
-    ):
+    managed = document.get("managedFiles")
+    if not adoption_standard_binding_is_valid(document, expected_revision) or not isinstance(managed, dict):
         raise ValueError("adoption lock standard binding is invalid")
     if not all(
         isinstance(path, str)
@@ -2284,6 +2315,67 @@ def content_digest(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
+def standard_adoption_records(active: list[TicketRecord]) -> list[TicketRecord]:
+    return [
+        record for record in active
+        if record.intent is not None
+        and isinstance(record.intent.get("delivery"), dict)
+        and "standardAdoption" in record.intent["delivery"]
+    ]
+
+
+def load_standard_adoption_evidence(
+    root: Path,
+    base: str,
+    adoption: dict[str, str],
+) -> tuple[dict[str, str], dict[str, str], dict[str, str], dict[str, str]]:
+    base_package_content = git_revision_file(root, base, ".governance/package-manifest.json")
+    base_lock_content = git_revision_file(root, base, ".governance/manifest.lock.json")
+    if base_package_content is None or base_lock_content is None:
+        raise ValueError("base package manifest or lock is missing")
+    head_package_path = safe_repo_path(root, ".governance/package-manifest.json")
+    head_lock_path = safe_repo_path(root, ".governance/manifest.lock.json")
+    if not head_package_path.is_file() or not head_lock_path.is_file():
+        raise ValueError("head package manifest or lock is missing")
+    base_strategies = package_strategies(base_package_content)
+    head_strategies = package_strategies(head_package_path.read_bytes())
+    base_hashes = adoption_lock(base_lock_content, adoption["fromRevision"])
+    head_hashes = adoption_lock(head_lock_path.read_bytes(), adoption["toRevision"])
+    if set(base_hashes) != set(base_strategies) or set(head_hashes) != set(head_strategies):
+        raise ValueError("package targets and lock targets differ")
+    return base_strategies, head_strategies, base_hashes, head_hashes
+
+
+def verify_changed_managed_paths(
+    root: Path,
+    base: str,
+    changed: list[str],
+    base_strategies: dict[str, str],
+    head_strategies: dict[str, str],
+    base_hashes: dict[str, str],
+    head_hashes: dict[str, str],
+) -> set[str]:
+    exempt: set[str] = set()
+    for raw_path in changed:
+        if head_strategies.get(raw_path) != "managed":
+            continue
+        head_path = safe_repo_path(root, raw_path)
+        if not head_path.is_file() or content_digest(head_path.read_bytes()) != head_hashes[raw_path]:
+            raise ValueError(f"head managed hash differs: {raw_path}")
+        base_content = git_revision_file(root, base, raw_path)
+        if raw_path in base_strategies:
+            if base_strategies[raw_path] != "managed" or base_content is None:
+                raise ValueError(f"managed strategy continuity differs: {raw_path}")
+            if content_digest(base_content) != base_hashes[raw_path]:
+                raise ValueError(f"base managed hash differs: {raw_path}")
+        elif base_content is not None:
+            raise ValueError(f"new managed target already existed at base: {raw_path}")
+        exempt.add(raw_path)
+    if not exempt:
+        raise ValueError("no changed managed payload was verified")
+    return exempt
+
+
 def atomic_standard_adoption_paths(
     root: Path,
     base: str | None,
@@ -2291,12 +2383,7 @@ def atomic_standard_adoption_paths(
     active: list[TicketRecord],
     report: Report,
 ) -> set[str]:
-    records = [
-        record for record in active
-        if record.intent is not None
-        and isinstance(record.intent.get("delivery"), dict)
-        and "standardAdoption" in record.intent["delivery"]
-    ]
+    records = standard_adoption_records(active)
     if not records:
         return set()
     evidence_paths = [".governance/manifest.lock.json", ".governance/package-manifest.json"]
@@ -2321,40 +2408,8 @@ def atomic_standard_adoption_paths(
         )
         return set()
     try:
-        base_package_content = git_revision_file(root, base, ".governance/package-manifest.json")
-        base_lock_content = git_revision_file(root, base, ".governance/manifest.lock.json")
-        if base_package_content is None or base_lock_content is None:
-            raise ValueError("base package manifest or lock is missing")
-        head_package_path = safe_repo_path(root, ".governance/package-manifest.json")
-        head_lock_path = safe_repo_path(root, ".governance/manifest.lock.json")
-        if not head_package_path.is_file() or not head_lock_path.is_file():
-            raise ValueError("head package manifest or lock is missing")
-        base_strategies = package_strategies(base_package_content)
-        head_strategies = package_strategies(head_package_path.read_bytes())
-        base_hashes = adoption_lock(base_lock_content, adoption["fromRevision"])
-        head_hashes = adoption_lock(head_lock_path.read_bytes(), adoption["toRevision"])
-        if set(base_hashes) != set(base_strategies) or set(head_hashes) != set(head_strategies):
-            raise ValueError("package targets and lock targets differ")
-
-        exempt: set[str] = set()
-        for raw_path in changed:
-            if head_strategies.get(raw_path) != "managed":
-                continue
-            head_path = safe_repo_path(root, raw_path)
-            if not head_path.is_file() or content_digest(head_path.read_bytes()) != head_hashes[raw_path]:
-                raise ValueError(f"head managed hash differs: {raw_path}")
-            base_content = git_revision_file(root, base, raw_path)
-            if raw_path in base_strategies:
-                if base_strategies[raw_path] != "managed" or base_content is None:
-                    raise ValueError(f"managed strategy continuity differs: {raw_path}")
-                if content_digest(base_content) != base_hashes[raw_path]:
-                    raise ValueError(f"base managed hash differs: {raw_path}")
-            elif base_content is not None:
-                raise ValueError(f"new managed target already existed at base: {raw_path}")
-            exempt.add(raw_path)
-        if not exempt:
-            raise ValueError("no changed managed payload was verified")
-        return exempt
+        evidence = load_standard_adoption_evidence(root, base, adoption)
+        return verify_changed_managed_paths(root, base, changed, *evidence)
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
         report.add(
             "GOV-SYNC-001",

@@ -4,12 +4,12 @@
     ".governance/change-evaluation.schema.json": "d16c9cbc9646ad7d98b7a5ecd56594e4572df968a0ee0c63e969b2a8c3b9490a",
     ".governance/check_required_checks.py": "c763e14ee118af591b80f3186fa6d6f16c4f525b222935605458dc349928ba17",
     ".governance/decision-record.schema.json": "08278322846b6da5e8306c0661c23fd1bcdf4a003f8ef75aac0d33299a4cd357",
-    ".governance/decision_record.py": "886f3a85f817fcc444a0ff30093b0cf05027eac52db1e9d38467eb8f157fc94e",
+    ".governance/decision_record.py": "c284285339b0b61b2f68b337301580ee8b35a1687cbbe47f4c268ff5723a466c",
     ".governance/diagnostics.json": "1640311176394612e462b595f143e32be1d52bd768f109c199d25bae9673881b",
-    ".governance/governance_check.py": "d87046202eab049efa698204047843516fbe9550bab8390e0e919c646a3e3091",
+    ".governance/governance_check.py": "2a3e50801f9174b102db4f79780f4949ffd97303f35f966e8a56ab2cd6f53e8e",
     ".governance/intent.schema.json": "c5cee010aabcc09dce13e12583848371a7b3eacc898b253cd9bb455d4eba6801",
     ".governance/lock.schema.json": "fc6f1143ef713c993b61270dd2d7545a52cb0b8501aadb188e6d0152a208b207",
-    ".governance/manifest.json": "025ea733f27ae7e3d46187ed80f87f660f005d592e34c3e570fb1ebdb9c7d396",
+    ".governance/manifest.json": "ba7b17bc63b2c18420ed97fb43584abd61f84565367214f50552aff5e21bb992",
     ".governance/manifest.schema.json": "d48f258e3397ac2d8c5010e5ccdeef9eaf87b0b015d56798d11d5916c5f70a18",
     ".governance/package-manifest.json": "8bf10862f2b30eb57652b130f7aa1231907e2bb6affd9b68fcb232747658ddde",
     ".governance/required-checks.json": "579e008e2dba9110ce45d34fdd96768fa28c003a339cf338378d28fe00fb83a2",
@@ -30,7 +30,7 @@
     "id": "wellmanifest/new-project",
     "publicationStatus": "published",
     "sourceRepository": "wellmanifest/new-project",
-    "sourceRevision": "12158ef0c009428deddceebb1049ddc3cb898eb3",
-    "version": "0.13.0"
+    "sourceRevision": "7979cfe76797a4da6925be49496ff2462e78b3f7",
+    "version": "0.13.1"
   }
 }

@@ -42,7 +42,7 @@ def format_value(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
-def parse_dsl_record(text: str) -> dict[str, Any]:
+def decision_body(text: str) -> str:
     body = text.strip()
     if body.startswith("```"):
         lines = body.splitlines()
@@ -51,63 +51,61 @@ def parse_dsl_record(text: str) -> dict[str, Any]:
         if lines and lines[-1].strip() == "```":
             lines = lines[:-1]
         body = "\n".join(lines).strip()
-    record: dict[str, Any] = {
-        "schema": SCHEMA,
-        "inputs": {},
-        "assertions": [],
-        "advisory": None,
-        "derivedFrom": None,
+    return body
+
+
+def apply_named_field(record: dict[str, Any], key: str, value: str) -> bool:
+    destinations = {
+        "TICKET": "ticket",
+        "HEAD_SHA": "headSha",
+        "CORRELATION_ID": "correlationId",
+        "ACTOR": "actor",
+        "APPLIED_RULE": "appliedRule",
     }
-    for line in body.splitlines():
-        line = line.rstrip()
-        if not line or line.startswith("#"):
-            continue
-        m = DECISION_START.match(line)
-        if m:
-            record["decisionId"] = m.group(1)
-            continue
-        m = INPUT_LINE.match(line)
-        if m:
-            record["inputs"][m.group(1)] = parse_value(m.group(2))
-            continue
-        m = VERDICT_LINE.match(line)
-        if m:
-            record["verdict"] = m.group(1)
-            record["verdictAuthority"] = m.group(2)
-            continue
-        m = REJECTED_LINE.match(line)
-        if m:
-            record["rejected"] = {
-                "alternative": m.group(1),
-                "because": m.group(2).strip(),
-            }
-            continue
-        m = ADVISORY_LINE.match(line)
-        if m:
-            record["advisory"] = {
-                "llmVerdict": m.group(1),
-                "model": m.group(2),
-            }
-            continue
-        m = ASSERT_LINE.match(line)
-        if m:
-            record["assertions"].append(m.group(1).strip())
-            continue
-        m = FIELD.match(line)
-        if m:
-            key, val = m.group(1), m.group(2).strip()
-            mapping = {
-                "TICKET": ("ticket", val),
-                "HEAD_SHA": ("headSha", val),
-                "CORRELATION_ID": ("correlationId", val),
-                "ACTOR": ("actor", val),
-                "APPLIED_RULE": ("appliedRule", val),
-            }
-            if key in mapping:
-                dest, value = mapping[key]
-                record[dest] = value
-            continue
-        raise ValueError(f"unrecognized decision-record line: {line}")
+    destination = destinations.get(key)
+    if destination is None:
+        return False
+    record[destination] = value
+    return True
+
+
+def apply_decision_line(record: dict[str, Any], line: str) -> bool:
+    match = DECISION_START.match(line)
+    if match:
+        record["decisionId"] = match.group(1)
+        return True
+    match = INPUT_LINE.match(line)
+    if match:
+        record["inputs"][match.group(1)] = parse_value(match.group(2))
+        return True
+    match = VERDICT_LINE.match(line)
+    if match:
+        record["verdict"] = match.group(1)
+        record["verdictAuthority"] = match.group(2)
+        return True
+    match = REJECTED_LINE.match(line)
+    if match:
+        record["rejected"] = {
+            "alternative": match.group(1),
+            "because": match.group(2).strip(),
+        }
+        return True
+    match = ADVISORY_LINE.match(line)
+    if match:
+        record["advisory"] = {
+            "llmVerdict": match.group(1),
+            "model": match.group(2),
+        }
+        return True
+    match = ASSERT_LINE.match(line)
+    if match:
+        record["assertions"].append(match.group(1).strip())
+        return True
+    match = FIELD.match(line)
+    return bool(match and apply_named_field(record, match.group(1), match.group(2).strip()))
+
+
+def require_decision_fields(record: dict[str, Any]) -> None:
     required = [
         "decisionId",
         "ticket",
@@ -119,13 +117,30 @@ def parse_dsl_record(text: str) -> dict[str, Any]:
         "verdictAuthority",
         "rejected",
     ]
-    missing = [k for k in required if k not in record]
+    missing = [key for key in required if key not in record]
     if missing:
         raise ValueError(f"decision record missing fields: {missing}")
     if not record["inputs"]:
         raise ValueError("decision record has no INPUT lines")
     if not record["assertions"]:
         raise ValueError("decision record has no ASSERT lines")
+
+
+def parse_dsl_record(text: str) -> dict[str, Any]:
+    record: dict[str, Any] = {
+        "schema": SCHEMA,
+        "inputs": {},
+        "assertions": [],
+        "advisory": None,
+        "derivedFrom": None,
+    }
+    for line in decision_body(text).splitlines():
+        line = line.rstrip()
+        if not line or line.startswith("#"):
+            continue
+        if not apply_decision_line(record, line):
+            raise ValueError(f"unrecognized decision-record line: {line}")
+    require_decision_fields(record)
     return record
 
 
