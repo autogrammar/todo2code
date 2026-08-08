@@ -124,6 +124,11 @@ submitted reviews and same-HEAD manual dismissals remain fail-closed, while
 pre-approval PR events and stale-review auto-dismissals no longer create an
 irrecoverable required-check failure.
 
+The authoritative-event condition is implemented at
+`09a24f32e2f9900d2ecae1620623e2e73c6362f2`. Workflow YAML and exact-base
+governance pass, and the ticket returned to `VALIDATION` for one clean
+exact-head publication cycle.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are

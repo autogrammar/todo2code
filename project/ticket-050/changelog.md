@@ -115,3 +115,11 @@
   later exact-head governance pass.
 - Returned to `EDIT` to distinguish submitted and same-HEAD dismissed reviews
   from pre-approval PR events and stale-review auto-dismissals.
+
+## [1.6.0] - 2026-08-08
+
+- Scoped the required governance job to submitted reviews, same-HEAD manual
+  dismissals, default-branch pushes and explicit dispatches.
+- Passed workflow YAML and exact-base governance after the trigger repair.
+- Returned to `IN_PROGRESS / VALIDATION` for a clean exact-head publication
+  cycle.

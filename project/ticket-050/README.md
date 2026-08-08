@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -111,6 +111,12 @@ same SHA. Pre-approval PR runs and automatic dismissal of a review for an old
 SHA must therefore not create governance failures for the new SHA. The ticket
 returned to `EDIT` to run governance only for submitted reviews, same-HEAD
 manual dismissals, default-branch pushes and explicit dispatches.
+
+The authoritative-event condition is implemented at
+`09a24f32e2f9900d2ecae1620623e2e73c6362f2`. It preserves fail-closed review
+submission and same-HEAD dismissal checks without creating a pre-approval
+failure on a new SHA. Workflow YAML and exact-base governance pass, so the
+ticket returned to `VALIDATION`.
 
 ## Acceptance criteria
 

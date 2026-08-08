@@ -7,10 +7,10 @@
   the published provenance-bound atomic-adoption rule. The verified managed
   payload is handled atomically; the target manifest, lock and changelog remain
   within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / EDIT`; the managed package and reusable caller select exact
-  release SHA `85631ea`. Governance triggers are being narrowed to submitted
+  `IN_PROGRESS / VALIDATION`; the managed package and reusable caller select
+  exact release SHA `85631ea`. Governance now runs on authoritative submitted
   reviews, same-HEAD dismissals, default-branch pushes and explicit dispatches
-  so pre-approval events cannot create irrecoverable same-name failures.
+  without creating pre-approval same-name failures.
 
 ## Backlog tickets
 

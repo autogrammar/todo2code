@@ -102,3 +102,13 @@ validator_app=APPROVED exact_head
 protected_pr_governance=PASS
 merge=BLOCKED earlier same-name governance failures remain conjunctive
 workflow transition: VALIDATION -> EDIT
+authoritative_event_commit=09a24f32e2f9900d2ecae1620623e2e73c6362f2
+submitted_review_governance=RETAINED
+same_head_dismissal_governance=RETAINED
+stale_review_dismissal_governance=SKIPPED
+preapproval_pull_request_governance=SKIPPED
+default_branch_push_governance=RETAINED
+workflow_dispatch_governance=RETAINED
+verify_workflows=PASS files=2
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+workflow transition: EDIT -> VALIDATION
