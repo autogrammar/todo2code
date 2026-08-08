@@ -97,6 +97,24 @@ ticket-062  governance protected Python-test ownership route
 ticket-063  sdk        Python bridge assertion (depends on 062)
 ```
 
+Current delivery state:
+
+```text
+ticket-059  EDIT/VALIDATION  72e70e7  core runtime now 0.5.1
+ticket-060  EDIT/VALIDATION  ff63bfd  docs test follows T2C_VERSION
+ticket-061  EDIT/VALIDATION  21820a0  runtime tests follow T2C_VERSION
+ticket-062  WAIT_FOR_EXTERNAL cd33f03 protected ownership routing
+ticket-063  WAIT_FOR_DEPENDENCIES 482d854 no source edit before 062
+```
+
+The temporary 059+060+061 integration passed all `npm run verify` pre-test
+gates. Its only observed test failure is the intentionally untouched
+`test/python-runtime.test.ts` assertion, which still expects `0.5.0` while the
+corrected CLI emits `todo2code 0.5.1`. Upstream owner
+`wellmanifest/new-project:ticket-024` now has a published planning branch at
+`ticket/024-extendable-target-manifest@e538ec0`; implementation still requires
+its own explicit approval and immutable release/adoption path.
+
 ## Non-goals
 
 - No new release number, Git tag or package publication.

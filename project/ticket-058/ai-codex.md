@@ -43,15 +43,23 @@ tests. Historical artifacts must not be rewritten.
 - Recorded the human approval of this plan and authorization to create the
   owner-workstream tickets.
 - Created tickets 059–063 on isolated branches. Each plan passes governance;
-  none authorizes an implementation edit.
+  the human subsequently approved all five plans.
+- Implemented and focused-validated tickets 059, 060 and 061 on their owning
+  workstreams; tickets 062 and 063 correctly remain blocked.
 - Detected that `test/python-runtime.test.ts` is unowned and selected the
   protected governance route instead of claiming the path ad hoc.
+- Combined 059+060+061 and ran the complete verifier: every pre-test gate
+  passed and the only observed failure is the untouched Python assertion owned
+  by blocked ticket-063.
+- Reused upstream governance ticket-024 and published a plan for an
+  extendable target manifest; no upstream implementation was performed.
 
 ## Blockers
 
 - Ticket-054 currently reserves the `integration` workstream. The approved
   `--force-new` exception created this ticket but does not silently
-  override active-scope enforcement.
-- Each non-integration path requires its owning workstream ticket.
+  override active-scope enforcement. Its remote branch is deleted, but
+  `origin/main` still records it as `IN_PROGRESS / PUBLICATION`.
 - Ticket-063 additionally depends on the protected ownership resolution in
-  ticket-062.
+  ticket-062, which depends on approval, implementation, release and adoption
+  of upstream `wellmanifest/new-project:ticket-024`.
