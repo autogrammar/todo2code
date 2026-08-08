@@ -3,7 +3,7 @@
   "schema": "new-project.governance/v2",
   "standard": {
     "id": "wellmanifest/new-project",
-    "version": "0.11.0"
+    "version": "0.13.0"
   },
   "requiredFiles": [
     "README.md",
@@ -100,7 +100,7 @@
         "ownedPaths": ["src/sdk/**", "sdk/**", "examples/sdk/**", "test/sdk*"]
       },
       "governance": {
-        "ownedPaths": [".governance/**", ".github/workflows/**", "AGENTS.md", "Makefile", "README.md", "TODO.md", "project.sh", "project.bat", "project/governance-check.*", "project/new-ticket.sh", "project/readme.sh", "project/TICKETS.md", "project/ticket-*/**"]
+        "ownedPaths": [".governance/**", ".github/workflows/**", "AGENTS.md", "Makefile", "README.md", "TODO.md", "CHANGELOG.md", ".env.example", "project.sh", "project.bat", "project/governance-check.*", "project/new-ticket.sh", "project/readme.sh", "project/TICKETS.md", "project/ticket-*/**"]
       },
       "integration": {
         "ownedPaths": ["package.json", "package-lock.json", "pyproject.toml", "goal.yaml", "Makefile", "sdk/python/pyproject.toml", "sdk/python/README.md", "tsconfig.json", "Dockerfile*", "compose*.yml", "scripts/**", "examples/**", "docs/**", "project/*.export", "project/*.html", "project/*.md", "project/*.mmd", "project/*.png", "project/*.toon", "project/*.txt", "project/*.yaml", "project/*.yml", "test/fixtures/**", "test/workflow-validation.test.ts", "src/core/types.ts"]

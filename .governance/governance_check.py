@@ -97,6 +97,118 @@ def load_json(path: Path) -> Any:
         return json.load(handle)
 
 
+def work_classification_error(value: Any) -> str | None:
+    fields = {"$schema", "schema", "dimensions", "ordering", "priorityDerivation", "evaluation", "rules"}
+    if not isinstance(value, dict) or set(value) != fields:
+        return "work classification contract fields are invalid"
+    if value.get("$schema") != "./work-classification.schema.json":
+        return "work classification schema reference drifted"
+    if value.get("schema") != "new-project.work-classification/v1":
+        return "unsupported work classification schema"
+    if value.get("dimensions") != {
+        "kind": ["BUG", "FEATURE", "SERVICE"],
+        "priority": ["P0", "P1", "P2", "P3"],
+        "origin": ["regression", "requested", "health"],
+    }:
+        return "work classification dimensions or order drifted"
+    ordering = value.get("ordering")
+    if ordering != {
+        "precedence": ["dependencies", "kind", "priority", "stableId"],
+        "kindOrder": ["BUG", "FEATURE", "SERVICE"],
+        "priorityOrder": ["P0", "P1", "P2", "P3"],
+        "dependencyPolicy": "topological-before-ranking",
+        "stableIdPolicy": "lexicographic",
+    }:
+        return "work classification precedence drifted"
+    if value.get("priorityDerivation") != {
+        "impact": {"critical": "P0", "high": "P1", "medium": "P2", "low": "P3"},
+        "declaredPolicy": "require-valid-priority",
+        "serviceDefault": "P2",
+    }:
+        return "work classification priority derivation drifted"
+    evaluation = value.get("evaluation")
+    if not isinstance(evaluation, dict) or evaluation != {
+        "mode": "first-match", "unmatchedPolicy": "reject", "llmRole": "advisory-only",
+    }:
+        return "work classification evaluation policy drifted"
+    rules = value.get("rules")
+    if not isinstance(rules, list) or len(rules) != 7:
+        return "work classification must contain exactly seven rules"
+    identifiers = [rule.get("id") for rule in rules if isinstance(rule, dict)]
+    expected_identifiers = [f"W-CLASS-{index:03d}" for index in range(1, 8)]
+    if identifiers != expected_identifiers:
+        return "work classification rule identifiers or first-match order drifted"
+    for rule in rules:
+        if set(rule) != {"id", "when", "assign", "prioritySource"}:
+            return "work classification rule fields are invalid"
+        when = rule.get("when")
+        assignment = rule.get("assign")
+        if not isinstance(when, dict) or not isinstance(assignment, dict):
+            return "work classification rule condition or assignment is invalid"
+        signal = when.get("signal")
+        expected_when_fields = {
+            "defect": [{"signal", "impact"}],
+            "cyclomatic-complexity": [
+                {"signal", "baseline", "delta"},
+                {"signal", "baseline", "threshold"},
+            ],
+            "work-request": [{"signal", "request"}],
+        }.get(signal)
+        if expected_when_fields is None or set(when) not in expected_when_fields:
+            return f"work classification rule {rule['id']} mixes incompatible signal fields"
+        expected_assignment: tuple[str, str] | None = None
+        expected_priority_source: str | None = None
+        if signal == "defect" and when.get("impact") in {"outage-or-security", "functional"}:
+            expected_assignment = ("BUG", "regression")
+            expected_priority_source = "impact"
+        elif signal == "cyclomatic-complexity":
+            if when.get("baseline") == "measured" and (
+                when.get("delta") == "increased" or when.get("threshold") == "crossed"
+            ):
+                expected_assignment = ("BUG", "regression")
+                expected_priority_source = "impact"
+            elif when == {
+                "signal": "cyclomatic-complexity",
+                "baseline": "pre-existing",
+                "delta": "not-increased",
+            }:
+                expected_assignment = ("SERVICE", "health")
+                expected_priority_source = "service-default"
+        elif signal == "work-request" and when.get("request") == "new-behavior":
+            expected_assignment = ("FEATURE", "requested")
+            expected_priority_source = "declared"
+        elif signal == "work-request" and when.get("request") == "maintenance":
+            expected_assignment = ("SERVICE", "health")
+            expected_priority_source = "service-default"
+        if expected_assignment is None:
+            return f"work classification rule {rule['id']} has invalid condition values"
+        if set(assignment) != {"kind", "origin"} or (
+            assignment.get("kind"), assignment.get("origin")
+        ) != expected_assignment:
+            return f"work classification rule {rule['id']} has an invalid assignment"
+        if rule.get("prioritySource") != expected_priority_source:
+            return f"work classification rule {rule['id']} has an invalid priority source"
+    return None
+
+
+def load_work_classification(root: Path, report: Report) -> dict[str, Any] | None:
+    path = root / ".governance/work-classification.dsl.json"
+    try:
+        value = load_json(path)
+        error = work_classification_error(value)
+        if error:
+            raise ValueError(error)
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        report.add(
+            "GOV-MANIFEST-001",
+            f"Work classification contract is invalid: {error}",
+            "Restore the managed work-classification DSL from the pinned standard release.",
+            [".governance/work-classification.dsl.json"],
+        )
+        return None
+    return value
+
+
 def rel(root: Path, path: Path) -> str:
     return path.relative_to(root).as_posix()
 
@@ -318,13 +430,29 @@ def delivery_validation_error(validation: Any) -> str | None:
     return "delivery validation criteria must be unique" if len(criteria) != len(set(criteria)) else None
 
 
+def standard_adoption_error(value: Any) -> str | None:
+    fields = {"sourceRepository", "fromRevision", "toRevision"}
+    if not isinstance(value, dict) or set(value) != fields:
+        return "delivery standardAdoption fields are invalid"
+    if value.get("sourceRepository") != "wellmanifest/new-project":
+        return "delivery standardAdoption sourceRepository is invalid"
+    revisions = [value.get("fromRevision"), value.get("toRevision")]
+    if any(not isinstance(item, str) or re.fullmatch(r"[0-9a-f]{40}", item) is None for item in revisions):
+        return "delivery standardAdoption revisions must be full lowercase commit SHAs"
+    if revisions[0] == revisions[1]:
+        return "delivery standardAdoption revisions must differ"
+    return None
+
+
 def delivery_intent_error(value: Any) -> str | None:
-    fields = {
+    required_fields = {
         "acceptedBaseSha", "targetBranch", "outcome", "nonGoals",
         "complexity", "estimatedMinutes", "budgets", "architecture",
         "runtimeDependencies", "validation",
     }
-    if not isinstance(value, dict) or set(value) != fields:
+    if not isinstance(value, dict) or set(value) not in {
+        frozenset(required_fields), frozenset({*required_fields, "standardAdoption"}),
+    }:
         return "delivery must contain exactly the bounded-delivery fields"
     error = delivery_header_error(value) or delivery_budgets_error(value.get("budgets"))
     if error:
@@ -334,6 +462,10 @@ def delivery_intent_error(value: Any) -> str | None:
         return error
     if not string_list(value.get("runtimeDependencies")):
         return "delivery runtimeDependencies must be a unique string list"
+    if "standardAdoption" in value:
+        error = standard_adoption_error(value["standardAdoption"])
+        if error:
+            return error
     return delivery_validation_error(value.get("validation"))
 
 
@@ -852,15 +984,29 @@ def intent_v2_error(intent: dict[str, Any], ticket_name: str) -> str | None:
     return delivery_intent_error(intent["delivery"]) if "delivery" in intent else None
 
 
+def intent_classification_error(value: Any) -> str | None:
+    if not isinstance(value, dict) or set(value) != {"kind", "priority", "origin"}:
+        return "intent classification must contain kind, priority and origin"
+    if value.get("kind") not in {"BUG", "FEATURE", "SERVICE"}:
+        return "intent classification kind is invalid"
+    if value.get("priority") not in {"P0", "P1", "P2", "P3"}:
+        return "intent classification priority is invalid"
+    if value.get("origin") not in {"regression", "requested", "health"}:
+        return "intent classification origin is invalid"
+    return None
+
+
 def intent_fields_error(intent: Any) -> str | None:
     v1_fields = {"schema", "ticket", "summary", "allowedPaths", "forbiddenPaths", "stacks"}
     v2_fields = v1_fields | {"workstream", "dependsOn", "conflictsWith", "integrationTicket"}
     if not isinstance(intent, dict) or intent.get("schema") not in {
-        "new-project.intent/v1", "new-project.intent/v2",
+        "new-project.intent/v1", "new-project.intent/v2", "new-project.intent/v3",
     }:
         return "unsupported intent schema"
-    expected = v2_fields if intent["schema"] == "new-project.intent/v2" else v1_fields
-    allowed = [expected, expected | {"delivery"}] if intent["schema"] == "new-project.intent/v2" else [expected]
+    expected = v1_fields if intent["schema"] == "new-project.intent/v1" else v2_fields
+    if intent["schema"] == "new-project.intent/v3":
+        expected |= {"classification"}
+    allowed = [expected] if intent["schema"] == "new-project.intent/v1" else [expected, expected | {"delivery"}]
     if set(intent) not in allowed:
         return f"intent must contain exactly the {intent['schema'].rsplit('/', 1)[-1]} fields"
     return None
@@ -878,8 +1024,12 @@ def validate_intent(path: Path, ticket_name: str) -> tuple[dict[str, Any] | None
     error = intent_common_error(intent, ticket_name)
     if error:
         return None, error
-    if intent["schema"] == "new-project.intent/v2":
+    if intent["schema"] in {"new-project.intent/v2", "new-project.intent/v3"}:
         error = intent_v2_error(intent, ticket_name)
+        if error:
+            return None, error
+    if intent["schema"] == "new-project.intent/v3":
+        error = intent_classification_error(intent.get("classification"))
         if error:
             return None, error
     return intent, None
@@ -916,14 +1066,14 @@ def valid_active_tickets(
         if record.intent_error:
             report.add(
                 "GOV-INTENT-002", f"Ticket intent is invalid: {record.intent_error}",
-                "Create a valid new-project.intent/v2 file before implementation.", [intent_path],
+                "Create a valid new-project.intent/v3 file before implementation.", [intent_path],
             )
             continue
         assert record.intent is not None
-        if record.intent["schema"] != "new-project.intent/v2":
+        if record.intent["schema"] != "new-project.intent/v3":
             report.add(
-                "GOV-INTENT-002", f"Active ticket {record.directory.name} still uses intent v1.",
-                "Migrate the active ticket explicitly to intent v2; archived closed v1 tickets remain readable.", [intent_path],
+                "GOV-INTENT-002", f"Active ticket {record.directory.name} lacks deterministic intent/v3 classification.",
+                "Migrate the active ticket to intent/v3 and declare kind, priority and origin; archived v1/v2 tickets remain readable.", [intent_path],
             )
             continue
         workstream = record.intent["workstream"]
@@ -965,7 +1115,7 @@ def dependency_graph(
 ) -> dict[str, list[str]]:
     graph: dict[str, list[str]] = {}
     for record in records:
-        if record.intent and record.intent.get("schema") == "new-project.intent/v2":
+        if record.intent and record.intent.get("schema") in {"new-project.intent/v2", "new-project.intent/v3"}:
             graph[record.directory.name] = list(record.intent["dependsOn"])
             if record.directory.name in record.intent["dependsOn"] or record.directory.name in record.intent["conflictsWith"]:
                 report.add(
@@ -1014,7 +1164,7 @@ def integration_reference_valid(record: TicketRecord | None, required_workstream
     return bool(
         record is not None
         and record.intent is not None
-        and record.intent.get("schema") == "new-project.intent/v2"
+        and record.intent.get("schema") in {"new-project.intent/v2", "new-project.intent/v3"}
         and record.intent.get("workstream") == required_workstream
         and record.status != "CANCELLED"
     )
@@ -1321,6 +1471,59 @@ def check_changed_file(root: Path, raw: str, report: Report) -> None:
             "GOV-PATH-001", f"Machine-local absolute path detected in governed artifact: {raw}",
             "Replace it with a repository-relative path before publication.", [raw],
         )
+    if fnmatch.fnmatchcase(raw, "project/ticket-*/decisions.md"):
+        check_decision_log_file(root, raw, text, report)
+
+
+def check_decision_log_file(root: Path, raw: str, text: str, report: Report) -> None:
+    """Validate recomputable decision records (C-DECISION / ticket-031)."""
+    scripts_dir = Path(__file__).resolve().parent
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    try:
+        from decision_record import parse_dsl_record, split_decision_blocks, validate_record
+    except ImportError:
+        report.add(
+            "GOV-DECISION-002",
+            f"Cannot import decision_record helper while validating {raw}.",
+            "Keep scripts/decision_record.py next to governance_check.py.",
+            [raw],
+        )
+        return
+    blocks = split_decision_blocks(text)
+    if not blocks:
+        report.add(
+            "GOV-DECISION-001",
+            f"Decision log {raw} has no DECISION records.",
+            "Append a fenced ```dsl DECISION record or remove the empty log.",
+            [raw],
+        )
+        return
+    for block in blocks:
+        try:
+            record = parse_dsl_record(block)
+        except ValueError as error:
+            report.add(
+                "GOV-DECISION-002",
+                f"Decision record in {raw} is not parseable: {error}",
+                "Store deterministic INPUT lines and a complete DECISION shape.",
+                [raw],
+            )
+            continue
+        for error in validate_record(record):
+            code = "GOV-DECISION-002"
+            if "GOV-DECISION-003" in error or "ADVISORY" in error:
+                code = "GOV-DECISION-003"
+            elif "GOV-DECISION-004" in error or "replayed verdict" in error:
+                code = "GOV-DECISION-004"
+            elif "GOV-DECISION-001" in error:
+                code = "GOV-DECISION-001"
+            report.add(
+                code,
+                f"Decision record in {raw}: {error}",
+                "Fix the record so INPUT + APPLIED_RULE recompute VERDICT with DETERMINISTIC authority.",
+                [raw],
+            )
 
 
 def check_changed_content(root: Path, changed: list[str], actor: str, trusted_human_change: bool, report: Report) -> None:
@@ -1600,7 +1803,7 @@ def check_delivery_gate(
 def ticket_owns_implementation(record: TicketRecord, implementation: list[str]) -> bool:
     return bool(
         record.intent is not None
-        and record.intent.get("schema") == "new-project.intent/v2"
+        and record.intent.get("schema") in {"new-project.intent/v2", "new-project.intent/v3"}
         and all(
             matches(path, record.intent["allowedPaths"])
             and not matches(path, record.intent["forbiddenPaths"])
@@ -1743,7 +1946,7 @@ def check_selected_ticket_intent(
                 {"ticket": directory.name, "allowedPaths": intent["allowedPaths"]},
             )
         coordination = manifest.get("coordination")
-        if isinstance(coordination, dict) and intent.get("schema") == "new-project.intent/v2":
+        if isinstance(coordination, dict) and intent.get("schema") in {"new-project.intent/v2", "new-project.intent/v3"}:
             check_workstream_change_scope(records, coordination, selected, implementation, report)
         if intent is not None:
             check_delivery_gate(root, manifest, selected, implementation, base, elapsed_minutes, report)
@@ -2011,6 +2214,158 @@ def resolve_change_approval(
     )
 
 
+def git_revision_file(root: Path, revision: str, raw_path: str) -> bytes | None:
+    try:
+        return git_output(root, ["show", f"{revision}:{raw_path}"])
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
+def package_strategies(content: bytes) -> dict[str, str]:
+    document = json.loads(content)
+    if not isinstance(document, dict) or set(document) != {"schema", "files"}:
+        raise ValueError("package manifest fields are invalid")
+    if document.get("schema") != "new-project.package-manifest/v1" or not isinstance(document.get("files"), list):
+        raise ValueError("package manifest schema is invalid")
+    strategies: dict[str, str] = {}
+    sources: set[str] = set()
+    for item in document["files"]:
+        if not isinstance(item, dict) or set(item) != {"source", "target", "strategy", "executable"}:
+            raise ValueError("package manifest entry fields are invalid")
+        source, target = item.get("source"), item.get("target")
+        if (
+            not isinstance(source, str)
+            or not isinstance(target, str)
+            or not relative_pattern(source)
+            or not relative_pattern(target)
+            or item.get("strategy") not in {"managed", "seed"}
+            or not isinstance(item.get("executable"), bool)
+        ):
+            raise ValueError("package manifest entry is invalid")
+        if source in sources or target in strategies:
+            raise ValueError("package manifest paths must be unique")
+        sources.add(source)
+        strategies[target] = item["strategy"]
+    if not strategies:
+        raise ValueError("package manifest is empty")
+    return strategies
+
+
+def adoption_lock(content: bytes, expected_revision: str) -> dict[str, str]:
+    document = json.loads(content)
+    if not isinstance(document, dict) or set(document) != {"schema", "standard", "managedFiles"}:
+        raise ValueError("adoption lock fields are invalid")
+    standard, managed = document.get("standard"), document.get("managedFiles")
+    if (
+        document.get("schema") != "new-project.lock/v1"
+        or not isinstance(standard, dict)
+        or set(standard) != {"id", "version", "sourceRepository", "sourceRevision", "publicationStatus"}
+        or standard.get("id") != "wellmanifest/new-project"
+        or standard.get("sourceRepository") != "wellmanifest/new-project"
+        or standard.get("sourceRevision") != expected_revision
+        or standard.get("publicationStatus") != "published"
+        or not isinstance(standard.get("version"), str)
+        or re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", standard["version"]) is None
+        or not isinstance(managed, dict)
+    ):
+        raise ValueError("adoption lock standard binding is invalid")
+    if not all(
+        isinstance(path, str)
+        and relative_pattern(path)
+        and isinstance(digest, str)
+        and re.fullmatch(r"[a-f0-9]{64}", digest) is not None
+        for path, digest in managed.items()
+    ):
+        raise ValueError("adoption lock managed hashes are invalid")
+    return managed
+
+
+def content_digest(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
+
+
+def atomic_standard_adoption_paths(
+    root: Path,
+    base: str | None,
+    changed: list[str],
+    active: list[TicketRecord],
+    report: Report,
+) -> set[str]:
+    records = [
+        record for record in active
+        if record.intent is not None
+        and isinstance(record.intent.get("delivery"), dict)
+        and "standardAdoption" in record.intent["delivery"]
+    ]
+    if not records:
+        return set()
+    evidence_paths = [".governance/manifest.lock.json", ".governance/package-manifest.json"]
+    if len(records) != 1:
+        report.add(
+            "GOV-SYNC-001",
+            "Atomic standard adoption must resolve to exactly one active ticket.",
+            "Keep one approved adoption ticket active and serialize every other adoption.",
+            [rel(root, record.directory / "intent.json") for record in records],
+        )
+        return set()
+    record = records[0]
+    assert record.intent is not None
+    adoption = record.intent["delivery"]["standardAdoption"]
+    error = standard_adoption_error(adoption)
+    if error or base is None or ".governance/manifest.lock.json" not in changed:
+        report.add(
+            "GOV-SYNC-001",
+            f"Atomic standard adoption preconditions are invalid: {error or 'base and changed lock are required'}.",
+            "Declare distinct immutable revisions, compare against the approved Git base and regenerate the complete lock through Goal.",
+            evidence_paths,
+        )
+        return set()
+    try:
+        base_package_content = git_revision_file(root, base, ".governance/package-manifest.json")
+        base_lock_content = git_revision_file(root, base, ".governance/manifest.lock.json")
+        if base_package_content is None or base_lock_content is None:
+            raise ValueError("base package manifest or lock is missing")
+        head_package_path = safe_repo_path(root, ".governance/package-manifest.json")
+        head_lock_path = safe_repo_path(root, ".governance/manifest.lock.json")
+        if not head_package_path.is_file() or not head_lock_path.is_file():
+            raise ValueError("head package manifest or lock is missing")
+        base_strategies = package_strategies(base_package_content)
+        head_strategies = package_strategies(head_package_path.read_bytes())
+        base_hashes = adoption_lock(base_lock_content, adoption["fromRevision"])
+        head_hashes = adoption_lock(head_lock_path.read_bytes(), adoption["toRevision"])
+        if set(base_hashes) != set(base_strategies) or set(head_hashes) != set(head_strategies):
+            raise ValueError("package targets and lock targets differ")
+
+        exempt: set[str] = set()
+        for raw_path in changed:
+            if head_strategies.get(raw_path) != "managed":
+                continue
+            head_path = safe_repo_path(root, raw_path)
+            if not head_path.is_file() or content_digest(head_path.read_bytes()) != head_hashes[raw_path]:
+                raise ValueError(f"head managed hash differs: {raw_path}")
+            base_content = git_revision_file(root, base, raw_path)
+            if raw_path in base_strategies:
+                if base_strategies[raw_path] != "managed" or base_content is None:
+                    raise ValueError(f"managed strategy continuity differs: {raw_path}")
+                if content_digest(base_content) != base_hashes[raw_path]:
+                    raise ValueError(f"base managed hash differs: {raw_path}")
+            elif base_content is not None:
+                raise ValueError(f"new managed target already existed at base: {raw_path}")
+            exempt.add(raw_path)
+        if not exempt:
+            raise ValueError("no changed managed payload was verified")
+        return exempt
+    except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
+        report.add(
+            "GOV-SYNC-001",
+            f"Atomic standard adoption is inconsistent: {error}.",
+            "Restore the base, install the complete published managed set through Goal and regenerate its lock before review.",
+            evidence_paths,
+            {"ticket": record.directory.name, "base": base},
+        )
+        return set()
+
+
 def check_change_gate(
     root: Path,
     manifest: dict[str, Any],
@@ -2029,11 +2384,15 @@ def check_change_gate(
     report: Report,
 ) -> str | None:
     governance_patterns = manifest["governancePaths"]
-    implementation = [path for path in changed if not matches(path, governance_patterns)]
-    if not implementation:
-        return None
     config = manifest["ticket"]
     active = [record for record in records if record.status in set(config.get("activeStatuses", ACTIVE_DEFAULT))]
+    adoption_paths = atomic_standard_adoption_paths(root, base, changed, active, report)
+    implementation = [
+        path for path in changed
+        if not matches(path, governance_patterns) and path not in adoption_paths
+    ]
+    if not implementation:
+        return None
     selected = select_change_ticket(root, active, manifest.get("coordination"), implementation, report)
     if selected is None:
         return None
@@ -2168,6 +2527,7 @@ def run_governance_checks(
     lock_path = optional_repo_path(root, args.lock, "GOV-SYNC-001", "governance lock", report)
     profiles_path = optional_repo_path(root, args.stack_profiles, "GOV-MANIFEST-001", "stack-profile", report)
     changed = resolve_changed_paths(args, root, report)
+    load_work_classification(root, report)
     check_lock(root, lock_path, manifest, report)
     check_required_files(root, manifest, report)
     check_stacks(root, manifest, profiles_path, report)

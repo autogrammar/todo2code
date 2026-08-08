@@ -1,10 +1,16 @@
 {
-  "schema": "new-project.intent/v2",
+  "schema": "new-project.intent/v3",
   "ticket": "ticket-050",
   "summary": "Own or explicitly exclude unpublishable root paths (CHANGELOG, .env.example)",
   "workstream": "governance",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P1",
+    "origin": "requested"
+  },
   "allowedPaths": [
     ".governance/**",
+    "CHANGELOG.md",
     "AGENTS.md",
     "project.sh",
     "project.bat",
@@ -12,6 +18,7 @@
     "project/governance-check.bat",
     "project/new-ticket.sh",
     "project/readme.sh",
+    "project/ticket-048/README.md",
     "project/ticket-050/**",
     "TODO.md",
     "project/TICKETS.md"
@@ -33,6 +40,11 @@
   "delivery": {
     "acceptedBaseSha": "b23d255c6bafbcc204ad7ec1e84e0a48ca675f97",
     "targetBranch": "main",
+    "standardAdoption": {
+      "sourceRepository": "wellmanifest/new-project",
+      "fromRevision": "cc9b04673bbd85cb4e35fb683d288ef34be1485f",
+      "toRevision": "12158ef0c009428deddceebb1049ddc3cb898eb3"
+    },
     "outcome": "Adopt a new immutable new-project release that includes the 0.12.0 root ownership contract and a narrow provenance-bound atomic-adoption budget and ownership rule",
     "nonGoals": [
       "No silent ownership expansion without standard alignment",
@@ -53,8 +65,7 @@
       "status": "accepted",
       "decision": "Use the published provenance-bound atomic standard-adoption rule for the complete managed payload, while keeping every target-local file under ordinary governance ownership and budgets",
       "components": [
-        {"name": "upstream-standard", "paths": ["wellmanifest/new-project governance manifest and regression tests"]},
-        {"name": "target-adoption", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example"]}
+        {"name": "target-adoption", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example", "project/ticket-048/README.md"]}
       ],
       "responsibilityChanges": false,
       "interfaceChanges": ["The governance workstream becomes the sole owner of CHANGELOG.md and .env.example"],
