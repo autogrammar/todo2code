@@ -8,3 +8,5 @@
 - Selected protected upstream extension/adoption instead of a local authority
   edit.
 - Passed governance with zero errors and zero warnings.
+- Recorded human approval and moved to `BLOCKED / WAIT_FOR_EXTERNAL` without
+  changing governance authority.

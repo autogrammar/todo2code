@@ -23,7 +23,7 @@
     ".env*"
   ],
   "stacks": [],
-  "dependsOn": ["ticket-058"],
+  "dependsOn": [],
   "conflictsWith": [],
   "integrationTicket": "ticket-058",
   "delivery": {
@@ -35,7 +35,7 @@
     "estimatedMinutes": 15,
     "budgets": {"maxImplementationFiles": 0, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Route the ownership gap through protected standard evolution rather than editing the locked target manifest",
       "components": [{"name": "workstream-ownership-routing", "paths": ["project/ticket-062/**"]}],
       "responsibilityChanges": true,

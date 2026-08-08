@@ -28,8 +28,9 @@ or a supported project-extension mechanism.
 - Proved the path is unowned by the current workstream globs.
 - Proved the manifest is protected by the immutable standard lock.
 - Made no governance, implementation or test change.
+- Human approved the routing plan on 2026-08-09; status is
+  `BLOCKED / WAIT_FOR_EXTERNAL`.
 
 ## Blockers
 
-- Human approval of the protected escalation route is required.
 - A published upstream governance revision or supported extension is required.

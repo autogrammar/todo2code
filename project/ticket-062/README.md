@@ -2,8 +2,8 @@
 
 - **ID**: ticket-062
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: BLOCKED
+- **Workflow state**: WAIT_FOR_EXTERNAL
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -19,7 +19,7 @@ the required upstream extension/adoption instead of modifying authority.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves routing this ownership gap through the protected
+- [x] AC-01: A human approves routing this ownership gap through the protected
       governance adoption path.
 - [ ] AC-02: A published governance mechanism assigns the Python runtime bridge
       test to `sdk` without hand-editing managed hashes.
@@ -34,8 +34,9 @@ the required upstream extension/adoption instead of modifying authority.
 
 ## Approval gate
 
-Ticket-058 approval authorized discovery and ticket creation. It did not
-authorize modification of governance authority or its lock.
+The human approved the protected routing plan on 2026-08-09. The ticket remains
+non-active and makes no authority change while it waits for a published
+upstream mechanism or existing supported extension.
 
 ## Non-goals
 
