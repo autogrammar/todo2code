@@ -63,6 +63,13 @@ up to date, governance passes against the accepted base, `make verify` passes
 stale active header and omitted release note are reconciled with its already
 merged PR #66 evidence.
 
+Protected Koru then rejected five deterministic complexity findings in the
+managed v0.13.0 Python payload, and PR #70 closed without merge. Upstream
+tickets 040–041 repaired those findings without suppression or behavior change
+and published immutable v0.13.1 at `7979cfe76797a4da6925be49496ff2462e78b3f7`.
+The user approved continuation, so ticket-050 returned to `EDIT` for an atomic
+replacement of the target revision and managed lock.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are

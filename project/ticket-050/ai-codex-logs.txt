@@ -35,6 +35,13 @@ make_verify=PASS; 402 tests, 401 pass, 1 controlled JDK skip
 make_docker-smoke=PASS
 ticket-048 stale active header reconciled with merged PR #66 evidence
 workflow transition: EDIT -> VALIDATION
+pr=70 closed_without_merge after koru deterministic failure
+koru_run=31262565588 blocking_findings=5
+upstream_ticket-040=DONE merge=6d394fc9f800a11af7bdfc613c29489332bef903
+upstream_ticket-041=DONE release=v0.13.1
+release_sha=7979cfe76797a4da6925be49496ff2462e78b3f7
+2026-08-08 APPROVAL: user approved v0.13.1 publication and continued adoption
+workflow transition: VALIDATION -> EDIT
 2026-08-08 upstream atomic-adoption completion
 new-project ticket-038: DONE
 new-project ticket-039: DONE

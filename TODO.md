@@ -3,11 +3,12 @@
 ## Active tickets
 
 - [ ] [`ticket-050`](project/ticket-050/README.md) — adopt immutable
-  new-project v0.13.0 ownership for `CHANGELOG.md` and `.env.example` through
+  new-project v0.13.1 ownership for `CHANGELOG.md` and `.env.example` through
   the published provenance-bound atomic-adoption rule. The verified managed
   payload is handled atomically; the target manifest, lock and changelog remain
   within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / VALIDATION`.
+  `IN_PROGRESS / EDIT` after v0.13.0's managed Python payload failed protected
+  Koru; v0.13.1 contains the behavior-preserving complexity repair.
 
 ## Backlog tickets
 

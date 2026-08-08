@@ -39,3 +39,13 @@
   PR #66 evidence.
 - Passed exact-base governance, idempotent Goal check, full host verification
   and Docker smoke; advanced to `IN_PROGRESS / VALIDATION`.
+
+## [0.7.0] - 2026-08-08
+
+- Recorded protected Koru's deterministic rejection of five pre-existing
+  complexity findings in the managed v0.13.0 payload and PR #70's unmerged
+  closure.
+- Recorded upstream v0.13.1 at
+  `7979cfe76797a4da6925be49496ff2462e78b3f7`, containing the approved
+  behavior-preserving repair.
+- Returned from `VALIDATION` to `EDIT` for exact-SHA re-adoption.

@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: EDIT
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -64,6 +64,14 @@ That prerequisite is now complete and the user authorized continuation. This
 ticket resumed `IN_PROGRESS / EDIT` on 2026-08-08. Its intent binds the exact
 installed revision and exact `v0.13.0` release revision; the seed manifest,
 lock and changelog remain ordinary governance-owned implementation files.
+
+The first downstream PR #70 passed functional, host and Docker validation but
+protected Koru rejected five pre-existing complexity findings in the managed
+v0.13.0 Python payload. The PR closed without merge and its branch was
+preserved. Upstream tickets 040–041 reduced those findings without changing
+behavior or review thresholds and published immutable `v0.13.1` at
+`7979cfe76797a4da6925be49496ff2462e78b3f7`. After explicit user approval,
+ticket-050 returned from `VALIDATION` to `EDIT` to adopt that exact repair.
 
 ## Acceptance criteria
 
