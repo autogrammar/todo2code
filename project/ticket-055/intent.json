@@ -28,6 +28,7 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
+    "acceptedBaseSha": "8606860ea7fa26a26052b5a9bd8853c75f10e9c1",
     "targetBranch": "main",
     "outcome": "OpenRouter usage is attributed to an explicit OPENROUTER_APP_NAME or, by default, the analysed project folder name",
     "nonGoals": [
@@ -43,6 +44,44 @@
       "maxAffectedComponents": 1,
       "maxPublicInterfaceChanges": 0,
       "maxRuntimeDependencies": 0
-    }
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Resolve one non-secret OpenRouter application label in runtime configuration before every existing client boundary consumes it",
+      "components": [
+        {
+          "name": "runtime-configuration",
+          "paths": ["src/config/env.ts", "test/config-openrouter-app-name.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore the constant todo2code fallback and remove the focused configuration test"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": ["node --test dist/test/config-openrouter-app-name.test.js"],
+        "evidence": "Explicit environment override is trimmed and retained"
+      },
+      {
+        "criterion": "AC-02",
+        "commands": ["node --test dist/test/config-openrouter-app-name.test.js"],
+        "evidence": "Missing and blank environment values resolve to the project-root basename"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node --test dist/test/config-openrouter-app-name.test.js"],
+        "evidence": "Filesystem-root configuration retains a non-empty application label"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke", "make e2e-core", "make e2e-full"],
+        "evidence": "Host and Docker validation pass before completion; independent E2E blockers remain recorded while this criterion is open"
+      }
+    ]
   }
 }

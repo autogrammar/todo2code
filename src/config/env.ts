@@ -142,6 +142,7 @@ function envLlmMode(name: string, fallback: LlmExtractionMode): LlmExtractionMod
 export function getConfig(cwd = process.cwd()): T2CConfig {
   const model = envString('OPENROUTER_MODEL', 'mistralai/codestral-2508');
   const root = path.resolve(cwd, envString('T2C_ROOT', '.'));
+  const projectFolderLabel = path.basename(root) || path.basename(path.resolve(cwd)) || 'todo2code';
   return {
     root,
     outputDir: envString('T2C_OUTPUT_DIR', '.intent'),
@@ -185,7 +186,7 @@ export function getConfig(cwd = process.cwd()): T2CConfig {
       summaryModel: envString('OPENROUTER_SUMMARY_MODEL', model),
       taskModel: envString('OPENROUTER_TASK_MODEL', model),
       siteUrl: envOptional('OPENROUTER_SITE_URL'),
-      appName: envString('OPENROUTER_APP_NAME', 'todo2code'),
+      appName: envString('OPENROUTER_APP_NAME', projectFolderLabel),
       timeoutMs: envNumber('OPENROUTER_TIMEOUT_MS', 120_000, 1000, 600_000),
       maxTokens: envNumber('OPENROUTER_MAX_TOKENS', 6000, 128, 100_000),
       temperature: envNumber('OPENROUTER_TEMPERATURE', 0, 0, 2),

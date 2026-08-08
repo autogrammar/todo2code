@@ -2,8 +2,8 @@
 
 - **ID**: ticket-055
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -23,15 +23,16 @@ selection or the `/models` discovery request.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A non-empty `OPENROUTER_APP_NAME` remains the exact application
+- [x] AC-01: A non-empty `OPENROUTER_APP_NAME` remains the exact application
   title used by runtime configuration.
-- [ ] AC-02: An absent or whitespace-only `OPENROUTER_APP_NAME` falls back to
+- [x] AC-02: An absent or whitespace-only `OPENROUTER_APP_NAME` falls back to
   the basename of the resolved `T2C_ROOT`, not the constant `todo2code`.
-- [ ] AC-03: The fallback is non-empty even for an exceptional root path whose
+- [x] AC-03: The fallback is non-empty even for an exceptional root path whose
   basename is empty.
 - [ ] AC-04: Focused configuration tests, the complete Node test suite,
   governance checks and required Docker checks pass before completion.
-- [ ] AC-05: A human approves this bounded intent before implementation.
+- [x] AC-05: A human approved this bounded intent in the active conversation on
+  2026-08-08 before implementation.
 
 ## Participants
 
@@ -40,5 +41,20 @@ selection or the `/models` discovery request.
 
 ## Approval gate
 
-Current state is `WAIT_FOR_APPROVAL`. No implementation or test file may be
-changed until the human owner explicitly approves this ticket.
+The human owner explicitly approved ticket-055 in the active conversation on
+2026-08-08. This Markdown note records the transition to `EDIT`; it is not
+trusted merge authorization.
+
+## Validation status
+
+Focused tests, the complete host suite, governance and Docker smoke pass. The
+required E2E gates expose two pre-existing infrastructure defects outside this
+ticket's runtime-owned paths:
+
+- `e2e-core` lacks the `make` executable while two workflow-validation tests
+  invoke it (`spawn make ENOENT`);
+- `e2e-full` invokes `cargo fetch --locked`, but `sdk/rust/Cargo.lock` is absent
+  and globally ignored.
+
+AC-04 remains open and this ticket remains `IN_PROGRESS / VALIDATION` until
+those independent Docker/dependency repairs land and both gates are rerun.

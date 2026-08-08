@@ -1,0 +1,15 @@
+2026-08-08 ticket-055 validation summary
+
+PASS npm ci (3 packages, 0 vulnerabilities)
+PASS npm run build
+PASS node --test dist/test/config-openrouter-app-name.test.js (3/3)
+PASS npm run verify (339/339 host tests; 1 expected toolchain skip)
+PASS ./project/governance-check.sh (0 errors, 0 warnings)
+PASS git diff --check
+PASS make docker-smoke
+FAIL make e2e-core: 396 passed, 7 skipped, 2 failed because `make` is not
+     installed in the e2e-base image (`spawn make ENOENT`).
+FAIL make e2e-full: image build stopped because `cargo fetch --locked` requires
+     sdk/rust/Cargo.lock, which is absent and ignored by `.gitignore`.
+
+No live OpenRouter request was made and no credential was read or logged.

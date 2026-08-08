@@ -28,7 +28,16 @@ missing or blank.
 - Confirmed `.env.example` already declares `OPENROUTER_APP_NAME=todo2code`.
 - Confirmed every `/chat/completions` attempt sends `X-OpenRouter-Title`.
 - Added ticket planning evidence only; no implementation file was changed.
+- Changed the runtime fallback to the basename of resolved `T2C_ROOT`, with a
+  defensive non-empty fallback for filesystem roots.
+- Added three focused tests covering explicit, absent, blank and exceptional
+  root behavior.
+- Host verification and Docker smoke pass. Docker E2E surfaced unrelated
+  missing-`make` and missing-`Cargo.lock` defects.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- AC-04 is blocked by Docker E2E infrastructure outside this ticket's allowed
+  paths: `e2e-core` lacks `make`; `e2e-full` requires an ignored, absent
+  `sdk/rust/Cargo.lock`.
+- Protected merge authorization remains a later publication requirement.
