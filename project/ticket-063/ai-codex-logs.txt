@@ -1,0 +1,13 @@
+2026-08-09 pre-implementation evidence
+
+FAIL test/python-runtime.test.ts
+  embedded Python script expects todo2code 0.5.0 as current CLI output
+
+BLOCKED OWNERSHIP
+  path matches no current workstream glob
+  ticket-062 owns the protected governance route
+
+No implementation changed. State: WAIT_FOR_APPROVAL.
+
+PASS ./project/governance-check.sh
+  GOV-PASS: passed (0 errors, 0 warnings)

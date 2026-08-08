@@ -1,0 +1,55 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-063",
+  "summary": "Use canonical version in Python SDK runtime assertion",
+  "workstream": "sdk",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-063/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "test/python-runtime.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    ".governance/**",
+    "src/**",
+    "package.json",
+    "package-lock.json",
+    "sdk/**",
+    "Dockerfile*",
+    "compose*.yml",
+    ".env*"
+  ],
+  "stacks": ["node", "python", "docker"],
+  "dependsOn": ["ticket-058", "ticket-062"],
+  "conflictsWith": [],
+  "integrationTicket": "ticket-058",
+  "delivery": {
+    "acceptedBaseSha": "132f87963921cd49dafa19b643b0528a3a434dd0",
+    "targetBranch": "main",
+    "outcome": "The Python SDK bridge verifies current CLI identity through the canonical exported version",
+    "nonGoals": ["No SDK behavior change", "No governance edit", "No dependency or Docker change"],
+    "complexity": "XS",
+    "estimatedMinutes": 10,
+    "budgets": {"maxImplementationFiles": 1, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "proposed",
+      "decision": "Reference the canonical TypeScript runtime identity from the current Python bridge assertion after SDK ownership is established",
+      "components": [{"name": "python-runtime-bridge-test", "paths": ["test/python-runtime.test.ts"]}],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore a literal only if the test becomes a deliberately versioned historical fixture"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-04", "commands": ["npm run build", "node --test dist/test/python-runtime.test.js"], "evidence": "The Python SDK bridge accepts the corrected current CLI identity"}
+    ]
+  }
+}
