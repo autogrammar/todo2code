@@ -1,0 +1,62 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-062",
+  "summary": "Assign Python runtime bridge test to SDK workstream",
+  "workstream": "governance",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    ".governance/manifest.json",
+    ".governance/manifest.lock.json",
+    ".github/workflows/ci.yml",
+    "project/ticket-062/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "test/**",
+    "sdk/**",
+    "package.json",
+    "package-lock.json",
+    "Dockerfile*",
+    "compose*.yml",
+    ".env*"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": "ticket-058",
+  "delivery": {
+    "acceptedBaseSha": "738d7be93168fe73cccf14d3d589e545919c9a6f",
+    "targetBranch": "main",
+    "standardAdoption": {
+      "sourceRepository": "wellmanifest/new-project",
+      "fromRevision": "85631ea24d127f1f4797d2a67f3524a63cbbc95a",
+      "toRevision": "a22eb47ca0e7c06ac927d1c0d843eabb798bfadd"
+    },
+    "outcome": "The Python SDK bridge test receives deterministic SDK ownership through a protected published governance contract",
+    "nonGoals": ["No local managed-hash edit", "No application or test change", "No dependency, Docker or authority weakening"],
+    "complexity": "XS",
+    "estimatedMinutes": 15,
+    "budgets": {"maxImplementationFiles": 3, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "accepted",
+      "decision": "Atomically adopt immutable new-project v0.14.0, preserving target workstreams while extending the sdk owner with the Python runtime bridge test",
+      "components": [{"name": "target-adoption", "paths": [".governance/manifest.json", ".governance/manifest.lock.json", ".github/workflows/ci.yml"]}],
+      "responsibilityChanges": true,
+      "interfaceChanges": [],
+      "dataChanges": ["The sdk workstream owns test/python-runtime.test.ts; the installed standard, reusable governance workflow and standard-ref advance to exact v0.14.0 release SHA"],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Re-adopt the prior immutable revision through the same reviewed flow; never hand-edit a managed hash or move a release tag"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-03", "commands": ["./project/governance-check.sh"], "evidence": "The adopted managed set passes immutable lock and workstream ownership checks"}
+    ]
+  }
+}

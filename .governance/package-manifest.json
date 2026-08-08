@@ -24,6 +24,7 @@
     { "source": "project/governance-check.bat", "target": "project/governance-check.bat", "strategy": "managed", "executable": false },
     { "source": "project/new-ticket.sh", "target": "project/new-ticket.sh", "strategy": "managed", "executable": true },
     { "source": "project/readme.sh", "target": "project/readme.sh", "strategy": "managed", "executable": true },
-    { "source": "governance/manifest.default.json", "target": ".governance/manifest.json", "strategy": "seed", "executable": false }
+    { "source": "governance/manifest.default.json", "target": ".governance/manifest.base.json", "strategy": "managed", "executable": false },
+    { "source": "governance/manifest.default.json", "target": ".governance/manifest.json", "strategy": "extendable", "executable": false }
   ]
 }

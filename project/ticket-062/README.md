@@ -1,0 +1,107 @@
+# Ticket 062: Assign Python runtime bridge test to SDK workstream
+
+- **ID**: ticket-062
+- **Owner**: agent:codex
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
+- **Created**: 2026-08-08
+
+## Goal and scope
+
+Resolve the missing workstream ownership for `test/python-runtime.test.ts`
+without directly editing a lock-protected governance manifest. The path tests
+the Python SDK bridge and should belong to `sdk`, but no current ownership glob
+matches it.
+
+`.governance/manifest.json` is bound by the immutable standard lock. A local
+hash edit would weaken the trust boundary, so this ticket records and routes
+the required upstream extension/adoption instead of modifying authority.
+
+## Acceptance criteria
+
+- [x] AC-01: A human approves routing this ownership gap through the protected
+      governance adoption path.
+- [x] AC-02: A published governance mechanism assigns the Python runtime bridge
+      test to `sdk` without hand-editing managed hashes.
+- [ ] AC-03: The complete managed set is adopted atomically and governance
+      passes before ticket-063 enters `EDIT`.
+- [x] AC-04: No application or test behavior changes in this ticket.
+
+## Participants
+
+- Human participant: unresolved; no `user-*` file was created.
+- Agent participant: [ai-codex.md](ai-codex.md).
+
+## Approval gate
+
+The human approved the protected routing plan on 2026-08-09. The ticket remains
+non-active and makes no authority change while it waits for a published
+upstream mechanism or existing supported extension.
+
+The matching upstream owner is the existing
+`wellmanifest/new-project:ticket-024`; no competing governance ticket was
+created. Its expanded plan was published as
+`ticket/024-extendable-target-manifest@e538ec0`, approved independently and
+implemented. The implementation is now published as
+`wellmanifest/new-project#67` at exact head
+`3d7ac45bb4359db96dba2825c3654fdb47c5b483`. Linux `test` and
+`windows-governance` passed, the independent Validator approved the exact
+head, and the implementation merged as `main@2fbf23f`. Closure PR #68 passed
+the same protected gates and merged as `main@a70b5b8`; upstream ticket-024 is
+`DONE / DONE`. The contract separates a hash-bound
+`.governance/manifest.base.json` from the target-extendable
+`.governance/manifest.json` and validates the extension fail-closed.
+
+Upstream `ticket-044` is complete. Release PR #69 passed protected Linux,
+Windows and deterministic exact-head review, then merged as exact release SHA
+`a22eb47ca0e7c06ac927d1c0d843eabb798bfadd`. Annotated tag and published,
+non-prerelease GitHub Release `v0.14.0` point to that commit; closure PR #70
+also passed protected validation.
+
+The previously approved dependency is therefore satisfied. Before any target
+mutation, this ticket entered `IN_PROGRESS / EDIT` and bound
+`delivery.standardAdoption` from installed v0.13.2 SHA `85631ea...` to exact
+v0.14.0 SHA `a22eb47...`. Ordinary delivery remains limited to the target
+manifest and lock; the complete managed payload is admitted only through the
+hash-bound atomic adoption contract.
+
+## Integration evidence
+
+A temporary combination of tickets 059, 060 and 061 passed every pre-test gate
+of `npm run verify`. The only observed test failure was the still-literal
+Python bridge assertion in `test/python-runtime.test.ts`: corrected runtime
+output is `todo2code 0.5.1`, while the unowned test still expects `0.5.0`.
+Ticket 063 owns that assertion but cannot enter `EDIT` until this ticket has
+adopted a published upstream mechanism and governance passes.
+
+## Adoption validation
+
+- The published v0.14.0 adoption tool installed exact SHA
+  `a22eb47ca0e7c06ac927d1c0d843eabb798bfadd`; a repeated `--check` reports
+  `up-to-date`.
+- The complete managed set is hash-valid, `.governance/manifest.base.json` is
+  locked, and the target `.governance/manifest.json` is intentionally absent
+  from `managedFiles`.
+- All eight todo2code workstreams were preserved. The `sdk` workstream now
+  owns exact path `test/python-runtime.test.ts`.
+- `./project/governance-check.sh --base 738d7be...` passes with zero errors and
+  warnings under the atomic standard-adoption contract.
+- `npm run verify` passes 405 tests (404 PASS, one explicit JDK-unavailable
+  SKIP), including TypeScript, module/LLM boundaries, env, workflows, schemas,
+  generated analysis and build checks.
+- No file below `src/`, `test/`, `sdk/`, dependency metadata, Docker or runtime
+  behavior changed in this ticket.
+- First protected review resolved branch lifecycle after draft owner PRs
+  #78-#82 were opened, then failed closed with `GOV-SYNC-001`: the target
+  reusable workflow still selected v0.13.2 SHA `85631ea`, whose older parser
+  cannot validate the new `extendable` strategy. The ticket returned to
+  `EDIT` and now binds both the reusable workflow and its `standard-ref` input
+  to the adopted exact v0.14.0 SHA `a22eb47`.
+
+## Non-goals
+
+- No edit of the manifest while it is lock-protected and no hand-authored lock
+  hash. The published tool performs the atomic upgrade first; only then may
+  the now target-owned manifest receive the reviewed SDK path extension.
+- No test, runtime, SDK, dependency or Docker change.
+- No authority change proposed or generated by an LLM.

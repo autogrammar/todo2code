@@ -1,0 +1,105 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-058",
+  "summary": "Synchronize todo2code release and runtime version identity",
+  "workstream": "integration",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-058/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "package.json",
+    "scripts/verify-version-contract.mjs",
+    "scripts/verify-version-contract.test.mjs"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "test/**",
+    "sdk/**",
+    "Dockerfile*",
+    "compose*.yml",
+    ".env*"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": ["ticket-054"],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "738d7be93168fe73cccf14d3d589e545919c9a6f",
+    "targetBranch": "main",
+    "outcome": "Every current todo2code artifact exposes one release identity and a deterministic integration gate prevents partial future bumps",
+    "nonGoals": [
+      "No new version, tag or publication",
+      "No dependency or runtime toolchain change",
+      "No rewrite of historical versioned evidence",
+      "No authority or command execution from model output"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Treat release version as an integration contract, verify every declaration deterministically and let each workstream update only its owned current-version assertions",
+      "components": [
+        {
+          "name": "version-contract-verifier",
+          "paths": [
+            "scripts/verify-version-contract.mjs",
+            "scripts/verify-version-contract.test.mjs"
+          ]
+        },
+        {
+          "name": "root-verification-orchestration",
+          "paths": ["package.json"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Current generated provenance changes from the stale runtime identity 0.5.0 to the accepted release identity 0.5.1"
+      ],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Remove the verifier hook and scripts; workstream-owned version corrections retain their own rollback and evidence"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-03",
+        "commands": [
+          "node --test scripts/verify-version-contract.test.mjs",
+          "node scripts/verify-version-contract.mjs"
+        ],
+        "evidence": "The verifier accepts one identity and fails each isolated mismatch with a stable diagnostic"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": [
+          "npm run verify",
+          "./project/governance-check.sh",
+          "make docker-smoke",
+          "make e2e-core",
+          "make e2e-full"
+        ],
+        "evidence": "Host, policy and both Docker profiles pass without hidden fallback"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": [
+          "doDSL compile with requireTodo2code=true",
+          "onlyDSL DevelopmentEvidenceDSL verification"
+        ],
+        "evidence": "A fresh immutable evidence bundle reports todo2code 0.5.1 and no authority or mutation effect"
+      }
+    ]
+  }
+}
