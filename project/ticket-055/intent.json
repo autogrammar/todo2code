@@ -1,0 +1,48 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-055",
+  "summary": "Project-derived OpenRouter application identity",
+  "workstream": "runtime",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-055/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/config/env.ts",
+    "test/config-openrouter-app-name.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    ".env",
+    ".env.example",
+    "src/llm/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "targetBranch": "main",
+    "outcome": "OpenRouter usage is attributed to an explicit OPENROUTER_APP_NAME or, by default, the analysed project folder name",
+    "nonGoals": [
+      "No Codex or OpenRouter model change",
+      "No credential, endpoint or provider-routing change",
+      "No public interface or dependency change",
+      "No edit to the existing .env.example field"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    }
+  }
+}

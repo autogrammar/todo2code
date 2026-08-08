@@ -6,6 +6,9 @@ None.
 
 ## Backlog tickets
 
+- [ ] [`ticket-055`](project/ticket-055/README.md) — identify OpenRouter usage
+  with explicit `OPENROUTER_APP_NAME`, falling back to the analysed project's
+  folder name. Current state: `PLAN / WAIT_FOR_APPROVAL`.
 - [ ] [`ticket-051`](project/ticket-051/README.md) — wire
   `scripts/github-event-log.mjs` into CI with explicit flags only. Current
   state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.
