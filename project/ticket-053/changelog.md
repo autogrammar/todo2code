@@ -1,5 +1,14 @@
 # Ticket Changelog (ticket-053)
 
+## [0.3.0] - 2026-08-08
+
+- Reconciled PR #67 with the merged ticket-048 baseline without changing the
+  executable deliverable.
+- Kept ticket-053 active in `VALIDATION`, moved ticket-048 to the completed
+  index, and retained tickets 049–052 as non-reserving plans.
+- Replaced the expired GitHub Actions outage note with the current exact-head
+  revalidation and protected-publication requirement.
+
 ## [0.2.0] - 2026-08-06
 
 - Approved with workstream `governance` and a blocking failure policy.

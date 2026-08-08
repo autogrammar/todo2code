@@ -113,6 +113,6 @@ The human owner approved this ticket on 2026-08-06, selecting the `governance`
 workstream and a blocking failure policy. `governance` holds no other active
 ticket, so this does not contend with ticket-048 in `integration`.
 
-Publication waits: the GitHub Actions `major_outage` recorded in ticket-049
-means nothing can be pushed without moving a pull-request head onto a commit
-with no check runs.
+The earlier GitHub Actions outage is no longer the publication blocker. PR #67
+must be refreshed on top of the merged ticket-048 baseline, revalidated on its
+new exact head, and then merged through the protected `main` boundary.

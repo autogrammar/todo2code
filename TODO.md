@@ -2,8 +2,11 @@
 
 ## Active tickets
 
-None. (ticket-048 publication is open as PR #66 on branch
-`ticket/048-publish-event-log-adapter`; it is not present on this plan branch.)
+- [ ] [`ticket-053`](project/ticket-053/README.md) — documents the CI-form
+  governance check as a blocking pre-push gate so branch-level diagnostics
+  (`GOV-INTENT-003`, `GOV-TICKET-001`) are caught locally. Current state:
+  `IN_PROGRESS / VALIDATION`; implementation and local validation are complete,
+  and publication continues in PR #67.
 
 ## Backlog tickets
 
@@ -16,18 +19,26 @@ None. (ticket-048 publication is open as PR #66 on branch
   `PLAN / WAIT_FOR_APPROVAL`.
 - [ ] [`ticket-051`](project/ticket-051/README.md) — wire
   `scripts/github-event-log.mjs` into CI with explicit flags only. Current
-  state: `PLAN / WAIT_FOR_APPROVAL` (prefer after ticket-048 merges).
+  state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.
 - [ ] [`ticket-052`](project/ticket-052/README.md) — promote the Validator
   autonomy operator checklist into agent-facing governance (`AGENTS.md`).
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
-- [ ] [`ticket-053`](project/ticket-053/README.md) — expose the CI-form
-  governance check as a documented pre-push gate, so branch-level diagnostics
-  (`GOV-INTENT-003`, `GOV-TICKET-001`) stop being discovered from failed pull
-  requests. Current state: `PLAN / WAIT_FOR_APPROVAL`; workstream assignment is
-  an open owner decision because `Makefile` is owned by both `governance` and
-  `integration`.
 
 ## Completed tickets
+- [x] [`ticket-048`](project/ticket-048/README.md) — republished ticket-047's
+  GitHub acquisition adapter with explicit-only inputs and no ambient
+  `process.env` fallback. Validator approval and all protected checks passed on
+  exact head `92f99dc`; PR #66 merged as `main@f1b3d5d`. Current state: `DONE`
+  for publication purposes; the ticket-local historical status remains part of
+  the merged audit record.
+- [x] [`ticket-047`](project/ticket-047/README.md) — built the first GitHub
+  acquisition adapter for the `t2c.event-log/v1` codec, mapping one bounded
+  `push`, `pull_request`, `pull_request_review` or completed `workflow_run`
+  payload onto the closed event vocabulary. Host, governance, Docker and
+  focused checks passed locally, but the work never reached protected `main`:
+  it carries no Koru or Validator approval, and its squashed commits are
+  rejected by CI governance. Republication is tracked as ticket-048. Current
+  state: `DONE`.
 - [x] [`ticket-046`](project/ticket-046/README.md) — generates a canonical,
   atomic `logs.dsl.txt` beside every succeeded, degraded and failed pipeline
   manifest. Koru and Validator approved exact head `1180e45` with

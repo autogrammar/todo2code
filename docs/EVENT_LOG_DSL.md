@@ -224,3 +224,77 @@ The dependent runtime ticket must:
 4. publish the log as a workflow artifact and bind it to evaluation/attestation;
 5. add GitHub event acquisition separately, using least-privilege API fields;
 6. prove repeated rendering of identical inputs is byte-for-byte stable.
+
+## GitHub event acquisition boundary (ticket-047, ticket-048)
+
+This repository now defines a dedicated, bounded boundary:
+
+`node scripts/github-event-log.mjs`
+
+Input, all of it explicit:
+
+* one GitHub Actions JSON payload (`--event-path`, required)
+* one event name (`push|pull_request|pull_request_review|workflow_run`)
+* explicit `--output` path for the produced `logs.dsl.txt`
+* `--repository`, unless the payload itself carries `repository.full_name`
+
+The script reads **no environment variable**. Earlier revisions fell back to
+`GITHUB_EVENT_PATH` and `GITHUB_REPOSITORY`; ticket-048 removed both, so a
+caller can never silently acquire ambient process state instead of the payload
+it named. Callers pass the values, including from Actions:
+`--event-path "$GITHUB_EVENT_PATH"`.
+
+That is also why `.env.example` declares neither key. `verify:env` derives its
+required keys by scanning `scripts/**` for `process.env` reads, and
+`.env.example` is owned by no workstream in `.governance/manifest.json`, whose
+hashes are locked to the pinned upstream standard. An acquisition boundary that
+reads the environment therefore cannot be published at all.
+
+Behavior:
+
+* no payload is committed to `main` from this script,
+* only allowlisted fields are normalized and projected into evidence,
+* unsupported events/actions fail closed,
+* missing required flags fail closed with a named error,
+* every emitted event records `SOURCE "github-actions"`, never `github-api`:
+  the adapter reads a delivered payload and makes no API call, and claiming
+  provenance it does not have would violate the contract's rule that missing
+  knowledge is never guessed,
+* SHA/actor/repository/ticket/relation bindings are validated,
+* emitted trust class is `SYSTEM_FACT`,
+* output is immutable via the existing `t2c.event-log/v1` atomic writer.
+
+### Publication and autonomy note
+
+Ticket-048 publishes the adapter script and tests; it does **not** wire a
+GitHub Actions job (follow-up: ticket-051 / plan ticket-049). Merging still
+requires trusted review evidence (`GOV-APPROVAL`) from outside this
+repository's PR checkout. Do not add a workflow here that dispatches the
+Validator App against itself (ticket-018 trust root).
+
+**Where operators look (external repos, not this tree):**
+
+| Need | Where |
+| --- | --- |
+| Why is the PR blocked / what NEXT? | `subactor/twin-probes` probe **`publication.gate`** — docs: `docs/PUBLICATION_PROBE.md`, map: `docs/ECOSYSTEM.md` |
+| Exact-head freeze + dispatch | `subactor/validator-agent` — `bin/dispatch-direct-pr.sh`, `docs/PUBLICATION_FREEZE.md` |
+| App review (trust root) | `ifuri-validator-agent[bot]` via validator-agent `direct-pr` / `scan-direct` |
+| Plan ticket in this repo | `project/ticket-049` (branch `ticket/049-validator-autonomy-plan`, PR #67) |
+
+`publication.gate` is a **measurement probe**, not a separate product and not a
+merge gate. Local green tests do not replace hosted checks when GitHub Actions
+is degraded.
+
+Invocation example:
+
+```bash
+node scripts/github-event-log.mjs \
+  --event-name pull_request \
+  --event-path "$GITHUB_EVENT_PATH" \
+  --repository "semcod/todo2code" \
+  --ticket "ticket-047" \
+  --recorded-at "$GITHUB_EVENT_TIME" \
+  --correlation-id "$GITHUB_RUN_ID" \
+  --stream-id "todo2code/github" \
+  --output "artifacts/logs.dsl.txt"
+```
