@@ -7,7 +7,7 @@ FROM node:22-bookworm-slim AS e2e-base
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-      ca-certificates curl git python3 \
+      ca-certificates curl git make python3 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
@@ -40,6 +40,6 @@ ENV PATH=/usr/local/go/bin:/usr/local/cargo/bin:$PATH \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential default-jdk-headless php-cli \
     && rm -rf /var/lib/apt/lists/* \
-    && cargo fetch --locked --manifest-path sdk/rust/Cargo.toml
+    && cargo fetch --manifest-path sdk/rust/Cargo.toml
 
 CMD ["bash", "scripts/e2e.sh", "full"]

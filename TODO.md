@@ -2,13 +2,12 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-056`](project/ticket-056/README.md) — repair Docker E2E's
+  missing `make` command and contradictory locked Rust-library fetch. Current
+  state: `IN_PROGRESS / PUBLICATION`; all local host and Docker gates pass.
 
 ## Backlog tickets
 
-- [ ] [`ticket-056`](project/ticket-056/README.md) — repair Docker E2E's
-  missing `make` command and contradictory locked Rust-library fetch. Current
-  state: `PLAN / WAIT_FOR_APPROVAL`.
 - [ ] [`ticket-051`](project/ticket-051/README.md) — wire
   `scripts/github-event-log.mjs` into CI with explicit flags only. Current
   state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.

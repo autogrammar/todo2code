@@ -27,8 +27,15 @@ all `Cargo.lock` files and the Rust SDK is a library. Both defects originate in
   `spawn make ENOENT`.
 - Reproduced `e2e-full`: image construction failed because the absent,
   intentionally ignored `sdk/rust/Cargo.lock` was required by `--locked`.
-- Added planning evidence only; `Dockerfile.e2e` is unchanged.
+- Installed `make` in the shared E2E base image used by the existing workflow
+  validation tests.
+- Changed the disposable full-image dependency warm-up to `cargo fetch
+  --manifest-path sdk/rust/Cargo.toml`, preserving the Rust SDK's intentionally
+  unlocked library policy.
+- Passed host verification, governance, Docker smoke and both Docker E2E
+  profiles. No manifest, lockfile, runtime source or public interface changed.
 
 ## Blockers
 
-- Human approval is required before implementation.
+- Protected exact-HEAD review, attestation and repository rules remain required
+  before merge.

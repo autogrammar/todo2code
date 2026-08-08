@@ -2,8 +2,8 @@
 
 - **ID**: ticket-056
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -24,15 +24,15 @@ OpenRouter behavior.
 
 ## Acceptance criteria
 
-- [ ] AC-01: `e2e-core` includes `make` and completes without `spawn make
+- [x] AC-01: `e2e-core` includes `make` and completes without `spawn make
   ENOENT`.
-- [ ] AC-02: `e2e-full` resolves the intentionally unlocked Rust library and
+- [x] AC-02: `e2e-full` resolves the intentionally unlocked Rust library and
   completes without a missing-lockfile error.
-- [ ] AC-03: `make docker-smoke`, `make e2e-core`, `make e2e-full`, host
+- [x] AC-03: `make docker-smoke`, `make e2e-core`, `make e2e-full`, host
   verification and governance checks pass.
-- [ ] AC-04: No dependency manifest, lockfile, runtime source or public
+- [x] AC-04: No dependency manifest, lockfile, runtime source or public
   interface changes.
-- [ ] AC-05: A human approves this bounded integration repair before editing
+- [x] AC-05: A human approved this bounded integration repair before editing
   `Dockerfile.e2e`.
 
 ## Participants
@@ -42,6 +42,12 @@ OpenRouter behavior.
 
 ## Approval gate
 
-Current state is `WAIT_FOR_APPROVAL`. The two failures were reproduced from
-the protected `main` baseline plus ticket-055's unrelated runtime diff; no
-Docker implementation file has been changed.
+The human owner explicitly approved ticket-056 in the active conversation on
+2026-08-08. This Markdown note records the transition to `EDIT`; it is not
+trusted merge authorization.
+
+## Validation result
+
+Host verification, Docker smoke, core E2E and full E2E all pass. The
+implementation changes only `Dockerfile.e2e`; publication still requires the
+protected exact-HEAD review, attestation and ruleset boundary.
