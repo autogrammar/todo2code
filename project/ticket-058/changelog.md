@@ -9,3 +9,6 @@
   fixtures.
 - Made no executable, runtime, dependency, Docker or consumer changes.
 - Passed the repository governance check with zero errors and zero warnings.
+- Recorded human approval of the plan and owner-ticket creation.
+- Moved to `BLOCKED / WAIT_FOR_DEPENDENCIES` until ticket-054 releases the
+  integration workstream.

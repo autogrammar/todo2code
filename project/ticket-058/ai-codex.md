@@ -40,11 +40,12 @@ tests. Historical artifacts must not be rewritten.
   `0.5.1`.
 - Confirmed doDSL faithfully persists that emitted producer version.
 - Created planning evidence only; no implementation file changed.
+- Recorded the human approval of this plan and authorization to create the
+  three owner-workstream tickets.
 
 ## Blockers
 
-- Explicit approval of this delivery plan is required.
 - Ticket-054 currently reserves the `integration` workstream. The approved
-  `--force-new` exception created this PLAN ticket but does not silently
+  `--force-new` exception created this ticket but does not silently
   override active-scope enforcement.
 - Each non-integration path requires its owning workstream ticket.

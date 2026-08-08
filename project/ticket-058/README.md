@@ -2,8 +2,8 @@
 
 - **ID**: ticket-058
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: BLOCKED
+- **Workflow state**: WAIT_FOR_DEPENDENCIES
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -56,7 +56,7 @@ not approval to edit implementation paths or weaken the active ticket limits.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves this scope and the multi-workstream split.
+- [x] AC-01: A human approves this scope and the multi-workstream split.
 - [ ] AC-02: Root release metadata, SDK manifests, `T2C_VERSION`, CLI output
       and newly generated provenance all report the same accepted version.
 - [ ] AC-03: A dependency-free verifier emits a stable diagnostic and non-zero
@@ -75,12 +75,11 @@ not approval to edit implementation paths or weaken the active ticket limits.
 
 ## Approval gate
 
-The ticket is in `PLAN / WAIT_FOR_APPROVAL`. No runtime, test, package,
-dependency, Docker or external consumer file may be changed until explicit
-approval of this plan. Because ticket-054 still reserves `integration`, this
-ticket's integration implementation also waits for that reservation to be
-released; distinct child workstreams may proceed only through their own
-approved tickets.
+The human approved this plan and creation of the owner-workstream tickets on
+2026-08-08. This ticket is now `BLOCKED / WAIT_FOR_DEPENDENCIES`: ticket-054
+still reserves `integration`, so the verifier and root verify-hook cannot enter
+`EDIT`. Distinct child workstreams may proceed only through their own approved
+tickets. Conversation approval is an audit note, not trusted merge authority.
 
 ## Non-goals
 

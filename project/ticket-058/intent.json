@@ -48,7 +48,7 @@
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Treat release version as an integration contract, verify every declaration deterministically and let each workstream update only its owned current-version assertions",
       "components": [
         {

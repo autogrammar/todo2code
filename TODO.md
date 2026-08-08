@@ -11,8 +11,8 @@
 
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
-  drift gate. Creation with `--force-new` was explicitly authorized; current
-  state: `PLAN / WAIT_FOR_APPROVAL`.
+  drift gate. Plan and owner-ticket creation are approved; current state:
+  `BLOCKED / WAIT_FOR_DEPENDENCIES` while ticket-054 reserves `integration`.
 - [ ] [`ticket-051`](project/ticket-051/README.md) — wire
   `scripts/github-event-log.mjs` into CI with explicit flags only. Current
   state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.

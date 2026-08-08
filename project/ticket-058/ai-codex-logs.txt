@@ -31,3 +31,9 @@ No implementation path changed. State: WAIT_FOR_APPROVAL.
 
 PASS ./project/governance-check.sh
   GOV-PASS: passed (0 errors, 0 warnings)
+
+2026-08-08 human plan decision
+  APPROVED ticket-058 plan
+  APPROVED creation of owner-workstream tickets
+  NOT trusted merge authorization
+  ticket-058 remains non-active while ticket-054 reserves integration
