@@ -1,5 +1,12 @@
 # Ticket Changelog (ticket-053)
 
+## [0.4.0] - 2026-08-08
+
+- Recorded Koru and Validator approval for exact head `079de29` and protected
+  PR #67 publication as `main@100a7d2`.
+- Confirmed deletion of the implementation branch and closed ticket-053 as
+  `DONE` with no executable or dependency change.
+
 ## [0.3.0] - 2026-08-08
 
 - Reconciled PR #67 with the merged ticket-048 baseline without changing the

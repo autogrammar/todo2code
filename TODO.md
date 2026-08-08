@@ -2,11 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-053`](project/ticket-053/README.md) — documents the CI-form
-  governance check as a blocking pre-push gate so branch-level diagnostics
-  (`GOV-INTENT-003`, `GOV-TICKET-001`) are caught locally. Current state:
-  `IN_PROGRESS / VALIDATION`; implementation and local validation are complete,
-  and publication continues in PR #67.
+None.
 
 ## Backlog tickets
 
@@ -25,6 +21,10 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-053`](project/ticket-053/README.md) — documents the existing
+  CI-form governance check as a blocking pre-push gate. Koru and Validator
+  approved exact head `079de29`; protected PR #67 merged as `main@100a7d2`
+  and its implementation branch was deleted. Current state: `DONE`.
 - [x] [`ticket-048`](project/ticket-048/README.md) — republished ticket-047's
   GitHub acquisition adapter with explicit-only inputs and no ambient
   `process.env` fallback. Validator approval and all protected checks passed on
