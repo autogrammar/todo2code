@@ -2,8 +2,8 @@
 
 - **ID**: ticket-056
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -49,5 +49,6 @@ trusted merge authorization.
 ## Validation result
 
 Host verification, Docker smoke, core E2E and full E2E all pass. The
-implementation changes only `Dockerfile.e2e`; publication still requires the
-protected exact-HEAD review, attestation and ruleset boundary.
+implementation changes only `Dockerfile.e2e`. Koru and Validator App approved
+exact head `1752f3d63c0ce6fd2ae14b83067e593e999a5439`; protected PR #72 passed
+the governance ruleset and merged as `main@5f8e831`.

@@ -12,3 +12,6 @@
   library contract.
 - Passed host verification, governance, Docker smoke, core E2E and full E2E;
   transitioned to `IN_PROGRESS / PUBLICATION` pending protected authorization.
+- Koru and Validator App approved exact head `1752f3d`; all protected checks
+  passed and PR #72 merged as `main@5f8e831`.
+- Closed ticket-056 as `DONE`.
