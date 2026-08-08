@@ -4,36 +4,71 @@
   "summary": "Own or explicitly exclude unpublishable root paths (CHANGELOG, .env.example)",
   "workstream": "governance",
   "allowedPaths": [
-    "project/ticket-050/**",
-    "TODO.md",
-    "project/TICKETS.md",
     ".governance/**",
     "AGENTS.md",
-    "project/governance-check.sh"
+    "project.sh",
+    "project.bat",
+    "project/governance-check.sh",
+    "project/governance-check.bat",
+    "project/new-ticket.sh",
+    "project/readme.sh",
+    "CHANGELOG.md",
+    ".env.example",
+    "project/ticket-050/**",
+    "TODO.md",
+    "project/TICKETS.md"
   ],
   "forbiddenPaths": [
     "project/ticket-*/user-*.md",
     "src/**",
-    "scripts/**"
+    "test/**",
+    "scripts/**",
+    "package.json",
+    "package-lock.json",
+    "Dockerfile*",
+    "compose*.yml"
   ],
-  "stacks": ["node"],
+  "stacks": ["node", "docker"],
   "dependsOn": ["ticket-049"],
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
+    "acceptedBaseSha": "fd454d528ea25a2dbb271e1207e8ec2edf2404e8",
     "targetBranch": "main",
-    "outcome": "CHANGELOG.md and .env.example are either owned with checkable edit rules or explicitly excluded with agent-visible fail-closed guidance",
+    "outcome": "Adopt an immutable standard release that assigns CHANGELOG.md and .env.example to the governance workstream, or implement the explicitly approved exclusion fallback",
     "nonGoals": [
       "No silent ownership expansion without standard alignment",
-      "No removal of verify:env scanning"
+      "No removal of verify:env scanning",
+      "No direct mutation of hash-locked managed files",
+      "No moving tag or branch-based adoption"
     ],
     "complexity": "S",
     "estimatedMinutes": 90,
     "budgets": {
-      "maxImplementationFiles": 5,
-      "maxAffectedComponents": 2,
+      "maxImplementationFiles": 12,
+      "maxAffectedComponents": 3,
       "maxPublicInterfaceChanges": 0,
       "maxRuntimeDependencies": 0
-    }
+    },
+    "architecture": {
+      "status": "proposed",
+      "decision": "Prefer upstream Option A: make CHANGELOG.md and .env.example governance-owned in a new immutable new-project release, then adopt it through Goal",
+      "components": [
+        {"name": "upstream-standard", "paths": ["wellmanifest/new-project governance manifest and regression tests"]},
+        {"name": "target-governance-package", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*"]},
+        {"name": "owned-root-contracts", "paths": ["CHANGELOG.md", ".env.example"]}
+      ],
+      "responsibilityChanges": true,
+      "interfaceChanges": ["The governance workstream becomes the sole owner of CHANGELOG.md and .env.example"],
+      "dataChanges": ["The governance lock advances from 0.11.0 to an approved immutable release"],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Adopt the prior immutable source revision through the same reviewed Goal flow; never move or rewrite a release tag"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["./project/governance-check.sh"], "evidence": "Managed ownership declarations and target intent pass governance validation"},
+      {"criterion": "AC-03", "commands": ["upstream focused ownership regression command selected by the approved upstream ticket"], "evidence": "A non-governance claim for either root path fails closed"},
+      {"criterion": "AC-05", "commands": ["goal governance adopt --source-revision <approved-immutable-sha> --target-root . --check", "make verify", "make docker-smoke"], "evidence": "Adoption is pinned, idempotent and leaves host and Docker checks green"}
+    ]
   }
 }

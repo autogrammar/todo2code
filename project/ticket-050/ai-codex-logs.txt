@@ -1,0 +1,13 @@
+2026-08-08 planning audit
+todo2code base: fd454d528ea25a2dbb271e1207e8ec2edf2404e8
+installed standard: new-project 0.11.0 at cc9b04673bbd85cb4e35fb683d288ef34be1485f
+managed manifest state: hash-locked; direct local mutation is invalid
+upstream main inspected: no ownership rule for CHANGELOG.md or .env.example
+recommended policy: Option A, both paths owned by governance
+delivery shape: governed upstream change -> immutable release -> Goal adoption
+dependency: ticket-049 remains PLAN / WAIT_FOR_APPROVAL
+implementation changes: NOT STARTED
+workflow state: PLAN / WAIT_FOR_APPROVAL
+python3 -m json.tool project/ticket-050/intent.json: PASS
+git diff --check: PASS
+./project/governance-check.sh: GOV-PASS (0 errors, 0 warnings)

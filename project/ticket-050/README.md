@@ -8,21 +8,35 @@
 
 ## Goal and scope
 
-`CHANGELOG.md` and `.env.example` are required by the pinned standard and
-scanned by tooling, but **no workstream owns them** in
-`.governance/manifest.json`. Agents either illegally edit them (CI reject) or
-silently skip release notes (ticket-048 known gap). This ticket chooses one
-durable policy and implements it:
+`CHANGELOG.md` and `.env.example` are scanned by project tooling, but **no
+workstream owns them** in `.governance/manifest.json`. Agents therefore either
+claim paths that governance rejects or omit required release evidence
+(ticket-048's known gap).
 
-**Option A (preferred):** bump `wellmanifest/new-project` / local Goal so the
-governance workstream (or a dedicated `release` workstream) owns these paths
-with explicit allowed edit rules; or
+The recommended decision is **Option A**: assign both paths to the existing
+`governance` workstream. `CHANGELOG.md` is release/governance evidence, while
+`.env.example` is a reviewed, non-secret environment contract enforced by
+`verify:env`. One owner keeps their policy atomic and avoids overlapping
+governance and integration scopes.
 
-**Option B:** document forever-exclude with fail-closed agent checks that
-refuse plans mentioning those paths, and provide an alternate release-note
-surface under an owned path.
+The installed manifest is managed and hash-locked to immutable
+`wellmanifest/new-project` 0.11.0. The ownership change therefore cannot be
+made as a local patch. Implementation must proceed upstream-first:
 
-Depends on human choice; no implementation until AC-01.
+1. Create and approve a governed ticket in `wellmanifest/new-project`.
+2. Add the two ownership rules and regression coverage to the standard.
+3. Publish a new immutable standard release.
+4. Adopt that exact version and source revision in todo2code through Goal,
+   preserving the customized target workstreams.
+5. Record ticket-048's missing release note in the newly owned changelog.
+
+**Option B** remains a fallback only if the upstream maintainers reject the
+ownership model: permanently exclude both paths, make wrong claims fail
+closed, and designate an owned release-note surface.
+
+This plan depends on approval of ticket-049 and an explicit human choice for
+Option A or B. No implementation or upstream ticket creation occurs before
+AC-01.
 
 ## Acceptance criteria
 
@@ -33,16 +47,21 @@ Depends on human choice; no implementation until AC-01.
   plan claims those paths under the wrong policy.
 - [ ] AC-04: Ticket-048's known gap is closed or explicitly re-homed under the
   new policy.
+- [ ] AC-05: Adoption binds an immutable standard version and source revision,
+  preserves local workstream customization, and is idempotent under Goal.
 
 ## Participants
 
 - Human participant: unresolved; no user-* file was created by this script.
-- Agent participant: [ai-grok.md](ai-grok.md)
+- Agent participants: [ai-grok.md](ai-grok.md),
+  [ai-codex.md](ai-codex.md)
 
 ## Non-goals
 
 - No ad-hoc one-off edit of `.env.example` to land an unrelated feature.
 - No weakening of `verify:env` fail-closed behavior.
+- No direct edit of hash-locked managed governance files.
+- No moving tag or branch-based standard adoption.
 
 ## Related
 
