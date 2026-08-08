@@ -26,8 +26,9 @@ no declared owner yet and cannot be edited until ticket-062 resolves that gap.
 - Classified the literal as a current CLI assertion.
 - Recorded the ownership dependency on ticket-062.
 - No test or SDK file changed.
+- Human approved the scope on 2026-08-09; status is
+  `BLOCKED / WAIT_FOR_DEPENDENCIES`.
 
 ## Blockers
 
-- Human approval of ticket-063 is required.
 - Ticket-062 must first establish deterministic SDK ownership.

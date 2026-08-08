@@ -11,7 +11,7 @@
 
 - [ ] [`ticket-063`](project/ticket-063/README.md) — replace the stale current
   version literal in the Python SDK bridge test after ownership is established.
-  Current state: `PLAN / WAIT_FOR_APPROVAL`; depends on ticket-062.
+  Current state: `BLOCKED / WAIT_FOR_DEPENDENCIES`; depends on ticket-062.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:

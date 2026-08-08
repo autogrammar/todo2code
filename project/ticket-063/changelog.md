@@ -7,3 +7,5 @@
 - Recorded the one-file SDK assertion repair and its ownership dependency.
 - Made no test, SDK or governance change.
 - Passed governance with zero errors and zero warnings.
+- Recorded human approval and moved to
+  `BLOCKED / WAIT_FOR_DEPENDENCIES` on ticket-062.

@@ -26,7 +26,7 @@
     ".env*"
   ],
   "stacks": ["node", "python", "docker"],
-  "dependsOn": ["ticket-058", "ticket-062"],
+  "dependsOn": ["ticket-062"],
   "conflictsWith": [],
   "integrationTicket": "ticket-058",
   "delivery": {
@@ -38,7 +38,7 @@
     "estimatedMinutes": 10,
     "budgets": {"maxImplementationFiles": 1, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Reference the canonical TypeScript runtime identity from the current Python bridge assertion after SDK ownership is established",
       "components": [{"name": "python-runtime-bridge-test", "paths": ["test/python-runtime.test.ts"]}],
       "responsibilityChanges": false,

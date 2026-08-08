@@ -2,8 +2,8 @@
 
 - **ID**: ticket-063
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: BLOCKED
+- **Workflow state**: WAIT_FOR_DEPENDENCIES
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -15,7 +15,7 @@ governance evolution.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves the one-test-file SDK scope.
+- [x] AC-01: A human approves the one-test-file SDK scope.
 - [ ] AC-02: Ticket-062 proves deterministic SDK ownership before `EDIT`.
 - [ ] AC-03: The Python bridge compares CLI output with `T2C_VERSION`, not a
       copied `0.5.0` literal.
@@ -28,8 +28,8 @@ governance evolution.
 
 ## Approval gate
 
-No test edit is authorized by ticket-058 approval. Ticket-063 also remains
-blocked until the ownership contract from ticket-062 is adopted.
+The human approved ticket-063 on 2026-08-09. It remains non-active and no test
+edit is permitted until the ownership contract from ticket-062 is adopted.
 
 ## Non-goals
 
