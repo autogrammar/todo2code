@@ -2,8 +2,8 @@
 
 - **ID**: ticket-060
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -14,7 +14,7 @@ provenance while no longer preserving a stale release identity.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves the one-test-file scope.
+- [x] AC-01: A human approves the one-test-file scope.
 - [ ] AC-02: `test/docs.test.ts` asserts current provenance through
       `T2C_VERSION`, not a copied version string.
 - [ ] AC-03: Documentation extraction tests pass with ticket-059's runtime
@@ -27,8 +27,9 @@ provenance while no longer preserving a stale release identity.
 
 ## Approval gate
 
-Ticket-058 approval authorized creation only. No test edit is allowed before
-explicit approval of ticket-060.
+The human approved tickets 059–063 and transition to `EDIT` after dependencies
+on 2026-08-09. Ticket-058 remains the integration coordinator, not an
+unfinished implementation prerequisite.
 
 ## Non-goals
 

@@ -22,8 +22,10 @@ value but copied `0.5.0` directly. That made the suite encode the regression.
 ## Actual changes
 
 - Classified the literal as a current assertion, not historical evidence.
-- No test file changed; waiting for approval.
+- Human approved the exact scope and transition to `EDIT` on 2026-08-09.
+- No test file changed yet.
 
 ## Blockers
 
-- Human approval of ticket-060 is required.
+- No blocker remains inside this workstream; integrated validation is owned by
+  ticket-058.

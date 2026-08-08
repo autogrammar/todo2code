@@ -21,7 +21,7 @@
     ".env*"
   ],
   "stacks": ["node", "docker"],
-  "dependsOn": ["ticket-058"],
+  "dependsOn": [],
   "conflictsWith": [],
   "integrationTicket": "ticket-058",
   "delivery": {
@@ -33,7 +33,7 @@
     "estimatedMinutes": 10,
     "budgets": {"maxImplementationFiles": 1, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Reference the exported runtime identity in the current-behavior assertion",
       "components": [{"name": "documentation-extraction-test", "paths": ["test/docs.test.ts"]}],
       "responsibilityChanges": false,

@@ -11,7 +11,7 @@
 
 - [ ] [`ticket-060`](project/ticket-060/README.md) — replace the stale current
   version literal in the documentation extraction test. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; coordinated by ticket-058.
+  `IN_PROGRESS / EDIT`; coordinated by ticket-058.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:
