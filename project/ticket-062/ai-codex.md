@@ -30,6 +30,8 @@ or a supported project-extension mechanism.
 - Reused upstream `wellmanifest/new-project:ticket-024` and published its
   expanded planning branch at
   `ticket/024-extendable-target-manifest@e538ec0`; no duplicate ticket exists.
+- Upstream implementation PR #67 is open at exact head `3d7ac45`; Linux and
+  Windows checks pass, and independent review is still required before merge.
 - Recorded the combined 059+060+061 validation: every pre-test gate passed and
   the only observed test failure is the ticket-063 assertion blocked by this
   ownership gap.
@@ -39,5 +41,6 @@ or a supported project-extension mechanism.
 
 ## Blockers
 
-- Explicit approval and implementation of upstream ticket-024, followed by a
-  published immutable revision and protected downstream adoption, are required.
+- Independent exact-head approval and merge of upstream ticket-024, followed
+  by a published immutable revision and protected downstream adoption, are
+  required.

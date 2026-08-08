@@ -40,9 +40,13 @@ upstream mechanism or existing supported extension.
 
 The matching upstream owner is the existing
 `wellmanifest/new-project:ticket-024`; no competing governance ticket was
-created. Its expanded plan is published on
-`ticket/024-extendable-target-manifest@e538ec0` and remains
-`PLAN / WAIT_FOR_APPROVAL`. The proposed contract separates a hash-bound
+created. Its expanded plan was published as
+`ticket/024-extendable-target-manifest@e538ec0`, approved independently and
+implemented. The implementation is now published as
+`wellmanifest/new-project#67` at exact head
+`3d7ac45bb4359db96dba2825c3654fdb47c5b483`. Linux `test` and
+`windows-governance` both pass; the PR correctly remains blocked on an
+independent exact-head review. The contract separates a hash-bound
 `.governance/manifest.base.json` from the target-extendable
 `.governance/manifest.json` and validates the extension fail-closed.
 

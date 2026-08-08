@@ -32,3 +32,10 @@ PASS ./project/governance-check.sh
   ONLY OBSERVED FAILURE test/python-runtime.test.ts expects todo2code 0.5.0
   ACTUAL corrected CLI identity todo2code 0.5.1
   OWNER ticket-063, blocked by ticket-062 governance ownership
+
+2026-08-09 upstream implementation
+  PR https://github.com/wellmanifest/new-project/pull/67
+  HEAD 3d7ac45bb4359db96dba2825c3654fdb47c5b483
+  PASS Linux test
+  PASS windows-governance
+  WAIT independent exact-head review, merge, immutable release and adoption
