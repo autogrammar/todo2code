@@ -1,0 +1,15 @@
+2026-08-08 pre-implementation evidence
+
+FAIL src/core/version.ts
+  T2C_VERSION=0.5.0 while release identity=0.5.1
+
+IMPACT
+  CLI, pipeline manifests and generated provenance expose the stale value
+
+SCOPE
+  src/core/version.ts only
+
+No implementation changed. State: WAIT_FOR_APPROVAL.
+
+PASS ./project/governance-check.sh
+  GOV-PASS: passed (0 errors, 0 warnings)

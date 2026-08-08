@@ -1,0 +1,55 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-059",
+  "summary": "Align core runtime version with release identity",
+  "workstream": "core-dsl",
+  "classification": {"kind": "BUG", "priority": "P1", "origin": "regression"},
+  "allowedPaths": [
+    "project/ticket-059/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/core/version.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "package.json",
+    "package-lock.json",
+    "test/**",
+    "sdk/**",
+    "Dockerfile*",
+    "compose*.yml",
+    ".env*"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-058"],
+  "conflictsWith": [],
+  "integrationTicket": "ticket-058",
+  "delivery": {
+    "acceptedBaseSha": "132f87963921cd49dafa19b643b0528a3a434dd0",
+    "targetBranch": "main",
+    "outcome": "CLI and newly generated todo2code provenance report the accepted 0.5.1 release identity",
+    "nonGoals": [
+      "No package or SDK metadata change",
+      "No historical fixture rewrite",
+      "No dependency, Docker or authority change"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 10,
+    "budgets": {"maxImplementationFiles": 1, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "proposed",
+      "decision": "Correct the existing core constant and leave release orchestration to ticket-058",
+      "components": [{"name": "runtime-version", "paths": ["src/core/version.ts"]}],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": ["New runtime provenance changes from 0.5.0 to 0.5.1"],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore the previous constant only if accepted release metadata is also rolled back through governance"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["npm run check", "npm run build", "node dist/src/cli.js --version"], "evidence": "Build succeeds and CLI prints todo2code 0.5.1"},
+      {"criterion": "AC-04", "commands": ["ticket-058 combined npm run verify and Docker gates"], "evidence": "The integrated version repair passes all required checks"}
+    ]
+  }
+}
