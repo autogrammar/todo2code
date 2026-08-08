@@ -104,6 +104,13 @@ validation, all 389 host tests (388 pass and one controlled JDK skip), and
 Docker smoke pass. The ticket is back in `VALIDATION` for exact-head protected
 review.
 
+Protected review approved exact HEAD `998f31e`, and all PR-context checks
+passed. Merge remained blocked because the duplicate feature-branch `push`
+run has no base/PR binding and therefore fails the atomic-adoption precondition
+under the same required-check context. The ticket returned to `EDIT` to bound
+push governance to the default branch; pull-request and review validation stay
+mandatory and unchanged.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are

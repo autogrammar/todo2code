@@ -82,3 +82,9 @@ upstream_release=v0.13.2
 release_tag_object=8af2f049a8b1bfc0b492964bfce52fea79283627
 release_sha=85631ea24d127f1f4797d2a67f3524a63cbbc95a
 workflow transition: VALIDATION -> EDIT
+pr=70 head=998f31ee52486213562436bc2a2db7b20af2ee45
+koru=PASS
+validator_app=APPROVED exact_head
+protected_pr_governance=PASS
+merge=BLOCKED duplicate push governance lacks base and PR context
+workflow transition: VALIDATION -> EDIT

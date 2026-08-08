@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: EDIT
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -88,6 +88,15 @@ replaced that optional REST property with typed GraphQL acquisition and
 published immutable v0.13.2 at
 `85631ea24d127f1f4797d2a67f3524a63cbbc95a`. The approved adoption therefore
 returned to `EDIT` for the exact v0.13.2 managed payload and caller reference.
+
+Exact-head review passed, but the repository ruleset retained a failing
+governance check from the duplicate feature-branch `push` run. Unlike the
+`pull_request` and `pull_request_review` runs, a push event has no PR base or
+number, so an atomic adoption cannot be validated against its accepted base.
+The caller currently invokes the reusable governance job for both event
+classes under the same required-check name. Ticket-050 therefore returned to
+`EDIT` to run push governance only for the default branch while retaining the
+PR and review gates unchanged.
 
 ## Acceptance criteria
 

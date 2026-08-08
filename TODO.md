@@ -7,9 +7,10 @@
   the published provenance-bound atomic-adoption rule. The verified managed
   payload is handled atomically; the target manifest, lock and changelog remain
   within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / VALIDATION`; the managed package and reusable caller now
-  select exact release SHA `85631ea`, with all local gates passing before
-  protected exact-head review.
+  `IN_PROGRESS / EDIT`; the managed package and reusable caller select exact
+  release SHA `85631ea`. Exact-head review passed; the caller is being bounded
+  so feature-branch push events cannot duplicate the PR governance context
+  without its required base and PR bindings.
 
 ## Backlog tickets
 

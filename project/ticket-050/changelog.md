@@ -92,3 +92,11 @@
   verification and Docker smoke.
 - Advanced from `EDIT` to `IN_PROGRESS / VALIDATION` for fresh exact-head
   protected review.
+
+## [1.3.0] - 2026-08-08
+
+- Recorded the exact-head Validator, Koru and PR-context governance passes.
+- Identified the remaining merge blocker as a duplicate feature-branch push
+  check without the base and PR bindings required for atomic adoption.
+- Returned to `EDIT` to retain push governance on the default branch while
+  leaving pull-request and review gates unchanged.
