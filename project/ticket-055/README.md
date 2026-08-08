@@ -3,7 +3,7 @@
 - **ID**: ticket-055
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -29,7 +29,7 @@ selection or the `/models` discovery request.
   the basename of the resolved `T2C_ROOT`, not the constant `todo2code`.
 - [x] AC-03: The fallback is non-empty even for an exceptional root path whose
   basename is empty.
-- [ ] AC-04: Focused configuration tests, the complete Node test suite,
+- [x] AC-04: Focused configuration tests, the complete Node test suite,
   governance checks and required Docker checks pass before completion.
 - [x] AC-05: A human approved this bounded intent in the active conversation on
   2026-08-08 before implementation.
@@ -47,14 +47,6 @@ trusted merge authorization.
 
 ## Validation status
 
-Focused tests, the complete host suite, governance and Docker smoke pass. The
-required E2E gates expose two pre-existing infrastructure defects outside this
-ticket's runtime-owned paths:
-
-- `e2e-core` lacks the `make` executable while two workflow-validation tests
-  invoke it (`spawn make ENOENT`);
-- `e2e-full` invokes `cargo fetch --locked`, but `sdk/rust/Cargo.lock` is absent
-  and globally ignored.
-
-AC-04 remains open and this ticket remains `IN_PROGRESS / VALIDATION` until
-those independent Docker/dependency repairs land and both gates are rerun.
+After ticket-056 landed, focused tests, the complete host suite, governance,
+Docker smoke, `e2e-core` and `e2e-full` all pass on the rebased branch. The
+implementation is ready for protected exact-HEAD review and publication.

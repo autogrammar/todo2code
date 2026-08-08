@@ -13,3 +13,6 @@
   pass.
 - Transitioned to `VALIDATION`; Docker E2E identified independent missing
   `make` and missing Rust lockfile blockers, so completion was not claimed.
+- Rebased onto `main@8606860` after ticket-056 repaired both E2E profiles.
+- Revalidated focused behavior, the complete host suite, governance, Docker
+  smoke, core E2E and full E2E; transitioned to `IN_PROGRESS / PUBLICATION`.

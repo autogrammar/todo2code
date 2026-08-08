@@ -4,8 +4,8 @@
 
 - [ ] [`ticket-055`](project/ticket-055/README.md) — identify OpenRouter usage
   with explicit `OPENROUTER_APP_NAME`, falling back to the analysed project's
-  folder name. The Docker E2E repair has landed; full revalidation is in
-  progress. Current state: `IN_PROGRESS / VALIDATION`.
+  folder name. All host, governance and Docker E2E gates pass. Current state:
+  `IN_PROGRESS / PUBLICATION`.
 
 ## Backlog tickets
 

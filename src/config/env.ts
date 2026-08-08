@@ -217,11 +217,11 @@ export function configForDisplay(config: T2CConfig): Record<string, unknown> {
     ...config,
     openRouter: {
       ...config.openRouter,
-      apiKey: config.openRouter.apiKey ? '[configured]' : null,
+      apiKey: (config.openRouter.apiKey ? '[configured]' : null),
     },
     a2a: {
       ...config.a2a,
-      token: config.a2a.token ? '[configured]' : null,
+      token: (config.a2a.token ? '[configured]' : null),
     },
     envFile: loadedEnvPath,
   };
