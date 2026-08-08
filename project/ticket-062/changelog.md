@@ -25,3 +25,5 @@
 - Passed idempotent adoption, exact-base governance, managed hash/base
   invariants and all 405 project tests (one explicit JDK-unavailable skip).
 - Completed all local acceptance criteria and advanced to `VALIDATION`.
+- Refreshed `acceptedBaseSha` from the historical routing point to the actual
+  branch/main merge-base `738d7be` before protected review.

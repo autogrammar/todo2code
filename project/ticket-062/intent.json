@@ -31,7 +31,7 @@
   "conflictsWith": [],
   "integrationTicket": "ticket-058",
   "delivery": {
-    "acceptedBaseSha": "132f87963921cd49dafa19b643b0528a3a434dd0",
+    "acceptedBaseSha": "738d7be93168fe73cccf14d3d589e545919c9a6f",
     "targetBranch": "main",
     "standardAdoption": {
       "sourceRepository": "wellmanifest/new-project",

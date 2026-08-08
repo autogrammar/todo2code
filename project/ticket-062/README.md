@@ -84,7 +84,7 @@ adopted a published upstream mechanism and governance passes.
   from `managedFiles`.
 - All eight todo2code workstreams were preserved. The `sdk` workstream now
   owns exact path `test/python-runtime.test.ts`.
-- `./project/governance-check.sh --base 132f879...` passes with zero errors and
+- `./project/governance-check.sh --base 738d7be...` passes with zero errors and
   warnings under the atomic standard-adoption contract.
 - `npm run verify` passes 405 tests (404 PASS, one explicit JDK-unavailable
   SKIP), including TypeScript, module/LLM boundaries, env, workflows, schemas,

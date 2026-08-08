@@ -70,3 +70,4 @@ PASS ./project/governance-check.sh
   PASS npm run verify 405 tests, 404 pass, 1 JDK-unavailable skip
   BOUNDARY no src, test, sdk, dependency, Docker or runtime behavior change
   STATE ticket-062 IN_PROGRESS / VALIDATION; ticket-063 still blocked pending merge
+  BASE refreshed to actual branch merge-base 738d7be93168fe73cccf14d3d589e545919c9a6f before PR
