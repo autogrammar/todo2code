@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -104,8 +104,8 @@ returned to `EDIT` for the exact v0.13.2 managed payload and caller reference.
 
 ## Validation evidence
 
-- Goal adopted exact immutable new-project v0.13.1 release revision
-  `7979cfe76797a4da6925be49496ff2462e78b3f7`; a repeated `--check` reports
+- Goal adopted exact immutable new-project v0.13.2 release revision
+  `85631ea24d127f1f4797d2a67f3524a63cbbc95a`; a repeated `--check` reports
   the package up to date.
 - Governance passed against accepted base
   `b23d255c6bafbcc204ad7ec1e84e0a48ca675f97`, including verification of both
@@ -113,10 +113,10 @@ returned to `EDIT` for the exact v0.13.2 managed payload and caller reference.
 - Vallm 0.1.94 passed all three managed Python files with zero deterministic
   findings, covering the same payload that protected Koru previously rejected.
 - The reusable governance workflow and its `standard-ref` input both select
-  exact v0.13.1 release SHA
-  `7979cfe76797a4da6925be49496ff2462e78b3f7`; workflow YAML validation and
+  exact v0.13.2 release SHA
+  `85631ea24d127f1f4797d2a67f3524a63cbbc95a`; workflow YAML validation and
   exact-base governance pass after the alignment.
-- `make verify` passed 401 tests with one controlled JDK-unavailable skip;
+- `make verify` passed 388 tests with one controlled JDK-unavailable skip;
   environment, module, generated-analysis, schema and workflow checks passed.
 - `make docker-smoke` built the runtime image and passed.
 - Ticket-048's stale active header now agrees with its already merged PR #66,

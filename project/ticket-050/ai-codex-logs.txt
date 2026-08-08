@@ -42,6 +42,14 @@ upstream_ticket-041=DONE release=v0.13.1
 release_sha=7979cfe76797a4da6925be49496ff2462e78b3f7
 2026-08-08 APPROVAL: user approved v0.13.1 publication and continued adoption
 workflow transition: VALIDATION -> EDIT
+implementation_commit=7a52af9cd93be2dccb4c69a32d50ec4e8908849e
+goal_adoption=wellmanifest/new-project 0.13.2 at 85631ea24d127f1f4797d2a67f3524a63cbbc95a
+goal_check=idempotent PASS
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+verify_workflows=PASS files=2
+make_verify=PASS; 389 tests, 388 pass, 1 controlled JDK skip
+make_docker-smoke=PASS
+workflow transition: EDIT -> VALIDATION
 2026-08-08 upstream atomic-adoption completion
 new-project ticket-038: DONE
 new-project ticket-039: DONE

@@ -96,6 +96,14 @@ immutable v0.13.2 at `85631ea24d127f1f4797d2a67f3524a63cbbc95a`.
 The approved ticket returned to `EDIT` to adopt that exact release and align
 the caller workflow to it.
 
+The v0.13.2 adoption is implemented at
+`7a52af9cd93be2dccb4c69a32d50ec4e8908849e`. Goal reports the managed package
+up to date at exact release SHA `85631ea...`; the reusable workflow and
+`standard-ref` select that same revision. Exact-base governance, workflow YAML
+validation, all 389 host tests (388 pass and one controlled JDK skip), and
+Docker smoke pass. The ticket is back in `VALIDATION` for exact-head protected
+review.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are

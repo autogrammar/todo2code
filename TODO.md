@@ -3,13 +3,13 @@
 ## Active tickets
 
 - [ ] [`ticket-050`](project/ticket-050/README.md) — adopt immutable
-  new-project v0.13.1 ownership for `CHANGELOG.md` and `.env.example` through
+  new-project v0.13.2 ownership for `CHANGELOG.md` and `.env.example` through
   the published provenance-bound atomic-adoption rule. The verified managed
   payload is handled atomically; the target manifest, lock and changelog remain
   within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / EDIT`; immutable v0.13.2 fixes the protected lifecycle
-  acquisition regression, so the managed package and reusable caller are being
-  advanced together to exact release SHA `85631ea`.
+  `IN_PROGRESS / VALIDATION`; the managed package and reusable caller now
+  select exact release SHA `85631ea`, with all local gates passing before
+  protected exact-head review.
 
 ## Backlog tickets
 

@@ -82,3 +82,13 @@
   uses typed GraphQL acquisition and retains the strict validator.
 - Returned from `VALIDATION` to `EDIT` for atomic re-adoption and caller
   alignment.
+
+## [1.2.0] - 2026-08-08
+
+- Adopted the complete managed package at immutable new-project v0.13.2 SHA
+  `85631ea24d127f1f4797d2a67f3524a63cbbc95a` and aligned both reusable
+  workflow references to that revision.
+- Confirmed Goal idempotency, exact-base governance, workflow YAML, full host
+  verification and Docker smoke.
+- Advanced from `EDIT` to `IN_PROGRESS / VALIDATION` for fresh exact-head
+  protected review.
