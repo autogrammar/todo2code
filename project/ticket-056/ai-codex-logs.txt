@@ -34,3 +34,12 @@ PASS make e2e-full
 Implementation scope
   Dockerfile.e2e: add make to e2e-base; remove --locked from image-time cargo fetch
   No application source, test, dependency manifest, lockfile or public interface change
+
+2026-08-08 protected publication
+
+PASS Koru review on exact head 1752f3d63c0ce6fd2ae14b83067e593e999a5439
+PASS Validator App approval by ifuri-validator-agent[bot]
+  model: openrouter/z-ai/glm-5.2 (advisory findings did not form the trust root)
+PASS governance / governance / enforce
+PASS hosted verify and required JDK 17 adapter checks
+MERGED PR #72 as main@5f8e8314dafb3ba61bd5501136eba87c21292631

@@ -2,9 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-056`](project/ticket-056/README.md) — repair Docker E2E's
-  missing `make` command and contradictory locked Rust-library fetch. Current
-  state: `IN_PROGRESS / PUBLICATION`; all local host and Docker gates pass.
+None.
 
 ## Backlog tickets
 
@@ -16,6 +14,10 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-056`](project/ticket-056/README.md) — restored both Docker E2E
+  profiles by supplying `make` and respecting the unlocked Rust library
+  contract. Koru, Validator App and protected checks approved exact head
+  `1752f3d`; PR #72 merged as `main@5f8e831`. Current state: `DONE`.
 - [x] [`ticket-050`](project/ticket-050/README.md) — adopted immutable
   new-project v0.13.2, assigned `CHANGELOG.md` and `.env.example` to the
   governance workstream, and made governance checks recoverable while retaining
