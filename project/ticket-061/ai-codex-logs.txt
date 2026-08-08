@@ -1,0 +1,13 @@
+2026-08-08 pre-implementation evidence
+
+FAIL current assertions
+  test/pipeline.test.ts manifest.runtime.version expects literal 0.5.0
+  test/code-change-plan.test.ts close-result runtimeVersion expects literal 0.5.0
+
+PRESERVED historical fixtures
+  live contract/model fixtures and generic semver fixtures are not changed
+
+No implementation changed. State: WAIT_FOR_APPROVAL.
+
+PASS ./project/governance-check.sh
+  GOV-PASS: passed (0 errors, 0 warnings)

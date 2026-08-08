@@ -1,0 +1,55 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-061",
+  "summary": "Use canonical version in runtime behavior assertions",
+  "workstream": "runtime",
+  "classification": {"kind": "BUG", "priority": "P1", "origin": "regression"},
+  "allowedPaths": [
+    "project/ticket-061/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "test/pipeline.test.ts",
+    "test/code-change-plan.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "test/python-runtime.test.ts",
+    "package.json",
+    "package-lock.json",
+    "sdk/**",
+    "Dockerfile*",
+    "compose*.yml",
+    ".env*"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-058"],
+  "conflictsWith": [],
+  "integrationTicket": "ticket-058",
+  "delivery": {
+    "acceptedBaseSha": "132f87963921cd49dafa19b643b0528a3a434dd0",
+    "targetBranch": "main",
+    "outcome": "Current runtime behavior tests follow the canonical version while historical fixtures remain pinned",
+    "nonGoals": ["No runtime source change", "No Python SDK test change", "No historical fixture rewrite", "No dependency or Docker change"],
+    "complexity": "XS",
+    "estimatedMinutes": 10,
+    "budgets": {"maxImplementationFiles": 2, "maxAffectedComponents": 2, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "proposed",
+      "decision": "Reference the exported runtime identity only where tests assert current generated output",
+      "components": [
+        {"name": "pipeline-test", "paths": ["test/pipeline.test.ts"]},
+        {"name": "code-change-test", "paths": ["test/code-change-plan.test.ts"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore literals only if the assertions become deliberately versioned historical fixtures"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-03", "commands": ["npm run build", "node --test dist/test/pipeline.test.js dist/test/code-change-plan.test.js"], "evidence": "Focused runtime tests pass against the corrected core version"}
+    ]
+  }
+}
