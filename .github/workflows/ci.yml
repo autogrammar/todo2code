@@ -21,9 +21,9 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    uses: wellmanifest/new-project/.github/workflows/governance.yml@9706e63d5f121323e9087d0db47a16acdbd276bb
+    uses: wellmanifest/new-project/.github/workflows/governance.yml@7979cfe76797a4da6925be49496ff2462e78b3f7
     with:
-      standard-ref: 9706e63d5f121323e9087d0db47a16acdbd276bb
+      standard-ref: 7979cfe76797a4da6925be49496ff2462e78b3f7
       trusted-reviewers: ${{ vars.TRUSTED_REVIEWERS }}
       trusted-validator-apps: ${{ vars.TRUSTED_VALIDATOR_APPS }}
 
