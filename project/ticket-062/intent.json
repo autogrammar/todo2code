@@ -8,11 +8,15 @@
     "priority": "P1",
     "origin": "regression"
   },
-  "allowedPaths": ["project/ticket-062/**", "TODO.md", "project/TICKETS.md"],
+  "allowedPaths": [
+    ".governance/manifest.json",
+    ".governance/manifest.lock.json",
+    "project/ticket-062/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
   "forbiddenPaths": [
     "project/ticket-*/user-*.md",
-    ".governance/**",
-    "AGENTS.md",
     "src/**",
     "test/**",
     "sdk/**",
@@ -29,20 +33,25 @@
   "delivery": {
     "acceptedBaseSha": "132f87963921cd49dafa19b643b0528a3a434dd0",
     "targetBranch": "main",
+    "standardAdoption": {
+      "sourceRepository": "wellmanifest/new-project",
+      "fromRevision": "85631ea24d127f1f4797d2a67f3524a63cbbc95a",
+      "toRevision": "a22eb47ca0e7c06ac927d1c0d843eabb798bfadd"
+    },
     "outcome": "The Python SDK bridge test receives deterministic SDK ownership through a protected published governance contract",
     "nonGoals": ["No local managed-hash edit", "No application or test change", "No dependency, Docker or authority weakening"],
     "complexity": "XS",
     "estimatedMinutes": 15,
-    "budgets": {"maxImplementationFiles": 0, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "budgets": {"maxImplementationFiles": 2, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
     "architecture": {
       "status": "accepted",
-      "decision": "Route the ownership gap through protected standard evolution rather than editing the locked target manifest",
-      "components": [{"name": "workstream-ownership-routing", "paths": ["project/ticket-062/**"]}],
+      "decision": "Atomically adopt immutable new-project v0.14.0, preserving target workstreams while extending the sdk owner with the Python runtime bridge test",
+      "components": [{"name": "target-adoption", "paths": [".governance/manifest.json", ".governance/manifest.lock.json"]}],
       "responsibilityChanges": true,
       "interfaceChanges": [],
-      "dataChanges": [],
+      "dataChanges": ["The sdk workstream owns test/python-runtime.test.ts and the installed standard advances to exact v0.14.0 release SHA"],
       "ui": {"impact": "none", "states": [], "evidence": []},
-      "rollback": "Close this routing ticket if an existing published extension already assigns the path safely"
+      "rollback": "Re-adopt the prior immutable revision through the same reviewed flow; never hand-edit a managed hash or move a release tag"
     },
     "runtimeDependencies": [],
     "validation": [

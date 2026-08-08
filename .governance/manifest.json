@@ -1,10 +1,218 @@
 {
   "$schema": "manifest.schema.json",
-  "schema": "new-project.governance/v2",
-  "standard": {
-    "id": "wellmanifest/new-project",
-    "version": "0.13.2"
+  "approvalEvidence": {
+    "requiredBindings": [
+      "repository",
+      "pullRequest",
+      "headSha",
+      "ticket",
+      "actor"
+    ],
+    "reviewVerificationMethod": "github-api-allowlist",
+    "schema": "new-project.approval-evidence/v1",
+    "signedAttestationPredicateType": "https://wellmanifest.dev/attestations/validator/v1"
   },
+  "coordination": {
+    "integration": {
+      "requiredForPaths": [
+        "package.json",
+        "package-lock.json",
+        "pyproject.toml",
+        "goal.yaml",
+        "Makefile",
+        "sdk/python/pyproject.toml",
+        "sdk/python/README.md",
+        "tsconfig.json",
+        "src/core/types.ts"
+      ],
+      "workstream": "integration"
+    },
+    "maxActiveTicketsPerWorkstream": 1,
+    "mode": "workstreams",
+    "rejectActiveScopeOverlap": true,
+    "workstreams": {
+      "core-dsl": {
+        "ownedPaths": [
+          "src/core/**",
+          "src/graph/**",
+          "src/semantic/**",
+          "src/comparison/**",
+          "src/evaluation/**",
+          "test/graph*",
+          "test/schema*",
+          "test/structured*",
+          "test/linker*",
+          "test/proposal*",
+          "test/gold*",
+          "test/semantic*",
+          "test/workspace*",
+          "test/target*"
+        ]
+      },
+      "extractors": {
+        "ownedPaths": [
+          "src/extractors/**",
+          "src/diff/**",
+          "test/ast*",
+          "test/diff*",
+          "test/docs*",
+          "test/markdown*",
+          "test/configuration*",
+          "test/ignore*",
+          "test/extraction-cache*",
+          "test/generated*"
+        ]
+      },
+      "governance": {
+        "ownedPaths": [
+          ".governance/**",
+          ".github/workflows/**",
+          "AGENTS.md",
+          "Makefile",
+          "README.md",
+          "TODO.md",
+          "CHANGELOG.md",
+          ".env.example",
+          "project.sh",
+          "project.bat",
+          "project/governance-check.*",
+          "project/new-ticket.sh",
+          "project/readme.sh",
+          "project/TICKETS.md",
+          "project/ticket-*/**"
+        ]
+      },
+      "integration": {
+        "ownedPaths": [
+          "package.json",
+          "package-lock.json",
+          "pyproject.toml",
+          "goal.yaml",
+          "Makefile",
+          "sdk/python/pyproject.toml",
+          "sdk/python/README.md",
+          "tsconfig.json",
+          "Dockerfile*",
+          "compose*.yml",
+          "scripts/**",
+          "examples/**",
+          "docs/**",
+          "project/*.export",
+          "project/*.html",
+          "project/*.md",
+          "project/*.mmd",
+          "project/*.png",
+          "project/*.toon",
+          "project/*.txt",
+          "project/*.yaml",
+          "project/*.yml",
+          "test/fixtures/**",
+          "test/workflow-validation.test.ts",
+          "src/core/types.ts"
+        ]
+      },
+      "interfaces": {
+        "ownedPaths": [
+          "src/interfaces/**",
+          "src/communication/**",
+          "src/web/**",
+          "src/cli.ts",
+          "test/cli*",
+          "test/mcp*",
+          "test/a2a*",
+          "test/communication*"
+        ]
+      },
+      "llm": {
+        "ownedPaths": [
+          "src/llm/**",
+          "src/live/**",
+          "src/synthesis/**",
+          "src/summary/**",
+          "test/*llm*",
+          "test/openrouter*",
+          "test/task-synthesis*",
+          "test/live-*",
+          "test/grounded-contracts*"
+        ]
+      },
+      "runtime": {
+        "ownedPaths": [
+          "src/pipeline/**",
+          "src/operations/**",
+          "src/services/**",
+          "src/config/**",
+          "src/watch/**",
+          "src/tf/**",
+          "test/pipeline*",
+          "test/runtime*",
+          "test/watch*",
+          "test/operation*",
+          "test/io*",
+          "test/config*",
+          "test/tensorflow*",
+          "test/security*",
+          "test/git*",
+          "test/code-change*"
+        ]
+      },
+      "sdk": {
+        "ownedPaths": [
+          "src/sdk/**",
+          "sdk/**",
+          "examples/sdk/**",
+          "test/sdk*",
+          "test/python-runtime.test.ts"
+        ]
+      }
+    }
+  },
+  "delivery": {
+    "allowedComplexityClasses": [
+      "XS",
+      "S"
+    ],
+    "checkpointMinutes": 25,
+    "dependencyManifestPaths": [
+      "package.json",
+      "package-lock.json",
+      "pyproject.toml",
+      "go.mod",
+      "Cargo.toml",
+      "pom.xml"
+    ],
+    "maxActiveMinutes": 30,
+    "maxAffectedComponents": 2,
+    "maxImplementationFiles": 5,
+    "maxPublicInterfaceChanges": 0,
+    "maxRuntimeDependencies": 0,
+    "publicInterfacePaths": [
+      "src/interfaces/**",
+      "src/core/types.ts",
+      "sdk/**"
+    ],
+    "requiredForImplementation": false,
+    "targetBranches": [
+      "main"
+    ]
+  },
+  "docker": {
+    "composeFiles": [
+      "docker-compose.yml",
+      "compose.yml",
+      "compose.e2e.yml"
+    ],
+    "dockerfiles": [
+      "Dockerfile",
+      "Dockerfile.e2e"
+    ],
+    "required": true
+  },
+  "governancePaths": [
+    "TODO.md",
+    "project/TICKETS.md",
+    "project/ticket-*/**"
+  ],
   "requiredFiles": [
     "README.md",
     "VERSION",
@@ -17,112 +225,50 @@
     "project/readme.sh",
     "project/governance-check.sh"
   ],
-  "governancePaths": [
-    "TODO.md",
-    "project/TICKETS.md",
-    "project/ticket-*/**"
+  "schema": "new-project.governance/v2",
+  "stacks": [
+    "node",
+    "docker"
   ],
-  "trustedApprovalSources": [
-    "github-review",
-    "github-app-review",
-    "signed-attestation"
-  ],
+  "standard": {
+    "id": "wellmanifest/new-project",
+    "version": "0.14.0"
+  },
   "ticket": {
-    "root": "project",
+    "activeStatuses": [
+      "IN_PROGRESS"
+    ],
+    "closedStatuses": [
+      "DONE",
+      "CANCELLED"
+    ],
     "directoryPattern": "^ticket-[0-9]{3}$",
+    "implementationStates": [
+      "EDIT",
+      "VALIDATION",
+      "PUBLICATION"
+    ],
+    "intentFile": "intent.json",
+    "nonActiveStatuses": [
+      "BACKLOG",
+      "PLAN",
+      "BLOCKED"
+    ],
+    "requiredAgentFiles": [
+      "ai-*.md",
+      "ai-*-logs.txt"
+    ],
     "requiredFiles": [
       "README.md",
       "preprompt.md",
       "changelog.md",
       "intent.json"
     ],
-    "requiredAgentFiles": [
-      "ai-*.md",
-      "ai-*-logs.txt"
-    ],
-    "activeStatuses": [
-      "IN_PROGRESS"
-    ],
-    "nonActiveStatuses": [
-      "BACKLOG",
-      "PLAN",
-      "BLOCKED"
-    ],
-    "closedStatuses": [
-      "DONE",
-      "CANCELLED"
-    ],
-    "implementationStates": [
-      "EDIT",
-      "VALIDATION",
-      "PUBLICATION"
-    ],
-    "intentFile": "intent.json"
+    "root": "project"
   },
-  "approvalEvidence": {
-    "schema": "new-project.approval-evidence/v1",
-    "requiredBindings": [
-      "repository",
-      "pullRequest",
-      "headSha",
-      "ticket",
-      "actor"
-    ],
-    "reviewVerificationMethod": "github-api-allowlist",
-    "signedAttestationPredicateType": "https://wellmanifest.dev/attestations/validator/v1"
-  },
-  "docker": {
-    "required": true,
-    "dockerfiles": ["Dockerfile", "Dockerfile.e2e"],
-    "composeFiles": ["docker-compose.yml", "compose.yml", "compose.e2e.yml"]
-  },
-  "coordination": {
-    "mode": "workstreams",
-    "maxActiveTicketsPerWorkstream": 1,
-    "rejectActiveScopeOverlap": true,
-    "workstreams": {
-      "core-dsl": {
-        "ownedPaths": ["src/core/**", "src/graph/**", "src/semantic/**", "src/comparison/**", "src/evaluation/**", "test/graph*", "test/schema*", "test/structured*", "test/linker*", "test/proposal*", "test/gold*", "test/semantic*", "test/workspace*", "test/target*"]
-      },
-      "extractors": {
-        "ownedPaths": ["src/extractors/**", "src/diff/**", "test/ast*", "test/diff*", "test/docs*", "test/markdown*", "test/configuration*", "test/ignore*", "test/extraction-cache*", "test/generated*"]
-      },
-      "llm": {
-        "ownedPaths": ["src/llm/**", "src/live/**", "src/synthesis/**", "src/summary/**", "test/*llm*", "test/openrouter*", "test/task-synthesis*", "test/live-*", "test/grounded-contracts*"]
-      },
-      "runtime": {
-        "ownedPaths": ["src/pipeline/**", "src/operations/**", "src/services/**", "src/config/**", "src/watch/**", "src/tf/**", "test/pipeline*", "test/runtime*", "test/watch*", "test/operation*", "test/io*", "test/config*", "test/tensorflow*", "test/security*", "test/git*", "test/code-change*"]
-      },
-      "interfaces": {
-        "ownedPaths": ["src/interfaces/**", "src/communication/**", "src/web/**", "src/cli.ts", "test/cli*", "test/mcp*", "test/a2a*", "test/communication*"]
-      },
-      "sdk": {
-        "ownedPaths": ["src/sdk/**", "sdk/**", "examples/sdk/**", "test/sdk*"]
-      },
-      "governance": {
-        "ownedPaths": [".governance/**", ".github/workflows/**", "AGENTS.md", "Makefile", "README.md", "TODO.md", "CHANGELOG.md", ".env.example", "project.sh", "project.bat", "project/governance-check.*", "project/new-ticket.sh", "project/readme.sh", "project/TICKETS.md", "project/ticket-*/**"]
-      },
-      "integration": {
-        "ownedPaths": ["package.json", "package-lock.json", "pyproject.toml", "goal.yaml", "Makefile", "sdk/python/pyproject.toml", "sdk/python/README.md", "tsconfig.json", "Dockerfile*", "compose*.yml", "scripts/**", "examples/**", "docs/**", "project/*.export", "project/*.html", "project/*.md", "project/*.mmd", "project/*.png", "project/*.toon", "project/*.txt", "project/*.yaml", "project/*.yml", "test/fixtures/**", "test/workflow-validation.test.ts", "src/core/types.ts"]
-      }
-    },
-    "integration": {
-      "workstream": "integration",
-      "requiredForPaths": ["package.json", "package-lock.json", "pyproject.toml", "goal.yaml", "Makefile", "sdk/python/pyproject.toml", "sdk/python/README.md", "tsconfig.json", "src/core/types.ts"]
-    }
-  },
-  "delivery": {
-    "requiredForImplementation": false,
-    "maxActiveMinutes": 30,
-    "checkpointMinutes": 25,
-    "allowedComplexityClasses": ["XS", "S"],
-    "maxImplementationFiles": 5,
-    "maxAffectedComponents": 2,
-    "maxPublicInterfaceChanges": 0,
-    "maxRuntimeDependencies": 0,
-    "targetBranches": ["main"],
-    "publicInterfacePaths": ["src/interfaces/**", "src/core/types.ts", "sdk/**"],
-    "dependencyManifestPaths": ["package.json", "package-lock.json", "pyproject.toml", "go.mod", "Cargo.toml", "pom.xml"]
-  },
-  "stacks": ["node", "docker"]
+  "trustedApprovalSources": [
+    "github-review",
+    "github-app-review",
+    "signed-attestation"
+  ]
 }

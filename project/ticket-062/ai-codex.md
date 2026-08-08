@@ -15,7 +15,7 @@ or a supported project-extension mechanism.
 
 ## Execution plan
 
-1. Wait for explicit approval of the escalation route.
+1. Record the approved escalation route and wait for its immutable release.
 2. Open or reuse an upstream governance ticket for a project-specific ownership
    extension that does not weaken managed-file verification.
 3. Adopt the published revision atomically through the existing protected
@@ -35,14 +35,20 @@ or a supported project-extension mechanism.
   #68 merged as `main@a70b5b8`.
 - Created upstream publication plan ticket-044 at `cac0ddb`; it requires
   separate approval before immutable v0.14.0 publication.
+- Verified upstream v0.14.0 was published at exact release SHA
+  `a22eb47ca0e7c06ac927d1c0d843eabb798bfadd` after protected and clean
+  detached validation.
+- Bound the approved downstream adoption from exact installed v0.13.2 SHA to
+  that immutable v0.14.0 SHA and entered `IN_PROGRESS / EDIT` before target
+  mutation.
 - Recorded the combined 059+060+061 validation: every pre-test gate passed and
   the only observed test failure is the ticket-063 assertion blocked by this
   ownership gap.
 - Made no governance, implementation or test change.
-- Human approved the routing plan on 2026-08-09; status is
-  `BLOCKED / WAIT_FOR_EXTERNAL`.
+- Human approved the routing plan on 2026-08-09; its external release
+  dependency is now satisfied.
 
 ## Blockers
 
-- Approval and execution of upstream release ticket-044, followed by protected
-  exact-SHA downstream adoption, are required.
+- None before deterministic exact-SHA adoption. Ticket-063 remains blocked
+  until the adopted project passes governance.

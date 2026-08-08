@@ -51,3 +51,12 @@ PASS ./project/governance-check.sh
   TARGET immutable v0.14.0
   STATUS PLAN / WAIT_FOR_APPROVAL
   NO tag, GitHub Release or downstream adoption performed
+
+2026-08-09 immutable release satisfied
+  PASS upstream PR 69 Linux, Windows and deterministic exact-head review
+  RELEASE v0.14.0 exact SHA a22eb47ca0e7c06ac927d1c0d843eabb798bfadd
+  PASS upstream clean detached merge-SHA contract
+  PASS upstream closure PR 70 protected validation
+  STATE ticket-062 IN_PROGRESS / EDIT before target mutation
+  ADOPTION from 85631ea24d127f1f4797d2a67f3524a63cbbc95a
+  ADOPTION to   a22eb47ca0e7c06ac927d1c0d843eabb798bfadd

@@ -913,6 +913,29 @@ def check_managed_file(root: Path, raw_path: str, expected: str, report: Report)
         )
 
 
+def extension_error(required: Any, candidate: Any, path: str = "$") -> str | None:
+    if isinstance(required, dict):
+        if not isinstance(candidate, dict):
+            return f"{path} must remain an object"
+        for key, value in required.items():
+            if key not in candidate:
+                return f"{path}/{key} is required by the managed base"
+            error = extension_error(value, candidate[key], f"{path}/{key}")
+            if error:
+                return error
+        return None
+    if isinstance(required, list):
+        if not isinstance(candidate, list):
+            return f"{path} must remain an array"
+        for value in required:
+            if value not in candidate:
+                return f"{path} removed a value required by the managed base"
+        return None
+    if candidate != required:
+        return f"{path} differs from the managed base"
+    return None
+
+
 def check_lock(
     root: Path,
     lock_path: Path | None,
@@ -935,6 +958,40 @@ def check_lock(
         return
     for raw_path, expected in sorted(managed.items()):
         check_managed_file(root, raw_path, expected, report)
+    package_path = root / ".governance/package-manifest.json"
+    if not package_path.is_file():
+        return
+    try:
+        strategies = package_strategies(package_path.read_bytes())
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        report.add(
+            "GOV-SYNC-001", f"Governance package manifest is invalid: {error}",
+            "Restore the pinned package manifest through an explicit standard upgrade.",
+            [rel(root, package_path)],
+        )
+        return
+    manifest_target = ".governance/manifest.json"
+    base_target = ".governance/manifest.base.json"
+    if strategies.get(manifest_target) != "extendable":
+        return
+    if strategies.get(base_target) != "managed" or base_target not in managed:
+        report.add(
+            "GOV-SYNC-001", "Extendable governance manifest has no hash-bound managed base.",
+            "Adopt the complete published package including manifest.base.json.",
+            [base_target, manifest_target],
+        )
+        return
+    try:
+        base = load_json(safe_repo_path(root, base_target))
+        error = extension_error(base, manifest)
+    except (OSError, ValueError, json.JSONDecodeError) as load_error:
+        error = f"managed manifest base is invalid: {load_error}"
+    if error:
+        report.add(
+            "GOV-SYNC-001", f"Target governance manifest violates its managed base: {error}",
+            "Restore standard-owned values; keep target changes inside the declared extension fields.",
+            [base_target, manifest_target],
+        )
 
 
 def parse_ticket_state(readme: Path) -> tuple[str | None, str | None]:
@@ -2248,10 +2305,16 @@ def package_entry(item: Any) -> tuple[str, str, str]:
         raise ValueError("package manifest entry is invalid")
     if not relative_pattern(source) or not relative_pattern(target):
         raise ValueError("package manifest entry is invalid")
-    if item.get("strategy") not in {"managed", "seed"}:
+    if item.get("strategy") not in {"managed", "seed", "extendable"}:
         raise ValueError("package manifest entry is invalid")
     if not isinstance(item.get("executable"), bool):
         raise ValueError("package manifest entry is invalid")
+    if item.get("strategy") == "extendable" and (
+        source != "governance/manifest.default.json"
+        or target != ".governance/manifest.json"
+        or item.get("executable")
+    ):
+        raise ValueError("package manifest extendable target is invalid")
     return source, target, item["strategy"]
 
 
@@ -2262,12 +2325,10 @@ def package_strategies(content: bytes) -> dict[str, str]:
     if document.get("schema") != "new-project.package-manifest/v1" or not isinstance(document.get("files"), list):
         raise ValueError("package manifest schema is invalid")
     strategies: dict[str, str] = {}
-    sources: set[str] = set()
     for item in document["files"]:
         source, target, strategy = package_entry(item)
-        if source in sources or target in strategies:
-            raise ValueError("package manifest paths must be unique")
-        sources.add(source)
+        if target in strategies:
+            raise ValueError("package manifest targets must be unique")
         strategies[target] = strategy
     if not strategies:
         raise ValueError("package manifest is empty")
@@ -2341,7 +2402,11 @@ def load_standard_adoption_evidence(
     head_strategies = package_strategies(head_package_path.read_bytes())
     base_hashes = adoption_lock(base_lock_content, adoption["fromRevision"])
     head_hashes = adoption_lock(head_lock_path.read_bytes(), adoption["toRevision"])
-    if set(base_hashes) != set(base_strategies) or set(head_hashes) != set(head_strategies):
+    base_managed = {path for path, strategy in base_strategies.items() if strategy == "managed"}
+    head_managed = {path for path, strategy in head_strategies.items() if strategy == "managed"}
+    if frozenset(base_hashes) not in {frozenset(base_strategies), frozenset(base_managed)}:
+        raise ValueError("base package targets and lock targets differ")
+    if set(head_hashes) != head_managed:
         raise ValueError("package targets and lock targets differ")
     return base_strategies, head_strategies, base_hashes, head_hashes
 

@@ -10,3 +10,10 @@
 - Passed governance with zero errors and zero warnings.
 - Recorded human approval and moved to `BLOCKED / WAIT_FOR_EXTERNAL` without
   changing governance authority.
+
+## [0.2.0] - 2026-08-09
+
+- Verified immutable upstream v0.14.0 release SHA `a22eb47` after its
+  protected and clean detached validation.
+- Bound the approved atomic adoption from installed v0.13.2 SHA `85631ea` to
+  exact v0.14.0 SHA and entered `IN_PROGRESS / EDIT` before mutation.
