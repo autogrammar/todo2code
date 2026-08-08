@@ -3,7 +3,7 @@
 - **ID**: ticket-062
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: EDIT
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -23,7 +23,7 @@ the required upstream extension/adoption instead of modifying authority.
       governance adoption path.
 - [x] AC-02: A published governance mechanism assigns the Python runtime bridge
       test to `sdk` without hand-editing managed hashes.
-- [x] AC-03: The complete managed set is adopted atomically and governance
+- [ ] AC-03: The complete managed set is adopted atomically and governance
       passes before ticket-063 enters `EDIT`.
 - [x] AC-04: No application or test behavior changes in this ticket.
 
@@ -91,6 +91,12 @@ adopted a published upstream mechanism and governance passes.
   generated analysis and build checks.
 - No file below `src/`, `test/`, `sdk/`, dependency metadata, Docker or runtime
   behavior changed in this ticket.
+- First protected review resolved branch lifecycle after draft owner PRs
+  #78-#82 were opened, then failed closed with `GOV-SYNC-001`: the target
+  reusable workflow still selected v0.13.2 SHA `85631ea`, whose older parser
+  cannot validate the new `extendable` strategy. The ticket returned to
+  `EDIT` and now binds both the reusable workflow and its `standard-ref` input
+  to the adopted exact v0.14.0 SHA `a22eb47`.
 
 ## Non-goals
 

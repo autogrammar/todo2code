@@ -11,8 +11,9 @@
 
 - [ ] [`ticket-062`](project/ticket-062/README.md) — route the unowned Python
   SDK bridge test through protected governance evolution. Current state:
-  `IN_PROGRESS / VALIDATION`; exact-SHA v0.14.0 adoption and SDK ownership pass
-  local governance and full project verification; coordinated by ticket-058.
+  `IN_PROGRESS / EDIT`; protected review exposed and is repairing stale
+  reusable-workflow caller pins after exact-SHA adoption; coordinated by
+  ticket-058.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:

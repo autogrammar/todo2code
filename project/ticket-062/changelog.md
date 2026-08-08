@@ -27,3 +27,12 @@
 - Completed all local acceptance criteria and advanced to `VALIDATION`.
 - Refreshed `acceptedBaseSha` from the historical routing point to the actual
   branch/main merge-base `738d7be` before protected review.
+
+## [0.4.0] - 2026-08-09
+
+- Opened draft owner PRs #78-#82 for the approved remote ticket branches,
+  resolving deterministic branch lifecycle ownership.
+- Recorded protected `GOV-SYNC-001`: the target workflow still ran the v0.13.2
+  parser against the adopted v0.14.0 package contract.
+- Returned to `EDIT`, expanded the ordinary adoption budget from two to three
+  files, and aligned both workflow references to exact SHA `a22eb47`.

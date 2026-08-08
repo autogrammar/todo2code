@@ -11,6 +11,7 @@
   "allowedPaths": [
     ".governance/manifest.json",
     ".governance/manifest.lock.json",
+    ".github/workflows/ci.yml",
     "project/ticket-062/**",
     "TODO.md",
     "project/TICKETS.md"
@@ -42,14 +43,14 @@
     "nonGoals": ["No local managed-hash edit", "No application or test change", "No dependency, Docker or authority weakening"],
     "complexity": "XS",
     "estimatedMinutes": 15,
-    "budgets": {"maxImplementationFiles": 2, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "budgets": {"maxImplementationFiles": 3, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
     "architecture": {
       "status": "accepted",
       "decision": "Atomically adopt immutable new-project v0.14.0, preserving target workstreams while extending the sdk owner with the Python runtime bridge test",
-      "components": [{"name": "target-adoption", "paths": [".governance/manifest.json", ".governance/manifest.lock.json"]}],
+      "components": [{"name": "target-adoption", "paths": [".governance/manifest.json", ".governance/manifest.lock.json", ".github/workflows/ci.yml"]}],
       "responsibilityChanges": true,
       "interfaceChanges": [],
-      "dataChanges": ["The sdk workstream owns test/python-runtime.test.ts and the installed standard advances to exact v0.14.0 release SHA"],
+      "dataChanges": ["The sdk workstream owns test/python-runtime.test.ts; the installed standard, reusable governance workflow and standard-ref advance to exact v0.14.0 release SHA"],
       "ui": {"impact": "none", "states": [], "evidence": []},
       "rollback": "Re-adopt the prior immutable revision through the same reviewed flow; never hand-edit a managed hash or move a release tag"
     },

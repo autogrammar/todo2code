@@ -46,6 +46,10 @@ or a supported project-extension mechanism.
 - Passed idempotent package check, hash/base invariants, exact-base governance
   with zero findings, and full `npm run verify` (405 tests; one explicit
   JDK-unavailable skip). The ticket is now in `VALIDATION`.
+- Protected review exposed target caller drift: the reusable workflow and its
+  `standard-ref` still selected v0.13.2, so that old parser rejected the
+  adopted package strategy with `GOV-SYNC-001`. Returned to `EDIT` and aligned
+  both immutable references with exact v0.14.0 SHA `a22eb47`.
 - Recorded the combined 059+060+061 validation: every pre-test gate passed and
   the only observed test failure is the ticket-063 assertion blocked by this
   ownership gap.
@@ -55,5 +59,5 @@ or a supported project-extension mechanism.
 
 ## Blockers
 
-- Protected PR checks and exact-head review remain before merge. Ticket-063
-  stays blocked until this adoption reaches protected `main`.
+- Fresh protected checks and exact-head review remain after caller alignment.
+  Ticket-063 stays blocked until this adoption reaches protected `main`.
