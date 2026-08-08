@@ -41,10 +41,16 @@ ownership model.
 The user approved ticket-049, selected Option A and authorized the governed
 upstream work on 2026-08-08. Ticket-049 and upstream tickets 036–037 are
 complete. Immutable `v0.12.0` is published at
-`7be2e266dfebfe91de1b78abf30ac8e518453216`; ticket-050 transitioned to
-`IN_PROGRESS / EDIT` for exact-SHA adoption.
+`7be2e266dfebfe91de1b78abf30ac8e518453216`. A read-only comparison showed
+that adopting it would change 15 managed target files plus the customized
+manifest, lock and changelog, while both policy and intent allow five
+implementation files. The validator provides no safe adoption exception, and
+the hash-locked managed set cannot be split. No target implementation file was
+changed; ticket-050 returned to `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Blockers
 
-- None before implementation. Root-path claims will be added to the intent only
-  in the same transaction that installs their ownership contract.
+- A new upstream, provenance-bound atomic-adoption accounting rule and immutable
+  release require explicit approval. The rule must cover only the complete
+  managed set for one published source revision and must leave target-local
+  files under the ordinary delivery budget.

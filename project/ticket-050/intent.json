@@ -33,12 +33,13 @@
   "delivery": {
     "acceptedBaseSha": "b23d255c6bafbcc204ad7ec1e84e0a48ca675f97",
     "targetBranch": "main",
-    "outcome": "Adopt immutable new-project 0.12.0 at 7be2e266dfebfe91de1b78abf30ac8e518453216 and assign CHANGELOG.md and .env.example to the governance workstream",
+    "outcome": "Adopt a new immutable new-project release that includes the 0.12.0 root ownership contract and a narrow provenance-bound atomic-adoption budget rule",
     "nonGoals": [
       "No silent ownership expansion without standard alignment",
       "No removal of verify:env scanning",
       "No standalone mutation of hash-locked managed files outside the reviewed adoption transaction",
-      "No moving tag or branch-based adoption"
+      "No moving tag or branch-based adoption",
+      "No general increase of todo2code's implementation-file budget"
     ],
     "complexity": "S",
     "estimatedMinutes": 30,
@@ -50,22 +51,22 @@
     },
     "architecture": {
       "status": "accepted",
-      "decision": "Prefer upstream Option A: make CHANGELOG.md and .env.example governance-owned in a new immutable new-project release, then adopt it through Goal",
+      "decision": "Keep upstream Option A, but first add a narrow upstream rule that accounts for a complete provenance-bound managed-file adoption atomically; publish and adopt a new immutable release",
       "components": [
         {"name": "upstream-standard", "paths": ["wellmanifest/new-project governance manifest and regression tests"]},
         {"name": "target-adoption", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example"]}
       ],
       "responsibilityChanges": true,
       "interfaceChanges": ["The governance workstream becomes the sole owner of CHANGELOG.md and .env.example"],
-      "dataChanges": ["The governance lock advances from 0.11.0 to immutable 0.12.0 at 7be2e266dfebfe91de1b78abf30ac8e518453216"],
+      "dataChanges": ["The governance lock will advance from 0.11.0 to a new immutable release that contains the 0.12.0 ownership contract and atomic-adoption rule"],
       "ui": {"impact": "none", "states": [], "evidence": []},
       "rollback": "Adopt the prior immutable source revision through the same reviewed Goal flow; never move or rewrite a release tag"
     },
     "runtimeDependencies": [],
     "validation": [
       {"criterion": "AC-02", "commands": ["./project/governance-check.sh"], "evidence": "Managed ownership declarations and target intent pass governance validation"},
-      {"criterion": "AC-03", "commands": ["upstream tests/governance-validator.test.sh at v0.12.0"], "evidence": "A non-governance claim for either root path fails with GOV-WORKSTREAM-003"},
-      {"criterion": "AC-05", "commands": [".venv/bin/goal governance adopt --source-revision 7be2e266dfebfe91de1b78abf30ac8e518453216 --target-root . --check", "make verify", "make docker-smoke"], "evidence": "Adoption is pinned, idempotent and leaves host and Docker checks green"}
+      {"criterion": "AC-03", "commands": ["upstream tests/governance-validator.test.sh at the approved release"], "evidence": "A non-governance claim for either root path fails with GOV-WORKSTREAM-003, and only a complete provenance-bound managed adoption receives atomic accounting"},
+      {"criterion": "AC-05", "commands": ["venv/bin/goal governance adopt --source-revision <approved-immutable-sha> --target-root . --check", "make verify", "make docker-smoke"], "evidence": "Adoption is pinned, idempotent, stays within the revised bounded policy and leaves host and Docker checks green"}
     ]
   }
 }

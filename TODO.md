@@ -3,9 +3,10 @@
 ## Active tickets
 
 - [ ] [`ticket-050`](project/ticket-050/README.md) — adopt immutable
-  new-project `0.12.0` at `7be2e266`, assign `CHANGELOG.md` and `.env.example`
-  to governance and close ticket-048's release-note gap. Current state:
-  `IN_PROGRESS / EDIT`.
+  new-project ownership for `CHANGELOG.md` and `.env.example`, after an
+  upstream provenance-bound atomic-adoption rule removes the 15-managed-file
+  versus 5-file budget conflict without weakening the general limit. Current
+  state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Backlog tickets
 

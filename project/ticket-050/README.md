@@ -2,8 +2,8 @@
 
 - **ID**: ticket-050
 - **Owner**: agent:codex
-- **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Status**: PLAN
+- **Workflow state**: WAIT_FOR_APPROVAL
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -37,8 +37,22 @@ closed, and designate an owned release-note surface.
 The user approved ticket-049, selected Option A and authorized the upstream
 work on 2026-08-08. Ticket-049 is complete. Upstream tickets 036 and 037 are
 complete, and immutable `v0.12.0` is published at
-`7be2e266dfebfe91de1b78abf30ac8e518453216`. Ticket-050 is now authorized to
-adopt that exact release.
+`7be2e266dfebfe91de1b78abf30ac8e518453216`.
+
+A read-only adoption comparison found that `v0.12.0` would replace 15 managed
+target files and update the customized manifest, lock and changelog. The
+current policy and ticket both cap a delivery at five implementation files;
+the `v0.12.0` validator has no immutable-adoption accounting exception.
+Splitting the managed-file replacement is invalid because the regenerated lock
+binds the complete managed set atomically. Ticket-050 therefore returned to
+`PLAN / WAIT_FOR_APPROVAL` before Goal changed any target file.
+
+The revised plan is to add a narrow upstream rule for a provenance-bound,
+atomic standard adoption, publish that capability in a new immutable release,
+and then resume this target adoption. The rule must not create a general file
+budget bypass: it must recognize only the complete managed set bound to one
+published source revision, while all target-local changes remain normally
+budgeted.
 
 ## Acceptance criteria
 
@@ -66,6 +80,8 @@ adopt that exact release.
 - No standalone edit of hash-locked managed governance files; the reviewed
   target-manifest update and lock regeneration form one Goal adoption change.
 - No moving tag or branch-based standard adoption.
+- No increase of todo2code's general implementation-file limit merely to fit
+  one standard adoption.
 
 ## Related
 
