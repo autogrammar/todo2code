@@ -1,0 +1,107 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-053",
+  "summary": "Match the local governance gate to CI before push",
+  "workstream": "governance",
+  "allowedPaths": [
+    "project/ticket-053/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "README.md"
+  ],
+  "forbiddenPaths": [
+    ".github/workflows/**",
+    ".governance/**",
+    "AGENTS.md",
+    "Makefile",
+    "package-lock.json",
+    "package.json",
+    "project/governance-check.sh",
+    "project/ticket-*/user-*.md",
+    "scripts/**",
+    "sdk/**",
+    "src/**"
+  ],
+  "stacks": [
+    "node",
+    "docker"
+  ],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "b8392f76592138e006ca5dff9af52082208acee5",
+    "targetBranch": "main",
+    "outcome": "The CI-form governance check is a documented, first-class gate run before a push, so branch-level diagnostics stop being discovered from failed pull requests",
+    "nonGoals": [
+      "No change to .governance, the manifest, the lock or the pinned standard",
+      "No new governance diagnostic, rule or trust decision",
+      "No reimplementation of any check; the existing project/governance-check.sh is only invoked",
+      "No automatically installed pre-push Git hook",
+      "No change to the working-tree semantics of make governance"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 1,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "The pre-push gate is established as a documented rule in README.md rather than as a Makefile target or an AGENTS.md rule, because Makefile matches coordination.integration.requiredForPaths and raises GOV-INTEGRATION-001 under a governance ticket, while AGENTS.md, project/governance-check.sh and the other agent-facing wrappers are hash-locked in manifest.lock.json managedFiles; the checker already supports --actor ci --base --head, so the missing piece is the obligation to run it, not the capability",
+      "components": [
+        {
+          "name": "pre-push-governance-rule",
+          "paths": [
+            "README.md"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Remove the README.md section; no executable path, no locked file and no make target is touched"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "bash project/governance-check.sh --actor ci --base $(git merge-base origin/main HEAD) --head HEAD"
+        ],
+        "evidence": "README.md states the documented invocation, that a non-zero exit is blocking, and that it must be run from the branch being pushed"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": [
+          "bash project/governance-check.sh --actor ci --base b8392f76592138e006ca5dff9af52082208acee5 --head <squashed-047-head>"
+        ],
+        "evidence": "The squashed ticket-047 topology reports GOV-INTENT-003 and GOV-TICKET-001 while the ticket-048 plan-then-implementation topology reports GOV-PASS"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": [
+          "git merge-base origin/main HEAD"
+        ],
+        "evidence": "Base resolution needs no network when origin/main is fetched, and the failure message names the required fetch"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": [
+          "make governance",
+          "make verify",
+          "make docker-smoke",
+          "git diff --check"
+        ],
+        "evidence": "Deterministic, repository-wide and container gates pass"
+      }
+    ]
+  }
+}

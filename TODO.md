@@ -2,22 +2,35 @@
 
 ## Active tickets
 
-- [ ] [`ticket-048`](project/ticket-048/README.md) — republishes the ticket-047
-  GitHub acquisition adapter through a route governance accepts, with the plan
-  committed before the implementation, and removes the two `process.env`
-  fallbacks whose `verify:env` requirement forced an edit to `.env.example`, a
-  path no workstream owns. Current state: `IN_PROGRESS / VALIDATION`. Product
-  checks and structural governance pass on PR #66; merge remains blocked on
-  trusted `GOV-APPROVAL` (Validator App or trusted human) for exact head
-  `95a4d91…`. Autonomy path analysis: [ticket-049](project/ticket-049/README.md).
+- [ ] [`ticket-053`](project/ticket-053/README.md) — documents the CI-form
+  governance check as a blocking pre-push gate so branch-level diagnostics
+  (`GOV-INTENT-003`, `GOV-TICKET-001`) are caught locally. Current state:
+  `IN_PROGRESS / VALIDATION`; implementation and local validation are complete,
+  and publication continues in PR #67.
 
 ## Backlog tickets
 
-Follow-up PLAN tickets for autonomy/refactor live on branch
-`ticket/049-validator-autonomy-plan` (tickets 049–052). They are intentionally
-not mixed into this PR so ticket-048 keeps exclusive write scope.
+- [ ] [`ticket-049`](project/ticket-049/README.md) — Validator autonomy audit,
+  operator guide and refactor plan (docs only). Current state:
+  `PLAN / WAIT_FOR_APPROVAL`. See
+  [AUTONOMY_AND_REFACTOR_PLAN.md](project/ticket-049/AUTONOMY_AND_REFACTOR_PLAN.md).
+- [ ] [`ticket-050`](project/ticket-050/README.md) — own or explicitly exclude
+  unpublishable root paths (`CHANGELOG.md`, `.env.example`). Current state:
+  `PLAN / WAIT_FOR_APPROVAL`.
+- [ ] [`ticket-051`](project/ticket-051/README.md) — wire
+  `scripts/github-event-log.mjs` into CI with explicit flags only. Current
+  state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.
+- [ ] [`ticket-052`](project/ticket-052/README.md) — promote the Validator
+  autonomy operator checklist into agent-facing governance (`AGENTS.md`).
+  Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-048`](project/ticket-048/README.md) — republished ticket-047's
+  GitHub acquisition adapter with explicit-only inputs and no ambient
+  `process.env` fallback. Validator approval and all protected checks passed on
+  exact head `92f99dc`; PR #66 merged as `main@f1b3d5d`. Current state: `DONE`
+  for publication purposes; the ticket-local historical status remains part of
+  the merged audit record.
 - [x] [`ticket-047`](project/ticket-047/README.md) — built the first GitHub
   acquisition adapter for the `t2c.event-log/v1` codec, mapping one bounded
   `push`, `pull_request`, `pull_request_review` or completed `workflow_run`

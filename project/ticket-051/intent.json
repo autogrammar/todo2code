@@ -1,0 +1,42 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-051",
+  "summary": "Wire github-event-log acquisition into CI without ambient env reads",
+  "workstream": "governance",
+  "allowedPaths": [
+    "project/ticket-051/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    ".github/workflows/**",
+    "docs/EVENT_LOG_DSL.md",
+    "test/workflow-validation.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    ".env.example",
+    "src/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-048", "ticket-049"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "targetBranch": "main",
+    "outcome": "Supported GitHub Actions events can emit t2c.event-log/v1 artifacts via explicit-flag invocation of the published adapter",
+    "nonGoals": [
+      "No process.env fallback restoration",
+      "No merge-approval authority in the acquisition step",
+      "No new DSL events"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 90,
+    "budgets": {
+      "maxImplementationFiles": 4,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    }
+  }
+}

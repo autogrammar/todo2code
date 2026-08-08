@@ -1,0 +1,69 @@
+{
+  "schema": "new-project.intent/v2",
+  "ticket": "ticket-049",
+  "summary": "Validator autonomy audit, operator guide and refactor plan",
+  "workstream": "governance",
+  "allowedPaths": [
+    "project/ticket-049/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "scripts/**",
+    ".github/**",
+    ".governance/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": [],
+  "dependsOn": ["ticket-048"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "targetBranch": "main",
+    "outcome": "Agents and humans have a single audited description of why GOV-APPROVAL stays blocked without external Validator action, how to operate direct-pr and scan-direct safely, and an ordered refactor plan with sibling tickets",
+    "nonGoals": [
+      "No executable change in todo2code or validator-agent under this ticket",
+      "No self-approval workflow inside the reviewed repository",
+      "No merge of ticket-048"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 45,
+    "budgets": {
+      "maxImplementationFiles": 0,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Capture autonomy failures as ticket-local evidence only; split implementation into sibling tickets and external validator-agent work so the active integration ticket-048 keeps exclusive write scope over scripts and event-log docs",
+      "components": [
+        {
+          "name": "autonomy-audit-evidence",
+          "paths": ["project/ticket-049/**"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Delete or cancel ticket-049; no runtime impact"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": ["test -f project/ticket-049/AUTONOMY_AND_REFACTOR_PLAN.md"],
+        "evidence": "Audit tables and failure modes are written under the ticket"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["test -d project/ticket-050", "test -d project/ticket-051", "test -d project/ticket-052"],
+        "evidence": "Sibling tickets exist"
+      }
+    ]
+  }
+}
