@@ -2,10 +2,7 @@
 
 ## Active tickets
 
-- [ ] [`ticket-055`](project/ticket-055/README.md) — identify OpenRouter usage
-  with explicit `OPENROUTER_APP_NAME`, falling back to the analysed project's
-  folder name. All host, governance and Docker E2E gates pass. Current state:
-  `IN_PROGRESS / PUBLICATION`.
+None.
 
 ## Backlog tickets
 
@@ -17,6 +14,10 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-055`](project/ticket-055/README.md) — identifies OpenRouter
+  usage with explicit `OPENROUTER_APP_NAME`, falling back to the analysed
+  project's folder name. Koru, Validator App and protected checks approved
+  exact head `7aae643`; PR #74 merged as `main@d0659ca`. Current state: `DONE`.
 - [x] [`ticket-056`](project/ticket-056/README.md) — restored both Docker E2E
   profiles by supplying `make` and respecting the unlocked Rust library
   contract. Koru, Validator App and protected checks approved exact head
