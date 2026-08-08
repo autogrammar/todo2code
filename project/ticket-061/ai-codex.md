@@ -23,8 +23,10 @@ truthful core correction and are not historical fixtures.
 
 - Distinguished two current assertions from intentionally pinned fixtures.
 - Excluded the unowned Python SDK bridge test from this ticket.
-- No test file changed; waiting for approval.
+- Human approved the exact scope and transition to `EDIT` on 2026-08-09.
+- No test file changed yet.
 
 ## Blockers
 
-- Human approval of ticket-061 is required.
+- No blocker remains inside this workstream; integrated validation is owned by
+  ticket-058.

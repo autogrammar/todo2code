@@ -2,8 +2,8 @@
 
 - **ID**: ticket-061
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -14,7 +14,7 @@ the stale `0.5.0` identity while preserving explicitly historical fixtures.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves the two-test-file scope.
+- [x] AC-01: A human approves the two-test-file scope.
 - [ ] AC-02: Current pipeline manifest and code-change close-result assertions
       use `T2C_VERSION`.
 - [ ] AC-03: Focused runtime tests pass when combined with ticket-059.
@@ -27,8 +27,9 @@ the stale `0.5.0` identity while preserving explicitly historical fixtures.
 
 ## Approval gate
 
-Ticket-058 approval authorized creation only. No test edit is allowed before
-explicit approval of ticket-061.
+The human approved tickets 059–063 and transition to `EDIT` after dependencies
+on 2026-08-09. Ticket-058 remains the integration coordinator, not an
+unfinished implementation prerequisite.
 
 ## Non-goals
 

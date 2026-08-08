@@ -23,7 +23,7 @@
     ".env*"
   ],
   "stacks": ["node", "docker"],
-  "dependsOn": ["ticket-058"],
+  "dependsOn": [],
   "conflictsWith": [],
   "integrationTicket": "ticket-058",
   "delivery": {
@@ -35,7 +35,7 @@
     "estimatedMinutes": 10,
     "budgets": {"maxImplementationFiles": 2, "maxAffectedComponents": 2, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Reference the exported runtime identity only where tests assert current generated output",
       "components": [
         {"name": "pipeline-test", "paths": ["test/pipeline.test.ts"]},
