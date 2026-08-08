@@ -108,3 +108,10 @@
 - Passed workflow YAML and exact-base governance after the caller change.
 - Advanced from `EDIT` to `IN_PROGRESS / VALIDATION` for a new exact-head
   protected review.
+
+## [1.5.0] - 2026-08-08
+
+- Confirmed that same-name failing check-runs remain conjunctive even after a
+  later exact-head governance pass.
+- Returned to `EDIT` to distinguish submitted and same-HEAD dismissed reviews
+  from pre-approval PR events and stale-review auto-dismissals.

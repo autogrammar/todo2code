@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: EDIT
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -104,6 +104,13 @@ the duplicate governance invocation, default-branch pushes retain it, and
 `pull_request` plus `pull_request_review` continue to run the protected gate.
 Workflow YAML and exact-base governance pass, so the ticket returned to
 `VALIDATION` for a fresh exact-head review.
+
+The fresh review proved that GitHub requires every check-run sharing a required
+context name to pass; a later success does not erase an earlier failure on the
+same SHA. Pre-approval PR runs and automatic dismissal of a review for an old
+SHA must therefore not create governance failures for the new SHA. The ticket
+returned to `EDIT` to run governance only for submitted reviews, same-HEAD
+manual dismissals, default-branch pushes and explicit dispatches.
 
 ## Acceptance criteria
 

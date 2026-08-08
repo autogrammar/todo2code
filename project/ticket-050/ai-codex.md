@@ -117,6 +117,13 @@ governance pass. The ticket returned to `VALIDATION`; the next push will create
 no failing feature-push governance context, while PR and review events still
 exercise the exact same protected reusable workflow.
 
+Exact-head Validator and governance passed again, but GitHub continued to
+block because earlier same-name pre-approval failures remain conjunctive on
+the same SHA. The ticket returned to `EDIT` for event/action-level scoping:
+submitted reviews and same-HEAD manual dismissals remain fail-closed, while
+pre-approval PR events and stale-review auto-dismissals no longer create an
+irrecoverable required-check failure.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are
