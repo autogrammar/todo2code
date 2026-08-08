@@ -1,0 +1,50 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-060",
+  "summary": "Use canonical runtime version in documentation extraction test",
+  "workstream": "extractors",
+  "classification": {"kind": "BUG", "priority": "P1", "origin": "regression"},
+  "allowedPaths": [
+    "project/ticket-060/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "test/docs.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "package.json",
+    "package-lock.json",
+    "sdk/**",
+    "Dockerfile*",
+    "compose*.yml",
+    ".env*"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-058"],
+  "conflictsWith": [],
+  "integrationTicket": "ticket-058",
+  "delivery": {
+    "acceptedBaseSha": "132f87963921cd49dafa19b643b0528a3a434dd0",
+    "targetBranch": "main",
+    "outcome": "Documentation extraction tests follow the canonical runtime identity instead of preserving a stale literal",
+    "nonGoals": ["No extractor behavior change", "No historical fixture rewrite", "No dependency or Docker change"],
+    "complexity": "XS",
+    "estimatedMinutes": 10,
+    "budgets": {"maxImplementationFiles": 1, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "proposed",
+      "decision": "Reference the exported runtime identity in the current-behavior assertion",
+      "components": [{"name": "documentation-extraction-test", "paths": ["test/docs.test.ts"]}],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore the literal only if the test is deliberately converted into a versioned historical fixture"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-03", "commands": ["npm run build", "node --test dist/test/docs.test.js"], "evidence": "Focused documentation extraction tests pass with canonical runtime identity"}
+    ]
+  }
+}
