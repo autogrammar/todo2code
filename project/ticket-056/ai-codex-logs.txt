@@ -1,0 +1,11 @@
+2026-08-08 pre-implementation evidence
+
+FAIL make e2e-core
+  396 passed, 7 skipped, 2 failed
+  workflow-validation tests: spawn make ENOENT
+
+FAIL make e2e-full
+  Dockerfile.e2e cargo fetch --locked requires sdk/rust/Cargo.lock
+  sdk/rust/Cargo.lock is absent and matched by the repository Cargo.lock ignore
+
+No implementation file changed; waiting for approval.
