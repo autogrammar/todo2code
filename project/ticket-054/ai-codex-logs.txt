@@ -1,0 +1,32 @@
+2026-08-08 audit start
+todo2code_main=11dff0d5d4dd28a72a2274c5e4f0ec4d9c21a459
+repair_agent_main=f9332b4af310b20dd47c75a7fcd1774b0567a800
+repair_latest_run=31268075840 success dry_run=true result=idle
+repair_live_run=31011601205 blocked=openrouter_key_total_limit
+repair_local_worktree=DIRTY foreign_changes_preserved
+validator_agent_workflow_head=a2897f1e52f7c11496d55ec232b8b885cbc3fe0e
+validator_recent_runs=PASS schedule_and_workflow_dispatch
+validator_model=openrouter/z-ai/glm-5.2
+validator_local_branch=fix/hosted-checks-via-check-runs remote_gone clean
+skills_agent_main=325f98c415d7f3ad5f21fdf1a050b05a25322694
+skills_task_packages=15
+skills_valid_packages=14
+skills_invalid_package=0014_publication-freeze errors=10
+skills_latest_failed_orchestrator=31268951039
+skills_models=openrouter/google/gemini-3.1-pro-preview mismatch
+todo2code_pipeline_status=succeeded deterministic llm_disabled
+todo2code_graph_fingerprint=7a8e77e2b9fdccfa954dfd1b230be031e0b1308a914715d7182e16e0017a5211
+workflow_state=PLAN / WAIT_FOR_APPROVAL
+implementation_changes=NONE
+
+2026-08-08 plan approval and rebase
+human_decision=approved continuation and proposed ordering
+workflow_transition=WAIT_FOR_APPROVAL -> EDIT
+rebased_onto_todo2code_main=7a86f3038322902d9bb2ef92d7b9e1bcbdef6b11
+implementation_changes=NONE
+
+2026-08-08 coordination plan validation
+PASS ./project/governance-check.sh --base main --head HEAD
+PASS git diff --check
+workflow_transition=EDIT -> PUBLICATION
+implementation_changes=NONE
