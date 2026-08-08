@@ -37,7 +37,6 @@ missing or blank.
 
 ## Blockers
 
-- AC-04 is blocked by Docker E2E infrastructure outside this ticket's allowed
-  paths: `e2e-core` lacks `make`; `e2e-full` requires an ignored, absent
-  `sdk/rust/Cargo.lock`.
-- Protected merge authorization remains a later publication requirement.
+- None. Ticket-056 repaired the independent Docker E2E blockers. Exact-head
+  Validator approval, protected governance and hosted checks passed before PR
+  #74 merged to `main`.

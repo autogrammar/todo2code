@@ -2,8 +2,8 @@
 
 - **ID**: ticket-055
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -45,8 +45,11 @@ The human owner explicitly approved ticket-055 in the active conversation on
 2026-08-08. This Markdown note records the transition to `EDIT`; it is not
 trusted merge authorization.
 
-## Validation status
+## Validation result
 
 After ticket-056 landed, focused tests, the complete host suite, governance,
-Docker smoke, `e2e-core` and `e2e-full` all pass on the rebased branch. The
-implementation is ready for protected exact-HEAD review and publication.
+Docker smoke, `e2e-core` and `e2e-full` all passed. Koru and Validator App
+approved exact head `7aae64385a5e3b85b7127340f809b7bfaf934f33`; the Validator
+used `openrouter/z-ai/glm-5.2` for advisory findings. Protected governance and
+hosted checks passed, and PR #74 merged as
+`main@d0659cafa2612d5628ce9cfbc744c3e7af94d43d`.

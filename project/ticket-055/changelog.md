@@ -16,3 +16,8 @@
 - Rebased onto `main@8606860` after ticket-056 repaired both E2E profiles.
 - Revalidated focused behavior, the complete host suite, governance, Docker
   smoke, core E2E and full E2E; transitioned to `IN_PROGRESS / PUBLICATION`.
+- Corrected a false-positive caused by display-only credential redaction
+  syntax without weakening the secret scanner.
+- Koru and Validator App approved exact head `7aae643`; all protected checks
+  passed and PR #74 merged as `main@d0659ca`.
+- Closed ticket-055 as `DONE`.

@@ -36,3 +36,12 @@ PASS make e2e-core (405 tests; 7 expected toolchain skips; suite=core)
 PASS make e2e-full (405 tests; all toolchains; five SDKs; suite=full)
 
 No live OpenRouter request was made and no credential was read or logged.
+
+2026-08-08 protected publication
+
+PASS Koru review on exact head 7aae64385a5e3b85b7127340f809b7bfaf934f33
+PASS Validator App approval by ifuri-validator-agent[bot]
+  model: openrouter/z-ai/glm-5.2 (advisory findings did not form the trust root)
+PASS governance / governance / enforce
+PASS hosted verify and required JDK 17 adapter checks
+MERGED PR #74 as main@d0659cafa2612d5628ce9cfbc744c3e7af94d43d
