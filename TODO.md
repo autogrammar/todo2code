@@ -6,15 +6,11 @@ None.
 
 ## Backlog tickets
 
-- [ ] [`ticket-049`](project/ticket-049/README.md) — Validator autonomy audit,
-  operator guide and refactor plan (docs only). Current state:
-  `PLAN / WAIT_FOR_APPROVAL`; its plan was approved on 2026-08-08 and must now
-  be formally completed before dependent ticket-050 can enter `EDIT`. See
-  [AUTONOMY_AND_REFACTOR_PLAN.md](project/ticket-049/AUTONOMY_AND_REFACTOR_PLAN.md).
 - [ ] [`ticket-050`](project/ticket-050/README.md) — implement approved Option A
   for governance ownership of `CHANGELOG.md` and `.env.example` through a
   governed upstream release and immutable Goal adoption. Current state:
-  `PLAN / WAIT_FOR_APPROVAL`, pending formal completion of ticket-049.
+  `PLAN / WAIT_FOR_APPROVAL`; ticket-049 is complete and upstream
+  `wellmanifest/new-project` ticket-036 awaits approval of its exact scope.
 - [ ] [`ticket-051`](project/ticket-051/README.md) — wire
   `scripts/github-event-log.mjs` into CI with explicit flags only. Current
   state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.
@@ -23,6 +19,11 @@ None.
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-049`](project/ticket-049/README.md) — Validator autonomy audit,
+  operator guide and refactor plan accepted by the user on 2026-08-08. Sibling
+  tickets 050–052 retain independent approval and ownership gates. Current
+  state: `DONE`. See
+  [AUTONOMY_AND_REFACTOR_PLAN.md](project/ticket-049/AUTONOMY_AND_REFACTOR_PLAN.md).
 - [x] [`ticket-053`](project/ticket-053/README.md) — documents the existing
   CI-form governance check as a blocking pre-push gate. Koru and Validator
   approved exact head `079de29`; protected PR #67 merged as `main@100a7d2`

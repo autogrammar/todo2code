@@ -35,8 +35,9 @@ ownership model: permanently exclude both paths, make wrong claims fail
 closed, and designate an owned release-note surface.
 
 The user approved ticket-049, selected Option A and authorized an upstream
-ticket on 2026-08-08. Implementation remains paused until ticket-049 is
-formally completed, as required by the dependency gate.
+ticket on 2026-08-08. Ticket-049 is now formally complete on protected `main`.
+Implementation remains paused while the exact scope of upstream
+`wellmanifest/new-project` ticket-036 awaits approval.
 
 ## Acceptance criteria
 

@@ -15,3 +15,6 @@ git diff --check: PASS
 transition preflight: BLOCKED before implementation; ticket-049 must first be DONE
 scope preflight: CHANGELOG.md and .env.example remain unowned until standard adoption
 workflow state retained: PLAN / WAIT_FOR_APPROVAL
+2026-08-08 ticket-049 PR #69 merged as main@b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+dependency ticket-049: DONE
+upstream ticket-036 plan commit: 6aa7d50; WAIT_FOR_APPROVAL

@@ -39,10 +39,11 @@ ownership model.
 ## Current state
 
 The user approved ticket-049, selected Option A and authorized a governed
-upstream ticket on 2026-08-08. The dependency gate requires ticket-049 to be
-formally completed before ticket-050 can transition to `IN_PROGRESS / EDIT`.
+upstream ticket on 2026-08-08. Ticket-049 is complete on protected `main`.
+Upstream `wellmanifest/new-project` ticket-036 now holds the bounded standard
+change plan and waits for approval before implementation.
 
 ## Blockers
 
 - The future standard version and immutable source SHA do not exist yet.
-- Ticket-049 is approved but not yet formally `DONE`.
+- Upstream ticket-036 remains `PLAN / WAIT_FOR_APPROVAL`.
