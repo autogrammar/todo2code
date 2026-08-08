@@ -1,0 +1,69 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-054",
+  "summary": "Plan todo2code-driven repair and validated skills expansion",
+  "workstream": "integration",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P1",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-054/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "scripts/**",
+    ".github/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": [],
+  "dependsOn": ["ticket-049", "ticket-050"],
+  "conflictsWith": ["ticket-051", "ticket-052"],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "7a86f3038322902d9bb2ef92d7b9e1bcbdef6b11",
+    "targetBranch": "main",
+    "outcome": "An approved cross-repository plan restores skills-agent discovery, proves todo2code evidence hand-off through Repair and Validator, and bounds later skill expansion",
+    "nonGoals": [
+      "No executable change in todo2code under this ticket",
+      "No direct-main mutation, auto-merge or self-review",
+      "No automatic application of todo2code proposals",
+      "No modification of foreign dirty repair-agent work"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 1,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Use todo2code as deterministic evidence producer, repair-agent as PR-only mutator and validator-agent as independent exact-head decision boundary",
+      "components": [
+        {
+          "name": "cross-repository-coordination",
+          "paths": ["project/ticket-054/**"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Discard this planning branch; no executable or external repository state depends on it"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-01", "commands": ["human approval"], "evidence": "The proposed ordering and skill IDs are explicitly accepted"},
+      {"criterion": "AC-02", "commands": ["skills-agent validate"], "evidence": "All registered task packages validate before expansion"},
+      {"criterion": "AC-03", "commands": ["todo2code deterministic pipeline"], "evidence": "Manifest, graph fingerprint and diagnostics are immutable and LLM-free"},
+      {"criterion": "AC-06", "commands": ["repair-agent live run", "validator-agent exact-head run"], "evidence": "One real PR is independently accepted or rejected with the same correlation ID"}
+    ]
+  }
+}
