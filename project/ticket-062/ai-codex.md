@@ -27,10 +27,17 @@ or a supported project-extension mechanism.
 
 - Proved the path is unowned by the current workstream globs.
 - Proved the manifest is protected by the immutable standard lock.
+- Reused upstream `wellmanifest/new-project:ticket-024` and published its
+  expanded planning branch at
+  `ticket/024-extendable-target-manifest@e538ec0`; no duplicate ticket exists.
+- Recorded the combined 059+060+061 validation: every pre-test gate passed and
+  the only observed test failure is the ticket-063 assertion blocked by this
+  ownership gap.
 - Made no governance, implementation or test change.
 - Human approved the routing plan on 2026-08-09; status is
   `BLOCKED / WAIT_FOR_EXTERNAL`.
 
 ## Blockers
 
-- A published upstream governance revision or supported extension is required.
+- Explicit approval and implementation of upstream ticket-024, followed by a
+  published immutable revision and protected downstream adoption, are required.

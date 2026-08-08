@@ -19,3 +19,16 @@ PASS ./project/governance-check.sh
   APPROVED protected ownership-routing plan
   NO authority or managed-lock edit authorized
   state BLOCKED / WAIT_FOR_EXTERNAL
+
+2026-08-09 upstream routing
+  REUSED wellmanifest/new-project:ticket-024
+  PLAN ticket/024-extendable-target-manifest@e538ec0
+  STATUS PLAN / WAIT_FOR_APPROVAL
+  DESIGN managed manifest.base.json + target-extendable manifest.json
+  NO upstream implementation or release mutation performed
+
+2026-08-09 combined validation
+  npm run verify pre-test gates PASS for temporary 059+060+061 combination
+  ONLY OBSERVED FAILURE test/python-runtime.test.ts expects todo2code 0.5.0
+  ACTUAL corrected CLI identity todo2code 0.5.1
+  OWNER ticket-063, blocked by ticket-062 governance ownership

@@ -38,6 +38,23 @@ The human approved the protected routing plan on 2026-08-09. The ticket remains
 non-active and makes no authority change while it waits for a published
 upstream mechanism or existing supported extension.
 
+The matching upstream owner is the existing
+`wellmanifest/new-project:ticket-024`; no competing governance ticket was
+created. Its expanded plan is published on
+`ticket/024-extendable-target-manifest@e538ec0` and remains
+`PLAN / WAIT_FOR_APPROVAL`. The proposed contract separates a hash-bound
+`.governance/manifest.base.json` from the target-extendable
+`.governance/manifest.json` and validates the extension fail-closed.
+
+## Integration evidence
+
+A temporary combination of tickets 059, 060 and 061 passed every pre-test gate
+of `npm run verify`. The only observed test failure was the still-literal
+Python bridge assertion in `test/python-runtime.test.ts`: corrected runtime
+output is `todo2code 0.5.1`, while the unowned test still expects `0.5.0`.
+Ticket 063 owns that assertion but cannot enter `EDIT` until this ticket has
+adopted a published upstream mechanism and governance passes.
+
 ## Non-goals
 
 - No direct `.governance/manifest.json` or lock hash edit.
