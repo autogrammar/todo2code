@@ -21,7 +21,7 @@
     ".env*"
   ],
   "stacks": ["node", "docker"],
-  "dependsOn": ["ticket-058"],
+  "dependsOn": [],
   "conflictsWith": [],
   "integrationTicket": "ticket-058",
   "delivery": {
@@ -37,7 +37,7 @@
     "estimatedMinutes": 10,
     "budgets": {"maxImplementationFiles": 1, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Correct the existing core constant and leave release orchestration to ticket-058",
       "components": [{"name": "runtime-version", "paths": ["src/core/version.ts"]}],
       "responsibilityChanges": false,

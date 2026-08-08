@@ -6,3 +6,6 @@
 - Defined the one-file runtime version correction.
 - Made no executable change before approval.
 - Passed governance with zero errors and zero warnings.
+- Recorded human approval and transition to `IN_PROGRESS / EDIT`.
+- Corrected ticket-058 from an implementation dependency to the dedicated
+  `integrationTicket` relationship.

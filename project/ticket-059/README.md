@@ -2,8 +2,8 @@
 
 - **ID**: ticket-059
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -18,7 +18,7 @@ the ticket-058 integration plan.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves this exact one-file implementation scope.
+- [x] AC-01: A human approves this exact one-file implementation scope.
 - [ ] AC-02: `T2C_VERSION` and `t2c --version` report `0.5.1`.
 - [ ] AC-03: New runtime provenance reports `0.5.1`; historical fixtures are
       unchanged.
@@ -32,8 +32,9 @@ the ticket-058 integration plan.
 
 ## Approval gate
 
-No implementation file may change before explicit approval. Approval of
-ticket-058 authorized creation of this ticket, not this ticket's `EDIT` state.
+The human approved tickets 059–063 and transition to `EDIT` after dependencies
+on 2026-08-09. Ticket-059 has no unfinished implementation dependency;
+ticket-058 is its coordinator, not a prerequisite.
 
 ## Non-goals
 

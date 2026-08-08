@@ -21,10 +21,10 @@ It remained `0.5.0` when release metadata moved to `0.5.1`.
 ## Actual changes
 
 - Audited the runtime version data flow and prepared a one-file correction.
-- No implementation file changed; waiting for approval.
+- Human approved the exact scope and transition to `EDIT` on 2026-08-09.
+- No implementation file changed yet.
 
 ## Blockers
 
-- Human approval of ticket-059 is required before implementation.
 - Full test validation depends on sibling assertion tickets coordinated by
   ticket-058.
