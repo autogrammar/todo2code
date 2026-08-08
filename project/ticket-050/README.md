@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: EDIT
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -80,6 +80,14 @@ standard SHA `9706e63d5f121323e9087d0db47a16acdbd276bb`. That resolver cannot ac
 for the v0.13 atomic-adoption transaction. The ticket therefore returned to
 `EDIT` to bind both the reusable workflow and its `standard-ref` input to the
 same exact v0.13.1 release SHA already recorded by the lock.
+
+That alignment exposed a separate v0.13.1 protected-acquisition regression:
+the restricted REST repository response omitted `delete_branch_on_merge`, so
+the lifecycle snapshot omitted the required boolean. Upstream tickets 042–043
+replaced that optional REST property with typed GraphQL acquisition and
+published immutable v0.13.2 at
+`85631ea24d127f1f4797d2a67f3524a63cbbc95a`. The approved adoption therefore
+returned to `EDIT` for the exact v0.13.2 managed payload and caller reference.
 
 ## Acceptance criteria
 

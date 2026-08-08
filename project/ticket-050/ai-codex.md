@@ -89,6 +89,13 @@ Both reusable-workflow references now bind exact v0.13.1 SHA `7979cfe...`;
 workflow YAML validation and exact-base governance pass. The ticket returned
 to `VALIDATION` for a fresh exact-head Koru and Validator review.
 
+Protected execution then revealed that v0.13.1's REST acquisition omitted
+`deleteBranchOnMerge` under the restricted Actions token. Upstream tickets
+042–043 fixed that boundary without weakening the validator and published
+immutable v0.13.2 at `85631ea24d127f1f4797d2a67f3524a63cbbc95a`.
+The approved ticket returned to `EDIT` to adopt that exact release and align
+the caller workflow to it.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are

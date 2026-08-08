@@ -68,3 +68,9 @@ standard_ref=7979cfe76797a4da6925be49496ff2462e78b3f7
 verify_workflows=PASS files=2
 governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
 workflow transition: EDIT -> VALIDATION
+protected_governance_v0.13.1=FAIL missing deleteBranchOnMerge
+upstream_ticket_042_merge=b01cae0f47bb311d1e795600af49e0ba436e175d
+upstream_release=v0.13.2
+release_tag_object=8af2f049a8b1bfc0b492964bfce52fea79283627
+release_sha=85631ea24d127f1f4797d2a67f3524a63cbbc95a
+workflow transition: VALIDATION -> EDIT

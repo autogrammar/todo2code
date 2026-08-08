@@ -7,9 +7,9 @@
   the published provenance-bound atomic-adoption rule. The verified managed
   payload is handled atomically; the target manifest, lock and changelog remain
   within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / VALIDATION`; the managed package, reusable governance caller
-  and `standard-ref` now bind the same exact v0.13.1 release SHA, and local
-  governance plus workflow validation pass.
+  `IN_PROGRESS / EDIT`; immutable v0.13.2 fixes the protected lifecycle
+  acquisition regression, so the managed package and reusable caller are being
+  advanced together to exact release SHA `85631ea`.
 
 ## Backlog tickets
 

@@ -73,3 +73,12 @@
   exact immutable v0.13.1 SHA `7979cfe...`.
 - Passed exact-base governance and workflow YAML validation, then returned to
   `IN_PROGRESS / VALIDATION` for fresh protected review.
+
+## [1.1.0] - 2026-08-08
+
+- Recorded v0.13.1's protected REST acquisition failure for
+  `deleteBranchOnMerge`.
+- Bound the next adoption to immutable v0.13.2 release SHA `85631ea`, which
+  uses typed GraphQL acquisition and retains the strict validator.
+- Returned from `VALIDATION` to `EDIT` for atomic re-adoption and caller
+  alignment.
