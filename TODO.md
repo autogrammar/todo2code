@@ -2,13 +2,18 @@
 
 ## Active tickets
 
-None.
+- [ ] [`ticket-050`](project/ticket-050/README.md) — adopt immutable
+  new-project v0.13.2 ownership for `CHANGELOG.md` and `.env.example` through
+  the published provenance-bound atomic-adoption rule. The verified managed
+  payload is handled atomically; the target manifest, lock and changelog remain
+  within ordinary governance ownership and limits. Current state:
+  `IN_PROGRESS / VALIDATION`; the managed package and reusable caller select
+  exact release SHA `85631ea`. Governance now runs on authoritative submitted
+  reviews, same-HEAD dismissals, default-branch pushes and explicit dispatches
+  without creating pre-approval same-name failures.
 
 ## Backlog tickets
 
-- [ ] [`ticket-050`](project/ticket-050/README.md) — own or explicitly exclude
-  unpublishable root paths (`CHANGELOG.md`, `.env.example`). Current state:
-  `PLAN / WAIT_FOR_APPROVAL`.
 - [ ] [`ticket-051`](project/ticket-051/README.md) — wire
   `scripts/github-event-log.mjs` into CI with explicit flags only. Current
   state: `PLAN / WAIT_FOR_APPROVAL`; ticket-048 is now merged.

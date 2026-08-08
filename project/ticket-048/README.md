@@ -2,8 +2,8 @@
 
 - **ID**: ticket-048
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -99,6 +99,7 @@ changes be carried forward and the underlying problem fixed. The plan commit
 carrying this file and `intent.json` precedes the implementation commit, as the
 standard requires.
 
-Publication remains open: this ticket is `IN_PROGRESS / VALIDATION` until its
-pull request passes protected checks and is merged. It is not marked `DONE`
-before that, which is precisely the mistake that stranded ticket-047.
+Publication completed after Validator approval of exact head `92f99dc` and all
+protected checks. PR #66 merged as `main@f1b3d5d`; this ticket is therefore
+`DONE`. The earlier validation evidence remains unchanged in the ticket audit
+record.

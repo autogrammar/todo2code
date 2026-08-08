@@ -38,6 +38,10 @@ Before any multi-step implementation, an agent must:
    its signature, issuer, predicate type and subject bindings.
 14. Validator-agent examples use
    `LLM_MODEL_VALIDATOR=openrouter/z-ai/glm-5.2`; model findings stay advisory.
+15. Configure GitHub with `delete_branch_on_merge=true`. A merged ticket branch
+   must disappear after merge. A PR closed without merge keeps its branch until
+   the owner explicitly discards that unmerged work. When no PR is open, the
+   only remote branch is the default branch.
 
 Markdown approval is an audit note, not trusted merge authorization. Required
 merge approval comes from the repository's protected review, attestation and

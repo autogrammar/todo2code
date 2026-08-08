@@ -17,13 +17,20 @@ permissions:
 
 jobs:
   governance:
-    if: github.event_name != 'schedule'
+    if: >-
+      (github.event_name == 'push' &&
+      github.ref_name == github.event.repository.default_branch) ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request_review' &&
+      (github.event.action == 'submitted' ||
+      (github.event.action == 'dismissed' &&
+      github.event.review.commit_id == github.event.pull_request.head.sha)))
     permissions:
       contents: read
       pull-requests: read
-    uses: wellmanifest/new-project/.github/workflows/governance.yml@9706e63d5f121323e9087d0db47a16acdbd276bb
+    uses: wellmanifest/new-project/.github/workflows/governance.yml@85631ea24d127f1f4797d2a67f3524a63cbbc95a
     with:
-      standard-ref: 9706e63d5f121323e9087d0db47a16acdbd276bb
+      standard-ref: 85631ea24d127f1f4797d2a67f3524a63cbbc95a
       trusted-reviewers: ${{ vars.TRUSTED_REVIEWERS }}
       trusted-validator-apps: ${{ vars.TRUSTED_VALIDATOR_APPS }}
 

@@ -1,0 +1,114 @@
+2026-08-08 planning audit
+todo2code base: fd454d528ea25a2dbb271e1207e8ec2edf2404e8
+installed standard: new-project 0.11.0 at cc9b04673bbd85cb4e35fb683d288ef34be1485f
+managed manifest state: hash-locked; direct local mutation is invalid
+upstream main inspected: no ownership rule for CHANGELOG.md or .env.example
+recommended policy: Option A, both paths owned by governance
+delivery shape: governed upstream change -> immutable release -> Goal adoption
+dependency: ticket-049 remains PLAN / WAIT_FOR_APPROVAL
+implementation changes: NOT STARTED
+workflow state: PLAN / WAIT_FOR_APPROVAL
+python3 -m json.tool project/ticket-050/intent.json: PASS
+git diff --check: PASS
+./project/governance-check.sh: GOV-PASS (0 errors, 0 warnings)
+2026-08-08 APPROVAL: user approved ticket-049, ticket-050 Option A and creation of a governed upstream ticket
+transition preflight: BLOCKED before implementation; ticket-049 must first be DONE
+scope preflight: CHANGELOG.md and .env.example remain unowned until standard adoption
+workflow state retained: PLAN / WAIT_FOR_APPROVAL
+2026-08-08 ticket-049 PR #69 merged as main@b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+dependency ticket-049: DONE
+upstream ticket-036 plan commit: 6aa7d50; WAIT_FOR_APPROVAL
+2026-08-08 upstream completion
+new-project ticket-036: DONE
+new-project ticket-037: DONE
+release=v0.12.0
+release_sha=7be2e266dfebfe91de1b78abf30ac8e518453216
+release tag type=annotated; GitHub Release published
+2026-08-08 session authorization reused from approved Option A plan
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+implementation_commit=bc2dab6
+goal_adoption=wellmanifest/new-project 0.13.0 at 12158ef0c009428deddceebb1049ddc3cb898eb3
+goal_check=idempotent PASS
+npm_ci=3 packages installed from lock; 0 vulnerabilities
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+make_verify=PASS; 402 tests, 401 pass, 1 controlled JDK skip
+make_docker-smoke=PASS
+ticket-048 stale active header reconciled with merged PR #66 evidence
+workflow transition: EDIT -> VALIDATION
+pr=70 closed_without_merge after koru deterministic failure
+koru_run=31262565588 blocking_findings=5
+upstream_ticket-040=DONE merge=6d394fc9f800a11af7bdfc613c29489332bef903
+upstream_ticket-041=DONE release=v0.13.1
+release_sha=7979cfe76797a4da6925be49496ff2462e78b3f7
+2026-08-08 APPROVAL: user approved v0.13.1 publication and continued adoption
+workflow transition: VALIDATION -> EDIT
+2026-08-08 upstream atomic-adoption completion
+new-project ticket-038: DONE
+new-project ticket-039: DONE
+release=v0.13.0
+release_sha=12158ef0c009428deddceebb1049ddc3cb898eb3
+release closure merged as new-project main@cdb3661462e68966ecb195a8479899c49eccc8ea
+2026-08-08 user authorized continuation
+transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT
+implementation_commit=bd162d00d792eecc854244acfac6c16fa86e3b94
+goal_adoption=wellmanifest/new-project 0.13.1 at 7979cfe76797a4da6925be49496ff2462e78b3f7
+goal_check=idempotent PASS
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+vallm=0.1.94 files=3 passed=3 deterministic_findings=0
+make_verify=PASS; 402 tests, 401 pass, 1 controlled JDK skip
+make_docker-smoke=PASS
+workflow transition: EDIT -> VALIDATION
+pr=70 head=1cae91a2a779f9cb6054bdcb0cf0957a66080322
+koru=PASS validator_app=APPROVED exact_head
+protected_governance=FAIL stale reusable workflow standard-ref 9706e63d5f121323e9087d0db47a16acdbd276bb
+workflow transition: VALIDATION -> EDIT
+workflow_alignment_commit=efe04444d792ae36df7f0bc708b42501404e4876
+governance_workflow_ref=7979cfe76797a4da6925be49496ff2462e78b3f7
+standard_ref=7979cfe76797a4da6925be49496ff2462e78b3f7
+verify_workflows=PASS files=2
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+workflow transition: EDIT -> VALIDATION
+protected_governance_v0.13.1=FAIL missing deleteBranchOnMerge
+upstream_ticket_042_merge=b01cae0f47bb311d1e795600af49e0ba436e175d
+upstream_release=v0.13.2
+release_tag_object=8af2f049a8b1bfc0b492964bfce52fea79283627
+release_sha=85631ea24d127f1f4797d2a67f3524a63cbbc95a
+workflow transition: VALIDATION -> EDIT
+implementation_commit=7a52af9cd93be2dccb4c69a32d50ec4e8908849e
+goal_adoption=wellmanifest/new-project 0.13.2 at 85631ea24d127f1f4797d2a67f3524a63cbbc95a
+goal_check=idempotent PASS
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+verify_workflows=PASS files=2
+make_verify=PASS; 389 tests, 388 pass, 1 controlled JDK skip
+make_docker-smoke=PASS
+workflow transition: EDIT -> VALIDATION
+pr=70 head=998f31ee52486213562436bc2a2db7b20af2ee45
+koru=PASS
+validator_app=APPROVED exact_head
+protected_pr_governance=PASS
+merge=BLOCKED duplicate push governance lacks base and PR context
+workflow transition: VALIDATION -> EDIT
+caller_condition_commit=72549610767b07fb0f73f1ad26655f7acef70667
+feature_push_governance=SKIPPED
+default_branch_push_governance=RETAINED
+pull_request_governance=RETAINED
+pull_request_review_governance=RETAINED
+verify_workflows=PASS files=2
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+workflow transition: EDIT -> VALIDATION
+pr=70 head=1a0d44d1b6b633b2093d608c5c69eed61fe72db0
+koru=PASS
+validator_app=APPROVED exact_head
+protected_pr_governance=PASS
+merge=BLOCKED earlier same-name governance failures remain conjunctive
+workflow transition: VALIDATION -> EDIT
+authoritative_event_commit=09a24f32e2f9900d2ecae1620623e2e73c6362f2
+submitted_review_governance=RETAINED
+same_head_dismissal_governance=RETAINED
+stale_review_dismissal_governance=SKIPPED
+preapproval_pull_request_governance=SKIPPED
+default_branch_push_governance=RETAINED
+workflow_dispatch_governance=RETAINED
+verify_workflows=PASS files=2
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+workflow transition: EDIT -> VALIDATION

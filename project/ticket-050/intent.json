@@ -1,39 +1,84 @@
 {
-  "schema": "new-project.intent/v2",
+  "schema": "new-project.intent/v3",
   "ticket": "ticket-050",
   "summary": "Own or explicitly exclude unpublishable root paths (CHANGELOG, .env.example)",
   "workstream": "governance",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P1",
+    "origin": "requested"
+  },
   "allowedPaths": [
+    ".governance/**",
+    ".github/workflows/ci.yml",
+    "CHANGELOG.md",
+    "AGENTS.md",
+    "project.sh",
+    "project.bat",
+    "project/governance-check.sh",
+    "project/governance-check.bat",
+    "project/new-ticket.sh",
+    "project/readme.sh",
+    "project/ticket-048/README.md",
     "project/ticket-050/**",
     "TODO.md",
-    "project/TICKETS.md",
-    ".governance/**",
-    "AGENTS.md",
-    "project/governance-check.sh"
+    "project/TICKETS.md"
   ],
   "forbiddenPaths": [
     "project/ticket-*/user-*.md",
     "src/**",
-    "scripts/**"
+    "test/**",
+    "scripts/**",
+    "package.json",
+    "package-lock.json",
+    "Dockerfile*",
+    "compose*.yml"
   ],
-  "stacks": ["node"],
+  "stacks": ["node", "docker"],
   "dependsOn": ["ticket-049"],
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
+    "acceptedBaseSha": "b23d255c6bafbcc204ad7ec1e84e0a48ca675f97",
     "targetBranch": "main",
-    "outcome": "CHANGELOG.md and .env.example are either owned with checkable edit rules or explicitly excluded with agent-visible fail-closed guidance",
+    "standardAdoption": {
+      "sourceRepository": "wellmanifest/new-project",
+      "fromRevision": "cc9b04673bbd85cb4e35fb683d288ef34be1485f",
+      "toRevision": "85631ea24d127f1f4797d2a67f3524a63cbbc95a"
+    },
+    "outcome": "Adopt a new immutable new-project release that includes the 0.12.0 root ownership contract and a narrow provenance-bound atomic-adoption budget and ownership rule",
     "nonGoals": [
       "No silent ownership expansion without standard alignment",
-      "No removal of verify:env scanning"
+      "No removal of verify:env scanning",
+      "No standalone mutation of hash-locked managed files outside the reviewed adoption transaction",
+      "No moving tag or branch-based adoption",
+      "No general increase of todo2code's implementation-file budget"
     ],
     "complexity": "S",
-    "estimatedMinutes": 90,
+    "estimatedMinutes": 30,
     "budgets": {
       "maxImplementationFiles": 5,
       "maxAffectedComponents": 2,
       "maxPublicInterfaceChanges": 0,
       "maxRuntimeDependencies": 0
-    }
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Use the published provenance-bound atomic standard-adoption rule for the complete managed payload, while keeping every target-local file under ordinary governance ownership and budgets",
+      "components": [
+        {"name": "target-adoption", "paths": [".governance/**", ".github/workflows/ci.yml", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example", "project/ticket-048/README.md"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": ["The governance workstream becomes the sole owner of CHANGELOG.md and .env.example"],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Adopt the prior immutable source revision through the same reviewed Goal flow; never move or rewrite a release tag"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["./project/governance-check.sh"], "evidence": "Managed ownership declarations and target intent pass governance validation"},
+      {"criterion": "AC-03", "commands": ["upstream tests/governance-validator.test.sh at the approved release"], "evidence": "A non-governance claim for either root path fails with GOV-WORKSTREAM-003, and only a complete provenance-bound managed adoption receives atomic accounting"},
+      {"criterion": "AC-05", "commands": ["venv/bin/goal governance adopt --source-revision 85631ea24d127f1f4797d2a67f3524a63cbbc95a --target-root . --check", "make verify", "make docker-smoke"], "evidence": "Adoption is pinned, idempotent, stays within the revised bounded policy and leaves host and Docker checks green"}
+    ]
   }
 }

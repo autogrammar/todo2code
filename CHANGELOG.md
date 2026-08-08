@@ -17,6 +17,11 @@
 
 ### Added
 
+- Published the ticket-048 GitHub event-log acquisition adapter with explicit
+  `--event-path` and `--repository` inputs only. It maps one bounded GitHub
+  Actions payload to `t2c.event-log/v1` without reading ambient environment
+  variables, preserves canonical provenance and writes output atomically.
+
 - Isolated Docker E2E environments in `Dockerfile.e2e` and `compose.e2e.yml`.
   The core suite covers deterministic Node/Python behavior; the full suite adds
   Go 1.23, JDK 17, Rust 1.85 and PHP, rejects skipped tests and requires parity
