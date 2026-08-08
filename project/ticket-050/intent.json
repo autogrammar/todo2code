@@ -33,7 +33,7 @@
   "delivery": {
     "acceptedBaseSha": "b23d255c6bafbcc204ad7ec1e84e0a48ca675f97",
     "targetBranch": "main",
-    "outcome": "Adopt a new immutable new-project release that includes the 0.12.0 root ownership contract and a narrow provenance-bound atomic-adoption budget rule",
+    "outcome": "Adopt a new immutable new-project release that includes the 0.12.0 root ownership contract and a narrow provenance-bound atomic-adoption budget and ownership rule",
     "nonGoals": [
       "No silent ownership expansion without standard alignment",
       "No removal of verify:env scanning",
@@ -51,7 +51,7 @@
     },
     "architecture": {
       "status": "accepted",
-      "decision": "Keep upstream Option A, but first add a narrow upstream rule that accounts for a complete provenance-bound managed-file adoption atomically; publish and adopt a new immutable release",
+      "decision": "Keep upstream Option A, but first add a narrow upstream rule that accounts for a complete provenance-bound managed-file adoption atomically across its standard-managed ownership boundaries; publish and adopt a new immutable release",
       "components": [
         {"name": "upstream-standard", "paths": ["wellmanifest/new-project governance manifest and regression tests"]},
         {"name": "target-adoption", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example"]}

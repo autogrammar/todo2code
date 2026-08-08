@@ -45,12 +45,16 @@ complete. Immutable `v0.12.0` is published at
 that adopting it would change 15 managed target files plus the customized
 manifest, lock and changelog, while both policy and intent allow five
 implementation files. The validator provides no safe adoption exception, and
-the hash-locked managed set cannot be split. No target implementation file was
-changed; ticket-050 returned to `PLAN / WAIT_FOR_APPROVAL`.
+the hash-locked managed set cannot be split. It also spans governance-owned
+contracts and the integration-owned `scripts/runtime.sh`, so the ordinary
+one-workstream ownership gate cannot represent the atomic diff. No target
+implementation file was changed; ticket-050 returned to
+`PLAN / WAIT_FOR_APPROVAL`.
 
 ## Blockers
 
 - A new upstream, provenance-bound atomic-adoption accounting rule and immutable
   release require explicit approval. The rule must cover only the complete
-  managed set for one published source revision and must leave target-local
-  files under the ordinary delivery budget.
+  managed set for one published source revision, account for its standard-owned
+  paths atomically, and leave target-local files under ordinary ownership and
+  delivery budgets.

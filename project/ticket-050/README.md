@@ -43,6 +43,10 @@ A read-only adoption comparison found that `v0.12.0` would replace 15 managed
 target files and update the customized manifest, lock and changelog. The
 current policy and ticket both cap a delivery at five implementation files;
 the `v0.12.0` validator has no immutable-adoption accounting exception.
+The managed replacement also crosses existing ownership boundaries:
+`scripts/runtime.sh` belongs to `integration`, while the governance contracts
+and wrappers belong to `governance`. The one-ticket/one-workstream rule has no
+provenance-bound adoption transaction that can own this indivisible diff.
 Splitting the managed-file replacement is invalid because the regenerated lock
 binds the complete managed set atomically. Ticket-050 therefore returned to
 `PLAN / WAIT_FOR_APPROVAL` before Goal changed any target file.
@@ -51,8 +55,9 @@ The revised plan is to add a narrow upstream rule for a provenance-bound,
 atomic standard adoption, publish that capability in a new immutable release,
 and then resume this target adoption. The rule must not create a general file
 budget bypass: it must recognize only the complete managed set bound to one
-published source revision, while all target-local changes remain normally
-budgeted.
+published source revision, account for that managed set without transferring
+ordinary path ownership, and leave all target-local changes normally budgeted
+and owned.
 
 ## Acceptance criteria
 

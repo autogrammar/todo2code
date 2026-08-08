@@ -4,9 +4,10 @@
 
 - [ ] [`ticket-050`](project/ticket-050/README.md) — adopt immutable
   new-project ownership for `CHANGELOG.md` and `.env.example`, after an
-  upstream provenance-bound atomic-adoption rule removes the 15-managed-file
-  versus 5-file budget conflict without weakening the general limit. Current
-  state: `PLAN / WAIT_FOR_APPROVAL`.
+  upstream provenance-bound atomic-adoption rule removes both the
+  15-managed-file versus 5-file budget conflict and the indivisible
+  governance/integration ownership conflict without weakening ordinary
+  limits. Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Backlog tickets
 
