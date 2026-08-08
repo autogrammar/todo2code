@@ -3,7 +3,7 @@
 - **ID**: ticket-059
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -19,7 +19,7 @@ the ticket-058 integration plan.
 ## Acceptance criteria
 
 - [x] AC-01: A human approves this exact one-file implementation scope.
-- [ ] AC-02: `T2C_VERSION` and `t2c --version` report `0.5.1`.
+- [x] AC-02: `T2C_VERSION` and `t2c --version` report `0.5.1`.
 - [ ] AC-03: New runtime provenance reports `0.5.1`; historical fixtures are
       unchanged.
 - [ ] AC-04: TypeScript check/build pass locally and the combined ticket-058

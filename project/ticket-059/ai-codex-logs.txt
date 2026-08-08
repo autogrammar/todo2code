@@ -17,3 +17,13 @@ PASS ./project/governance-check.sh
 2026-08-09 approval
   APPROVED ticket-059 plan and transition to EDIT
   ticket-058 retained as integrationTicket, not dependsOn
+
+2026-08-09 implementation validation
+  PASS npm ci (3 packages, 0 vulnerabilities)
+  PASS npm run check
+  PASS npm run build
+  PASS node dist/src/cli.js --version -> todo2code 0.5.1
+  PASS ./project/governance-check.sh (0 errors, 0 warnings)
+
+Implementation scope
+  src/core/version.ts: T2C_VERSION 0.5.0 -> 0.5.1

@@ -9,3 +9,4 @@
 - Recorded human approval and transition to `IN_PROGRESS / EDIT`.
 - Corrected ticket-058 from an implementation dependency to the dedicated
   `integrationTicket` relationship.
+- Corrected the core runtime identity to `0.5.1` and passed focused validation.

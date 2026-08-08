@@ -22,7 +22,8 @@ It remained `0.5.0` when release metadata moved to `0.5.1`.
 
 - Audited the runtime version data flow and prepared a one-file correction.
 - Human approved the exact scope and transition to `EDIT` on 2026-08-09.
-- No implementation file changed yet.
+- Changed only `src/core/version.ts` from `0.5.0` to `0.5.1`.
+- Type checking, build, direct CLI probe and governance pass.
 
 ## Blockers
 
