@@ -1,0 +1,16 @@
+2026-08-08 pre-implementation evidence
+
+FAIL ownership resolution
+  test/python-runtime.test.ts matches no declared workstream path
+
+PROTECTED BOUNDARY
+  .governance/manifest.json digest is pinned by manifest.lock.json
+  direct local edit would fail GOV-SYNC-001
+
+DECISION
+  route through published governance extension/adoption; do not edit hashes
+
+No governance or implementation file changed. State: WAIT_FOR_APPROVAL.
+
+PASS ./project/governance-check.sh
+  GOV-PASS: passed (0 errors, 0 warnings)

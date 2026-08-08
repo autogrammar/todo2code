@@ -1,0 +1,52 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-062",
+  "summary": "Assign Python runtime bridge test to SDK workstream",
+  "workstream": "governance",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": ["project/ticket-062/**", "TODO.md", "project/TICKETS.md"],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    ".governance/**",
+    "AGENTS.md",
+    "src/**",
+    "test/**",
+    "sdk/**",
+    "package.json",
+    "package-lock.json",
+    "Dockerfile*",
+    "compose*.yml",
+    ".env*"
+  ],
+  "stacks": [],
+  "dependsOn": ["ticket-058"],
+  "conflictsWith": [],
+  "integrationTicket": "ticket-058",
+  "delivery": {
+    "acceptedBaseSha": "132f87963921cd49dafa19b643b0528a3a434dd0",
+    "targetBranch": "main",
+    "outcome": "The Python SDK bridge test receives deterministic SDK ownership through a protected published governance contract",
+    "nonGoals": ["No local managed-hash edit", "No application or test change", "No dependency, Docker or authority weakening"],
+    "complexity": "XS",
+    "estimatedMinutes": 15,
+    "budgets": {"maxImplementationFiles": 0, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "proposed",
+      "decision": "Route the ownership gap through protected standard evolution rather than editing the locked target manifest",
+      "components": [{"name": "workstream-ownership-routing", "paths": ["project/ticket-062/**"]}],
+      "responsibilityChanges": true,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Close this routing ticket if an existing published extension already assigns the path safely"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-03", "commands": ["./project/governance-check.sh"], "evidence": "The adopted managed set passes immutable lock and workstream ownership checks"}
+    ]
+  }
+}
