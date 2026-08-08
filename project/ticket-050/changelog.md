@@ -66,3 +66,10 @@
   reusable-workflow reference at pre-adoption SHA `9706e63`.
 - Added `.github/workflows/ci.yml` to the approved governance-owned scope and
   returned to `EDIT` to align its resolver with exact v0.13.1.
+
+## [1.0.0] - 2026-08-08
+
+- Pinned both the reusable governance workflow and its `standard-ref` input to
+  exact immutable v0.13.1 SHA `7979cfe...`.
+- Passed exact-base governance and workflow YAML validation, then returned to
+  `IN_PROGRESS / VALIDATION` for fresh protected review.

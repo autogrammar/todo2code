@@ -84,6 +84,11 @@ adoption and cannot resolve this indivisible diff. The ticket returned to
 `EDIT`; `.github/workflows/ci.yml` is now explicitly in scope for an exact
 v0.13.1 caller/reference alignment before review is repeated.
 
+That alignment is implemented at `efe04444d792ae36df7f0bc708b42501404e4876`.
+Both reusable-workflow references now bind exact v0.13.1 SHA `7979cfe...`;
+workflow YAML validation and exact-base governance pass. The ticket returned
+to `VALIDATION` for a fresh exact-head Koru and Validator review.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are

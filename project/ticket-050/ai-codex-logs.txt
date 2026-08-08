@@ -62,3 +62,9 @@ pr=70 head=1cae91a2a779f9cb6054bdcb0cf0957a66080322
 koru=PASS validator_app=APPROVED exact_head
 protected_governance=FAIL stale reusable workflow standard-ref 9706e63d5f121323e9087d0db47a16acdbd276bb
 workflow transition: VALIDATION -> EDIT
+workflow_alignment_commit=efe04444d792ae36df7f0bc708b42501404e4876
+governance_workflow_ref=7979cfe76797a4da6925be49496ff2462e78b3f7
+standard_ref=7979cfe76797a4da6925be49496ff2462e78b3f7
+verify_workflows=PASS files=2
+governance_check=PASS against base b23d255c6bafbcc204ad7ec1e84e0a48ca675f97
+workflow transition: EDIT -> VALIDATION
