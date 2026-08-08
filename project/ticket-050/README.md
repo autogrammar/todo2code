@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -88,11 +88,14 @@ ticket-050 returned from `VALIDATION` to `EDIT` to adopt that exact repair.
 
 ## Validation evidence
 
+- Goal adopted exact immutable new-project v0.13.1 release revision
+  `7979cfe76797a4da6925be49496ff2462e78b3f7`; a repeated `--check` reports
+  the package up to date.
 - Governance passed against accepted base
   `b23d255c6bafbcc204ad7ec1e84e0a48ca675f97`, including verification of both
   immutable package revisions, locks and managed-file hashes.
-- A repeated Goal `--check` reported v0.13.0 up to date at
-  `12158ef0c009428deddceebb1049ddc3cb898eb3`.
+- Vallm 0.1.94 passed all three managed Python files with zero deterministic
+  findings, covering the same payload that protected Koru previously rejected.
 - `make verify` passed 401 tests with one controlled JDK-unavailable skip;
   environment, module, generated-analysis, schema and workflow checks passed.
 - `make docker-smoke` built the runtime image and passed.

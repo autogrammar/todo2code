@@ -7,8 +7,8 @@
   the published provenance-bound atomic-adoption rule. The verified managed
   payload is handled atomically; the target manifest, lock and changelog remain
   within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / EDIT` after v0.13.0's managed Python payload failed protected
-  Koru; v0.13.1 contains the behavior-preserving complexity repair.
+  `IN_PROGRESS / VALIDATION`; exact-base governance, local Vallm/Koru-equivalent
+  scanning, host verification and Docker smoke pass for v0.13.1.
 
 ## Backlog tickets
 

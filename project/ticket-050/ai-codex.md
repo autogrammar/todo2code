@@ -70,6 +70,13 @@ and published immutable v0.13.1 at `7979cfe76797a4da6925be49496ff2462e78b3f7`.
 The user approved continuation, so ticket-050 returned to `EDIT` for an atomic
 replacement of the target revision and managed lock.
 
+The replacement is complete and the ticket is back in `VALIDATION`. Goal binds
+exact immutable v0.13.1 revision
+`7979cfe76797a4da6925be49496ff2462e78b3f7` and is idempotent. Exact-base
+governance passes; Vallm 0.1.94 passes all three managed Python files with zero
+deterministic findings; `make verify` passes 401 tests with one controlled JDK
+skip; and Docker smoke passes.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are

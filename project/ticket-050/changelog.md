@@ -49,3 +49,13 @@
   `7979cfe76797a4da6925be49496ff2462e78b3f7`, containing the approved
   behavior-preserving repair.
 - Returned from `VALIDATION` to `EDIT` for exact-SHA re-adoption.
+
+## [0.8.0] - 2026-08-08
+
+- Replaced the managed v0.13.0 payload atomically with exact immutable
+  new-project v0.13.1 at
+  `7979cfe76797a4da6925be49496ff2462e78b3f7`.
+- Passed idempotent Goal, exact-base governance, Vallm 0.1.94 with zero
+  deterministic findings, full host verification and Docker smoke.
+- Advanced from `EDIT` to `IN_PROGRESS / VALIDATION` for protected exact-head
+  review.
