@@ -7,8 +7,9 @@
   the published provenance-bound atomic-adoption rule. The verified managed
   payload is handled atomically; the target manifest, lock and changelog remain
   within ordinary governance ownership and limits. Current state:
-  `IN_PROGRESS / VALIDATION`; exact-base governance, local Vallm/Koru-equivalent
-  scanning, host verification and Docker smoke pass for v0.13.1.
+  `IN_PROGRESS / EDIT`; protected governance found the target-local reusable
+  workflow still pinned to the pre-adoption resolver, so its caller reference
+  is being aligned with the exact v0.13.1 release SHA.
 
 ## Backlog tickets
 

@@ -10,6 +10,7 @@
   },
   "allowedPaths": [
     ".governance/**",
+    ".github/workflows/ci.yml",
     "CHANGELOG.md",
     "AGENTS.md",
     "project.sh",
@@ -65,7 +66,7 @@
       "status": "accepted",
       "decision": "Use the published provenance-bound atomic standard-adoption rule for the complete managed payload, while keeping every target-local file under ordinary governance ownership and budgets",
       "components": [
-        {"name": "target-adoption", "paths": [".governance/**", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example", "project/ticket-048/README.md"]}
+        {"name": "target-adoption", "paths": [".governance/**", ".github/workflows/ci.yml", "AGENTS.md", "project/governance-check.*", "CHANGELOG.md", ".env.example", "project/ticket-048/README.md"]}
       ],
       "responsibilityChanges": false,
       "interfaceChanges": ["The governance workstream becomes the sole owner of CHANGELOG.md and .env.example"],

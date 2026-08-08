@@ -77,6 +77,13 @@ governance passes; Vallm 0.1.94 passes all three managed Python files with zero
 deterministic findings; `make verify` passes 401 tests with one controlled JDK
 skip; and Docker smoke passes.
 
+Protected governance correctly rejected the published HEAD because the
+target-local reusable-workflow caller remained pinned to old standard SHA
+`9706e63d5f121323e9087d0db47a16acdbd276bb`. That old resolver predates atomic
+adoption and cannot resolve this indivisible diff. The ticket returned to
+`EDIT`; `.github/workflows/ci.yml` is now explicitly in scope for an exact
+v0.13.1 caller/reference alignment before review is repeated.
+
 ## Blockers
 
 - None. The provenance-bound atomic-adoption rule and immutable release are

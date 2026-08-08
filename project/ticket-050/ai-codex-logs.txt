@@ -58,3 +58,7 @@ vallm=0.1.94 files=3 passed=3 deterministic_findings=0
 make_verify=PASS; 402 tests, 401 pass, 1 controlled JDK skip
 make_docker-smoke=PASS
 workflow transition: EDIT -> VALIDATION
+pr=70 head=1cae91a2a779f9cb6054bdcb0cf0957a66080322
+koru=PASS validator_app=APPROVED exact_head
+protected_governance=FAIL stale reusable workflow standard-ref 9706e63d5f121323e9087d0db47a16acdbd276bb
+workflow transition: VALIDATION -> EDIT

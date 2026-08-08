@@ -3,7 +3,7 @@
 - **ID**: ticket-050
 - **Owner**: agent:codex
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: EDIT
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -72,6 +72,14 @@ preserved. Upstream tickets 040–041 reduced those findings without changing
 behavior or review thresholds and published immutable `v0.13.1` at
 `7979cfe76797a4da6925be49496ff2462e78b3f7`. After explicit user approval,
 ticket-050 returned from `VALIDATION` to `EDIT` to adopt that exact repair.
+
+Protected governance then exposed one remaining caller dependency: Goal
+updated the managed package and lock, but the target-local reusable-workflow
+reference in `.github/workflows/ci.yml` still selected the pre-adoption
+standard SHA `9706e63d5f121323e9087d0db47a16acdbd276bb`. That resolver cannot account
+for the v0.13 atomic-adoption transaction. The ticket therefore returned to
+`EDIT` to bind both the reusable workflow and its `standard-ref` input to the
+same exact v0.13.1 release SHA already recorded by the lock.
 
 ## Acceptance criteria
 

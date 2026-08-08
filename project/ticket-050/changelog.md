@@ -59,3 +59,10 @@
   deterministic findings, full host verification and Docker smoke.
 - Advanced from `EDIT` to `IN_PROGRESS / VALIDATION` for protected exact-head
   review.
+
+## [0.9.0] - 2026-08-08
+
+- Recorded protected governance's rejection of the stale target-local
+  reusable-workflow reference at pre-adoption SHA `9706e63`.
+- Added `.github/workflows/ci.yml` to the approved governance-owned scope and
+  returned to `EDIT` to align its resolver with exact v0.13.1.
