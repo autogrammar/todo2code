@@ -3,7 +3,7 @@
 - **ID**: ticket-061
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-08
 
 ## Goal and scope
@@ -15,10 +15,10 @@ the stale `0.5.0` identity while preserving explicitly historical fixtures.
 ## Acceptance criteria
 
 - [x] AC-01: A human approves the two-test-file scope.
-- [ ] AC-02: Current pipeline manifest and code-change close-result assertions
+- [x] AC-02: Current pipeline manifest and code-change close-result assertions
       use `T2C_VERSION`.
 - [ ] AC-03: Focused runtime tests pass when combined with ticket-059.
-- [ ] AC-04: No historical/live-contract input fixture is rewritten.
+- [x] AC-04: No historical/live-contract input fixture is rewritten.
 
 ## Participants
 

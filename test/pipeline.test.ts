@@ -13,6 +13,7 @@ import { runPipeline } from '../src/pipeline/run.js';
 import { parseEventLog } from '../src/pipeline/event-log.js';
 import { canonicalPipelineManifestEvidence } from '../src/pipeline/event-log-persistence.js';
 import { executeAction } from '../src/services/actions.js';
+import { T2C_VERSION } from '../src/version.js';
 import { makeConfig } from './helpers.js';
 
 const exec = promisify(execFile);
@@ -54,7 +55,7 @@ test('Offline pipeline writes a complete run', async () => {
   assert.equal(result.manifest.llm.summary, false);
   assert.equal(result.manifest.status, 'degraded');
   assert.equal(result.manifest.failure, null);
-  assert.equal(result.manifest.runtime.version, '0.5.0');
+  assert.equal(result.manifest.runtime.version, T2C_VERSION);
   assert.equal(result.manifest.stages.naturalLanguageExtraction.status, 'fallback');
   assert.equal(result.manifest.stages.naturalLanguageExtraction.reason?.code, 'LLM_NOT_CONFIGURED');
   assert.equal(result.manifest.stages.markdownExtraction.status, 'fallback');

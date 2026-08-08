@@ -9,3 +9,6 @@
 - Passed governance with zero errors and zero warnings.
 - Recorded human approval and transition to `IN_PROGRESS / EDIT`.
 - Corrected ticket-058 to the dedicated integration relationship.
+- Replaced two stale current-version literals with `T2C_VERSION`.
+- Converted an existing secret-like fixture to a safe `test-` placeholder while
+  retaining secret-rejection coverage; 34 focused tests and governance pass.

@@ -24,7 +24,10 @@ truthful core correction and are not historical fixtures.
 - Distinguished two current assertions from intentionally pinned fixtures.
 - Excluded the unowned Python SDK bridge test from this ticket.
 - Human approved the exact scope and transition to `EDIT` on 2026-08-09.
-- No test file changed yet.
+- Replaced both current-version literals with `T2C_VERSION`.
+- Replaced a pre-existing secret-like test value with an equally rejected
+  `test-` placeholder so the repository secret policy can inspect the file.
+- Build, 34 focused tests and governance pass.
 
 ## Blockers
 

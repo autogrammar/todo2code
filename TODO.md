@@ -11,7 +11,7 @@
 
 - [ ] [`ticket-061`](project/ticket-061/README.md) — replace stale literals in
   current pipeline and code-change runtime assertions. Current state:
-  `IN_PROGRESS / EDIT`; coordinated by ticket-058.
+  `IN_PROGRESS / VALIDATION`; coordinated by ticket-058.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:
