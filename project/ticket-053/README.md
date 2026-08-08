@@ -2,8 +2,8 @@
 
 - **ID**: ticket-053
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-06
 
 ## Goal and scope
@@ -113,6 +113,15 @@ The human owner approved this ticket on 2026-08-06, selecting the `governance`
 workstream and a blocking failure policy. `governance` holds no other active
 ticket, so this does not contend with ticket-048 in `integration`.
 
-The earlier GitHub Actions outage is no longer the publication blocker. PR #67
-must be refreshed on top of the merged ticket-048 baseline, revalidated on its
-new exact head, and then merged through the protected `main` boundary.
+## Protected completion evidence
+
+- PR #67 was refreshed on the merged ticket-048 baseline without changing the
+  executable deliverable.
+- Local CI-form governance, full host verification, smoke and Docker smoke all
+  passed on the refreshed branch.
+- Koru passed and Validator App approved exact head
+  `079de29c172b5577dc469e1939772c061eb78f69`.
+- Protected governance passed after the review, and PR #67 merged as
+  `main@100a7d2`; the implementation branch was deleted.
+- No runtime dependency, public interface, workflow or executable source was
+  changed by ticket-053.
