@@ -9,6 +9,10 @@
 
 ## Backlog tickets
 
+- [ ] [`ticket-066`](project/ticket-066/README.md) — honor the effective
+  pipeline output directory for content caches. Current state:
+  `BLOCKED / WAIT_FOR_DEPENDENCIES` while `ticket-061` reserves the runtime
+  workstream and shared pipeline test path.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:
