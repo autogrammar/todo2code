@@ -1,0 +1,22 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-065",
+  "summary": "Prove decision evidence exclusion",
+  "workstream": "interfaces",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-065/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "test/communication.test.ts"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": [],
+  "dependsOn": ["ticket-064"],
+  "conflictsWith": [],
+  "integrationTicket": null
+}

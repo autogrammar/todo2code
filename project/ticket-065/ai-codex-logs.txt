@@ -1,0 +1,10 @@
+2026-08-11 pre-implementation audit
+
+DEPENDENCY ticket-064 owns the extractor correction.
+BOUNDARY test/communication.test.ts belongs to the interfaces workstream and
+must not be bundled into the extractor ticket.
+BLOCKED pending ticket-064 delivery.
+NO executable test changed.
+PASS jq intent validation
+PASS git diff --check
+PASS governance: 0 errors, 0 warnings
