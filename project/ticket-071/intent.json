@@ -1,0 +1,23 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-071",
+  "summary": "Import f2md DocumentAST into canonical Intent DSL",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-071/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/extractors/docs-deterministic.ts",
+    "test/docs-f2md.test.ts"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-060"],
+  "conflictsWith": ["ticket-060"],
+  "integrationTicket": null
+}

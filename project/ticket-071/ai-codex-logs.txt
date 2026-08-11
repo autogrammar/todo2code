@@ -1,0 +1,23 @@
+2026-08-11 architecture and governance continuation
+
+Recovered the pre-consolidation f2md DocumentAST migration plan from stash
+252813bca24229a1c4288e57a61970ba0ecdf026. Confirmed that current main already
+uses ticket-043 for a completed workspace-preflight change, while the shared
+ticket allocator reserves IDs through ticket-070. Reissued the plan as
+ticket-071 on a separate worktree based at origin/main@2380dd8.
+
+Compared bioxfoundry/twin-dsl's local IntentRecord and f2md intent compiler
+with todo2code's canonical schema, runtime validator and documentation
+extractors. The two incompatible objects currently claim t2c.intent/v1. The
+bounded first slice remains consumption of bioxfoundry.document-structure/v1
+inside docs-deterministic.ts with canonical buildRecord emission.
+
+Audited tickets 059-070. Ticket-060 is still IN_PROGRESS / VALIDATION in the
+extractors workstream, is not contained in origin/main and exclusively owns
+test/docs.test.ts. Ticket-064 is BLOCKED and does not reserve the workstream.
+Selected test/docs-f2md.test.ts for the new focused tests, declared ticket-060
+as both dependency and conflict, and retained BLOCKED / WAIT_FOR_DEPENDENCIES.
+
+The user's "kontynuuj" approves the bounded ticket-071 scope, but no explicit
+--force-new exception was requested or inferred. No implementation file was
+edited.
