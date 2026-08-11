@@ -9,6 +9,10 @@
 
 ## Backlog tickets
 
+- [ ] [`ticket-069`](project/ticket-069/README.md) — prevent deterministic and
+  LLM interpretations of the same source lines from generating false blocking
+  `CONFLICTING_INTENT` diagnostics. Current state:
+  `BLOCKED / WAIT_FOR_DEPENDENCIES` while ticket-059 reserves `core-dsl`.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:

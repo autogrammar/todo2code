@@ -25,6 +25,25 @@ while recognizing overlapping same-source evidence as extraction variants.
   produce a blocking conflict.
 - [ ] AC-05: Gold, focused, full, governance and Docker checks pass.
 
+## Accepted implementation boundary
+
+Treat two records as alternate views of one source span only when both carry
+the same non-null source path, have equal revisions (including both `null`) and
+their non-null line ranges overlap. If such a pair has opposite polarity and enough semantic similarity to
+reach the current contradiction rule, classify the relation as `duplicates`
+instead of `contradicts` and add a `same_source_span` basis marker.
+
+Do not suppress opposite-polarity records from different paths, revisions or
+non-overlapping line ranges. Those are independent statements and must retain
+the existing blocking conflict behavior. This deliberately avoids using
+extractor name, source kind or LLM mode as truth: deterministic and model-backed
+converters are merely alternate interpretations when they point at the same
+evidence.
+
+The focused regression matrix will cover deterministic-document versus LLM
+document, communication versus document, overlapping one-line/two-line spans,
+and a genuine conflict on distinct lines of the same file.
+
 ## Participants
 
 - Human participant: unresolved; no user-* file was created by this script.
@@ -35,4 +54,6 @@ while recognizing overlapping same-source evidence as extraction variants.
 The user authorized LLM-first todo2code behavior. This measured quality defect
 must be fixed before widening programmatic LLM defaults. Implementation is
 blocked because remote ticket-059 is `IN_PROGRESS / VALIDATION` and reserves
-the `core-dsl` workstream.
+the `core-dsl` workstream. Its current implementation diff touches only
+`src/core/version.ts`, not the linker, but governance reserves workstreams
+exclusively rather than by actual diff overlap.

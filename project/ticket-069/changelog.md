@@ -6,3 +6,5 @@
 - No human participant identity or content was generated.
 - Recorded five false blocking same-source conflicts from the scoped LLM-first
   dsl audit; implementation remains blocked by core-dsl ownership.
+- Accepted the exact same-source-span guard and regression matrix without
+  editing the linker while its workstream remains reserved.

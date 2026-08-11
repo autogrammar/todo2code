@@ -24,6 +24,11 @@ extractor interpretations, not independent evidence.
 ## Actual changes
 
 - Recorded the five live false positives and bounded linker/test ownership.
+- Inspected the current linker and accepted a narrow relation rule: overlapping
+  same-path/same-revision evidence becomes a non-blocking duplicate when the
+  polarity branch would otherwise create a contradiction. Independent paths,
+  revisions and line ranges remain unchanged.
+- Defined four regression classes, including a genuine distinct-line conflict.
 - No executable file changed while the workstream is reserved.
 
 ## Blockers

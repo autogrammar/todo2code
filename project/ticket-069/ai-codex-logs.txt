@@ -14,3 +14,17 @@ CLASSIFICATION false positive
 
 BLOCKED remote ticket-059 is IN_PROGRESS / VALIDATION in core-dsl
 NO source or test changed
+
+2026-08-11 blocker refinement
+
+CURRENT contradiction rule
+  opposite polarity + textScore>=0.45 => contradicts
+ACCEPTED narrow guard
+  same non-null source path
+  same source revision, including both null
+  overlapping non-null source line ranges
+  result=duplicates with basis same_source_span
+PRESERVE contradicts for different path, revision or non-overlapping ranges
+TEST matrix=document deterministic/LLM, communication/document,
+  overlapping spans, distinct-line genuine conflict
+BLOCKER remains workstream-exclusive despite ticket-059 touching only version.ts
