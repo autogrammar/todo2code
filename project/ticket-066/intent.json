@@ -1,0 +1,23 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-066",
+  "summary": "Honor pipeline output directory for content cache",
+  "workstream": "runtime",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-066/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/pipeline/run.ts",
+    "test/pipeline.test.ts"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": [],
+  "dependsOn": ["ticket-061"],
+  "conflictsWith": ["ticket-061"],
+  "integrationTicket": null
+}

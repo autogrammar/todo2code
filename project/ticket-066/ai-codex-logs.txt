@@ -1,0 +1,12 @@
+2026-08-11 pre-implementation audit
+
+EVIDENCE PipelineRun resolves PipelineOptions.outputDir for run artifacts but
+passes the unchanged global config to cache-using extractors.
+EVIDENCE external output during the dsl audit left .intent/cache in the
+analyzed repository; the generated directory was removed after diagnosis.
+BLOCKED ticket-061 reserves the runtime workstream and shared pipeline test in
+VALIDATION.
+NO executable source or test changed.
+PASS jq intent validation
+PASS git diff --check
+PASS governance: 0 errors, 0 warnings
