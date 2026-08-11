@@ -1,0 +1,59 @@
+2026-08-11 pre-implementation evidence
+
+CURRENT config defaults
+  nlMode=require-llm
+  markdownMode=require-llm
+  communicationMode=require-llm
+  documentationLlm=true in pipeline/watch
+  summaryLlm=true in pipeline/watch
+
+GAP src/cli.ts optionPipelineTaskMode
+  omitted --task-mode returns disabled
+  explicit accepted values=disabled,prefer-llm,require-llm
+
+AUTHORIZATION user requires LLM wherever it can improve todo2code results
+STATE IN_PROGRESS / EDIT
+
+RED node --test dist/test/cli-llm-first.test.js
+  FAIL Missing expected rejection
+  cause=omitted task mode was disabled and pipeline succeeded without task LLM
+
+GREEN focused CLI tests
+  PASS cli-llm-first 1/1
+  PASS cli-watch 1/1 with explicit --task-mode disabled
+
+FAIL governance preflight
+  code=GOV-SECRET-001
+  path=test/cli-watch.test.ts
+  cause=pre-existing long dummy API-key value became visible in changed-file scan
+  remediation=replaced it with the short non-secret sentinel unused
+
+FAIL full verify: 1 of 406 tests
+  test=Python package executes the local TypeScript reality runtime without a server
+  cause=Python SDK explicitly selects deterministic/no-LLM sources but historically omitted task-mode
+  remediation=recognize the complete explicit offline profile when task-mode is omitted
+
+2026-08-11 final validation
+
+PASS focused tests: cli-llm-first, cli-watch, python-runtime (3/3)
+PASS npm run verify: 406 tests, 405 passed, 1 controlled JDK skip, 0 failed
+PASS governance: 0 errors, 0 warnings
+PASS make docker-smoke
+PASS git diff --check
+PASS jq intent validation
+STATE IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
+NOT PERFORMED commit, push, review, publication or merge
+
+2026-08-11 live default-profile audit
+
+RUN 20260811T165612Z-b5f51126
+CONFIG nlMode=require-llm
+CONFIG markdownMode=require-llm
+CONFIG communicationMode=require-llm
+CONFIG documentationLlm=true
+CONFIG summaryLlm=true
+CONFIG taskSynthesisMode=require-llm
+CONFIG llmConfigured=true
+FAIL stage=naturalLanguageExtraction code=LLM_UNAVAILABLE
+CAUSE provider weekly limit exhausted (credential details omitted)
+DISPOSITION fail closed; no deterministic retry and no repository output

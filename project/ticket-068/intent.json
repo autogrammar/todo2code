@@ -1,0 +1,70 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-068",
+  "summary": "Default CLI semantic pipelines to LLM-first",
+  "workstream": "interfaces",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "src/cli.ts",
+    "test/cli-llm-first.test.ts",
+    "test/cli-watch.test.ts",
+    "TODO.md",
+    "project/TICKETS.md",
+    "project/ticket-068/**"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/pipeline/**",
+    "src/services/**",
+    "src/graph/**",
+    "src/llm/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "2380dd8b2f7d4bdc594613701eb770d7e251d0b3",
+    "targetBranch": "main",
+    "outcome": "CLI pipeline and watch invoke audited task-synthesis LLM by default while retaining explicit fail-closed modes and the established complete offline profile",
+    "nonGoals": [
+      "No programmatic service or PipelineOptions default change",
+      "No model, prompt, schema or provider change",
+      "No linker or diagnostics change",
+      "No dependency or public option-shape change"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Resolve omitted CLI task mode to require-llm except when the caller already selected the complete explicit offline profile; explicit task modes always win",
+      "components": [
+        {"name": "CLI option resolution", "paths": ["src/cli.ts"]},
+        {"name": "CLI regression coverage", "paths": ["test/cli-llm-first.test.ts", "test/cli-watch.test.ts"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore the omitted task-mode default to disabled and remove the focused regression; explicit modes are unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["node --test dist/test/cli-llm-first.test.js"], "evidence": "Omitted task mode fails at required LLM task synthesis without a provider"},
+      {"criterion": "AC-05", "commands": ["node --test dist/test/cli-watch.test.js"], "evidence": "Explicit disabled mode keeps the watch fixture offline"},
+      {"criterion": "AC-06", "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"], "evidence": "Full host, governance and Docker checks pass"}
+    ]
+  }
+}
