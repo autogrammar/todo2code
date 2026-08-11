@@ -8,10 +8,12 @@
 
 ## Goal and scope
 
-Align programmatic `PipelineOptions`, MCP/A2A and service-action defaults with
-the CLI LLM-first profile: omitted task synthesis should request an audited LLM
-unless the caller explicitly selects offline behavior. Preserve explicit modes,
-fail-closed contracts, provenance and deterministic authority boundaries.
+Align direct programmatic `PipelineOptions` and service-action defaults with the
+user-facing LLM-first profile: omitted task synthesis should request an audited
+LLM unless the caller explicitly selects offline behavior. MCP/A2A normalization
+and discovery are delivered by their owning interfaces ticket-068. Preserve
+explicit modes, fail-closed contracts, provenance and deterministic authority
+boundaries.
 
 ## Acceptance criteria
 
@@ -19,8 +21,8 @@ fail-closed contracts, provenance and deterministic authority boundaries.
   todo2code result.
 - [ ] AC-02: Omitted programmatic/service task mode resolves to the LLM-first
   policy with an explicit offline escape hatch.
-- [ ] AC-03: MCP and A2A schema descriptions state the effective default and
-  do not misreport `disabled`.
+- [x] AC-03: The owning ticket-068 normalizes MCP/A2A inputs and states their
+  effective defaults; this runtime ticket does not edit interface-owned paths.
 - [ ] AC-04: Provider absence or invalid output remains audited and fail-closed
   under `require-llm`; `prefer-llm` remains visibly degraded.
 - [ ] AC-05: Pipeline/service regressions, full, governance and Docker checks

@@ -7,5 +7,6 @@
 Keep executable implementation outside this governance/evidence directory.
 Read a human-owned user-*.md file only when one exists.
 
-Extend the LLM-first default from CLI callers to programmatic, MCP/A2A and
-service callers only after the measured same-source quality regression is fixed.
+Extend the LLM-first default from user-facing callers to direct programmatic
+PipelineOptions and service callers only after the measured same-source quality
+regression is fixed. MCP/A2A are owned and completed by ticket-068.

@@ -9,6 +9,10 @@
 
 ## Backlog tickets
 
+- [ ] [`ticket-070`](project/ticket-070/README.md) — align programmatic,
+  MCP/A2A and service pipeline defaults with the CLI LLM-first profile. Current
+  state: `BLOCKED / WAIT_FOR_DEPENDENCIES` on ticket-069 quality hardening and
+  while ticket-061 reserves `runtime`.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:

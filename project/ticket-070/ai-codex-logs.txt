@@ -3,7 +3,7 @@
 CLI pipeline/watch omitted task mode=ticket-068 require-llm policy
 PipelineRun omitted taskSynthesisMode=disabled
 service pipeline omitted taskMode=disabled
-MCP schema description=disabled (default)
+MCP/A2A boundary=ticket-068 LLM-first resolver; no longer runtime scope
 
 BLOCKED ticket-061 IN_PROGRESS / VALIDATION owns runtime and pipeline test
 DEPENDS ticket-069 same-source LLM conflict correction
