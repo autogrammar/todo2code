@@ -1,0 +1,24 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-070",
+  "summary": "Default programmatic pipelines to LLM-first",
+  "workstream": "runtime",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "src/pipeline/run.ts",
+    "src/services/actions.ts",
+    "test/pipeline.test.ts",
+    "TODO.md",
+    "project/TICKETS.md",
+    "project/ticket-070/**"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-068", "ticket-069"],
+  "conflictsWith": ["ticket-061"],
+  "integrationTicket": null
+}

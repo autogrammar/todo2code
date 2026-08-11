@@ -1,0 +1,10 @@
+2026-08-11 default audit
+
+CLI pipeline/watch omitted task mode=ticket-068 require-llm policy
+PipelineRun omitted taskSynthesisMode=disabled
+service pipeline omitted taskMode=disabled
+MCP schema description=disabled (default)
+
+BLOCKED ticket-061 IN_PROGRESS / VALIDATION owns runtime and pipeline test
+DEPENDS ticket-069 same-source LLM conflict correction
+NO source or test changed
