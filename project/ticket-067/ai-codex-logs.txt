@@ -1,0 +1,45 @@
+2026-08-11 LLM-first evidence
+
+PASS provider configuration detected without reading or logging the credential
+FAIL full unscoped require-llm pipeline
+  stage=communicationAnalysis
+  code=LLM_RESPONSE_INVALID
+  reason=response missing required participantSyntheses
+  disposition=contract retained; no fallback hidden
+
+PASS scoped require-llm pipeline
+  runId=20260811T163154Z-6eb2ad43
+  status=degraded; failure=null
+  degradation=DOCUMENT_EXTRACTION_PARTIAL (12 of 19 documentation chunks)
+  naturalLanguageExtraction=true
+  markdownExtraction=true
+  documentationExtraction=true
+  communicationEnrichment=true
+  taskSynthesis=true
+  summary=true
+  model=z-ai/glm-5.2
+  totalCostUsd=0.239801316
+  graphFingerprint=d3c3623399ee8bd1db431f520fed23f5ba6ce622aa347a172cf4c89eaad8e1b2
+
+QUALITY finding
+  five blocking diagnostics are same-source extraction conflicts, including
+  deterministic and LLM interpretations of identical or overlapping lines
+  disposition=do not make executable LLM defaults broader until regression is fixed
+
+FAIL governance preflight
+  code=GOV-SYNC-001
+  path=AGENTS.md
+  reason=managed governance file digest differs
+  remediation=restored pinned AGENTS.md; retained target policy in README.md
+
+2026-08-11 policy validation
+
+PASS governance: 0 errors, 0 warnings
+PASS npm ci: 0 vulnerabilities
+PASS npm run verify: 405 tests, 404 passed, 1 controlled JDK skip, 0 failed
+PASS make docker-smoke
+PASS git diff --check
+PASS jq intent validation
+PASS ticket-local Markdown references
+STATE IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
+NOT PERFORMED commit, push, review, publication or merge

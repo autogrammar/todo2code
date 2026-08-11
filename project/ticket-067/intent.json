@@ -1,0 +1,70 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-067",
+  "summary": "Enforce LLM-first todo2code analysis policy",
+  "workstream": "governance",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "README.md",
+    "TODO.md",
+    "project/TICKETS.md",
+    "project/ticket-067/**"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**",
+    "test/**",
+    "scripts/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "2380dd8b2f7d4bdc594613701eb770d7e251d0b3",
+    "targetBranch": "main",
+    "outcome": "Agents and operators use every applicable audited todo2code LLM stage when a provider can improve semantic analysis, without weakening deterministic evidence or hiding fallback",
+    "nonGoals": [
+      "No executable CLI, service, pipeline, linker or extractor change",
+      "No target-local edit of the managed AGENTS.md",
+      "No replacement of deterministic facts or authority with model output",
+      "No automatic acceptance of invalid structured responses",
+      "No publication or merge under this session instruction"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 1,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Adopt an LLM-first operator profile while keeping structured validation, provenance, deterministic evidence and authority boundaries fail-closed",
+      "components": [
+        {
+          "name": "agent-facing LLM operating policy",
+          "paths": ["README.md"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the README policy edit; runtime behavior is unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["review README.md"], "evidence": "The public contract states the LLM-first rule and exceptions"},
+      {"criterion": "AC-05", "commands": ["t2c pipeline --task-mode require-llm --communication-ticket ticket-004"], "evidence": "Manifest reports all six semantic LLM stage flags true"},
+      {"criterion": "AC-06", "commands": ["./project/governance-check.sh", "git diff --check", "markdown local-link check"], "evidence": "Policy diff remains bounded and internally consistent"}
+    ]
+  }
+}
