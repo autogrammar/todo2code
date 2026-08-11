@@ -1,0 +1,23 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-069",
+  "summary": "Prevent same-source LLM self-conflicts",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "src/graph/linker.ts",
+    "test/linker-pairing.test.ts",
+    "TODO.md",
+    "project/TICKETS.md",
+    "project/ticket-069/**"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": ["ticket-059"],
+  "integrationTicket": null
+}

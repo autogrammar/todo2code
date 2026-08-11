@@ -1,0 +1,16 @@
+2026-08-11 live regression evidence
+
+runId=20260811T163154Z-6eb2ad43
+model=z-ai/glm-5.2
+allSixSemanticLlmStages=true
+blocking.CONFLICTING_INTENT=5
+
+CLASSIFICATION false positive
+  pair 1=document LLM vs deterministic document, same README line 77
+  pair 2=document LLM vs deterministic document, same changelog lines 31-32
+  pair 3=communication LLM vs document LLM, same ai-codex line 60
+  pair 4=communication LLM vs document LLM, same ai-codex line 65
+  pair 5=two document LLM records, same changelog line 32
+
+BLOCKED remote ticket-059 is IN_PROGRESS / VALIDATION in core-dsl
+NO source or test changed
