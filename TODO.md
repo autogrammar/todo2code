@@ -6,13 +6,14 @@
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
   `IN_PROGRESS / PUBLICATION`; executable changes remain in target repositories.
+- [ ] [`ticket-071`](project/ticket-071/README.md) — import validated f2md
+  DocumentAST semantic blocks into canonical `t2c.intent/v1` records while
+  preserving exact document anchors. Host, real-corpus, complexity, governance
+  and Docker validation pass; current state: `IN_PROGRESS / PUBLICATION` under
+  the human-approved `--force-new` exception.
 
 ## Backlog tickets
 
-- [ ] [`ticket-071`](project/ticket-071/README.md) — import validated f2md
-  DocumentAST semantic blocks into canonical `t2c.intent/v1` records while
-  preserving exact document anchors. Current state:
-  `BLOCKED / WAIT_FOR_DEPENDENCIES` while ticket-060 reserves `extractors`.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:

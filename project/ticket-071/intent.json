@@ -17,7 +17,7 @@
   ],
   "forbiddenPaths": ["project/ticket-*/user-*.md"],
   "stacks": ["node", "docker"],
-  "dependsOn": ["ticket-060"],
+  "dependsOn": [],
   "conflictsWith": ["ticket-060"],
   "integrationTicket": null
 }

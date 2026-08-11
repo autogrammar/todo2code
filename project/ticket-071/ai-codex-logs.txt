@@ -21,3 +21,52 @@ as both dependency and conflict, and retained BLOCKED / WAIT_FOR_DEPENDENCIES.
 The user's "kontynuuj" approves the bounded ticket-071 scope, but no explicit
 --force-new exception was requested or inferred. No implementation file was
 edited.
+
+2026-08-11 explicit parallel-work authorization
+
+The user wrote: "autoryzuję --force-new dla ticket-071 mimo aktywnego
+ticket-060". Recorded the exact decision in ticket evidence, removed the
+dependency blocker while retaining ticket-060 in conflictsWith, preserved its
+exclusive test/docs.test.ts ownership, and transitioned ticket-071 to
+IN_PROGRESS / EDIT. No implementation edit preceded this transition.
+
+2026-08-11 implementation and focused validation
+
+Implemented sibling `.structure.json` discovery, strict
+`bioxfoundry.document-structure/v1` validation, canonical Markdown hash
+binding, semantic-block conversion through `buildRecord` and bounded
+`metadata.documentAnchor` provenance. Missing sidecars retain the established
+Markdown baseline; invalid sidecars fail closed for that document with an
+explicit warning.
+
+$ npm run check
+PASS
+
+$ npm run build && node --test dist/test/docs-f2md.test.js dist/test/docs.test.js
+tests=8 pass=8 fail=0
+
+$ lizard -l typescript -C 15 -L 120 -a 8 src/extractors/docs-deterministic.ts
+warning-count=0
+
+2026-08-11 real-corpus validation
+
+Input: nanobionic-laboratory-md/A. SPECIFIKACIJA/*.structure.json and sibling
+Markdown projections.
+documents=2 semanticBlocks=863 records=863 warnings=0 duplicateIds=0
+unanchored=0
+
+2026-08-11 full validation
+
+$ npm run verify
+tests=408 pass=407 fail=0 skip=1
+Skip reason: local JDK is unavailable; the skip is explicit.
+LLM boundary=PASS (9 deterministic entrypoints, 38 modules)
+module boundary=PASS (122 modules, 542 imports, no cycles)
+environment contract=PASS (75/75)
+workflow, generated-analysis, structured-response and schemas=PASS
+
+$ make docker-smoke
+PASS image=sha256:03331f540ee0a447d354d14cab4cde289a0651a2ffde0e2056201c5b8fada224
+
+Workflow transition: EDIT -> VALIDATION -> PUBLICATION. Protected exact-HEAD
+review and merge remain required before DONE.

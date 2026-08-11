@@ -2,8 +2,8 @@
 
 - **ID**: ticket-071
 - **Owner**: unresolved:human
-- **Status**: BLOCKED
-- **Workflow state**: WAIT_FOR_DEPENDENCIES
+- **Status**: IN_PROGRESS
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-11
 
 ## Goal and scope
@@ -28,16 +28,16 @@ are later migration slices after this producer boundary is proven.
 
 - [x] AC-01: The human owner approved continuing this exact bounded migration
       scope in the active conversation on 2026-08-11.
-- [ ] AC-02: A valid sibling f2md structure sidecar is recognized only when its
+- [x] AC-02: A valid sibling f2md structure sidecar is recognized only when its
       schema and canonical Markdown body hash match the input document.
-- [ ] AC-03: Semantic content blocks become deterministic canonical
+- [x] AC-03: Semantic content blocks become deterministic canonical
       `t2c.intent/v1` records; navigation and `semantic: false` blocks do not.
-- [ ] AC-04: Each imported record retains available page, bbox, block,
+- [x] AC-04: Each imported record retains available page, bbox, block,
       artifact and source-revision evidence in `metadata.documentAnchor`.
-- [ ] AC-05: A missing sidecar preserves existing behavior; an invalid or
+- [x] AC-05: A missing sidecar preserves existing behavior; an invalid or
       mismatched sidecar produces an explicit warning and cannot contribute
       records.
-- [ ] AC-06: Focused tests prove deterministic identity, exact provenance,
+- [x] AC-06: Focused tests prove deterministic identity, exact provenance,
       navigation exclusion and mismatch handling; full Node, governance and
       Docker checks pass.
 
@@ -49,10 +49,23 @@ are later migration slices after this producer boundary is proven.
 
 ## Authorization and blocker
 
-The user's `kontynuuj` authorizes this previously reviewed migration scope but
-does not authorize a governance exception. Ticket-060 remains
-`IN_PROGRESS / VALIDATION` in the `extractors` workstream and owns
-`test/docs.test.ts`. This ticket therefore stays non-active until ticket-060
-releases the workstream or the human explicitly authorizes `--force-new` after
-reviewing this collision. No implementation source may be edited while this
-ticket is blocked.
+The user's `kontynuuj` authorized this previously reviewed migration scope.
+After reviewing the collision, the user explicitly wrote `autoryzuję
+--force-new dla ticket-071 mimo aktywnego ticket-060` on 2026-08-11. This
+authorizes ticket-071 to enter `EDIT` while ticket-060 remains
+`IN_PROGRESS / VALIDATION` in the same workstream. Ticket-060 retains exclusive
+ownership of `test/docs.test.ts`; ticket-071 uses the non-overlapping
+`test/docs-f2md.test.ts` path.
+
+## Validation
+
+- Focused documentation tests: 8 passed, 0 failed.
+- Full `npm run verify`: 408 tests, 407 passed, 0 failed, 1 explicit JDK skip.
+- Real f2md corpus: 2 documents, 863 semantic blocks, 863 canonical records,
+  0 warnings, 0 duplicate IDs and 0 records without document anchors.
+- Lizard thresholds: 0 violations in the modified extractor.
+- Docker smoke: passed; the image built and its health/doctor checks succeeded.
+- Governance: passed with 0 errors and 0 warnings.
+
+The implementation remains `IN_PROGRESS / PUBLICATION` until protected GitHub
+review and merge bind the final branch HEAD to trusted approval evidence.

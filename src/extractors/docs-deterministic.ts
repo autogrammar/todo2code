@@ -14,6 +14,7 @@
 import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
 import { readText, relativePosix } from '../core/io.js';
+import { sha256 } from '../core/id.js';
 import { buildRecord } from '../core/record.js';
 import {
   classifyActionHeuristically,
@@ -26,11 +27,64 @@ import {
   extractVersions,
   inferObject,
 } from '../core/text.js';
-import type { ExtractionResult, IntentRecord } from '../core/types.js';
+import type { ExtractionResult, IntentRecord, JsonValue } from '../core/types.js';
 import { readListBlock } from './markdown-block.js';
 import { createMarkdownPathResolver, type MarkdownPathResolver } from './markdown-paths.js';
 
 const EXTRACTOR = 't2c/markdown-documentation@2';
+const F2MD_EXTRACTOR = 't2c/f2md-document-structure@1';
+const F2MD_STRUCTURE_SCHEMA = 'bioxfoundry.document-structure/v1';
+
+type F2mdBbox = [number, number, number, number];
+
+interface F2mdBlock {
+  id: string;
+  type: string;
+  page: number;
+  pages?: number[];
+  bbox: F2mdBbox | null;
+  semantic: boolean;
+  confidence: number | null;
+  normalizedText: string;
+  artifactUrn?: string;
+  artifactId?: string;
+  level?: number;
+  language?: string;
+  reason?: string;
+  asset?: string;
+  assetSha256?: string;
+}
+
+interface F2mdDocumentStructure {
+  schema: typeof F2MD_STRUCTURE_SCHEMA;
+  source: string;
+  sourceSha256: string;
+  rawMarkdownSha256: string;
+  canonicalMarkdownSha256: string;
+  sourceModel?: string;
+  documentAstSha256?: string;
+  pages: Array<{ number: number; width?: number | null; height?: number | null }>;
+  blocks: F2mdBlock[];
+}
+
+interface F2mdConversionContext {
+  sourcePath: string;
+  sidecarPath: string;
+  structure: F2mdDocumentStructure;
+  resolvePaths: PathMapper;
+}
+
+type F2mdSidecarResult =
+  | { state: 'missing' }
+  | { state: 'invalid'; path: string; reason: string }
+  | { state: 'valid'; path: string; structure: F2mdDocumentStructure };
+
+const F2MD_BLOCK_TYPES = new Set([
+  'paragraph', 'heading', 'list', 'table', 'figure', 'diagram', 'code',
+  'equation', 'chart', 'caption', 'navigation',
+]);
+const SHA256_PATTERN = /^[a-f0-9]{64}$/;
+const ARTIFACT_URN_PATTERN = /^urn:subactor:artifact:sha256:[a-f0-9]{64}$/;
 
 /** Maps the raw path tokens of one statement onto repository-relative paths. */
 type PathMapper = (paths: string[]) => string[];
@@ -65,7 +119,17 @@ export async function extractDocumentationBaseline(
   for (const file of options.files) {
     try {
       const body = await readText(file, config.maxFileBytes);
-      records.push(...convertDocument(root, file, body, await primePathMapper(resolver, body)));
+      const sidecar = await readF2mdSidecar(file, body, config.maxFileBytes);
+      if (sidecar.state === 'invalid') {
+        warnings.push(`${relativePosix(root, sidecar.path)}: ${sidecar.reason}`);
+        continue;
+      }
+      const resolvePaths = await primePathMapper(resolver, body);
+      if (sidecar.state === 'valid') {
+        records.push(...convertF2mdStructure(root, file, sidecar.path, sidecar.structure, resolvePaths));
+      } else {
+        records.push(...convertDocument(root, file, body, resolvePaths));
+      }
     } catch (error) {
       warnings.push(`${relativePosix(root, file)}: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -73,6 +137,282 @@ export async function extractDocumentationBaseline(
 
   return { records, warnings };
 }
+
+/** A tree conversion writes `report.pdf.md` beside `report.pdf.structure.json`. */
+const f2mdSidecarPath = (filePath: string): string | null => (
+  filePath.toLowerCase().endsWith('.md') ? `${filePath.slice(0, -3)}.structure.json` : null
+);
+
+const readF2mdSidecar = async (
+  filePath: string,
+  markdown: string,
+  maxBytes: number,
+): Promise<F2mdSidecarResult> => {
+  const sidecarPath = f2mdSidecarPath(filePath);
+  if (sidecarPath === null) return { state: 'missing' };
+  let raw: string;
+  try {
+    raw = await readText(sidecarPath, maxBytes);
+  } catch (error) {
+    if (isMissingFileError(error)) return { state: 'missing' };
+    return { state: 'invalid', path: sidecarPath, reason: describeError(error) };
+  }
+  let candidate: unknown;
+  try {
+    candidate = JSON.parse(raw);
+  } catch (error) {
+    return { state: 'invalid', path: sidecarPath, reason: `invalid JSON: ${describeError(error)}` };
+  }
+  const issue = validateF2mdStructure(candidate);
+  if (issue !== null) return { state: 'invalid', path: sidecarPath, reason: issue };
+  const structure = candidate as F2mdDocumentStructure;
+  const actualHash = sha256(canonicalMarkdownBody(markdown));
+  if (actualHash !== structure.canonicalMarkdownSha256) {
+    return {
+      state: 'invalid',
+      path: sidecarPath,
+      reason: `canonical Markdown hash mismatch: expected ${structure.canonicalMarkdownSha256}, got ${actualHash}`,
+    };
+  }
+  return { state: 'valid', path: sidecarPath, structure };
+};
+
+/** f2md hashes its Markdown projection before the tree writer adds provenance front matter. */
+const canonicalMarkdownBody = (markdown: string): string => {
+  const envelope = markdown.match(/^(?:\uFEFF)?---\r?\n[\s\S]*?\r?\n---\r?\n(?:\r?\n)?/);
+  return envelope ? markdown.slice(envelope[0].length) : markdown;
+};
+
+const validateF2mdStructure = (value: unknown): string | null => {
+  if (!isObject(value)) return 'invalid f2md structure: expected an object';
+  if (value.schema !== F2MD_STRUCTURE_SCHEMA) return `unsupported f2md structure schema: ${String(value.schema)}`;
+  const headerIssue = validateF2mdHeader(value);
+  if (headerIssue !== null) return `invalid f2md structure: ${headerIssue}`;
+  if (!Array.isArray(value.pages) || !value.pages.every(validF2mdPage)) {
+    return 'invalid f2md structure: pages must contain valid page descriptors';
+  }
+  return validateF2mdBlocks(value.blocks);
+};
+
+const validateF2mdHeader = (value: Record<string, unknown>): string | null => {
+  for (const field of ['sourceSha256', 'rawMarkdownSha256', 'canonicalMarkdownSha256'] as const) {
+    if (!isSha256(value[field])) return `${field} must be a lowercase SHA-256`;
+  }
+  if (typeof value.source !== 'string' || value.source.length === 0) {
+    return 'source must be a non-empty string';
+  }
+  if (!validOptionalHash(value.documentAstSha256)) {
+    return 'documentAstSha256 must be a lowercase SHA-256 when present';
+  }
+  if (value.sourceModel !== undefined && typeof value.sourceModel !== 'string') {
+    return 'sourceModel must be a string when present';
+  }
+  return null;
+};
+
+const validateF2mdBlocks = (value: unknown): string | null => {
+  if (!Array.isArray(value)) return 'invalid f2md structure: blocks must be an array';
+  const ids = new Set<string>();
+  for (let index = 0; index < value.length; index += 1) {
+    const block = value[index];
+    const issue = validateF2mdBlock(block);
+    if (issue !== null) return `invalid f2md structure: blocks[${index}] ${issue}`;
+    const id = (block as Record<string, unknown>).id as string;
+    if (ids.has(id)) return `invalid f2md structure: blocks[${index}] duplicates id ${id}`;
+    ids.add(id);
+  }
+  return null;
+};
+
+const validF2mdPage = (value: unknown): boolean => {
+  if (!isObject(value) || !isPositiveInteger(value.number)) return false;
+  return validOptionalDimension(value.width) && validOptionalDimension(value.height);
+};
+
+const validateF2mdBlock = (value: unknown): string | null => {
+  if (!isObject(value)) return 'must be an object';
+  return validateF2mdBlockIdentity(value)
+    ?? validateF2mdBlockLocation(value)
+    ?? validateF2mdBlockContent(value)
+    ?? validateF2mdBlockOptionals(value);
+};
+
+const validateF2mdBlockIdentity = (value: Record<string, unknown>): string | null => {
+  if (typeof value.id !== 'string' || !/^block-[a-f0-9]{16}$/.test(value.id)) return 'has an invalid id';
+  if (typeof value.type !== 'string' || !F2MD_BLOCK_TYPES.has(value.type)) return 'has an unsupported type';
+  if (!isPositiveInteger(value.page)) return 'has an invalid page';
+  return null;
+};
+
+const validateF2mdBlockLocation = (value: Record<string, unknown>): string | null => {
+  if (value.pages !== undefined && (!Array.isArray(value.pages) || !value.pages.every(isPositiveInteger))) {
+    return 'has invalid pages';
+  }
+  if (!validBbox(value.bbox)) return 'has an invalid bbox';
+  return null;
+};
+
+const validateF2mdBlockContent = (value: Record<string, unknown>): string | null => {
+  if (typeof value.semantic !== 'boolean') return 'has an invalid semantic flag';
+  if (!validConfidence(value.confidence)) return 'has invalid confidence';
+  if (typeof value.normalizedText !== 'string') return 'has invalid normalizedText';
+  if (value.type === 'heading' && (!Number.isInteger(value.level) || Number(value.level) < 1 || Number(value.level) > 6)) {
+    return 'has an invalid heading level';
+  }
+  return null;
+};
+
+const validateF2mdBlockOptionals = (value: Record<string, unknown>): string | null => {
+  if (!validOptionalString(value.language) || !validOptionalString(value.reason)
+    || !validOptionalString(value.artifactId) || !validOptionalString(value.asset)) {
+    return 'has an invalid optional string field';
+  }
+  if (value.artifactUrn !== undefined
+    && (typeof value.artifactUrn !== 'string' || !ARTIFACT_URN_PATTERN.test(value.artifactUrn))) {
+    return 'has an invalid artifactUrn';
+  }
+  if (!validOptionalHash(value.assetSha256)) return 'has an invalid assetSha256';
+  return null;
+};
+
+const convertF2mdStructure = (
+  root: string,
+  filePath: string,
+  sidecarPath: string,
+  structure: F2mdDocumentStructure,
+  resolvePaths: PathMapper,
+): IntentRecord[] => {
+  const sourcePath = relativePosix(root, filePath);
+  const context: F2mdConversionContext = {
+    sourcePath,
+    sidecarPath: relativePosix(root, sidecarPath),
+    structure,
+    resolvePaths,
+  };
+  const headings: string[] = [];
+  const records: IntentRecord[] = [];
+  for (const block of structure.blocks) {
+    if (!block.semantic || block.type === 'navigation' || !block.normalizedText.trim()) continue;
+    if (block.type === 'heading') {
+      const level = block.level ?? 1;
+      headings.splice(level - 1);
+      headings[level - 1] = block.normalizedText.trim();
+    }
+    records.push(f2mdBlockRecord(context, headings, block));
+  }
+  return records;
+};
+
+const f2mdBlockRecord = (
+  context: F2mdConversionContext,
+  headings: string[],
+  block: F2mdBlock,
+): IntentRecord => {
+  const text = block.normalizedText;
+  const action = classifyActionHeuristically(text);
+  return buildRecord({
+    kind: block.type === 'code' ? 'documentation_example' : 'documentation_statement',
+    action,
+    object: inferObject(text, action),
+    target: targetsOf(text, context.resolvePaths),
+    modality: detectModality(text),
+    polarity: detectPolarity(text),
+    text,
+    lifecycle: 'proposed',
+    sourceKind: 'document',
+    sourcePath: context.sourcePath,
+    sourceLines: null,
+    revision: context.structure.canonicalMarkdownSha256,
+    symbol: block.id,
+    extractor: F2MD_EXTRACTOR,
+    rawExcerpt: text,
+    epistemicClass: 'declaration',
+    confidence: block.confidence ?? (block.type === 'heading' ? 0.75 : 0.8),
+    basis: ['f2md_document_structure', 'semantic_block', 'source_content_hash_match'],
+    metadata: {
+      headingPath: headings.filter(Boolean),
+      documentationOrigin: 'f2md_structure',
+      documentAnchor: f2mdDocumentAnchor(context.sidecarPath, block, context.structure),
+      llmUsed: false,
+    },
+  });
+};
+
+const f2mdDocumentAnchor = (
+  sidecarPath: string,
+  block: F2mdBlock,
+  structure: F2mdDocumentStructure,
+): Record<string, JsonValue> => {
+  const anchor: Record<string, JsonValue> = {
+    structureSchema: structure.schema,
+    sidecarPath,
+    source: structure.source,
+    sourceSha256: structure.sourceSha256,
+    rawMarkdownSha256: structure.rawMarkdownSha256,
+    canonicalMarkdownSha256: structure.canonicalMarkdownSha256,
+    blockId: block.id,
+    blockType: block.type,
+    page: block.page,
+    pages: block.pages ?? [block.page],
+    bbox: block.bbox,
+    confidence: block.confidence,
+  };
+  addAnchorValue(anchor, 'sourceModel', structure.sourceModel);
+  addAnchorValue(anchor, 'documentAstSha256', structure.documentAstSha256);
+  addAnchorValue(anchor, 'artifactUrn', block.artifactUrn);
+  addAnchorValue(anchor, 'artifactId', block.artifactId);
+  addAnchorValue(anchor, 'level', block.level);
+  addAnchorValue(anchor, 'language', block.language);
+  addAnchorValue(anchor, 'reason', block.reason);
+  addAnchorValue(anchor, 'asset', block.asset);
+  addAnchorValue(anchor, 'assetSha256', block.assetSha256);
+  return anchor;
+};
+
+const addAnchorValue = (target: Record<string, JsonValue>, key: string, value: JsonValue | undefined): void => {
+  if (value !== undefined) target[key] = value;
+};
+
+const isObject = (value: unknown): value is Record<string, unknown> => {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+};
+
+const isSha256 = (value: unknown): value is string => {
+  return typeof value === 'string' && SHA256_PATTERN.test(value);
+};
+
+const validOptionalHash = (value: unknown): boolean => {
+  return value === undefined || isSha256(value);
+};
+
+const validOptionalString = (value: unknown): boolean => {
+  return value === undefined || typeof value === 'string';
+};
+
+const validOptionalDimension = (value: unknown): boolean => {
+  return value === undefined || value === null || (typeof value === 'number' && Number.isFinite(value) && value >= 0);
+};
+
+const isPositiveInteger = (value: unknown): value is number => {
+  return Number.isInteger(value) && Number(value) >= 1;
+};
+
+const validBbox = (value: unknown): value is F2mdBbox | null => {
+  return value === null || (Array.isArray(value) && value.length === 4
+    && value.every((coordinate) => typeof coordinate === 'number' && Number.isFinite(coordinate)));
+};
+
+const validConfidence = (value: unknown): value is number | null => {
+  return value === null || (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1);
+};
+
+const isMissingFileError = (error: unknown): boolean => {
+  return isObject(error) && error.code === 'ENOENT';
+};
+
+const describeError = (error: unknown): string => {
+  return error instanceof Error ? error.message : String(error);
+};
 
 /**
  * Documentation prose names files exactly the way TODO and CHANGELOG do, and

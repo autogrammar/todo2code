@@ -21,15 +21,13 @@ metadata. Existing plain Markdown behavior stays unchanged.
 
 ## Execution plan
 
-1. Wait until ticket-060 releases `extractors`, or obtain explicit human
-   authorization for the documented `--force-new` exception.
-2. Add strict sidecar discovery, schema/hash validation and semantic-block
+1. Add strict sidecar discovery, schema/hash validation and semantic-block
    conversion inside the existing deterministic documentation extractor.
-3. Emit only through `buildRecord`, with deterministic provenance and bounded
+2. Emit only through `buildRecord`, with deterministic provenance and bounded
    `metadata.documentAnchor`.
-4. Add focused coverage in the separate `test/docs-f2md.test.ts` file for
+3. Add focused coverage in the separate `test/docs-f2md.test.ts` file for
    valid, nonsemantic/navigation and mismatched sidecars.
-5. Run focused tests, full Node verification, governance and Docker checks.
+4. Run focused tests, full Node verification, governance and Docker checks.
 
 ## Actual changes
 
@@ -37,9 +35,22 @@ metadata. Existing plain Markdown behavior stays unchanged.
   `origin/main`.
 - Moved its focused tests to `test/docs-f2md.test.ts` so ticket-060 retains
   exclusive ownership of `test/docs.test.ts`.
-- No implementation source was edited.
+- Recorded the user's explicit `--force-new` authorization and entered `EDIT`.
+- Added strict discovery and validation for sibling
+  `bioxfoundry.document-structure/v1` sidecars, including canonical Markdown
+  hash binding and fail-closed warnings for malformed evidence.
+- Converted semantic, non-navigation DocumentAST blocks only through the
+  canonical `buildRecord` boundary and retained source, page, bbox, block and
+  ArtifactStore evidence in `metadata.documentAnchor`.
+- Preserved the existing Markdown baseline when no sidecar exists and added a
+  separate three-case f2md regression suite.
+- Verified both real f2md documents: 863 semantic blocks became 863 unique,
+  anchored canonical records with no warnings.
+- Passed focused, full host, complexity, governance and Docker gates and moved
+  to `PUBLICATION` pending protected GitHub review.
 
 ## Blockers
 
-- Ticket-060 remains active in the same workstream. The current continuation
-  approval does not authorize bypassing `maxActiveTicketsPerWorkstream`.
+- Protected exact-HEAD GitHub review and merge are still required before the
+  ticket can become `DONE`. Ticket-060 remains active in the same workstream,
+  but the human explicitly authorized this non-overlapping parallel ticket.
