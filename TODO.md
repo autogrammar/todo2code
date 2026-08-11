@@ -9,6 +9,9 @@
 
 ## Backlog tickets
 
+- [ ] [`ticket-065`](project/ticket-065/README.md) — add the interfaces-owned
+  regression for decision-evidence exclusion. Current state:
+  `BLOCKED / WAIT_FOR_DEPENDENCIES` on `ticket-064`.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:
