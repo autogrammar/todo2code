@@ -1,0 +1,22 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-064",
+  "summary": "Exclude decision evidence from participant communication",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P2",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-064/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/extractors/communication.ts"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": [],
+  "dependsOn": ["ticket-060"],
+  "conflictsWith": ["ticket-060"],
+  "integrationTicket": null
+}

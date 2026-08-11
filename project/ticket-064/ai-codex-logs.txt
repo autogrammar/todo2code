@@ -1,0 +1,11 @@
+2026-08-11 pre-implementation audit
+
+EVIDENCE src/extractors/communication.ts omits decisions.md from the
+evidence-file exclusion while retaining an explicit front-matter override.
+EVIDENCE deterministic dsl audit emitted 28 participant identity findings
+for project/ticket-001/decisions.md.
+BLOCKED ticket-060 reserves the extractors workstream in VALIDATION.
+NO executable source changed.
+PASS jq intent validation
+PASS git diff --check
+PASS governance: 0 errors, 0 warnings
