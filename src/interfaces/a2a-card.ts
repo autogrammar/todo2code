@@ -69,7 +69,7 @@ function skills(): Array<Record<string, unknown>> {
     skill(
       'analyze_repository',
       'Analyze repository',
-      'Run the full t2c pipeline over NL, Git, AST, TODO, CHANGELOG and optional documentation.',
+      'Run the LLM-first t2c pipeline over NL, Git, AST, TODO, CHANGELOG and audited documentation enrichment.',
       ['intent', 'git', 'ast', 'todo', 'documentation'],
       ['{"action":"pipeline","input":{"root":".","task":"TASK.md"}}'],
       ['application/json'],

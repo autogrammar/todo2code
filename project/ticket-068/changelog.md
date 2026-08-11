@@ -13,3 +13,12 @@
 - Audited a live default-profile attempt: all applicable semantic stages
   selected LLM and an exhausted provider limit caused a fail-closed
   `LLM_UNAVAILABLE` result without deterministic fallback.
+- Defaulted `compare-workspace` documentation enrichment to LLM, retained the
+  positive compatibility flag and added explicit `--no-docs-llm` offline
+  behavior with manifest assertions for both paths.
+- Added one shared MCP/A2A LLM-first default resolver, aligned MCP discovery and
+  the A2A agent card, and proved the MCP pipeline fails at required task
+  synthesis rather than silently skipping it.
+- Kept the changed A2A test free of secret-shaped literals and parenthesized a
+  pre-existing pagination expression that governance otherwise misclassified
+  as a token assignment.

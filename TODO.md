@@ -2,6 +2,9 @@
 
 ## Active tickets
 
+- [ ] [`ticket-068`](project/ticket-068/README.md) — make CLI, MCP and A2A
+  semantic pipelines LLM-first while retaining explicit offline and fallback
+  controls. Current state: `IN_PROGRESS / VALIDATION`.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:

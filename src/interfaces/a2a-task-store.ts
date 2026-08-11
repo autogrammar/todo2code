@@ -6,6 +6,7 @@ import type { T2CConfig } from '../config/env.js';
 import { assertPathWithinRoot } from '../core/security.js';
 import { executeAction } from '../services/actions.js';
 import { executeIntakeAction } from './intake-actions.js';
+import { withLlmFirstInterfaceDefaults } from './llm-first.js';
 import {
   cloneMessage,
   clonePart,
@@ -358,7 +359,11 @@ async function executeMessage(
           authenticatedPrincipal: task.owner,
           allowBootstrap: Boolean(config.a2a.token),
         })
-      : await executeAction(command.action, command.input, config);
+      : await executeAction(
+          command.action,
+          withLlmFirstInterfaceDefaults(command.action, command.input),
+          config,
+        );
     if (currentTaskState(task) === 'TASK_STATE_CANCELED') return;
     const domainResult = intakeDomainResult(result);
     if ((command.action === 'intake_command' || command.action === 'intake_query')

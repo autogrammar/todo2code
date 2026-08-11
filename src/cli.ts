@@ -330,7 +330,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       changelogFile: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
       documentPatterns: optionList(parsed, 'docs', config.documentPatterns),
       documentExcludes: optionList(parsed, 'doc-excludes', config.documentExcludes),
-      includeDocumentationLlm: optionBoolean(parsed, 'docs-llm', false),
+      includeDocumentationLlm: optionComparisonDocumentationLlm(parsed),
       markdownMode: optionLlmMode(parsed, 'markdown-mode', config.markdownMode),
       communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
       outputDir: optionString(parsed, 'out') ?? config.outputDir,
@@ -806,9 +806,25 @@ function optionSummaryMode(parsed: ParsedArgs): LlmExtractionMode {
 }
 
 function optionPipelineTaskMode(parsed: ParsedArgs): 'disabled' | 'prefer-llm' | 'require-llm' {
-  const value = optionString(parsed, 'task-mode')?.toLowerCase() ?? 'disabled';
+  const explicit = optionString(parsed, 'task-mode')?.toLowerCase();
+  const value = explicit ?? (isExplicitOfflinePipeline(parsed) ? 'disabled' : 'require-llm');
   if (value === 'disabled' || value === 'prefer-llm' || value === 'require-llm') return value;
   throw new Error('--task-mode must be disabled, prefer-llm or require-llm');
+}
+
+function optionComparisonDocumentationLlm(parsed: ParsedArgs): boolean {
+  if (parsed.options.has('docs-llm') && parsed.options.has('no-docs-llm')) {
+    throw new Error('--docs-llm and --no-docs-llm cannot be used together');
+  }
+  if (parsed.options.has('docs-llm')) return optionBoolean(parsed, 'docs-llm', true);
+  return !optionBoolean(parsed, 'no-docs-llm', false);
+}
+
+function isExplicitOfflinePipeline(parsed: ParsedArgs): boolean {
+  return optionBoolean(parsed, 'no-docs-llm', false)
+    && optionBoolean(parsed, 'no-summary-llm', false)
+    && optionString(parsed, 'nl-mode')?.toLowerCase() === 'deterministic'
+    && optionString(parsed, 'markdown-mode')?.toLowerCase() === 'deterministic';
 }
 
 function reportPipelineDegradation(manifest: import('./core/types.js').PipelineManifest): void {
@@ -855,9 +871,9 @@ function printHelp(): void {
   process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--out .intent]\n`);
   process.stdout.write(`  t2c pipeline [root] [--task TASK.md] [--todo TODO.md] [--changelog CHANGELOG.md]\n`);
   process.stdout.write(`               [--nl-mode require-llm] [--markdown-mode require-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
-  process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm]\n`);
+  process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode require-llm|prefer-llm|disabled]\n`);
   process.stdout.write(`               [--cycle cycle.json] [--project-dir project] [--communication-ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-communication] [--out .intent]\n`);
-  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode require-llm] [--docs-llm]\n`);
+  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode require-llm] [--no-docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);
   process.stdout.write(`  t2c a2a\n\n`);

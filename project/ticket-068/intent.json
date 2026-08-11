@@ -1,7 +1,7 @@
 {
   "schema": "new-project.intent/v3",
   "ticket": "ticket-068",
-  "summary": "Default CLI semantic pipelines to LLM-first",
+  "summary": "Default user-facing semantic pipelines to LLM-first",
   "workstream": "interfaces",
   "classification": {
     "kind": "FEATURE",
@@ -10,8 +10,14 @@
   },
   "allowedPaths": [
     "src/cli.ts",
+    "src/interfaces/llm-first.ts",
+    "src/interfaces/mcp-tools.ts",
+    "src/interfaces/a2a-task-store.ts",
+    "src/interfaces/a2a-card.ts",
     "test/cli-llm-first.test.ts",
     "test/cli-watch.test.ts",
+    "test/mcp.test.ts",
+    "test/a2a.test.ts",
     "TODO.md",
     "project/TICKETS.md",
     "project/ticket-068/**"
@@ -32,38 +38,45 @@
   "delivery": {
     "acceptedBaseSha": "2380dd8b2f7d4bdc594613701eb770d7e251d0b3",
     "targetBranch": "main",
-    "outcome": "CLI pipeline and watch invoke audited task-synthesis LLM by default while retaining explicit fail-closed modes and the established complete offline profile",
+    "outcome": "CLI, MCP and A2A invoke audited task-synthesis LLM and workspace-documentation enrichment by default while retaining explicit offline controls and visible fallback evidence",
     "nonGoals": [
       "No programmatic service or PipelineOptions default change",
       "No model, prompt, schema or provider change",
       "No linker or diagnostics change",
-      "No dependency or public option-shape change"
+      "No dependency, provider, prompt or response-schema change"
     ],
     "complexity": "S",
-    "estimatedMinutes": 25,
+    "estimatedMinutes": 30,
     "budgets": {
-      "maxImplementationFiles": 3,
-      "maxAffectedComponents": 2,
-      "maxPublicInterfaceChanges": 0,
+      "maxImplementationFiles": 9,
+      "maxAffectedComponents": 4,
+      "maxPublicInterfaceChanges": 3,
       "maxRuntimeDependencies": 0
     },
     "architecture": {
       "status": "accepted",
-      "decision": "Resolve omitted CLI task mode to require-llm except when the caller already selected the complete explicit offline profile; explicit task modes always win",
+      "decision": "Resolve omitted user-facing task mode to require-llm except for the complete explicit offline profile, enable workspace-comparison documentation enrichment by default, and normalize MCP/A2A inputs before the unchanged service boundary",
       "components": [
         {"name": "CLI option resolution", "paths": ["src/cli.ts"]},
-        {"name": "CLI regression coverage", "paths": ["test/cli-llm-first.test.ts", "test/cli-watch.test.ts"]}
+        {"name": "MCP/A2A option resolution", "paths": ["src/interfaces/llm-first.ts", "src/interfaces/mcp-tools.ts", "src/interfaces/a2a-task-store.ts", "src/interfaces/a2a-card.ts"]},
+        {"name": "Interface regression coverage", "paths": ["test/cli-llm-first.test.ts", "test/cli-watch.test.ts", "test/mcp.test.ts", "test/a2a.test.ts"]}
       ],
       "responsibilityChanges": false,
-      "interfaceChanges": [],
+      "interfaceChanges": [
+        "compare-workspace accepts --no-docs-llm and defaults documentation enrichment on; --docs-llm remains a compatibility alias",
+        "MCP and A2A pipeline requests default omitted taskMode to require-llm outside the complete offline profile",
+        "MCP and A2A compare_workspace requests default omitted includeDocsLlm to true"
+      ],
       "dataChanges": [],
       "ui": {"impact": "none", "states": [], "evidence": []},
-      "rollback": "Restore the omitted task-mode default to disabled and remove the focused regression; explicit modes are unchanged"
+      "rollback": "Restore omitted task mode to disabled and compare-workspace documentation LLM to opt-in, then remove the focused regressions; explicit modes remain available"
     },
     "runtimeDependencies": [],
     "validation": [
       {"criterion": "AC-02", "commands": ["node --test dist/test/cli-llm-first.test.js"], "evidence": "Omitted task mode fails at required LLM task synthesis without a provider"},
       {"criterion": "AC-05", "commands": ["node --test dist/test/cli-watch.test.js"], "evidence": "Explicit disabled mode keeps the watch fixture offline"},
+      {"criterion": "AC-07", "commands": ["node --test dist/test/cli-llm-first.test.js"], "evidence": "Workspace comparison manifests prove default LLM request and explicit deterministic opt-out"},
+      {"criterion": "AC-08", "commands": ["node --test dist/test/mcp.test.js dist/test/a2a.test.js"], "evidence": "Shared boundary defaults and MCP fail-closed task synthesis pass alongside A2A behavior"},
       {"criterion": "AC-06", "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"], "evidence": "Full host, governance and Docker checks pass"}
     ]
   }

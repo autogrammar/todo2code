@@ -33,13 +33,14 @@ test('CLI watch reads TASK.md by default, disables summary LLM and reacts to a l
     '--nl-mode', 'deterministic',
     '--markdown-mode', 'deterministic',
     '--communication-mode', 'deterministic',
+    '--task-mode', 'disabled',
     '--no-communication',
     '--out', '.intent-watch',
   ], {
     cwd: root,
     env: {
       ...process.env,
-      OPENROUTER_API_KEY: 'must-not-be-used',
+      OPENROUTER_API_KEY: 'unused',
       T2C_ENV_FILE: 'missing.env',
       T2C_ENABLE_PYTHON_AST: 'false',
       T2C_ENABLE_GO_AST: 'false',

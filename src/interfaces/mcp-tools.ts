@@ -1,6 +1,7 @@
 import type { T2CConfig } from '../config/env.js';
 import { executeAction, type T2CAction } from '../services/actions.js';
 import { executeIntakeAction, type IntakeAction } from './intake-actions.js';
+import { withLlmFirstInterfaceDefaults } from './llm-first.js';
 import { McpRequestError } from './mcp-errors.js';
 
 interface McpTool {
@@ -129,7 +130,7 @@ export const MCP_TOOLS: McpTool[] = [
     docExcludes: stringArrayProp('Documentation exclusion patterns.'),
     markdownMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
     communicationMode: stringProp('deterministic, prefer-llm or require-llm (default).'),
-    includeDocsLlm: { type: 'boolean', description: 'Run the same LLM documentation extraction on both sides.' },
+    includeDocsLlm: { type: 'boolean', description: 'Run the same LLM documentation extraction on both sides; default true.' },
     output: stringProp('Comparison artifact root, default .intent.'),
     gitCount: numberProp('Number of commit claims included per side.', 1, 100),
   }),
@@ -246,7 +247,7 @@ export const MCP_TOOLS: McpTool[] = [
     gitCount: numberProp('Number of commits, default 10.', 1, 100),
     summaryFallback: { type: 'boolean' },
     includeSummaryLlm: { type: 'boolean', description: 'Use the configured LLM for the final summary; false is fully deterministic.' },
-    taskMode: stringProp('disabled (default), prefer-llm or require-llm task synthesis and TODO.patch rendering.'),
+    taskMode: stringProp('require-llm (default), prefer-llm or disabled task synthesis and TODO.patch rendering; the complete explicit offline profile defaults to disabled.'),
     includeCommunication: { type: 'boolean', description: 'Analyze project/<ticket> communication in the main run; default true.' },
     projectDir: stringProp('Communication directory under root, default project.'),
     communicationTicket: nullableStringProp('Optional ticket filter for communication input.'),
@@ -268,7 +269,11 @@ export async function callMcpTool(
   try {
     const result = name === 'intake_command' || name === 'intake_query'
       ? await executeIntakeAction(name, args, config)
-      : await executeAction(name as T2CAction, args, config);
+      : await executeAction(
+          name as T2CAction,
+          withLlmFirstInterfaceDefaults(name, args),
+          config,
+        );
     return {
       content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       structuredContent: result,

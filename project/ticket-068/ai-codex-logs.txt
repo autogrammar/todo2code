@@ -39,6 +39,33 @@ PASS focused tests: cli-llm-first, cli-watch, python-runtime (3/3)
 PASS npm run verify: 406 tests, 405 passed, 1 controlled JDK skip, 0 failed
 PASS governance: 0 errors, 0 warnings
 PASS make docker-smoke
+
+LIVE 20260811T173519Z-91defbb1 post-change LLM-first audit
+  config nlMode=require-llm markdownMode=require-llm
+  config communicationMode=require-llm taskSynthesisMode=require-llm
+  config summaryLlm=true llmConfigured=true
+  FAIL stage=naturalLanguageExtraction code=LLM_UNAVAILABLE
+  cause=provider weekly limit exhausted (credential details omitted)
+  later stages=PIPELINE_ABORTED; no false claim of LLM execution
+  repository output=none; run artifacts isolated under /tmp
+
+2026-08-11 continuation: MCP/A2A boundary defaults
+
+RED MCP pipeline omitted taskMode
+  manifest taskSynthesisMode=disabled; required task synthesis was skipped
+GREEN focused MCP/A2A tests 10/10
+  MCP omitted taskMode=require-llm outside full explicit offline profile
+  MCP full explicit offline taskMode=disabled
+  explicit taskMode values preserved
+  MCP/A2A compare_workspace omitted includeDocsLlm=true
+  A2A end-to-end failed manifest taskSynthesisMode=require-llm
+FAIL governance changed-file secret scan
+  cause=pre-existing unparenthesized pagination value expression
+  classification=identifier misread as a 12+ character literal credential
+  remediation=parenthesized the expression; no scanner rule was weakened
+PASS governance after correction: 0 errors, 0 warnings
+PASS npm run verify: 409 tests, 408 passed, 1 controlled JDK skip, 0 failed
+PASS make docker-smoke after MCP/A2A changes
 PASS git diff --check
 PASS jq intent validation
 STATE IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
@@ -57,3 +84,14 @@ CONFIG llmConfigured=true
 FAIL stage=naturalLanguageExtraction code=LLM_UNAVAILABLE
 CAUSE provider weekly limit exhausted (credential details omitted)
 DISPOSITION fail closed; no deterministic retry and no repository output
+
+2026-08-11 continuation: compare-workspace documentation LLM default
+
+RED focused CLI regression
+  old compare-workspace default did not request documentation LLM
+GREEN focused CLI regression 2/2
+  default base/workspace manifests requestedMode=llm
+  missing provider status=fallback code=LLM_NOT_CONFIGURED
+  explicit --no-docs-llm requestedMode=deterministic status=succeeded
+PASS npm run verify: 407 tests, 406 passed, 1 controlled JDK skip, 0 failed
+PASS make docker-smoke

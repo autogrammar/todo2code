@@ -1,16 +1,22 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { promisify } from 'node:util';
 import { payloadHash, type IntakeCommand } from '../src/communication/intake-contract.js';
+import type { PipelineManifest } from '../src/core/types.js';
 import {
   MCP_MODERN_PROTOCOL,
   createMcpConnectionState,
   handleMcpRequest,
   type JsonRpcRequest,
 } from '../src/interfaces/mcp.js';
+import { withLlmFirstInterfaceDefaults } from '../src/interfaces/llm-first.js';
 import { makeConfig } from './helpers.js';
+
+const exec = promisify(execFile);
 
 function modernRequest(id: string, method: string, params: Record<string, unknown> = {}): JsonRpcRequest {
   return {
@@ -91,6 +97,55 @@ test('MCP legacy profile negotiates 2025-11-25 and requires initialize', async (
   const tools = await handleMcpRequest({ jsonrpc: '2.0', id: 3, method: 'tools/list', params: {} }, config, state) as Record<string, unknown>;
   assert.equal((tools.tools as unknown[]).length, 28);
   assert.equal('resultType' in tools, false);
+});
+
+test('MCP pipeline defaults omitted task synthesis to LLM unless the full offline profile is explicit', async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-mcp-llm-first-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await exec('git', ['init', '-q', '--initial-branch=main'], { cwd: root });
+  await exec('git', ['config', 'user.email', 'llm-first@todo2code.local'], { cwd: root });
+  await exec('git', ['config', 'user.name', 't2c llm-first test'], { cwd: root });
+  await fs.writeFile(path.join(root, 'index.ts'), 'export const ready = true;\n');
+  await exec('git', ['add', '.'], { cwd: root });
+  await exec('git', ['commit', '-q', '-m', 'fixture'], { cwd: root });
+
+  const output = '.intent-mcp-llm-first';
+  const response = await handleMcpRequest(modernRequest('pipeline-default', 'tools/call', {
+    name: 'pipeline',
+    arguments: {
+      root,
+      task: null,
+      todo: null,
+      changelog: null,
+      docs: [],
+      includeDocsLlm: false,
+      nlMode: 'deterministic',
+      markdownMode: 'deterministic',
+      includeCommunication: false,
+      output,
+    },
+  }), makeConfig(root)) as { isError: boolean };
+  assert.equal(response.isError, true);
+
+  const runs = await fs.readdir(path.join(root, output, 'runs'));
+  assert.equal(runs.length, 1);
+  const manifest = JSON.parse(await fs.readFile(
+    path.join(root, output, 'runs', runs[0]!, 'manifest.json'),
+    'utf8',
+  )) as PipelineManifest;
+  assert.equal(manifest.configuration.taskSynthesisMode, 'require-llm');
+  assert.equal(manifest.failure?.stage, 'taskSynthesis');
+  assert.equal(manifest.failure?.code, 'LLM_NOT_CONFIGURED');
+
+  assert.equal(withLlmFirstInterfaceDefaults('pipeline', {
+    includeDocsLlm: false,
+    includeSummaryLlm: false,
+    nlMode: 'deterministic',
+    markdownMode: 'deterministic',
+  }).taskMode, 'disabled');
+  assert.equal(withLlmFirstInterfaceDefaults('pipeline', { taskMode: 'prefer-llm' }).taskMode, 'prefer-llm');
+  assert.equal(withLlmFirstInterfaceDefaults('compare_workspace', {}).includeDocsLlm, true);
+  assert.equal(withLlmFirstInterfaceDefaults('compare_workspace', { includeDocsLlm: false }).includeDocsLlm, false);
 });
 
 test('MCP exposes annotated intake command/query tools backed by the domain handler', async () => {

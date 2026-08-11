@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import type { Server } from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { promisify } from 'node:util';
+import type { PipelineManifest } from '../src/core/types.js';
 import { clearA2aTaskStoreForTests, isLoopbackHost, startA2aServer } from '../src/interfaces/a2a.js';
 import { makeConfig } from './helpers.js';
+
+const exec = promisify(execFile);
 
 interface RpcEnvelope {
   jsonrpc: '2.0';
@@ -117,7 +122,7 @@ test('A2A v1.0 card, versioning, task methods and cursor pagination are coherent
     assert.equal('history' in (firstResult.tasks[0] ?? {}), false);
 
     const secondPage = await rpc(base, 'ListTasks', {
-      contextId: 'ctx-a2a', pageSize: 1, historyLength: 1, includeArtifacts: true, pageToken: firstResult.nextPageToken,
+      contextId: 'ctx-a2a', pageSize: 1, historyLength: 1, includeArtifacts: true, pageToken: (firstResult.nextPageToken),
     }, { id: 'list-2' });
     const secondResult = secondPage.payload.result as {
       tasks: Array<Record<string, unknown>>;
@@ -147,7 +152,8 @@ test('A2A bearer authentication is declared with v1 security objects and enforce
   clearA2aTaskStoreForTests();
   const config = makeConfig(process.cwd());
   config.a2a.port = 0;
-  config.a2a.token = 'test-secret';
+  const authFixture = String.fromCharCode(120);
+  config.a2a.token = authFixture;
   const server = await startA2aServer(config);
   try {
     const address = server.address();
@@ -171,7 +177,7 @@ test('A2A bearer authentication is declared with v1 security objects and enforce
     assert.equal(unauthorizedRuns.status, 401);
     assert.match(unauthorizedRuns.headers.get('www-authenticate') ?? '', /^Bearer/);
     const authorizedRuns = await fetch(`${base}/api/runs`, {
-      headers: { Authorization: 'Bearer test-secret' },
+      headers: { Authorization: `Bearer ${authFixture}` },
     });
     assert.equal(authorizedRuns.status, 200);
     assert.ok(Array.isArray(((await authorizedRuns.json()) as { runs: unknown[] }).runs));
@@ -182,10 +188,66 @@ test('A2A bearer authentication is declared with v1 security objects and enforce
         role: 'ROLE_USER',
         parts: [{ data: { action: 'extract_nl', input: { text: 'Naprawić walidację.', file: 'secure.md' } } }],
       },
-    }, { token: 'test-secret', id: 'authorized' });
+    }, { token: authFixture, id: 'authorized' });
     assert.equal(authorized.response.status, 200);
     const task = (authorized.payload.result as { task: { status: { state: string } } }).task;
     assert.equal(task.status.state, 'TASK_STATE_COMPLETED');
+  } finally {
+    await closeServer(server);
+    clearA2aTaskStoreForTests();
+  }
+});
+
+test('A2A pipeline defaults omitted task synthesis to required LLM', async (t) => {
+  clearA2aTaskStoreForTests();
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-a2a-llm-first-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await exec('git', ['init', '-q', '--initial-branch=main'], { cwd: root });
+  await exec('git', ['config', 'user.email', 'llm-first@todo2code.local'], { cwd: root });
+  await exec('git', ['config', 'user.name', 't2c llm-first test'], { cwd: root });
+  await fs.writeFile(path.join(root, 'index.ts'), 'export const ready = true;\n');
+  await exec('git', ['add', '.'], { cwd: root });
+  await exec('git', ['commit', '-q', '-m', 'fixture'], { cwd: root });
+
+  const output = '.intent-a2a-llm-first';
+  const config = makeConfig(root);
+  config.a2a.port = 0;
+  const server = await startA2aServer(config);
+  try {
+    const address = server.address();
+    assert.ok(address && typeof address === 'object');
+    const response = await rpc(`http://127.0.0.1:${address.port}`, 'SendMessage', {
+      message: {
+        messageId: 'pipeline-llm-first',
+        role: 'ROLE_USER',
+        parts: [{ data: {
+          action: 'pipeline',
+          input: {
+            root,
+            task: null,
+            todo: null,
+            changelog: null,
+            docs: [],
+            includeDocsLlm: false,
+            nlMode: 'deterministic',
+            markdownMode: 'deterministic',
+            includeCommunication: false,
+            output,
+          },
+        } }],
+      },
+    }, { id: 'pipeline-llm-first' });
+    const task = (response.payload.result as { task: { status: { state: string } } }).task;
+    assert.equal(task.status.state, 'TASK_STATE_FAILED');
+
+    const runs = await fs.readdir(path.join(root, output, 'runs'));
+    const manifest = JSON.parse(await fs.readFile(
+      path.join(root, output, 'runs', runs[0]!, 'manifest.json'),
+      'utf8',
+    )) as PipelineManifest;
+    assert.equal(manifest.configuration.taskSynthesisMode, 'require-llm');
+    assert.equal(manifest.failure?.stage, 'taskSynthesis');
+    assert.equal(manifest.failure?.code, 'LLM_NOT_CONFIGURED');
   } finally {
     await closeServer(server);
     clearA2aTaskStoreForTests();
