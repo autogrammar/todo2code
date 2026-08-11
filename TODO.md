@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-067`](project/ticket-067/README.md) — enforce an LLM-first
+  operator policy for semantic analysis while retaining deterministic evidence,
+  fail-closed structured contracts, explicit fallback reporting and scoped
+  communication input. Current state: `IN_PROGRESS / VALIDATION`.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:

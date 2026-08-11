@@ -119,14 +119,38 @@ opisuje [`docs/CLI_GUIDE.md`](docs/CLI_GUIDE.md).
 | 10 commitów Git → DSL | `git log`, diff, heurystyki symboli | nie |
 | TypeScript/JavaScript/Python/Go/Java/Rust/PHP → DSL | natywne parsery języków; Java Tree API, Rust `syn`, PHP syntax tokens | nie |
 | TODO + CHANGELOG → DSL | deterministyczna struktura + audytowane wzbogacanie OpenRouter | **tak, domyślnie wymagany** |
-| Dokumentacja → DSL | deterministyczny baseline + opcjonalne OpenRouter structured outputs | **opcjonalnie** |
+| Dokumentacja → DSL | deterministyczny baseline + audytowane OpenRouter structured outputs | **tak w standardowym pipeline; jawny opt-out** |
 | JSON/YAML/TOML, Docker i CI → DSL | deterministyczny konwerter struktury konfiguracji | nie |
 | `project/<ticket>/` komunikacja → DSL + synteza per uczestnik | deterministyczny kontrakt; audytowane wzbogacanie OpenRouter | **tak, domyślnie wymagany** |
 | Linkowanie i diagnostyka | deterministyczny graf relacji | nie |
-| Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak** |
+| Graf + diagnostyka → propozycje TODO | OpenRouter structured output; jawny pusty fallback bez pozornej syntezy | **tak w profilu LLM-first** |
 | Propozycje → patch → approved apply | deterministyczna walidacja, renderer i atomowy zapis | nie |
 | Diagnostyka → code-change plan → acceptance/close | deterministyczny plan dla konkretnych plików (bez vendoringu, binariów i artefaktów runu) oraz bramka plan-set po re-analizie; bez auto-apply i auto-DONE | nie |
 | Graf DSL → `t2c.conclusion/v1` → raport NL | OpenRouter structured output; runtime waliduje cytowania przed deterministycznym renderingiem Markdown | **tak** |
+
+### Polityka operacyjna LLM-first
+
+Jeżeli provider jest skonfigurowany, standardowy audyt semantyczny musi użyć
+wszystkich etapów LLM, które mają zastosowanie do dostępnych wejść: NL,
+TODO/CHANGELOG, dokumentacji, komunikacji, syntezy zadań i podsumowania. Dla
+`pipeline` oznacza to między innymi jawne `--task-mode require-llm`; historyczny
+tryb `disabled` pozostaje wyłącznie jawnym wyborem offline/regresji. Domyślne
+tryby CLI, MCP i A2A są dostarczane w osobnym, walidowanym tickecie, aby
+oddzielić kontrakt operacyjny od implementacji interfejsów. Bezpośrednie API
+runtime pozostaje osobno zarządzanym zakresem.
+
+Przebieg deterministyczny może poprzedzać analizę jako stabilny baseline, ale
+nie zastępuje przebiegu LLM. Wyjątkiem jest jawnie zlecony tryb offline/testowy
+albo brak skonfigurowanego providera; ograniczenie musi wtedy znaleźć się w
+raporcie. `prefer-llm` jest dopuszczalne tylko wtedy, gdy potrzebny jest pełny
+wynik mimo awarii providera, a manifest musi ujawnić fallback.
+
+Wejście komunikacyjne należy ograniczyć przez `--communication-ticket` do
+aktywnego ticketu, gdy analiza całego archiwum przekracza budżet odpowiedzi.
+Po przebiegu trzeba sprawdzić pola `manifest.llm` oraz audyt każdego etapu —
+same flagi CLI nie są dowodem użycia modelu. LLM wzbogaca interpretację, ale nie
+zastępuje deterministycznych faktów Git/AST/config, linkowania, diagnostyki,
+walidacji ani granic zatwierdzania i mutacji.
 
 Moduły deterministyczne nie importują klienta OpenRouter. Sprawdzają to
 `npm run verify:no-llm` oraz bezcykliczny graf modułów `npm run verify:modules`.
@@ -406,7 +430,7 @@ t2c diff --mode git . --rev HEAD --svg worktree.diff.svg
 t2c reality intent.graph.json --diagnostics diagnostics.json --svg reality.svg --md reality.md
 t2c summarize intent.graph.json --diagnostics diagnostics.json --mode require-llm --out team-summary.md
 t2c watch [root] [--interval 60] [--scan-interval 2] [--task TASK.md|none] [--no-summary-llm] [--no-initial-report]
-t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--docs-llm]
+t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--no-docs-llm]
 t2c propose-code-change intent.graph.json --diagnostics diagnostics.json --out plans.json
 t2c propose-source-patch plan.json --out source-patch.json
 t2c apply-source-patch source-patch.json --actor reviewer --approval-hash <patchHash>
@@ -477,12 +501,14 @@ posiadającego plan i dokumentację, `gaps` oraz liczniki diagnostyk. Trend moż
 ```
 
 Narracyjne podsumowania obu przebiegów są zawsze deterministyczne i nie wykonują
-zbędnych zapytań LLM. Dokumentacja LLM po obu stronach jest opcjonalna, ponieważ
-podwaja liczbę zapytań i może wprowadzać niedeterministyczny szum. Jeśli podano
-`--task`, ekstrakcja NL respektuje `T2C_NL_MODE` i jest osobno audytowana:
+zbędnych zapytań LLM. Dokumentacja LLM jest domyślna po obu stronach, a manifesty
+ujawniają rzeczywiste użycie lub fallback. Ponieważ wzbogacenie podwaja liczbę
+zapytań i może wprowadzać niedeterministyczny szum, jawny profil offline używa
+`--no-docs-llm`. Jeśli podano `--task`, ekstrakcja NL respektuje `T2C_NL_MODE`
+i jest osobno audytowana:
 
 ```bash
-t2c compare-workspace . --base origin/main --docs-llm \
+t2c compare-workspace . --base origin/main \
   --docs 'README.md,docs/**/*.md,.intent/runs/<run-id>/team-summary.md' \
   --doc-excludes 'node_modules/**,.git/**,dist/**,TODO.md,CHANGELOG.md'
 ```

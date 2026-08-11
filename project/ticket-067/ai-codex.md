@@ -35,6 +35,11 @@ or accept invalid structured responses.
 - Kept executable edits outside this policy ticket. A separate interface ticket
   now implements and validates the CLI default; the same-source defect and
   programmatic runtime remain separately governed follow-ups.
+- Aligned the public workspace-comparison examples with the interface ticket:
+  documentation enrichment is now the default and `--no-docs-llm` is the
+  explicit offline choice.
+- Aligned the policy with ticket-068's shared MCP/A2A resolver while retaining
+  direct service/runtime defaults as a separate workstream.
 - Passed governance, complete host verification, Docker smoke, diff, intent
   JSON and ticket-local link validation.
 

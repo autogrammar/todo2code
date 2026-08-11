@@ -11,3 +11,7 @@
   authority boundary.
 - Passed governance, full host verification and Docker smoke; moved the ticket
   to `VALIDATION` without claiming publication or merge approval.
+- Aligned workspace-comparison examples with the validated LLM-first CLI
+  default and documented `--no-docs-llm` as the offline escape hatch.
+- Extended the public policy wording to the validated MCP/A2A boundary defaults
+  without claiming the still-blocked direct runtime change.

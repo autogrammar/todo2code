@@ -43,3 +43,10 @@ PASS jq intent validation
 PASS ticket-local Markdown references
 STATE IN_PROGRESS / EDIT -> IN_PROGRESS / VALIDATION
 NOT PERFORMED commit, push, review, publication or merge
+
+2026-08-11 continuation
+
+PASS public README alignment for compare-workspace LLM-first documentation
+  default=audited documentation LLM on base and workspace
+  offline=explicit --no-docs-llm
+PASS policy alignment: CLI, MCP and A2A are user-facing LLM-first interfaces

@@ -16,8 +16,8 @@ without pretending that the model succeeded.
 
 This ticket changes the public LLM operating boundary only. `AGENTS.md` is
 managed and hash-locked by `new-project`, so a target-local override is rejected
-by governance and is not part of this change. The CLI default is implemented
-and validated separately in ticket-068. The live evidence also found a
+by governance and is not part of this change. User-facing CLI, MCP and A2A
+defaults are implemented and validated separately in ticket-068. The live evidence also found a
 same-source false-conflict defect, while active version tickets reserve the
 core and programmatic-runtime workstreams needed for the remaining changes.
 
@@ -36,6 +36,10 @@ core and programmatic-runtime workstreams needed for the remaining changes.
   actually used; failures and quality regressions are recorded rather than
   hidden.
 - [x] AC-06: Governance, link and diff validation pass.
+- [x] AC-07: Public CLI documentation states that workspace documentation
+  comparison is LLM-first with explicit `--no-docs-llm` offline behavior.
+- [x] AC-08: Public policy identifies CLI, MCP and A2A as LLM-first interfaces
+  while keeping direct runtime defaults in their owning workstream.
 
 ## Validation evidence
 
