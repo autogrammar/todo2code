@@ -1,0 +1,2 @@
+2026-08-12T11:33:13Z PLAN: diagnosed direct OpenRouter ownership; no SubLLM import, route or shared-env discovery exists.
+2026-08-12T11:33:13Z WAIT_FOR_APPROVAL: bounded implementation to src/llm and focused LLM tests; no executable change made.

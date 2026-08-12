@@ -7,6 +7,13 @@
   then add three bounded todo2code-grounded skills. Current state:
   `IN_PROGRESS / PUBLICATION`; executable changes remain in target repositories.
 
+## Planned tickets
+
+- [ ] [`ticket-074`](project/ticket-074/README.md) — route Subactor-owned
+  todo2code semantic calls through central SubLLM with direct Z.AI GLM 5.2,
+  OpenRouter fallback ordering and provider-visible application identity.
+  Current state: `PLAN / WAIT_FOR_APPROVAL`; no executable file has changed.
+
 ## Backlog tickets
 
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
