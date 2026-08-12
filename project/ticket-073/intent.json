@@ -48,7 +48,7 @@
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Compile deterministic triggers and bounded evidence into required semantic LLM stages under one canonical fail-closed policy",
       "components": [
         {

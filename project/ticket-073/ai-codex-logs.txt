@@ -11,3 +11,11 @@ exact policy/evidence identity supports safe cache reuse; provider failure does
 not invoke deterministic semantic fallback.
 
 State remains PLAN / WAIT_FOR_APPROVAL. No source or test file changed.
+
+2026-08-12 approval transition
+
+Plan-only commit: f2e68ae.
+Human evidence: `kontynuuj`, after the bounded analysis-policy DSL follow-up
+was proposed.
+Workflow transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT.
+No implementation file existed or changed before this transition.

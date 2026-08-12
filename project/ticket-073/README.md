@@ -2,8 +2,8 @@
 
 - **ID**: ticket-073
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -22,7 +22,7 @@ reviewed before it controls live calls.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human approves this bounded contract before source changes.
+- [x] AC-01: A human approves this bounded contract before source changes.
 - [ ] AC-02: One typed policy renders and parses byte-for-byte in canonical
       `t2c.analysis-policy/v1` form.
 - [ ] AC-03: Unknown vocabulary, duplicate stages, invalid trigger topology and
@@ -41,10 +41,11 @@ reviewed before it controls live calls.
 
 ## Approval gate
 
-Current state is `PLAN / WAIT_FOR_APPROVAL`. The user's earlier instruction to
-continue followed a concrete recommendation for a bounded cost-analysis DSL;
-the transition to `EDIT` will be recorded only after this plan exists in an
-independent commit.
+The plan and intent were committed independently as `f2e68ae` before any
+source change. The user's instruction `kontynuuj` followed the concrete
+recommendation for this bounded cost-analysis DSL and authorizes the transition
+to `IN_PROGRESS / EDIT` on 2026-08-12. This approval does not authorize merge;
+protected exact-head review remains required.
 
 ## Non-goals
 

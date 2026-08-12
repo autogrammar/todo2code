@@ -28,9 +28,9 @@ the analysis method.
 
 ## Actual changes
 
-- None; plan-only commit pending.
+- Plan and intent committed independently as `f2e68ae`; implementation has not
+  started.
 
 ## Blockers
 
-- Implementation remains paused until this plan is committed and the prior
-  explicit continuation is recorded as approval.
+- None. The prior explicit continuation is now recorded as approval.
