@@ -41,8 +41,10 @@ never include it in subprocess output, errors, audits or persisted metadata.
 
 - Created and bounded ticket-074 on branch `ticket-074-subllm-routing`.
 - Diagnosed the direct OpenRouter boundary and proposed a no-new-dependency
-  SubLLM bridge. No executable file has changed.
+  SubLLM bridge.
+- Human owner approved continuation on 2026-08-12; transitioned to
+  `IN_PROGRESS / EDIT` before changing executable files.
 
 ## Blockers
 
-- Human approval of ticket-074 is required before transition to `EDIT`.
+- None at the start of implementation.

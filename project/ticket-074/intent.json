@@ -13,8 +13,8 @@
     "TODO.md",
     "project/TICKETS.md",
     "src/llm/**",
-    "test/*llm*.test.ts",
-    "test/openrouter*.test.ts"
+    "test/subllm.test.ts",
+    "test/openrouter.test.ts"
   ],
   "forbiddenPaths": [
     "project/ticket-*/user-*.md",
@@ -49,12 +49,12 @@
       "maxRuntimeDependencies": 0
     },
     "architecture": {
-      "status": "proposed",
+      "status": "accepted",
       "decision": "Resolve one todo2code/semantic route through the installed Python SubLLM CLI at the existing internal LLM boundary, cache only non-secret route metadata plus the in-memory selected credential, and adapt the provider wire request without changing callers",
       "components": [
         {
           "name": "llm-boundary",
-          "paths": ["src/llm/**", "test/*llm*.test.ts", "test/openrouter*.test.ts"]
+          "paths": ["src/llm/**", "test/subllm.test.ts", "test/openrouter.test.ts"]
         }
       ],
       "responsibilityChanges": true,

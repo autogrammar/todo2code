@@ -2,8 +2,8 @@
 
 - **ID**: ticket-074
 - **Owner**: unresolved:human
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -21,7 +21,7 @@ todo2code API is introduced.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human owner approves this exact scope and transition to `EDIT`.
+- [x] AC-01: A human owner approves this exact scope and transition to `EDIT`.
 - [ ] AC-02: SubLLM resolves `todo2code/semantic` to direct Z.AI GLM 5.2 when
   the shared Z.AI credential is valid, with OpenRouter ordered second.
 - [ ] AC-03: The Node LLM boundary consumes SubLLM's resolved public route and
@@ -44,10 +44,9 @@ todo2code API is introduced.
 
 ## Approval gate
 
-Current state is `WAIT_FOR_APPROVAL`. No executable todo2code file may change
-until the human owner approves this plan. Approval permits transition to
-`IN_PROGRESS / EDIT`; it does not authorize merge, deployment or secret
-disclosure.
+The human owner approved continuation on 2026-08-12 after reviewing the bounded
+plan. The ticket is now `IN_PROGRESS / EDIT`. This approval permits the scoped
+implementation; it does not authorize merge, deployment or secret disclosure.
 
 ## Non-goals
 
