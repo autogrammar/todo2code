@@ -1,0 +1,75 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-074",
+  "summary": "Route semantic LLM calls through SubLLM",
+  "workstream": "llm",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-074/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/llm/**",
+    "test/subllm.test.ts",
+    "test/openrouter.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/config/**",
+    "src/pipeline/**",
+    "src/interfaces/**",
+    "package.json",
+    "package-lock.json",
+    ".env",
+    ".env.example"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "2264f272228de2eeca247305c891701fcd2cdd3a",
+    "targetBranch": "main",
+    "outcome": "Subactor-owned todo2code semantic calls use the centrally resolved SubLLM provider, model, credentials and application identity",
+    "nonGoals": [
+      "No automatic replay after a paid provider request starts",
+      "No duplicated provider or model catalog in todo2code",
+      "No public todo2code API change",
+      "No new npm runtime dependency"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 4,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Resolve one todo2code/semantic route through the installed Python SubLLM CLI at the existing internal LLM boundary, cache only non-secret route metadata plus the in-memory selected credential, and adapt the provider wire request without changing callers",
+      "components": [
+        {
+          "name": "llm-boundary",
+          "paths": ["src/llm/**", "test/subllm.test.ts", "test/openrouter.test.ts"]
+        }
+      ],
+      "responsibilityChanges": true,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Disable the SubLLM integration flag or revert the ticket branch; deterministic extraction and the standalone OpenRouter path remain unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["subllm resolve todo2code semantic"], "evidence": "Public route reports provider zai and wire model glm-5.2 with priority 10"},
+      {"criterion": "AC-03", "commands": ["npm test -- --test-name-pattern=SubLLM"], "evidence": "Secret-safe bridge and failure cases pass"},
+      {"criterion": "AC-04", "commands": ["npm test -- --test-name-pattern=Z.AI"], "evidence": "Captured request contains Z.AI identity and excludes OpenRouter-only fields"},
+      {"criterion": "AC-06", "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"], "evidence": "Host, governance and Docker gates pass"},
+      {"criterion": "AC-07", "commands": ["bounded live structured request"], "evidence": "HTTP 200 and response model glm-5.2 with secret-free audit"}
+    ]
+  }
+}

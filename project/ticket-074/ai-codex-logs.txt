@@ -1,0 +1,10 @@
+2026-08-12T11:33:13Z PLAN: diagnosed direct OpenRouter ownership; no SubLLM import, route or shared-env discovery exists.
+2026-08-12T11:33:13Z WAIT_FOR_APPROVAL: bounded implementation to src/llm and focused LLM tests; no executable change made.
+2026-08-12T11:47:00Z EDIT: human owner approved continuation; executable work may begin within intent.json allowedPaths.
+2026-08-12T12:04:00Z VALIDATION: SubLLM 43 tests/Ruff/build PASS; focused todo2code bridge 3/3 PASS; governance PASS; Docker smoke PASS.
+2026-08-12T12:04:00Z LIVE: production todo2code OpenRouterClient resolved todo2code/semantic to direct zai glm-5.2; structured marker PASS; 157 total tokens; no credential or response content persisted.
+2026-08-12T12:04:00Z HOST: full verification previously passed on the implementation; latest repeat had one unrelated cli-watch timeout among 429 tests, and its isolated retry passed in 1.9 seconds.
+2026-08-12T12:06:00Z HOST-RERUN: full npm run verify PASS; 428 passed, 0 failed, 1 expected local JDK skip.
+2026-08-12T12:13:00Z KORU-REPAIR: isolated subprocess/credential handling after deterministic CC=22 finding; local Lizard has no CC>15 finding; full verify and Docker smoke PASS.
+2026-08-12T12:15:53Z LLM-AUDIT: required-LLM run used SubLLM/Z.AI GLM-5.2 for all 11 responses (449820 total tokens); one output-limit partial, no dependency or routing failure.
+2026-08-12T12:15:53Z VALIDATION: effective-route audit and provider-correct diagnostics added; focused 31/31, full verify, governance 0/0, Lizard and Docker smoke PASS.

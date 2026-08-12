@@ -6,6 +6,11 @@
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
   `IN_PROGRESS / PUBLICATION`; executable changes remain in target repositories.
+- [ ] [`ticket-074`](project/ticket-074/README.md) — route Subactor-owned
+  todo2code semantic calls through central SubLLM with direct Z.AI GLM 5.2,
+  OpenRouter fallback ordering and provider-visible application identity.
+  Current state: `IN_PROGRESS / VALIDATION`; required-LLM routing, audit-label
+  hardening and all local gates are complete, pending exact-head review.
 
 ## Backlog tickets
 
