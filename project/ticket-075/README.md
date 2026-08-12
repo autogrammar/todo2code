@@ -2,8 +2,8 @@
 
 - **ID**: ticket-075
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: CLOSE
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -67,6 +67,10 @@ approval; protected exact-head Validator evidence remains required.
 - The repeated Goal ticket-055 pipeline still resolves only `agent:codex` and
   reports zero unresolved identities; the remaining 12 ambiguous requirements
   are renderer granularity findings owned by the subsequent new-project repair.
+- PR #90 received trusted exact-head approval from
+  `ifuri-validator-agent[bot]` for `9979cb280533`, after hosted verify, required
+  JDK, Koru and protected governance passed. It was squash-merged to `main` as
+  `8e4f8f6a6636db43214936746a258d16a0e141e1`.
 
 ## Non-goals
 

@@ -13,3 +13,6 @@
 2026-08-12T16:21:00Z full npm run verify: PASS, 420 tests (419 pass, 1 existing JDK skip). Governance: PASS, 0 errors, 0 warnings. Docker smoke: PASS.
 2026-08-12T16:22:00Z real Goal ticket-055 deterministic pipeline: PASS; communication participants=[agent:codex], PARTICIPANT_IDENTITY_UNRESOLVED=0, projection warnings=0. Remaining AMBIGUOUS_REQUIREMENT=12 belongs to new-project renderer granularity, outside ticket-075.
 2026-08-12T16:22:00Z ticket moved to IN_PROGRESS/PUBLICATION for updated exact-head PR review.
+2026-08-12T16:26:28Z hosted PR #90 checks on 9979cb280533: verify PASS, required JDK PASS, Koru 0.1.444 PASS.
+2026-08-12T16:28:46Z trusted ifuri-validator-agent[bot] deterministic approval bound PR #90, ticket-075 and exact head 9979cb280533d098a1191dc29de5626e24c12c88; protected governance subsequently passed.
+2026-08-12T16:30:34Z PR #90 squash-merged to main as 8e4f8f6a6636db43214936746a258d16a0e141e1; remote ticket branch auto-deleted. Ticket moved to DONE/CLOSE.
