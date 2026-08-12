@@ -8,3 +8,22 @@
 2026-08-12T12:13:00Z KORU-REPAIR: isolated subprocess/credential handling after deterministic CC=22 finding; local Lizard has no CC>15 finding; full verify and Docker smoke PASS.
 2026-08-12T12:15:53Z LLM-AUDIT: required-LLM run used SubLLM/Z.AI GLM-5.2 for all 11 responses (449820 total tokens); one output-limit partial, no dependency or routing failure.
 2026-08-12T12:15:53Z VALIDATION: effective-route audit and provider-correct diagnostics added; focused 31/31, full verify, governance 0/0, Lizard and Docker smoke PASS.
+
+2026-08-12 protected publication
+
+PR #88 exact head: 4c35747ae4a8c7ca1fca1187ef56ab0d1675b03e.
+Koru, hosted verify, required JDK and review-triggered governance: PASS.
+
+Validator-agent workflow run: 31596459305.
+Reviewed chunks: 5.
+Deterministic decision: APPROVE.
+Advisory model: openrouter/z-ai/glm-5.2.
+Advisory verdict: APPROVE.
+Blocking findings: none.
+Validated head remained exact and stable.
+
+PR #88 squash merge: ceae6963279e6dc70fac901c4ee9e7b93cf68b94.
+Remote implementation branch deleted.
+Post-merge CI run 31596778339: verify, Docker smoke, governance and required
+Java PASS.
+Workflow transition: IN_PROGRESS / VALIDATION -> DONE / DONE.

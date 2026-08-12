@@ -25,3 +25,7 @@
 - Added secret-free effective SubLLM route fields to persisted audit
   configuration and provider-correct Z.AI parsing/model diagnostics.
 - Returned to `IN_PROGRESS / VALIDATION` for a new protected exact-head review.
+- Passed exact-head Koru and validator-agent review; GLM-5.2 approved all five
+  chunks with no blocking findings.
+- Merged protected PR #88 as `main@ceae696`, passed post-merge CI and closed
+  the ticket as `DONE / DONE`.

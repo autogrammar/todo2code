@@ -6,11 +6,6 @@
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
   `IN_PROGRESS / PUBLICATION`; executable changes remain in target repositories.
-- [ ] [`ticket-074`](project/ticket-074/README.md) — route Subactor-owned
-  todo2code semantic calls through central SubLLM with direct Z.AI GLM 5.2,
-  OpenRouter fallback ordering and provider-visible application identity.
-  Current state: `IN_PROGRESS / VALIDATION`; required-LLM routing, audit-label
-  hardening and all local gates are complete, pending exact-head review.
 
 ## Backlog tickets
 
@@ -26,6 +21,11 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-074`](project/ticket-074/README.md) — routes Subactor-owned
+  semantic calls through central SubLLM with direct Z.AI GLM 5.2, OpenRouter
+  fallback ordering and provider-visible identity. Koru, independent GLM-5.2
+  review and protected checks passed; PR #88 merged as `main@ceae696`.
+  Current state: `DONE / DONE`.
 - [x] [`ticket-073`](project/ticket-073/README.md) — defines canonical
   `t2c.analysis-policy/v1` selection, exact-evidence caching and nested
   request/token/time ceilings while requiring LLM for selected semantic stages.
