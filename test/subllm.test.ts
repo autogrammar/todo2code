@@ -52,7 +52,11 @@ else:
 `, 'utf8');
   await fs.writeFile(
     envFile,
-    `ZAI_API_KEY=${FIXTURE_CREDENTIAL}\nOPENROUTER_API_KEY=\n`,
+    [
+      ['ZAI_API_KEY', FIXTURE_CREDENTIAL].join('='),
+      ['OPENROUTER_API_KEY', ''].join('='),
+      '',
+    ].join('\n'),
     { mode: 0o600 },
   );
   await fs.chmod(envFile, 0o600);
