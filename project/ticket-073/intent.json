@@ -1,0 +1,89 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-073",
+  "summary": "Define analysis budget DSL",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P1",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-073/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/evaluation/analysis-policy.ts",
+    "test/structured-analysis-policy.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/types.ts",
+    "src/pipeline/**",
+    "src/interfaces/**",
+    "src/llm/**",
+    "src/config/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": ["ticket-072"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "b6bf991396640092217f8090c79c591fc5d53eee",
+    "targetBranch": "main",
+    "outcome": "A canonical analysis-policy DSL selects detailed LLM stages deterministically and bounds their maximum requests, tokens and elapsed time without semantic fallback",
+    "nonGoals": [
+      "No runtime, CLI, provider or pipeline integration",
+      "No mutable model-pricing data",
+      "No public SDK or interface change",
+      "No deterministic semantic fallback"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Compile deterministic triggers and bounded evidence into required semantic LLM stages under one canonical fail-closed policy",
+      "components": [
+        {
+          "name": "analysis-policy-contract",
+          "paths": [
+            "src/evaluation/analysis-policy.ts",
+            "test/structured-analysis-policy.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Introduces the internal t2c.analysis-policy/v1 canonical text contract"
+      ],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the standalone contract and focused test; no runtime consumer exists in this ticket"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/structured-analysis-policy.test.js"],
+        "evidence": "Canonical policy round-trips byte-for-byte"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node --test dist/test/structured-analysis-policy.test.js"],
+        "evidence": "Malformed vocabulary, topology and request/token/time budgets fail closed"
+      },
+      {
+        "criterion": "AC-06",
+        "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"],
+        "evidence": "Host, policy and Docker validation pass"
+      }
+    ]
+  }
+}
