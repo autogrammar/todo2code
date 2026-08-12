@@ -3,7 +3,7 @@
 - **ID**: ticket-074
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -22,18 +22,18 @@ todo2code API is introduced.
 ## Acceptance criteria
 
 - [x] AC-01: A human owner approves this exact scope and transition to `EDIT`.
-- [ ] AC-02: SubLLM resolves `todo2code/semantic` to direct Z.AI GLM 5.2 when
+- [x] AC-02: SubLLM resolves `todo2code/semantic` to direct Z.AI GLM 5.2 when
   the shared Z.AI credential is valid, with OpenRouter ordered second.
-- [ ] AC-03: The Node LLM boundary consumes SubLLM's resolved public route and
+- [x] AC-03: The Node LLM boundary consumes SubLLM's resolved public route and
   the selected credential without printing or persisting the credential.
-- [ ] AC-04: Z.AI requests carry `user_id=todo2code`, a bounded unique
+- [x] AC-04: Z.AI requests carry `user_id=todo2code`, a bounded unique
   `request_id`, `model=glm-5.2`, and no OpenRouter-only fields.
-- [ ] AC-05: Existing explicit standalone OpenRouter behavior remains
+- [x] AC-05: Existing explicit standalone OpenRouter behavior remains
   available outside the Subactor integration; an explicitly requested but
   unavailable SubLLM route fails closed rather than silently bypassing policy.
-- [ ] AC-06: Focused tests, full todo2code verification, governance checks,
+- [x] AC-06: Focused tests, full todo2code verification, governance checks,
   Docker checks and SubLLM verification pass.
-- [ ] AC-07: One minimal structured-output request through the production
+- [x] AC-07: One minimal structured-output request through the production
   todo2code LLM boundary returns HTTP 200 from direct Z.AI and reports
   `glm-5.2`, without exposing the credential.
 
@@ -45,8 +45,28 @@ todo2code API is introduced.
 ## Approval gate
 
 The human owner approved continuation on 2026-08-12 after reviewing the bounded
-plan. The ticket is now `IN_PROGRESS / EDIT`. This approval permits the scoped
-implementation; it does not authorize merge, deployment or secret disclosure.
+plan. Local implementation and validation are complete, so the ticket is now
+`IN_PROGRESS / VALIDATION` pending protected exact-head review. The approval
+permitted the scoped implementation; it does not authorize secret disclosure.
+
+## Verification evidence
+
+- SubLLM verification passed 43 tests plus Ruff, package build and policy
+  checks. Its public route resolves `todo2code/semantic` to direct `zai`,
+  logical and wire model `glm-5.2`, priority 10; OpenRouter remains the second
+  configured candidate.
+- Focused todo2code bridge tests pass 3/3, including direct Z.AI request shape,
+  secret-safe shared credential loading and fail-closed missing-package
+  behavior. The final full host verification passes 428 tests with one expected
+  local JDK skip; an earlier unrelated watch timing flake passed both its
+  isolated retry and the final full rerun.
+- Governance passes with 0 errors and 0 warnings. Docker image build, health
+  and doctor smoke pass.
+- A minimal live structured request through production `OpenRouterClient`
+  resolved `todo2code/semantic` via SubLLM to
+  `https://api.z.ai/api/coding/paas/v4`, returned provider `zai`, model
+  `glm-5.2`, response ID `20260812200120928ace40448f43fc` and 157 total
+  tokens. No credential or response content was recorded.
 
 ## Non-goals
 

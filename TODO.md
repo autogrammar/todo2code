@@ -9,8 +9,8 @@
 - [ ] [`ticket-074`](project/ticket-074/README.md) — route Subactor-owned
   todo2code semantic calls through central SubLLM with direct Z.AI GLM 5.2,
   OpenRouter fallback ordering and provider-visible application identity.
-  Current state: `IN_PROGRESS / EDIT`; the bounded plan was approved on
-  2026-08-12.
+  Current state: `IN_PROGRESS / VALIDATION`; local host, Docker, governance and
+  live direct-Z.AI evidence are complete, pending protected exact-head review.
 
 ## Backlog tickets
 

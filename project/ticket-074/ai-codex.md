@@ -44,7 +44,18 @@ never include it in subprocess output, errors, audits or persisted metadata.
   SubLLM bridge.
 - Human owner approved continuation on 2026-08-12; transitioned to
   `IN_PROGRESS / EDIT` before changing executable files.
+- Added a shell-free bridge that resolves `todo2code/semantic`, consumes only
+  its selected credential, exposes only public route metadata and fails closed
+  when explicitly enabled without a usable SubLLM package.
+- Adapted the existing transport for direct Z.AI request identity and JSON
+  object mode while preserving standalone OpenRouter behavior and prohibiting
+  cross-provider replay after a request begins.
+- Verified SubLLM, focused and full host behavior, governance and Docker. A
+  production structured call selected direct `zai` / `glm-5.2`, returned the
+  exact marker and reported 157 total tokens without exposing a credential.
+- Transitioned to `IN_PROGRESS / VALIDATION` for protected exact-head review.
 
 ## Blockers
 
-- None at the start of implementation.
+- None. Local acceptance criteria are complete; protected publication evidence
+  remains pending.
