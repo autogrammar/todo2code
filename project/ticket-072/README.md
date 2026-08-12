@@ -2,8 +2,8 @@
 
 - **ID**: ticket-072
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -62,3 +62,14 @@ result or change retry behavior.
   CLI and manifest retained the actionable reason with a redaction marker,
   contained no key-management path or raw fingerprint, published no graph and
   reported `effectiveMode=none`.
+- The implementation history was corrected to preserve an independent
+  plan-and-intent commit before the first code change; the final source tree
+  remained identical.
+- Koru, full hosted verification, required JDK and review-triggered governance
+  passed on exact head `752292826de01d5f5ad8c505c265774a923a4ca1`.
+- Independent `validator-agent` reviewed all three diff chunks with
+  `openrouter/z-ai/glm-5.2`, returned `APPROVE` with no findings and submitted
+  an exact-head approval.
+- Protected PR #84 merged as
+  `main@790b86791d64640d61d5228f1551d65dc0891640`; post-merge verify,
+  governance, required JDK and Docker smoke passed.

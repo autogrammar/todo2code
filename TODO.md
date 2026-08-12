@@ -2,10 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-072`](project/ticket-072/README.md) — redact provider
-  key-management identifiers once at the OpenRouter boundary without changing
-  `require-llm`, retry or fallback behavior. Current state:
-  `IN_PROGRESS / EDIT`; local verification is complete.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
@@ -25,6 +21,11 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-072`](project/ticket-072/README.md) — redacts credentials,
+  contextual credential identifiers and provider management URLs once at the
+  OpenRouter boundary while preserving actionable diagnostics and fail-closed
+  `require-llm`. Koru, independent GLM-5.2 review and protected checks passed;
+  PR #84 merged as `main@790b867`. Current state: `DONE / DONE`.
 - [x] [`ticket-062`](project/ticket-062/README.md) — adopted immutable
   new-project v0.14.0 at exact SHA `a22eb47`, preserved all eight target
   workstreams, assigned `test/python-runtime.test.ts` to `sdk`, aligned the

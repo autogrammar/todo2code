@@ -56,3 +56,23 @@ The regexes were moved to module constants and brace-bearing expressions were
 represented as RegExp strings outside the function. Focused tests and
 governance remained green. A local Vallm pass completed both selected files;
 the hosted pinned version remains authoritative and will rerun on the new SHA.
+
+2026-08-12 protected publication and closure
+
+The first review-triggered governance run exposed a history invariant rather
+than a source defect: intent.json had been introduced in the same commit as the
+first implementation change. The branch was rebuilt as plan -> implementation
+-> refactor/evidence. Final tree b8e4edff6085c56be40bcd98e1105c76fa21cebe
+was identical before and after the history correction.
+
+Exact implementation head 752292826de01d5f5ad8c505c265774a923a4ca1:
+- PASS Koru deterministic review,
+- PASS hosted verify and Docker smoke,
+- PASS required Java adapter,
+- APPROVE validator-agent using openrouter/z-ai/glm-5.2 over 3 chunks,
+- PASS review-triggered governance after one retried transient GitHub API 500.
+
+Protected PR #84 merged as 790b86791d64640d61d5228f1551d65dc0891640.
+The implementation branch was deleted. Post-merge CI 31576695926 passed
+verify, Docker smoke, governance and required Java. Closure changes only ticket
+state and publication evidence; no runtime, test or authority file changes.
