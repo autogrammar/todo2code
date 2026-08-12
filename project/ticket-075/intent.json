@@ -1,0 +1,82 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-075",
+  "summary": "Ignore generated remediation projections as participant communication",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "src/extractors/communication.ts",
+    "test/generated-remediation-projections.test.ts",
+    "project/ticket-075/**"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/pipeline/**",
+    "src/communication/**",
+    "src/core/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "0dfb82c3c6b2d6af795c5a3263ca9e24a5652560",
+    "targetBranch": "main",
+    "outcome": "Generated remediation task and TODO projections are consumed once as planning inputs and never become anonymous participant communication",
+    "nonGoals": [
+      "No filtering of explicitly typed participant communication",
+      "No change to NL, TODO, changelog, graph or plan semantics",
+      "No public API, schema, package-version or dependency change"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Extend the existing ticket-evidence filename classifier with conventional task/TODO projection suffixes while preserving explicit-front-matter opt-in",
+      "components": [
+        {
+          "name": "communication-extractor",
+          "paths": [
+            "src/extractors/communication.ts",
+            "test/generated-remediation-projections.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the ticket branch; generated projections will again appear as unresolved participants but no persisted schema changes are involved"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["node --test dist/test/generated-remediation-projections.test.js"],
+        "evidence": "project/ticket-075/ai-codex-logs.txt"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node --test dist/test/generated-remediation-projections.test.js"],
+        "evidence": "project/ticket-075/ai-codex-logs.txt"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"],
+        "evidence": "project/ticket-075/ai-codex-logs.txt"
+      }
+    ]
+  }
+}
