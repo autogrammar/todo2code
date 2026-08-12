@@ -1,0 +1,85 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-072",
+  "summary": "Redact provider management identifiers at the LLM boundary",
+  "workstream": "llm",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-072/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/llm/openrouter.ts",
+    "test/openrouter.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/pipeline/**",
+    "src/interfaces/**",
+    "src/extractors/**",
+    "src/summary/**",
+    "src/synthesis/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "2380dd8b2f7d4bdc594613701eb770d7e251d0b3",
+    "targetBranch": "main",
+    "outcome": "Every OpenRouter failure crossing the LLM boundary preserves actionable status while redacting credential identifiers and provider management URLs",
+    "nonGoals": [
+      "No model, retry, timeout, limit or fallback change",
+      "No public contract or schema change",
+      "No persistence of raw provider error bodies"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Sanitize provider errors once inside the OpenRouter adapter before any extractor, pipeline or protocol boundary observes them",
+      "components": [
+        {
+          "name": "openrouter-error-boundary",
+          "paths": ["src/llm/openrouter.ts", "test/openrouter.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Failure messages replace credential-shaped values and management URLs with stable redaction markers"
+      ],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the adapter redaction and its focused tests; no persisted successful graph depends on the change"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["npm run build", "node --test dist/test/openrouter.test.js"],
+        "evidence": "Credential identifiers and management URLs are absent from thrown errors"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node --test dist/test/openrouter.test.js"],
+        "evidence": "Non-sensitive provider and invalid-model diagnostics remain unchanged"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"],
+        "evidence": "Host, policy and Docker validation pass"
+      }
+    ]
+  }
+}

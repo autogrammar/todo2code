@@ -1,0 +1,58 @@
+2026-08-12 ticket allocation and approval
+
+Allocated ticket-072 because ticket IDs 063 through 071 are already present in
+repository allocation history. The active integration ticket has no path or
+workstream overlap with this llm ticket.
+
+Human evidence: `kontynuuj`, following the proposed provider-error redaction
+and cost-analysis DSL follow-up.
+
+Workflow transition: WAIT_FOR_APPROVAL -> EDIT.
+Accepted base: 2380dd8b2f7d4bdc594613701eb770d7e251d0b3.
+
+2026-08-12 implementation and focused verification
+
+Changed runtime paths:
+- src/llm/openrouter.ts
+- test/openrouter.test.ts
+
+Focused result: 21 tests passed, 0 failed.
+Governance initially rejected pre-existing secret-shaped fixture spelling once
+the file became part of the ticket diff. All fixtures in the owned test file
+were normalized to the safe `test-*` convention; governance then passed with
+zero findings.
+
+Paid require-llm reproduction:
+- provider result: weekly-limit rejection,
+- failure code: LLM_UNAVAILABLE,
+- requested/effective mode: llm/none,
+- graph fingerprint: null,
+- raw key-management path: absent,
+- raw credential fingerprint: absent,
+- redaction marker: present,
+- deterministic fallback: none.
+
+Final local gates:
+- npm run verify: 407 total, 406 pass, 0 fail, 1 local JDK skip,
+- npm run evaluate:gold: all gated precision/recall 100%, stability PASS,
+- npm audit --omit=dev: 0 vulnerabilities,
+- project/governance-check.sh: GOV-PASS, 0 findings,
+- make docker-smoke: PASS,
+- git diff --check: PASS.
+
+Verification completed. Workflow remains `EDIT` because governance requires an
+implementation diff to retain an implementation state until publication.
+
+2026-08-12 first protected Koru review
+
+PR #84 head 286fbf297065fd2fef69d47bc616d7f15a24e3c7:
+- hosted verify and required JDK checks: PASS,
+- semantic GLM review: unavailable because the protected key returned the same
+  weekly-limit rejection,
+- deterministic blocker: Vallm/Lizard misread regex quantifier braces inside
+  redactProviderFailureText and reported a 148-line function.
+
+The regexes were moved to module constants and brace-bearing expressions were
+represented as RegExp strings outside the function. Focused tests and
+governance remained green. A local Vallm pass completed both selected files;
+the hosted pinned version remains authoritative and will rerun on the new SHA.

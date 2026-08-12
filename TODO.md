@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-072`](project/ticket-072/README.md) — redact provider
+  key-management identifiers once at the OpenRouter boundary without changing
+  `require-llm`, retry or fallback behavior. Current state:
+  `IN_PROGRESS / EDIT`; local verification is complete.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
