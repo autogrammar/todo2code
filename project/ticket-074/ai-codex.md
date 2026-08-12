@@ -59,8 +59,9 @@ never include it in subprocess output, errors, audits or persisted metadata.
   credential-file handling, adding raw provider-token redaction and cleaning
   test fixtures. Local Lizard now reports no CC>15 finding; the full host and
   Docker gates pass after the change.
+- Added secret-free effective-route audit evidence and provider-correct response
+  diagnostics, then returned the ticket to `IN_PROGRESS / VALIDATION`.
 
 ## Blockers
 
-- None. Bounded observability hardening is in progress before protected
-  exact-head review.
+- None. Protected exact-head review and publication evidence remain pending.

@@ -139,7 +139,7 @@ export class OpenRouterClient {
       max_tokens: this.config.maxTokens,
     });
     const content = extractContent(response);
-    if (!content.trim()) throw new Error('OpenRouter returned an empty response');
+    if (!content.trim()) throw new Error(`${responseProviderLabel(response)} returned an empty response`);
     return { value: content.trim(), metadata: responseMetadata(response) };
   }
 
@@ -281,7 +281,7 @@ export class OpenRouterClient {
     const message = redactProviderFailureText(parsed.error?.message ?? text.slice(0, 500), transport.credential);
     const error = new Error(`${transport.providerLabel} HTTP ${response.status}: ${message}`);
     if (!isInvalidModelError(response.status, message)) throw error;
-    throw await this.invalidModelError(error, body.model);
+    throw await this.invalidModelError(error, body.model, transport.providerLabel);
   }
 
   private async transport(): Promise<LlmTransport> {
@@ -325,18 +325,22 @@ export class OpenRouterClient {
     };
   }
 
-  private async invalidModelError(error: Error, configuredModel: unknown): Promise<OpenRouterModelError> {
+  private async invalidModelError(
+    error: Error,
+    configuredModel: unknown,
+    providerLabel: LlmTransport['providerLabel'],
+  ): Promise<OpenRouterModelError> {
     const model = typeof configuredModel === 'string' ? configuredModel : '(unknown)';
     try {
       const availableModels = await this.listAvailableModels();
       return new OpenRouterModelError(
-        formatInvalidModelError(error.message, availableModels),
+        formatInvalidModelError(error.message, availableModels, providerLabel),
         model,
         availableModels,
       );
     } catch (listError) {
       return new OpenRouterModelError(
-        `${error.message}\nAvailable OpenRouter models could not be fetched: ${listError instanceof Error ? listError.message : String(listError)}`,
+        `${error.message}\nAvailable ${providerLabel} models could not be fetched: ${listError instanceof Error ? listError.message : String(listError)}`,
         model,
         [],
       );
@@ -476,8 +480,12 @@ function isInvalidModelError(status: number, message: string): boolean {
   return status === 400 && /(?:not a valid model ID|invalid model(?: ID)?|model ID .*not found)/i.test(message);
 }
 
-function formatInvalidModelError(message: string, availableModels: string[]): string {
-  const heading = `Available OpenRouter models (${availableModels.length}):`;
+function formatInvalidModelError(
+  message: string,
+  availableModels: string[],
+  providerLabel: LlmTransport['providerLabel'],
+): string {
+  const heading = `Available ${providerLabel} models (${availableModels.length}):`;
   if (!availableModels.length) return `${message}\n${heading}\n(none returned)`;
   return `${message}\n${heading}\n${availableModels.map((model) => `- ${model}`).join('\n')}`;
 }
@@ -500,10 +508,10 @@ function extractContent(response: OpenRouterResponse): string {
   const content = response.choices?.[0]?.message?.content;
   if (typeof content === 'string') return content;
   if (Array.isArray(content)) return content.map((part) => part.text ?? '').join('');
-  throw new Error('OpenRouter response does not contain choices[0].message.content');
+  throw new Error(`${responseProviderLabel(response)} response does not contain choices[0].message.content`);
 }
 
-function parseJsonContent<T>(content: string): T {
+function parseJsonContent<T>(content: string, providerLabel: string): T {
   const trimmed = content.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
   try {
     return JSON.parse(trimmed) as T;
@@ -517,18 +525,24 @@ function parseJsonContent<T>(content: string): T {
         // Fall through to the detailed error below.
       }
     }
-    throw new Error(`OpenRouter JSON parsing failed: ${error instanceof Error ? error.message : String(error)}; response=${trimmed.slice(0, 500)}`);
+    throw new Error(`${providerLabel} JSON parsing failed: ${error instanceof Error ? error.message : String(error)}; response=${trimmed.slice(0, 500)}`);
   }
 }
 
 function parseJsonResponse<T>(response: OpenRouterResponse): OpenRouterResult<T> {
   const metadata = responseMetadata(response);
   try {
-    return { value: parseJsonContent<T>(extractContent(response)), metadata };
+    return { value: parseJsonContent<T>(extractContent(response), responseProviderLabel(response)), metadata };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new StructuredResponseError(message, metadata);
   }
+}
+
+function responseProviderLabel(response: OpenRouterResponse): string {
+  if (response.provider === 'zai') return 'Z.AI';
+  if (response.provider === 'openrouter') return 'OpenRouter';
+  return 'LLM';
 }
 
 function sleep(milliseconds: number, signal: AbortSignal): Promise<void> {

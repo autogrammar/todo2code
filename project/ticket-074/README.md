@@ -3,7 +3,7 @@
 - **ID**: ticket-074
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: VALIDATION
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -45,11 +45,11 @@ todo2code API is introduced.
 ## Approval gate
 
 The human owner approved continuation on 2026-08-12 after reviewing the bounded
-plan. A required-LLM validation run proved the route but exposed provider-stale
-audit configuration and parser labels, so the ticket returned to
-`IN_PROGRESS / EDIT` for bounded observability hardening before exact-head
-review. The approval permitted the scoped implementation; it does not authorize
-secret disclosure.
+plan. A required-LLM validation run proved the route and exposed provider-stale
+audit configuration and parser labels. The bounded repair is complete, so the
+ticket is `IN_PROGRESS / VALIDATION` pending a new protected exact-head review.
+The approval permitted the scoped implementation; it does not authorize secret
+disclosure.
 
 ## Verification evidence
 
@@ -68,6 +68,12 @@ secret disclosure.
   first Koru run identified `CC=22`; isolating subprocess/credential handling
   reduced the highest reported function complexity to 13 without changing the
   transport contract.
+- A required-LLM pipeline run produced 11 audited responses, all through
+  `subllm -> zai -> glm-5.2`, using 449,820 total tokens. One documentation
+  response reached the 6,000-token output limit and was partial; the provider
+  route and dependency resolution did not fail. The repaired audit now records
+  the effective SubLLM application, function, provider, model, priority and API
+  base, and response parsing names Z.AI rather than OpenRouter.
 - A minimal live structured request through production `OpenRouterClient`
   resolved `todo2code/semantic` via SubLLM to
   `https://api.z.ai/api/coding/paas/v4`, returned provider `zai`, model

@@ -22,3 +22,6 @@
   subprocess and credential-file mechanics, strengthening raw provider-token
   redaction and cleaning temporary test fixtures; post-change host and Docker
   validation pass.
+- Added secret-free effective SubLLM route fields to persisted audit
+  configuration and provider-correct Z.AI parsing/model diagnostics.
+- Returned to `IN_PROGRESS / VALIDATION` for a new protected exact-head review.

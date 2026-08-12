@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { openRouterAuditConfiguration } from '../src/llm/audit.js';
 import { OpenRouterClient } from '../src/llm/openrouter.js';
 import { resolveSubllmRoute, shouldUseSubllm } from '../src/llm/subllm.js';
 import { makeConfig } from './helpers.js';
@@ -10,7 +11,7 @@ import { makeConfig } from './helpers.js';
 interface Fixture {
   root: string;
   envFile: string;
-  restore: () => void;
+  cleanup: () => Promise<void>;
 }
 
 const FIXTURE_CREDENTIAL = ['id', 'fixture-value'].join('.');
@@ -70,12 +71,13 @@ else:
   return {
     root,
     envFile,
-    restore: () => {
+    cleanup: async () => {
       for (const name of names) {
         const value = previous.get(name);
         if (value === undefined) delete process.env[name];
         else process.env[name] = value;
       }
+      await fs.rm(root, { recursive: true, force: true });
     },
   };
 }
@@ -91,7 +93,7 @@ test('SubLLM bridge resolves the selected central route without command-shell in
     assert.equal(resolved.credential, FIXTURE_CREDENTIAL);
     assert.equal(JSON.stringify(resolved.route).includes('fixture-value'), false);
   } finally {
-    fixture.restore();
+    await fixture.cleanup();
   }
 });
 
@@ -102,6 +104,7 @@ test('todo2code sends structured semantic requests through direct Z.AI resolved 
   let url = '';
   let headers: Record<string, string> = {};
   let body: Record<string, unknown> = {};
+  let responseContent = '{"ok":true}';
   globalThis.fetch = async (input, init) => {
     url = String(input);
     headers = init?.headers as Record<string, string>;
@@ -111,7 +114,7 @@ test('todo2code sends structured semantic requests through direct Z.AI resolved 
       request_id: body.request_id,
       model: 'glm-5.2',
       usage: { prompt_tokens: 12, completion_tokens: 4, total_tokens: 16 },
-      choices: [{ message: { content: '{"ok":true}' } }],
+      choices: [{ message: { content: responseContent } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
   try {
@@ -139,9 +142,31 @@ test('todo2code sends structured semantic requests through direct Z.AI resolved 
     const messages = body.messages as Array<{ role: string; content: string }>;
     assert.match(messages[0]?.content ?? '', /"required":\["ok"\]/u);
     assert.equal(JSON.stringify(body).includes('fixture-value'), false);
+
+    const audit = openRouterAuditConfiguration(config, config.openRouter.model);
+    assert.deepEqual(audit.effectiveRouting, {
+      source: 'subllm',
+      status: 'resolved',
+      application: 'todo2code',
+      function: 'semantic',
+      provider: 'zai',
+      model: 'glm-5.2',
+      wireModel: 'glm-5.2',
+      priority: 10,
+      apiBase: 'https://api.z.ai/api/coding/paas/v4',
+    });
+    assert.equal(JSON.stringify(audit).includes('fixture-value'), false);
+
+    responseContent = '{"ok":';
+    await assert.rejects(
+      () => client.chatJson([{ role: 'user', content: 'Return the requested object.' }], 'invalid_json', {}),
+      (error: unknown) => error instanceof Error
+        && /Z\.AI JSON parsing failed/u.test(error.message)
+        && !error.message.includes('OpenRouter JSON parsing failed'),
+    );
   } finally {
     globalThis.fetch = originalFetch;
-    fixture.restore();
+    await fixture.cleanup();
   }
 });
 
