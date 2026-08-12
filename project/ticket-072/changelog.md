@@ -19,3 +19,13 @@
   published.
 - Restructured regex constants after the first protected Koru run exposed a
   Lizard parsing false positive; no redaction behavior or policy was weakened.
+
+## [0.2.0] - 2026-08-12
+
+- Split the approved plan and intent into their own pre-implementation commit
+  to satisfy the protected `new-project` history invariant without changing
+  the final source tree.
+- Passed Koru, hosted verify, required JDK, independent GLM-5.2 review and
+  review-triggered governance on exact head `7522928`.
+- Merged protected PR #84 as `main@790b867`; the complete post-merge CI passed.
+- Closed the ticket as `DONE / DONE` in a documentation-only publication step.
