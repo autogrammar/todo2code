@@ -61,7 +61,11 @@ never include it in subprocess output, errors, audits or persisted metadata.
   Docker gates pass after the change.
 - Added secret-free effective-route audit evidence and provider-correct response
   diagnostics, then returned the ticket to `IN_PROGRESS / VALIDATION`.
+- Protected PR #88 passed Koru, hosted checks and review-triggered governance.
+  Validator-agent run `31596459305` approved all five exact-head chunks with
+  GLM-5.2 and no blocking findings. Publication merged as `main@ceae696`;
+  post-merge CI `31596778339` passed every required job.
 
 ## Blockers
 
-- None. Protected exact-head review and publication evidence remain pending.
+- None. Ticket and workflow are complete.

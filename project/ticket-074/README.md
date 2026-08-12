@@ -2,8 +2,8 @@
 
 - **ID**: ticket-074
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -46,10 +46,10 @@ todo2code API is introduced.
 
 The human owner approved continuation on 2026-08-12 after reviewing the bounded
 plan. A required-LLM validation run proved the route and exposed provider-stale
-audit configuration and parser labels. The bounded repair is complete, so the
-ticket is `IN_PROGRESS / VALIDATION` pending a new protected exact-head review.
-The approval permitted the scoped implementation; it does not authorize secret
-disclosure.
+audit configuration and parser labels. The bounded repair completed in
+`IN_PROGRESS / VALIDATION`; protected exact-head review was subsequently
+obtained before publication. The approval permitted the scoped implementation;
+it did not authorize secret disclosure.
 
 ## Verification evidence
 
@@ -79,6 +79,16 @@ disclosure.
   `https://api.z.ai/api/coding/paas/v4`, returned provider `zai`, model
   `glm-5.2`, response ID `20260812200120928ace40448f43fc` and 157 total
   tokens. No credential or response content was recorded.
+
+## Publication evidence
+
+Protected PR #88 passed Koru, hosted verify, required JDK, Docker smoke and
+review-triggered governance. Independent validator-agent run `31596459305`
+reviewed exact head `4c35747ae4a8c7ca1fca1187ef56ab0d1675b03e` in five chunks;
+the deterministic authority and advisory `openrouter/z-ai/glm-5.2` both
+returned `APPROVE`, with no blocking findings. The PR was squash-merged as
+`main@ceae6963279e6dc70fac901c4ee9e7b93cf68b94`, and post-merge CI run
+`31596778339` passed verify, Docker smoke, governance and required Java.
 
 ## Non-goals
 
