@@ -284,6 +284,12 @@ function isTicketEvidenceFile(relativePath: string): boolean {
     'baseline.md',
     'logs.txt',
   ].includes(basename)
+    // Pipeline-selected task and TODO projections are already consumed by the
+    // NL/Markdown extractors.  Treat conventional generated filenames as
+    // evidence so they are not ingested a second time as an anonymous person.
+    // Explicit communication front matter is checked before this classifier
+    // and remains the deliberate opt-in for an evidence-like filename.
+    || /(?:^|[._-])(?:task|todo)\.md$/.test(basename)
     || /^iteration-\d+(?:-[a-z0-9-]+)?\.md$/.test(basename)
     || /^(?:ai|agent)-.+-logs\.txt$/.test(basename);
 }

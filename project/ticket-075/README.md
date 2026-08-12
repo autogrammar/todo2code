@@ -3,7 +3,7 @@
 - **ID**: ticket-075
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -26,14 +26,14 @@ unchanged.
 
 - [x] AC-01: The user's continuation and delivery request records
   `SESSION_EXECUTION_AUTHORIZATION` for this bounded repair.
-- [ ] AC-02: Unmarked ticket files named `TASK.md`, `*.task.md`, `*-task.md`,
+- [x] AC-02: Unmarked ticket files named `TASK.md`, `*.task.md`, `*-task.md`,
   `TODO.md`, `*.todo.md` or `*-todo.md` do not create communication records,
   participants or missing-identity warnings.
-- [ ] AC-03: Explicit communication front matter on the same filenames still
+- [x] AC-03: Explicit communication front matter on the same filenames still
   opts the file into participant analysis.
-- [ ] AC-04: Existing typed `user-*` and `ai-*` participant extraction remains
+- [x] AC-04: Existing typed `user-*` and `ai-*` participant extraction remains
   unchanged.
-- [ ] AC-05: Focused tests, full verification, governance and Docker checks
+- [x] AC-05: Focused tests, full verification, governance and Docker checks
   pass before PR publication.
 
 ## Participants
@@ -46,6 +46,16 @@ unchanged.
 The user explicitly requested continued implementation, testing and push in
 this session. This is bounded execution authorization, not trusted merge
 approval; protected exact-head Validator evidence remains required.
+
+## Verification evidence
+
+- The focused projection regression and the existing typed governance
+  participant regression pass.
+- A real deterministic pipeline over Goal ticket-055 reports only
+  `agent:codex`, zero unresolved participant identities and no projection-file
+  warnings when bounded with `--changelog none --docs none`.
+- `npm run verify`, `./project/governance-check.sh` and `make docker-smoke`
+  pass. The one host JDK skip is the existing unavailable-toolchain case.
 
 ## Non-goals
 

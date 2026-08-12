@@ -1,3 +1,7 @@
 2026-08-12T15:58:06Z ticket-075 allocated under the extractors workstream at base 0dfb82c3c6b2d6af795c5a3263ca9e24a5652560.
 2026-08-12T16:00:00Z deterministic Goal ticket-055 reproduction: 0 foreign plans with --changelog none --docs none; generated REMEDIATION.task.md and REMEDIATION.todo.md created unknown participants and 35 unresolved-identity issues.
 2026-08-12T16:00:00Z SESSION_EXECUTION_AUTHORIZATION recorded from the user's continue/implement/test/push request.
+2026-08-12T16:01:00Z governance pre-edit gate: PASS, 0 errors, 0 warnings.
+2026-08-12T16:02:00Z focused build/test: PASS; generated projection regression 1/1, existing typed governance participant regression 1/1, governance 0 errors/warnings.
+2026-08-12T16:03:00Z real Goal ticket-055 deterministic pipeline: only agent:codex remains; PARTICIPANT_IDENTITY_UNRESOLVED=0; no generated-projection warning; foreign plans=0 with changelog/docs disabled.
+2026-08-12T16:03:00Z full npm run verify: PASS; one existing JDK-unavailable skip. Governance: PASS, 0 errors/warnings. Docker smoke: PASS.

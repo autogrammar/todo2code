@@ -37,6 +37,17 @@ and does not claim that a generated projection was authored by a human.
   `main@0dfb82c3c6b2d6af795c5a3263ca9e24a5652560`.
 - User continuation recorded as `SESSION_EXECUTION_AUTHORIZATION`; ticket is
   `IN_PROGRESS / EDIT` before executable changes.
+- Extended only the existing evidence classifier. Conventional task/TODO
+  projections are skipped unless flat communication front matter explicitly
+  opts them in.
+- Added a focused regression covering six filename forms, explicit opt-in and
+  unchanged `ai-*` participant extraction.
+- Re-ran the real deterministic Goal ticket-055 pipeline with bounded sources:
+  unresolved participants fell from 35 to 0 and only `agent:codex` remained.
+- Focused tests and governance pass; ticket moved to
+  `IN_PROGRESS / VALIDATION` for the full host and Docker gates.
+- Full host verification, governance and Docker smoke pass; ticket moved to
+  `IN_PROGRESS / PUBLICATION` for protected PR delivery.
 
 ## Blockers
 
