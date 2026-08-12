@@ -2,10 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-073`](project/ticket-073/README.md) — define a canonical
-  analysis-policy DSL for deterministic selection of detailed LLM stages,
-  bounded evidence and request/token/time ceilings without semantic fallback.
-  Current state: `IN_PROGRESS / EDIT`; plan committed before implementation.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
@@ -25,6 +21,11 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-073`](project/ticket-073/README.md) — defines canonical
+  `t2c.analysis-policy/v1` selection, exact-evidence caching and nested
+  request/token/time ceilings while requiring LLM for selected semantic stages.
+  Koru, independent GLM-5.2 review and protected checks passed; PR #86 merged
+  as `main@f0df52c`. Current state: `DONE / DONE`.
 - [x] [`ticket-072`](project/ticket-072/README.md) — redacts credentials,
   contextual credential identifiers and provider management URLs once at the
   OpenRouter boundary while preserving actionable diagnostics and fail-closed

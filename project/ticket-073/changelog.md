@@ -19,3 +19,7 @@
   elapsed-time ceilings.
 - Applied the ticket-local LLM wording recommendation and retained no
   unsupported historical refactoring proposal.
+- Passed exact-head Koru and validator-agent review; GLM-5.2 approved all four
+  chunks with no findings.
+- Merged protected PR #86 as `main@f0df52c`, passed post-merge CI and closed
+  the ticket as `DONE / DONE`.

@@ -80,3 +80,22 @@ docker smoke: PASS.
 
 $ git diff --check
 PASS.
+
+2026-08-12 protected publication
+
+PR #86 exact head: 5b61cb8b0cc2a0dd65abf9073f4b60243461a845.
+Koru, hosted verify, required JDK and review-triggered governance: PASS.
+
+Validator-agent workflow run: 31580896098.
+Reviewed chunks: 4.
+Deterministic decision: APPROVE.
+Advisory model: openrouter/z-ai/glm-5.2.
+Advisory verdict: APPROVE.
+Blocking/advisory findings: none.
+Validated head remained exact and stable.
+
+PR #86 squash merge: f0df52cae41c99151419554363f1e1393c300b10.
+Remote implementation branch deleted.
+Post-merge CI run 31581196362: verify, Docker smoke, governance and required
+Java PASS.
+Workflow transition: IN_PROGRESS / EDIT -> DONE / DONE.

@@ -2,8 +2,8 @@
 
 - **ID**: ticket-073
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -46,8 +46,8 @@ reviewed before it controls live calls.
 The plan and intent were committed independently as `f2e68ae` before any
 source change. The user's instruction `kontynuuj` followed the concrete
 recommendation for this bounded cost-analysis DSL and authorizes the transition
-to `IN_PROGRESS / EDIT` on 2026-08-12. This approval does not authorize merge;
-protected exact-head review remains required.
+to `IN_PROGRESS / EDIT` on 2026-08-12. Protected exact-head review was
+subsequently obtained before publication.
 
 ## Non-goals
 
@@ -77,3 +77,13 @@ protected exact-head review remains required.
   The requirements now use explicit `Implement`, `Read`, `Require`, `Reduce`
   and `Prohibit` actions. Broad historical suggestions without ticket-local
   evidence were not adopted.
+
+## Publication evidence
+
+Protected PR #86 passed Koru, hosted verify, required JDK, Docker smoke and
+review-triggered governance. Independent validator-agent run `31580896098`
+reviewed exact head `5b61cb8b0cc2a0dd65abf9073f4b60243461a845` in four chunks;
+both the deterministic authority and `openrouter/z-ai/glm-5.2` returned
+`APPROVE` with no findings. The PR was squash-merged as
+`main@f0df52cae41c99151419554363f1e1393c300b10`, and post-merge CI run
+`31581196362` passed verify, Docker smoke, governance and required Java.
