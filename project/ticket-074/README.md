@@ -3,7 +3,7 @@
 - **ID**: ticket-074
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: VALIDATION
+- **Workflow state**: EDIT
 - **Created**: 2026-08-12
 
 ## Goal and scope
@@ -45,9 +45,11 @@ todo2code API is introduced.
 ## Approval gate
 
 The human owner approved continuation on 2026-08-12 after reviewing the bounded
-plan. Local implementation and validation are complete, so the ticket is now
-`IN_PROGRESS / VALIDATION` pending protected exact-head review. The approval
-permitted the scoped implementation; it does not authorize secret disclosure.
+plan. A required-LLM validation run proved the route but exposed provider-stale
+audit configuration and parser labels, so the ticket returned to
+`IN_PROGRESS / EDIT` for bounded observability hardening before exact-head
+review. The approval permitted the scoped implementation; it does not authorize
+secret disclosure.
 
 ## Verification evidence
 
@@ -62,6 +64,10 @@ permitted the scoped implementation; it does not authorize secret disclosure.
   isolated retry and the final full rerun.
 - Governance passes with 0 errors and 0 warnings. Docker image build, health
   and doctor smoke pass.
+- Local Lizard analysis reports no complexity threshold violations after the
+  first Koru run identified `CC=22`; isolating subprocess/credential handling
+  reduced the highest reported function complexity to 13 without changing the
+  transport contract.
 - A minimal live structured request through production `OpenRouterClient`
   resolved `todo2code/semantic` via SubLLM to
   `https://api.z.ai/api/coding/paas/v4`, returned provider `zai`, model

@@ -53,9 +53,14 @@ never include it in subprocess output, errors, audits or persisted metadata.
 - Verified SubLLM, focused and full host behavior, governance and Docker. A
   production structured call selected direct `zai` / `glm-5.2`, returned the
   exact marker and reported 157 total tokens without exposing a credential.
-- Transitioned to `IN_PROGRESS / VALIDATION` for protected exact-head review.
+- Transitioned to `IN_PROGRESS / VALIDATION`, then returned to `EDIT` after the
+  required-LLM run exposed provider-stale audit configuration and parser labels.
+- Responded to the first protected Koru report by isolating subprocess and
+  credential-file handling, adding raw provider-token redaction and cleaning
+  test fixtures. Local Lizard now reports no CC>15 finding; the full host and
+  Docker gates pass after the change.
 
 ## Blockers
 
-- None. Local acceptance criteria are complete; protected publication evidence
-  remains pending.
+- None. Bounded observability hardening is in progress before protected
+  exact-head review.

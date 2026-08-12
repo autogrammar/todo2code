@@ -16,3 +16,9 @@
   response using provider-visible `todo2code` identity and no secret output.
 - Transitioned to `IN_PROGRESS / VALIDATION` pending protected exact-head
   review and publication evidence.
+- Returned to `IN_PROGRESS / EDIT` after required-LLM validation proved SubLLM
+  routing but exposed provider-stale audit configuration and parser labels.
+- Addressed the first protected Koru complexity finding by separating
+  subprocess and credential-file mechanics, strengthening raw provider-token
+  redaction and cleaning temporary test fixtures; post-change host and Docker
+  validation pass.
