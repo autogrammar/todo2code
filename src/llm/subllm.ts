@@ -1,11 +1,14 @@
-import { statSync } from 'node:fs';
+import { execFile } from 'node:child_process';
+import { constants as fsConstants, promises as fs, statSync } from 'node:fs';
 import path from 'node:path';
-import { credentialFromSharedFile, runSubllm } from './subllm-process.js';
+import { promisify } from 'node:util';
 
+const execFileAsync = promisify(execFile);
 const APPLICATION = 'todo2code';
 const FUNCTION = 'semantic';
 const FALSE_VALUES = new Set(['0', 'false', 'no', 'off']);
 const TRUE_VALUES = new Set(['1', 'true', 'yes', 'on']);
+const RAW_PROVIDER_CREDENTIAL_RE = /\b(?:sk-or-v1-[A-Za-z0-9_-]+|[A-Za-z0-9_-]{16,}\.[A-Za-z0-9._~+/=-]{8,})\b/gu;
 
 export interface SubllmPublicRoute {
   application: string;
@@ -173,4 +176,84 @@ function requiredEnvName(record: Record<string, unknown>, key: string): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+async function credentialFromSharedFile(
+  python: string,
+  name: string,
+  environment: NodeJS.ProcessEnv,
+  cwd: string,
+): Promise<string> {
+  const envPath = await runSubllm(python, ['-m', 'subllm.cli', 'env', 'path'], environment, cwd);
+  let handle: fs.FileHandle | undefined;
+  try {
+    handle = await fs.open(envPath, fsConstants.O_RDONLY | fsConstants.O_NOFOLLOW);
+    const stat = await handle.stat();
+    if (!stat.isFile()) throw new Error('SubLLM credential path is not a regular file');
+    if (process.platform !== 'win32' && (stat.mode & 0o077) !== 0) {
+      throw new Error('SubLLM credential file must have mode 0600');
+    }
+    return parseCredential(await handle.readFile('utf8'), name);
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught);
+    throw new Error(`Cannot read the selected SubLLM credential: ${redactDiagnostic(message)}`);
+  } finally {
+    await handle?.close();
+  }
+}
+
+function parseCredential(content: string, selectedName: string): string {
+  const values = content
+    .split(/\r?\n/u)
+    .map((line) => credentialAssignment(line, selectedName))
+    .filter((value): value is string => value !== null);
+  if (values.length > 1) throw new Error(`duplicate ${selectedName} assignment`);
+  const value = values[0];
+  if (!value) throw new Error(`${selectedName} is missing from the shared credential file`);
+  return value;
+}
+
+function credentialAssignment(rawLine: string, selectedName: string): string | null {
+  let line = rawLine.trim();
+  if (!line || line.startsWith('#')) return null;
+  if (line.startsWith('export ')) line = line.slice('export '.length).trimStart();
+  const separator = line.indexOf('=');
+  if (separator < 1 || line.slice(0, separator).trim() !== selectedName) return null;
+  return unquoteCredential(line.slice(separator + 1).trim());
+}
+
+function unquoteCredential(value: string): string {
+  const doubleQuoted = value.startsWith('"') && value.endsWith('"');
+  const singleQuoted = value.startsWith("'") && value.endsWith("'");
+  return doubleQuoted || singleQuoted ? value.slice(1, -1) : value;
+}
+
+function redactDiagnostic(value: string): string {
+  return value
+    .replace(/\b(?:ZAI|OPENROUTER)_API_KEY\s*=\s*\S+/giu, '[redacted-credential]')
+    .replace(/\bBearer\s+\S+/giu, 'Bearer [redacted-credential]')
+    .replace(RAW_PROVIDER_CREDENTIAL_RE, '[redacted-credential]')
+    .slice(0, 1000);
+}
+
+async function runSubllm(
+  python: string,
+  args: string[],
+  environment: NodeJS.ProcessEnv,
+  cwd: string,
+): Promise<string> {
+  try {
+    const result = await execFileAsync(python, args, {
+      cwd,
+      env: environment,
+      encoding: 'utf8',
+      maxBuffer: 1024 * 1024,
+      timeout: 15_000,
+    });
+    return result.stdout.trim();
+  } catch (caught) {
+    const error = caught as Error & { stdout?: string; stderr?: string };
+    const diagnostic = `${error.stdout ?? ''}\n${error.stderr ?? ''}`.trim();
+    throw new Error(`SubLLM route resolution failed${diagnostic ? `: ${redactDiagnostic(diagnostic)}` : ''}`);
+  }
 }
