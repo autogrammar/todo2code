@@ -3,6 +3,18 @@ import type { LlmResponseMetadata } from '../core/types.js';
 import { StructuredResponseError, type StructuredSchema } from './structured-schema.js';
 import { openRouterRequestTimeout, type OpenRouterTimeoutDecision } from './openrouter-timeout.js';
 
+const BEARER_CREDENTIAL_RE = new RegExp('\\bBearer\\s+[A-Za-z0-9._~-]{8,}', 'giu');
+const OPENROUTER_CREDENTIAL_RE = /\bsk-or-v1-[A-Za-z0-9_-]+/gu;
+const SECRET_ASSIGNMENT_RE = new RegExp(
+  '\\b((?:api|access)[-_\\s]?key|client[-_\\s]?secret|token|password)\\s*[:=#]\\s*[A-Za-z0-9_./+=~-]{12,}\\b',
+  'giu',
+);
+const PROVIDER_MANAGEMENT_URL_RE = /https?:\/\/[^\s<>"']*(?:\/(?:keys?|credentials?)(?:\/|[?#]|$))[^\s<>"']*/giu;
+const CREDENTIAL_IDENTIFIER_RE = new RegExp(
+  '\\b((?:api[-_\\s]?key|credential|key)[-_\\s]?(?:id|fingerprint))\\s*[:=#]?\\s*[A-Za-z0-9_-]{20,}\\b',
+  'giu',
+);
+
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -288,20 +300,11 @@ function redactProviderFailureText(message: string, configuredCredential: string
   let redacted = message;
   if (configuredCredential) redacted = redacted.split(configuredCredential).join('[redacted-credential]');
   return redacted
-    .replace(/\bBearer\s+[A-Za-z0-9._~-]{8,}/giu, 'Bearer [redacted-credential]')
-    .replace(/\bsk-or-v1-[A-Za-z0-9_-]+/gu, '[redacted-credential]')
-    .replace(
-      /\b((?:api|access)[-_\s]?key|client[-_\s]?secret|token|password)\s*[:=#]\s*[A-Za-z0-9_./+=~-]{12,}\b/giu,
-      '$1=[redacted-credential]',
-    )
-    .replace(
-      /https?:\/\/[^\s<>"']*(?:\/(?:keys?|credentials?)(?:\/|[?#]|$))[^\s<>"']*/giu,
-      '[redacted-provider-management-url]',
-    )
-    .replace(
-      /\b((?:api[-_\s]?key|credential|key)[-_\s]?(?:id|fingerprint))\s*[:=#]?\s*[A-Za-z0-9_-]{20,}\b/giu,
-      '$1 [redacted-credential-id]',
-    );
+    .replace(BEARER_CREDENTIAL_RE, 'Bearer [redacted-credential]')
+    .replace(OPENROUTER_CREDENTIAL_RE, '[redacted-credential]')
+    .replace(SECRET_ASSIGNMENT_RE, '$1=[redacted-credential]')
+    .replace(PROVIDER_MANAGEMENT_URL_RE, '[redacted-provider-management-url]')
+    .replace(CREDENTIAL_IDENTIFIER_RE, '$1 [redacted-credential-id]');
 }
 
 function normalizeRequestError(

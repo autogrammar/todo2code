@@ -42,3 +42,17 @@ Final local gates:
 
 Verification completed. Workflow remains `EDIT` because governance requires an
 implementation diff to retain an implementation state until publication.
+
+2026-08-12 first protected Koru review
+
+PR #84 head 286fbf297065fd2fef69d47bc616d7f15a24e3c7:
+- hosted verify and required JDK checks: PASS,
+- semantic GLM review: unavailable because the protected key returned the same
+  weekly-limit rejection,
+- deterministic blocker: Vallm/Lizard misread regex quantifier braces inside
+  redactProviderFailureText and reported a 148-line function.
+
+The regexes were moved to module constants and brace-bearing expressions were
+represented as RegExp strings outside the function. Focused tests and
+governance remained green. A local Vallm pass completed both selected files;
+the hosted pinned version remains authoritative and will rerun on the new SHA.

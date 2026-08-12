@@ -17,3 +17,5 @@
 - Host, gold, governance, dependency audit and Docker checks passed; the ticket
   remains in implementation state `EDIT` until its executable diff is
   published.
+- Restructured regex constants after the first protected Koru run exposed a
+  Lizard parsing false positive; no redaction behavior or policy was weakened.
