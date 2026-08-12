@@ -64,7 +64,7 @@ else:
   process.env.T2C_USE_SUBLLM = 'true';
   process.env.SUBLLM_PYTHONPATH = root;
   process.env.SUBLLM_ENV_FILE = envFile;
-  process.env.T2C_UNRELATED_SECRET = 'must-not-cross-process-boundary';
+  process.env.T2C_UNRELATED_SECRET = 'placeholder-not-forwarded';
   delete process.env.ZAI_API_KEY;
   delete process.env.OPENROUTER_API_KEY;
   return {
