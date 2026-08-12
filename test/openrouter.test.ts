@@ -15,7 +15,7 @@ import { makeConfig } from './helpers.js';
 
 test('OpenRouter client parses structured JSON without exposing key', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const originalFetch = globalThis.fetch;
   let authorization = '';
   let requestBody: Record<string, unknown> = {};
@@ -40,10 +40,10 @@ test('OpenRouter client parses structured JSON without exposing key', async () =
       responseId: 'gen-test-1', model: 'qwen/resolved', provider: 'TestProvider',
       usage: { promptTokens: 12, completionTokens: 3, totalTokens: 15, cost: 0.001 },
     });
-    assert.equal(authorization, 'Bearer secret-test-key');
+    assert.equal(authorization, 'Bearer test-secret-key');
     assert.equal((requestBody.response_format as { type?: string }).type, 'json_schema');
     assert.equal((requestBody.provider as { require_parameters?: boolean }).require_parameters, true);
-    assert.ok(!JSON.stringify(requestBody).includes('secret-test-key'));
+    assert.ok(!JSON.stringify(requestBody).includes('test-secret-key'));
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -51,7 +51,7 @@ test('OpenRouter client parses structured JSON without exposing key', async () =
 
 test('OpenRouter client preserves metadata when runtime rejects structured output', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(JSON.stringify({
     id: 'gen-rejected-1', model: 'deepseek/deepseek-v4-flash', provider: 'TestProvider',
@@ -83,7 +83,7 @@ test('OpenRouter client preserves metadata when runtime rejects structured outpu
 
 test('OpenRouter client lists available models after an invalid model ID', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const originalFetch = globalThis.fetch;
   const requestedUrls: string[] = [];
   globalThis.fetch = async (input) => {
@@ -113,7 +113,7 @@ test('OpenRouter client lists available models after an invalid model ID', async
         assert.match(error.message, /Available OpenRouter models \(2\):/);
         assert.match(error.message, /- openai\/gpt-5/);
         assert.match(error.message, /- qwen\/qwen3\.7-plus/);
-        assert.ok(!error.message.includes('secret-test-key'));
+        assert.ok(!error.message.includes('test-secret-key'));
         return true;
       },
     );
@@ -124,9 +124,68 @@ test('OpenRouter client lists available models after an invalid model ID', async
   }
 });
 
+test('OpenRouter client redacts provider key-management evidence while retaining the failure reason', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'test-secret-key';
+  const keyFingerprint = 'b8b69587a9fe7eaa7bd9ee4507df65682d4e948550892af1b9c612f462bdfab5';
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    error: {
+      message: 'Key limit exceeded (weekly limit). Manage it using '
+        + `https://openrouter.ai/workspaces/default/keys/${keyFingerprint}`,
+    },
+  }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+  try {
+    await assert.rejects(
+      () => new OpenRouterClient(config.openRouter).chatText([{ role: 'user', content: 'test' }]),
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.match(error.message, /OpenRouter HTTP 403: Key limit exceeded \(weekly limit\)/);
+        assert.match(error.message, /\[redacted-provider-management-url\]/);
+        assert.equal(error.message.includes(keyFingerprint), false);
+        assert.equal(error.message.includes('/workspaces/default/keys/'), false);
+        return true;
+      },
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('OpenRouter model-list failures redact credentials and contextual credential identifiers', async () => {
+  const config = makeConfig(process.cwd());
+  config.openRouter.apiKey = 'test-secret-key';
+  const credentialId = 'credential_identifier_0123456789abcdef';
+  const echoedApiKey = ['provider', 'generated', 'credential', 'value'].join('_');
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    error: {
+      message: `Access denied for credential ID: ${credentialId}; Bearer ${config.openRouter.apiKey}; API key=${echoedApiKey}`,
+    },
+  }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+  try {
+    await assert.rejects(
+      () => new OpenRouterClient(config.openRouter).listAvailableModels(),
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.match(error.message, /OpenRouter models HTTP 401: Access denied/);
+        assert.match(error.message, /credential ID \[redacted-credential-id\]/i);
+        assert.match(error.message, /Bearer \[redacted-credential\]/);
+        assert.match(error.message, /API key=\[redacted-credential\]/i);
+        assert.equal(error.message.includes(credentialId), false);
+        assert.equal(error.message.includes(echoedApiKey), false);
+        assert.equal(error.message.includes(String(config.openRouter.apiKey)), false);
+        return true;
+      },
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('OpenRouter JSON timeout is not repeated as a schema fallback request', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const originalFetch = globalThis.fetch;
   let calls = 0;
   globalThis.fetch = async () => {
@@ -147,7 +206,7 @@ test('OpenRouter JSON timeout is not repeated as a schema fallback request', asy
 
 test('OpenRouter request obeys a shared pipeline deadline without retrying', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const deadline = new AbortController();
   config.openRouter.signal = deadline.signal;
   const originalFetch = globalThis.fetch;
@@ -175,7 +234,7 @@ test('Documentation extractor converts OpenRouter structured output to bounded L
   await fs.mkdir(path.join(root, 'docs'));
   await fs.writeFile(path.join(root, 'docs', 'architecture.md'), '# Runtime\n\nWalidacja kontraktu musi nastąpić przed wykonaniem.\n', 'utf8');
   const config = makeConfig(root);
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   config.documentRecordsPerChunk = 1;
   const originalFetch = globalThis.fetch;
   let requestPayload: Record<string, unknown> = {};
@@ -257,7 +316,7 @@ test('Documentation extractor reports and enforces its chunk budget', async () =
   ]);
   const config = makeConfig(root);
   config.documentMaxChunks = 1;
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const originalFetch = globalThis.fetch;
   let calls = 0;
   globalThis.fetch = async () => {
@@ -281,7 +340,7 @@ test('Documentation extractor corrects one rejected chunk and audits both respon
   await fs.mkdir(path.join(root, 'docs'));
   await fs.writeFile(path.join(root, 'docs', 'contract.md'), '# Contract\n\nValidation is required.\n', 'utf8');
   const config = makeConfig(root);
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const originalFetch = globalThis.fetch;
   let calls = 0;
   let correction = '';
@@ -313,7 +372,7 @@ test('Documentation extractor does not spend its correction retry on a timeout',
   await fs.mkdir(path.join(root, 'docs'));
   await fs.writeFile(path.join(root, 'docs', 'contract.md'), '# Contract\n\nValidation is required.\n', 'utf8');
   const config = makeConfig(root);
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const originalFetch = globalThis.fetch;
   let calls = 0;
   globalThis.fetch = async () => {
@@ -351,7 +410,7 @@ test('Documentation extractor uses bounded concurrent OpenRouter requests', asyn
   ]);
   const config = makeConfig(root);
   config.documentConcurrency = 2;
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const originalFetch = globalThis.fetch;
   let active = 0;
   let maxActive = 0;
@@ -379,7 +438,7 @@ test('Documentation extractor uses bounded concurrent OpenRouter requests', asyn
 
 test('LLM summarizer receives graph data and preserves grounded record citations', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const record = buildRecord({
     kind: 'declared_intent',
     action: 'add',
@@ -430,7 +489,7 @@ test('LLM summarizer receives graph data and preserves grounded record citations
     assert.ok(result.markdown.includes('t2c.conclusion/v1'));
     assert.ok(result.markdown.includes(graph.fingerprint));
     assert.ok(userPayload.includes(record.id));
-    assert.ok(!userPayload.includes('secret-test-key'));
+    assert.ok(!userPayload.includes('test-secret-key'));
     assert.equal(responseFormat, 'json_schema');
   } finally {
     globalThis.fetch = originalFetch;
@@ -439,7 +498,7 @@ test('LLM summarizer receives graph data and preserves grounded record citations
 
 test('LLM summarizer validates provider fields before creating semantic IDs', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const record = buildRecord({
     kind: 'declared_intent', action: 'add', object: 'safe materialization', text: 'Add safe materialization.',
     lifecycle: 'proposed', sourceKind: 'nl', sourcePath: 'TASK.md', sourceLines: { start: 1, end: 1 },
@@ -471,7 +530,7 @@ test('LLM summarizer validates provider fields before creating semantic IDs', as
 
 test('LLM summarizer diagnoses a provider that ignores the response envelope', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const record = buildRecord({
     kind: 'declared_intent', action: 'add', object: 'summary envelope', text: 'Add a summary envelope.',
     lifecycle: 'proposed', sourceKind: 'nl', sourcePath: 'TASK.md', sourceLines: { start: 1, end: 1 },
@@ -495,7 +554,7 @@ test('LLM summarizer diagnoses a provider that ignores the response envelope', a
 
 test('LLM summarizer rejects diagnostic citations outside the supplied graph', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const record = buildRecord({
     kind: 'declared_intent', action: 'add', object: 'grounded.summary', text: 'Add a grounded summary.',
     lifecycle: 'proposed', sourceKind: 'nl', sourcePath: 'TASK.md', sourceLines: { start: 1, end: 1 },
@@ -529,7 +588,7 @@ test('LLM summarizer rejects diagnostic citations outside the supplied graph', a
 
 test('LLM summarizer prioritizes documentation over the AST payload budget', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const ast = Array.from({ length: 1201 }, (_, index) => buildRecord({
     kind: 'implemented_fact',
     action: 'declare',
@@ -607,7 +666,7 @@ test('deterministic summary presents AST module aggregates instead of low-level 
 
 test('The summarizer grounds a fabricated record citation from its diagnostic', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const record = buildRecord({
     kind: 'declared_intent', action: 'add', object: 'contract.validation',
     text: 'Dodać walidację kontraktu.', lifecycle: 'proposed', sourceKind: 'nl',
@@ -654,7 +713,7 @@ test('The summarizer grounds a fabricated record citation from its diagnostic', 
 
 test('The summarizer still fails when the retry fabricates a diagnostic again', async () => {
   const config = makeConfig(process.cwd());
-  config.openRouter.apiKey = 'secret-test-key';
+  config.openRouter.apiKey = 'test-secret-key';
   const record = buildRecord({
     kind: 'declared_intent', action: 'add', object: 'contract.validation',
     text: 'Dodać walidację kontraktu.', lifecycle: 'proposed', sourceKind: 'nl',

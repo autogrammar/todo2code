@@ -23,13 +23,13 @@ result or change retry behavior.
 
 - [x] AC-01: The human owner approved continuation after reviewing the
       redaction finding and proposed bounded follow-up.
-- [ ] AC-02: OpenRouter errors redact API-key-shaped values, contextual key or
+- [x] AC-02: OpenRouter errors redact API-key-shaped values, contextual key or
       credential identifiers and key-management URLs.
-- [ ] AC-03: Ordinary provider explanations and invalid-model diagnostics stay
+- [x] AC-03: Ordinary provider explanations and invalid-model diagnostics stay
       actionable after redaction.
-- [ ] AC-04: `require-llm` still fails closed with no graph or deterministic
+- [x] AC-04: `require-llm` still fails closed with no graph or deterministic
       fallback when the provider rejects a request.
-- [ ] AC-05: Focused, host, governance and Docker checks pass.
+- [x] AC-05: Focused, host, governance and Docker checks pass.
 
 ## Participants
 
@@ -48,3 +48,17 @@ result or change retry behavior.
 - No logging of the raw provider body for later redaction.
 - No broad rewriting of non-provider diagnostics.
 - No public interface or schema change.
+
+## Verification evidence
+
+- Focused OpenRouter suite: 21/21 passed, including both redaction cases.
+- Complete host suite: 407 tests, 406 passed, 0 failed and one documented
+  local JDK skip; the required CI job supplies its JDK.
+- Gold v2: all gated precision/recall metrics 100%, forbidden diagnostics 0
+  and repeated-run stability passed.
+- Governance: `GOV-PASS`, zero errors and warnings.
+- Docker smoke: passed; production image compiled the changed boundary.
+- Paid `require-llm` reproduction: provider returned the weekly-limit failure;
+  CLI and manifest retained the actionable reason with a redaction marker,
+  contained no key-management path or raw fingerprint, published no graph and
+  reported `effectiveMode=none`.

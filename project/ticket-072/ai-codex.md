@@ -22,8 +22,20 @@ does not protect the ordinary pipeline.
 3. Reproduce `require-llm` fail-closed behavior and run host, governance and
    Docker validation.
 
+## Actual changes
+
+- Centralized provider error redaction in `src/llm/openrouter.ts` for chat,
+  model-list and non-JSON responses.
+- Redacted the configured credential exactly, Bearer values, OpenRouter key
+  shapes, generic secret assignments, contextual credential IDs and provider
+  key/credential management URLs.
+- Preserved normal explanations and invalid-model discovery.
+- Added focused fixtures and changed pre-existing credential fixtures from an
+  unsafe secret-shaped spelling to the governance-safe `test-*` convention.
+- Proved the real weekly-limit response still fails closed without a graph or
+  fallback while no longer exposing its management identity.
+
 ## Blockers
 
 - The configured OpenRouter key still rejects paid analysis at its weekly
-  limit. The implementation must still attempt the live `require-llm` check
-  and fail closed; deterministic fallback is not permitted.
+  limit. This is external availability, not a validation gap in the redaction.

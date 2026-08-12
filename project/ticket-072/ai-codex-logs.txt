@@ -9,3 +9,36 @@ and cost-analysis DSL follow-up.
 
 Workflow transition: WAIT_FOR_APPROVAL -> EDIT.
 Accepted base: 2380dd8b2f7d4bdc594613701eb770d7e251d0b3.
+
+2026-08-12 implementation and focused verification
+
+Changed runtime paths:
+- src/llm/openrouter.ts
+- test/openrouter.test.ts
+
+Focused result: 21 tests passed, 0 failed.
+Governance initially rejected pre-existing secret-shaped fixture spelling once
+the file became part of the ticket diff. All fixtures in the owned test file
+were normalized to the safe `test-*` convention; governance then passed with
+zero findings.
+
+Paid require-llm reproduction:
+- provider result: weekly-limit rejection,
+- failure code: LLM_UNAVAILABLE,
+- requested/effective mode: llm/none,
+- graph fingerprint: null,
+- raw key-management path: absent,
+- raw credential fingerprint: absent,
+- redaction marker: present,
+- deterministic fallback: none.
+
+Final local gates:
+- npm run verify: 407 total, 406 pass, 0 fail, 1 local JDK skip,
+- npm run evaluate:gold: all gated precision/recall 100%, stability PASS,
+- npm audit --omit=dev: 0 vulnerabilities,
+- project/governance-check.sh: GOV-PASS, 0 findings,
+- make docker-smoke: PASS,
+- git diff --check: PASS.
+
+Verification completed. Workflow remains `EDIT` because governance requires an
+implementation diff to retain an implementation state until publication.

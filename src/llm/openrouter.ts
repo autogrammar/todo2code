@@ -72,10 +72,16 @@ export class OpenRouterClient {
       try {
         parsed = JSON.parse(text) as OpenRouterModelsResponse;
       } catch {
-        throw new Error(`OpenRouter models endpoint returned non-JSON HTTP ${response.status}: ${text.slice(0, 500)}`);
+        throw new Error(
+          `OpenRouter models endpoint returned non-JSON HTTP ${response.status}: `
+          + redactProviderFailureText(text.slice(0, 500), this.config.apiKey),
+        );
       }
       if (!response.ok || parsed.error) {
-        throw new Error(`OpenRouter models HTTP ${response.status}: ${parsed.error?.message ?? text.slice(0, 500)}`);
+        throw new Error(
+          `OpenRouter models HTTP ${response.status}: `
+          + redactProviderFailureText(parsed.error?.message ?? text.slice(0, 500), this.config.apiKey),
+        );
       }
       return [...new Set((parsed.data ?? [])
         .map((model) => model.id?.trim())
@@ -234,10 +240,10 @@ export class OpenRouterClient {
       signal,
     });
     const text = await response.text();
-    const parsed = parseOpenRouterResponse(text, response.status);
+    const parsed = parseOpenRouterResponse(text, response.status, credential);
     if (response.ok && !parsed.error) return parsed;
 
-    const message = parsed.error?.message ?? text.slice(0, 500);
+    const message = redactProviderFailureText(parsed.error?.message ?? text.slice(0, 500), credential);
     const error = new Error(`OpenRouter HTTP ${response.status}: ${message}`);
     if (!isInvalidModelError(response.status, message)) throw error;
     throw await this.invalidModelError(error, body.model);
@@ -262,12 +268,40 @@ export class OpenRouterClient {
   }
 }
 
-function parseOpenRouterResponse(text: string, status: number): OpenRouterResponse {
+function parseOpenRouterResponse(text: string, status: number, credential: string): OpenRouterResponse {
   try {
     return JSON.parse(text) as OpenRouterResponse;
   } catch {
-    throw new Error(`OpenRouter returned non-JSON HTTP ${status}: ${text.slice(0, 500)}`);
+    throw new Error(
+      `OpenRouter returned non-JSON HTTP ${status}: `
+      + redactProviderFailureText(text.slice(0, 500), credential),
+    );
   }
+}
+
+/**
+ * Provider error bodies are untrusted external text. Keep their useful status
+ * explanation, but never let a credential, stable credential identifier or
+ * account-management URL cross the common LLM boundary.
+ */
+function redactProviderFailureText(message: string, configuredCredential: string | null): string {
+  let redacted = message;
+  if (configuredCredential) redacted = redacted.split(configuredCredential).join('[redacted-credential]');
+  return redacted
+    .replace(/\bBearer\s+[A-Za-z0-9._~-]{8,}/giu, 'Bearer [redacted-credential]')
+    .replace(/\bsk-or-v1-[A-Za-z0-9_-]+/gu, '[redacted-credential]')
+    .replace(
+      /\b((?:api|access)[-_\s]?key|client[-_\s]?secret|token|password)\s*[:=#]\s*[A-Za-z0-9_./+=~-]{12,}\b/giu,
+      '$1=[redacted-credential]',
+    )
+    .replace(
+      /https?:\/\/[^\s<>"']*(?:\/(?:keys?|credentials?)(?:\/|[?#]|$))[^\s<>"']*/giu,
+      '[redacted-provider-management-url]',
+    )
+    .replace(
+      /\b((?:api[-_\s]?key|credential|key)[-_\s]?(?:id|fingerprint))\s*[:=#]?\s*[A-Za-z0-9_-]{20,}\b/giu,
+      '$1 [redacted-credential-id]',
+    );
 }
 
 function normalizeRequestError(
