@@ -50,7 +50,11 @@ the analysis method.
 - Final local validation: focused 8/8; full host 414 pass, 0 fail, 1 JDK skip;
   gold gates 100%; governance 0 findings; audit 0 vulnerabilities; Docker
   smoke PASS.
+- Protected PR #86 passed Koru, hosted checks and review-triggered governance.
+  Validator-agent run `31580896098` approved all four exact-head chunks with
+  GLM-5.2 and no findings. Publication merged as `main@f0df52c`; post-merge CI
+  `31581196362` passed every required job.
 
 ## Blockers
 
-- None. The prior explicit continuation is now recorded as approval.
+- None. Ticket and workflow are complete.
