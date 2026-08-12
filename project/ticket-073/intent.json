@@ -32,7 +32,7 @@
   "delivery": {
     "acceptedBaseSha": "b6bf991396640092217f8090c79c591fc5d53eee",
     "targetBranch": "main",
-    "outcome": "A canonical analysis-policy DSL selects detailed LLM stages deterministically and bounds their maximum requests and tokens without semantic fallback",
+    "outcome": "A canonical analysis-policy DSL selects detailed LLM stages deterministically and bounds their maximum requests, tokens and elapsed time without semantic fallback",
     "nonGoals": [
       "No runtime, CLI, provider or pipeline integration",
       "No mutable model-pricing data",
@@ -77,7 +77,7 @@
       {
         "criterion": "AC-03",
         "commands": ["node --test dist/test/structured-analysis-policy.test.js"],
-        "evidence": "Malformed vocabulary, topology and budgets fail closed"
+        "evidence": "Malformed vocabulary, topology and request/token/time budgets fail closed"
       },
       {
         "criterion": "AC-06",

@@ -4,9 +4,9 @@
 - **Task title**: Define analysis budget DSL
 - **Created**: 2026-08-12T08:16:37Z
 
-Keep executable implementation outside this governance/evidence directory.
+Implement executable changes only outside this governance/evidence directory.
 Read a human-owned user-*.md file only when one exists.
-
-The user requires LLM use wherever it improves todo2code analysis. The policy
-must therefore reduce cost through deterministic selection, bounded evidence
-and exact caching, never through a deterministic semantic fallback.
+Require LLM reasoning wherever it improves todo2code semantic analysis.
+Reduce cost through deterministic stage selection, bounded evidence, explicit
+request/token/time ceilings and exact-evidence caching.
+Prohibit deterministic semantic fallback for every selected semantic stage.

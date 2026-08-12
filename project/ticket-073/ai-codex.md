@@ -29,7 +29,27 @@ the analysis method.
 ## Actual changes
 
 - Plan and intent committed independently as `f2e68ae`; implementation has not
-  started.
+  started before the separately recorded approval transition `84690c1`.
+- Added the dependency-free `t2c.analysis-policy/v1` contract with a canonical
+  parser/renderer, closed vocabulary, fail-closed validation, deterministic
+  stage selection, usage aggregation, policy/cache fingerprints and a
+  provider-rate cost estimator.
+- Made global and per-stage budgets bound requests (including retries and
+  response repair), input tokens, output tokens and elapsed time. Selected
+  semantic stages require LLM; provider failure never becomes a deterministic
+  semantic result.
+- Added eight focused tests covering byte identity, selection, exact evidence
+  caching, cost bounds, invalid vocabulary/topology/budgets and malformed text.
+- Ran the real todo2code pipeline with all semantic modes set to `require-llm`.
+  It issued 43 provider responses, consumed 498,533 input and 153,176 output
+  tokens and cost 1.303208672 USD. The 920,279 ms Markdown stage caused the
+  contract to gain explicit elapsed-time ceilings.
+- Applied the LLM's ticket-local wording finding by replacing ambiguous nominal
+  constraints with explicit operational verbs. Historical findings lacking
+  evidence in the owned paths were rejected.
+- Final local validation: focused 8/8; full host 414 pass, 0 fail, 1 JDK skip;
+  gold gates 100%; governance 0 findings; audit 0 vulnerabilities; Docker
+  smoke PASS.
 
 ## Blockers
 

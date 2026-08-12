@@ -4,7 +4,7 @@
 
 - [ ] [`ticket-073`](project/ticket-073/README.md) — define a canonical
   analysis-policy DSL for deterministic selection of detailed LLM stages,
-  bounded evidence and request/token ceilings without semantic fallback.
+  bounded evidence and request/token/time ceilings without semantic fallback.
   Current state: `IN_PROGRESS / EDIT`; plan committed before implementation.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,

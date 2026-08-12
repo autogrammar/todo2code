@@ -19,3 +19,64 @@ Human evidence: `kontynuuj`, after the bounded analysis-policy DSL follow-up
 was proposed.
 Workflow transition: PLAN / WAIT_FOR_APPROVAL -> IN_PROGRESS / EDIT.
 No implementation file existed or changed before this transition.
+
+2026-08-12 implementation and focused validation
+
+Changed runtime paths:
+- src/evaluation/analysis-policy.ts
+- test/structured-analysis-policy.test.ts
+
+The canonical policy requires LLM for selected semantic stages and rejects
+provider-unavailable fallback. Global and stage budgets bound every initial,
+retry and response-repair request plus input tokens, output tokens and elapsed
+time. Focused contract result: 8 passed, 0 failed.
+
+2026-08-12 real require-llm evidence
+
+Run: 20260812T082410Z-8eb4aba7
+Graph fingerprint:
+6dbe8eb26e4946d33efb2243974361671eda110234b9d9299dd3646441189733
+
+All six semantic stages requested and effectively used LLM. Totals:
+- 43 provider responses,
+- 498533 prompt/input tokens,
+- 153176 completion/output tokens,
+- 651709 total tokens,
+- 1.303208672 USD.
+
+The run was degraded only by a 12/320 documentation chunk cap, missing local
+Java and one invalid historical ticket-018 documentation record. No selected
+semantic stage used deterministic fallback. Markdown extraction alone took
+920279 ms, directly motivating MAX_DURATION_MS in global and stage budgets.
+Task synthesis identified action-less requirements in ticket-073/preprompt.md;
+they were rewritten with explicit operational verbs.
+
+A follow-up local Vallm semantic attempt did not produce a semantic verdict:
+the installed Vallm 0.1.92/LiteLLM route returned model-not-found for the
+otherwise working OpenRouter model. Its Node built-in import warnings are
+tooling artifacts. Exact-head validator-agent review remains the independent
+semantic publication gate.
+
+Final deterministic Vallm security/complexity review with import resolution
+disabled for Node built-ins: 2/2 files passed with zero issues.
+
+2026-08-12 final local verification
+
+$ npm run verify
+415 total; 414 pass; 0 fail; 1 skipped because the local JDK is unavailable.
+
+$ npm run evaluate:gold
+All gated precision/recall metrics: 100%; forbidden diagnostics: 0;
+repeated-run stability: PASS.
+
+$ ./project/governance-check.sh
+GOV-PASS: passed (0 errors, 0 warnings).
+
+$ npm audit --omit=dev
+0 vulnerabilities.
+
+$ make docker-smoke
+docker smoke: PASS.
+
+$ git diff --check
+PASS.
