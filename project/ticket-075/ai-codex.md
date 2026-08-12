@@ -60,6 +60,10 @@ and does not claim that a generated projection was authored by a human.
   files with zero findings. Full host verification, governance, Docker smoke
   and the real Goal ticket-055 pipeline pass; moved to `PUBLICATION` for a new
   exact-head Koru and Validator review on PR #90.
+- Hosted verify, required JDK and Koru passed on exact head `9979cb280533`.
+  `ifuri-validator-agent[bot]` supplied the protected deterministic approval
+  bound to PR #90, ticket-075 and that head. PR #90 was squash-merged as
+  `8e4f8f6a6636db43214936746a258d16a0e141e1`; ticket moved to `DONE / CLOSE`.
 
 ## Blockers
 

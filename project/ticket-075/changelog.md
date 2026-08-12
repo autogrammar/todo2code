@@ -16,3 +16,6 @@
   comma-containing lists parse as JSON, and temporary test data is removed.
 - Exact Vallm 0.1.94 deterministic review is clean; full host, governance,
   Docker and real Goal pipeline validation pass before the updated PR head.
+- PR #90 passed hosted verify, required JDK, Koru and protected governance,
+  received trusted exact-head Validator approval, and was squash-merged to
+  `main` as `8e4f8f6a6636db43214936746a258d16a0e141e1`.
