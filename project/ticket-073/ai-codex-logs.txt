@@ -1,0 +1,13 @@
+2026-08-12 plan and architecture discovery
+
+The active ticket-054 owns integration coordination only. Ticket-073 uses the
+distinct core-dsl workstream and exact paths src/evaluation/analysis-policy.ts
+and test/structured-analysis-policy.test.ts, so write scopes do not overlap.
+
+Existing event-log DSL established the canonical text-codec pattern. The new
+contract remains standalone: deterministic triggers choose required semantic
+LLM stages; global and per-stage request/input/output token ceilings cap cost;
+exact policy/evidence identity supports safe cache reuse; provider failure does
+not invoke deterministic semantic fallback.
+
+State remains PLAN / WAIT_FOR_APPROVAL. No source or test file changed.

@@ -9,6 +9,10 @@
 
 ## Backlog tickets
 
+- [ ] [`ticket-073`](project/ticket-073/README.md) — define a canonical
+  analysis-policy DSL for deterministic selection of detailed LLM stages,
+  bounded evidence and request/token ceilings without semantic fallback.
+  Current state: `PLAN / WAIT_FOR_APPROVAL`.
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:
