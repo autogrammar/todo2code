@@ -56,6 +56,17 @@ approval; protected exact-head Validator evidence remains required.
   warnings when bounded with `--changelog none --docs none`.
 - `npm run verify`, `./project/governance-check.sh` and `make docker-smoke`
   pass. The one host JDK skip is the existing unavailable-toolchain case.
+- PR #90 passed hosted verify and required JDK on head `ba411a86e1bd`, but
+  Koru rejected the changed source set because the existing communication
+  extractor entrypoint had CC=78/151 lines. The same bounded ticket now owns a
+  behavior-preserving internal decomposition before a new exact-head review.
+- The decomposed extractor and defensive envelope parsing pass the exact pinned
+  Vallm 0.1.94 deterministic review locally with two files and zero findings.
+- The updated full suite passes with 420 tests (419 pass, one existing JDK
+  skip), governance reports 0 errors/0 warnings, and Docker smoke passes.
+- The repeated Goal ticket-055 pipeline still resolves only `agent:codex` and
+  reports zero unresolved identities; the remaining 12 ambiguous requirements
+  are renderer granularity findings owned by the subsequent new-project repair.
 
 ## Non-goals
 

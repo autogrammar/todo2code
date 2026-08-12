@@ -5,3 +5,11 @@
 2026-08-12T16:02:00Z focused build/test: PASS; generated projection regression 1/1, existing typed governance participant regression 1/1, governance 0 errors/warnings.
 2026-08-12T16:03:00Z real Goal ticket-055 deterministic pipeline: only agent:codex remains; PARTICIPANT_IDENTITY_UNRESOLVED=0; no generated-projection warning; foreign plans=0 with changelog/docs disabled.
 2026-08-12T16:03:00Z full npm run verify: PASS; one existing JDK-unavailable skip. Governance: PASS, 0 errors/warnings. Docker smoke: PASS.
+2026-08-12T16:08:00Z Goal opened PR #90 at ba411a86e1bd after 419 Node tests (418 pass, 1 JDK skip) and Python SDK compileall passed through a temporary external delivery config.
+2026-08-12T16:09:56Z hosted push/PR verify and both required-JDK jobs passed on ba411a86e1bd.
+2026-08-12T16:09:26Z Koru 0.1.444 rejected deterministic file bindings: extractor CC=78/151 lines; test fixture cleanup; defensive front-matter/list/timestamp findings. Semantic per-file verdicts were pass. Ticket returned to EDIT.
+2026-08-12T16:19:00Z Koru follow-up implemented inside the same allowed component: private extractor stages decomposed; malformed envelopes rejected; ISO timestamps and JSON string lists enforced; test fixtures cleaned with t.after.
+2026-08-12T16:20:00Z exact local Vallm 0.1.94 deterministic review with workflow parser normalization: PASS, 2 files, 0 findings.
+2026-08-12T16:21:00Z full npm run verify: PASS, 420 tests (419 pass, 1 existing JDK skip). Governance: PASS, 0 errors, 0 warnings. Docker smoke: PASS.
+2026-08-12T16:22:00Z real Goal ticket-055 deterministic pipeline: PASS; communication participants=[agent:codex], PARTICIPANT_IDENTITY_UNRESOLVED=0, projection warnings=0. Remaining AMBIGUOUS_REQUIREMENT=12 belongs to new-project renderer granularity, outside ticket-075.
+2026-08-12T16:22:00Z ticket moved to IN_PROGRESS/PUBLICATION for updated exact-head PR review.

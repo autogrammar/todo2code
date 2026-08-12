@@ -48,6 +48,18 @@ and does not claim that a generated projection was authored by a human.
   `IN_PROGRESS / VALIDATION` for the full host and Docker gates.
 - Full host verification, governance and Docker smoke pass; ticket moved to
   `IN_PROGRESS / PUBLICATION` for protected PR delivery.
+- PR #90 was opened at `ba411a86e1bd`; hosted verify and required JDK passed.
+  Koru's semantic verdicts passed but its deterministic file gate rejected the
+  pre-existing CC=78/151-line extractor entrypoint plus fixture cleanup and
+  parser-hardening warnings. Returned to `EDIT` without changing scope or API.
+- Decomposed communication discovery, attribution, warning construction and
+  record assembly into bounded private helpers without changing the public
+  extractor contract. Hardened malformed front matter, ISO timestamps and JSON
+  string-list parsing, and made test fixture cleanup explicit.
+- The exact pinned Vallm 0.1.94 deterministic review now reports two passing
+  files with zero findings. Full host verification, governance, Docker smoke
+  and the real Goal ticket-055 pipeline pass; moved to `PUBLICATION` for a new
+  exact-head Koru and Validator review on PR #90.
 
 ## Blockers
 
