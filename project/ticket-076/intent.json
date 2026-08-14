@@ -1,0 +1,39 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-076",
+  "summary": "Add independently callable code2dsl, docs2dsl and config2dsl facades that emit validated partial Intent DSL",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P2",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-076/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/extractors/ast.ts",
+    "src/extractors/docs-deterministic.ts",
+    "src/extractors/configuration.ts",
+    "test/docs-source-dsl-apis.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/**",
+    "src/pipeline/**",
+    "src/interfaces/**",
+    "src/communication/**",
+    "src/llm/**",
+    "src/synthesis/**",
+    "src/index.ts",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    "schemas/**",
+    "sdk/**"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null
+}
