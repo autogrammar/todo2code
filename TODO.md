@@ -2,6 +2,13 @@
 
 ## Active tickets
 
+- [ ] [`ticket-076`](project/ticket-076/README.md) — add independently callable
+  `code2dsl`, `docs2dsl` and `config2dsl` facades that emit strictly validated,
+  source-limited `t2c.intent/v1` records without running the full pipeline;
+  preserve extractor SSOT/parity, acyclic module boundaries and descriptive,
+  no-authority effects under the reviewed Wellmanifest standards. Current
+  state: `IN_PROGRESS / PUBLICATION`; host, governance and Docker checks pass,
+  pending protected exact-head delivery.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:

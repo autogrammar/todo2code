@@ -3,9 +3,25 @@ import type { T2CConfig } from '../config/env.js';
 import { loadIgnoreMatcher } from '../core/ignore.js';
 import { readText, relativePosix, walkFiles } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
+import { assertIntentRecords } from '../core/schema.js';
 import type { ExtractionResult, IntentRecord } from '../core/types.js';
 
 const MAX_ENTRIES_PER_FILE = 100;
+
+export interface Config2DslOptions {
+  root: string;
+}
+
+/** Independently converts repository configuration into validated Intent DSL. */
+export async function config2dsl(
+  options: Config2DslOptions,
+  config: T2CConfig,
+): Promise<ExtractionResult> {
+  const root = requireStandaloneRoot(options?.root, 'config2dsl');
+  const result = await extractConfigurationIntent(root, config);
+  assertIntentRecords(result.records);
+  return result;
+}
 
 /** Deterministic repository configuration/infrastructure -> Intent DSL. */
 export async function extractConfigurationIntent(rootInput: string, config: T2CConfig): Promise<ExtractionResult> {
@@ -205,4 +221,11 @@ function findKeyLine(lines: string[], key: string): number {
   const pattern = new RegExp(`^\\s*"${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"\\s*:`);
   const index = lines.findIndex((line) => pattern.test(line));
   return index < 0 ? 1 : index + 1;
+}
+
+function requireStandaloneRoot(value: unknown, api: string): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new TypeError(`${api}.options.root must be a non-empty string`);
+  }
+  return value;
 }
