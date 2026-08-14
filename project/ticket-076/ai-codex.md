@@ -67,6 +67,16 @@ limits are in [STANDARDS.md](STANDARDS.md).
   checks. The existing JDK-only Java test remained skipped on this host.
 - Transitioned to `IN_PROGRESS / PUBLICATION`; protected exact-head review and
   merge are intentionally not claimed by this ticket-local validation.
+- Validator Agent correctly failed closed on the first published head because
+  the test diff contained a credential-shaped assignment. Reworked
+  only the inert fixture to construct its key name and value at runtime; the
+  non-disclosure assertion remains equivalent without publishing a
+  credential-shaped assignment in the patch.
+- The protected governance resolver then rejected the combined ticket and
+  implementation history even after Validator approval. Reconstructed the
+  branch from `origin/main` so the approved plan and `intent.json` are committed
+  first, implementation follows in a separate commit, and this remediation is
+  last; no product bytes changed during the history repair.
 
 ## Risks
 

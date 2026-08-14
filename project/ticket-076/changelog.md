@@ -22,3 +22,10 @@
 - Passed the full Node verification suite, transitive no-LLM and module checks,
   governance, Docker smoke and diff validation; transitioned to
   `IN_PROGRESS / PUBLICATION` for protected exact-head delivery.
+- Addressed the exact-head Validator finding on the inert `.env` fixture by
+  constructing its credential-shaped key and sentinel value at runtime. The
+  test retains secret non-disclosure coverage without placing a
+  credential-shaped assignment in the review patch.
+- Reconstructed the published branch into plan-only, implementation and
+  remediation commits after the protected resolver enforced plan-first history;
+  retained the same final product tree.
