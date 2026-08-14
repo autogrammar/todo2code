@@ -3,7 +3,7 @@
 - **ID**: ticket-076
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-14
 
 ## Goal and scope
@@ -46,25 +46,25 @@ formal conformance.
 ## Acceptance criteria
 
 - [x] AC-01: The human owner approves this bounded API design.
-- [ ] AC-02: `code2dsl`, `docs2dsl` and `config2dsl` are independently
+- [x] AC-02: `code2dsl`, `docs2dsl` and `config2dsl` are independently
       callable from the package root with a common `{ root }` entry shape and
       a required explicit `T2CConfig`.
-- [ ] AC-03: Each API returns only its own channel's records plus warnings (and
+- [x] AC-03: Each API returns only its own channel's records plus warnings (and
       existing AST cache evidence where applicable), without invoking the full
       pipeline, graph, synthesis, LLM or mutation paths.
-- [ ] AC-04: Every returned record passes the existing strict
+- [x] AC-04: Every returned record passes the existing strict
       `assertIntentRecords` validator and retains source provenance.
-- [ ] AC-05: `docs2dsl` accepts explicit resolved files or resolves bounded
+- [x] AC-05: `docs2dsl` accepts explicit resolved files or resolves bounded
       include/exclude patterns, using the configured documentation patterns by
       default.
-- [ ] AC-06: Existing extractor APIs and pipeline behavior remain unchanged.
-- [ ] AC-07: For identical explicit inputs and configuration, each facade has
+- [x] AC-06: Existing extractor APIs and pipeline behavior remain unchanged.
+- [x] AC-07: For identical explicit inputs and configuration, each facade has
       record, warning and applicable cache parity with its canonical extractor;
       no extraction logic is copied into a facade.
-- [ ] AC-08: The facades do not import one another, mutate the analyzed
+- [x] AC-08: The facades do not import one another, mutate the analyzed
       repository, produce authority/execution artifacts or expose actual `.env`
       secret material.
-- [ ] AC-09: Focused tests, full Node verification, module-boundary validation,
+- [x] AC-09: Focused tests, full Node verification, module-boundary validation,
       governance and Docker smoke
       pass before completion is reported.
 
@@ -76,8 +76,24 @@ formal conformance.
 ## Approval gate
 
 The human owner explicitly approved ticket-076 and requested implementation on
-2026-08-14. The ticket is now `IN_PROGRESS / EDIT`. Conversation approval is an
-audit note, not trusted merge authorization.
+2026-08-14. The ticket is now `IN_PROGRESS / PUBLICATION`. Conversation
+approval is an audit note, not trusted merge authorization.
+
+## Verification evidence
+
+- Public-root regression tests prove facade/canonical parity, strict record
+  validation, source-channel isolation, bounded documentation discovery and
+  rejection of foreign paths.
+- The configuration fixture proves `.env.example` remains discoverable while
+  actual `.env` content is neither emitted nor leaked.
+- `npm run verify` passed, including TypeScript build, the full Node suite,
+  transitive no-LLM checks and module-boundary validation (124 modules, 545
+  internal imports, no cycles and independent `core`). The existing JDK-only
+  Java test remained skipped because the JDK is not installed.
+- `./project/governance-check.sh`, `make docker-smoke` and `git diff --check`
+  passed on 2026-08-14.
+- The implementation is ready for protected exact-head review and remains
+  `IN_PROGRESS / PUBLICATION` until that external delivery boundary completes.
 
 ## Non-goals
 

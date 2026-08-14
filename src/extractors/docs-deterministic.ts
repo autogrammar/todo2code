@@ -13,8 +13,9 @@
 
 import path from 'node:path';
 import type { T2CConfig } from '../config/env.js';
-import { readText, relativePosix } from '../core/io.js';
+import { readText, relativePosix, resolveGlobs } from '../core/io.js';
 import { buildRecord } from '../core/record.js';
+import { assertIntentRecords } from '../core/schema.js';
 import {
   classifyActionHeuristically,
   detectModality,
@@ -44,6 +45,40 @@ export interface DeterministicDocumentationOptions {
   root: string;
   /** Files to convert, already resolved by the caller's glob handling. */
   files: string[];
+}
+
+export interface Docs2DslOptions {
+  root: string;
+  /** Explicit repository-owned files. Relative values resolve below `root`. */
+  files?: string[];
+  /** Include patterns used only when `files` is omitted. */
+  patterns?: string[];
+  /** Exclude patterns used only when `files` is omitted. */
+  excludes?: string[];
+}
+
+/**
+ * Independently converts documentation into validated Intent DSL.
+ *
+ * Explicit files take precedence over patterns, including an explicitly empty
+ * list. Pattern defaults come from the supplied configuration. The function
+ * performs deterministic extraction only and never enters the LLM pipeline.
+ */
+export async function docs2dsl(
+  options: Docs2DslOptions,
+  config: T2CConfig,
+): Promise<ExtractionResult> {
+  const root = requireStandaloneRoot(options?.root, 'docs2dsl');
+  const files = options.files === undefined
+    ? await resolveGlobs(
+      root,
+      requireStringList(options.patterns ?? config.documentPatterns, 'docs2dsl.options.patterns'),
+      requireStringList(options.excludes ?? config.documentExcludes, 'docs2dsl.options.excludes'),
+    )
+    : resolveOwnedFiles(root, requireStringList(options.files, 'docs2dsl.options.files'));
+  const result = await extractDocumentationBaseline({ root, files }, config);
+  assertIntentRecords(result.records);
+  return result;
 }
 
 /**
@@ -301,4 +336,29 @@ function targetsOf(
     tickets: extractTickets(text),
     versions: extractVersions(text),
   };
+}
+
+function requireStandaloneRoot(value: unknown, api: string): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new TypeError(`${api}.options.root must be a non-empty string`);
+  }
+  return path.resolve(value);
+}
+
+function requireStringList(value: unknown, name: string): string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || !item.trim())) {
+    throw new TypeError(`${name} must be an array of non-empty strings`);
+  }
+  return value;
+}
+
+function resolveOwnedFiles(root: string, files: string[]): string[] {
+  return [...new Set(files.map((file) => {
+    const absolute = path.resolve(root, file);
+    const relative = path.relative(root, absolute);
+    if (!relative || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+      if (relative) throw new Error(`docs2dsl.options.files must stay inside root: ${file}`);
+    }
+    return absolute;
+  }))].sort();
 }

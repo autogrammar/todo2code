@@ -57,6 +57,16 @@ limits are in [STANDARDS.md](STANDARDS.md).
 - Created and completed this planning ticket on a dedicated branch.
 - Recorded the human owner's explicit approval on 2026-08-14 and transitioned
   the ticket to `IN_PROGRESS / EDIT` before touching implementation.
+- Added all three facade APIs in their owning extractor modules. Each delegates
+  to the canonical extractor, requires explicit `T2CConfig` and validates the
+  emitted `t2c.intent/v1` records before returning the unchanged envelope.
+- Added public-root regression coverage for canonical parity, source isolation,
+  docs discovery, invalid/foreign inputs and `.env` non-disclosure.
+- Passed focused tests and full `npm run verify`, including the transitive
+  no-LLM and module-boundary gates; passed governance, Docker smoke and diff
+  checks. The existing JDK-only Java test remained skipped on this host.
+- Transitioned to `IN_PROGRESS / PUBLICATION`; protected exact-head review and
+  merge are intentionally not claimed by this ticket-local validation.
 
 ## Risks
 
@@ -68,6 +78,9 @@ limits are in [STANDARDS.md](STANDARDS.md).
   even though no package manifest change is necessary.
 - A local development checkout is not a normative dependency. Formal DSL or
   Modularity adoption needs a later integration ticket and immutable pins.
+- The first optional-config implementation failed `verify:no-llm` because its
+  runtime `getConfig` import reached `OPENROUTER_API_KEY`. The corrected public
+  contract requires explicit config and restores the deterministic boundary.
 
 ## Blockers
 

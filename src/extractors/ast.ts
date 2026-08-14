@@ -19,6 +19,25 @@ export interface AstExtractionOptions {
   root: string;
 }
 
+export type Code2DslOptions = AstExtractionOptions;
+
+/**
+ * Independently converts repository source code into validated Intent DSL.
+ *
+ * The returned object is an adapter envelope. Every item in `records` is one
+ * canonical `t2c.intent/v1` document; the collection deliberately claims only
+ * code evidence and never repository completeness.
+ */
+export async function code2dsl(
+  options: Code2DslOptions,
+  config: T2CConfig,
+): Promise<CachedExtractionResult> {
+  const root = requireStandaloneRoot(options?.root, 'code2dsl');
+  const result = await extractAstIntent({ root }, config);
+  assertIntentRecords(result.records);
+  return result;
+}
+
 /** Coordinates independently versioned language adapters behind one public envelope. */
 export async function extractAstIntent(options: AstExtractionOptions, config: T2CConfig): Promise<CachedExtractionResult> {
   const root = path.resolve(options.root);
@@ -164,4 +183,11 @@ function isExtractionResult(value: unknown): value is ExtractionResult {
   const result = value as Partial<ExtractionResult>;
   return isIntentRecords(result.records) && Array.isArray(result.warnings)
     && result.warnings.every((warning) => typeof warning === 'string');
+}
+
+function requireStandaloneRoot(value: unknown, api: string): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new TypeError(`${api}.options.root must be a non-empty string`);
+  }
+  return value;
 }
