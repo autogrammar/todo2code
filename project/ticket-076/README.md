@@ -2,8 +2,8 @@
 
 - **ID**: ticket-076
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-14
 
 ## Goal and scope
@@ -92,8 +92,19 @@ approval is an audit note, not trusted merge authorization.
   Java test remained skipped because the JDK is not installed.
 - `./project/governance-check.sh`, `make docker-smoke` and `git diff --check`
   passed on 2026-08-14.
-- The implementation is ready for protected exact-head review and remains
-  `IN_PROGRESS / PUBLICATION` until that external delivery boundary completes.
+- Hosted `verify`, the required JDK fixture and Koru passed on exact final head
+  `944288f8c6a458ccc26d1d7c13217b84414edbb7`.
+- Validator App approved that exact head for PR #92, ticket-076 and correlation
+  `todo2code-pr-92-ticket-076-history-repair-2`. Its advisory GLM 5.2 opinion
+  was unavailable, so approval authority rests explicitly on deterministic
+  evidence.
+- The protected `governance / governance / enforce` resolver accepted the
+  plan-first history and exact-head App review.
+- PR #92 merged through the active ruleset as
+  `main@24ca3a13f0529da99f56ff06b6e992bb34c1dff3`; GitHub automatically deleted
+  `ticket-076-standalone-source-dsl-apis`.
+- This governance-only follow-up closes the integrated ticket without changing
+  implementation artifacts.
 
 ## Non-goals
 

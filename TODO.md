@@ -2,13 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-076`](project/ticket-076/README.md) — add independently callable
-  `code2dsl`, `docs2dsl` and `config2dsl` facades that emit strictly validated,
-  source-limited `t2c.intent/v1` records without running the full pipeline;
-  preserve extractor SSOT/parity, acyclic module boundaries and descriptive,
-  no-authority effects under the reviewed Wellmanifest standards. Current
-  state: `IN_PROGRESS / PUBLICATION`; host, governance and Docker checks pass,
-  pending protected exact-head delivery.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
@@ -28,6 +21,12 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-076`](project/ticket-076/README.md) — publishes independently
+  callable `code2dsl`, `docs2dsl` and `config2dsl` facades that emit strictly
+  validated, source-limited `t2c.intent/v1` records. Full host/Docker checks,
+  Koru, Validator App and protected plan-first governance passed on exact head
+  `944288f`; PR #92 merged as `main@24ca3a1` and its branch was deleted. Current
+  state: `DONE / DONE`.
 - [x] [`ticket-074`](project/ticket-074/README.md) — routes Subactor-owned
   semantic calls through central SubLLM with direct Z.AI GLM 5.2, OpenRouter
   fallback ordering and provider-visible identity. Koru, independent GLM-5.2

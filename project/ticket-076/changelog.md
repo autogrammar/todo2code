@@ -29,3 +29,10 @@
 - Reconstructed the published branch into plan-only, implementation and
   remediation commits after the protected resolver enforced plan-first history;
   retained the same final product tree.
+- Published reconstructed head `944288f8c6a458ccc26d1d7c13217b84414edbb7`,
+  passed hosted verify, required Java, Koru and protected governance, and
+  received exact-head Validator App approval.
+- Merged PR #92 as `main@24ca3a13f0529da99f56ff06b6e992bb34c1dff3`
+  and verified automatic deletion of the implementation branch.
+- This separate governance-only follow-up closes ticket-076 from integrated
+  `main`.
