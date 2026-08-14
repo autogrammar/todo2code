@@ -77,6 +77,17 @@ limits are in [STANDARDS.md](STANDARDS.md).
   branch from `origin/main` so the approved plan and `intent.json` are committed
   first, implementation follows in a separate commit, and this remediation is
   last; no product bytes changed during the history repair.
+- Re-ran all 433 tests, Docker smoke, module/no-LLM checks and local governance
+  on reconstructed exact head `944288f8c6a458ccc26d1d7c13217b84414edbb7`.
+- Obtained successful Koru, Validator App approval and protected governance
+  resolution bound to that exact head. The GLM 5.2 advisory opinion was
+  unavailable because of provider budget; deterministic authority remained
+  explicit.
+- Merged PR #92 under the active ruleset as
+  `main@24ca3a13f0529da99f56ff06b6e992bb34c1dff3` and verified automatic remote
+  implementation-branch deletion.
+- Closed `DONE / DONE` only in this governance-only follow-up from integrated
+  `main`.
 
 ## Risks
 

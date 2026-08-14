@@ -1,0 +1,9 @@
+2026-08-14T16:07Z PR #92 opened at initial head 5cb223823ccd49696614c2bd5750cbe243b81b2f.
+2026-08-14T16:11Z Validator failed closed on a credential-shaped inert test fixture.
+2026-08-14T16:18Z Validator approved remediated head 3a2aabcf22ee68fc487c51ed8ab8bcba6a14a943; protected governance rejected combined plan and implementation history.
+2026-08-14T16:23Z Branch history reconstructed into plan-only b6dcf32, implementation eed8bc1 and remediation 944288f commits with unchanged product bytes.
+2026-08-14T16:25Z Hosted verify, required Java and Koru checks passed on exact head 944288f8c6a458ccc26d1d7c13217b84414edbb7.
+2026-08-14T16:27Z Validator App approved exact head 944288f8c6a458ccc26d1d7c13217b84414edbb7 for ticket-076; advisory GLM 5.2 was unavailable and deterministic authority remained explicit.
+2026-08-14T16:27Z Protected governance resolver passed the exact-head review and plan-first history.
+2026-08-14T16:29Z PR #92 merged as 24ca3a13f0529da99f56ff06b6e992bb34c1dff3.
+2026-08-14T16:30Z Fetch/prune verified deletion of origin/ticket-076-standalone-source-dsl-apis.
