@@ -79,7 +79,8 @@
           "project/new-ticket.sh",
           "project/readme.sh",
           "project/TICKETS.md",
-          "project/ticket-*/**"
+          "project/ticket-*/**",
+          "dsl-manifest.json"
         ]
       },
       "integration": {

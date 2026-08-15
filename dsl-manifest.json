@@ -1,0 +1,152 @@
+{
+  "$schema": "https://wellmanifest.dev/schemas/dsl-manifest/v1",
+  "schema": "wellmanifest.dsl/manifest/v1",
+  "id": "autogrammar.todo2code.intent",
+  "name": "todo2code Intent Evidence DSL",
+  "version": "1.0.0",
+  "status": "stable",
+  "purpose": "Audited intent extraction from TODO, Git, AST, changelog, docs and team communication into evidence-bound records and graphs",
+  "domain": "intent-evidence",
+  "owners": [
+    {
+      "kind": "repository",
+      "id": "github:autogrammar/todo2code",
+      "responsibilities": ["semantics", "validation", "compatibility", "runtime", "security"]
+    }
+  ],
+  "source": {
+    "repository": "https://github.com/autogrammar/todo2code",
+    "path": "schemas/intent-record.schema.json",
+    "declaredVersion": "1",
+    "canonical": "json-ast",
+    "mediaType": "application/schema+json",
+    "selectors": []
+  },
+  "ownedPaths": [
+    "dsl-manifest.json",
+    "schemas/intent-record.schema.json",
+    "schemas/intent-graph.schema.json",
+    "docs/DSL.md"
+  ],
+  "artifacts": [
+    {
+      "path": "schemas/intent-record.schema.json",
+      "role": "normative-source",
+      "digest": "sha256:4617689930fe46e652c8e02297544c80576cb4353b4a6c84eaddd49b2565563a"
+    },
+    {
+      "path": "schemas/intent-graph.schema.json",
+      "role": "schema",
+      "digest": "sha256:bd5ce8511d5bb9a96ff346c49c7845601fffa8f7fb382ec1568bf440851778fd"
+    },
+    {
+      "path": "docs/DSL.md",
+      "role": "documentation",
+      "digest": "sha256:85a26e2538d9ebc89de936b2462355c333e2ed03468264cef9d33920c91db74f"
+    }
+  ],
+  "namespaces": [
+    {
+      "prefix": "t2c",
+      "uri": "https://github.com/autogrammar/todo2code/"
+    }
+  ],
+  "projections": [
+    {
+      "name": "TODO.md checkbox",
+      "mediaType": "text/markdown",
+      "direction": "from-canonical",
+      "lossless": false
+    },
+    {
+      "name": "Intent graph JSON",
+      "mediaType": "application/json",
+      "direction": "bidirectional",
+      "lossless": true
+    }
+  ],
+  "lifecycle": {
+    "compatibility": "semver",
+    "stability": "stable",
+    "breaking": "major",
+    "additive": "minor",
+    "fix": "patch"
+  },
+  "semantics": {
+    "effectModel": "propose-only",
+    "unknownPolicy": "reject",
+    "authoritySchema": null
+  },
+  "llm": {
+    "mode": "bidirectional",
+    "requestSchemas": ["schemas/intent-record.schema.json"],
+    "responseSchemas": ["schemas/conclusion.schema.json", "schemas/todo-proposal.schema.json"],
+    "naturalLanguage": "typed-source-only",
+    "sourceSchema": "t2c.intent/v1",
+    "modelAuthority": "propose-only",
+    "strict": true
+  },
+  "documentation": {
+    "vocabularyKind": "documents",
+    "commandRoot": "docs",
+    "errorRoot": "docs/ERROR",
+    "criticalRoot": "docs/CRITICAL",
+    "commands": [],
+    "errorCodes": [],
+    "criticalCodes": []
+  },
+  "findingPolicy": {
+    "schema": "wellmanifest.dsl/findings/v1",
+    "requiredProducers": ["autogrammar.todo2code.governance-check"],
+    "securityProducers": ["autogrammar.todo2code.governance-check"],
+    "blockingSeverities": ["critical"],
+    "requireEvaluable": true,
+    "blockUnresolvedSecurity": true
+  },
+  "publicationPolicy": {
+    "declaredTier": "review",
+    "deterministic": true,
+    "independentReview": true,
+    "externalAuthority": false,
+    "runtimeIsolation": false
+  },
+  "conformance": {
+    "levels": ["manifest", "contract", "runtime"],
+    "commands": [
+      "npm run verify:modules",
+      "npm run verify:schemas",
+      "npm test"
+    ],
+    "validExamples": [],
+    "invalidExamples": []
+  },
+  "mappings": [
+    {
+      "standard": "wellmanifest.dsl",
+      "version": "0.1.0",
+      "relation": "implements",
+      "uri": "https://github.com/wellmanifest/dsl"
+    }
+  ],
+  "standardsLock": {
+    "schema": "wellmanifest.standards-lock/v1",
+    "entries": [
+      {
+        "standard": "wellmanifest.dsl",
+        "version": "0.1.0",
+        "repository": "https://github.com/wellmanifest/dsl",
+        "revision": "b7d0595c95e5abbb48ebfdbdae0bc6d43c6f82f4",
+        "contracts": [
+          {
+            "ref": "https://wellmanifest.dev/schemas/dsl-manifest/v1",
+            "digest": "sha256:34d356b76bbd483372df84bb986e15bb84e9c1f8b11b7dc9e3a6c7276c85ed13"
+          },
+          {
+            "ref": "https://wellmanifest.dev/spec/DSL_STANDARD.md",
+            "digest": "sha256:2dfb09b5689289c3ad096057ca1dc2f19512639e3662188dd6c5ee25e4e8c53b"
+          }
+        ]
+      }
+    ]
+  }
+}
