@@ -54,6 +54,34 @@ export interface BuildRecordInput {
   generation?: BuildRecordGenerationInput;
 }
 
+function recordStatement(input: BuildRecordInput, target: IntentTarget): IntentRecord['statement'] {
+  return {
+    kind: input.kind,
+    actor: input.actor ?? null,
+    action: input.action,
+    subject: input.subject ?? null,
+    object: input.object,
+    target,
+    modality: input.modality ?? 'unknown',
+    polarity: input.polarity ?? 'positive',
+    text: input.text,
+  };
+}
+
+function recordSource(input: BuildRecordInput, rawExcerpt: string): IntentRecord['source'] {
+  return {
+    kind: input.sourceKind,
+    path: input.sourcePath ?? null,
+    lines: input.sourceLines ?? null,
+    revision: input.revision ?? null,
+    symbol: input.symbol ?? null,
+    commitIndex: input.commitIndex ?? null,
+    extractor: input.extractor,
+    contentHash: sha256(rawExcerpt),
+    rawExcerpt,
+  };
+}
+
 export function buildRecord(input: BuildRecordInput): IntentRecord {
   const target: IntentTarget = normalizeTarget(input.target);
   const rawExcerpt = input.rawExcerpt ?? input.text;
@@ -72,29 +100,9 @@ export function buildRecord(input: BuildRecordInput): IntentRecord {
   return {
     schemaVersion: 't2c.intent/v1',
     id: createIntentId(seed, input.prefix ?? sourcePrefix(input.sourceKind)),
-    statement: {
-      kind: input.kind,
-      actor: input.actor ?? null,
-      action: input.action,
-      subject: input.subject ?? null,
-      object: input.object,
-      target,
-      modality: input.modality ?? 'unknown',
-      polarity: input.polarity ?? 'positive',
-      text: input.text,
-    },
+    statement: recordStatement(input, target),
     lifecycle: { status: input.lifecycle },
-    source: {
-      kind: input.sourceKind,
-      path: input.sourcePath ?? null,
-      lines: input.sourceLines ?? null,
-      revision: input.revision ?? null,
-      symbol: input.symbol ?? null,
-      commitIndex: input.commitIndex ?? null,
-      extractor: input.extractor,
-      contentHash: sha256(rawExcerpt),
-      rawExcerpt,
-    },
+    source: recordSource(input, rawExcerpt),
     epistemic: {
       class: input.epistemicClass,
       confidence: clamp(input.confidence),

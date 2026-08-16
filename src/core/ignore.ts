@@ -79,28 +79,15 @@ function translateGlob(pattern: string): string {
   for (let index = 0; index < pattern.length; index += 1) {
     const char = pattern[index] ?? '';
     if (char === '\\') {
-      const next = pattern[index + 1];
-      if (next !== undefined) {
-        output += escapeLiteral(next);
-        index += 1;
-        continue;
-      }
-      output += '\\\\';
+      const translated = translateEscape(pattern, index);
+      output += translated.value;
+      index += translated.consumed;
       continue;
     }
     if (char === '*') {
-      if (pattern[index + 1] === '*') {
-        // `**/` spans zero or more directories; a trailing `**` spans anything.
-        if (pattern[index + 2] === '/') {
-          output += '(?:.*/)?';
-          index += 2;
-        } else {
-          output += '.*';
-          index += 1;
-        }
-        continue;
-      }
-      output += '[^/]*';
+      const translated = translateStar(pattern, index);
+      output += translated.value;
+      index += translated.consumed;
       continue;
     }
     if (char === '?') {
@@ -108,19 +95,37 @@ function translateGlob(pattern: string): string {
       continue;
     }
     if (char === '[') {
-      const close = pattern.indexOf(']', index + 1);
-      if (close > index) {
-        const body = pattern.slice(index + 1, close).replace(/\\/g, '\\\\');
-        output += `[${body.startsWith('!') ? `^${body.slice(1)}` : body}]`;
-        index = close;
-        continue;
-      }
-      output += '\\[';
+      const translated = translateCharacterClass(pattern, index);
+      output += translated.value;
+      index += translated.consumed;
       continue;
     }
     output += escapeLiteral(char);
   }
   return output;
+}
+
+function translateEscape(pattern: string, index: number): { value: string; consumed: number } {
+  const next = pattern[index + 1];
+  return next === undefined
+    ? { value: '\\\\', consumed: 0 }
+    : { value: escapeLiteral(next), consumed: 1 };
+}
+
+function translateStar(pattern: string, index: number): { value: string; consumed: number } {
+  if (pattern[index + 1] !== '*') return { value: '[^/]*', consumed: 0 };
+  // `**/` spans zero or more directories; a trailing `**` spans anything.
+  return pattern[index + 2] === '/'
+    ? { value: '(?:.*/)?', consumed: 2 }
+    : { value: '.*', consumed: 1 };
+}
+
+function translateCharacterClass(pattern: string, index: number): { value: string; consumed: number } {
+  const close = pattern.indexOf(']', index + 1);
+  if (close <= index) return { value: '\\[', consumed: 0 };
+  const body = pattern.slice(index + 1, close).replace(/\\/g, '\\\\');
+  const value = body.startsWith('!') ? `^${body.slice(1)}` : body;
+  return { value: `[${value}]`, consumed: close - index };
 }
 
 function escapeLiteral(char: string): string {
