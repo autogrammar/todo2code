@@ -346,29 +346,16 @@ function scorePair(
   resolvableBasenames: Set<string>,
   symbolResolutionIndex: SymbolResolutionIndex,
 ): PairEvidence {
-  let score = 0;
-  const basis: string[] = [];
+  const targetEvidence = scoreTargetEvidence(
+    left,
+    right,
+    resolvableBasenames,
+    symbolResolutionIndex,
+  );
+  let score = targetEvidence.score;
+  const basis = [...targetEvidence.basis];
   const leftKeywords = index.get(left.id);
   const rightKeywords = index.get(right.id);
-  if (intersects(left.statement.target.tickets, right.statement.target.tickets)) {
-    score += 0.62;
-    basis.push('shared_ticket');
-  }
-  const resolvedNlAstSymbol = hasResolvedNlAstSymbolPair(left, right, symbolResolutionIndex);
-  if ((resolvedNlAstSymbol ?? intersectsAliases(left.statement.target.symbols, right.statement.target.symbols, symbolAliases))) {
-    score += 0.48;
-    basis.push('shared_symbol');
-  }
-  if (pathsIntersect(left.statement.target.paths, right.statement.target.paths, resolvableBasenames)) {
-    score += 0.28;
-    basis.push('shared_path');
-    if (isFileAggregateEvidencePair(left, right)) {
-      score += 0.24;
-      basis.push('module_coverage');
-      const capabilityOverlap = aggregateCapabilityOverlap(left, right);
-      if (capabilityOverlap > 0) basis.push(`capability_overlap:${capabilityOverlap}`);
-    }
-  }
   if (left.statement.action === right.statement.action && left.statement.action !== 'unknown') {
     score += 0.13;
     basis.push('same_action');
@@ -395,6 +382,37 @@ function scorePair(
   }
   if (left.source.kind === right.source.kind) score -= 0.08;
   return { score: Math.max(0, score), basis: [...new Set(basis)].sort(), textScore: objectSimilarity };
+}
+
+function scoreTargetEvidence(
+  left: IntentRecord,
+  right: IntentRecord,
+  resolvableBasenames: Set<string>,
+  symbolResolutionIndex: SymbolResolutionIndex,
+): { score: number; basis: string[] } {
+  let score = 0;
+  const basis: string[] = [];
+  if (intersects(left.statement.target.tickets, right.statement.target.tickets)) {
+    score += 0.62;
+    basis.push('shared_ticket');
+  }
+  const resolvedNlAstSymbol = hasResolvedNlAstSymbolPair(left, right, symbolResolutionIndex);
+  if ((resolvedNlAstSymbol ?? intersectsAliases(left.statement.target.symbols, right.statement.target.symbols, symbolAliases))) {
+    score += 0.48;
+    basis.push('shared_symbol');
+  }
+  if (!pathsIntersect(left.statement.target.paths, right.statement.target.paths, resolvableBasenames)) {
+    return { score, basis };
+  }
+  score += 0.28;
+  basis.push('shared_path');
+  if (isFileAggregateEvidencePair(left, right)) {
+    score += 0.24;
+    basis.push('module_coverage');
+    const capabilityOverlap = aggregateCapabilityOverlap(left, right);
+    if (capabilityOverlap > 0) basis.push(`capability_overlap:${capabilityOverlap}`);
+  }
+  return { score, basis };
 }
 
 function intersectionSize(left: Set<string>, right: Set<string>): number {
