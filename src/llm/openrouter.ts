@@ -217,8 +217,12 @@ export class OpenRouterClient {
   ): Promise<OpenRouterResponse> {
     let lastError: Error | null = null;
     for (let attempt = 0; attempt < 3; attempt += 1) {
+      const attemptController = new AbortController();
+      const abortAttempt = () => attemptController.abort();
+      signal.addEventListener('abort', abortAttempt, { once: true });
+      if (signal.aborted) attemptController.abort();
       try {
-        return await this.requestAttempt(body, transport, signal);
+        return await this.requestAttempt(body, transport, attemptController.signal);
       } catch (caught) {
         const error = normalizeRequestError(caught, externalSignal, timeoutDecision, transport.providerLabel);
         lastError = error;
@@ -226,6 +230,8 @@ export class OpenRouterClient {
         await waitForRetry(
           300 * (2 ** attempt), signal, externalSignal, timeoutDecision, transport.providerLabel,
         );
+      } finally {
+        signal.removeEventListener('abort', abortAttempt);
       }
     }
     throw lastError ?? new Error(`${transport.providerLabel} request failed`);

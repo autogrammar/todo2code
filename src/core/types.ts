@@ -1,3 +1,3 @@
-export type * from './types-foundation.js';
-export type * from './types-code-change.js';
-export type * from './types-runtime.js';
+export * from './types-foundation.js';
+export * from './types-code-change.js';
+export * from './types-runtime.js';
