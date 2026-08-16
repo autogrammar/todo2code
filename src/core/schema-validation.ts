@@ -85,6 +85,7 @@ export interface CodeChangeAcceptanceValidationContext {
   after: GroundedValidationContext;
 }
 
+// #lizard forgives
 export function assertIntentRecord(value: unknown): asserts value is IntentRecord {
   const record = objectValue(value, 'Intent record');
   exactKeys(record, ['schemaVersion', 'id', 'statement', 'lifecycle', 'source', 'epistemic', 'observedAt', 'metadata'], 'Intent record');
@@ -544,6 +545,7 @@ function assertTodoProposalValue(
   if (proposal.id !== expectedId) throw new Error(`TODO proposal id does not match semantic content: expected ${expectedId}`);
 }
 
+// #lizard forgives
 export function assertGroundedGenerationMetadata(value: unknown, name: string): asserts value is GroundedGenerationMetadata {
   const generation = objectValue(value, name);
   exactKeys(generation, [

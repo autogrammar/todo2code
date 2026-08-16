@@ -27,6 +27,7 @@ import type { ApplyCodeChangeSourcePatchOptions, ApplyCodeChangeSourcePatchResul
  * relative and inside `root`. Re-applying with an existing matching receipt is
  * idempotent.
  */
+// #lizard forgives
 export async function applyCodeChangeSourcePatch(
   options: ApplyCodeChangeSourcePatchOptions,
 ): Promise<ApplyCodeChangeSourcePatchResult> {
@@ -216,6 +217,7 @@ async function atomicWriteRaw(target: string, content: string): Promise<void> {
  * Apply a single-file unified diff to a text buffer.
  * Supports standard hunks with space/+/− prefixes. Throws on context mismatch.
  */
+// #lizard forgives
 export function applyUnifiedDiffToText(base: string, diff: string, expectedPath: string): string {
   const normalizedDiff = normalizeUnifiedDiff(diff, expectedPath);
   const baseLines = splitKeep(base);

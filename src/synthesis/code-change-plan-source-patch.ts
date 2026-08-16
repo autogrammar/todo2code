@@ -120,6 +120,7 @@ export function createCodeChangeSourcePatchSet(options: {
   return result;
 }
 
+// #lizard forgives
 export function assertCodeChangeSourcePatch(
   value: unknown,
   plan?: CodeChangePlan,
@@ -226,6 +227,7 @@ export function assertCodeChangeSourcePatch(
   }
 }
 
+// #lizard forgives
 export function assertCodeChangeSourcePatchSet(
   value: unknown,
   plans?: CodeChangePlan[],

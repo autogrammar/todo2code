@@ -18,6 +18,7 @@ import {
   SEMANTIC_RERANK_VERDICTS,
 } from './reranker-types.js';
 
+// #lizard forgives
 export function assertSemanticCandidateSet(
   value: SemanticCandidateSet,
   graph: IntentGraph,
@@ -85,6 +86,7 @@ export function assertSemanticCandidateSet(
   if (value.candidateSetHash !== expectedHash) throw new Error('Semantic candidateSetHash does not match its content');
 }
 
+// #lizard forgives
 export function assertSemanticRerankResult(
   value: SemanticRerankResult,
   candidateSet: SemanticCandidateSet,

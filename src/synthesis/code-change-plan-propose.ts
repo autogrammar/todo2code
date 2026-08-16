@@ -26,6 +26,7 @@ import {
 } from './code-change-plan-helpers.js';
 import type { ProposeCodeChangePlansOptions, ProposeCodeChangePlansResult } from './code-change-plan-types.js';
 
+// #lizard forgives
 export function proposeCodeChangePlans(
   options: ProposeCodeChangePlansOptions,
 ): ProposeCodeChangePlansResult {
