@@ -5,8 +5,8 @@
 
 > Auto-generated project documentation from source code analysis.
 
-**Author:** Tom Softreck <tom@sapletta.com>  
-**License:** Apache-2.0[(LICENSE)](./LICENSE)  
+**Author:** Tom Softreck <tom@sapletta.com>
+**License:** Apache-2.0[(LICENSE)](./LICENSE)
 **Repository:** [https://github.com/autogrammar/todo2code](https://github.com/autogrammar/todo2code)
 
 ## Installation

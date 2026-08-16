@@ -1,4 +1,4 @@
-project: /home/tom/github/autogrammar/todo2code
+project: <PROJECT_ROOT>
 generated_from: code2llm call graph analysis
 stats:
   total_nodes: 454

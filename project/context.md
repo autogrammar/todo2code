@@ -3,7 +3,7 @@
 
 ## Overview
 
-- **Project**: /home/tom/github/autogrammar/todo2code
+- **Project**: <PROJECT_ROOT>
 - **Primary Language**: typescript
 - **Languages**: typescript: 133, md: 61, json: 41, javascript: 17, python: 16
 - **Analysis Mode**: static
