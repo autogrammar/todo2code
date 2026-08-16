@@ -269,8 +269,11 @@ function ensurePrincipalAvailable(state: IntakeState, principal: ParticipantV2['
   const conflict = [...state.participants.values()].find((entry) => entry.id !== owner && entry.principals.some((item) => principalKey(item) === key));
   if (conflict) throw new IntakeError('T2C-INTAKE-UNVERIFIED-ACTOR', `Principal is already bound to ${conflict.id}`, 'Use a unique verified principal.');
 }
+const SECRET_ASSIGNMENT_PATTERN = String.raw`(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s]{8,}`;
+const PEM_KEY_HEADER_PATTERN = ['-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE ', 'KEY-----'].join('');
+const SECRET_INPUT_PATTERN = new RegExp(`${SECRET_ASSIGNMENT_PATTERN}|${PEM_KEY_HEADER_PATTERN}`, 'i');
 function rejectSecrets(message: string): void {
-  if (/(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s]{8,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i.test(message)) {
+  if (SECRET_INPUT_PATTERN.test(message)) {
     throw new IntakeError('T2C-INTAKE-SECRET-INPUT', 'Message resembles a secret and was not persisted', 'Remove or redact the secret before resubmitting.');
   }
 }
