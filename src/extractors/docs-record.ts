@@ -22,6 +22,26 @@ const OBJECT_PLACEHOLDERS = new Set([
   'unknown', 'unspecified', 'none', 'null', 'n/a', 'na', '-', 'brak', 'nieznany', 'nieokreślony',
 ]);
 
+function normalizedDocumentFields(
+  raw: RawDocumentRecord,
+  statementText: string,
+  object: string,
+  extraBasis: string[],
+): Pick<IntentRecord['statement'], 'kind' | 'actor' | 'subject' | 'polarity' | 'text'>
+  & Pick<IntentRecord, 'lifecycle'>
+  & { confidence: number; basis: string[] } {
+  return {
+    kind: raw.kind || 'documented_intent',
+    actor: raw.actor ?? null,
+    subject: raw.subject ?? null,
+    polarity: raw.polarity === 'negative' ? 'negative' : 'positive',
+    text: statementText || object,
+    lifecycle: { status: allowedLifecycle(raw.lifecycle) ? raw.lifecycle : 'proposed' },
+    confidence: Math.min(0.85, Math.max(0.05, Number(raw.confidence) || 0.5)),
+    basis: [...new Set(['openrouter_structured_extraction', ...(raw.basis ?? []), ...extraBasis])],
+  };
+}
+
 export function toDocumentIntentRecord(
   raw: RawDocumentRecord,
   chunk: DocumentChunk,
@@ -36,26 +56,27 @@ export function toDocumentIntentRecord(
   const action = resolveAction(raw, statementText, extraBasis);
   const modality = resolveModality(raw, statementText, extraBasis);
   if (action === 'unknown') missingFields.push('action');
+  const normalized = normalizedDocumentFields(raw, statementText, object, extraBasis);
 
   return buildRecord({
-    kind: raw.kind || 'documented_intent',
-    actor: raw.actor ?? null,
+    kind: normalized.kind,
+    actor: normalized.actor,
     action,
-    subject: raw.subject ?? null,
+    subject: normalized.subject,
     object,
     target,
     modality,
-    polarity: raw.polarity === 'negative' ? 'negative' : 'positive',
-    text: statementText || object,
-    lifecycle: allowedLifecycle(raw.lifecycle) ? raw.lifecycle : 'proposed',
+    polarity: normalized.polarity,
+    text: normalized.text,
+    lifecycle: normalized.lifecycle.status,
     sourceKind: 'document',
     sourcePath: chunk.path,
     sourceLines: { start, end },
     extractor: 't2c/document-openrouter@1',
     rawExcerpt: linesFromChunk(chunk, start, end),
     epistemicClass: 'llm_inference',
-    confidence: Math.min(0.85, Math.max(0.05, Number(raw.confidence) || 0.5)),
-    basis: [...new Set(['openrouter_structured_extraction', ...(raw.basis ?? []), ...extraBasis])],
+    confidence: normalized.confidence,
+    basis: normalized.basis,
     generation: {
       requested: 'llm', used: 'llm', provider: response.provider ?? 'openrouter',
       model: response.model ?? model, responseId: response.responseId,

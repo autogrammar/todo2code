@@ -34,37 +34,57 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
   }
 
   if (request.method === 'POST' && url.pathname === '/events') {
-    const body = await readBody(request);
-    let payload: unknown;
-    try {
-      payload = JSON.parse(body || '{}');
-    } catch {
-      sendJson(response, 400, { error: 'invalid JSON body' });
-      return;
-    }
-    const validation = validateEventPayload(payload);
-    if (!validation.valid) {
-      // Every rejection is logged with its reason, per the acceptance criteria.
-      process.stderr.write(`rejected event: ${validation.reason}\n`);
-      sendJson(response, 400, { error: validation.reason });
-      return;
-    }
-    const event = store.enqueueEvent(validation.agent, validation.action, validation.object);
-    sendJson(response, 202, { id: event.id });
+    await handlePostEvent(request, response, store);
     return;
   }
 
   if (request.method === 'GET' && url.pathname === '/events') {
-    const offset = Number(url.searchParams.get('offset') ?? '0');
-    const limit = Number(url.searchParams.get('limit') ?? '50');
-    sendJson(response, 200, store.listEvents(
-      Number.isFinite(offset) ? offset : 0,
-      Number.isFinite(limit) ? limit : 50,
-    ));
+    handleListEvents(url, response, store);
     return;
   }
 
   sendJson(response, 404, { error: 'not found' });
+}
+
+async function handlePostEvent(
+  request: IncomingMessage,
+  response: ServerResponse,
+  store: EventStore,
+): Promise<void> {
+  const payload = await parseJsonBody(request);
+  if (payload === undefined) {
+    sendJson(response, 400, { error: 'invalid JSON body' });
+    return;
+  }
+  const validation = validateEventPayload(payload);
+  if (!validation.valid) {
+    // Every rejection is logged with its reason, per the acceptance criteria.
+    process.stderr.write(`rejected event: ${validation.reason}\n`);
+    sendJson(response, 400, { error: validation.reason });
+    return;
+  }
+  const event = store.enqueueEvent(validation.agent, validation.action, validation.object);
+  sendJson(response, 202, { id: event.id });
+}
+
+function handleListEvents(url: URL, response: ServerResponse, store: EventStore): void {
+  const offset = finiteQueryNumber(url, 'offset', 0);
+  const limit = finiteQueryNumber(url, 'limit', 50);
+  sendJson(response, 200, store.listEvents(offset, limit));
+}
+
+function finiteQueryNumber(url: URL, name: string, fallback: number): number {
+  const value = Number(url.searchParams.get(name) ?? String(fallback));
+  return Number.isFinite(value) ? value : fallback;
+}
+
+async function parseJsonBody(request: IncomingMessage): Promise<unknown | undefined> {
+  const body = await readBody(request);
+  try {
+    return JSON.parse(body || '{}');
+  } catch {
+    return undefined;
+  }
 }
 
 async function readBody(request: IncomingMessage): Promise<string> {
