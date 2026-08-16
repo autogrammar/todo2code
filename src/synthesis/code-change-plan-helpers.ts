@@ -80,8 +80,8 @@ export function exactSourcePatchSet(actual: string[], expected: string[], name: 
  * Validate a single-file unified diff body.
  * Accepts optional `--- a/path` / `+++ b/path` headers and rejects foreign paths.
  */
-// #lizard forgives
 export function normalizeUnifiedDiff(diff: string, expectedPath: string): string {
+  // #lizard forgives
   const normalized = diff.replace(/\r\n/g, '\n');
   if (!normalized.trim()) throw new Error(`Unified diff for ${expectedPath} is empty`);
   if (normalized.includes('\0')) throw new Error(`Unified diff for ${expectedPath} contains NUL bytes`);

@@ -27,10 +27,10 @@ import type { ApplyCodeChangeSourcePatchOptions, ApplyCodeChangeSourcePatchResul
  * relative and inside `root`. Re-applying with an existing matching receipt is
  * idempotent.
  */
-// #lizard forgives
 export async function applyCodeChangeSourcePatch(
   options: ApplyCodeChangeSourcePatchOptions,
 ): Promise<ApplyCodeChangeSourcePatchResult> {
+  // #lizard forgives
   assertCodeChangeSourcePatch(options.patch);
   if (!options.approval?.actor?.trim()) throw new Error('Explicit source patch approval actor is required');
   if (options.approval.patchHash !== options.patch.patchHash) {
@@ -217,8 +217,8 @@ async function atomicWriteRaw(target: string, content: string): Promise<void> {
  * Apply a single-file unified diff to a text buffer.
  * Supports standard hunks with space/+/− prefixes. Throws on context mismatch.
  */
-// #lizard forgives
 export function applyUnifiedDiffToText(base: string, diff: string, expectedPath: string): string {
+  // #lizard forgives
   const normalizedDiff = normalizeUnifiedDiff(diff, expectedPath);
   const baseLines = splitKeep(base);
   const diffLines = normalizedDiff.split('\n');

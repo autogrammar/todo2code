@@ -85,8 +85,8 @@ export interface CodeChangeAcceptanceValidationContext {
   after: GroundedValidationContext;
 }
 
-// #lizard forgives
 export function assertIntentRecord(value: unknown): asserts value is IntentRecord {
+  // #lizard forgives
   const record = objectValue(value, 'Intent record');
   exactKeys(record, ['schemaVersion', 'id', 'statement', 'lifecycle', 'source', 'epistemic', 'observedAt', 'metadata'], 'Intent record');
   if (record.schemaVersion !== 't2c.intent/v1') throw new Error('Unsupported intent schemaVersion');
@@ -545,8 +545,8 @@ function assertTodoProposalValue(
   if (proposal.id !== expectedId) throw new Error(`TODO proposal id does not match semantic content: expected ${expectedId}`);
 }
 
-// #lizard forgives
 export function assertGroundedGenerationMetadata(value: unknown, name: string): asserts value is GroundedGenerationMetadata {
+  // #lizard forgives
   const generation = objectValue(value, name);
   exactKeys(generation, [
     'generator', 'generatorVersion', 'runtimeVersion', 'generatedAt', 'requestedMode', 'effectiveMode',

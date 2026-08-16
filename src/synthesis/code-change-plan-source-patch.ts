@@ -120,11 +120,11 @@ export function createCodeChangeSourcePatchSet(options: {
   return result;
 }
 
-// #lizard forgives
 export function assertCodeChangeSourcePatch(
   value: unknown,
   plan?: CodeChangePlan,
 ): asserts value is CodeChangeSourcePatch {
+  // #lizard forgives
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('Code change source patch must be an object');
   }
@@ -227,11 +227,11 @@ export function assertCodeChangeSourcePatch(
   }
 }
 
-// #lizard forgives
 export function assertCodeChangeSourcePatchSet(
   value: unknown,
   plans?: CodeChangePlan[],
 ): asserts value is CodeChangeSourcePatchSet {
+  // #lizard forgives
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('Code change source patch set must be an object');
   }
