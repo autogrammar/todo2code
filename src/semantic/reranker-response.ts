@@ -1,10 +1,10 @@
 import { structuredSchema as s, type StructuredSchema } from '../llm/structured-schema.js';
 import {
-  assertSemanticVerdictReason,
   SEMANTIC_RERANK_REASONS,
   SEMANTIC_RERANK_VERDICTS,
   type SemanticRerankDecisionInput,
-} from './reranker.js';
+} from './reranker-types.js';
+import { assertSemanticVerdictReason } from './reranker-validate.js';
 
 export interface SemanticRerankerResponse {
   decisions: SemanticRerankDecisionInput[];

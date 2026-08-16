@@ -1,3 +1,500 @@
+# todo2code (`t2c`)
+
+Dependency-free Python SDK for todo2code A2A and the local TypeScript runtime
+
+## Contents
+
+- [Metadata](#metadata)
+- [Architecture](#architecture)
+- [Interfaces](#interfaces)
+- [Workflows](#workflows)
+- [Configuration](#configuration)
+- [Dependencies](#dependencies)
+- [Deployment](#deployment)
+- [Environment Variables (`.env.example`)](#environment-variables-envexample)
+- [Release Management (`goal.yaml`)](#release-management-goalyaml)
+- [Makefile Targets](#makefile-targets)
+- [Node.js Scripts (`package.json`)](#nodejs-scripts-packagejson)
+- [Code Analysis](#code-analysis)
+- [Call Graph](#call-graph)
+- [Test Contracts](#test-contracts)
+- [Intent](#intent)
+
+## Metadata
+
+- **name**: `todo2code`
+- **version**: `0.5.1`
+- **python_requires**: `>=3.10`
+- **license**: Apache-2.0
+- **ecosystem**: SUMD + DOQL + testql + taskfile
+- **generated_from**: pyproject.toml, Makefile, testql(1), app.doql.less, goal.yaml, .env.example, Dockerfile, docker-compose.yml, package.json, project/(3 analysis files)
+
+## Architecture
+
+```
+SUMD (description) → DOQL/source (code) → taskfile (automation) → testql (verification)
+```
+
+### DOQL Application Declaration (`app.doql.less`)
+
+```less markpact:doql path=app.doql.less
+// LESS format — define @variables here as needed
+
+app {
+  name: todo2code;
+  version: 0.5.1;
+}
+
+workflow[name="setup"] {
+  trigger: manual;
+  step-1: run cmd=test -f .env || cp .env.example .env;
+  step-2: run cmd=$(NPM) install --omit=optional;
+}
+
+workflow[name="install"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) install --omit=optional;
+}
+
+workflow[name="install-tf"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) --prefix adapters/tensorflow install;
+}
+
+workflow[name="build"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run build;
+}
+
+workflow[name="check"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run check;
+}
+
+workflow[name="test"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) test;
+}
+
+workflow[name="verify-no-llm"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run verify:no-llm;
+}
+
+workflow[name="verify-modules"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run verify:modules;
+}
+
+workflow[name="verify-env"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run verify:env;
+}
+
+workflow[name="verify"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run verify;
+}
+
+workflow[name="governance"] {
+  trigger: manual;
+  step-1: run cmd=bash project/governance-check.sh --actor agent;
+}
+
+workflow[name="smoke"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/smoke.sh;
+}
+
+workflow[name="doctor"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/cli.js doctor;
+}
+
+workflow[name="mcp-probe"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/mcp-request.sh;
+}
+
+workflow[name="a2a-probe"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/a2a-request.sh;
+}
+
+workflow[name="protocol-smoke"] {
+  trigger: manual;
+  step-1: depend target=mcp-probe;
+  step-2: depend target=a2a-probe;
+}
+
+workflow[name="validate"] {
+  trigger: manual;
+  step-1: depend target=verify;
+  step-2: depend target=smoke;
+  step-3: depend target=protocol-smoke;
+  step-4: depend target=doctor;
+  step-5: depend target=docker-smoke;
+}
+
+workflow[name="live-contract-check"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run live:check;
+}
+
+workflow[name="live-model-comparison"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run live:models;
+}
+
+workflow[name="demo"] {
+  trigger: manual;
+  step-1: run cmd=OPENROUTER_API_KEY= T2C_NL_MODE=deterministic T2C_MARKDOWN_MODE=deterministic T2C_COMMUNICATION_MODE=deterministic $(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --no-summary-llm --out .intent-demo;
+  step-2: run cmd=T2C_COMMUNICATION_MODE=deterministic $(NODE) dist/src/cli.js communication examples --project-dir project --ticket DEMO-101 --out examples/.intent-communication/analysis.json --md examples/.intent-communication/analysis.md --graph examples/.intent-communication/graph.json;
+}
+
+workflow[name="demollm"] {
+  trigger: manual;
+  step-1: run cmd=OPENROUTER_TIMEOUT_MS=300000 T2C_DOC_TIMEOUT_MS=300000 $(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --nl-mode require-llm --markdown-mode require-llm --communication-mode require-llm --summary-fallback false --task-mode require-llm --out .intent-demo-llm;
+  step-2: run cmd=$(NODE) scripts/assert-demollm-run.mjs examples .intent-demo-llm;
+}
+
+workflow[name="examples-check"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/examples-check.sh;
+}
+
+workflow[name="pipeline"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/cli.js pipeline "$(ROOT)" --task "$(TASK)" --todo "$(TODO)" --changelog "$(CHANGELOG)" --docs "$(DOCS)" --out "$(OUT)";
+}
+
+workflow[name="compare-workspace"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/cli.js compare-workspace "$(ROOT)" --base "$${BASE_REF:-origin/main}" --out "$(OUT)";
+}
+
+workflow[name="preflight"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run build >&2;
+  step-2: run cmd=$(NODE) scripts/workspace-preflight.mjs \;
+  step-3: run cmd=--root $(call shell_quote,PREFLIGHT_ROOT) \;
+  step-4: run cmd=--baseline $(call shell_quote,PREFLIGHT_BASELINE) \;
+  step-5: run cmd=--expected-branch $(call shell_quote,PREFLIGHT_EXPECTED_BRANCH) \;
+  step-6: run cmd=--actor $(call shell_quote,PREFLIGHT_ACTOR);
+}
+
+workflow[name="mcp"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/interfaces/mcp.js;
+}
+
+workflow[name="a2a"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/interfaces/a2a.js;
+}
+
+workflow[name="docker-build"] {
+  trigger: manual;
+  step-1: run cmd=docker build -t todo2code:local .;
+}
+
+workflow[name="docker-smoke"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/docker-smoke.sh;
+}
+
+workflow[name="docker-up"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f docker-compose.yml up --build -d;
+}
+
+workflow[name="docker-down"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f docker-compose.yml down;
+}
+
+workflow[name="e2e-core"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f $(E2E_COMPOSE) build e2e-core;
+  step-2: run cmd=docker compose -f $(E2E_COMPOSE) run --rm --no-deps e2e-core;
+}
+
+workflow[name="e2e-full"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f $(E2E_COMPOSE) build e2e-full;
+  step-2: run cmd=docker compose -f $(E2E_COMPOSE) run --rm --no-deps e2e-full;
+}
+
+workflow[name="e2e-clean"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f $(E2E_COMPOSE) down --remove-orphans --rmi all;
+}
+
+workflow[name="python-wheel"] {
+  trigger: manual;
+  step-1: run cmd=mkdir -p "$(PYTHON_WHEEL_DIR)";
+  step-2: run cmd=$(PYTHON) -m pip wheel . --no-deps --wheel-dir "$(PYTHON_WHEEL_DIR)";
+}
+
+workflow[name="package"] {
+  trigger: manual;
+  step-1: run cmd=$(PYTHON) scripts/package.py "$(PACKAGE)";
+}
+
+workflow[name="clean"] {
+  trigger: manual;
+  step-1: run cmd=rm -rf dist coverage .intent-demo .intent-test *.zip;
+}
+
+env_vars {
+  keys: T2C_ENV_FILE, T2C_ROOT, T2C_OUTPUT_DIR, T2C_GIT_COMMIT_COUNT, T2C_MAX_FILE_BYTES, T2C_DOC_CONCURRENCY, T2C_DOC_CHUNK_CHARS, T2C_DOC_MAX_CHUNKS, T2C_DOC_MAX_RECORDS_PER_CHUNK, T2C_DOC_TIMEOUT_MS, T2C_PYTHON, T2C_ENABLE_PYTHON_AST, T2C_GO, T2C_ENABLE_GO_AST, T2C_JAVA, T2C_ENABLE_JAVA_AST, T2C_CARGO, T2C_ENABLE_RUST_AST, T2C_PHP, T2C_ENABLE_PHP_AST, T2C_ALLOW_OUTSIDE_ROOT, T2C_ENABLE_TF, T2C_TF_MODEL_PATH, T2C_TF_MODULE_PATH, T2C_TF_LABELS, T2C_NL_MODE, T2C_MARKDOWN_MODE, T2C_COMMUNICATION_MODE, OPENROUTER_API_KEY, OPENROUTER_BASE_URL, OPENROUTER_MODEL, OPENROUTER_NL_MODEL, OPENROUTER_MARKDOWN_MODEL, OPENROUTER_COMMUNICATION_MODEL, OPENROUTER_DOC_MODEL, OPENROUTER_SUMMARY_MODEL, OPENROUTER_TASK_MODEL, OPENROUTER_SITE_URL, OPENROUTER_APP_NAME, OPENROUTER_TIMEOUT_MS, OPENROUTER_MAX_TOKENS, OPENROUTER_TEMPERATURE, OPENROUTER_REQUIRE_STRUCTURED_OUTPUT, OPENROUTER_RESPONSE_HEALING, T2C_REQUIRE_LIVE_CHECK, T2C_LIVE_AUDIT_PATH, T2C_LIVE_HISTORY_PATH, T2C_LIVE_RUN_OUTPUT, T2C_LIVE_MAX_STAGE_LATENCY_MS, T2C_LIVE_MAX_LATENCY_MS, T2C_LIVE_MAX_TOTAL_LATENCY_MS, T2C_LIVE_MAX_COST_USD, T2C_LIVE_COMPARE_MODELS, T2C_LIVE_COMPARE_ROOT, T2C_LIVE_COMPARE_TIMEOUT_MS, T2C_LIVE_COMPARE_PATH, T2C_LIVE_COMPARE_MD_PATH, T2C_DOC_PATTERNS, T2C_MARKDOWN_CONCURRENCY, T2C_DOC_EXCLUDES, T2C_MCP_SERVER_NAME, T2C_MCP_SERVER_VERSION, T2C_A2A_HOST, T2C_A2A_PORT, T2C_A2A_PUBLIC_URL, T2C_A2A_TOKEN, T2C_A2A_MAX_BODY_BYTES, T2C_A2A_TASK_STORE, T2C_WORKSPACE, T2C_DOCKER_HOST_PORT, T2C_A2A_URL, T2C_EXAMPLE_ROOT, T2C_COMPARE_WORKSPACE, T2C_COMPARE_BASE, T2C_TYPESCRIPT_CLI;
+}
+
+deploy {
+  target: docker-compose;
+  compose_file: docker-compose.yml;
+}
+
+environment[name="local"] {
+  runtime: docker-compose;
+  env_file: .env.example;
+  template_file: .env.example;
+  python_version: >=3.10;
+  vars: OPENROUTER_API_KEY, OPENROUTER_APP_NAME, OPENROUTER_BASE_URL, OPENROUTER_COMMUNICATION_MODEL, OPENROUTER_DOC_MODEL, OPENROUTER_MARKDOWN_MODEL, OPENROUTER_MAX_TOKENS, OPENROUTER_MODEL, OPENROUTER_NL_MODEL, OPENROUTER_REQUIRE_STRUCTURED_OUTPUT, OPENROUTER_RESPONSE_HEALING, OPENROUTER_SITE_URL, OPENROUTER_SUMMARY_MODEL, OPENROUTER_TASK_MODEL, OPENROUTER_TEMPERATURE, OPENROUTER_TIMEOUT_MS, T2C_A2A_HOST, T2C_A2A_MAX_BODY_BYTES, T2C_A2A_PORT, T2C_A2A_PUBLIC_URL, T2C_A2A_TASK_STORE, T2C_A2A_TOKEN, T2C_A2A_URL, T2C_ALLOW_OUTSIDE_ROOT, T2C_CARGO, T2C_COMMUNICATION_MODE, T2C_COMPARE_BASE, T2C_COMPARE_WORKSPACE, T2C_DOCKER_HOST_PORT, T2C_DOC_CHUNK_CHARS, T2C_DOC_CONCURRENCY, T2C_DOC_EXCLUDES, T2C_DOC_MAX_CHUNKS, T2C_DOC_MAX_RECORDS_PER_CHUNK, T2C_DOC_PATTERNS, T2C_DOC_TIMEOUT_MS, T2C_ENABLE_GO_AST, T2C_ENABLE_JAVA_AST, T2C_ENABLE_PHP_AST, T2C_ENABLE_PYTHON_AST, T2C_ENABLE_RUST_AST, T2C_ENABLE_TF, T2C_ENV_FILE, T2C_EXAMPLE_ROOT, T2C_GIT_COMMIT_COUNT, T2C_GO, T2C_JAVA, T2C_LIVE_AUDIT_PATH, T2C_LIVE_COMPARE_MD_PATH, T2C_LIVE_COMPARE_MODELS, T2C_LIVE_COMPARE_PATH, T2C_LIVE_COMPARE_ROOT, T2C_LIVE_COMPARE_TIMEOUT_MS, T2C_LIVE_HISTORY_PATH, T2C_LIVE_MAX_COST_USD, T2C_LIVE_MAX_LATENCY_MS, T2C_LIVE_MAX_STAGE_LATENCY_MS, T2C_LIVE_MAX_TOTAL_LATENCY_MS, T2C_LIVE_RUN_OUTPUT, T2C_MARKDOWN_CONCURRENCY, T2C_MARKDOWN_MODE, T2C_MAX_FILE_BYTES, T2C_MCP_SERVER_NAME, T2C_MCP_SERVER_VERSION, T2C_NL_MODE, T2C_OUTPUT_DIR, T2C_PHP, T2C_PYTHON, T2C_REQUIRE_LIVE_CHECK, T2C_ROOT, T2C_TF_LABELS, T2C_TF_MODEL_PATH, T2C_TF_MODULE_PATH, T2C_TYPESCRIPT_CLI, T2C_WORKSPACE;
+  runtime_llm: OPENROUTER_API_KEY, OPENROUTER_APP_NAME, OPENROUTER_BASE_URL, OPENROUTER_COMMUNICATION_MODEL, OPENROUTER_DOC_MODEL, OPENROUTER_MARKDOWN_MODEL, OPENROUTER_MAX_TOKENS, OPENROUTER_MODEL, OPENROUTER_NL_MODEL, OPENROUTER_REQUIRE_STRUCTURED_OUTPUT, OPENROUTER_RESPONSE_HEALING, OPENROUTER_SITE_URL, OPENROUTER_SUMMARY_MODEL, OPENROUTER_TASK_MODEL, OPENROUTER_TEMPERATURE, OPENROUTER_TIMEOUT_MS;
+}
+```
+
+## Interfaces
+
+### testql Scenarios
+
+#### `testql-scenarios/generated-cli-tests.testql.toon.yaml`
+
+```toon markpact:testql path=testql-scenarios/generated-cli-tests.testql.toon.yaml
+# SCENARIO: CLI Command Tests
+# TYPE: cli
+# GENERATED: true
+
+CONFIG[2]{key, value}:
+  cli_command, python -m todo2code
+  timeout_ms, 10000
+
+# Test 1: CLI help command
+SHELL "python -m todo2code --help" 5000
+ASSERT_EXIT_CODE 0
+ASSERT_STDOUT_CONTAINS "usage"
+
+# Test 2: CLI version command
+SHELL "python -m todo2code --version" 5000
+ASSERT_EXIT_CODE 0
+
+# Test 3: CLI main workflow (dry-run)
+SHELL "python -m todo2code --help" 10000
+ASSERT_EXIT_CODE 0
+```
+
+## Workflows
+
+## Configuration
+
+```yaml
+project:
+  name: todo2code
+  version: 0.5.1
+  env: local
+```
+
+## Dependencies
+
+### Runtime (Node.js)
+
+```text markpact:deps node
+typescript
+```
+
+## Deployment
+
+```bash markpact:run
+npm install todo2code
+```
+
+### Docker
+
+- **base image**: `node:22-bookworm-slim AS build`
+- **expose**: `8787`
+- **entrypoint**: `["node", "dist/src/interfaces/a2a.js"]`
+
+### Docker Compose (`docker-compose.yml`)
+
+- **t2c-a2a** image=`todo2code:local` ports: `${T2C_DOCKER_HOST_PORT:-8787}:8787`
+
+## Environment Variables (`.env.example`)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `T2C_ENV_FILE` | `*(not set)*` | Bootstrap-only override used before this file is loaded. Usually leave empty. |
+| `T2C_ROOT` | `.` |  |
+| `T2C_OUTPUT_DIR` | `.intent` |  |
+| `T2C_GIT_COMMIT_COUNT` | `10` |  |
+| `T2C_MAX_FILE_BYTES` | `524288` |  |
+| `T2C_DOC_CONCURRENCY` | `3` |  |
+| `T2C_DOC_CHUNK_CHARS` | `8000` |  |
+| `T2C_DOC_MAX_CHUNKS` | `12` |  |
+| `T2C_DOC_MAX_RECORDS_PER_CHUNK` | `24` |  |
+| `T2C_DOC_TIMEOUT_MS` | `45000` |  |
+| `T2C_PYTHON` | `python3` |  |
+| `T2C_ENABLE_PYTHON_AST` | `true` |  |
+| `T2C_GO` | `go` |  |
+| `T2C_ENABLE_GO_AST` | `true` |  |
+| `T2C_JAVA` | `java` |  |
+| `T2C_ENABLE_JAVA_AST` | `true` |  |
+| `T2C_CARGO` | `cargo` |  |
+| `T2C_ENABLE_RUST_AST` | `true` |  |
+| `T2C_PHP` | `php` |  |
+| `T2C_ENABLE_PHP_AST` | `true` |  |
+| `T2C_ALLOW_OUTSIDE_ROOT` | `false` |  |
+| `T2C_ENABLE_TF` | `false` | Optional TensorFlow action classifier. Heuristics remain the deterministic fallback. |
+| `T2C_TF_MODEL_PATH` | `*(not set)*` |  |
+| `T2C_TF_MODULE_PATH` | `adapters/tensorflow/node_modules/@tensorflow/tfjs-node/dist/index.js` |  |
+| `T2C_TF_LABELS` | `add,fix,remove,refactor,test,document,configure,analyze,unknown` |  |
+| `T2C_NL_MODE` | `require-llm` | NL/TODO/CHANGELOG -> Intent DSL, documentation -> Intent DSL, Intent DSL -> NL/tasks |
+| `T2C_MARKDOWN_MODE` | `require-llm` |  |
+| `T2C_COMMUNICATION_MODE` | `require-llm` |  |
+| `OPENROUTER_API_KEY` | `*(not set)*` |  |
+| `OPENROUTER_BASE_URL` | `https://openrouter.ai/api/v1` |  |
+| `OPENROUTER_MODEL` | `mistralai/codestral-2508` |  |
+| `OPENROUTER_NL_MODEL` | `*(not set)*` |  |
+| `OPENROUTER_MARKDOWN_MODEL` | `*(not set)*` |  |
+| `OPENROUTER_COMMUNICATION_MODEL` | `*(not set)*` |  |
+| `OPENROUTER_DOC_MODEL` | `*(not set)*` |  |
+| `OPENROUTER_SUMMARY_MODEL` | `*(not set)*` |  |
+| `OPENROUTER_TASK_MODEL` | `*(not set)*` |  |
+| `OPENROUTER_SITE_URL` | `http://localhost:8787` |  |
+| `OPENROUTER_APP_NAME` | `todo2code` |  |
+| `OPENROUTER_TIMEOUT_MS` | `120000` |  |
+| `OPENROUTER_MAX_TOKENS` | `6000` |  |
+| `OPENROUTER_TEMPERATURE` | `0` |  |
+| `OPENROUTER_REQUIRE_STRUCTURED_OUTPUT` | `true` |  |
+| `OPENROUTER_RESPONSE_HEALING` | `true` |  |
+| `T2C_REQUIRE_LIVE_CHECK` | `false` | The check runs all six semantic stages through the pipeline in require-llm. |
+| `T2C_LIVE_AUDIT_PATH` | `.intent-live/contract-check.json` |  |
+| `T2C_LIVE_HISTORY_PATH` | `.intent-live/contract-check-history.json` | Recorded trend of past runs. Reported, never a pass/fail threshold. |
+| `T2C_LIVE_RUN_OUTPUT` | `.intent-live-run` |  |
+| `T2C_LIVE_MAX_STAGE_LATENCY_MS` | `300000` | Per-stage ceiling; one slow stage is a signal an average would hide. |
+| `T2C_LIVE_MAX_LATENCY_MS` | `120000` | Legacy alias for the per-stage ceiling, still honoured when it is set alone. |
+| `T2C_LIVE_MAX_TOTAL_LATENCY_MS` | `900000` |  |
+| `T2C_LIVE_MAX_COST_USD` | `0.5` |  |
+| `T2C_LIVE_COMPARE_MODELS` | `mistralai/codestral-2508,google/gemini-3-flash-preview` | Opt-in batched TODO/CHANGELOG model comparison. Never part of offline CI. |
+| `T2C_LIVE_COMPARE_ROOT` | `.` |  |
+| `T2C_LIVE_COMPARE_TIMEOUT_MS` | `300000` |  |
+| `T2C_LIVE_COMPARE_PATH` | `.intent-live/model-comparison.json` |  |
+| `T2C_LIVE_COMPARE_MD_PATH` | `.intent-live/model-comparison.md` |  |
+| `T2C_DOC_PATTERNS` | `README.md,docs/**/*.md,project/**/*.md,packages/**/MODULE.md` | Default document selection. TODO and CHANGELOG have a dedicated structural + LLM stage. |
+| `T2C_MARKDOWN_CONCURRENCY` | `3` |  |
+| `T2C_DOC_EXCLUDES` | `node_modules/**,.git/**,dist/**,.intent/**,TODO.md,CHANGELOG.md` |  |
+| `T2C_MCP_SERVER_NAME` | `todo2code` | MCP stdio server |
+| `T2C_MCP_SERVER_VERSION` | `0.5.0` |  |
+| `T2C_A2A_HOST` | `127.0.0.1` | token whenever you widen the host. Docker Compose sets 0.0.0.0 itself. |
+| `T2C_A2A_PORT` | `8787` |  |
+| `T2C_A2A_PUBLIC_URL` | `http://localhost:8787/a2a` |  |
+| `T2C_A2A_TOKEN` | `*(not set)*` |  |
+| `T2C_A2A_MAX_BODY_BYTES` | `1048576` |  |
+| `T2C_A2A_TASK_STORE` | `*(not set)*` | Optional shared snapshot for restart persistence and multi-replica deployments. |
+| `T2C_WORKSPACE` | `.` | Docker Compose host settings. Container port remains 8787. |
+| `T2C_DOCKER_HOST_PORT` | `8787` |  |
+| `T2C_A2A_URL` | `http://localhost:8787` | SDK/example clients. T2C_A2A_TOKEN above is shared with the server. |
+| `T2C_EXAMPLE_ROOT` | `examples/backend` |  |
+| `T2C_COMPARE_WORKSPACE` | `false` |  |
+| `T2C_COMPARE_BASE` | `origin/main` |  |
+| `T2C_TYPESCRIPT_CLI` | `*(not set)*` |  |
+
+## Release Management (`goal.yaml`)
+
+- **versioning**: `semver`
+- **commits**: `conventional` scope=`todo2code`
+- **changelog**: `keep-a-changelog`
+- **build strategies**: `python`, `nodejs`, `rust`
+- **version files**: `VERSION`, `pyproject.toml:version`, `package.json:version`, `rust-ast/Cargo.toml:version`, `sdk/python/todo2code/__init__.py:__version__`
+
+## Makefile Targets
+
+- `SHELL`
+- `help`
+- `setup`
+- `install`
+- `install-tf`
+- `build`
+- `check`
+- `test`
+- `verify-no-llm`
+- `verify-modules`
+- `verify-env`
+- `verify`
+- `governance`
+- `smoke`
+- `doctor`
+- `mcp-probe`
+- `a2a-probe`
+- `protocol-smoke`
+- `validate`
+- `live-contract-check`
+- `live-model-comparison`
+- `demo`
+- `demollm`
+- `examples-check`
+- `pipeline`
+- `compare-workspace`
+- `preflight`
+- `mcp`
+- `a2a`
+- `docker-build`
+- `docker-smoke`
+- `docker-up`
+- `docker-down`
+- `e2e-core`
+- `e2e-full`
+- `e2e-clean`
+- `python-wheel`
+- `package`
+- `clean`
+
+## Node.js Scripts (`package.json`)
+
+todo2code (t2c): audited intent and team-communication extraction, evidence graphs, origin-to-workspace comparison and grounded summaries through CLI, MCP and A2A.
+
+- `npm run build` — `tsc -p tsconfig.json`
+- `npm run check` — `tsc -p tsconfig.json --noEmit`
+- `npm run test` — `node --test --test-concurrency=4 dist/test/*.test.js`
+- `npm run verify:no-llm` — `node scripts/verify-no-llm-imports.mjs`
+- `npm run verify:modules` — `node scripts/verify-module-boundaries.mjs`
+- `npm run verify:env` — `node scripts/verify-env-contract.mjs`
+- `npm run verify:workflows` — `node scripts/verify-workflow-yaml.mjs`
+- `npm run verify:generated-analysis` — `node scripts/verify-generated-analysis.mjs`
+- `npm run verify:schemas` — `node scripts/generate-response-schemas.mjs --check`
+- `npm run verify:structured-responses` — `node scripts/verify-structured-responses.mjs`
+- `npm run schemas:generate` — `npm run build && node scripts/generate-response-schemas.mjs`
+- `npm run verify` — `npm run check && npm run verify:no-llm && npm run verify:modules && npm run verify:env && npm run verify:workflows && npm run verify:generated-analysis && npm run verify:structured-responses && npm run build && npm run verify:schemas && npm test`
+- `npm run start` — `node dist/src/cli.js`
+- `npm run mcp` — `node dist/src/interfaces/mcp.js`
+- `npm run a2a` — `node dist/src/interfaces/a2a.js`
+- `npm run diff` — `node dist/src/cli.js diff`
+- `npm run demo` — `node dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --nl-mode deterministic --markdown-mode deterministic --communication-mode deterministic --no-docs-llm --no-summary-llm --out .intent-demo && node dist/src/cli.js communication examples --project-dir project --ticket DEMO-101 --communication-mode deterministic --out examples/.intent-communication/analysis.json --md examples/.intent-communication/analysis.md --graph examples/.intent-communication/graph.json`
+- `npm run examples:check` — `npm run build && bash scripts/examples-check.sh`
+- `npm run evaluate:gold` — `npm run build && node dist/src/evaluation/gold-cli.js evaluation/gold/v2/dataset.json --require-perfect`
+- `npm run evaluate:gold:v1` — `npm run build && node dist/src/evaluation/gold-cli.js evaluation/gold/v1/dataset.json --require-perfect`
+- `npm run live:check` — `npm run build && node scripts/live-contract-check.mjs`
+- `npm run live:models` — `npm run build && node scripts/live-model-comparison.mjs`
+
+**Runtime deps**: `typescript`
+
+- **node**: `>=20`
+
+## Code Analysis
+
+### `project/map.toon.yaml`
+
+```toon markpact:analysis path=project/map.toon.yaml
 # todo2code | 306f 58934L | md:61,yaml:2,yml:2,json:41,toml:3,shell:9,typescript:133,rust:7,java:1,javascript:17,proto:1,php:4,go:6,txt:1,python:16 | 2026-08-16
 # generated in 0.05s
 # producer: code2llm | artifact: map.toon.yaml | schema: 1
@@ -5031,3 +5528,1164 @@ Graph compar...
   sdk/__init__.py:
   examples/sdk/python.py:
   scripts/package.py:
+```
+
+### `project/logic.pl`
+
+```prolog markpact:analysis path=project/logic.pl
+% ── Project Metadata ─────────────────────────────────────
+project_metadata('todo2code', '0.5.1', 'python').
+
+% ── Project Files ────────────────────────────────────────
+project_file('.governance/check_required_checks.py', 139, 'python').
+project_file('.governance/decision_record.py', 395, 'python').
+project_file('.governance/governance_check.py', 2726, 'python').
+project_file('app.doql.less', 226, 'less').
+project_file('examples/backend/src/server.ts', 100, 'typescript').
+project_file('examples/backend/src/store.ts', 49, 'typescript').
+project_file('examples/backend/src/validation.ts', 32, 'typescript').
+project_file('examples/frontend/src/api.ts', 51, 'typescript').
+project_file('examples/frontend/src/app.ts', 44, 'typescript').
+project_file('examples/frontend/src/render.ts', 65, 'typescript').
+project_file('examples/sdk/python.py', 24, 'python').
+project_file('examples/sdk/typescript.mjs', 17, 'javascript').
+project_file('examples/src/helper.py', 10, 'python').
+project_file('examples/src/runtime.ts', 14, 'typescript').
+project_file('golang/ast_extract.go', 369, 'go').
+project_file('php/ast_extract.php', 234, 'php').
+project_file('project.sh', 39, 'shell').
+project_file('project2.sh', 56, 'shell').
+project_file('python/ast_extract.py', 222, 'python').
+project_file('python/tests/test_python.py', 12, 'python').
+project_file('rust-ast/src/main.rs', 323, 'rust').
+project_file('rust-ast/tests/placeholder_test.rs', 10, 'rust').
+project_file('scripts/a2a-request.sh', 24, 'shell').
+project_file('scripts/assert-demollm-run.mjs', 46, 'javascript').
+project_file('scripts/docker-smoke.sh', 37, 'shell').
+project_file('scripts/e2e.sh', 110, 'shell').
+project_file('scripts/examples-check.sh', 211, 'shell').
+project_file('scripts/generate-response-schemas.mjs', 28, 'javascript').
+project_file('scripts/github-event-log.mjs', 578, 'javascript').
+project_file('scripts/live-contract-check.mjs', 201, 'javascript').
+project_file('scripts/live-model-comparison.mjs', 126, 'javascript').
+project_file('scripts/mcp-request.sh', 12, 'shell').
+project_file('scripts/normalize-generated-analysis-roots.mjs', 39, 'javascript').
+project_file('scripts/package.py', 26, 'python').
+project_file('scripts/research/audit-changelog-sample.mjs', 227, 'javascript').
+project_file('scripts/research/evaluate-embedding-pairs.py', 102, 'python').
+project_file('scripts/research/rank-intent-graph-embeddings.py', 175, 'python').
+project_file('scripts/research/rerank-embedding-shortlist.mjs', 192, 'javascript').
+project_file('scripts/runtime.sh', 859, 'shell').
+project_file('scripts/smoke.sh', 58, 'shell').
+project_file('scripts/sync-generated-readme-metadata.mjs', 67, 'javascript').
+project_file('scripts/vallm-compatible.py', 26, 'python').
+project_file('scripts/verify-env-contract.mjs', 104, 'javascript').
+project_file('scripts/verify-generated-analysis.mjs', 89, 'javascript').
+project_file('scripts/verify-module-boundaries.mjs', 88, 'javascript').
+project_file('scripts/verify-no-llm-imports.mjs', 79, 'javascript').
+project_file('scripts/verify-structured-responses.mjs', 36, 'javascript').
+project_file('scripts/verify-workflow-yaml.mjs', 44, 'javascript').
+project_file('scripts/workspace-preflight.mjs', 85, 'javascript').
+project_file('sdk/__init__.py', 2, 'python').
+project_file('sdk/go/actions.go', 137, 'go').
+project_file('sdk/go/client.go', 198, 'go').
+project_file('sdk/go/examples/basic/main.go', 164, 'go').
+project_file('sdk/go/todo2code.go', 31, 'go').
+project_file('sdk/go/types.go', 216, 'go').
+project_file('sdk/php/examples/basic.php', 113, 'php').
+project_file('sdk/php/src/Client.php', 402, 'php').
+project_file('sdk/php/src/Error.php', 26, 'php').
+project_file('sdk/python/__init__.py', 14, 'python').
+project_file('sdk/python/examples/basic.py', 96, 'python').
+project_file('sdk/python/examples/local_runtime.py', 37, 'python').
+project_file('sdk/python/todo2code/__init__.py', 34, 'python').
+project_file('sdk/python/todo2code/client.py', 470, 'python').
+project_file('sdk/python/todo2code/runtime.py', 226, 'python').
+project_file('sdk/python/todo2code_sdk.py', 172, 'python').
+project_file('sdk/rust/examples/basic.rs', 109, 'rust').
+project_file('sdk/rust/src/actions.rs', 101, 'rust').
+project_file('sdk/rust/src/client.rs', 222, 'rust').
+project_file('sdk/rust/src/error.rs', 38, 'rust').
+project_file('sdk/rust/src/lib.rs', 50, 'rust').
+project_file('sdk/rust/src/types.rs', 141, 'rust').
+project_file('sdk/typescript/examples/basic.ts', 85, 'typescript').
+project_file('sdk/typescript/src/index.ts', 421, 'typescript').
+project_file('src/cli.ts', 875, 'typescript').
+project_file('src/communication/analyzer.ts', 543, 'typescript').
+project_file('src/communication/identity.ts', 147, 'typescript').
+project_file('src/communication/intake-contract.ts', 274, 'typescript').
+project_file('src/communication/intake-protobuf.ts', 126, 'typescript').
+project_file('src/communication/intake-service.ts', 292, 'typescript').
+project_file('src/communication/intake-store.ts', 162, 'typescript').
+project_file('src/communication/llm.ts', 515, 'typescript').
+project_file('src/comparison/workspace.ts', 486, 'typescript').
+project_file('src/config/env.ts', 233, 'typescript').
+project_file('src/core/branch-portfolio.ts', 500, 'typescript').
+project_file('src/core/content-cache.ts', 140, 'typescript').
+project_file('src/core/grounding.ts', 25, 'typescript').
+project_file('src/core/id.ts', 168, 'typescript').
+project_file('src/core/ignore.ts', 201, 'typescript').
+project_file('src/core/io.ts', 178, 'typescript').
+project_file('src/core/record.ts', 173, 'typescript').
+project_file('src/core/schema.ts', 923, 'typescript').
+project_file('src/core/security.ts', 56, 'typescript').
+project_file('src/core/target.ts', 58, 'typescript').
+project_file('src/core/text.ts', 492, 'typescript').
+project_file('src/core/truth-map.ts', 468, 'typescript').
+project_file('src/core/types.ts', 677, 'typescript').
+project_file('src/core/version.ts', 3, 'typescript').
+project_file('src/diff/git.ts', 162, 'typescript').
+project_file('src/diff/reality.ts', 620, 'typescript').
+project_file('src/diff/svg.ts', 105, 'typescript').
+project_file('src/diff/text-render.ts', 252, 'typescript').
+project_file('src/diff/text-types.ts', 40, 'typescript').
+project_file('src/diff/text.ts', 240, 'typescript').
+project_file('src/evaluation/analysis-policy.ts', 438, 'typescript').
+project_file('src/evaluation/gold-cases.ts', 367, 'typescript').
+project_file('src/evaluation/gold-cli.ts', 45, 'typescript').
+project_file('src/evaluation/gold-extraction.ts', 128, 'typescript').
+project_file('src/evaluation/gold-metrics.ts', 51, 'typescript').
+project_file('src/evaluation/gold-types.ts', 379, 'typescript').
+project_file('src/evaluation/gold.ts', 330, 'typescript').
+project_file('src/extractors/ast/external.ts', 49, 'typescript').
+project_file('src/extractors/ast/go.ts', 21, 'typescript').
+project_file('src/extractors/ast/java.ts', 21, 'typescript').
+project_file('src/extractors/ast/php.ts', 35, 'typescript').
+project_file('src/extractors/ast/python.ts', 40, 'typescript').
+project_file('src/extractors/ast/records.ts', 98, 'typescript').
+project_file('src/extractors/ast/rust.ts', 21, 'typescript').
+project_file('src/extractors/ast/types.ts', 21, 'typescript').
+project_file('src/extractors/ast/typescript.ts', 167, 'typescript').
+project_file('src/extractors/ast/unsupported.ts', 31, 'typescript').
+project_file('src/extractors/ast.ts', 194, 'typescript').
+project_file('src/extractors/changelog.ts', 100, 'typescript').
+project_file('src/extractors/communication.ts', 686, 'typescript').
+project_file('src/extractors/configuration.ts', 232, 'typescript').
+project_file('src/extractors/docs-chunks.ts', 148, 'typescript').
+project_file('src/extractors/docs-deterministic.ts', 365, 'typescript').
+project_file('src/extractors/docs-llm.ts', 270, 'typescript').
+project_file('src/extractors/docs-record.ts', 194, 'typescript').
+project_file('src/extractors/docs-schema.ts', 44, 'typescript').
+project_file('src/extractors/docs-types.ts', 69, 'typescript').
+project_file('src/extractors/git.ts', 181, 'typescript').
+project_file('src/extractors/markdown-block.ts', 68, 'typescript').
+project_file('src/extractors/markdown-llm.ts', 459, 'typescript').
+project_file('src/extractors/markdown-paths.ts', 123, 'typescript').
+project_file('src/extractors/markdown.ts', 36, 'typescript').
+project_file('src/extractors/nl-llm.ts', 317, 'typescript').
+project_file('src/extractors/nl.ts', 108, 'typescript').
+project_file('src/extractors/runtime-cycle.ts', 307, 'typescript').
+project_file('src/extractors/todo.ts', 94, 'typescript').
+project_file('src/graph/capability-evidence.ts', 63, 'typescript').
+project_file('src/graph/changelog-signal.ts', 90, 'typescript').
+project_file('src/graph/diagnostics.ts', 362, 'typescript').
+project_file('src/graph/diff.ts', 236, 'typescript').
+project_file('src/graph/linker.ts', 490, 'typescript').
+project_file('src/graph/symbol-resolution.ts', 121, 'typescript').
+project_file('src/index.ts', 54, 'typescript').
+project_file('src/interfaces/a2a-card.ts', 182, 'typescript').
+project_file('src/interfaces/a2a-history.ts', 227, 'typescript').
+project_file('src/interfaces/a2a-message.ts', 198, 'typescript').
+project_file('src/interfaces/a2a-task-store.ts', 561, 'typescript').
+project_file('src/interfaces/a2a-types.ts', 165, 'typescript').
+project_file('src/interfaces/a2a.ts', 333, 'typescript').
+project_file('src/interfaces/intake-actions.ts', 39, 'typescript').
+project_file('src/interfaces/intake_cli.py', 157, 'python').
+project_file('src/interfaces/mcp-errors.ts', 11, 'typescript').
+project_file('src/interfaces/mcp-resources.ts', 89, 'typescript').
+project_file('src/interfaces/mcp-tools.ts', 324, 'typescript').
+project_file('src/interfaces/mcp.ts', 262, 'typescript').
+project_file('src/live/contract-check.ts', 318, 'typescript').
+project_file('src/live/model-comparison.ts', 219, 'typescript').
+project_file('src/llm/audit.ts', 65, 'typescript').
+project_file('src/llm/failure.ts', 26, 'typescript').
+project_file('src/llm/openrouter-timeout.ts', 136, 'typescript').
+project_file('src/llm/openrouter.ts', 562, 'typescript').
+project_file('src/llm/structured-schema.ts', 219, 'typescript').
+project_file('src/llm/subllm.ts', 260, 'typescript').
+project_file('src/operations/artifact.ts', 67, 'typescript').
+project_file('src/operations/compile-cli.ts', 35, 'typescript').
+project_file('src/operations/contract.ts', 85, 'typescript').
+project_file('src/operations/subactor.ts', 123, 'typescript').
+project_file('src/operations/types.ts', 156, 'typescript').
+project_file('src/operations/validation.ts', 282, 'typescript').
+project_file('src/pipeline/event-log-persistence.ts', 191, 'typescript').
+project_file('src/pipeline/event-log.ts', 416, 'typescript').
+project_file('src/pipeline/run.ts', 796, 'typescript').
+project_file('src/sdk/typescript.ts', 173, 'typescript').
+project_file('src/semantic/reranker-llm.ts', 211, 'typescript').
+project_file('src/semantic/reranker-response.ts', 43, 'typescript').
+project_file('src/semantic/reranker.ts', 510, 'typescript').
+project_file('src/services/actions.ts', 701, 'typescript').
+project_file('src/services/branch-portfolio-assembler.ts', 358, 'typescript').
+project_file('src/services/branch-snapshot.ts', 584, 'typescript').
+project_file('src/services/workspace-preflight.ts', 499, 'typescript').
+project_file('src/summary/payload.ts', 66, 'typescript').
+project_file('src/summary/render.ts', 62, 'typescript').
+project_file('src/summary/summarizer.ts', 334, 'typescript').
+project_file('src/synthesis/code-change-path.ts', 205, 'typescript').
+project_file('src/synthesis/code-change-plan.ts', 1311, 'typescript').
+project_file('src/synthesis/task-synthesis-contract.ts', 67, 'typescript').
+project_file('src/synthesis/task-synthesis-materialize.ts', 173, 'typescript').
+project_file('src/synthesis/task-synthesis-payload.ts', 71, 'typescript').
+project_file('src/synthesis/tasks-llm.ts', 267, 'typescript').
+project_file('src/synthesis/todo-patch.ts', 373, 'typescript').
+project_file('src/synthesis/validation.ts', 114, 'typescript').
+project_file('src/tf/classifier.ts', 97, 'typescript').
+project_file('src/version.ts', 3, 'typescript').
+project_file('src/watch/watcher.ts', 244, 'typescript').
+project_file('src/web/diff-ui.ts', 49, 'typescript').
+project_file('test/a2a-intake.test.ts', 110, 'typescript').
+project_file('test/a2a.test.ts', 318, 'typescript').
+project_file('test/ast-go.test.ts', 147, 'typescript').
+project_file('test/ast-languages.test.ts', 104, 'typescript').
+project_file('test/ast-php.test.ts', 109, 'typescript').
+project_file('test/ast.test.ts', 78, 'typescript').
+project_file('test/cli-help.test.ts', 23, 'typescript').
+project_file('test/cli-intake.test.ts', 51, 'typescript').
+project_file('test/cli-summary.test.ts', 53, 'typescript').
+project_file('test/cli-todo.test.ts', 67, 'typescript').
+project_file('test/cli-watch.test.ts', 100, 'typescript').
+project_file('test/code-change-plan.test.ts', 808, 'typescript').
+project_file('test/communication-identity.test.ts', 78, 'typescript').
+project_file('test/communication-intake.test.ts', 206, 'typescript').
+project_file('test/communication-llm.test.ts', 144, 'typescript').
+project_file('test/communication.test.ts', 318, 'typescript').
+project_file('test/config-openrouter-app-name.test.ts', 50, 'typescript').
+project_file('test/configuration.test.ts', 54, 'typescript').
+project_file('test/diff-engine.test.ts', 243, 'typescript').
+project_file('test/diff.test.ts', 244, 'typescript').
+project_file('test/docs-llm-repair.test.ts', 146, 'typescript').
+project_file('test/docs-source-dsl-apis.test.ts', 89, 'typescript').
+project_file('test/docs.test.ts', 120, 'typescript').
+project_file('test/extraction-cache.test.ts', 134, 'typescript').
+project_file('test/fixtures/languages/sample.rs', 26, 'rust').
+project_file('test/generated-analysis-roots.test.ts', 40, 'typescript').
+project_file('test/generated-analysis.test.ts', 97, 'typescript').
+project_file('test/generated-readme.test.ts', 77, 'typescript').
+project_file('test/generated-remediation-projections.test.ts', 103, 'typescript').
+project_file('test/git-branch-portfolio-assembler.test.ts', 292, 'typescript').
+project_file('test/git-branch-snapshot.test.ts', 232, 'typescript').
+project_file('test/git-workspace-preflight.test.ts', 294, 'typescript').
+project_file('test/git.test.ts', 42, 'typescript').
+project_file('test/gold-evaluation.test.ts', 172, 'typescript').
+project_file('test/graph-branch-portfolio.test.ts', 382, 'typescript').
+project_file('test/graph-truth-map.test.ts', 225, 'typescript').
+project_file('test/graph.test.ts', 201, 'typescript').
+project_file('test/grounded-contracts.test.ts', 275, 'typescript').
+project_file('test/helpers.ts', 65, 'typescript').
+project_file('test/ignore.test.ts', 140, 'typescript').
+project_file('test/io.test.ts', 18, 'typescript').
+project_file('test/linker-pairing.test.ts', 305, 'typescript').
+project_file('test/live-contract-check.test.ts', 265, 'typescript').
+project_file('test/live-model-comparison.test.ts', 215, 'typescript').
+project_file('test/llm-defaults.test.ts', 22, 'typescript').
+project_file('test/markdown.test.ts', 484, 'typescript').
+project_file('test/mcp.test.ts', 127, 'typescript').
+project_file('test/nl-llm.test.ts', 213, 'typescript').
+project_file('test/nl.test.ts', 207, 'typescript').
+project_file('test/openrouter-timeout.test.ts', 151, 'typescript').
+project_file('test/openrouter.test.ts', 749, 'typescript').
+project_file('test/operation-plan.test.ts', 210, 'typescript').
+project_file('test/pipeline-event-log.test.ts', 105, 'typescript').
+project_file('test/pipeline.test.ts', 375, 'typescript').
+project_file('test/proposal-validation.test.ts', 102, 'typescript').
+project_file('test/python-runtime.test.ts', 63, 'typescript').
+project_file('test/runtime-cycle.test.ts', 160, 'typescript').
+project_file('test/schema-validation.test.ts', 92, 'typescript').
+project_file('test/sdk.test.ts', 207, 'typescript').
+project_file('test/security.test.ts', 45, 'typescript').
+project_file('test/semantic-reranker.test.ts', 468, 'typescript').
+project_file('test/structured-analysis-policy.test.ts', 257, 'typescript').
+project_file('test/structured-schema.test.ts', 54, 'typescript').
+project_file('test/subllm.test.ts', 203, 'typescript').
+project_file('test/symbol-resolution.test.ts', 124, 'typescript').
+project_file('test/target.test.ts', 45, 'typescript').
+project_file('test/task-synthesis.test.ts', 354, 'typescript').
+project_file('test/tensorflow.test.ts', 22, 'typescript').
+project_file('test/todo-patch.test.ts', 267, 'typescript').
+project_file('test/watch.test.ts', 303, 'typescript').
+project_file('test/workflow-validation.test.ts', 457, 'typescript').
+project_file('test/workspace.test.ts', 135, 'typescript').
+
+% ── Python Functions ─────────────────────────────────────
+python_function('.governance/check_required_checks.py', 'repo_root', 0, 1, 2).
+python_function('.governance/check_required_checks.py', 'load_source', 1, 10, 7).
+python_function('.governance/check_required_checks.py', 'workflow_job_names', 1, 11, 9).
+python_function('.governance/check_required_checks.py', 'compare', 2, 8, 5).
+python_function('.governance/check_required_checks.py', 'main', 1, 8, 13).
+python_function('.governance/decision_record.py', 'parse_value', 1, 2, 2).
+python_function('.governance/decision_record.py', 'format_value', 1, 1, 1).
+python_function('.governance/decision_record.py', 'decision_body', 1, 5, 4).
+python_function('.governance/decision_record.py', 'apply_named_field', 3, 2, 1).
+python_function('.governance/decision_record.py', 'apply_decision_line', 2, 8, 7).
+python_function('.governance/decision_record.py', 'require_decision_fields', 1, 6, 1).
+python_function('.governance/decision_record.py', 'parse_dsl_record', 1, 5, 7).
+python_function('.governance/decision_record.py', 'to_dsl', 1, 5, 5).
+python_function('.governance/decision_record.py', 'record_content_hash', 1, 1, 4).
+python_function('.governance/decision_record.py', 'replay_verdict', 1, 15, 7).
+python_function('.governance/decision_record.py', 'validate_record', 1, 10, 4).
+python_function('.governance/decision_record.py', 'split_decision_blocks', 1, 8, 5).
+python_function('.governance/decision_record.py', 'check_append_only', 2, 4, 7).
+python_function('.governance/decision_record.py', 'from_change_evaluation', 1, 9, 11).
+python_function('.governance/decision_record.py', 'main', 1, 8, 11).
+python_function('.governance/governance_check.py', 'load_json', 1, 1, 2).
+python_function('.governance/governance_check.py', 'work_classification_header_error', 1, 10, 3).
+python_function('.governance/governance_check.py', 'complexity_rule_assignment', 1, 5, 1).
+python_function('.governance/governance_check.py', 'expected_rule_assignment', 1, 8, 2).
+python_function('.governance/governance_check.py', 'work_classification_rule_error', 1, 10, 4).
+python_function('.governance/governance_check.py', 'work_classification_error', 1, 12, 6).
+python_function('.governance/governance_check.py', 'load_work_classification', 2, 3, 4).
+python_function('.governance/governance_check.py', 'rel', 2, 1, 2).
+python_function('.governance/governance_check.py', 'safe_repo_path', 2, 2, 3).
+python_function('.governance/governance_check.py', 'string_list', 1, 7, 5).
+python_function('.governance/governance_check.py', 'relative_pattern', 1, 3, 4).
+python_function('.governance/governance_check.py', 'approval_evidence_config_valid', 1, 7, 3).
+python_function('.governance/governance_check.py', 'branch_name', 1, 4, 4).
+python_function('.governance/governance_check.py', 'integer_fields_valid', 2, 3, 3).
+python_function('.governance/governance_check.py', 'relative_pattern_list', 1, 3, 3).
+python_function('.governance/governance_check.py', 'delivery_limits_valid', 1, 1, 3).
+python_function('.governance/governance_check.py', 'delivery_policy_valid', 1, 11, 9).
+python_function('.governance/governance_check.py', 'delivery_header_error', 1, 11, 6).
+python_function('.governance/governance_check.py', 'delivery_budgets_error', 1, 8, 3).
+python_function('.governance/governance_check.py', 'delivery_components_error', 1, 10, 7).
+python_function('.governance/governance_check.py', 'delivery_ui_error', 1, 7, 5).
+python_function('.governance/governance_check.py', 'delivery_ui_impact_error', 3, 10, 1).
+python_function('.governance/governance_check.py', 'delivery_architecture_error', 1, 11, 7).
+python_function('.governance/governance_check.py', 'delivery_validation_error', 1, 12, 8).
+python_function('.governance/governance_check.py', 'standard_adoption_error', 1, 8, 5).
+python_function('.governance/governance_check.py', 'delivery_intent_error', 1, 9, 10).
+python_function('.governance/governance_check.py', 'matches', 2, 2, 8).
+python_function('.governance/governance_check.py', 'segment_literal_prefix', 1, 3, 3).
+python_function('.governance/governance_check.py', 'segment_literal_suffix', 1, 3, 2).
+python_function('.governance/governance_check.py', 'segments_may_overlap', 2, 15, 6).
+python_function('.governance/governance_check.py', 'patterns_may_overlap', 2, 1, 8).
+python_function('.governance/governance_check.py', 'segment_pattern_covered_by', 2, 12, 11).
+python_function('.governance/governance_check.py', 'pattern_covered_by', 2, 11, 9).
+python_function('.governance/governance_check.py', 'git_output', 2, 1, 1).
+python_function('.governance/governance_check.py', 'changed_paths', 4, 9, 9).
+python_function('.governance/governance_check.py', 'check_history_order', 8, 12, 10).
+python_function('.governance/governance_check.py', 'standard_policy_valid', 1, 5, 4).
+python_function('.governance/governance_check.py', 'ticket_policy_valid', 1, 6, 6).
+python_function('.governance/governance_check.py', 'ticket_scalar_policy_valid', 1, 6, 5).
+python_function('.governance/governance_check.py', 'ticket_list_policy_valid', 1, 5, 7).
+python_function('.governance/governance_check.py', 'docker_policy_valid', 1, 5, 4).
+python_function('.governance/governance_check.py', 'workstreams_policy_valid', 1, 8, 8).
+python_function('.governance/governance_check.py', 'integration_policy_valid', 2, 5, 4).
+python_function('.governance/governance_check.py', 'coordination_policy_valid', 1, 9, 5).
+python_function('.governance/governance_check.py', 'common_manifest_policy_valid', 1, 8, 8).
+python_function('.governance/governance_check.py', 'basic_manifest_valid', 1, 11, 7).
+python_function('.governance/governance_check.py', 'lock_standard_valid', 2, 8, 4).
+python_function('.governance/governance_check.py', 'load_managed_lock', 2, 10, 10).
+python_function('.governance/governance_check.py', 'check_managed_file', 4, 4, 7).
+python_function('.governance/governance_check.py', 'extension_error', 3, 11, 3).
+python_function('.governance/governance_check.py', 'check_lock', 4, 13, 14).
+python_function('.governance/governance_check.py', 'parse_ticket_state', 1, 4, 4).
+python_function('.governance/governance_check.py', 'ticket_directories', 2, 6, 7).
+python_function('.governance/governance_check.py', 'intent_common_error', 2, 10, 6).
+python_function('.governance/governance_check.py', 'ticket_id_list_error', 2, 6, 6).
+python_function('.governance/governance_check.py', 'intent_v2_error', 2, 10, 5).
+python_function('.governance/governance_check.py', 'intent_classification_error', 1, 6, 3).
+python_function('.governance/governance_check.py', 'intent_fields_error', 1, 7, 4).
+python_function('.governance/governance_check.py', 'validate_intent', 2, 9, 8).
+python_function('.governance/governance_check.py', 'load_ticket_records', 2, 2, 4).
+python_function('.governance/governance_check.py', 'repository_files', 2, 5, 8).
+python_function('.governance/governance_check.py', 'valid_active_tickets', 5, 6, 4).
+python_function('.governance/governance_check.py', 'check_workstream_limits', 4, 6, 7).
+python_function('.governance/governance_check.py', 'dependency_graph', 4, 6, 4).
+python_function('.governance/governance_check.py', 'find_dependency_cycle', 1, 3, 8).
+python_function('.governance/governance_check.py', 'check_dependency_cycle', 2, 3, 4).
+python_function('.governance/governance_check.py', 'integration_reference_valid', 2, 5, 2).
+python_function('.governance/governance_check.py', 'check_active_relationships', 7, 14, 7).
+python_function('.governance/governance_check.py', 'check_workstream_claims', 7, 15, 7).
+python_function('.governance/governance_check.py', 'ticket_shared_files', 4, 8, 1).
+python_function('.governance/governance_check.py', 'ticket_overlapping_patterns', 3, 9, 3).
+python_function('.governance/governance_check.py', 'check_scope_overlaps', 4, 5, 5).
+python_function('.governance/governance_check.py', 'check_ticket_statuses', 4, 4, 6).
+python_function('.governance/governance_check.py', 'check_coordination', 5, 5, 12).
+python_function('.governance/governance_check.py', 'check_required_files', 3, 10, 6).
+python_function('.governance/governance_check.py', 'check_stacks', 4, 13, 11).
+python_function('.governance/governance_check.py', 'check_ticket_content', 4, 12, 12).
+python_function('.governance/governance_check.py', 'probable_secret_fields', 1, 5, 8).
+python_function('.governance/governance_check.py', 'check_changed_file', 3, 9, 10).
+python_function('.governance/governance_check.py', 'check_decision_log_file', 4, 12, 8).
+python_function('.governance/governance_check.py', 'check_changed_content', 5, 7, 3).
+python_function('.governance/governance_check.py', 'check_declared_delivery_budget', 5, 8, 2).
+python_function('.governance/governance_check.py', 'check_delivery_timebox', 5, 4, 1).
+python_function('.governance/governance_check.py', 'check_delivery_base', 7, 9, 4).
+python_function('.governance/governance_check.py', 'map_implementation_components', 2, 6, 5).
+python_function('.governance/governance_check.py', 'check_delivery_architecture', 6, 5, 6).
+python_function('.governance/governance_check.py', 'check_actual_delivery_budget', 8, 10, 5).
+python_function('.governance/governance_check.py', 'check_integration_ownership', 5, 4, 1).
+python_function('.governance/governance_check.py', 'check_delivery_gate', 7, 5, 9).
+python_function('.governance/governance_check.py', 'ticket_owns_implementation', 2, 5, 4).
+python_function('.governance/governance_check.py', 'ticket_path_owners', 2, 6, 1).
+python_function('.governance/governance_check.py', 'select_change_ticket', 5, 12, 6).
+python_function('.governance/governance_check.py', 'check_selected_ticket_state', 8, 3, 3).
+python_function('.governance/governance_check.py', 'check_workstream_change_scope', 5, 12, 6).
+python_function('.governance/governance_check.py', 'check_selected_ticket_intent', 8, 9, 7).
+python_function('.governance/governance_check.py', 'approval_subject_valid', 1, 13, 4).
+python_function('.governance/governance_check.py', 'approval_actor_valid', 1, 5, 4).
+python_function('.governance/governance_check.py', 'approval_verification_valid', 1, 5, 3).
+python_function('.governance/governance_check.py', 'approval_authority_valid', 2, 11, 4).
+python_function('.governance/governance_check.py', 'approval_binding_mismatches', 4, 7, 2).
+python_function('.governance/governance_check.py', 'load_external_approval_evidence', 3, 9, 16).
+python_function('.governance/governance_check.py', 'approval_evidence', 7, 10, 9).
+python_function('.governance/governance_check.py', 'check_change_approval', 6, 4, 5).
+python_function('.governance/governance_check.py', 'resolve_change_approval', 10, 3, 3).
+python_function('.governance/governance_check.py', 'git_revision_file', 3, 2, 1).
+python_function('.governance/governance_check.py', 'package_entry', 1, 13, 5).
+python_function('.governance/governance_check.py', 'package_strategies', 1, 8, 6).
+python_function('.governance/governance_check.py', 'adoption_standard_binding_is_valid', 2, 7, 6).
+python_function('.governance/governance_check.py', 'adoption_lock', 2, 10, 10).
+python_function('.governance/governance_check.py', 'content_digest', 1, 1, 2).
+python_function('.governance/governance_check.py', 'standard_adoption_records', 1, 5, 2).
+python_function('.governance/governance_check.py', 'load_standard_adoption_evidence', 3, 11, 10).
+python_function('.governance/governance_check.py', 'verify_changed_managed_paths', 7, 11, 9).
+python_function('.governance/governance_check.py', 'atomic_standard_adoption_paths', 5, 10, 8).
+python_function('.governance/governance_check.py', 'check_change_gate', 15, 9, 8).
+python_function('.governance/governance_check.py', 'sarif', 1, 5, 2).
+python_function('.governance/governance_check.py', 'render_text', 1, 4, 3).
+python_function('.governance/governance_check.py', 'parse_args', 1, 1, 3).
+python_function('.governance/governance_check.py', 'load_manifest', 3, 4, 6).
+python_function('.governance/governance_check.py', 'optional_repo_path', 5, 3, 3).
+python_function('.governance/governance_check.py', 'resolve_changed_paths', 3, 2, 3).
+python_function('.governance/governance_check.py', 'run_governance_checks', 4, 1, 12).
+python_function('.governance/governance_check.py', 'formatted_report', 2, 3, 3).
+python_function('.governance/governance_check.py', 'write_report', 2, 2, 3).
+python_function('.governance/governance_check.py', 'write_resolved_ticket', 4, 6, 7).
+python_function('.governance/governance_check.py', 'main', 1, 4, 11).
+python_function('examples/src/helper.py', 'load_task', 1, 1, 2).
+python_function('examples/src/helper.py', 'normalize_task', 1, 1, 2).
+python_function('python/ast_extract.py', 'source_hash', 1, 1, 3).
+python_function('python/ast_extract.py', 'dotted_name', 1, 5, 2).
+python_function('python/ast_extract.py', 'is_module_entrypoint', 1, 10, 3).
+python_function('python/ast_extract.py', 'iter_python_files', 2, 16, 15).
+python_function('python/ast_extract.py', 'main', 0, 4, 19).
+python_function('python/tests/test_python.py', 'test_placeholder', 0, 2, 0).
+python_function('python/tests/test_python.py', 'test_import', 0, 1, 0).
+python_function('scripts/research/evaluate-embedding-pairs.py', 'parse_args', 0, 1, 3).
+python_function('scripts/research/evaluate-embedding-pairs.py', 'main', 0, 9, 21).
+python_function('scripts/research/rank-intent-graph-embeddings.py', 'parse_args', 0, 1, 3).
+python_function('scripts/research/rank-intent-graph-embeddings.py', 'projection_text', 2, 1, 3).
+python_function('scripts/research/rank-intent-graph-embeddings.py', 'main', 0, 27, 24).
+python_function('scripts/vallm-compatible.py', 'detect_file_language_with_parser_id', 1, 2, 2).
+python_function('sdk/python/examples/basic.py', 'main', 0, 11, 21).
+python_function('sdk/python/examples/local_runtime.py', 'main', 0, 1, 8).
+python_function('sdk/python/todo2code/client.py', '_unwrap_task', 1, 4, 1).
+python_function('sdk/python/todo2code/client.py', '_as_dict', 1, 2, 1).
+python_function('sdk/python/todo2code/client.py', '_graph_dict', 1, 2, 1).
+python_function('sdk/python/todo2code/client.py', '_report_dict', 1, 2, 1).
+python_function('sdk/python/todo2code/runtime.py', '_resolve_cli', 1, 9, 10).
+python_function('sdk/python/todo2code/runtime.py', '_parse_mapping', 2, 3, 3).
+python_function('sdk/python/todo2code/runtime.py', '_load_mapping', 2, 2, 3).
+python_function('sdk/python/todo2code_sdk.py', '_record_dict', 1, 1, 1).
+python_function('src/interfaces/intake_cli.py', '_varint', 1, 5, 4).
+python_function('src/interfaces/intake_cli.py', '_read_varint', 2, 4, 3).
+python_function('src/interfaces/intake_cli.py', 'encode_envelope', 1, 6, 11).
+python_function('src/interfaces/intake_cli.py', 'decode_envelope', 1, 10, 7).
+python_function('src/interfaces/intake_cli.py', 'execute', 1, 3, 7).
+python_function('src/interfaces/intake_cli.py', 'main', 0, 5, 16).
+
+% ── Python Classes ───────────────────────────────────────
+python_class('.governance/governance_check.py', 'Finding').
+python_class('.governance/governance_check.py', 'TicketRecord').
+python_class('.governance/governance_check.py', 'Report').
+python_method('Report', '__init__', 1, 1, 0).
+python_method('Report', 'add', 6, 2, 4).
+python_method('Report', 'errors', 0, 2, 1).
+python_method('Report', 'payload', 0, 4, 4).
+python_class('python/ast_extract.py', 'FactVisitor').
+python_method('FactVisitor', '__init__', 2, 1, 0).
+python_method('FactVisitor', 'excerpt', 1, 1, 5).
+python_method('FactVisitor', 'add', 6, 4, 6).
+python_method('FactVisitor', 'visit_Import', 1, 2, 2).
+python_method('FactVisitor', 'visit_ImportFrom', 1, 3, 3).
+python_method('FactVisitor', 'visit_FunctionDef', 1, 3, 5).
+python_method('FactVisitor', 'visit_AsyncFunctionDef', 1, 3, 5).
+python_method('FactVisitor', 'visit_ClassDef', 1, 3, 5).
+python_method('FactVisitor', 'add_named_constant', 3, 8, 6).
+python_method('FactVisitor', 'visit_Assign', 1, 3, 3).
+python_method('FactVisitor', 'visit_AnnAssign', 1, 3, 3).
+python_method('FactVisitor', 'visit_If', 1, 3, 3).
+python_method('FactVisitor', 'visit_Call', 1, 3, 4).
+python_class('sdk/python/todo2code/client.py', 'T2CError').
+python_method('T2CError', '__init__', 3, 1, 2).
+python_class('sdk/python/todo2code/client.py', 'IntentRecord').
+python_method('IntentRecord', 'from_dict', 2, 2, 2).
+python_method('IntentRecord', 'action', 0, 1, 2).
+python_method('IntentRecord', 'source_kind', 0, 1, 2).
+python_method('IntentRecord', 'confidence', 0, 1, 2).
+python_method('IntentRecord', 'generation', 0, 2, 2).
+python_class('sdk/python/todo2code/client.py', 'ExtractionResult').
+python_method('ExtractionResult', 'from_dict', 2, 2, 6).
+python_class('sdk/python/todo2code/client.py', 'Diagnostic').
+python_method('Diagnostic', 'from_dict', 2, 2, 3).
+python_class('sdk/python/todo2code/client.py', 'DiagnosticReport').
+python_method('DiagnosticReport', 'from_dict', 2, 2, 4).
+python_method('DiagnosticReport', 'blocking', 0, 3, 1).
+python_class('sdk/python/todo2code/client.py', 'IntentGraph').
+python_method('IntentGraph', 'from_dict', 2, 2, 4).
+python_class('sdk/python/todo2code/client.py', 'T2CClient').
+python_method('T2CClient', '__init__', 3, 1, 1).
+python_method('T2CClient', '_headers', 1, 3, 0).
+python_method('T2CClient', '_open', 1, 7, 8).
+python_method('T2CClient', '_rpc', 2, 4, 8).
+python_method('T2CClient', '_get', 1, 1, 3).
+python_method('T2CClient', 'health', 0, 1, 1).
+python_method('T2CClient', 'agent_card', 0, 1, 1).
+python_method('T2CClient', 'send', 2, 3, 7).
+python_method('T2CClient', 'call', 2, 7, 5).
+python_method('T2CClient', 'compare_workspace', 0, 1, 1).
+python_method('T2CClient', 'propose_todo', 1, 1, 1).
+python_method('T2CClient', 'render_todo', 1, 1, 1).
+python_method('T2CClient', 'apply_todo', 1, 1, 1).
+python_method('T2CClient', 'get_task', 1, 2, 2).
+python_method('T2CClient', 'cancel_task', 1, 1, 2).
+python_method('T2CClient', 'list_tasks', 0, 1, 1).
+python_method('T2CClient', 'extract_nl', 3, 1, 1).
+python_method('T2CClient', 'extract_nl_result', 3, 2, 2).
+python_method('T2CClient', 'extract_git', 2, 2, 4).
+python_method('T2CClient', 'extract_ast', 1, 2, 4).
+python_method('T2CClient', 'extract_config', 1, 2, 4).
+python_method('T2CClient', 'extract_markdown', 4, 1, 1).
+python_method('T2CClient', 'extract_markdown_result', 4, 2, 2).
+python_method('T2CClient', 'extract_docs', 3, 1, 1).
+python_method('T2CClient', 'extract_docs_result', 3, 3, 3).
+python_method('T2CClient', 'link', 1, 3, 4).
+python_method('T2CClient', 'diagnose', 1, 1, 3).
+python_method('T2CClient', 'summarize', 3, 2, 3).
+python_method('T2CClient', 'diff_graphs', 3, 1, 2).
+python_method('T2CClient', 'diff_graphs_rest', 0, 2, 6).
+python_method('T2CClient', 'diff_files', 2, 1, 1).
+python_method('T2CClient', 'diff_git', 0, 1, 1).
+python_method('T2CClient', 'reality', 2, 2, 3).
+python_method('T2CClient', 'pipeline', 0, 1, 1).
+python_class('sdk/python/todo2code/runtime.py', 'TypeScriptRuntimeError').
+python_class('sdk/python/todo2code/runtime.py', 'RuntimeResult').
+python_class('sdk/python/todo2code/runtime.py', 'TypeScriptRuntime').
+python_method('TypeScriptRuntime', '__init__', 1, 3, 6).
+python_method('TypeScriptRuntime', 'invoke', 1, 7, 8).
+python_method('TypeScriptRuntime', 'version', 0, 1, 2).
+python_method('TypeScriptRuntime', 'pipeline', 0, 6, 5).
+python_method('TypeScriptRuntime', 'diagnose', 1, 1, 6).
+python_method('TypeScriptRuntime', 'diff_graphs', 2, 3, 8).
+python_method('TypeScriptRuntime', 'reality', 1, 5, 9).
+python_class('sdk/python/todo2code_sdk.py', 'Todo2CodeClient').
+python_method('Todo2CodeClient', '__init__', 3, 1, 1).
+python_method('Todo2CodeClient', 'base_url', 0, 1, 0).
+python_method('Todo2CodeClient', 'health', 0, 1, 2).
+python_method('Todo2CodeClient', 'extract_nl', 3, 2, 3).
+python_method('Todo2CodeClient', 'extract_docs', 3, 2, 3).
+python_method('Todo2CodeClient', 'diff_graphs', 3, 1, 2).
+python_method('Todo2CodeClient', 'diff_graph_files', 3, 1, 2).
+python_method('Todo2CodeClient', 'diff_text_files', 2, 1, 2).
+python_method('Todo2CodeClient', 'diff_git', 0, 1, 2).
+python_method('Todo2CodeClient', 'reality', 1, 1, 2).
+python_method('Todo2CodeClient', 'run', 2, 2, 1).
+
+% ── Dependencies ─────────────────────────────────────────
+
+% ── Makefile Targets ─────────────────────────────────────
+makefile_target('SHELL', '').
+makefile_target('help', '').
+makefile_target('setup', '').
+makefile_target('install', '').
+makefile_target('install-tf', '').
+makefile_target('build', '').
+makefile_target('check', '').
+makefile_target('test', '').
+makefile_target('verify-no-llm', '').
+makefile_target('verify-modules', '').
+makefile_target('verify-env', '').
+makefile_target('verify', '').
+makefile_target('governance', '').
+makefile_target('smoke', '').
+makefile_target('doctor', '').
+makefile_target('mcp-probe', '').
+makefile_target('a2a-probe', '').
+makefile_target('protocol-smoke', '').
+makefile_target('validate', '').
+makefile_target('live-contract-check', '').
+makefile_target('live-model-comparison', '').
+makefile_target('demo', '').
+makefile_target('demollm', '').
+makefile_target('examples-check', '').
+makefile_target('pipeline', '').
+makefile_target('compare-workspace', '').
+makefile_target('preflight', '').
+makefile_target('mcp', '').
+makefile_target('a2a', '').
+makefile_target('docker-build', '').
+makefile_target('docker-smoke', '').
+makefile_target('docker-up', '').
+makefile_target('docker-down', '').
+makefile_target('e2e-core', '').
+makefile_target('e2e-full', '').
+makefile_target('e2e-clean', '').
+makefile_target('python-wheel', '').
+makefile_target('package', '').
+makefile_target('clean', '').
+
+% ── Taskfile Tasks ───────────────────────────────────────
+
+% ── Environment Variables ────────────────────────────────
+env_variable('T2C_ENV_FILE', '*(not set)*', 'Bootstrap-only override used before this file is loaded. Usually leave empty.').
+env_variable('T2C_ROOT', '.', '').
+env_variable('T2C_OUTPUT_DIR', '.intent', '').
+env_variable('T2C_GIT_COMMIT_COUNT', '10', '').
+env_variable('T2C_MAX_FILE_BYTES', '524288', '').
+env_variable('T2C_DOC_CONCURRENCY', '3', '').
+env_variable('T2C_DOC_CHUNK_CHARS', '8000', '').
+env_variable('T2C_DOC_MAX_CHUNKS', '12', '').
+env_variable('T2C_DOC_MAX_RECORDS_PER_CHUNK', '24', '').
+env_variable('T2C_DOC_TIMEOUT_MS', '45000', '').
+env_variable('T2C_PYTHON', 'python3', '').
+env_variable('T2C_ENABLE_PYTHON_AST', 'true', '').
+env_variable('T2C_GO', 'go', '').
+env_variable('T2C_ENABLE_GO_AST', 'true', '').
+env_variable('T2C_JAVA', 'java', '').
+env_variable('T2C_ENABLE_JAVA_AST', 'true', '').
+env_variable('T2C_CARGO', 'cargo', '').
+env_variable('T2C_ENABLE_RUST_AST', 'true', '').
+env_variable('T2C_PHP', 'php', '').
+env_variable('T2C_ENABLE_PHP_AST', 'true', '').
+env_variable('T2C_ALLOW_OUTSIDE_ROOT', 'false', '').
+env_variable('T2C_ENABLE_TF', 'false', 'Optional TensorFlow action classifier. Heuristics remain the deterministic fallback.').
+env_variable('T2C_TF_MODEL_PATH', '*(not set)*', '').
+env_variable('T2C_TF_MODULE_PATH', 'adapters/tensorflow/node_modules/@tensorflow/tfjs-node/dist/index.js', '').
+env_variable('T2C_TF_LABELS', 'add,fix,remove,refactor,test,document,configure,analyze,unknown', '').
+env_variable('T2C_NL_MODE', 'require-llm', 'NL/TODO/CHANGELOG -> Intent DSL, documentation -> Intent DSL, Intent DSL -> NL/tasks').
+env_variable('T2C_MARKDOWN_MODE', 'require-llm', '').
+env_variable('T2C_COMMUNICATION_MODE', 'require-llm', '').
+env_variable('OPENROUTER_API_KEY', '*(not set)*', '').
+env_variable('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1', '').
+env_variable('OPENROUTER_MODEL', 'mistralai/codestral-2508', '').
+env_variable('OPENROUTER_NL_MODEL', '*(not set)*', '').
+env_variable('OPENROUTER_MARKDOWN_MODEL', '*(not set)*', '').
+env_variable('OPENROUTER_COMMUNICATION_MODEL', '*(not set)*', '').
+env_variable('OPENROUTER_DOC_MODEL', '*(not set)*', '').
+env_variable('OPENROUTER_SUMMARY_MODEL', '*(not set)*', '').
+env_variable('OPENROUTER_TASK_MODEL', '*(not set)*', '').
+env_variable('OPENROUTER_SITE_URL', 'http://localhost:8787', '').
+env_variable('OPENROUTER_APP_NAME', 'todo2code', '').
+env_variable('OPENROUTER_TIMEOUT_MS', '120000', '').
+env_variable('OPENROUTER_MAX_TOKENS', '6000', '').
+env_variable('OPENROUTER_TEMPERATURE', '0', '').
+env_variable('OPENROUTER_REQUIRE_STRUCTURED_OUTPUT', 'true', '').
+env_variable('OPENROUTER_RESPONSE_HEALING', 'true', '').
+env_variable('T2C_REQUIRE_LIVE_CHECK', 'false', 'The check runs all six semantic stages through the pipeline in require-llm.').
+env_variable('T2C_LIVE_AUDIT_PATH', '.intent-live/contract-check.json', '').
+env_variable('T2C_LIVE_HISTORY_PATH', '.intent-live/contract-check-history.json', 'Recorded trend of past runs. Reported, never a pass/fail threshold.').
+env_variable('T2C_LIVE_RUN_OUTPUT', '.intent-live-run', '').
+env_variable('T2C_LIVE_MAX_STAGE_LATENCY_MS', '300000', 'Per-stage ceiling; one slow stage is a signal an average would hide.').
+env_variable('T2C_LIVE_MAX_LATENCY_MS', '120000', 'Legacy alias for the per-stage ceiling, still honoured when it is set alone.').
+env_variable('T2C_LIVE_MAX_TOTAL_LATENCY_MS', '900000', '').
+env_variable('T2C_LIVE_MAX_COST_USD', '0.5', '').
+env_variable('T2C_LIVE_COMPARE_MODELS', 'mistralai/codestral-2508,google/gemini-3-flash-preview', 'Opt-in batched TODO/CHANGELOG model comparison. Never part of offline CI.').
+env_variable('T2C_LIVE_COMPARE_ROOT', '.', '').
+env_variable('T2C_LIVE_COMPARE_TIMEOUT_MS', '300000', '').
+env_variable('T2C_LIVE_COMPARE_PATH', '.intent-live/model-comparison.json', '').
+env_variable('T2C_LIVE_COMPARE_MD_PATH', '.intent-live/model-comparison.md', '').
+env_variable('T2C_DOC_PATTERNS', 'README.md,docs/**/*.md,project/**/*.md,packages/**/MODULE.md', 'Default document selection. TODO and CHANGELOG have a dedicated structural + LLM stage.').
+env_variable('T2C_MARKDOWN_CONCURRENCY', '3', '').
+env_variable('T2C_DOC_EXCLUDES', 'node_modules/**,.git/**,dist/**,.intent/**,TODO.md,CHANGELOG.md', '').
+env_variable('T2C_MCP_SERVER_NAME', 'todo2code', 'MCP stdio server').
+env_variable('T2C_MCP_SERVER_VERSION', '0.5.0', '').
+env_variable('T2C_A2A_HOST', '127.0.0.1', 'token whenever you widen the host. Docker Compose sets 0.0.0.0 itself.').
+env_variable('T2C_A2A_PORT', '8787', '').
+env_variable('T2C_A2A_PUBLIC_URL', 'http://localhost:8787/a2a', '').
+env_variable('T2C_A2A_TOKEN', '*(not set)*', '').
+env_variable('T2C_A2A_MAX_BODY_BYTES', '1048576', '').
+env_variable('T2C_A2A_TASK_STORE', '*(not set)*', 'Optional shared snapshot for restart persistence and multi-replica deployments.').
+env_variable('T2C_WORKSPACE', '.', 'Docker Compose host settings. Container port remains 8787.').
+env_variable('T2C_DOCKER_HOST_PORT', '8787', '').
+env_variable('T2C_A2A_URL', 'http://localhost:8787', 'SDK/example clients. T2C_A2A_TOKEN above is shared with the server.').
+env_variable('T2C_EXAMPLE_ROOT', 'examples/backend', '').
+env_variable('T2C_COMPARE_WORKSPACE', 'false', '').
+env_variable('T2C_COMPARE_BASE', 'origin/main', '').
+env_variable('T2C_TYPESCRIPT_CLI', '*(not set)*', '').
+
+% ── TestQL Scenarios ─────────────────────────────────────
+testql_scenario('generated-cli-tests.testql.toon.yaml', 'cli').
+
+% ── Semantic Facts from SUMD.md ──────────────────────────
+```
+
+## Call Graph
+
+*454 nodes · 500 edges · 40 modules · CC̄=3.8*
+
+### Hubs (by degree)
+
+| Function | CC | in | out | total |
+|----------|----|----|-----|-------|
+| `extractTypeScriptFile` *(in src.extractors.ast.typescript)* | 43 ⚠ | 0 | 44 | **44** |
+| `visit` *(in src.extractors.ast.typescript)* | 25 ⚠ | 1 | 26 | **27** |
+| `extractTodo` *(in src.extractors.todo)* | 5 | 0 | 24 | **24** |
+| `extractNlIntentAudited` *(in src.extractors.nl-llm.NlLlmRequiredError)* | 10 ⚠ | 0 | 22 | **22** |
+| `collect_files` *(in rust-ast.src.main)* | 9 | 1 | 20 | **21** |
+| `extractGitIntent` *(in src.extractors.git)* | 13 ⚠ | 0 | 21 | **21** |
+| `extractAstIntent` *(in src.extractors.ast)* | 12 ⚠ | 1 | 20 | **21** |
+| `main` *(in rust-ast.src.main)* | 6 | 0 | 21 | **21** |
+
+```toon markpact:analysis path=project/calls.toon.yaml
+# code2llm call graph | /home/tom/github/autogrammar/todo2code
+# generated in 0.28s
+# nodes: 454 | edges: 500 | modules: 40
+# CC̄=3.8
+
+HUBS[20]:
+  src.extractors.ast.typescript.extractTypeScriptFile
+    CC=43  in:0  out:44  total:44
+  src.extractors.ast.typescript.visit
+    CC=25  in:1  out:26  total:27
+  src.extractors.todo.extractTodo
+    CC=5  in:0  out:24  total:24
+  src.extractors.nl-llm.NlLlmRequiredError.extractNlIntentAudited
+    CC=10  in:0  out:22  total:22
+  rust-ast.src.main.collect_files
+    CC=9  in:1  out:20  total:21
+  src.extractors.git.extractGitIntent
+    CC=13  in:0  out:21  total:21
+  src.extractors.ast.extractAstIntent
+    CC=12  in:1  out:20  total:21
+  rust-ast.src.main.main
+    CC=6  in:0  out:21  total:21
+  src.extractors.nl.extractNlIntent
+    CC=5  in:0  out:20  total:20
+  src.extractors.todo.relative
+    CC=5  in:0  out:20  total:20
+  src.extractors.todo.body
+    CC=5  in:0  out:20  total:20
+  src.extractors.todo.lines
+    CC=5  in:0  out:20  total:20
+  rust-ast.src.main.add
+    CC=1  in:9  out:10  total:19
+  src.semantic.reranker-llm.SemanticRerankerRequiredError.rerankSemanticCandidates
+    CC=25  in:0  out:19  total:19
+  src.graph.diff.diffIntentGraphs
+    CC=11  in:0  out:19  total:19
+  src.extractors.markdown-paths.buildBasenameIndex
+    CC=17  in:3  out:16  total:19
+  src.extractors.changelog.extractChangelog
+    CC=10  in:0  out:19  total:19
+  src.core.truth-map.RecordComponents.projectTruthMap
+    CC=7  in:0  out:18  total:18
+  src.extractors.docs-deterministic.convertDocument
+    CC=18  in:3  out:13  total:16
+  java.JavaAstExtract.JavaAstExtract.main
+    CC=10  in:0  out:16  total:16
+
+MODULES:
+  examples.backend.src.server  [12 funcs]
+    createBackend  CC=4  out:5
+    event  CC=1  out:1
+    handleRequest  CC=16  out:12
+    limit  CC=1  out:1
+    offset  CC=1  out:1
+    readBody  CC=3  out:5
+    sendJson  CC=1  out:4
+    server  CC=3  out:4
+    size  CC=3  out:3
+    startBackend  CC=3  out:3
+  examples.backend.src.validation  [7 funcs]
+    ALLOWED_ACTIONS  CC=10  out:5
+    action  CC=2  out:3
+    agent  CC=2  out:3
+    invalid  CC=1  out:0
+    object  CC=2  out:3
+    record  CC=2  out:3
+    validateEventPayload  CC=10  out:5
+  examples.frontend.src.app  [5 funcs]
+    createState  CC=1  out:0
+    mountPanel  CC=1  out:4
+    refresh  CC=4  out:6
+    reload  CC=1  out:1
+    state  CC=1  out:1
+  examples.frontend.src.render  [4 funcs]
+    classifyEvent  CC=4  out:0
+    headerRow  CC=2  out:2
+    renderTable  CC=3  out:4
+    toRows  CC=1  out:2
+  examples.src.runtime  [2 funcs]
+    executeContract  CC=1  out:1
+    validateContract  CC=2  out:1
+  java.JavaAstExtract  [10 funcs]
+    add  CC=1  out:0
+    collect  CC=1  out:11
+    containsIgnored  CC=3  out:2
+    emit  CC=1  out:3
+    escape  CC=9  out:6
+    json  CC=1  out:1
+    main  CC=10  out:16
+    map  CC=1  out:0
+    slash  CC=1  out:1
+    try  CC=3  out:13
+  rust-ast.src.main  [21 funcs]
+    add  CC=1  out:10
+    arguments  CC=5  out:9
+    collect_files  CC=9  out:20
+    excerpt  CC=1  out:7
+    main  CC=6  out:21
+    modifiers  CC=3  out:4
+    qualified  CC=2  out:3
+    slash  CC=1  out:2
+    type_item  CC=1  out:8
+    visit_expr_call  CC=1  out:9
+  src.core.content-cache  [4 funcs]
+    assertNamespace  CC=2  out:2
+    getOrCompute  CC=5  out:7
+    value  CC=1  out:1
+    write  CC=3  out:9
+  src.core.grounding  [2 funcs]
+    groundRecordIdsByDiagnostics  CC=5  out:10
+    sortedUnique  CC=1  out:3
+  src.core.id  [13 funcs]
+    createCodeChangePlanHash  CC=2  out:9
+    createCodeChangePlanId  CC=1  out:2
+    createCodeChangeSourcePatchHash  CC=3  out:9
+    createCodeChangeSourcePatchId  CC=1  out:2
+    createConclusionId  CC=1  out:5
+    createIntentId  CC=1  out:2
+    createRelationId  CC=1  out:2
+    createTodoProposalId  CC=1  out:6
+    graphFingerprint  CC=1  out:5
+    sha256  CC=1  out:3
+  src.core.ignore  [13 funcs]
+    char  CC=3  out:1
+    compileIgnorePattern  CC=4  out:8
+    createIgnoreMatcher  CC=8  out:8
+    decide  CC=5  out:1
+    escapeLiteral  CC=2  out:1
+    files  CC=3  out:4
+    loadIgnoreMatcher  CC=7  out:6
+    next  CC=2  out:1
+    normalize  CC=5  out:1
+    parseIgnoreFile  CC=2  out:4
+  src.core.record  [5 funcs]
+    buildRecord  CC=18  out:8
+    clamp  CC=1  out:3
+    extractorIdentity  CC=3  out:2
+    generationMetadata  CC=15  out:1
+    sourcePrefix  CC=1  out:0
+  src.core.security  [4 funcs]
+    assertDescendant  CC=3  out:4
+    assertPathWithinRoot  CC=3  out:5
+    nearestExistingPath  CC=7  out:3
+    relative  CC=3  out:3
+  src.core.target  [8 funcs]
+    GENERIC_FILES  CC=9  out:4
+    GENERIC_SYMBOLS  CC=9  out:4
+    normalizePath  CC=1  out:2
+    normalizeSymbol  CC=1  out:2
+    normalizeTarget  CC=9  out:4
+    pathAliases  CC=5  out:8
+    symbolAliases  CC=6  out:10
+    unique  CC=1  out:5
+  src.core.text  [17 funcs]
+    GENERIC_TOPICS  CC=2  out:7
+    PATH_ROOTS  CC=13  out:12
+    STOP_WORDS  CC=17  out:5
+    classifyActionHeuristically  CC=17  out:5
+    detectModality  CC=11  out:6
+    detectPolarity  CC=8  out:4
+    extractBacktickValues  CC=4  out:4
+    extractPaths  CC=5  out:7
+    extractSymbols  CC=7  out:15
+    extractTickets  CC=2  out:7
+  src.core.truth-map  [8 funcs]
+    MAPPING_RELATIONS  CC=7  out:7
+    assertIntentGraph  CC=1  out:0
+    components  CC=3  out:4
+    connect  CC=4  out:3
+    find  CC=3  out:3
+    mappingRelations  CC=3  out:4
+    projectTruthMap  CC=7  out:18
+    requireDateTime  CC=4  out:3
+  src.extractors.ast  [5 funcs]
+    code2dsl  CC=2  out:3
+    extractAstIntent  CC=12  out:20
+    isExtractionResult  CC=5  out:3
+    isIntentRecords  CC=2  out:1
+    requireStandaloneRoot  CC=3  out:2
+  src.extractors.ast.external  [3 funcs]
+    execFileAsync  CC=3  out:0
+    result  CC=2  out:1
+    runExternalAstAdapter  CC=9  out:6
+  src.extractors.ast.records  [7 funcs]
+    adapterRecords  CC=2  out:3
+    boundedCapabilities  CC=1  out:6
+    capabilities  CC=1  out:2
+    end  CC=1  out:2
+    moduleRecords  CC=6  out:14
+    moduleTopicText  CC=2  out:1
+    start  CC=1  out:2
+  src.extractors.ast.typescript  [14 funcs]
+    add  CC=14  out:7
+    callee  CC=2  out:2
+    capabilities  CC=1  out:2
+    declarationIsCallable  CC=4  out:2
+    excerpt  CC=1  out:2
+    extractTypeScriptFile  CC=43  out:44
+    isTopLevel  CC=5  out:3
+    languageName  CC=2  out:3
+    lineRange  CC=1  out:3
+    modifiers  CC=4  out:4
+  src.extractors.changelog  [5 funcs]
+    body  CC=7  out:15
+    changelogAction  CC=11  out:3
+    extractChangelog  CC=10  out:19
+    lines  CC=7  out:15
+    relative  CC=7  out:15
+  src.extractors.configuration  [24 funcs]
+    bounded  CC=1  out:3
+    config2dsl  CC=2  out:3
+    configurationFormat  CC=6  out:4
+    configurationRecords  CC=4  out:12
+    dockerEntries  CC=6  out:6
+    entries  CC=1  out:3
+    entry  CC=1  out:1
+    extractConfigurationIntent  CC=4  out:10
+    fileAggregate  CC=3  out:10
+    files  CC=4  out:5
+  src.extractors.docs-chunks  [15 funcs]
+    chunkMarkdown  CC=8  out:9
+    chunkPriority  CC=3  out:4
+    flush  CC=2  out:2
+    index  CC=1  out:3
+    item  CC=1  out:3
+    mapConcurrent  CC=3  out:7
+    markdownSections  CC=4  out:2
+    needles  CC=1  out:2
+    prioritizeDocumentChunks  CC=3  out:6
+    sectionLines  CC=2  out:3
+  src.extractors.docs-deterministic  [25 funcs]
+    action  CC=3  out:6
+    block  CC=1  out:1
+    bullet  CC=4  out:3
+    codeBlockRecord  CC=2  out:2
+    convertDocument  CC=18  out:13
+    docs2dsl  CC=3  out:6
+    extractDocumentationBaseline  CC=4  out:8
+    fenceMatch  CC=7  out:5
+    files  CC=1  out:1
+    level  CC=3  out:2
+  src.extractors.docs-llm  [8 funcs]
+    errorMessage  CC=2  out:1
+    extractChunk  CC=12  out:8
+    extractDocumentationIntent  CC=3  out:12
+    files  CC=3  out:7
+    loadDocumentChunks  CC=4  out:8
+    readPrompt  CC=2  out:6
+    requireConfiguredClient  CC=3  out:4
+    selectWithinBudget  CC=2  out:3
+  src.extractors.docs-record  [20 funcs]
+    OBJECT_PLACEHOLDERS  CC=14  out:13
+    action  CC=11  out:7
+    allowedAction  CC=1  out:1
+    allowedLifecycle  CC=1  out:1
+    allowedModality  CC=1  out:1
+    anchorToSource  CC=7  out:10
+    clampLine  CC=1  out:3
+    fallback  CC=2  out:1
+    hasTarget  CC=4  out:1
+    isPlaceholder  CC=3  out:3
+  src.extractors.docs-schema  [5 funcs]
+    documentRecord  CC=1  out:8
+    documentResponseContract  CC=1  out:2
+    documentResponseSchema  CC=1  out:1
+    strings  CC=1  out:2
+    target  CC=1  out:2
+  src.extractors.git  [10 funcs]
+    count  CC=3  out:2
+    execFileAsync  CC=1  out:0
+    extractChangedSymbols  CC=9  out:3
+    extractGitIntent  CC=13  out:21
+    readChangedFiles  CC=6  out:5
+    readCommits  CC=1  out:7
+    readStats  CC=6  out:4
+    result  CC=1  out:1
+    root  CC=3  out:2
+    runGit  CC=1  out:1
+  src.extractors.markdown-paths  [9 funcs]
+    MAX_INDEXED_FILES  CC=12  out:12
+    PATH_SEARCH_EXCLUDES  CC=12  out:12
+    basenames  CC=11  out:10
+    buildBasenameIndex  CC=17  out:16
+    createMarkdownPathResolver  CC=12  out:12
+    headingDirectories  CC=11  out:9
+    headingScopes  CC=4  out:6
+    isRepositoryPath  CC=5  out:3
+    repositoryRoot  CC=11  out:11
+  src.extractors.nl  [12 funcs]
+    absolute  CC=2  out:14
+    action  CC=1  out:9
+    assertNlExtractionOptions  CC=9  out:2
+    body  CC=2  out:14
+    classified  CC=1  out:9
+    confidence  CC=1  out:9
+    detectMissingFields  CC=10  out:5
+    extractNlIntent  CC=5  out:20
+    inferActor  CC=5  out:2
+    missing  CC=1  out:9
+  src.extractors.nl-llm  [33 funcs]
+    NL_RECORD_CONTRACT  CC=1  out:7
+    action  CC=1  out:1
+    allowedAction  CC=1  out:1
+    allowedModality  CC=1  out:1
+    audit  CC=1  out:1
+    clampLine  CC=1  out:3
+    deterministic  CC=1  out:1
+    end  CC=1  out:1
+    excerpt  CC=1  out:1
+    extractNlWithCorrection  CC=1  out:0
+  src.extractors.runtime-cycle  [17 funcs]
+    MAX_PER_SECTION  CC=8  out:12
+    boundedArray  CC=8  out:4
+    driftRecord  CC=5  out:5
+    extractRuntimeCycleIntent  CC=8  out:12
+    factsMetadata  CC=5  out:3
+    jsonScalar  CC=6  out:1
+    label  CC=2  out:1
+    parseCycle  CC=7  out:5
+    probeRecord  CC=9  out:8
+    proposalAction  CC=5  out:0
+  src.extractors.todo  [16 funcs]
+    action  CC=2  out:12
+    block  CC=2  out:12
+    body  CC=5  out:20
+    checked  CC=2  out:12
+    classified  CC=2  out:12
+    extractExplicitId  CC=5  out:3
+    extractTodo  CC=5  out:24
+    heading  CC=1  out:1
+    inferOwner  CC=4  out:1
+    lines  CC=5  out:20
+  src.graph.capability-evidence  [5 funcs]
+    aggregateCapabilityOverlap  CC=10  out:4
+    aggregateCapabilityTopics  CC=2  out:5
+    declaredCapabilityTopics  CC=3  out:3
+    hasCapabilityClaim  CC=1  out:1
+    isFileAggregate  CC=2  out:0
+  src.graph.changelog-signal  [6 funcs]
+    GENERATED_ANALYSIS_BASENAMES  CC=6  out:5
+    isActionableChangelogRecord  CC=6  out:5
+    isFileOnlyUpdate  CC=6  out:7
+    isFileSummary  CC=3  out:1
+    isPlaceholder  CC=6  out:3
+    match  CC=1  out:0
+  src.graph.diff  [26 funcs]
+    afterGroups  CC=7  out:6
+    afterRecord  CC=1  out:3
+    assertGraph  CC=3  out:3
+    beforeGroups  CC=7  out:6
+    beforeRecord  CC=1  out:3
+    changedFieldPaths  CC=6  out:6
+    compareRelations  CC=1  out:2
+    diffIntentGraphs  CC=11  out:19
+    escapeXml  CC=2  out:1
+    groupRecords  CC=4  out:6
+  src.graph.symbol-resolution  [10 funcs]
+    buildSymbolResolutionIndex  CC=15  out:13
+    byAlias  CC=9  out:8
+    byNlRecord  CC=4  out:3
+    hasResolvedNlAstSymbolPair  CC=10  out:3
+    isAstDeclaration  CC=3  out:0
+    pathSelects  CC=3  out:5
+    resolveSymbol  CC=8  out:6
+    selected  CC=2  out:1
+    uniquePaths  CC=1  out:3
+    values  CC=2  out:0
+  src.semantic.reranker-llm  [8 funcs]
+    assertSemanticCandidateSet  CC=2  out:1
+    assertSemanticRerankResult  CC=2  out:1
+    assertTrackedSnapshot  CC=1  out:0
+    model  CC=4  out:2
+    modelRevision  CC=4  out:2
+    payload  CC=1  out:3
+    projectRecord  CC=3  out:3
+    rerankSemanticCandidates  CC=25  out:19
+  src.services.branch-portfolio-assembler  [30 funcs]
+    afterToBefore  CC=5  out:4
+    assembleBranchPortfolio  CC=1  out:9
+    assertionAnchors  CC=4  out:3
+    baseAssertions  CC=5  out:4
+    baseBundle  CC=1  out:3
+    buildCandidateState  CC=1  out:8
+    buildPairEvidence  CC=7  out:6
+    bundles  CC=3  out:4
+    candidateByBase  CC=5  out:4
+    changeFromAssertions  CC=1  out:2
+  src.tf.classifier  [6 funcs]
+    classifyAction  CC=17  out:12
+    dynamicImport  CC=1  out:3
+    importer  CC=1  out:0
+    loadAssets  CC=2  out:6
+    loadClassifier  CC=6  out:5
+    vectorize  CC=6  out:5
+
+EDGES:
+  rust-ast.src.main.main → rust-ast.src.main.arguments
+  rust-ast.src.main.main → rust-ast.src.main.collect_files
+  rust-ast.src.main.main → rust-ast.src.main.slash
+  rust-ast.src.main.collect_files → rust-ast.src.main.slash
+  rust-ast.src.main.add → rust-ast.src.main.excerpt
+  rust-ast.src.main.visit_item_mod → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_mod → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_use → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_struct → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_enum → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_trait → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_type → rust-ast.src.main.type_item
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_const → rust-ast.src.main.modifiers
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.add
+  rust-ast.src.main.visit_item_static → rust-ast.src.main.modifiers
+  rust-ast.src.main.visit_item_fn → rust-ast.src.main.qualified
+  rust-ast.src.main.visit_item_fn → rust-ast.src.main.add
+  rust-ast.src.main.visit_impl_item_fn → rust-ast.src.main.add
+  rust-ast.src.main.visit_expr_call → rust-ast.src.main.add
+  rust-ast.src.main.visit_expr_method_call → rust-ast.src.main.add
+  rust-ast.src.main.type_item → rust-ast.src.main.qualified
+  rust-ast.src.main.type_item → rust-ast.src.main.add
+  rust-ast.src.main.type_item → rust-ast.src.main.modifiers
+  examples.src.runtime.executeContract → examples.src.runtime.validateContract
+  examples.backend.src.validation.ALLOWED_ACTIONS → examples.backend.src.validation.invalid
+  examples.backend.src.validation.validateEventPayload → examples.backend.src.validation.invalid
+  examples.backend.src.validation.record → examples.backend.src.validation.invalid
+  examples.backend.src.validation.agent → examples.backend.src.validation.invalid
+  examples.backend.src.validation.action → examples.backend.src.validation.invalid
+  examples.backend.src.validation.object → examples.backend.src.validation.invalid
+  examples.frontend.src.app.mountPanel → examples.frontend.src.app.createState
+  examples.frontend.src.app.mountPanel → examples.frontend.src.app.refresh
+  examples.frontend.src.app.mountPanel → examples.frontend.src.app.reload
+  examples.frontend.src.app.mountPanel → examples.frontend.src.app.state
+  examples.frontend.src.app.state → examples.frontend.src.app.refresh
+  examples.frontend.src.app.reload → examples.frontend.src.app.refresh
+  src.extractors.nl.extractNlIntent → src.extractors.nl.assertNlExtractionOptions
+  src.extractors.nl.extractNlIntent → src.extractors.nl.detectMissingFields
+  src.extractors.nl.absolute → src.extractors.nl.detectMissingFields
+  src.extractors.nl.absolute → src.extractors.nl.inferActor
+  src.extractors.nl.body → src.extractors.nl.detectMissingFields
+  src.extractors.nl.body → src.extractors.nl.inferActor
+  src.extractors.nl.sourcePath → src.extractors.nl.detectMissingFields
+  src.extractors.nl.sourcePath → src.extractors.nl.inferActor
+  src.extractors.nl.classified → src.extractors.nl.inferActor
+  src.extractors.nl.action → src.extractors.nl.inferActor
+  src.extractors.nl.object → src.extractors.nl.inferActor
+```
+
+## Test Contracts
+
+*Scenarios as contract signatures — what the system guarantees.*
+
+### Cli (1)
+
+**`CLI Command Tests`**
+
+## Intent
+
+Dependency-free Python SDK for todo2code A2A and the local TypeScript runtime

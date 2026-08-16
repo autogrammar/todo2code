@@ -1,51 +1,27 @@
 import { randomUUID } from 'node:crypto';
 import type { T2CConfig } from '../config/env.js';
-import type { LlmResponseMetadata } from '../core/types.js';
 import { StructuredResponseError, type StructuredSchema } from './structured-schema.js';
 import { openRouterRequestTimeout, type OpenRouterTimeoutDecision } from './openrouter-timeout.js';
+import {
+  extractContent,
+  formatInvalidModelError,
+  isInvalidModelError,
+  parseJsonResponse,
+  parseProviderResponse,
+  responseMetadata,
+  responseProviderLabel,
+  type OpenRouterResponse,
+  type OpenRouterResult,
+} from './openrouter-parse.js';
+import { redactProviderFailureText } from './openrouter-redact.js';
 import { resolveSubllmRoute, shouldUseSubllm, type ResolvedSubllmRoute } from './subllm.js';
-
-const BEARER_CREDENTIAL_RE = new RegExp('\\bBearer\\s+[A-Za-z0-9._~-]{8,}', 'giu');
-const OPENROUTER_CREDENTIAL_RE = /\bsk-or-v1-[A-Za-z0-9_-]+/gu;
-const SECRET_ASSIGNMENT_RE = new RegExp(
-  '\\b((?:api|access)[-_\\s]?key|client[-_\\s]?secret|token|password)\\s*[:=#]\\s*[A-Za-z0-9_./+=~-]{12,}\\b',
-  'giu',
-);
-const PROVIDER_MANAGEMENT_URL_RE = /https?:\/\/[^\s<>"']*(?:\/(?:keys?|credentials?)(?:\/|[?#]|$))[^\s<>"']*/giu;
-const CREDENTIAL_IDENTIFIER_RE = new RegExp(
-  '\\b((?:api[-_\\s]?key|credential|key)[-_\\s]?(?:id|fingerprint))\\s*[:=#]?\\s*[A-Za-z0-9_-]{20,}\\b',
-  'giu',
-);
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
-interface OpenRouterChoice {
-  message?: {
-    content?: string | Array<{ type?: string; text?: string }>;
-  };
-}
-
-interface OpenRouterResponse {
-  id?: string;
-  model?: string;
-  provider?: string;
-  usage?: {
-    prompt_tokens?: number;
-    completion_tokens?: number;
-    total_tokens?: number;
-    cost?: number;
-  };
-  choices?: OpenRouterChoice[];
-  error?: { message?: string };
-}
-
-export interface OpenRouterResult<T> {
-  value: T;
-  metadata: LlmResponseMetadata;
-}
+export type { OpenRouterResult } from './openrouter-parse.js';
 
 interface OpenRouterModelsResponse {
   data?: Array<{ id?: string }>;
@@ -382,38 +358,6 @@ function providerRequestBody(body: Record<string, unknown>, transport: LlmTransp
   }) as Record<string, unknown>;
 }
 
-function parseProviderResponse(
-  text: string,
-  status: number,
-  credential: string,
-  providerLabel: string,
-): OpenRouterResponse {
-  try {
-    return JSON.parse(text) as OpenRouterResponse;
-  } catch {
-    throw new Error(
-      `${providerLabel} returned non-JSON HTTP ${status}: `
-      + redactProviderFailureText(text.slice(0, 500), credential),
-    );
-  }
-}
-
-/**
- * Provider error bodies are untrusted external text. Keep their useful status
- * explanation, but never let a credential, stable credential identifier or
- * account-management URL cross the common LLM boundary.
- */
-function redactProviderFailureText(message: string, configuredCredential: string | null): string {
-  let redacted = message;
-  if (configuredCredential) redacted = redacted.split(configuredCredential).join('[redacted-credential]');
-  return redacted
-    .replace(BEARER_CREDENTIAL_RE, 'Bearer [redacted-credential]')
-    .replace(OPENROUTER_CREDENTIAL_RE, '[redacted-credential]')
-    .replace(SECRET_ASSIGNMENT_RE, '$1=[redacted-credential]')
-    .replace(PROVIDER_MANAGEMENT_URL_RE, '[redacted-provider-management-url]')
-    .replace(CREDENTIAL_IDENTIFIER_RE, '$1 [redacted-credential-id]');
-}
-
 function normalizeRequestError(
   caught: unknown,
   externalSignal: AbortSignal | undefined,
@@ -448,46 +392,9 @@ async function waitForRetry(
   }
 }
 
-function responseMetadata(response: OpenRouterResponse): LlmResponseMetadata {
-  const usage = response.usage;
-  return {
-    responseId: stringOrNull(response.id),
-    model: stringOrNull(response.model),
-    provider: stringOrNull(response.provider),
-    usage: usage ? {
-      promptTokens: finiteOrNull(usage.prompt_tokens),
-      completionTokens: finiteOrNull(usage.completion_tokens),
-      totalTokens: finiteOrNull(usage.total_tokens),
-      cost: finiteOrNull(usage.cost),
-    } : null,
-  };
-}
-
-function stringOrNull(value: unknown): string | null {
-  return typeof value === 'string' && value.trim() ? value.trim() : null;
-}
-
-function finiteOrNull(value: unknown): number | null {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
 function shouldRetryWithoutJsonSchema(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   return /OpenRouter HTTP 4\d\d:|OpenRouter returned non-JSON|response does not contain choices|returned invalid JSON/i.test(error.message);
-}
-
-function isInvalidModelError(status: number, message: string): boolean {
-  return status === 400 && /(?:not a valid model ID|invalid model(?: ID)?|model ID .*not found)/i.test(message);
-}
-
-function formatInvalidModelError(
-  message: string,
-  availableModels: string[],
-  providerLabel: LlmTransport['providerLabel'],
-): string {
-  const heading = `Available ${providerLabel} models (${availableModels.length}):`;
-  if (!availableModels.length) return `${message}\n${heading}\n(none returned)`;
-  return `${message}\n${heading}\n${availableModels.map((model) => `- ${model}`).join('\n')}`;
 }
 
 function removeUndefined(value: unknown): unknown {
@@ -502,47 +409,6 @@ function removeUndefined(value: unknown): unknown {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
-function extractContent(response: OpenRouterResponse): string {
-  const content = response.choices?.[0]?.message?.content;
-  if (typeof content === 'string') return content;
-  if (Array.isArray(content)) return content.map((part) => part.text ?? '').join('');
-  throw new Error(`${responseProviderLabel(response)} response does not contain choices[0].message.content`);
-}
-
-function parseJsonContent<T>(content: string, providerLabel: string): T {
-  const trimmed = content.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-  try {
-    return JSON.parse(trimmed) as T;
-  } catch (error) {
-    const start = trimmed.indexOf('{');
-    const end = trimmed.lastIndexOf('}');
-    if (start >= 0 && end > start) {
-      try {
-        return JSON.parse(trimmed.slice(start, end + 1)) as T;
-      } catch {
-        // Fall through to the detailed error below.
-      }
-    }
-    throw new Error(`${providerLabel} JSON parsing failed: ${error instanceof Error ? error.message : String(error)}; response=${trimmed.slice(0, 500)}`);
-  }
-}
-
-function parseJsonResponse<T>(response: OpenRouterResponse): OpenRouterResult<T> {
-  const metadata = responseMetadata(response);
-  try {
-    return { value: parseJsonContent<T>(extractContent(response), responseProviderLabel(response)), metadata };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new StructuredResponseError(message, metadata);
-  }
-}
-
-function responseProviderLabel(response: OpenRouterResponse): string {
-  if (response.provider === 'zai') return 'Z.AI';
-  if (response.provider === 'openrouter') return 'OpenRouter';
-  return 'LLM';
 }
 
 function sleep(milliseconds: number, signal: AbortSignal): Promise<void> {
