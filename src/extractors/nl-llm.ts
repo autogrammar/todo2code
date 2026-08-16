@@ -172,32 +172,56 @@ function markDeterministic(records: IntentRecord[], degraded: boolean, fallbackR
   }));
 }
 
-function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxLine: number, config: T2CConfig, response: LlmResponseMetadata): IntentRecord {
+function sourceEvidence(
+  raw: RawNlRecord,
+  body: string,
+  maxLine: number,
+): { start: number; end: number; excerpt: string } {
   const start = clampLine(raw.sourceLines?.start ?? 1, 1, maxLine);
   const end = clampLine(raw.sourceLines?.end ?? start, start, maxLine);
   const lines = body.split(/\r?\n/);
-  const excerpt = lines.slice(start - 1, end).join('\n').slice(0, 2000);
+  return { start, end, excerpt: lines.slice(start - 1, end).join('\n').slice(0, 2000) };
+}
+
+function normalizeRawStatement(raw: RawNlRecord): {
+  action: IntentAction;
+  object: string;
+  text: string;
+  modality: Modality;
+  missingFields: string[];
+} {
   const action = allowedAction(raw.action) ? raw.action : 'unknown';
   const { object, missingFields } = resolveObject(raw, action);
   const normalizedText = nonEmptyText(raw.text);
   if (normalizedText === null) missingFields.push('text');
-  const statementText = normalizedText ?? object;
+  return {
+    action,
+    object,
+    text: normalizedText ?? object,
+    modality: allowedModality(raw.modality) ? raw.modality : 'unknown',
+    missingFields,
+  };
+}
+
+function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxLine: number, config: T2CConfig, response: LlmResponseMetadata): IntentRecord {
+  const source = sourceEvidence(raw, body, maxLine);
+  const statement = normalizeRawStatement(raw);
   return buildRecord({
     kind: raw.kind || 'declared_intent',
     actor: raw.actor ?? null,
-    action,
+    action: statement.action,
     subject: raw.subject ?? null,
-    object,
+    object: statement.object,
     target: raw.target,
-    modality: allowedModality(raw.modality) ? raw.modality : 'unknown',
+    modality: statement.modality,
     polarity: raw.polarity === 'negative' ? 'negative' : 'positive',
-    text: statementText,
+    text: statement.text,
     lifecycle: 'proposed',
     sourceKind: 'nl',
     sourcePath,
-    sourceLines: { start, end },
+    sourceLines: { start: source.start, end: source.end },
     extractor: 't2c/nl-openrouter@1',
-    rawExcerpt: excerpt || statementText,
+    rawExcerpt: source.excerpt || statement.text,
     epistemicClass: 'llm_inference',
     confidence: Math.min(0.9, Math.max(0.05, Number(raw.confidence) || 0.5)),
     basis: [...new Set(['openrouter_structured_extraction', ...(raw.basis ?? [])])],
@@ -206,7 +230,7 @@ function toIntentRecord(raw: RawNlRecord, sourcePath: string, body: string, maxL
       model: response.model ?? config.openRouter.nlModel, responseId: response.responseId,
     },
     metadata: {
-      missingFields,
+      missingFields: statement.missingFields,
       llmUsed: true,
       response,
     },

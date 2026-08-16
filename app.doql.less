@@ -1,0 +1,225 @@
+// LESS format — define @variables here as needed
+
+app {
+  name: todo2code;
+  version: 0.5.1;
+}
+
+workflow[name="setup"] {
+  trigger: manual;
+  step-1: run cmd=test -f .env || cp .env.example .env;
+  step-2: run cmd=$(NPM) install --omit=optional;
+}
+
+workflow[name="install"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) install --omit=optional;
+}
+
+workflow[name="install-tf"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) --prefix adapters/tensorflow install;
+}
+
+workflow[name="build"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run build;
+}
+
+workflow[name="check"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run check;
+}
+
+workflow[name="test"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) test;
+}
+
+workflow[name="verify-no-llm"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run verify:no-llm;
+}
+
+workflow[name="verify-modules"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run verify:modules;
+}
+
+workflow[name="verify-env"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run verify:env;
+}
+
+workflow[name="verify"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run verify;
+}
+
+workflow[name="governance"] {
+  trigger: manual;
+  step-1: run cmd=bash project/governance-check.sh --actor agent;
+}
+
+workflow[name="smoke"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/smoke.sh;
+}
+
+workflow[name="doctor"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/cli.js doctor;
+}
+
+workflow[name="mcp-probe"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/mcp-request.sh;
+}
+
+workflow[name="a2a-probe"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/a2a-request.sh;
+}
+
+workflow[name="protocol-smoke"] {
+  trigger: manual;
+  step-1: depend target=mcp-probe;
+  step-2: depend target=a2a-probe;
+}
+
+workflow[name="validate"] {
+  trigger: manual;
+  step-1: depend target=verify;
+  step-2: depend target=smoke;
+  step-3: depend target=protocol-smoke;
+  step-4: depend target=doctor;
+  step-5: depend target=docker-smoke;
+}
+
+workflow[name="live-contract-check"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run live:check;
+}
+
+workflow[name="live-model-comparison"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run live:models;
+}
+
+workflow[name="demo"] {
+  trigger: manual;
+  step-1: run cmd=OPENROUTER_API_KEY= T2C_NL_MODE=deterministic T2C_MARKDOWN_MODE=deterministic T2C_COMMUNICATION_MODE=deterministic $(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --no-docs-llm --no-summary-llm --out .intent-demo;
+  step-2: run cmd=T2C_COMMUNICATION_MODE=deterministic $(NODE) dist/src/cli.js communication examples --project-dir project --ticket DEMO-101 --out examples/.intent-communication/analysis.json --md examples/.intent-communication/analysis.md --graph examples/.intent-communication/graph.json;
+}
+
+workflow[name="demollm"] {
+  trigger: manual;
+  step-1: run cmd=OPENROUTER_TIMEOUT_MS=300000 T2C_DOC_TIMEOUT_MS=300000 $(NODE) dist/src/cli.js pipeline examples --task task.md --todo TODO.md --changelog CHANGELOG.md --docs 'docs/**/*.md' --nl-mode require-llm --markdown-mode require-llm --communication-mode require-llm --summary-fallback false --task-mode require-llm --out .intent-demo-llm;
+  step-2: run cmd=$(NODE) scripts/assert-demollm-run.mjs examples .intent-demo-llm;
+}
+
+workflow[name="examples-check"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/examples-check.sh;
+}
+
+workflow[name="pipeline"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/cli.js pipeline "$(ROOT)" --task "$(TASK)" --todo "$(TODO)" --changelog "$(CHANGELOG)" --docs "$(DOCS)" --out "$(OUT)";
+}
+
+workflow[name="compare-workspace"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/cli.js compare-workspace "$(ROOT)" --base "$${BASE_REF:-origin/main}" --out "$(OUT)";
+}
+
+workflow[name="preflight"] {
+  trigger: manual;
+  step-1: run cmd=$(NPM) run build >&2;
+  step-2: run cmd=$(NODE) scripts/workspace-preflight.mjs \;
+  step-3: run cmd=--root $(call shell_quote,PREFLIGHT_ROOT) \;
+  step-4: run cmd=--baseline $(call shell_quote,PREFLIGHT_BASELINE) \;
+  step-5: run cmd=--expected-branch $(call shell_quote,PREFLIGHT_EXPECTED_BRANCH) \;
+  step-6: run cmd=--actor $(call shell_quote,PREFLIGHT_ACTOR);
+}
+
+workflow[name="mcp"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/interfaces/mcp.js;
+}
+
+workflow[name="a2a"] {
+  trigger: manual;
+  step-1: run cmd=$(NODE) dist/src/interfaces/a2a.js;
+}
+
+workflow[name="docker-build"] {
+  trigger: manual;
+  step-1: run cmd=docker build -t todo2code:local .;
+}
+
+workflow[name="docker-smoke"] {
+  trigger: manual;
+  step-1: run cmd=bash scripts/docker-smoke.sh;
+}
+
+workflow[name="docker-up"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f docker-compose.yml up --build -d;
+}
+
+workflow[name="docker-down"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f docker-compose.yml down;
+}
+
+workflow[name="e2e-core"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f $(E2E_COMPOSE) build e2e-core;
+  step-2: run cmd=docker compose -f $(E2E_COMPOSE) run --rm --no-deps e2e-core;
+}
+
+workflow[name="e2e-full"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f $(E2E_COMPOSE) build e2e-full;
+  step-2: run cmd=docker compose -f $(E2E_COMPOSE) run --rm --no-deps e2e-full;
+}
+
+workflow[name="e2e-clean"] {
+  trigger: manual;
+  step-1: run cmd=docker compose -f $(E2E_COMPOSE) down --remove-orphans --rmi all;
+}
+
+workflow[name="python-wheel"] {
+  trigger: manual;
+  step-1: run cmd=mkdir -p "$(PYTHON_WHEEL_DIR)";
+  step-2: run cmd=$(PYTHON) -m pip wheel . --no-deps --wheel-dir "$(PYTHON_WHEEL_DIR)";
+}
+
+workflow[name="package"] {
+  trigger: manual;
+  step-1: run cmd=$(PYTHON) scripts/package.py "$(PACKAGE)";
+}
+
+workflow[name="clean"] {
+  trigger: manual;
+  step-1: run cmd=rm -rf dist coverage .intent-demo .intent-test *.zip;
+}
+
+env_vars {
+  keys: T2C_ENV_FILE, T2C_ROOT, T2C_OUTPUT_DIR, T2C_GIT_COMMIT_COUNT, T2C_MAX_FILE_BYTES, T2C_DOC_CONCURRENCY, T2C_DOC_CHUNK_CHARS, T2C_DOC_MAX_CHUNKS, T2C_DOC_MAX_RECORDS_PER_CHUNK, T2C_DOC_TIMEOUT_MS, T2C_PYTHON, T2C_ENABLE_PYTHON_AST, T2C_GO, T2C_ENABLE_GO_AST, T2C_JAVA, T2C_ENABLE_JAVA_AST, T2C_CARGO, T2C_ENABLE_RUST_AST, T2C_PHP, T2C_ENABLE_PHP_AST, T2C_ALLOW_OUTSIDE_ROOT, T2C_ENABLE_TF, T2C_TF_MODEL_PATH, T2C_TF_MODULE_PATH, T2C_TF_LABELS, T2C_NL_MODE, T2C_MARKDOWN_MODE, T2C_COMMUNICATION_MODE, OPENROUTER_API_KEY, OPENROUTER_BASE_URL, OPENROUTER_MODEL, OPENROUTER_NL_MODEL, OPENROUTER_MARKDOWN_MODEL, OPENROUTER_COMMUNICATION_MODEL, OPENROUTER_DOC_MODEL, OPENROUTER_SUMMARY_MODEL, OPENROUTER_TASK_MODEL, OPENROUTER_SITE_URL, OPENROUTER_APP_NAME, OPENROUTER_TIMEOUT_MS, OPENROUTER_MAX_TOKENS, OPENROUTER_TEMPERATURE, OPENROUTER_REQUIRE_STRUCTURED_OUTPUT, OPENROUTER_RESPONSE_HEALING, T2C_REQUIRE_LIVE_CHECK, T2C_LIVE_AUDIT_PATH, T2C_LIVE_HISTORY_PATH, T2C_LIVE_RUN_OUTPUT, T2C_LIVE_MAX_STAGE_LATENCY_MS, T2C_LIVE_MAX_LATENCY_MS, T2C_LIVE_MAX_TOTAL_LATENCY_MS, T2C_LIVE_MAX_COST_USD, T2C_LIVE_COMPARE_MODELS, T2C_LIVE_COMPARE_ROOT, T2C_LIVE_COMPARE_TIMEOUT_MS, T2C_LIVE_COMPARE_PATH, T2C_LIVE_COMPARE_MD_PATH, T2C_DOC_PATTERNS, T2C_MARKDOWN_CONCURRENCY, T2C_DOC_EXCLUDES, T2C_MCP_SERVER_NAME, T2C_MCP_SERVER_VERSION, T2C_A2A_HOST, T2C_A2A_PORT, T2C_A2A_PUBLIC_URL, T2C_A2A_TOKEN, T2C_A2A_MAX_BODY_BYTES, T2C_A2A_TASK_STORE, T2C_WORKSPACE, T2C_DOCKER_HOST_PORT, T2C_A2A_URL, T2C_EXAMPLE_ROOT, T2C_COMPARE_WORKSPACE, T2C_COMPARE_BASE, T2C_TYPESCRIPT_CLI;
+}
+
+deploy {
+  target: docker-compose;
+  compose_file: docker-compose.yml;
+}
+
+environment[name="local"] {
+  runtime: docker-compose;
+  env_file: .env.example;
+  template_file: .env.example;
+  python_version: >=3.10;
+  vars: OPENROUTER_API_KEY, OPENROUTER_APP_NAME, OPENROUTER_BASE_URL, OPENROUTER_COMMUNICATION_MODEL, OPENROUTER_DOC_MODEL, OPENROUTER_MARKDOWN_MODEL, OPENROUTER_MAX_TOKENS, OPENROUTER_MODEL, OPENROUTER_NL_MODEL, OPENROUTER_REQUIRE_STRUCTURED_OUTPUT, OPENROUTER_RESPONSE_HEALING, OPENROUTER_SITE_URL, OPENROUTER_SUMMARY_MODEL, OPENROUTER_TASK_MODEL, OPENROUTER_TEMPERATURE, OPENROUTER_TIMEOUT_MS, T2C_A2A_HOST, T2C_A2A_MAX_BODY_BYTES, T2C_A2A_PORT, T2C_A2A_PUBLIC_URL, T2C_A2A_TASK_STORE, T2C_A2A_TOKEN, T2C_A2A_URL, T2C_ALLOW_OUTSIDE_ROOT, T2C_CARGO, T2C_COMMUNICATION_MODE, T2C_COMPARE_BASE, T2C_COMPARE_WORKSPACE, T2C_DOCKER_HOST_PORT, T2C_DOC_CHUNK_CHARS, T2C_DOC_CONCURRENCY, T2C_DOC_EXCLUDES, T2C_DOC_MAX_CHUNKS, T2C_DOC_MAX_RECORDS_PER_CHUNK, T2C_DOC_PATTERNS, T2C_DOC_TIMEOUT_MS, T2C_ENABLE_GO_AST, T2C_ENABLE_JAVA_AST, T2C_ENABLE_PHP_AST, T2C_ENABLE_PYTHON_AST, T2C_ENABLE_RUST_AST, T2C_ENABLE_TF, T2C_ENV_FILE, T2C_EXAMPLE_ROOT, T2C_GIT_COMMIT_COUNT, T2C_GO, T2C_JAVA, T2C_LIVE_AUDIT_PATH, T2C_LIVE_COMPARE_MD_PATH, T2C_LIVE_COMPARE_MODELS, T2C_LIVE_COMPARE_PATH, T2C_LIVE_COMPARE_ROOT, T2C_LIVE_COMPARE_TIMEOUT_MS, T2C_LIVE_HISTORY_PATH, T2C_LIVE_MAX_COST_USD, T2C_LIVE_MAX_LATENCY_MS, T2C_LIVE_MAX_STAGE_LATENCY_MS, T2C_LIVE_MAX_TOTAL_LATENCY_MS, T2C_LIVE_RUN_OUTPUT, T2C_MARKDOWN_CONCURRENCY, T2C_MARKDOWN_MODE, T2C_MAX_FILE_BYTES, T2C_MCP_SERVER_NAME, T2C_MCP_SERVER_VERSION, T2C_NL_MODE, T2C_OUTPUT_DIR, T2C_PHP, T2C_PYTHON, T2C_REQUIRE_LIVE_CHECK, T2C_ROOT, T2C_TF_LABELS, T2C_TF_MODEL_PATH, T2C_TF_MODULE_PATH, T2C_TYPESCRIPT_CLI, T2C_WORKSPACE;
+  runtime_llm: OPENROUTER_API_KEY, OPENROUTER_APP_NAME, OPENROUTER_BASE_URL, OPENROUTER_COMMUNICATION_MODEL, OPENROUTER_DOC_MODEL, OPENROUTER_MARKDOWN_MODEL, OPENROUTER_MAX_TOKENS, OPENROUTER_MODEL, OPENROUTER_NL_MODEL, OPENROUTER_REQUIRE_STRUCTURED_OUTPUT, OPENROUTER_RESPONSE_HEALING, OPENROUTER_SITE_URL, OPENROUTER_SUMMARY_MODEL, OPENROUTER_TASK_MODEL, OPENROUTER_TEMPERATURE, OPENROUTER_TIMEOUT_MS;
+}

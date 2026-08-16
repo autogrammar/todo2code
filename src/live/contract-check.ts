@@ -112,20 +112,25 @@ export function missingLiveStages(manifest: PipelineManifest): LiveStageName[] {
   return LIVE_STAGE_NAMES.filter((stage) => !manifest.stages?.[stage]);
 }
 
-function measureStage(
-  stage: LiveStageName,
-  audit: PipelineStageAudit,
-  budget: LiveBudget,
-): LiveStageMeasurement {
-  const responses = audit.responses ?? [];
+function stageFailures(audit: PipelineStageAudit, responseCount: number): string[] {
   const failures: string[] = [];
   if (audit.status !== 'succeeded') failures.push(`status=${audit.status}`);
   // A deterministic fallback that still "succeeds" is exactly the silent
   // degradation this check exists to catch.
   if (audit.effectiveMode !== 'llm') failures.push(`effectiveMode=${audit.effectiveMode}`);
   if (audit.degraded) failures.push('degraded=true');
-  if (responses.length === 0) failures.push('no LLM response metadata');
+  if (responseCount === 0) failures.push('no LLM response metadata');
   if (audit.reason) failures.push(redactLiveMessage(`${audit.reason.code}: ${audit.reason.message}`));
+  return failures;
+}
+
+function measureStage(
+  stage: LiveStageName,
+  audit: PipelineStageAudit,
+  budget: LiveBudget,
+): LiveStageMeasurement {
+  const responses = audit.responses ?? [];
+  const failures = stageFailures(audit, responses.length);
 
   const overLatency = audit.durationMs > budget.maxStageLatencyMs;
   return {

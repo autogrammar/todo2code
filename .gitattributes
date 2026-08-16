@@ -1,0 +1,7 @@
+# Deterministically generated analysis snapshots are validated by CI.
+# Keep them versioned while excluding their regenerated bodies from review diffs.
+SUMD.md -diff linguist-generated=true
+SUMR.md -diff linguist-generated=true
+docs/README.md -diff linguist-generated=true
+planfile.yaml -diff linguist-generated=true
+project/** -diff linguist-generated=true

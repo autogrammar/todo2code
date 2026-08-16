@@ -74,30 +74,76 @@ export function encodeIntakeResult(result: IntakeResult): Uint8Array {
 
 export function decodeIntakeResult(bytes: Uint8Array): IntakeResult {
   try {
-    const strings = new Map<number, string>();
-    const numbers = new Map<number, number>();
-    let offset = 0;
-    while (offset < bytes.length) {
-      const [tag, afterTag] = readVarint(bytes, offset); offset = afterTag;
-      const field = tag >>> 3; const wire = tag & 7;
-      if (wire === 0) { const [value, after] = readVarint(bytes, offset); offset = after; numbers.set(field, value); }
-      else if (wire === 2) {
-        const [length, afterLength] = readVarint(bytes, offset); offset = afterLength;
-        if (offset + length > bytes.length) throw new Error('Truncated result field');
-        strings.set(field, Buffer.from(bytes.slice(offset, offset + length)).toString('utf8')); offset += length;
-      } else throw new Error(`Unsupported result wire type ${wire}`);
-    }
-    return {
-      schemaVersion: strings.get(1) as IntakeResult['schemaVersion'], accepted: numbers.get(2) === 1,
-      messageId: strings.get(3) ?? '', correlationId: strings.get(4) ?? '', causationId: strings.get(5) ?? null,
-      authenticatedPrincipal: strings.get(6) ?? '', aggregateId: 'intake', expectedVersion: numbers.get(8) ?? null,
-      actualVersion: numbers.get(9) ?? 0, idempotencyKey: strings.get(10) ?? '', timestamp: strings.get(11) ?? '',
-      payloadHash: strings.get(12) ?? '', diagnostic: strings.has(13) ? JSON.parse(strings.get(13) as string) : null,
-      data: strings.has(14) ? JSON.parse(strings.get(14) as string) : null,
-    };
+    const fields = decodeResultFields(bytes);
+    return intakeResultFromFields(fields.strings, fields.numbers);
   } catch (error) {
     throw new IntakeError('T2C-INTAKE-INVALID-WIRE', error instanceof Error ? error.message : String(error), 'Send a valid t2c.intake-result/v1 Protobuf payload.');
   }
+}
+
+function decodeResultFields(bytes: Uint8Array): {
+  strings: Map<number, string>;
+  numbers: Map<number, number>;
+} {
+  const strings = new Map<number, string>();
+  const numbers = new Map<number, number>();
+  let offset = 0;
+  while (offset < bytes.length) {
+    const [tag, afterTag] = readVarint(bytes, offset); offset = afterTag;
+    const field = tag >>> 3; const wire = tag & 7;
+    if (wire === 0) {
+      const [value, after] = readVarint(bytes, offset); offset = after; numbers.set(field, value);
+      continue;
+    }
+    if (wire !== 2) throw new Error(`Unsupported result wire type ${wire}`);
+    const [length, afterLength] = readVarint(bytes, offset); offset = afterLength;
+    if (offset + length > bytes.length) throw new Error('Truncated result field');
+    strings.set(field, Buffer.from(bytes.slice(offset, offset + length)).toString('utf8'));
+    offset += length;
+  }
+  return { strings, numbers };
+}
+
+function resultMessageFields(strings: Map<number, string>): {
+  messageId: string;
+  correlationId: string;
+  causationId: string | null;
+  authenticatedPrincipal: string;
+} {
+  return {
+    messageId: strings.get(3) ?? '',
+    correlationId: strings.get(4) ?? '',
+    causationId: strings.get(5) ?? null,
+    authenticatedPrincipal: strings.get(6) ?? '',
+  };
+}
+
+function resultVersionFields(strings: Map<number, string>, numbers: Map<number, number>): {
+  expectedVersion: number | null;
+  actualVersion: number;
+  idempotencyKey: string;
+  timestamp: string;
+  payloadHash: string;
+} {
+  return {
+    expectedVersion: numbers.get(8) ?? null,
+    actualVersion: numbers.get(9) ?? 0,
+    idempotencyKey: strings.get(10) ?? '',
+    timestamp: strings.get(11) ?? '',
+    payloadHash: strings.get(12) ?? '',
+  };
+}
+
+function intakeResultFromFields(strings: Map<number, string>, numbers: Map<number, number>): IntakeResult {
+  return {
+    schemaVersion: strings.get(1) as IntakeResult['schemaVersion'],
+    accepted: numbers.get(2) === 1,
+    ...resultMessageFields(strings),
+    ...resultVersionFields(strings, numbers),
+    aggregateId: 'intake',
+    diagnostic: strings.has(13) ? JSON.parse(strings.get(13) as string) : null,
+    data: strings.has(14) ? JSON.parse(strings.get(14) as string) : null,
+  };
 }
 
 function bytesField(field: number, value: string): Uint8Array {

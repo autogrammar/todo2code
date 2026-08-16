@@ -437,6 +437,27 @@ export function extractVersions(text: string): string[] {
   return [...new Set(text.match(/\bv?\d+\.\d+(?:\.\d+)?(?:-[0-9A-Za-z.-]+)?\b/g) ?? [])].sort();
 }
 
+const OBJECT_ACTION_WORDS: Record<IntentAction, RegExp> = {
+  add: /\b(add|create|implement|introduce|build|utworzy(?:ć|c)|doda(?:ć|c)|zaimplementowa(?:ć|c)|stworzy(?:ć|c)|zbudowa(?:ć|c))\b/i,
+  fix: /\b(fix|repair|correct|napraw(?:ić|ic)|popraw(?:ić|ic))\b/i,
+  remove: /\b(remove|delete|drop|usun(?:ąć|ac)|wycofa(?:ć|c))\b/i,
+  refactor: /\b(refactor|restructure|przebudowa(?:ć|c)|refaktoryz)\w*/i,
+  test: /\b(test|przetestowa(?:ć|c)|testowa(?:ć|c))\b/i,
+  document: /\b(document|udokumentowa(?:ć|c))\b/i,
+  configure: /\b(configur\w*|setup|ustawi(?:ć|c)|konfigurowa(?:ć|c))\b/i,
+  analyze: /\b(analy[sz]\w*|inspect|scan|analizowa(?:ć|c)|zbada(?:ć|c))\b/i,
+  validate: /\b(validat\w*|verify|check|walidowa(?:ć|c)|sprawdzi(?:ć|c))\b/i,
+  call: /\b(call|wywoł)\w*/i,
+  depend_on: /\b(depends?|zależ)\w*/i,
+  declare: /\b(declare|deklar)\w*/i,
+  release: /\b(release|wydaj)\w*/i,
+  change: /\b(change|update|modify|zmieni(?:ć|c)|aktualizowa(?:ć|c)|modyfikowa(?:ć|c))\b/i,
+  preserve: /\b(preserve|keep|maintain|zachowa(?:ć|c)|utrzyma(?:ć|c))\b/i,
+  block: /\b(block|deny|prevent|zablokowa(?:ć|c)|zabroni(?:ć|c))\b/i,
+  approve: /\b(approve|accept|zatwierdzi(?:ć|c)|zaakceptowa(?:ć|c))\b/i,
+  unknown: /$a/,
+};
+
 export function inferObject(text: string, action: IntentAction): string {
   const normalized = text
     .replace(/^\s*[-*+]\s+/, '')
@@ -445,27 +466,7 @@ export function inferObject(text: string, action: IntentAction): string {
     .replace(/^\s*(feat|fix|refactor|test|docs|chore|build|ci|perf)(?:\([^)]*\))?!?:\s*/i, '')
     .trim();
 
-  const actionWords: Record<IntentAction, RegExp> = {
-    add: /\b(add|create|implement|introduce|build|utworzy(?:ć|c)|doda(?:ć|c)|zaimplementowa(?:ć|c)|stworzy(?:ć|c)|zbudowa(?:ć|c))\b/i,
-    fix: /\b(fix|repair|correct|napraw(?:ić|ic)|popraw(?:ić|ic))\b/i,
-    remove: /\b(remove|delete|drop|usun(?:ąć|ac)|wycofa(?:ć|c))\b/i,
-    refactor: /\b(refactor|restructure|przebudowa(?:ć|c)|refaktoryz)\w*/i,
-    test: /\b(test|przetestowa(?:ć|c)|testowa(?:ć|c))\b/i,
-    document: /\b(document|udokumentowa(?:ć|c))\b/i,
-    configure: /\b(configur\w*|setup|ustawi(?:ć|c)|konfigurowa(?:ć|c))\b/i,
-    analyze: /\b(analy[sz]\w*|inspect|scan|analizowa(?:ć|c)|zbada(?:ć|c))\b/i,
-    validate: /\b(validat\w*|verify|check|walidowa(?:ć|c)|sprawdzi(?:ć|c))\b/i,
-    call: /\b(call|wywoł)\w*/i,
-    depend_on: /\b(depends?|zależ)\w*/i,
-    declare: /\b(declare|deklar)\w*/i,
-    release: /\b(release|wydaj)\w*/i,
-    change: /\b(change|update|modify|zmieni(?:ć|c)|aktualizowa(?:ć|c)|modyfikowa(?:ć|c))\b/i,
-    preserve: /\b(preserve|keep|maintain|zachowa(?:ć|c)|utrzyma(?:ć|c))\b/i,
-    block: /\b(block|deny|prevent|zablokowa(?:ć|c)|zabroni(?:ć|c))\b/i,
-    approve: /\b(approve|accept|zatwierdzi(?:ć|c)|zaakceptowa(?:ć|c))\b/i,
-    unknown: /$a/,
-  };
-  const result = normalized.replace(actionWords[action], '').replace(/^\s*(to|aby|żeby)\s+/i, '').trim();
+  const result = normalized.replace(OBJECT_ACTION_WORDS[action], '').replace(/^\s*(to|aby|żeby)\s+/i, '').trim();
   return result || normalized || 'unspecified';
 }
 

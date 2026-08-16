@@ -74,39 +74,51 @@ export function extractTypeScriptFile(root: string, filePath: string, body: stri
     return (ts.getModifiers(node) ?? []).map((modifier) => ts.SyntaxKind[modifier.kind] ?? String(modifier.kind));
   }
 
-  function visit(node: ts.Node): void {
+  function addDependency(node: ts.Node): boolean {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
       add(node, { kind: 'module_dependency_fact', action: 'depend_on', object: node.moduleSpecifier.text, metadata: { importClause: node.importClause?.getText(sourceFile) ?? null } });
-    } else if (ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+      return true;
+    }
+    if (ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
       add(node, { kind: 'module_dependency_fact', action: 'depend_on', object: node.moduleSpecifier.text, metadata: { reExport: true } });
-    } else if (
-      ts.isFunctionDeclaration(node)
+      return true;
+    }
+    return false;
+  }
+
+  function isNamedDeclaration(node: ts.Node): node is ts.Declaration & { name?: ts.Node } {
+    return ts.isFunctionDeclaration(node)
       || ts.isClassDeclaration(node)
       || ts.isInterfaceDeclaration(node)
       || ts.isTypeAliasDeclaration(node)
       || ts.isEnumDeclaration(node)
-      || ts.isMethodDeclaration(node)
-    ) {
-      const symbol = nameOf(node);
-      if (symbol) {
-        const symbolModifiers = modifiers(node);
-        add(node, {
-          kind: 'symbol_fact',
-          action: 'declare',
-          object: symbol,
-          symbol,
-          metadata: {
-            symbolKind: ts.SyntaxKind[node.kind] ?? 'unknown',
-            modifiers: symbolModifiers,
-            exported: symbolModifiers.includes('ExportKeyword'),
-          },
-        });
-        scope.push(symbol);
-        ts.forEachChild(node, visit);
-        scope.pop();
-        return;
-      }
-    } else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      || ts.isMethodDeclaration(node);
+  }
+
+  function visitNamedDeclaration(node: ts.Node): boolean {
+    if (!isNamedDeclaration(node)) return false;
+    const symbol = nameOf(node);
+    if (!symbol) return false;
+    const symbolModifiers = modifiers(node);
+    add(node, {
+      kind: 'symbol_fact',
+      action: 'declare',
+      object: symbol,
+      symbol,
+      metadata: {
+        symbolKind: ts.SyntaxKind[node.kind] ?? 'unknown',
+        modifiers: symbolModifiers,
+        exported: symbolModifiers.includes('ExportKeyword'),
+      },
+    });
+    scope.push(symbol);
+    ts.forEachChild(node, visit);
+    scope.pop();
+    return true;
+  }
+
+  function addVariable(node: ts.Node): void {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
       const declarationIsCallable = Boolean(node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer)));
       if (declarationIsCallable || isTopLevel(node)) {
         add(node, {
@@ -117,16 +129,26 @@ export function extractTypeScriptFile(root: string, filePath: string, body: stri
           metadata: { symbolKind: declarationIsCallable ? 'callable_variable' : 'variable' },
         });
       }
-    } else if (ts.isCallExpression(node)) {
-      const callee = node.expression.getText(sourceFile).slice(0, 300);
-      add(node, {
-        kind: 'call_fact',
-        action: 'call',
-        object: callee,
-        symbol: scope.length ? scope.join('.') : null,
-        metadata: { callee, argumentCount: node.arguments.length },
-      });
     }
+  }
+
+  function addCall(node: ts.Node): void {
+    if (!ts.isCallExpression(node)) return;
+    const callee = node.expression.getText(sourceFile).slice(0, 300);
+    add(node, {
+      kind: 'call_fact',
+      action: 'call',
+      object: callee,
+      symbol: scope.length ? scope.join('.') : null,
+      metadata: { callee, argumentCount: node.arguments.length },
+    });
+  }
+
+  function visit(node: ts.Node): void {
+    addDependency(node);
+    if (visitNamedDeclaration(node)) return;
+    addVariable(node);
+    addCall(node);
     ts.forEachChild(node, visit);
   }
 

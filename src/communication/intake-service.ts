@@ -269,17 +269,48 @@ function ensurePrincipalAvailable(state: IntakeState, principal: ParticipantV2['
   const conflict = [...state.participants.values()].find((entry) => entry.id !== owner && entry.principals.some((item) => principalKey(item) === key));
   if (conflict) throw new IntakeError('T2C-INTAKE-UNVERIFIED-ACTOR', `Principal is already bound to ${conflict.id}`, 'Use a unique verified principal.');
 }
+const SECRET_ASSIGNMENT_PATTERN = String.raw`(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s]{8,}`;
+const PEM_KEY_HEADER_PATTERN = ['-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE ', 'KEY-----'].join('');
+const SECRET_INPUT_PATTERN = new RegExp(`${SECRET_ASSIGNMENT_PATTERN}|${PEM_KEY_HEADER_PATTERN}`, 'i');
 function rejectSecrets(message: string): void {
-  if (/(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s]{8,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i.test(message)) {
+  if (SECRET_INPUT_PATTERN.test(message)) {
     throw new IntakeError('T2C-INTAKE-SECRET-INPUT', 'Message resembles a secret and was not persisted', 'Remove or redact the secret before resubmitting.');
   }
 }
 function accepted(envelope: IntakeEnvelope, version: number, data: unknown): IntakeResult {
   return { schemaVersion: RESULT_SCHEMA_VERSION, accepted: true, messageId: envelope.messageId, correlationId: envelope.correlationId, causationId: envelope.causationId, authenticatedPrincipal: envelope.authenticatedPrincipal, aggregateId: 'intake', expectedVersion: envelope.expectedVersion, actualVersion: version, idempotencyKey: envelope.idempotencyKey, timestamp: new Date().toISOString(), payloadHash: envelope.payloadHash, diagnostic: null, data };
 }
+function rejectedEnvelopeFields(envelope: Partial<IntakeEnvelope>): {
+  messageId: string;
+  correlationId: string;
+  causationId: string | null;
+  authenticatedPrincipal: string;
+  expectedVersion: number | null;
+  idempotencyKey: string;
+  payloadHash: string;
+} {
+  return {
+    messageId: envelope.messageId ?? '',
+    correlationId: envelope.correlationId ?? '',
+    causationId: envelope.causationId ?? null,
+    authenticatedPrincipal: envelope.authenticatedPrincipal ?? '',
+    expectedVersion: envelope.expectedVersion ?? null,
+    idempotencyKey: envelope.idempotencyKey ?? '',
+    payloadHash: envelope.payloadHash ?? '',
+  };
+}
 function rejected(input: unknown, error: unknown, version: number): IntakeResult {
   const envelope = input && typeof input === 'object' ? input as Partial<IntakeEnvelope> : {};
-  return { schemaVersion: RESULT_SCHEMA_VERSION, accepted: false, messageId: envelope.messageId ?? '', correlationId: envelope.correlationId ?? '', causationId: envelope.causationId ?? null, authenticatedPrincipal: envelope.authenticatedPrincipal ?? '', aggregateId: 'intake', expectedVersion: envelope.expectedVersion ?? null, actualVersion: version, idempotencyKey: envelope.idempotencyKey ?? '', timestamp: new Date().toISOString(), payloadHash: envelope.payloadHash ?? '', diagnostic: diagnostic(error), data: null };
+  return {
+    schemaVersion: RESULT_SCHEMA_VERSION,
+    accepted: false,
+    ...rejectedEnvelopeFields(envelope),
+    aggregateId: 'intake',
+    actualVersion: version,
+    timestamp: new Date().toISOString(),
+    diagnostic: diagnostic(error),
+    data: null,
+  };
 }
 function unauthorized(message: string): IntakeError { return new IntakeError('T2C-INTAKE-UNAUTHORIZED', message, 'Use a verified principal with the explicitly granted capability.'); }
 function duplicate(message: string): IntakeError { return new IntakeError('T2C-INTAKE-DUPLICATE', message, 'Resolve or query the existing aggregate instead.'); }

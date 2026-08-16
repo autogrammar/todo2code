@@ -66,6 +66,29 @@ function vectorize(text: string, vocabulary: Record<string, number>): number[] {
   return values;
 }
 
+async function classifyWithModel(
+  text: string,
+  loaded: NonNullable<typeof cache>,
+  fallback: IntentAction,
+): Promise<{ action: IntentAction; basis: string; confidence: number }> {
+  const vector = vectorize(text, loaded.assets.vocabulary);
+  const input = loaded.tf.tensor2d([vector], [1, vector.length]);
+  const predictionValue = loaded.model.predict(input);
+  const prediction = Array.isArray(predictionValue) ? predictionValue[0] : predictionValue;
+  if (!prediction) throw new Error('TensorFlow model returned no prediction');
+  const probabilities = Array.from(await prediction.data());
+  prediction.dispose?.();
+  let bestIndex = 0;
+  for (let index = 1; index < probabilities.length; index += 1) {
+    if ((probabilities[index] ?? 0) > (probabilities[bestIndex] ?? 0)) bestIndex = index;
+  }
+  const action = loaded.assets.labels[bestIndex] ?? fallback;
+  const confidence = Math.max(0, Math.min(1, probabilities[bestIndex] ?? 0));
+  return confidence >= 0.55
+    ? { action, basis: 'tensorflow_action_classifier', confidence }
+    : { action: fallback, basis: 'heuristic_fallback_after_tensorflow', confidence: Math.max(0.55, confidence) };
+}
+
 export async function classifyAction(text: string, config: T2CConfig): Promise<{ action: IntentAction; basis: string; confidence: number }> {
   const fallback = classifyActionHeuristically(text);
   if (!config.enableTensorFlow || !config.tensorflowModelPath) {
@@ -74,22 +97,7 @@ export async function classifyAction(text: string, config: T2CConfig): Promise<{
   try {
     const loaded = await loadClassifier(config);
     if (!loaded) return { action: fallback, basis: 'heuristic_action_dictionary', confidence: 0.7 };
-    const vector = vectorize(text, loaded.assets.vocabulary);
-    const input = loaded.tf.tensor2d([vector], [1, vector.length]);
-    const predictionValue = loaded.model.predict(input);
-    const prediction = Array.isArray(predictionValue) ? predictionValue[0] : predictionValue;
-    if (!prediction) throw new Error('TensorFlow model returned no prediction');
-    const probabilities = Array.from(await prediction.data());
-    prediction.dispose?.();
-    let bestIndex = 0;
-    for (let index = 1; index < probabilities.length; index += 1) {
-      if ((probabilities[index] ?? 0) > (probabilities[bestIndex] ?? 0)) bestIndex = index;
-    }
-    const action = loaded.assets.labels[bestIndex] ?? fallback;
-    const confidence = Math.max(0, Math.min(1, probabilities[bestIndex] ?? 0));
-    return confidence >= 0.55
-      ? { action, basis: 'tensorflow_action_classifier', confidence }
-      : { action: fallback, basis: 'heuristic_fallback_after_tensorflow', confidence: Math.max(0.55, confidence) };
+    return await classifyWithModel(text, loaded, fallback);
   } catch (error) {
     return { action: fallback, basis: `heuristic_fallback:${error instanceof Error ? error.message : String(error)}`, confidence: 0.6 };
   }

@@ -103,37 +103,53 @@ export function assertParticipantIdentityRegistry(value: unknown): asserts value
   const ids = new Set<string>();
   const external = new Map<string, string>();
   for (const raw of registry.participants) {
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Participant registry entry must be an object');
-    const entry = raw as Record<string, unknown>;
-    exactKeys(entry, ['id', 'role', 'displayName', 'gitAuthors', 'a2aAgentIds', 'humanAliases'], 'Participant registry entry');
-    if (typeof entry.id !== 'string' || !/^(human|agent):[a-z0-9][a-z0-9._-]*$/.test(entry.id)) {
-      throw new Error('Participant registry id must be canonical human:<id> or agent:<id>');
+    validateIdentityEntry(raw, ids, external);
+  }
+}
+
+function validateIdentityEntry(
+  raw: unknown,
+  ids: Set<string>,
+  external: Map<string, string>,
+): void {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Participant registry entry must be an object');
+  const entry = raw as Record<string, unknown>;
+  exactKeys(entry, ['id', 'role', 'displayName', 'gitAuthors', 'a2aAgentIds', 'humanAliases'], 'Participant registry entry');
+  if (typeof entry.id !== 'string' || !/^(human|agent):[a-z0-9][a-z0-9._-]*$/.test(entry.id)) {
+    throw new Error('Participant registry id must be canonical human:<id> or agent:<id>');
+  }
+  if (entry.role !== 'human' && entry.role !== 'agent') throw new Error(`Participant ${entry.id} role must be human or agent`);
+  if (!entry.id.startsWith(`${entry.role}:`)) throw new Error(`Participant ${entry.id} role does not match its stable ID prefix`);
+  if (typeof entry.displayName !== 'string' || !entry.displayName.trim()) throw new Error(`Participant ${entry.id} displayName must be non-blank`);
+  if (ids.has(entry.id)) throw new Error(`Duplicate participant registry id: ${entry.id}`);
+  ids.add(entry.id);
+  validateExternalIdentifiers(entry, external);
+  validateRoleIdentifiers(entry);
+}
+
+function validateExternalIdentifiers(entry: Record<string, unknown>, external: Map<string, string>): void {
+  for (const field of ['gitAuthors', 'a2aAgentIds', 'humanAliases'] as const) {
+    const values = entry[field];
+    if (!Array.isArray(values) || values.some((item) => typeof item !== 'string' || !item.trim())) {
+      throw new Error(`Participant ${entry.id} ${field} must contain non-blank strings`);
     }
-    if (entry.role !== 'human' && entry.role !== 'agent') throw new Error(`Participant ${entry.id} role must be human or agent`);
-    if (!entry.id.startsWith(`${entry.role}:`)) throw new Error(`Participant ${entry.id} role does not match its stable ID prefix`);
-    if (typeof entry.displayName !== 'string' || !entry.displayName.trim()) throw new Error(`Participant ${entry.id} displayName must be non-blank`);
-    if (ids.has(entry.id)) throw new Error(`Duplicate participant registry id: ${entry.id}`);
-    ids.add(entry.id);
-    for (const field of ['gitAuthors', 'a2aAgentIds', 'humanAliases'] as const) {
-      const values = entry[field];
-      if (!Array.isArray(values) || values.some((item) => typeof item !== 'string' || !item.trim())) {
-        throw new Error(`Participant ${entry.id} ${field} must contain non-blank strings`);
-      }
-      const normalized = values.map((item) => (item as string).trim().toLowerCase());
-      if (new Set(normalized).size !== normalized.length) throw new Error(`Participant ${entry.id} ${field} must be unique`);
-      for (const identifier of normalized) {
-        const key = `${field}:${identifier}`;
-        const owner = external.get(key);
-        if (owner && owner !== entry.id) throw new Error(`${field} identifier ${identifier} is assigned to both ${owner} and ${entry.id}`);
-        external.set(key, entry.id);
-      }
+    const normalized = values.map((item) => (item as string).trim().toLowerCase());
+    if (new Set(normalized).size !== normalized.length) throw new Error(`Participant ${entry.id} ${field} must be unique`);
+    for (const identifier of normalized) {
+      const key = `${field}:${identifier}`;
+      const owner = external.get(key);
+      if (owner && owner !== entry.id) throw new Error(`${field} identifier ${identifier} is assigned to both ${owner} and ${entry.id}`);
+      external.set(key, entry.id as string);
     }
-    if (entry.role === 'human' && (entry.a2aAgentIds as unknown[]).length) {
-      throw new Error(`Human participant ${entry.id} cannot declare a2aAgentIds`);
-    }
-    if (entry.role === 'agent' && (entry.humanAliases as unknown[]).length) {
-      throw new Error(`Agent participant ${entry.id} cannot declare humanAliases`);
-    }
+  }
+}
+
+function validateRoleIdentifiers(entry: Record<string, unknown>): void {
+  if (entry.role === 'human' && (entry.a2aAgentIds as unknown[]).length) {
+    throw new Error(`Human participant ${entry.id} cannot declare a2aAgentIds`);
+  }
+  if (entry.role === 'agent' && (entry.humanAliases as unknown[]).length) {
+    throw new Error(`Agent participant ${entry.id} cannot declare humanAliases`);
   }
 }
 

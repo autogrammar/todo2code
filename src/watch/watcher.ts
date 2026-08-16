@@ -144,7 +144,20 @@ export interface WatchOptions {
 const DEFAULT_MIN_INTERVAL_MS = 60_000;
 const DEFAULT_SCAN_INTERVAL_MS = 2_000;
 
-export async function watchRepository(options: WatchOptions, config: T2CConfig): Promise<void> {
+interface WatchRuntime {
+  root: string;
+  minIntervalMs: number;
+  scanIntervalMs: number;
+  emit: (event: WatchEvent) => void;
+  now: () => number;
+  sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
+  signal: AbortSignal | undefined;
+  matcher: IgnoreMatcher;
+  runReport: (reason: string) => Promise<ReportResult>;
+  scanOptions: ScanOptions;
+}
+
+async function createWatchRuntime(options: WatchOptions, config: T2CConfig): Promise<WatchRuntime> {
   const root = path.resolve(options.root);
   const minIntervalMs = Math.max(0, options.minIntervalMs ?? DEFAULT_MIN_INTERVAL_MS);
   const scanIntervalMs = Math.max(50, options.scanIntervalMs ?? DEFAULT_SCAN_INTERVAL_MS);
@@ -160,6 +173,14 @@ export async function watchRepository(options: WatchOptions, config: T2CConfig):
   });
 
   const scanOptions: ScanOptions = { matcher, ...(options.maxFiles === undefined ? {} : { maxFiles: options.maxFiles }) };
+  return { root, minIntervalMs, scanIntervalMs, emit, now, sleep, signal, matcher, runReport, scanOptions };
+}
+
+export async function watchRepository(options: WatchOptions, config: T2CConfig): Promise<void> {
+  const runtime = await createWatchRuntime(options, config);
+  const {
+    root, minIntervalMs, scanIntervalMs, emit, now, sleep, signal, matcher, runReport, scanOptions,
+  } = runtime;
   let snapshot = await scanTree(root, scanOptions);
   emit({ type: 'ready', root, files: snapshot.size, sources: matcher.sources });
 
