@@ -14,11 +14,10 @@ import {
   deterministicGeneration,
   exactSourcePatchKeys,
   exactSourcePatchSet,
-  normalizeUnifiedDiff,
-  splitKeep,
 } from './code-change-plan-helpers.js';
 import { assertCodeChangeSourcePatch } from './code-change-plan-source-patch.js';
 import type { ApplyCodeChangeSourcePatchOptions, ApplyCodeChangeSourcePatchResult } from './code-change-plan-types.js';
+import { applyUnifiedDiffToText } from './code-change-plan-unified-diff.js';
 
 /**
  * Apply a fully-diffed source patch after explicit hash approval.
@@ -30,8 +29,20 @@ import type { ApplyCodeChangeSourcePatchOptions, ApplyCodeChangeSourcePatchResul
 export async function applyCodeChangeSourcePatch(
   options: ApplyCodeChangeSourcePatchOptions,
 ): Promise<ApplyCodeChangeSourcePatchResult> {
-  // #lizard forgives
   assertCodeChangeSourcePatch(options.patch);
+  assertSourcePatchApproval(options);
+  const root = path.resolve(options.root);
+  const receiptPath = await assertPathWithinRoot(root, path.resolve(options.receiptPath));
+  const lock = await acquireSourcePatchLock(receiptPath);
+  try {
+    return await applySourcePatchWithLock(options, root, receiptPath);
+  } finally {
+    await lock.close();
+    await fs.unlink(`${receiptPath}.t2c-apply.lock`).catch(() => undefined);
+  }
+}
+
+function assertSourcePatchApproval(options: ApplyCodeChangeSourcePatchOptions): void {
   if (!options.approval?.actor?.trim()) throw new Error('Explicit source patch approval actor is required');
   if (options.approval.patchHash !== options.patch.patchHash) {
     throw new Error('Source patch approval hash does not match the patch');
@@ -41,100 +52,135 @@ export async function applyCodeChangeSourcePatch(
       throw new Error(`Source patch edit ${edit.path} has no unifiedDiff and cannot be applied`);
     }
   }
+}
 
-  const root = path.resolve(options.root);
-  const receiptPath = await assertPathWithinRoot(root, path.resolve(options.receiptPath));
+async function acquireSourcePatchLock(receiptPath: string): Promise<Awaited<ReturnType<typeof fs.open>>> {
   const lockPath = `${receiptPath}.t2c-apply.lock`;
   await ensureDir(path.dirname(receiptPath));
-  let lock: Awaited<ReturnType<typeof fs.open>> | null = null;
   try {
-    lock = await fs.open(lockPath, 'wx');
+    return await fs.open(lockPath, 'wx');
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
       throw new Error('Another source patch apply operation is in progress');
     }
     throw error;
   }
+}
 
+async function applySourcePatchWithLock(
+  options: ApplyCodeChangeSourcePatchOptions,
+  root: string,
+  receiptPath: string,
+): Promise<ApplyCodeChangeSourcePatchResult> {
+  if (await pathExists(receiptPath)) {
+    const existing = await readJson<CodeChangeSourceApplyReceipt>(receiptPath, 1024 * 1024);
+    await assertExistingSourceReceipt(existing, options.patch, root);
+    return { applied: false, idempotent: true, receipt: existing };
+  }
+  const prepared = await prepareSourcePatchEdits(options.patch, root, receiptPath);
+  const changed: PreparedSourceEdit[] = [];
   try {
-    if (await pathExists(receiptPath)) {
-      const existing = await readJson<CodeChangeSourceApplyReceipt>(receiptPath, 1024 * 1024);
-      await assertExistingSourceReceipt(existing, options.patch, root);
-      return { applied: false, idempotent: true, receipt: existing };
+    for (const edit of prepared) {
+      if (edit.action === 'delete') await fs.unlink(edit.absolute);
+      else await atomicWriteRaw(edit.absolute, edit.after);
+      changed.push(edit);
     }
+    const now = (options.now ?? new Date()).toISOString();
+    const fileHashesAfter = Object.fromEntries(prepared
+      .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
+      .sort(([left], [right]) => left.localeCompare(right)));
+    const receipt: CodeChangeSourceApplyReceipt = {
+      schemaVersion: 't2c.code-change-source-apply-receipt/v1',
+      patchId: options.patch.id,
+      patchHash: options.patch.patchHash,
+      planId: options.patch.planId,
+      approvedBy: options.approval!.actor.trim(),
+      approvedAt: now,
+      appliedAt: now,
+      appliedPaths: prepared.map((edit) => edit.relative).sort(),
+      fileHashesAfter,
+      generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
+    };
+    assertSourceApplyReceipt(receipt, options.patch);
+    await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+    return { applied: true, idempotent: false, receipt };
+  } catch (error) {
+    await rollbackPreparedSourceEdits(changed, error);
+    throw error;
+  }
+}
 
-    const prepared: PreparedSourceEdit[] = [];
-    for (const edit of options.patch.edits) {
-      const relative = edit.path.replace(/\\/g, '/');
-      const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
-      if (absolute === receiptPath) {
-        throw new Error(`Source patch target collides with its receipt path: ${relative}`);
-      }
-      const exists = await pathExists(absolute);
-      if (exists && (await fs.lstat(absolute)).isSymbolicLink()) {
-        throw new Error(`Refusing to apply through a symlink: ${relative}`);
-      }
-      if (edit.action === 'create' && exists) throw new Error(`Source patch create target already exists: ${relative}`);
-      if (edit.action === 'delete' && !exists) throw new Error(`Source patch delete target does not exist: ${relative}`);
-      if (edit.action === 'modify' && !exists) {
-        const fromEmpty = /(?:^|\n)---\s+\/dev\/null(?:\n|$)/.test(edit.unifiedDiff!)
-          || /(?:^|\n)@@\s+-0(?:,0)?\s+\+/.test(edit.unifiedDiff!);
-        if (!fromEmpty) throw new Error(`Source patch modify target does not exist: ${relative}`);
-      }
-      const before = exists ? await readText(absolute, 16 * 1024 * 1024) : '';
-      const after = applyUnifiedDiffToText(before, edit.unifiedDiff!, relative);
-      if (edit.action === 'delete' && after !== '') {
-        throw new Error(`Source patch delete diff must remove the complete file: ${relative}`);
-      }
-      prepared.push({ relative, absolute, action: edit.action, before, after, existed: exists });
-    }
+async function prepareSourcePatchEdits(
+  patch: CodeChangeSourcePatch,
+  root: string,
+  receiptPath: string,
+): Promise<PreparedSourceEdit[]> {
+  const prepared: PreparedSourceEdit[] = [];
+  for (const edit of patch.edits) {
+    prepared.push(await prepareSingleSourcePatchEdit(edit, root, receiptPath));
+  }
+  return prepared;
+}
 
-    const changed: PreparedSourceEdit[] = [];
+function assertSourcePatchModifyTargetExists(
+  edit: CodeChangeSourcePatch['edits'][number],
+  relative: string,
+  exists: boolean,
+): void {
+  if (edit.action !== 'modify' || exists) return;
+  const fromEmpty = /(?:^|\n)---\s+\/dev\/null(?:\n|$)/.test(edit.unifiedDiff!)
+    || /(?:^|\n)@@\s+-0(?:,0)?\s+\+/.test(edit.unifiedDiff!);
+  if (!fromEmpty) throw new Error(`Source patch modify target does not exist: ${relative}`);
+}
+
+async function assertSourcePatchEditTarget(
+  edit: CodeChangeSourcePatch['edits'][number],
+  root: string,
+  receiptPath: string,
+): Promise<{ relative: string; absolute: string; exists: boolean }> {
+  const relative = edit.path.replace(/\\/g, '/');
+  const absolute = await assertPathWithinRoot(root, path.resolve(root, relative));
+  if (absolute === receiptPath) {
+    throw new Error(`Source patch target collides with its receipt path: ${relative}`);
+  }
+  const exists = await pathExists(absolute);
+  if (exists && (await fs.lstat(absolute)).isSymbolicLink()) {
+    throw new Error(`Refusing to apply through a symlink: ${relative}`);
+  }
+  if (edit.action === 'create' && exists) throw new Error(`Source patch create target already exists: ${relative}`);
+  if (edit.action === 'delete' && !exists) throw new Error(`Source patch delete target does not exist: ${relative}`);
+  assertSourcePatchModifyTargetExists(edit, relative, exists);
+  return { relative, absolute, exists };
+}
+
+async function prepareSingleSourcePatchEdit(
+  edit: CodeChangeSourcePatch['edits'][number],
+  root: string,
+  receiptPath: string,
+): Promise<PreparedSourceEdit> {
+  const { relative, absolute, exists } = await assertSourcePatchEditTarget(edit, root, receiptPath);
+  const before = exists ? await readText(absolute, 16 * 1024 * 1024) : '';
+  const after = applyUnifiedDiffToText(before, edit.unifiedDiff!, relative);
+  if (edit.action === 'delete' && after !== '') {
+    throw new Error(`Source patch delete diff must remove the complete file: ${relative}`);
+  }
+  return { relative, absolute, action: edit.action, before, after, existed: exists };
+}
+
+async function rollbackPreparedSourceEdits(changed: PreparedSourceEdit[], error: unknown): Promise<void> {
+  const rollbackErrors: string[] = [];
+  for (const edit of [...changed].reverse()) {
     try {
-      for (const edit of prepared) {
-        if (edit.action === 'delete') await fs.unlink(edit.absolute);
-        else await atomicWriteRaw(edit.absolute, edit.after);
-        changed.push(edit);
-      }
-      const now = (options.now ?? new Date()).toISOString();
-      const fileHashesAfter = Object.fromEntries(prepared
-        .map((edit): [string, string] => [edit.relative, sha256(edit.after)])
-        .sort(([left], [right]) => left.localeCompare(right)));
-      const receipt: CodeChangeSourceApplyReceipt = {
-        schemaVersion: 't2c.code-change-source-apply-receipt/v1',
-        patchId: options.patch.id,
-        patchHash: options.patch.patchHash,
-        planId: options.patch.planId,
-        approvedBy: options.approval.actor.trim(),
-        approvedAt: now,
-        appliedAt: now,
-        appliedPaths: prepared.map((edit) => edit.relative).sort(),
-        fileHashesAfter,
-        generation: deterministicGeneration(now, 't2c/code-change-source-apply'),
-      };
-      assertSourceApplyReceipt(receipt, options.patch);
-      await atomicWriteRaw(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-      return { applied: true, idempotent: false, receipt };
-    } catch (error) {
-      const rollbackErrors: string[] = [];
-      for (const edit of [...changed].reverse()) {
-        try {
-          if (edit.existed) await atomicWriteRaw(edit.absolute, edit.before);
-          else await fs.unlink(edit.absolute).catch((failure: NodeJS.ErrnoException) => {
-            if (failure.code !== 'ENOENT') throw failure;
-          });
-        } catch (rollbackError) {
-          rollbackErrors.push(`${edit.relative}: ${String(rollbackError)}`);
-        }
-      }
-      if (rollbackErrors.length) {
-        throw new Error(`Source patch apply failed (${String(error)}); rollback also failed: ${rollbackErrors.join('; ')}`);
-      }
-      throw error;
+      if (edit.existed) await atomicWriteRaw(edit.absolute, edit.before);
+      else await fs.unlink(edit.absolute).catch((failure: NodeJS.ErrnoException) => {
+        if (failure.code !== 'ENOENT') throw failure;
+      });
+    } catch (rollbackError) {
+      rollbackErrors.push(`${edit.relative}: ${String(rollbackError)}`);
     }
-  } finally {
-    await lock.close();
-    await fs.unlink(lockPath).catch(() => undefined);
+  }
+  if (rollbackErrors.length) {
+    throw new Error(`Source patch apply failed (${String(error)}); rollback also failed: ${rollbackErrors.join('; ')}`);
   }
 }
 
@@ -217,81 +263,4 @@ async function atomicWriteRaw(target: string, content: string): Promise<void> {
  * Apply a single-file unified diff to a text buffer.
  * Supports standard hunks with space/+/− prefixes. Throws on context mismatch.
  */
-export function applyUnifiedDiffToText(base: string, diff: string, expectedPath: string): string {
-  // #lizard forgives
-  const normalizedDiff = normalizeUnifiedDiff(diff, expectedPath);
-  const baseLines = splitKeep(base);
-  const diffLines = normalizedDiff.split('\n');
-  const hunks: Array<{ oldStart: number; oldCount: number; newCount: number; lines: string[] }> = [];
-  let current: { oldStart: number; oldCount: number; newCount: number; lines: string[] } | null = null;
-  for (const line of diffLines) {
-    if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff ') || line.startsWith('index ')) {
-      continue;
-    }
-    const header = /^@@\s+-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?\s+@@/.exec(line);
-    if (header) {
-      if (current) hunks.push(current);
-      current = {
-        oldStart: Number(header[1]),
-        oldCount: header[2] === undefined ? 1 : Number(header[2]),
-        newCount: header[4] === undefined ? 1 : Number(header[4]),
-        lines: [],
-      };
-      continue;
-    }
-    if (!current) {
-      if (line === '') continue;
-      throw new Error(`Unified diff for ${expectedPath} has content outside hunks`);
-    }
-    if (line === '') continue;
-    current.lines.push(line);
-  }
-  if (current) hunks.push(current);
-  if (!hunks.length) throw new Error(`Unified diff for ${expectedPath} contains no hunks`);
-
-  let cursor = 0;
-  const output: string[] = [];
-  for (const hunk of hunks) {
-    const oldIndex = Math.max(0, hunk.oldStart - 1);
-    if (oldIndex < cursor) throw new Error(`Unified diff for ${expectedPath} has overlapping or unordered hunks`);
-    const oldCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('-')).length;
-    const newCount = hunk.lines.filter((line) => line.startsWith(' ') || line.startsWith('+')).length;
-    if (oldCount !== hunk.oldCount || newCount !== hunk.newCount) {
-      throw new Error(`Unified diff hunk counts do not match its header for ${expectedPath}`);
-    }
-    while (cursor < oldIndex) {
-      if (cursor >= baseLines.length) throw new Error(`Unified diff for ${expectedPath} ran past end of file`);
-      output.push(baseLines[cursor]!);
-      cursor += 1;
-    }
-    for (const line of hunk.lines) {
-      if (line.startsWith('\\')) continue;
-      const mark = line[0];
-      const body = line.slice(1);
-      if (mark === ' ') {
-        if (baseLines[cursor] !== body) {
-          throw new Error(`Unified diff context mismatch for ${expectedPath} at line ${cursor + 1}`);
-        }
-        output.push(baseLines[cursor]!);
-        cursor += 1;
-      } else if (mark === '-') {
-        if (baseLines[cursor] !== body) {
-          throw new Error(`Unified diff deletion mismatch for ${expectedPath} at line ${cursor + 1}`);
-        }
-        cursor += 1;
-      } else if (mark === '+') {
-        output.push(body);
-      } else if (line === '') {
-        throw new Error(`Unified diff for ${expectedPath} has an unprefixed hunk line`);
-      } else {
-        throw new Error(`Unified diff for ${expectedPath} has unsupported hunk line`);
-      }
-    }
-  }
-  while (cursor < baseLines.length) {
-    output.push(baseLines[cursor]!);
-    cursor += 1;
-  }
-  if (base.endsWith('\n') || output.length === 0) return `${output.join('\n')}${output.length ? '\n' : ''}`;
-  return output.join('\n');
-}
+export { applyUnifiedDiffToText } from './code-change-plan-unified-diff.js';

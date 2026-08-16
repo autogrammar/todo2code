@@ -80,8 +80,24 @@ export function exactSourcePatchSet(actual: string[], expected: string[], name: 
  * Validate a single-file unified diff body.
  * Accepts optional `--- a/path` / `+++ b/path` headers and rejects foreign paths.
  */
+function assertUnifiedDiffPathHeaders(headers: string[], expectedPath: string): void {
+  for (const header of headers) {
+    if (header === '/dev/null') continue;
+    const normalizedPath = header.replace(/\\/g, '/');
+    if (normalizedPath.startsWith('/') || normalizedPath.split('/').includes('..')) {
+      throw new Error(`Unified diff for ${expectedPath} uses a non-repository path header: ${normalizedPath}`);
+    }
+    if (normalizedPath !== expectedPath && normalizedPath !== `a/${expectedPath}` && normalizedPath !== `b/${expectedPath}`) {
+      const bare = normalizedPath.split('\t')[0] ?? normalizedPath;
+      const stripped = bare.replace(/^[ab]\//, '');
+      if (stripped !== expectedPath) {
+        throw new Error(`Unified diff for ${expectedPath} references foreign path: ${normalizedPath}`);
+      }
+    }
+  }
+}
+
 export function normalizeUnifiedDiff(diff: string, expectedPath: string): string {
-  // #lizard forgives
   const normalized = diff.replace(/\r\n/g, '\n');
   if (!normalized.trim()) throw new Error(`Unified diff for ${expectedPath} is empty`);
   if (normalized.includes('\0')) throw new Error(`Unified diff for ${expectedPath} contains NUL bytes`);
@@ -89,20 +105,7 @@ export function normalizeUnifiedDiff(diff: string, expectedPath: string): string
     throw new Error(`Unified diff for ${expectedPath} appears to contain a secret assignment`);
   }
   const headers = [...normalized.matchAll(/^(?:---|\+\+\+)\s+(?:[ab]\/)?(.+)$/gm)].map((match) => match[1]!.trim());
-  for (const header of headers) {
-    if (header === '/dev/null') continue;
-    const path = header.replace(/\\/g, '/');
-    if (path.startsWith('/') || path.split('/').includes('..')) {
-      throw new Error(`Unified diff for ${expectedPath} uses a non-repository path header: ${path}`);
-    }
-    if (path !== expectedPath && path !== `a/${expectedPath}` && path !== `b/${expectedPath}`) {
-      const bare = path.split('\t')[0] ?? path;
-      const stripped = bare.replace(/^[ab]\//, '');
-      if (stripped !== expectedPath) {
-        throw new Error(`Unified diff for ${expectedPath} references foreign path: ${path}`);
-      }
-    }
-  }
+  assertUnifiedDiffPathHeaders(headers, expectedPath);
   return normalized;
 }
 

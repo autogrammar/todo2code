@@ -18,25 +18,10 @@ import {
   SEMANTIC_RERANK_VERDICTS,
 } from './reranker-types.js';
 
-export function assertSemanticCandidateSet(
+function validateSemanticCandidates(
   value: SemanticCandidateSet,
   graph: IntentGraph,
-): void {
-  // #lizard forgives
-  assertIntentGraph(graph);
-  if (value.schemaVersion !== 't2c.semantic-candidate-set/v1') {
-    throw new Error('Unsupported semantic candidate-set schemaVersion');
-  }
-  validDate(value.generatedAt, 'candidateSet.generatedAt');
-  if (value.graphFingerprint !== graph.fingerprint) {
-    throw new Error('Semantic candidate set graphFingerprint does not match the graph');
-  }
-  if (!Number.isInteger(value.maxCandidatesPerDeclaration)
-    || value.maxCandidatesPerDeclaration < 1
-    || value.maxCandidatesPerDeclaration > 10) {
-    throw new Error('candidateSet.maxCandidatesPerDeclaration must be an integer between 1 and 10');
-  }
-  validateRetrieval(value.retrieval);
+): Map<string, SemanticCandidate[]> {
   const records = new Map(graph.records.map((record) => [record.id, record]));
   const seenIds = new Set<string>();
   const seenPairs = new Set<string>();
@@ -65,6 +50,13 @@ export function assertSemanticCandidateSet(
     if (values) values.push(candidate);
     else byDeclaration.set(candidate.declarationRecordId, [candidate]);
   }
+  return byDeclaration;
+}
+
+function validateSemanticCandidateRanks(
+  value: SemanticCandidateSet,
+  byDeclaration: Map<string, SemanticCandidate[]>,
+): void {
   for (const [declarationRecordId, candidates] of byDeclaration) {
     if (candidates.length > value.maxCandidatesPerDeclaration) {
       throw new Error(`Declaration ${declarationRecordId} exceeds the bounded candidate limit`);
@@ -77,6 +69,28 @@ export function assertSemanticCandidateSet(
       }
     });
   }
+}
+
+export function assertSemanticCandidateSet(
+  value: SemanticCandidateSet,
+  graph: IntentGraph,
+): void {
+  assertIntentGraph(graph);
+  if (value.schemaVersion !== 't2c.semantic-candidate-set/v1') {
+    throw new Error('Unsupported semantic candidate-set schemaVersion');
+  }
+  validDate(value.generatedAt, 'candidateSet.generatedAt');
+  if (value.graphFingerprint !== graph.fingerprint) {
+    throw new Error('Semantic candidate set graphFingerprint does not match the graph');
+  }
+  if (!Number.isInteger(value.maxCandidatesPerDeclaration)
+    || value.maxCandidatesPerDeclaration < 1
+    || value.maxCandidatesPerDeclaration > 10) {
+    throw new Error('candidateSet.maxCandidatesPerDeclaration must be an integer between 1 and 10');
+  }
+  validateRetrieval(value.retrieval);
+  const byDeclaration = validateSemanticCandidates(value, graph);
+  validateSemanticCandidateRanks(value, byDeclaration);
   const expectedHash = sha256(stableStringify({
     graphFingerprint: value.graphFingerprint,
     maxCandidatesPerDeclaration: value.maxCandidatesPerDeclaration,
@@ -86,21 +100,11 @@ export function assertSemanticCandidateSet(
   if (value.candidateSetHash !== expectedHash) throw new Error('Semantic candidateSetHash does not match its content');
 }
 
-export function assertSemanticRerankResult(
+function validateSemanticDecisions(
   value: SemanticRerankResult,
   candidateSet: SemanticCandidateSet,
   graph: IntentGraph,
 ): void {
-  // #lizard forgives
-  assertSemanticCandidateSet(candidateSet, graph);
-  if (value.schemaVersion !== 't2c.semantic-rerank/v1') {
-    throw new Error('Unsupported semantic rerank schemaVersion');
-  }
-  validDate(value.generatedAt, 'rerank.generatedAt');
-  if (value.graphFingerprint !== graph.fingerprint || value.candidateSetHash !== candidateSet.candidateSetHash) {
-    throw new Error('Semantic rerank result does not match its graph or candidate set');
-  }
-  validateGeneration(value.generation);
   const candidates = new Map(candidateSet.candidates.map((candidate) => [candidate.id, candidate]));
   const records = new Map(graph.records.map((record) => [record.id, record]));
   const seenDecisions = new Set<string>();
@@ -139,6 +143,23 @@ export function assertSemanticRerankResult(
   if (seenDecisions.size !== candidates.size) {
     throw new Error('Semantic rerank result must decide every bounded candidate');
   }
+}
+
+export function assertSemanticRerankResult(
+  value: SemanticRerankResult,
+  candidateSet: SemanticCandidateSet,
+  graph: IntentGraph,
+): void {
+  assertSemanticCandidateSet(candidateSet, graph);
+  if (value.schemaVersion !== 't2c.semantic-rerank/v1') {
+    throw new Error('Unsupported semantic rerank schemaVersion');
+  }
+  validDate(value.generatedAt, 'rerank.generatedAt');
+  if (value.graphFingerprint !== graph.fingerprint || value.candidateSetHash !== candidateSet.candidateSetHash) {
+    throw new Error('Semantic rerank result does not match its graph or candidate set');
+  }
+  validateGeneration(value.generation);
+  validateSemanticDecisions(value, candidateSet, graph);
   const expectedHash = sha256(stableStringify({
     graphFingerprint: value.graphFingerprint,
     candidateSetHash: value.candidateSetHash,

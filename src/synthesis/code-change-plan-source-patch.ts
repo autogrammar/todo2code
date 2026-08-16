@@ -120,22 +120,7 @@ export function createCodeChangeSourcePatchSet(options: {
   return result;
 }
 
-export function assertCodeChangeSourcePatch(
-  value: unknown,
-  plan?: CodeChangePlan,
-): asserts value is CodeChangeSourcePatch {
-  // #lizard forgives
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Code change source patch must be an object');
-  }
-  const patch = value as CodeChangeSourcePatch;
-  exactSourcePatchKeys(patch as unknown as Record<string, unknown>, [
-    'schemaVersion', 'id', 'patchHash', 'status', 'createdAt', 'planId', 'planHash',
-    'graphFingerprint', 'diagnosticIds', 'recordIds', 'edits', 'acceptanceCriteria', 'generation',
-  ], 'Source patch');
-  if (patch.schemaVersion !== 't2c.code-change-source-patch/v1') {
-    throw new Error('Unsupported code change source patch schemaVersion');
-  }
+function assertCodeChangeSourcePatchIdsAndTimes(patch: CodeChangeSourcePatch): void {
   if (typeof patch.id !== 'string' || !/^SPATCH-[a-f0-9]{20}$/.test(patch.id)) {
     throw new Error('Source patch id must match SPATCH-<20 hex>');
   }
@@ -155,12 +140,26 @@ export function assertCodeChangeSourcePatch(
   if (typeof patch.graphFingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(patch.graphFingerprint)) {
     throw new Error('Source patch graphFingerprint must be SHA-256');
   }
+}
+
+function assertCodeChangeSourcePatchHeader(patch: CodeChangeSourcePatch): void {
+  exactSourcePatchKeys(patch as unknown as Record<string, unknown>, [
+    'schemaVersion', 'id', 'patchHash', 'status', 'createdAt', 'planId', 'planHash',
+    'graphFingerprint', 'diagnosticIds', 'recordIds', 'edits', 'acceptanceCriteria', 'generation',
+  ], 'Source patch');
+  if (patch.schemaVersion !== 't2c.code-change-source-patch/v1') {
+    throw new Error('Unsupported code change source patch schemaVersion');
+  }
+  assertCodeChangeSourcePatchIdsAndTimes(patch);
   if (!Array.isArray(patch.edits) || patch.edits.length === 0) {
     throw new Error('Source patch edits must be a non-empty array');
   }
   assertSourcePatchIds(patch.diagnosticIds, /^DIAG-[a-f0-9]{20}$/, 'diagnosticIds');
   assertSourcePatchIds(patch.recordIds, /^INT-[A-Z]+-[a-f0-9]{20}$/, 'recordIds');
   assertSourcePatchStrings(patch.acceptanceCriteria, 'acceptanceCriteria', false);
+}
+
+function assertCodeChangeSourcePatchEdits(patch: CodeChangeSourcePatch): void {
   const paths = new Set<string>();
   for (const edit of patch.edits) {
     if (!edit || typeof edit !== 'object') throw new Error('Source patch edit must be an object');
@@ -186,6 +185,9 @@ export function assertCodeChangeSourcePatch(
     if (paths.has(key)) throw new Error(`Duplicate source patch edit for ${path}`);
     paths.add(key);
   }
+}
+
+function assertCodeChangeSourcePatchIdentity(patch: CodeChangeSourcePatch): void {
   const expectedHash = createCodeChangeSourcePatchHash(patch);
   if (patch.patchHash !== expectedHash) {
     throw new Error(`Source patch patchHash does not match semantic content: expected ${expectedHash}`);
@@ -200,42 +202,49 @@ export function assertCodeChangeSourcePatch(
   if (patch.generation.generator !== 't2c/code-change-source-patch') {
     throw new Error('Source patch generation.generator must be t2c/code-change-source-patch');
   }
-  if (plan) {
-    if (patch.planId !== plan.id || patch.planHash !== plan.planHash) {
-      throw new Error('Source patch is not bound to the supplied plan');
-    }
-    if (patch.graphFingerprint !== plan.evidence.graphFingerprint) {
-      throw new Error('Source patch graphFingerprint does not match the plan');
-    }
-    const allowed = new Set(plan.target.paths.map((item) => item.replace(/\\/g, '/')));
-    const expectedChanges = new Map(plan.changes.map((item) => [
-      item.path.replace(/\\/g, '/'), item.action,
-    ]));
-    for (const edit of patch.edits) {
-      const editPath = edit.path.replace(/\\/g, '/');
-      if (!allowed.has(editPath)) {
-        throw new Error(`Source patch path ${edit.path} is outside plan target.paths`);
-      }
-      if (expectedChanges.get(editPath) !== edit.action) {
-        throw new Error(`Source patch action for ${edit.path} does not match the plan`);
-      }
-    }
-    exactSourcePatchSet(patch.edits.map((item) => item.path.replace(/\\/g, '/')), [...expectedChanges.keys()], 'edit paths');
-    exactSourcePatchSet(patch.diagnosticIds, plan.evidence.diagnosticIds, 'diagnosticIds');
-    exactSourcePatchSet(patch.recordIds, plan.evidence.recordIds, 'recordIds');
-    exactSourcePatchSet(patch.acceptanceCriteria, plan.acceptanceCriteria, 'acceptanceCriteria');
-  }
 }
 
-export function assertCodeChangeSourcePatchSet(
-  value: unknown,
-  plans?: CodeChangePlan[],
-): asserts value is CodeChangeSourcePatchSet {
-  // #lizard forgives
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Code change source patch set must be an object');
+function assertCodeChangeSourcePatchPlanBinding(patch: CodeChangeSourcePatch, plan: CodeChangePlan): void {
+  if (patch.planId !== plan.id || patch.planHash !== plan.planHash) {
+    throw new Error('Source patch is not bound to the supplied plan');
   }
-  const set = value as CodeChangeSourcePatchSet;
+  if (patch.graphFingerprint !== plan.evidence.graphFingerprint) {
+    throw new Error('Source patch graphFingerprint does not match the plan');
+  }
+  const allowed = new Set(plan.target.paths.map((item) => item.replace(/\\/g, '/')));
+  const expectedChanges = new Map(plan.changes.map((item) => [
+    item.path.replace(/\\/g, '/'), item.action,
+  ]));
+  for (const edit of patch.edits) {
+    const editPath = edit.path.replace(/\\/g, '/');
+    if (!allowed.has(editPath)) {
+      throw new Error(`Source patch path ${edit.path} is outside plan target.paths`);
+    }
+    if (expectedChanges.get(editPath) !== edit.action) {
+      throw new Error(`Source patch action for ${edit.path} does not match the plan`);
+    }
+  }
+  exactSourcePatchSet(patch.edits.map((item) => item.path.replace(/\\/g, '/')), [...expectedChanges.keys()], 'edit paths');
+  exactSourcePatchSet(patch.diagnosticIds, plan.evidence.diagnosticIds, 'diagnosticIds');
+  exactSourcePatchSet(patch.recordIds, plan.evidence.recordIds, 'recordIds');
+  exactSourcePatchSet(patch.acceptanceCriteria, plan.acceptanceCriteria, 'acceptanceCriteria');
+}
+
+export function assertCodeChangeSourcePatch(
+  value: unknown,
+  plan?: CodeChangePlan,
+): asserts value is CodeChangeSourcePatch {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Code change source patch must be an object');
+  }
+  const patch = value as CodeChangeSourcePatch;
+  assertCodeChangeSourcePatchHeader(patch);
+  assertCodeChangeSourcePatchEdits(patch);
+  assertCodeChangeSourcePatchIdentity(patch);
+  if (plan) assertCodeChangeSourcePatchPlanBinding(patch, plan);
+}
+
+function assertCodeChangeSourcePatchSetHeader(set: CodeChangeSourcePatchSet): void {
   exactSourcePatchKeys(set as unknown as Record<string, unknown>, [
     'schemaVersion', 'generatedAt', 'graphFingerprint', 'patches', 'generation',
   ], 'Source patch set');
@@ -249,6 +258,12 @@ export function assertCodeChangeSourcePatchSet(
     throw new Error('Source patch set graphFingerprint must be SHA-256');
   }
   if (!Array.isArray(set.patches)) throw new Error('Source patch set patches must be an array');
+}
+
+function validateSourcePatchSetPatches(
+  set: CodeChangeSourcePatchSet,
+  plans?: CodeChangePlan[],
+): void {
   const plansById = new Map((plans ?? []).map((plan) => [plan.id, plan]));
   const patchIds = new Set<string>();
   for (const patch of set.patches) {
@@ -260,6 +275,18 @@ export function assertCodeChangeSourcePatchSet(
     patchIds.add(patch.id);
   }
   if (plans) exactSourcePatchSet(set.patches.map((patch) => patch.planId), plans.map((plan) => plan.id), 'planIds');
+}
+
+export function assertCodeChangeSourcePatchSet(
+  value: unknown,
+  plans?: CodeChangePlan[],
+): asserts value is CodeChangeSourcePatchSet {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Code change source patch set must be an object');
+  }
+  const set = value as CodeChangeSourcePatchSet;
+  assertCodeChangeSourcePatchSetHeader(set);
+  validateSourcePatchSetPatches(set, plans);
   assertGroundedGenerationMetadata(set.generation, 'Source patch set generation');
   if (set.generation.generatedAt !== set.generatedAt) {
     throw new Error('Source patch set generation.generatedAt must match generatedAt');

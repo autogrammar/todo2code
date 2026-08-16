@@ -26,18 +26,76 @@ import {
 } from './code-change-plan-helpers.js';
 import type { ProposeCodeChangePlansOptions, ProposeCodeChangePlansResult } from './code-change-plan-types.js';
 
-export function proposeCodeChangePlans(
+function buildPlanFromDiagnostic(
+  diagnostic: Diagnostic,
   options: ProposeCodeChangePlansOptions,
-): ProposeCodeChangePlansResult {
-  // #lizard forgives
-  assertIntentGraph(options.graph);
-  assertConclusions([], { graph: options.graph, diagnostics: options.diagnostics });
+  generatedAt: string,
+  recordsById: Map<string, IntentRecord>,
+  proposalsByDiagnostic: Map<string, TodoProposal[]>,
+  conclusionsByDiagnostic: Map<string, Conclusion[]>,
+): CodeChangePlan | null {
+  const relatedRecords = diagnostic.recordIds
+    .map((id) => recordsById.get(id))
+    .filter((record): record is IntentRecord => Boolean(record));
+  if (!relatedRecords.length) return null;
+
+  const matchingProposals = proposalsByDiagnostic.get(diagnostic.id) ?? [];
+  const matchingConclusions = conclusionsByDiagnostic.get(diagnostic.id) ?? [];
+  const target = collectTarget(relatedRecords, matchingProposals);
+  const changes = buildChanges(target, relatedRecords, diagnostic, options.pathExists);
+  if (!changes.length) return null;
+
+  const generation = deterministicGeneration(generatedAt, 't2c/code-change-plan');
+  const evidence = {
+    graphFingerprint: options.graph.fingerprint,
+    recordIds: uniqueSorted(relatedRecords.map((record) => record.id)),
+    diagnosticIds: [diagnostic.id],
+    conclusionIds: uniqueSorted(matchingConclusions.map((item) => item.id)),
+    proposalIds: uniqueSorted(matchingProposals.map((item) => item.id)),
+  };
+  const semantic = {
+    title: titleFor(diagnostic, relatedRecords),
+    description: descriptionFor(diagnostic, relatedRecords, target),
+    priority: priorityFor(diagnostic),
+    target,
+    acceptanceCriteria: acceptanceCriteriaFor(diagnostic, target),
+    changes,
+    risk: riskFor(diagnostic, changes),
+    rollback: rollbackFor(changes),
+    evidence,
+  };
+  const planHash = createCodeChangePlanHash(semantic);
+  return {
+    schemaVersion: 't2c.code-change-plan/v1',
+    id: createCodeChangePlanId(semantic),
+    planHash,
+    status: 'proposed',
+    createdAt: generatedAt,
+    ...semantic,
+    confidence: confidenceFor(diagnostic, matchingProposals),
+    generation,
+  };
+}
+
+function validateProposeCodeChangePlanOptions(options: ProposeCodeChangePlansOptions): {
+  generatedAt: string;
+  maxPlans: number;
+} {
   const generatedAt = options.generatedAt ?? new Date().toISOString();
   if (Number.isNaN(Date.parse(generatedAt))) throw new Error('generatedAt must be an ISO date-time');
   const maxPlans = options.maxPlans ?? 50;
   if (!Number.isInteger(maxPlans) || maxPlans < 1 || maxPlans > 500) {
     throw new Error('maxPlans must be an integer between 1 and 500');
   }
+  return { generatedAt, maxPlans };
+}
+
+export function proposeCodeChangePlans(
+  options: ProposeCodeChangePlansOptions,
+): ProposeCodeChangePlansResult {
+  assertIntentGraph(options.graph);
+  assertConclusions([], { graph: options.graph, diagnostics: options.diagnostics });
+  const { generatedAt, maxPlans } = validateProposeCodeChangePlanOptions(options);
 
   const conclusions = options.conclusions ?? [];
   const proposals = options.proposals ?? [];
@@ -53,48 +111,10 @@ export function proposeCodeChangePlans(
   const plans: CodeChangePlan[] = [];
   for (const diagnostic of candidates) {
     if (plans.length >= maxPlans) break;
-    const relatedRecords = diagnostic.recordIds
-      .map((id) => recordsById.get(id))
-      .filter((record): record is IntentRecord => Boolean(record));
-    if (!relatedRecords.length) continue;
-
-    const matchingProposals = proposalsByDiagnostic.get(diagnostic.id) ?? [];
-    const matchingConclusions = conclusionsByDiagnostic.get(diagnostic.id) ?? [];
-    const target = collectTarget(relatedRecords, matchingProposals);
-    const changes = buildChanges(target, relatedRecords, diagnostic, options.pathExists);
-    if (!changes.length) continue;
-
-    const generation = deterministicGeneration(generatedAt, 't2c/code-change-plan');
-    const evidence = {
-      graphFingerprint: options.graph.fingerprint,
-      recordIds: uniqueSorted(relatedRecords.map((record) => record.id)),
-      diagnosticIds: [diagnostic.id],
-      conclusionIds: uniqueSorted(matchingConclusions.map((item) => item.id)),
-      proposalIds: uniqueSorted(matchingProposals.map((item) => item.id)),
-    };
-    const semantic = {
-      title: titleFor(diagnostic, relatedRecords),
-      description: descriptionFor(diagnostic, relatedRecords, target),
-      priority: priorityFor(diagnostic),
-      target,
-      acceptanceCriteria: acceptanceCriteriaFor(diagnostic, target),
-      changes,
-      risk: riskFor(diagnostic, changes),
-      rollback: rollbackFor(changes),
-      evidence,
-    };
-    const planHash = createCodeChangePlanHash(semantic);
-    const plan: CodeChangePlan = {
-      schemaVersion: 't2c.code-change-plan/v1',
-      id: createCodeChangePlanId(semantic),
-      planHash,
-      status: 'proposed',
-      createdAt: generatedAt,
-      ...semantic,
-      confidence: confidenceFor(diagnostic, matchingProposals),
-      generation,
-    };
-    plans.push(plan);
+    const plan = buildPlanFromDiagnostic(
+      diagnostic, options, generatedAt, recordsById, proposalsByDiagnostic, conclusionsByDiagnostic,
+    );
+    if (plan) plans.push(plan);
   }
 
   assertCodeChangePlans(plans, {
