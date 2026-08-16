@@ -1,9 +1,6 @@
 import {
-  createCodeChangePlanHash,
-  createCodeChangePlanId,
   createConclusionId,
   createTodoProposalId,
-  graphFingerprint,
 } from './id.js';
 import type {
   CodeChangeAcceptance,
@@ -12,58 +9,43 @@ import type {
   DiagnosticReport,
   GroundedGenerationMetadata,
   IntentGraph,
-  IntentGraphDiff,
-  IntentRecord,
-  IntentRelation,
   TodoProposal,
 } from './types.js';
 import {
-  ACTIONS,
-  CODE_CHANGE_ACTIONS,
-  CODE_CHANGE_PLAN_ID,
-  CODE_CHANGE_RISK_LEVELS,
   CONCLUSION_ID,
   CONCLUSION_KINDS,
   DIAGNOSTIC_ID,
   DIAGNOSTIC_SEVERITIES,
-  EPISTEMIC_CLASSES,
-  FINGERPRINT,
-  GENERATION_EFFECTIVE_MODES,
-  GENERATION_REQUESTED_MODES,
-  LIFECYCLES,
-  MODALITIES,
-  POLARITIES,
   RECORD_ID,
-  RELATION_ID,
-  RELATION_TYPES,
-  RUNTIME_VERSION,
-  SOURCE_KINDS,
   TODO_PRIORITIES,
   TODO_PROPOSAL_ID,
   assertAcyclicProposalDependencies,
   confidence,
-  countMap,
-  countRecords,
   dateString,
   enumValue,
-  exactCounts,
   exactKeys,
   exactStringSet,
   fingerprint,
-  isJsonValue,
   knownReferences,
   nonBlankString,
-  nonEmptyString,
   nonEmptyUniqueIdArray,
   nonEmptyUniqueStringArray,
-  nonNegativeInteger,
-  nullableDate,
-  nullableString,
   objectValue,
-  repositoryPath,
   stringArray,
   uniqueIdArray,
 } from './schema-primitives.js';
+
+import { assertCodeChangePlanValue } from './schema-code-change-plan-value.js';
+import { assertGroundedGenerationMetadata } from './schema-generation-validation.js';
+import { assertIntentGraph } from './schema-intent-validation.js';
+export {
+  assertIntentGraph,
+  assertIntentGraphDiff,
+  assertIntentRecord,
+  assertIntentRecords,
+} from './schema-intent-validation.js';
+export { assertGroundedGenerationMetadata } from './schema-generation-validation.js';
+
 
 export interface GroundedValidationContext {
   graph: IntentGraph;
@@ -83,201 +65,6 @@ export interface CodeChangeAcceptanceValidationContext {
   plan: CodeChangePlan;
   before: GroundedValidationContext;
   after: GroundedValidationContext;
-}
-
-export function assertIntentRecord(value: unknown): asserts value is IntentRecord {
-  // #lizard forgives
-  const record = objectValue(value, 'Intent record');
-  exactKeys(record, ['schemaVersion', 'id', 'statement', 'lifecycle', 'source', 'epistemic', 'observedAt', 'metadata'], 'Intent record');
-  if (record.schemaVersion !== 't2c.intent/v1') throw new Error('Unsupported intent schemaVersion');
-  if (typeof record.id !== 'string' || !RECORD_ID.test(record.id)) throw new Error('Intent record id must match INT-<SOURCE>-<20 hex>');
-
-  const statement = objectValue(record.statement, `Intent ${record.id}: statement`);
-  exactKeys(statement, ['kind', 'actor', 'action', 'subject', 'object', 'target', 'modality', 'polarity', 'text'], `Intent ${record.id}: statement`);
-  nonEmptyString(statement.kind, `Intent ${record.id}: statement.kind`);
-  nullableString(statement.actor, `Intent ${record.id}: statement.actor`);
-  enumValue(statement.action, ACTIONS, `Intent ${record.id}: statement.action`);
-  nullableString(statement.subject, `Intent ${record.id}: statement.subject`);
-  nonEmptyString(statement.object, `Intent ${record.id}: statement.object`);
-  if (typeof statement.text !== 'string') throw new Error(`Intent ${record.id}: statement.text must be a string`);
-  enumValue(statement.modality, MODALITIES, `Intent ${record.id}: statement.modality`);
-  enumValue(statement.polarity, POLARITIES, `Intent ${record.id}: statement.polarity`);
-
-  const target = objectValue(statement.target, `Intent ${record.id}: statement.target`);
-  exactKeys(target, ['paths', 'symbols', 'tickets', 'versions'], `Intent ${record.id}: statement.target`);
-  for (const key of ['paths', 'symbols', 'tickets', 'versions'] as const) {
-    stringArray(target[key], `Intent ${record.id}: statement.target.${key}`, true);
-  }
-
-  const lifecycle = objectValue(record.lifecycle, `Intent ${record.id}: lifecycle`);
-  exactKeys(lifecycle, ['status'], `Intent ${record.id}: lifecycle`);
-  enumValue(lifecycle.status, LIFECYCLES, `Intent ${record.id}: lifecycle.status`);
-
-  const source = objectValue(record.source, `Intent ${record.id}: source`);
-  exactKeys(source, ['kind', 'path', 'lines', 'revision', 'symbol', 'commitIndex', 'extractor', 'contentHash', 'rawExcerpt'], `Intent ${record.id}: source`);
-  enumValue(source.kind, SOURCE_KINDS, `Intent ${record.id}: source.kind`);
-  nullableString(source.path, `Intent ${record.id}: source.path`);
-  nullableString(source.revision, `Intent ${record.id}: source.revision`);
-  nullableString(source.symbol, `Intent ${record.id}: source.symbol`);
-  nullableString(source.rawExcerpt, `Intent ${record.id}: source.rawExcerpt`);
-  nonEmptyString(source.extractor, `Intent ${record.id}: source.extractor`);
-  if (typeof source.contentHash !== 'string' || !FINGERPRINT.test(source.contentHash)) {
-    throw new Error(`Intent ${record.id}: source.contentHash must be SHA-256`);
-  }
-  if (source.commitIndex !== null && (!Number.isInteger(source.commitIndex) || (source.commitIndex as number) < 1)) {
-    throw new Error(`Intent ${record.id}: source.commitIndex must be null or an integer >= 1`);
-  }
-  if (source.lines !== null) {
-    const lines = objectValue(source.lines, `Intent ${record.id}: source.lines`);
-    exactKeys(lines, ['start', 'end'], `Intent ${record.id}: source.lines`);
-    if (!Number.isInteger(lines.start) || (lines.start as number) < 1 || !Number.isInteger(lines.end) || (lines.end as number) < (lines.start as number)) {
-      throw new Error(`Intent ${record.id}: source.lines must be positive and end >= start`);
-    }
-  }
-
-  const epistemic = objectValue(record.epistemic, `Intent ${record.id}: epistemic`);
-  exactKeys(epistemic, ['class', 'confidence', 'basis'], `Intent ${record.id}: epistemic`);
-  enumValue(epistemic.class, EPISTEMIC_CLASSES, `Intent ${record.id}: epistemic.class`);
-  if (typeof epistemic.confidence !== 'number' || !Number.isFinite(epistemic.confidence)
-    || epistemic.confidence < 0 || epistemic.confidence > 1) {
-    throw new Error(`Intent ${record.id}: epistemic.confidence must be between 0 and 1`);
-  }
-  stringArray(epistemic.basis, `Intent ${record.id}: epistemic.basis`, true);
-  nullableDate(record.observedAt, `Intent ${record.id}: observedAt`);
-
-  const metadata = objectValue(record.metadata, `Intent ${record.id}: metadata`);
-  if (!isJsonValue(metadata)) throw new Error(`Intent ${record.id}: metadata must contain JSON values only`);
-  assertIntentGenerationMetadata(metadata.generation, `Intent ${record.id}: metadata.generation`);
-  assertGenerationMatchesExtractor(metadata.generation, source.extractor as string, `Intent ${record.id}: metadata.generation`);
-  if (epistemic.class === 'llm_inference'
-    && (metadata.generation as { used: unknown }).used !== 'llm') {
-    throw new Error(`Intent ${record.id}: llm_inference requires metadata.generation.used=llm`);
-  }
-}
-
-function assertGenerationMatchesExtractor(value: unknown, extractor: string, name: string): void {
-  const generation = value as { generator: string; generatorVersion: string };
-  const separator = extractor.lastIndexOf('@');
-  const expectedGenerator = separator > 0 ? extractor.slice(0, separator) : extractor;
-  if (generation.generator !== expectedGenerator) {
-    throw new Error(`${name}.generator must match source.extractor (${expectedGenerator})`);
-  }
-  if (separator > 0 && generation.generatorVersion !== extractor.slice(separator + 1)) {
-    throw new Error(`${name}.generatorVersion must match source.extractor (${extractor.slice(separator + 1)})`);
-  }
-}
-
-function assertIntentGenerationMetadata(value: unknown, name: string): void {
-  const generation = objectValue(value, name);
-  exactKeys(generation, [
-    'generator', 'generatorVersion', 'runtimeVersion', 'requested', 'used', 'degraded',
-    'fallbackReason', 'provider', 'model', 'responseId',
-  ], name);
-  nonBlankString(generation.generator, `${name}.generator`);
-  nonBlankString(generation.generatorVersion, `${name}.generatorVersion`);
-  if (typeof generation.runtimeVersion !== 'string' || !RUNTIME_VERSION.test(generation.runtimeVersion)) {
-    throw new Error(`${name}.runtimeVersion must be a semantic version`);
-  }
-  enumValue(generation.requested, GENERATION_EFFECTIVE_MODES, `${name}.requested`);
-  enumValue(generation.used, GENERATION_EFFECTIVE_MODES, `${name}.used`);
-  if (typeof generation.degraded !== 'boolean') throw new Error(`${name}.degraded must be a boolean`);
-  nullableString(generation.fallbackReason, `${name}.fallbackReason`);
-  nullableString(generation.provider, `${name}.provider`);
-  nullableString(generation.model, `${name}.model`);
-  nullableString(generation.responseId, `${name}.responseId`);
-  if (generation.used === 'llm') {
-    nonBlankString(generation.provider, `${name}.provider`);
-    nonBlankString(generation.model, `${name}.model`);
-  } else if (generation.provider !== null || generation.model !== null || generation.responseId !== null) {
-    throw new Error(`${name}: deterministic generation cannot claim an LLM provider, model or responseId`);
-  }
-  if (generation.degraded) {
-    if (generation.requested !== 'llm' || generation.used !== 'deterministic') {
-      throw new Error(`${name}: degraded generation must be an LLM request using deterministic fallback`);
-    }
-    nonBlankString(generation.fallbackReason, `${name}.fallbackReason`);
-  } else if (generation.fallbackReason !== null) {
-    throw new Error(`${name}.fallbackReason must be null when generation is not degraded`);
-  }
-}
-
-export function assertIntentRecords(values: unknown): asserts values is IntentRecord[] {
-  if (!Array.isArray(values)) throw new Error('Intent records must be an array');
-  values.forEach(assertIntentRecord);
-}
-
-export function assertIntentGraph(value: unknown): asserts value is IntentGraph {
-  const graph = objectValue(value, 'Intent graph');
-  exactKeys(graph, ['schemaVersion', 'generatedAt', 'fingerprint', 'records', 'relations', 'stats'], 'Intent graph');
-  if (graph.schemaVersion !== 't2c.graph/v1') throw new Error('Unsupported graph schemaVersion');
-  dateString(graph.generatedAt, 'Graph generatedAt');
-  fingerprint(graph.fingerprint, 'Graph fingerprint');
-  assertIntentRecords(graph.records);
-  if (!Array.isArray(graph.relations)) throw new Error('Graph relations must be an array');
-  const recordIds = new Set((graph.records as IntentRecord[]).map((record) => record.id));
-  if (recordIds.size !== (graph.records as IntentRecord[]).length) throw new Error('Graph record IDs must be unique');
-  const relationIds = new Set<string>();
-  for (const relation of graph.relations) {
-    assertRelation(relation, recordIds);
-    if (relationIds.has((relation as IntentRelation).id)) throw new Error(`Duplicate relation id: ${(relation as IntentRelation).id}`);
-    relationIds.add((relation as IntentRelation).id);
-  }
-  const stats = objectValue(graph.stats, 'Graph stats');
-  exactKeys(stats, ['bySource', 'byAction', 'byStatus'], 'Graph stats');
-  countMap(stats.bySource, 'Graph stats.bySource');
-  countMap(stats.byAction, 'Graph stats.byAction');
-  countMap(stats.byStatus, 'Graph stats.byStatus');
-  const records = graph.records as IntentRecord[];
-  exactCounts(stats.bySource, countRecords(records, (record) => record.source.kind), 'Graph stats.bySource');
-  exactCounts(stats.byAction, countRecords(records, (record) => record.statement.action), 'Graph stats.byAction');
-  exactCounts(stats.byStatus, countRecords(records, (record) => record.lifecycle.status), 'Graph stats.byStatus');
-  const expectedFingerprint = graphFingerprint(records, graph.relations as IntentRelation[]);
-  if (graph.fingerprint !== expectedFingerprint) throw new Error('Graph fingerprint does not match records and relations');
-}
-
-export function assertIntentGraphDiff(value: unknown): asserts value is IntentGraphDiff {
-  const diff = objectValue(value, 'Intent graph diff');
-  exactKeys(diff, ['schemaVersion', 'generatedAt', 'fingerprint', 'beforeFingerprint', 'afterFingerprint', 'records', 'relations', 'summary'], 'Intent graph diff');
-  if (diff.schemaVersion !== 't2c.diff/v1') throw new Error('Unsupported graph diff schemaVersion');
-  dateString(diff.generatedAt, 'Graph diff generatedAt');
-  fingerprint(diff.fingerprint, 'Graph diff fingerprint');
-  fingerprint(diff.beforeFingerprint, 'Graph diff beforeFingerprint');
-  fingerprint(diff.afterFingerprint, 'Graph diff afterFingerprint');
-
-  const records = objectValue(diff.records, 'Graph diff records');
-  exactKeys(records, ['added', 'removed', 'changed', 'unchanged'], 'Graph diff records');
-  assertIntentRecords(records.added);
-  assertIntentRecords(records.removed);
-  if (!Array.isArray(records.changed)) throw new Error('Graph diff changed records must be an array');
-  for (const rawChange of records.changed) {
-    const change = objectValue(rawChange, 'Graph diff record change');
-    exactKeys(change, ['identity', 'before', 'after', 'changedFields'], 'Graph diff record change');
-    nonEmptyString(change.identity, 'Graph diff record change identity');
-    assertIntentRecord(change.before);
-    assertIntentRecord(change.after);
-    stringArray(change.changedFields, 'Graph diff changedFields', true);
-  }
-  nonNegativeInteger(records.unchanged, 'Graph diff records.unchanged');
-
-  const relations = objectValue(diff.relations, 'Graph diff relations');
-  exactKeys(relations, ['added', 'removed', 'unchanged'], 'Graph diff relations');
-  if (!Array.isArray(relations.added) || !Array.isArray(relations.removed)) throw new Error('Graph diff relation sets must be arrays');
-  [...relations.added, ...relations.removed].forEach((relation) => assertRelation(relation));
-  nonNegativeInteger(relations.unchanged, 'Graph diff relations.unchanged');
-
-  const summary = objectValue(diff.summary, 'Graph diff summary');
-  exactKeys(summary, ['recordsAdded', 'recordsRemoved', 'recordsChanged', 'recordsUnchanged', 'relationsAdded', 'relationsRemoved', 'relationsUnchanged'], 'Graph diff summary');
-  for (const [key, count] of Object.entries(summary)) nonNegativeInteger(count, `Graph diff summary.${key}`);
-  const expectedCounts: Record<string, number> = {
-    recordsAdded: (records.added as unknown[]).length,
-    recordsRemoved: (records.removed as unknown[]).length,
-    recordsChanged: (records.changed as unknown[]).length,
-    recordsUnchanged: records.unchanged as number,
-    relationsAdded: (relations.added as unknown[]).length,
-    relationsRemoved: (relations.removed as unknown[]).length,
-    relationsUnchanged: relations.unchanged as number,
-  };
-  exactCounts(summary, expectedCounts, 'Graph diff summary');
 }
 
 export function assertConclusion(
@@ -545,56 +332,6 @@ function assertTodoProposalValue(
   if (proposal.id !== expectedId) throw new Error(`TODO proposal id does not match semantic content: expected ${expectedId}`);
 }
 
-export function assertGroundedGenerationMetadata(value: unknown, name: string): asserts value is GroundedGenerationMetadata {
-  // #lizard forgives
-  const generation = objectValue(value, name);
-  exactKeys(generation, [
-    'generator', 'generatorVersion', 'runtimeVersion', 'generatedAt', 'requestedMode', 'effectiveMode',
-    'degraded', 'model', 'provider', 'responseId', 'configurationFingerprint', 'reason',
-  ], name);
-  nonBlankString(generation.generator, `${name}.generator`);
-  nonBlankString(generation.generatorVersion, `${name}.generatorVersion`);
-  if (typeof generation.runtimeVersion !== 'string' || !RUNTIME_VERSION.test(generation.runtimeVersion)) {
-    throw new Error(`${name}.runtimeVersion must be a semantic version`);
-  }
-  dateString(generation.generatedAt, `${name}.generatedAt`);
-  enumValue(generation.requestedMode, GENERATION_REQUESTED_MODES, `${name}.requestedMode`);
-  enumValue(generation.effectiveMode, GENERATION_EFFECTIVE_MODES, `${name}.effectiveMode`);
-  if (typeof generation.degraded !== 'boolean') throw new Error(`${name}.degraded must be a boolean`);
-  nullableString(generation.model, `${name}.model`);
-  nullableString(generation.provider, `${name}.provider`);
-  nullableString(generation.responseId, `${name}.responseId`);
-  fingerprint(generation.configurationFingerprint, `${name}.configurationFingerprint`);
-  nullableString(generation.reason, `${name}.reason`);
-
-  if (generation.effectiveMode === 'llm') {
-    nonBlankString(generation.model, `${name}.model`);
-    nonBlankString(generation.provider, `${name}.provider`);
-    if (generation.degraded) throw new Error(`${name}.degraded must be false when effectiveMode is llm`);
-  }
-  if (generation.requestedMode === 'deterministic') {
-    if (generation.effectiveMode !== 'deterministic' || generation.degraded
-      || generation.model !== null || generation.provider !== null || generation.responseId !== null
-      || generation.reason !== null) {
-      throw new Error(`${name} deterministic mode cannot contain LLM or degradation metadata`);
-    }
-  }
-  if (generation.requestedMode === 'require-llm' && generation.effectiveMode !== 'llm') {
-    throw new Error(`${name} require-llm mode cannot use deterministic output`);
-  }
-  if (generation.requestedMode === 'prefer-llm' && generation.effectiveMode === 'deterministic' && !generation.degraded) {
-    throw new Error(`${name} prefer-llm deterministic output must be marked degraded`);
-  }
-  if (generation.degraded) {
-    if (generation.requestedMode !== 'prefer-llm' || generation.effectiveMode !== 'deterministic') {
-      throw new Error(`${name} degraded output is only valid for prefer-llm deterministic fallback`);
-    }
-    nonBlankString(generation.reason, `${name}.reason`);
-  } else if (generation.reason !== null) {
-    throw new Error(`${name}.reason must be null when output is not degraded`);
-  }
-}
-
 function validateGroundedContext(context: GroundedValidationContext): {
   recordIds: Set<string>;
   diagnosticIds: Set<string>;
@@ -674,112 +411,3 @@ function validateCodeChangePlanContext(context: CodeChangePlanValidationContext)
   };
 }
 
-function assertCodeChangePlanValue(
-  value: unknown,
-  known: {
-    recordIds: Set<string>;
-    diagnosticIds: Set<string>;
-    conclusionIds: Set<string>;
-    proposalIds: Set<string>;
-  },
-): asserts value is CodeChangePlan {
-  const plan = objectValue(value, 'Code change plan');
-  exactKeys(plan, [
-    'schemaVersion', 'id', 'planHash', 'status', 'createdAt', 'title', 'description', 'priority',
-    'target', 'acceptanceCriteria', 'changes', 'risk', 'rollback', 'evidence', 'confidence', 'generation',
-  ], 'Code change plan');
-  if (plan.schemaVersion !== 't2c.code-change-plan/v1') {
-    throw new Error('Unsupported code change plan schemaVersion');
-  }
-  if (typeof plan.id !== 'string' || !CODE_CHANGE_PLAN_ID.test(plan.id)) {
-    throw new Error('Code change plan id must match CPLAN-<20 hex>');
-  }
-  fingerprint(plan.planHash, `Code change plan ${plan.id}: planHash`);
-  if (plan.status !== 'proposed') throw new Error(`Code change plan ${plan.id}: status must be proposed`);
-  dateString(plan.createdAt, `Code change plan ${plan.id}: createdAt`);
-  nonBlankString(plan.title, `Code change plan ${plan.id}: title`);
-  nonBlankString(plan.description, `Code change plan ${plan.id}: description`);
-  enumValue(plan.priority, TODO_PRIORITIES, `Code change plan ${plan.id}: priority`);
-  const target = objectValue(plan.target, `Code change plan ${plan.id}: target`);
-  exactKeys(target, ['paths', 'symbols', 'tickets', 'versions'], `Code change plan ${plan.id}: target`);
-  for (const key of ['paths', 'symbols', 'tickets', 'versions'] as const) {
-    stringArray(target[key], `Code change plan ${plan.id}: target.${key}`, true);
-    if ((target[key] as string[]).some((item) => !item.trim())) {
-      throw new Error(`Code change plan ${plan.id}: target.${key} cannot contain blank values`);
-    }
-  }
-  const targetPaths = new Set((target.paths as string[]).map((item, index) => (
-    repositoryPath(item, `Code change plan ${plan.id}: target.paths[${index}]`)
-  )));
-  nonEmptyUniqueStringArray(plan.acceptanceCriteria, `Code change plan ${plan.id}: acceptanceCriteria`);
-  if (!Array.isArray(plan.changes) || plan.changes.length === 0) {
-    throw new Error(`Code change plan ${plan.id}: changes must be a non-empty array`);
-  }
-  const changePaths = new Set<string>();
-  for (const [index, rawChange] of plan.changes.entries()) {
-    const change = objectValue(rawChange, `Code change plan ${plan.id}: changes[${index}]`);
-    exactKeys(change, ['path', 'action', 'symbols', 'rationale'], `Code change plan ${plan.id}: changes[${index}]`);
-    nonBlankString(change.path, `Code change plan ${plan.id}: changes[${index}].path`);
-    const normalizedPath = repositoryPath(change.path, `Code change plan ${plan.id}: changes[${index}].path`);
-    if (!targetPaths.has(normalizedPath)) {
-      throw new Error(`Code change plan ${plan.id}: changes[${index}].path is not present in target.paths`);
-    }
-    enumValue(change.action, CODE_CHANGE_ACTIONS, `Code change plan ${plan.id}: changes[${index}].action`);
-    stringArray(change.symbols, `Code change plan ${plan.id}: changes[${index}].symbols`, true);
-    if ((change.symbols as string[]).some((item) => !item.trim())) {
-      throw new Error(`Code change plan ${plan.id}: changes[${index}].symbols cannot contain blank values`);
-    }
-    nonBlankString(change.rationale, `Code change plan ${plan.id}: changes[${index}].rationale`);
-    if (changePaths.has(normalizedPath)) {
-      throw new Error(`Code change plan ${plan.id}: duplicate change for ${normalizedPath}`);
-    }
-    changePaths.add(normalizedPath);
-  }
-  const risk = objectValue(plan.risk, `Code change plan ${plan.id}: risk`);
-  exactKeys(risk, ['level', 'reasons'], `Code change plan ${plan.id}: risk`);
-  enumValue(risk.level, CODE_CHANGE_RISK_LEVELS, `Code change plan ${plan.id}: risk.level`);
-  nonEmptyUniqueStringArray(risk.reasons, `Code change plan ${plan.id}: risk.reasons`);
-  nonBlankString(plan.rollback, `Code change plan ${plan.id}: rollback`);
-  const evidence = objectValue(plan.evidence, `Code change plan ${plan.id}: evidence`);
-  exactKeys(evidence, [
-    'graphFingerprint', 'recordIds', 'diagnosticIds', 'conclusionIds', 'proposalIds',
-  ], `Code change plan ${plan.id}: evidence`);
-  fingerprint(evidence.graphFingerprint, `Code change plan ${plan.id}: evidence.graphFingerprint`);
-  nonEmptyUniqueIdArray(evidence.recordIds, RECORD_ID, `Code change plan ${plan.id}: evidence.recordIds`);
-  nonEmptyUniqueIdArray(evidence.diagnosticIds, DIAGNOSTIC_ID, `Code change plan ${plan.id}: evidence.diagnosticIds`);
-  uniqueIdArray(evidence.conclusionIds, CONCLUSION_ID, `Code change plan ${plan.id}: evidence.conclusionIds`);
-  uniqueIdArray(evidence.proposalIds, TODO_PROPOSAL_ID, `Code change plan ${plan.id}: evidence.proposalIds`);
-  knownReferences(evidence.recordIds as string[], known.recordIds, `Code change plan ${plan.id}: evidence.recordIds`);
-  knownReferences(evidence.diagnosticIds as string[], known.diagnosticIds, `Code change plan ${plan.id}: evidence.diagnosticIds`);
-  knownReferences(evidence.conclusionIds as string[], known.conclusionIds, `Code change plan ${plan.id}: evidence.conclusionIds`);
-  knownReferences(evidence.proposalIds as string[], known.proposalIds, `Code change plan ${plan.id}: evidence.proposalIds`);
-  confidence(plan.confidence, `Code change plan ${plan.id}: confidence`);
-  assertGroundedGenerationMetadata(plan.generation, `Code change plan ${plan.id}: generation`);
-
-  const semantic = plan as unknown as CodeChangePlan;
-  const expectedHash = createCodeChangePlanHash(semantic);
-  if (plan.planHash !== expectedHash) {
-    throw new Error(`Code change plan planHash does not match semantic content: expected ${expectedHash}`);
-  }
-  const expectedId = createCodeChangePlanId(semantic);
-  if (plan.id !== expectedId) {
-    throw new Error(`Code change plan id does not match semantic content: expected ${expectedId}`);
-  }
-}
-
-function assertRelation(value: unknown, knownRecords?: Set<string>): asserts value is IntentRelation {
-  const relation = objectValue(value, 'Intent relation');
-  exactKeys(relation, ['id', 'from', 'to', 'type', 'confidence', 'basis'], 'Intent relation');
-  if (typeof relation.id !== 'string' || !RELATION_ID.test(relation.id)) throw new Error('Intent relation id must match REL-<20 hex>');
-  nonEmptyString(relation.from, `Relation ${relation.id}: from`);
-  nonEmptyString(relation.to, `Relation ${relation.id}: to`);
-  enumValue(relation.type, RELATION_TYPES, `Relation ${relation.id}: type`);
-  if (typeof relation.confidence !== 'number' || !Number.isFinite(relation.confidence)
-    || relation.confidence < 0 || relation.confidence > 1) {
-    throw new Error(`Relation ${relation.id}: confidence must be between 0 and 1`);
-  }
-  stringArray(relation.basis, `Relation ${relation.id}: basis`, true);
-  if (knownRecords && (!knownRecords.has(relation.from as string) || !knownRecords.has(relation.to as string))) {
-    throw new Error(`Relation ${relation.id} references unknown records`);
-  }
-}
