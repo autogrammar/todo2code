@@ -141,6 +141,12 @@ function skills(): Array<Record<string, unknown>> {
       ['application/json'],
       ['application/json', 'image/svg+xml', 'text/markdown'],
     ),
+    ...reviewSkills(),
+  ];
+}
+
+function reviewSkills(): Array<Record<string, unknown>> {
+  return [
     skill(
       'review_todo_changes',
       'Propose, review and apply TODO changes',

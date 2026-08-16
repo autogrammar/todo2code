@@ -441,27 +441,68 @@ function agentMessage(task: StoredTask, text: string): A2AMessage {
   };
 }
 
-function listTasks(params: Record<string, unknown>, principal: string): Record<string, unknown> {
+function taskListFilter(params: Record<string, unknown>): {
+  contextId: string | undefined;
+  status: A2ATaskState | undefined;
+  statusTimestampAfter: string | undefined;
+  serialized: string;
+} {
   const contextId = optionalString(params.contextId, 'contextId');
   const status = optionalTaskState(params.status);
-  const pageSize = optionalInteger(params.pageSize, 'pageSize', 1, 100) ?? 50;
-  const historyLength = optionalInteger(params.historyLength, 'historyLength', 0, 100_000);
-  const includeArtifacts = optionalBoolean(params.includeArtifacts, 'includeArtifacts') ?? false;
   const statusTimestampAfter = optionalTimestamp(params.statusTimestampAfter, 'statusTimestampAfter');
-  const filter = JSON.stringify({
-    contextId: contextId ?? null,
-    status: status ?? null,
-    statusTimestampAfter: statusTimestampAfter ?? null,
-  });
-  const filtered = filteredTasks(principal, contextId, status, statusTimestampAfter);
-  const pageCursor = optionalString(params.pageToken, 'pageToken');
-  const start = pageCursor ? indexAfterCursor(filtered, decodeCursor(pageCursor, filter)) : 0;
-  const page = filtered.slice(start, start + pageSize);
-  const last = page.at(-1);
   return {
-    tasks: page.map((task) => taskView(task, { includeArtifacts, historyLength, defaultHistoryLength: 0 })),
-    nextPageToken: start + page.length < filtered.length && last ? encodeCursor(last, filter) : '',
-    pageSize,
+    contextId,
+    status,
+    statusTimestampAfter,
+    serialized: JSON.stringify({
+      contextId: contextId ?? null,
+      status: status ?? null,
+      statusTimestampAfter: statusTimestampAfter ?? null,
+    }),
+  };
+}
+
+function taskListPageOptions(params: Record<string, unknown>): {
+  pageSize: number;
+  historyLength: number | undefined;
+  includeArtifacts: boolean;
+} {
+  return {
+    pageSize: optionalInteger(params.pageSize, 'pageSize', 1, 100) ?? 50,
+    historyLength: optionalInteger(params.historyLength, 'historyLength', 0, 100_000),
+    includeArtifacts: optionalBoolean(params.includeArtifacts, 'includeArtifacts') ?? false,
+  };
+}
+
+function taskPageStart(params: Record<string, unknown>, filtered: StoredTask[], filter: string): number {
+  const pageCursor = optionalString(params.pageToken, 'pageToken');
+  return pageCursor ? indexAfterCursor(filtered, decodeCursor(pageCursor, filter)) : 0;
+}
+
+function nextTaskPageToken(
+  start: number,
+  page: StoredTask[],
+  totalSize: number,
+  filter: string,
+): string {
+  const last = page.at(-1);
+  return start + page.length < totalSize && last ? encodeCursor(last, filter) : '';
+}
+
+function listTasks(params: Record<string, unknown>, principal: string): Record<string, unknown> {
+  const filter = taskListFilter(params);
+  const options = taskListPageOptions(params);
+  const filtered = filteredTasks(principal, filter.contextId, filter.status, filter.statusTimestampAfter);
+  const start = taskPageStart(params, filtered, filter.serialized);
+  const page = filtered.slice(start, start + options.pageSize);
+  return {
+    tasks: page.map((task) => taskView(task, {
+      includeArtifacts: options.includeArtifacts,
+      historyLength: options.historyLength,
+      defaultHistoryLength: 0,
+    })),
+    nextPageToken: nextTaskPageToken(start, page, filtered.length, filter.serialized),
+    pageSize: options.pageSize,
     totalSize: filtered.length,
   };
 }
