@@ -1,4 +1,4 @@
-# code2llm/evolution | 3812 func | 135f | 2026-08-16
+# code2llm/evolution | 2976 func | 118f | 2026-08-01
 # generated in 0.01s
 
 NEXT[10] (ranked by impact):
@@ -6,53 +6,53 @@ NEXT[10] (ranked by impact):
       WHY: 1310L, 10 classes, max CC=47
       EFFORT: ~4h  IMPACT: 61570
 
-  [2] !! SPLIT-FUNC      WorkspacePreflightError.validateBaselineOption  CC=116  fan=70
-      WHY: CC=116 exceeds 15
-      EFFORT: ~1h  IMPACT: 8120
+  [2] !! SPLIT           src/core/schema.ts
+      WHY: 922L, 4 classes, max CC=23
+      EFFORT: ~4h  IMPACT: 21206
 
-  [3] !! SPLIT-FUNC      validateRef  CC=110  fan=61
-      WHY: CC=110 exceeds 15
-      EFFORT: ~1h  IMPACT: 6710
-
-  [4] !! SPLIT-FUNC      executeAction  CC=83  fan=65
+  [3] !! SPLIT-FUNC      executeAction  CC=83  fan=65
       WHY: CC=83 exceeds 15
       EFFORT: ~1h  IMPACT: 5395
 
-  [5] !! SPLIT-FUNC      root  CC=83  fan=64
+  [4] !! SPLIT-FUNC      root  CC=83  fan=64
       WHY: CC=83 exceeds 15
       EFFORT: ~1h  IMPACT: 5312
 
-  [6] !! SPLIT-FUNC      main  CC=96  fan=45
-      WHY: CC=96 exceeds 15
-      EFFORT: ~1h  IMPACT: 4320
+  [5] !! SPLIT-FUNC      main  CC=95  fan=44
+      WHY: CC=95 exceeds 15
+      EFFORT: ~1h  IMPACT: 4180
 
-  [7] !! SPLIT-FUNC      assertOperationPlan  CC=84  fan=28
+  [6] !! SPLIT-FUNC      extractCommunicationIntent  CC=76  fan=43
+      WHY: CC=76 exceeds 15
+      EFFORT: ~1h  IMPACT: 3268
+
+  [7] !! SPLIT-FUNC      runPipeline  CC=53  fan=54
+      WHY: CC=53 exceeds 15
+      EFFORT: ~1h  IMPACT: 2862
+
+  [8] !! SPLIT-FUNC      identityRegistry  CC=72  fan=37
+      WHY: CC=72 exceeds 15
+      EFFORT: ~1h  IMPACT: 2664
+
+  [9] !! SPLIT-FUNC      communicationFiles  CC=72  fan=37
+      WHY: CC=72 exceeds 15
+      EFFORT: ~1h  IMPACT: 2664
+
+  [10] !! SPLIT-FUNC      assertOperationPlan  CC=84  fan=28
       WHY: CC=84 exceeds 15
       EFFORT: ~1h  IMPACT: 2352
 
-  [8] !! SPLIT-FUNC      diffUiHtml  CC=52  fan=42
-      WHY: CC=52 exceeds 15
-      EFFORT: ~1h  IMPACT: 2184
-
-  [9] !! SPLIT-FUNC      parseCommand  CC=63  fan=33
-      WHY: CC=63 exceeds 15
-      EFFORT: ~1h  IMPACT: 2079
-
-  [10] !! SPLIT-FUNC      extractTypeScriptFile  CC=43  fan=44
-      WHY: CC=43 exceeds 15
-      EFFORT: ~1h  IMPACT: 1892
-
 
 RISKS[3]:
-  ⚠ Splitting docs/README.md may break 0 import paths
   ⚠ Splitting evaluation/gold/v2/dataset.json may break 0 import paths
   ⚠ Splitting src/synthesis/code-change-plan.ts may break 127 import paths
+  ⚠ Splitting src/core/schema.ts may break 124 import paths
 
 METRICS-TARGET:
-  CC̄:          3.8 → ≤2.7
-  max-CC:      116 → ≤20
-  god-modules: 25 → 0
-  high-CC(≥15): 113 → ≤56
+  CC̄:          4.0 → ≤2.8
+  max-CC:      95 → ≤20
+  god-modules: 19 → 0
+  high-CC(≥15): 109 → ≤54
   hub-types:   0 → ≤0
 
 PATTERNS (language parser shared logic):
@@ -80,4 +80,4 @@ PATTERNS (language parser shared logic):
     - Standardized FunctionInfo/ClassInfo models
 
 HISTORY:
-  prev CC̄=4.0 → now CC̄=3.8
+  (first run — no previous data)

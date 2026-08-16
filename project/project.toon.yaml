@@ -1,52 +1,52 @@
-# todo2code | 4221 func | 172f | 58934L | typescript | 2026-08-16
+# todo2code | 3285 func | 152f | 45160L | typescript | 2026-08-01
 # generated in 0.00s
 
 HEALTH:
-  CC̄=3.8  critical=319 (limit:10)  dup=28  cycles=0
+  CC̄=4.0  critical=276 (limit:10)  dup=28  cycles=0
 
 ALERTS[20]:
-  !!! cc_exceeded      WorkspacePreflightError.validateBaselineOption = 116 (limit:15)
-  !!! cc_exceeded      validateRef = 110 (limit:15)
-  !!! cc_exceeded      main = 96 (limit:15)
+  !!! cc_exceeded      main = 95 (limit:15)
   !!! cc_exceeded      assertOperationPlan = 84 (limit:15)
   !!! cc_exceeded      executeAction = 83 (limit:15)
   !!! cc_exceeded      root = 83 (limit:15)
-  !!! high_fan_out     WorkspacePreflightError.validateBaselineOption = 70 (limit:10)
+  !!! cc_exceeded      extractCommunicationIntent = 76 (limit:15)
+  !!! cc_exceeded      identityRegistry = 72 (limit:15)
+  !!! cc_exceeded      communicationFiles = 72 (limit:15)
   !!! high_fan_out     executeAction = 65 (limit:10)
   !!! high_fan_out     root = 64 (limit:10)
-  !!! cc_exceeded      parseCommand = 63 (limit:15)
+  !!! cc_exceeded      parseCommand = 57 (limit:15)
 
-MODULES[306] (top by size):
-  M[docs/README.md] 3919L C:0 F:0 CC↑0 D:0 (md)
+MODULES[262] (top by size):
   M[evaluation/gold/v2/dataset.json] 2410L C:0 F:0 CC↑0 D:0 (json)
-  M[src/synthesis/code-change-plan.ts] 1310L C:10 F:127 CC↑47 D:3 (typescript)
-  M[README.md] 927L C:0 F:0 CC↑0 D:0 (md)
+  M[src/synthesis/code-change-plan.ts] 1310L C:10 F:127 CC↑47 D:6 (typescript)
   M[src/core/schema.ts] 922L C:4 F:124 CC↑23 D:0 (typescript)
-  M[src/cli.ts] 874L C:1 F:88 CC↑96 D:0 (typescript)
   M[docs/SYSTEM_MONITOROWANIA_INTENCJI_I_PRACY_AGENTOW.md] 872L C:0 F:0 CC↑0 D:0 (md)
   M[docs/reference/original-monitoring-design.md] 872L C:0 F:0 CC↑0 D:0 (md)
-  M[scripts/runtime.sh] 858L C:0 F:24 CC↑0 D:0 (shell)
-  M[src/pipeline/run.ts] 795L C:8 F:71 CC↑19 D:0 (typescript)
+  M[README.md] 871L C:0 F:0 CC↑0 D:0 (md)
+  M[src/cli.ts] 827L C:1 F:83 CC↑95 D:0 (typescript)
   M[evaluation/gold/v1/dataset.json] 761L C:0 F:0 CC↑0 D:0 (json)
-  M[CHANGELOG.md] 733L C:0 F:0 CC↑0 D:0 (md)
   M[src/services/actions.ts] 700L C:0 F:74 CC↑83 D:0 (typescript)
-  M[src/extractors/communication.ts] 685L C:6 F:90 CC↑15 D:0 (typescript)
-  M[src/core/types.ts] 676L C:41 F:0 CC↑0 D:0 (typescript)
-  LANGS: typescript:133/md:61/json:41/javascript:17/python:16/shell:9/rust:7/go:6/php:4/toml:3/other:2/yml:2/yaml:2/java:1/txt:1/proto:1
+  M[src/core/types.ts] 673L C:41 F:0 CC↑0 D:0 (typescript)
+  M[CHANGELOG.md] 670L C:0 F:0 CC↑0 D:0 (md)
+  M[src/diff/reality.ts] 609L C:3 F:73 CC↑26 D:0 (typescript)
+  M[src/pipeline/run.ts] 602L C:1 F:64 CC↑53 D:0 (typescript)
+  M[docs/TEST_REPORT.md] 587L C:0 F:0 CC↑0 D:0 (md)
+  M[schemas/gold-dataset.schema.json] 585L C:0 F:0 CC↑0 D:0 (json)
+  LANGS: typescript:117/md:52/json:32/javascript:15/python:15/rust:7/go:6/shell:6/php:4/other:2/yml:2/toml:2/java:1/txt:1
 
 HOTSPOTS[10]:
-  ★ WorkspacePreflightError.validateBaselineOption fan=70  // Orchestrates 70 calls
   ★ executeAction fan=65  // Orchestrates 65 calls
   ★ root fan=64  // Orchestrates 64 calls
-  ★ validateRef fan=61  // Orchestrates 61 calls
-  ★ compareWorkspaceIntent fan=48  // Orchestrates 48 calls
+  ★ runPipeline fan=54  // Orchestrates 54 calls
+  ★ main fan=44  // Orchestrates 44 calls
+  ★ extractTypeScriptFile fan=44  // Orchestrates 44 calls
 
 REFACTOR[15]:
-  [1] H/L Split extractTypeScriptFile (CC=43)
-  [2] H/L Split visit (CC=25)
-  [3] H/L Split normalized (CC=30)
-  [4] H/L Split inferObject (CC=34)
-  [5] H/L Split SemanticRerankerRequiredError.rerankSemanticCandidates (CC=25)
+  [1] H/L Split main (CC=95)
+  [2] H/L Split diffUiHtml (CC=52)
+  [3] H/L Split assertCodeChangeSourcePatch (CC=47)
+  [4] H/L Split applyCodeChangeSourcePatch (CC=41)
+  [5] H/L Split applyUnifiedDiffToText (CC=47)
 
 EVOLUTION:
-  2026-08-16 CC̄=3.8 crit=319 58934L // Automated analysis
+  2026-08-01 CC̄=4.0 crit=276 45160L // Automated analysis
