@@ -1,0 +1,62 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-082",
+  "summary": "Align T2C_VERSION with package 0.5.1",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-082/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/core/version.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "test/**"
+  ],
+  "stacks": ["node"],
+  "dependsOn": ["ticket-080", "ticket-081"],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "6acd6a505c5b521effb5724a6eb28be283106626",
+    "targetBranch": "main",
+    "outcome": "Generated provenance reports runtime version 0.5.1 matching package.json.",
+    "nonGoals": ["No package.json change", "No historical fixture rewrites"],
+    "complexity": "XS",
+    "estimatedMinutes": 8,
+    "budgets": {
+      "maxImplementationFiles": 1,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Set T2C_VERSION to 0.5.1 after dependent workstreams bound assertions to the shared constant.",
+      "components": [
+        {
+          "name": "runtime-version-constant",
+          "paths": ["src/core/version.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore T2C_VERSION 0.5.0."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": ["npm run build", "npm test"],
+        "evidence": "project/ticket-082/ai-gpt-5.6-sol-logs.txt"
+      }
+    ]
+  }
+}
