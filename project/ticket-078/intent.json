@@ -1,0 +1,76 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-078",
+  "summary": "Make governed ticket README NL extraction section-aware",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-078/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/extractors/nl.ts",
+    "test/docs.test.ts",
+    "test/docs-ticket-readme.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/synthesis/**",
+    "src/core/**",
+    "src/pipeline/**",
+    "test/nl.test.ts"
+  ],
+  "stacks": ["node"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "680944ff22ee2f429d044ec9b40d2150a1b494c5",
+    "targetBranch": "main",
+    "outcome": "Deterministic NL extraction of governed ticket README files ignores lifecycle metadata, keeps wrapped goals and acceptance criteria as single records, and classifies AC lines as validation intent.",
+    "nonGoals": [
+      "No code-change plan create-policy changes",
+      "No runtime version identity bump",
+      "No changes to generic TASK.md line segmentation"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Apply source-aware ticket README segmentation at the NL extractor boundary for project/ticket-*/README.md only.",
+      "components": [
+        {
+          "name": "ticket-intent-extraction",
+          "paths": ["src/extractors/nl.ts", "test/docs-ticket-readme.test.ts", "test/docs.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore generic line segmentation for governed ticket README files."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": ["npm run check", "npm run build", "npm test"],
+        "evidence": "project/ticket-078/ai-gpt-5.6-sol-logs.txt"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["./project/governance-check.sh --actor agent"],
+        "evidence": "project/ticket-078/ai-gpt-5.6-sol-logs.txt"
+      }
+    ]
+  }
+}

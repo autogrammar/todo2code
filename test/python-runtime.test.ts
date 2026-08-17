@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 import test from 'node:test';
 import { buildRecord } from '../src/core/record.js';
 import { linkIntentRecords } from '../src/graph/linker.js';
+import { T2C_VERSION } from '../src/version.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -34,7 +35,7 @@ test('Python package executes the local TypeScript reality runtime without a ser
     'import os',
     'from todo2code import TypeScriptRuntime',
     'runtime = TypeScriptRuntime(os.environ["T2C_TEST_ROOT"], cli_path=os.environ["T2C_TEST_CLI"])',
-    'assert runtime.version() == "todo2code 0.5.0"',
+    `assert runtime.version() == "todo2code ${T2C_VERSION}"`,
     'run = runtime.pipeline(task_file=None, todo_file=None, changelog_file=None, documents=(), output_dir=".intent-python", git_count=1)',
     'assert run["manifest"]["status"] == "succeeded"',
     'assert run["manifest"]["stages"]["summary"]["status"] == "skipped"',

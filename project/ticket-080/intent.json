@@ -1,0 +1,78 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-080",
+  "summary": "Bind runtime version assertions to T2C_VERSION",
+  "workstream": "runtime",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-080/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "test/pipeline.test.ts",
+    "test/code-change-plan.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**"
+  ],
+  "stacks": [
+    "node"
+  ],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "35cd2c0d1ef3430d794f1fea72d07eed0efe3af3",
+    "targetBranch": "main",
+    "outcome": "Runtime-owned tests assert against T2C_VERSION instead of a hardcoded 0.5.0 literal.",
+    "nonGoals": [
+      "No version.ts change",
+      "No SDK or live fixture rewrites"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 10,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Replace hardcoded runtime version literals in runtime-owned tests with the shared T2C_VERSION constant.",
+      "components": [
+        {
+          "name": "runtime-version-assertions",
+          "paths": [
+            "test/pipeline.test.ts",
+            "test/code-change-plan.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Restore hardcoded 0.5.0 assertions."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run build",
+          "npm test"
+        ],
+        "evidence": "project/ticket-080/ai-gpt-5.6-sol-logs.txt"
+      }
+    ]
+  }
+}
