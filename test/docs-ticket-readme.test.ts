@@ -3,38 +3,38 @@ import test from 'node:test';
 import { extractNlIntent } from '../src/extractors/nl.js';
 import { makeConfig } from './helpers.js';
 
+const GOVERNED_TICKET_README = [
+  '# Ticket 079: Organization identity and management',
+  '',
+  '- **ID**: ticket-079',
+  '- **Owner**: unresolved:human',
+  '- **Status**: DONE',
+  '- **Workflow state**: DONE',
+  '- **Created**: 2026-03-20',
+  '',
+  '## Goal and scope',
+  '',
+  'Add clickable organization management in the account panel so operators can',
+  'list, switch, and create organizations without leaving the portal.',
+  '',
+  '## Acceptance criteria',
+  '',
+  '- [ ] AC-01: Organizacje rail opens the organization tab and shows the',
+  '      membership list from the session.',
+  '- [ ] AC-02: Creating an organization rotates the session cookie.',
+  '',
+  '## Participants',
+  '',
+  '- Human participant: unresolved.',
+  '',
+].join('\n');
+
 test('governed ticket README keeps wrapped goals and drops lifecycle metadata', async () => {
   const config = makeConfig(process.cwd());
-  const text = [
-    '# Ticket 079: Organization identity and management',
-    '',
-    '- **ID**: ticket-079',
-    '- **Owner**: unresolved:human',
-    '- **Status**: DONE',
-    '- **Workflow state**: DONE',
-    '- **Created**: 2026-03-20',
-    '',
-    '## Goal and scope',
-    '',
-    'Add clickable organization management in the account panel so operators can',
-    'list, switch, and create organizations without leaving the portal.',
-    '',
-    '## Acceptance criteria',
-    '',
-    '- [ ] AC-01: Organizacje rail opens the organization tab and shows the',
-    '      membership list from the session.',
-    '- [ ] AC-02: Creating an organization rotates the session cookie.',
-    '',
-    '## Participants',
-    '',
-    '- Human participant: unresolved.',
-    '',
-  ].join('\n');
-
   const result = await extractNlIntent({
     root: process.cwd(),
     sourcePath: 'project/ticket-079/README.md',
-    text,
+    text: GOVERNED_TICKET_README,
   }, config);
 
   assert.equal(result.records.length, 3);
@@ -42,6 +42,17 @@ test('governed ticket README keeps wrapped goals and drops lifecycle metadata', 
   assert.equal(result.records[0]?.statement.action, 'add');
   assert.match(result.records[0]?.statement.text ?? '', /list, switch, and create organizations/);
   assert.deepEqual(result.records[0]?.source.lines, { start: 11, end: 12 });
+  assert.equal(result.records[0]?.source.extractor, 't2c/nl-ticket-readme@1');
+});
+
+test('governed ticket README maps acceptance criteria to validate intents', async () => {
+  const config = makeConfig(process.cwd());
+  const result = await extractNlIntent({
+    root: process.cwd(),
+    sourcePath: 'project/ticket-079/README.md',
+    text: GOVERNED_TICKET_README,
+  }, config);
+
   assert.equal(result.records[1]?.statement.action, 'validate');
   assert.match(result.records[1]?.statement.text ?? '', /^AC-01:/);
   assert.match(result.records[1]?.statement.text ?? '', /membership list from the session/);
@@ -51,7 +62,6 @@ test('governed ticket README keeps wrapped goals and drops lifecycle metadata', 
     (result.records[1]?.metadata.missingFields as string[] | undefined) ?? [],
     [],
   );
-  assert.equal(result.records[0]?.source.extractor, 't2c/nl-ticket-readme@1');
 });
 
 test('generic TASK.md line segmentation stays unchanged for headings', async () => {

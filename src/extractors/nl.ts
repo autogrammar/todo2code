@@ -106,7 +106,6 @@ interface IntentSegment {
 
 const TICKET_README_PATH = /(^|\/)project\/ticket-\d+\/README\.md$/i;
 const METADATA_LABEL = /^\*\*(?:ID|Owner|Status|Workflow state|Created)\*\*\s*:/i;
-const SKIP_SECTIONS = /^(?:Participants|SESSION_EXECUTION_AUTHORIZATION|Notes|References|Changelog)\b/i;
 const GOAL_SECTION = /^(?:Goal(?:\s+and\s+scope)?|Cel(?:\s+i\s+zakres)?)\b/i;
 const ACCEPTANCE_SECTION = /^(?:Acceptance criteria|Kryteria akceptacji)\b/i;
 
@@ -160,11 +159,7 @@ export function segmentGovernedTicketReadme(text: string): IntentSegment[] {
     if (heading) {
       flushGoal();
       flushAcceptance();
-      const title = (heading[1] ?? '').trim();
-      if (GOAL_SECTION.test(title)) section = 'goal';
-      else if (ACCEPTANCE_SECTION.test(title)) section = 'acceptance';
-      else if (SKIP_SECTIONS.test(title) || /^Ticket\b/i.test(title)) section = 'skip';
-      else section = 'skip';
+      section = sectionForHeadingTitle((heading[1] ?? '').trim());
       continue;
     }
 
@@ -172,60 +167,131 @@ export function segmentGovernedTicketReadme(text: string): IntentSegment[] {
       continue;
     }
 
-    const cleaned = raw
-      .replace(/^\s*[-*+]\s+/, '')
-      .replace(/^\s*\d+[.)]\s+/, '')
-      .replace(/^\s*\[[ xX]\]\s+/, '')
-      .trim();
-
+    const cleaned = stripListMarker(raw);
     if (section === 'goal') {
-      if (!cleaned) {
-        flushGoal();
-        continue;
-      }
-      if (METADATA_LABEL.test(cleaned)) continue;
-      if (goalBuffer.length === 0) {
-        goalStart = index + 1;
-        goalEnd = index + 1;
-      } else {
-        goalEnd = index + 1;
-      }
-      goalBuffer.push(cleaned);
+      ({ goalBuffer, goalStart, goalEnd } = absorbProseLine({
+        cleaned,
+        buffer: goalBuffer,
+        start: goalStart,
+        end: goalEnd,
+        lineNumber: index + 1,
+        onBlank: flushGoal,
+        skip: () => METADATA_LABEL.test(cleaned),
+      }));
       continue;
     }
 
-    if (section === 'acceptance') {
-      const isCheckbox = /^\s*[-*+]\s+\[[ xX]?\]\s+/.test(raw) || /^\s*[-*+]\s+AC-\d+/i.test(raw);
-      const isContinuation = !isCheckbox && /^\s{2,}\S/.test(raw);
-      if (isCheckbox) {
-        flushAcceptance();
-        if (!cleaned) continue;
-        acceptanceStart = index + 1;
-        acceptanceEnd = index + 1;
-        acceptanceBuffer = [cleaned];
-        continue;
-      }
-      if (isContinuation && acceptanceBuffer.length) {
-        if (!cleaned) continue;
-        acceptanceEnd = index + 1;
-        acceptanceBuffer.push(cleaned);
-        continue;
-      }
-      if (!cleaned) {
-        flushAcceptance();
-        continue;
-      }
-      // Non-checkbox prose under Acceptance criteria still counts as a criterion.
-      flushAcceptance();
-      acceptanceStart = index + 1;
-      acceptanceEnd = index + 1;
-      acceptanceBuffer = [cleaned];
-    }
+    ({
+      acceptanceBuffer,
+      acceptanceStart,
+      acceptanceEnd,
+    } = absorbAcceptanceLine({
+      raw,
+      cleaned,
+      buffer: acceptanceBuffer,
+      start: acceptanceStart,
+      end: acceptanceEnd,
+      lineNumber: index + 1,
+      onBlankOrBoundary: flushAcceptance,
+    }));
   }
 
   flushGoal();
   flushAcceptance();
   return output;
+}
+
+function sectionForHeadingTitle(title: string): 'goal' | 'acceptance' | 'skip' {
+  if (GOAL_SECTION.test(title)) return 'goal';
+  if (ACCEPTANCE_SECTION.test(title)) return 'acceptance';
+  return 'skip';
+}
+
+function stripListMarker(raw: string): string {
+  return raw
+    .replace(/^\s*[-*+]\s+/, '')
+    .replace(/^\s*\d+[.)]\s+/, '')
+    .replace(/^\s*\[[ xX]\]\s+/, '')
+    .trim();
+}
+
+function absorbProseLine(input: {
+  cleaned: string;
+  buffer: string[];
+  start: number;
+  end: number;
+  lineNumber: number;
+  onBlank: () => void;
+  skip: () => boolean;
+}): { goalBuffer: string[]; goalStart: number; goalEnd: number } {
+  if (!input.cleaned) {
+    input.onBlank();
+    return { goalBuffer: [], goalStart: input.start, goalEnd: input.end };
+  }
+  if (input.skip()) {
+    return { goalBuffer: input.buffer, goalStart: input.start, goalEnd: input.end };
+  }
+  if (input.buffer.length === 0) {
+    return {
+      goalBuffer: [input.cleaned],
+      goalStart: input.lineNumber,
+      goalEnd: input.lineNumber,
+    };
+  }
+  return {
+    goalBuffer: [...input.buffer, input.cleaned],
+    goalStart: input.start,
+    goalEnd: input.lineNumber,
+  };
+}
+
+function absorbAcceptanceLine(input: {
+  raw: string;
+  cleaned: string;
+  buffer: string[];
+  start: number;
+  end: number;
+  lineNumber: number;
+  onBlankOrBoundary: () => void;
+}): { acceptanceBuffer: string[]; acceptanceStart: number; acceptanceEnd: number } {
+  const isCheckbox = /^\s*[-*+]\s+\[[ xX]?\]\s+/.test(input.raw) || /^\s*[-*+]\s+AC-\d+/i.test(input.raw);
+  const isContinuation = !isCheckbox && /^\s{2,}\S/.test(input.raw);
+
+  if (isCheckbox) {
+    input.onBlankOrBoundary();
+    if (!input.cleaned) {
+      return { acceptanceBuffer: [], acceptanceStart: input.start, acceptanceEnd: input.end };
+    }
+    return {
+      acceptanceBuffer: [input.cleaned],
+      acceptanceStart: input.lineNumber,
+      acceptanceEnd: input.lineNumber,
+    };
+  }
+
+  if (isContinuation && input.buffer.length) {
+    if (!input.cleaned) {
+      return { acceptanceBuffer: input.buffer, acceptanceStart: input.start, acceptanceEnd: input.end };
+    }
+    return {
+      acceptanceBuffer: [...input.buffer, input.cleaned],
+      acceptanceStart: input.start,
+      acceptanceEnd: input.lineNumber,
+    };
+  }
+
+  if (!input.cleaned) {
+    input.onBlankOrBoundary();
+    return { acceptanceBuffer: [], acceptanceStart: input.start, acceptanceEnd: input.end };
+  }
+
+  // Non-checkbox prose under Acceptance criteria still counts as a criterion.
+  input.onBlankOrBoundary();
+  return {
+    acceptanceBuffer: [input.cleaned],
+    acceptanceStart: input.lineNumber,
+    acceptanceEnd: input.lineNumber,
+  };
 }
 
 function refineTicketSegmentAction(

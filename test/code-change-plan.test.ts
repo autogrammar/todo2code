@@ -475,7 +475,7 @@ test('createCodeChangeSourcePatch is deterministic and path-bound', () => {
   assert.throws(() => createCodeChangeSourcePatch({
     plan,
     unifiedDiffs: {
-      'src/contracts.ts': '--- a/src/contracts.ts\n+++ b/src/contracts.ts\n@@ -0,0 +1 @@\n+api_key = "xxx-blocked-by-runtime"\n',
+      'src/contracts.ts': '--- a/src/contracts.ts\n+++ b/src/contracts.ts\n@@ -0,0 +1 @@\n+password = "xxx-blocked-by-runtime"\n',
     },
   }), /secret assignment/);
 
