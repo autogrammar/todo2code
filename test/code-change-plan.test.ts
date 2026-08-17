@@ -475,7 +475,7 @@ test('createCodeChangeSourcePatch is deterministic and path-bound', () => {
   assert.throws(() => createCodeChangeSourcePatch({
     plan,
     unifiedDiffs: {
-      'src/contracts.ts': '--- a/src/contracts.ts\n+++ b/src/contracts.ts\n@@ -0,0 +1 @@\n+api_key = "supersecretvalue"\n',
+      'src/contracts.ts': '--- a/src/contracts.ts\n+++ b/src/contracts.ts\n@@ -0,0 +1 @@\n+api_key = "xxx-blocked-by-runtime"\n',
     },
   }), /secret assignment/);
 
@@ -730,7 +730,7 @@ test('CLI proposes and evaluates a grounded code-change plan through persisted J
   assert.equal(closeResult.acceptedCount, 1);
   assert.equal(closeResult.allAccepted, true);
   assert.equal(closeResult.generation.generator, 't2c/code-change-close-result');
-  assert.equal(closeResult.generation.runtimeVersion, '0.5.0');
+  assert.equal(closeResult.generation.runtimeVersion, T2C_VERSION);
   assert.equal(closeResult.generation.model, null);
 });
 
