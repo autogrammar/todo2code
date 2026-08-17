@@ -1,0 +1,62 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-081",
+  "summary": "Bind Python runtime version assertion to T2C_VERSION",
+  "workstream": "sdk",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-081/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "test/python-runtime.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/**"
+  ],
+  "stacks": ["node", "python"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "f966afdaa6fbe28da4a2a1d3e686c5f58da491ca",
+    "targetBranch": "main",
+    "outcome": "Python SDK bridge test asserts against T2C_VERSION.",
+    "nonGoals": ["No version.ts change"],
+    "complexity": "XS",
+    "estimatedMinutes": 8,
+    "budgets": {
+      "maxImplementationFiles": 1,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Bind the Python runtime bridge version assertion to T2C_VERSION.",
+      "components": [
+        {
+          "name": "python-runtime-bridge-test",
+          "paths": ["test/python-runtime.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Restore hardcoded 0.5.0 assertion."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": ["npm run build", "npm test"],
+        "evidence": "project/ticket-081/ai-gpt-5.6-sol-logs.txt"
+      }
+    ]
+  }
+}
