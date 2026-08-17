@@ -214,13 +214,17 @@ function buildChanges(
   const rationale = sourceIntents.length
     ? `Implement the source intent: ${sourceIntents.join(' | ')}`
     : diagnostic.detail || `Address ${diagnostic.code}.`;
+  const mayCreate = hasExplicitCreateIntent(records);
 
   if (target.paths.length) {
     const changes: CodeChangeFile[] = [];
     for (const declared of uniqueSorted(target.paths)) {
       const normalized = declared.replace(/\\/g, '/');
       const exists = pathExistsInRepository?.(normalized);
+      // Bare missing filenames are ambiguous (often prose fragments).
       if (exists === false && !normalized.includes('/')) continue;
+      // Missing nested paths need an explicit add/create/implement intent.
+      if (exists === false && !mayCreate) continue;
       const action: CodeChangeFileAction = exists === false ? 'create' : 'modify';
       changes.push({ path: normalized, action, symbols, rationale });
     }
@@ -228,6 +232,15 @@ function buildChanges(
   }
 
   return [];
+}
+
+/** True when source intents explicitly ask to add or create something. */
+function hasExplicitCreateIntent(records: IntentRecord[]): boolean {
+  const createVerb = /\b(add|create|implement|introduce|build|utworzy(?:ć|c)|doda(?:ć|c)|zaimplementowa(?:ć|c)|stworzy(?:ć|c)|zbudowa(?:ć|c))\b/i;
+  return records.some((record) => {
+    if (record.statement.action === 'add') return true;
+    return createVerb.test(record.statement.text);
+  });
 }
 
 function titleFor(diagnostic: Diagnostic, records: IntentRecord[]): string {
