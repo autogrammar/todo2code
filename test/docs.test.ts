@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { extractDocumentationBaseline } from '../src/extractors/docs-deterministic.js';
+import { T2C_VERSION } from '../src/version.js';
 import { makeConfig } from './helpers.js';
 
 test('deterministic documentation baseline records headings, code blocks and explicit references', async () => {
@@ -32,7 +33,7 @@ test('deterministic documentation baseline records headings, code blocks and exp
   assert.ok(result.records.every((record) => record.source.kind === 'document'));
   assert.ok(result.records.every((record) => record.source.extractor === 't2c/markdown-documentation@2'));
   assert.ok(result.records.every((record) => record.metadata.generation.generator === 't2c/markdown-documentation'));
-  assert.ok(result.records.every((record) => record.metadata.generation.runtimeVersion === '0.5.0'));
+  assert.ok(result.records.every((record) => record.metadata.generation.runtimeVersion === T2C_VERSION));
   const reference = result.records[1];
   assert.deepEqual(reference?.statement.target.paths, ['src/runtime.ts']);
   assert.deepEqual(reference?.statement.target.symbols, ['validateContract']);
