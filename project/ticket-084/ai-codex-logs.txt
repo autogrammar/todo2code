@@ -1,0 +1,8 @@
+$ npm run build && node --test dist/test/cli-compare-workspace.test.js
+PASS: 2 tests
+
+$ npm run verify
+PASS: 423 tests, 1 JDK-only skip
+
+$ make docker-smoke
+docker smoke: PASS

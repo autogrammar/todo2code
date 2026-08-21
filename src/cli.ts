@@ -322,6 +322,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
   if (command === 'compare-workspace') {
     const root = path.resolve(parsed.positionals[0] ?? config.root);
+    const comparisonConfig = { ...config, nlMode: optionNlMode(parsed, config.nlMode) };
     const result = await compareWorkspaceIntent({
       root,
       baseRef: optionString(parsed, 'base') ?? 'origin/main',
@@ -335,7 +336,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
       outputDir: optionString(parsed, 'out') ?? config.outputDir,
       gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
-    }, config);
+    }, comparisonConfig);
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     return;
   }
@@ -857,7 +858,7 @@ function printHelp(): void {
   process.stdout.write(`               [--nl-mode require-llm] [--markdown-mode require-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
   process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm]\n`);
   process.stdout.write(`               [--cycle cycle.json] [--project-dir project] [--communication-ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-communication] [--out .intent]\n`);
-  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode require-llm] [--docs-llm]\n`);
+  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--nl-mode deterministic|prefer-llm|require-llm] [--markdown-mode require-llm] [--docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);
   process.stdout.write(`  t2c a2a\n\n`);

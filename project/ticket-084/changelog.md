@@ -5,3 +5,4 @@
 - Initial governance scaffold created.
 - No human participant identity or content was generated.
 - Bound the accepted plan for explicit deterministic comparison mode.
+- Made compare-workspace honor the explicit NL mode and documented the flag.

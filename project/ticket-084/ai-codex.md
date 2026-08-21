@@ -25,6 +25,11 @@ uses configuration consistently; the missing boundary is the CLI adapter.
 
 - Read governance and the CLI/comparison boundary, reproduced the ignored flag,
   and recorded explicit approval before implementation.
+- Passed the parsed NL mode through a command-scoped comparison config and
+  documented the option in command help.
+- Added a real Git/CLI regression and passed focused, full Node and Docker
+  verification.
+- Transitioned to `IN_PROGRESS / PUBLICATION`; no merge is claimed locally.
 
 ## Blockers
 
