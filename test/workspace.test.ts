@@ -112,6 +112,18 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   assert.equal(baseManifest.stages.summary.status, 'skipped');
   assert.equal(workspaceManifest.stages.summary.status, 'skipped');
   assert.equal(baseManifest.configuration.summaryLlm, false);
+  assert.equal(await pathExists(path.join(root, '.intent')), false, 'ambient cache directory is not used');
+
+  const repeated = await compareWorkspaceIntent({
+    root,
+    outputDir: '.intent-workspace',
+    includeDocumentationLlm: false,
+  }, config);
+  assert.deepEqual(
+    repeated.workspace.changedFiles,
+    ['runtime.ts', 'unplanned.ts'],
+    'existing comparison evidence is excluded from the observed Git state',
+  );
 
   const outside = path.join(parent, 'outside-comparison');
   await assert.rejects(
@@ -131,4 +143,6 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   assert.ok(await pathExists(comparisonFile));
   assert.equal(path.relative(outside, comparisonFile).startsWith('..'), false, 'artifacts land under the requested directory');
   assert.equal(await pathExists(path.join(root, 'outside-comparison')), false);
+  assert.equal(await pathExists(path.join(root, '.intent')), false, 'external output also owns extractor caches');
+  assert.ok(await pathExists(path.join(outside, 'cache')), 'extractor cache follows the external output directory');
 });

@@ -26,6 +26,10 @@ input. The comparison then observes artifacts produced by the observer.
 
 - Read governance and current implementation, reproduced the defect on clean
   Registry and Core worktrees, and recorded explicit approval before edits.
+- Bound both pipeline configurations to their actual output directories and
+  excluded the selected in-repository evidence path from the status snapshot.
+- Added regression coverage and passed focused, full Node and Docker checks.
+- Transitioned to `IN_PROGRESS / PUBLICATION`; no merge is claimed locally.
 
 ## Blockers
 

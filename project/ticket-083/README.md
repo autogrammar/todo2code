@@ -3,7 +3,7 @@
 - **ID**: ticket-083
 - **Owner**: unresolved:human
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-21
 
 ## Goal and scope
@@ -18,11 +18,11 @@ intent graph.
 
 - [x] AC-01: The human owner explicitly requested implementation and continued
       autonomous testing on 2026-08-21.
-- [ ] AC-02: An external `outputDir` receives current-workspace artifacts and
+- [x] AC-02: An external `outputDir` receives current-workspace artifacts and
       caches without creating `.intent` in the analysed repository.
-- [ ] AC-03: Comparison status is captured before output creation and excludes
+- [x] AC-03: Comparison status is captured before output creation and excludes
       the selected in-repository output directory when it already exists.
-- [ ] AC-04: Focused, full Node, governance and Docker checks pass.
+- [x] AC-04: Focused, full Node, governance and Docker checks pass.
 
 ## Participants
 
@@ -41,3 +41,13 @@ evidence remains required.
 - No change to comparison scoring or authority semantics.
 - No automatic application, approval, merge or ticket closure.
 - No new dependency or public schema.
+
+## Verification evidence
+
+- The focused workspace suite passes 3/3, including repeated in-tree output and
+  external output with cache ownership assertions.
+- `npm run verify` passes 421 tests with one existing JDK-only skip; type,
+  module, environment, workflow, generated-analysis, structured-response and
+  schema gates pass.
+- `make docker-smoke`, governance and diff checks pass locally. Protected
+  exact-head review remains pending.

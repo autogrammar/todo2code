@@ -4,7 +4,7 @@
 
 - [ ] [`ticket-083`](project/ticket-083/README.md) — keep workspace comparison
   artifacts and caches outside analysed repository state. Current state:
-  `IN_PROGRESS / EDIT`.
+  `IN_PROGRESS / PUBLICATION`.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
