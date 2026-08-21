@@ -47,3 +47,7 @@ Protected exact-head Validator evidence remains the separate merge boundary.
   schema gates pass.
 - `make docker-smoke`, governance and diff checks pass locally. Protected
   exact-head review remains pending.
+- Koru correctly rejected the first published head because changing `src/cli.ts`
+  exposed the file's pre-existing `handleExtract` CC=22. The handler is now a
+  small dispatcher over behavior-preserving command functions; Lizard reports
+  no threshold violations and the focused CLI suite still passes.

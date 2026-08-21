@@ -6,3 +6,5 @@
 - No human participant identity or content was generated.
 - Bound the accepted plan for explicit deterministic comparison mode.
 - Made compare-workspace honor the explicit NL mode and documented the flag.
+- Split the pre-existing high-complexity extraction dispatcher into bounded
+  command functions so the complete changed CLI artifact passes review.

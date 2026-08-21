@@ -30,6 +30,9 @@ uses configuration consistently; the missing boundary is the CLI adapter.
 - Added a real Git/CLI regression and passed focused, full Node and Docker
   verification.
 - Transitioned to `IN_PROGRESS / PUBLICATION`; no merge is claimed locally.
+- Investigated Koru's rejected exact head, separated every extract subcommand
+  from the dispatcher, and reduced its measured complexity below the gate
+  without changing extractor behavior.
 
 ## Blockers
 
