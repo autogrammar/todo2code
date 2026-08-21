@@ -1,0 +1,60 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-084",
+  "summary": "Honor explicit deterministic NL mode in the workspace comparison CLI",
+  "workstream": "interfaces",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-084/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/cli.ts",
+    "test/cli-compare-workspace.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/comparison/**",
+    "src/pipeline/**",
+    "src/extractors/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "d14bb260581e9c3f0fbe04f9f475a185476dd358",
+    "targetBranch": "main",
+    "outcome": "compare-workspace honors explicit deterministic NL mode without requiring provider configuration",
+    "nonGoals": ["No comparison engine change", "No default-mode weakening", "No new dependency"],
+    "complexity": "XS",
+    "estimatedMinutes": 15,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Create a command-scoped config containing the parsed NL mode before invoking the unchanged comparison API",
+      "components": [{"name": "cli", "paths": ["src/cli.ts", "test/cli-compare-workspace.test.ts"]}],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the implementation commit; environment configuration again controls comparison NL extraction"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["node --test dist/test/cli-compare-workspace.test.js"], "evidence": "CLI succeeds with an empty provider credential and deterministic NL mode"},
+      {"criterion": "AC-03", "commands": ["node --test dist/test/cli-compare-workspace.test.js"], "evidence": "Help exposes --nl-mode"},
+      {"criterion": "AC-04", "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"], "evidence": "Repository gates pass on exact head"}
+    ]
+  }
+}
