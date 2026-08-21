@@ -1,0 +1,8 @@
+$ npm run build && node --test dist/test/workspace.test.js
+PASS: 3 tests
+
+$ npm run verify
+PASS: 421 tests, 1 JDK-only skip
+
+$ make docker-smoke
+docker smoke: PASS

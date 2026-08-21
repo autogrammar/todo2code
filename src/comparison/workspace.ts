@@ -144,7 +144,13 @@ export async function compareWorkspaceIntent(
   const baseRef = options.baseRef?.trim() || defaultBaseRef();
   const baseCommit = (await git(repositoryRoot, ['rev-parse', '--verify', `${baseRef}^{commit}`])).trim();
   const headCommit = (await git(repositoryRoot, ['rev-parse', '--verify', 'HEAD^{commit}'])).trim();
-  const status = await git(repositoryRoot, ['status', '--porcelain=v1', '--untracked-files=all']);
+  const statusArguments = ['status', '--porcelain=v1', '--untracked-files=all'];
+  const outputRelativeToRepository = path.relative(repositoryRoot, path.resolve(root, outputDir));
+  if (outputRelativeToRepository && !outputRelativeToRepository.startsWith('..') && !path.isAbsolute(outputRelativeToRepository)) {
+    const normalizedOutput = outputRelativeToRepository.replace(/\\/g, '/');
+    statusArguments.push('--', '.', `:(exclude,top)${normalizedOutput}`, `:(exclude,top)${normalizedOutput}/**`);
+  }
+  const status = await git(repositoryRoot, statusArguments);
   const changedFiles = status.split(/\r?\n/).filter(Boolean).map((line) => line.slice(3)).sort();
   const [behind, ahead] = parseAheadBehind(await git(repositoryRoot, ['rev-list', '--left-right', '--count', `${baseCommit}...HEAD`]));
   const deadlineDecision = calculateWorkspaceComparisonDeadline(
@@ -169,8 +175,18 @@ export async function compareWorkspaceIntent(
     const baseOptions = await optionsForRoot(baseRoot, { ...pipelineOptions, root: baseRoot, outputDir: '.intent-compare-base' });
     const currentOptions = await optionsForRoot(root, { ...pipelineOptions, root, outputDir });
     const boundedOpenRouter = { ...config.openRouter, signal: deadlineController.signal };
-    const baseConfig = { ...config, root: baseRoot, openRouter: boundedOpenRouter };
-    const currentConfig = { ...config, root, openRouter: boundedOpenRouter };
+    const baseConfig = {
+      ...config,
+      root: baseRoot,
+      outputDir: baseOptions.outputDir,
+      openRouter: boundedOpenRouter,
+    };
+    const currentConfig = {
+      ...config,
+      root,
+      outputDir: currentOptions.outputDir,
+      openRouter: boundedOpenRouter,
+    };
 
     let baseRun: Awaited<ReturnType<typeof runPipeline>>;
     let currentRun: Awaited<ReturnType<typeof runPipeline>>;
