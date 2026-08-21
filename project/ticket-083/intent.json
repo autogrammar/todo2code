@@ -1,0 +1,67 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-083",
+  "summary": "Keep workspace comparison artifacts and caches outside the analysed repository state",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-083/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/comparison/workspace.ts",
+    "test/workspace.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/cli.ts",
+    "src/interfaces/**",
+    "src/pipeline/**",
+    "src/extractors/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "d14bb260581e9c3f0fbe04f9f475a185476dd358",
+    "targetBranch": "main",
+    "outcome": "compare-workspace writes every generated artifact and cache only below its selected output directory without affecting observed repository state",
+    "nonGoals": [
+      "No scoring or DSL schema change",
+      "No mutation authority",
+      "No CLI parsing change"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Derive a comparison-local config whose outputDir follows each pipeline root and selected evidence directory, and filter only the selected generated path from the pre-run status snapshot",
+      "components": [
+        {"name": "workspace-comparison", "paths": ["src/comparison/workspace.ts", "test/workspace.test.ts"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the implementation commit; comparison returns to using ambient config.outputDir"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["node --test dist/test/workspace.test.js"], "evidence": "External output regression leaves no generated directory in the analysed repository"},
+      {"criterion": "AC-03", "commands": ["node --test dist/test/workspace.test.js"], "evidence": "Selected in-tree evidence is absent from changedFiles and graph input"},
+      {"criterion": "AC-04", "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"], "evidence": "Repository gates pass on exact head"}
+    ]
+  }
+}
