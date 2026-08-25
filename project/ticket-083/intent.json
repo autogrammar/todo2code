@@ -1,7 +1,7 @@
 {
   "schema": "new-project.intent/v3",
   "ticket": "ticket-083",
-  "summary": "Keep workspace comparison artifacts and caches outside the analysed repository state",
+  "summary": "Keep workspace comparison artifacts bounded and outside the analysed repository state",
   "workstream": "core-dsl",
   "classification": {
     "kind": "BUG",
@@ -29,13 +29,14 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "d14bb260581e9c3f0fbe04f9f475a185476dd358",
+    "acceptedBaseSha": "ea6ce38f4b4038a5d9937e83e04704b2d0906bc7",
     "targetBranch": "main",
-    "outcome": "compare-workspace writes every generated artifact and cache only below its selected output directory without affecting observed repository state",
+    "outcome": "compare-workspace writes generated artifacts only below its selected output directory and reads large generated graphs under a comparison-specific bounded ceiling",
     "nonGoals": [
       "No scoring or DSL schema change",
       "No mutation authority",
-      "No CLI parsing change"
+      "No CLI parsing change",
+      "No unbounded reads or generic JSON ceiling increase"
     ],
     "complexity": "XS",
     "estimatedMinutes": 20,
@@ -47,7 +48,7 @@
     },
     "architecture": {
       "status": "accepted",
-      "decision": "Derive a comparison-local config whose outputDir follows each pipeline root and selected evidence directory, and filter only the selected generated path from the pre-run status snapshot",
+      "decision": "Keep comparison output isolated and apply an explicit 256 MiB ceiling only when re-reading the two generated comparison graphs",
       "components": [
         {"name": "workspace-comparison", "paths": ["src/comparison/workspace.ts", "test/workspace.test.ts"]}
       ],
@@ -61,7 +62,8 @@
     "validation": [
       {"criterion": "AC-02", "commands": ["node --test dist/test/workspace.test.js"], "evidence": "External output regression leaves no generated directory in the analysed repository"},
       {"criterion": "AC-03", "commands": ["node --test dist/test/workspace.test.js"], "evidence": "Selected in-tree evidence is absent from changedFiles and graph input"},
-      {"criterion": "AC-04", "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"], "evidence": "Repository gates pass on exact head"}
+      {"criterion": "AC-04", "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"], "evidence": "Repository gates pass on exact head"},
+      {"criterion": "AC-05", "commands": ["node --test dist/test/workspace.test.js"], "evidence": "Comparison graph ceiling is greater than the observed 142557246-byte Platform graph and remains exactly bounded at 256 MiB"}
     ]
   }
 }

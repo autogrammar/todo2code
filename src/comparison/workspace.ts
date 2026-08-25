@@ -23,6 +23,13 @@ export const WORKSPACE_COMPARISON_DEADLINE_POLICY = Object.freeze({
   maximumDeadlineMs: 40 * 60 * 1000,
 });
 
+// Generated graphs are denser than their source records. Platform currently
+// produces a ~136 MiB graph, so the generic 128 MiB JSON ceiling rejects an
+// artifact that the bounded pipeline has just produced. Keep a separate,
+// explicit ceiling for the two comparison graphs instead of weakening the
+// default limit for every JSON consumer.
+export const WORKSPACE_COMPARISON_GRAPH_MAX_BYTES = 256 * 1024 * 1024;
+
 export interface WorkspaceComparisonDeadlineLoad {
   inputBytes: number;
   llmWorkUnits: number;
@@ -203,8 +210,8 @@ export async function compareWorkspaceIntent(
       throw error;
     }
     const [baseGraph, currentGraph, baseDiagnostics, currentDiagnostics] = await Promise.all([
-      readJson<IntentGraph>(baseRun.graphPath),
-      readJson<IntentGraph>(currentRun.graphPath),
+      readJson<IntentGraph>(baseRun.graphPath, WORKSPACE_COMPARISON_GRAPH_MAX_BYTES),
+      readJson<IntentGraph>(currentRun.graphPath, WORKSPACE_COMPARISON_GRAPH_MAX_BYTES),
       readJson<DiagnosticReport>(baseRun.diagnosticsPath),
       readJson<DiagnosticReport>(currentRun.diagnosticsPath),
     ]);
