@@ -98,15 +98,25 @@ export async function extractDocumentationBaseline(
   const resolver = createMarkdownPathResolver(root);
 
   for (const file of options.files) {
+    const relative = relativePosix(root, file);
+    // Governed participant files are the canonical communication channel and
+    // are extracted by project-communication. Reading the same bytes again as
+    // generic documentation creates two records with different heuristic
+    // polarity, which can turn one statement into a blocking self-conflict.
+    if (isGovernedParticipantDocument(relative)) continue;
     try {
       const body = await readText(file, config.maxFileBytes);
       records.push(...convertDocument(root, file, body, await primePathMapper(resolver, body)));
     } catch (error) {
-      warnings.push(`${relativePosix(root, file)}: ${error instanceof Error ? error.message : String(error)}`);
+      warnings.push(`${relative}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   return { records, warnings };
+}
+
+function isGovernedParticipantDocument(relativePath: string): boolean {
+  return /^project\/ticket-[0-9]+\/(?:ai|user)-[^/]+\.md$/i.test(relativePath);
 }
 
 /**

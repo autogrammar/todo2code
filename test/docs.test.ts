@@ -70,6 +70,39 @@ test('governed ticket documentation keeps acceptance criteria local to its sourc
     .every((record) => !record.statement.target.tickets.includes('AC-01')));
 });
 
+test('governed participant communication is not duplicated as documentation', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-participant-boundary-'));
+  const ticket = path.join(root, 'project', 'ticket-118');
+  const participant = path.join(ticket, 'ai-codex.md');
+  const readme = path.join(ticket, 'README.md');
+  await fs.mkdir(ticket, { recursive: true });
+  await fs.writeFile(participant, [
+    '---',
+    'participant-id: agent:codex',
+    'participant: codex',
+    'role: agent',
+    'ticket: ticket-118',
+    '---',
+    '# Participant',
+    '',
+    'Control must reject transport authority and must not bypass `subactor`.',
+  ].join('\n'));
+  await fs.writeFile(readme, [
+    '# Ticket 118',
+    '',
+    '- Control must reject transport authority in `config/adopt.json`.',
+  ].join('\n'));
+
+  const result = await extractDocumentationBaseline({
+    root,
+    files: [participant, readme],
+  }, makeConfig(root));
+
+  assert.equal(result.warnings.length, 0);
+  assert.ok(result.records.length > 0);
+  assert.ok(result.records.every((record) => record.source.path === 'project/ticket-118/README.md'));
+});
+
 test('deterministic documentation preserves Polish prohibition polarity', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-prohibition-'));
   const readme = path.join(root, 'README.md');
