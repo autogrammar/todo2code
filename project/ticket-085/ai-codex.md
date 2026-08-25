@@ -26,7 +26,13 @@ record located below `project/ticket-NNN/` must retain that structural scope.
 - Ticket-directory structure is now the fallback target for deterministic
   documentation records, while explicit non-criterion references still win.
 - Focused, full host, Docker and governance validation passed.
+- Reopened the extractor workstream after `PLF-8091` proved that participant
+  Markdown was simultaneously emitted as typed communication and generic
+  documentation, producing blocking self-conflicts.
+- Routed governed `ai-*.md` and `user-*.md` exclusively through the existing
+  communication extractor while retaining ticket README documentation.
 
-## Blockers
+## Current state
 
-- Human approval is required before implementation.
+- `IN_PROGRESS / PUBLICATION`; focused, full, governance, Docker and exact
+  Platform replay validation pass. Protected review remains required.
