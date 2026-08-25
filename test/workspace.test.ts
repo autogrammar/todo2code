@@ -9,12 +9,19 @@ import {
   calculateWorkspaceComparisonDeadline,
   classifyWorkspaceTrend,
   compareWorkspaceIntent,
+  WORKSPACE_COMPARISON_GRAPH_MAX_BYTES,
 } from '../src/comparison/workspace.js';
 import { pathExists, readJson } from '../src/core/io.js';
 import type { PipelineManifest } from '../src/core/types.js';
 import { makeConfig } from './helpers.js';
 
 const exec = promisify(execFile);
+
+test('workspace comparison has a bounded graph ceiling above large Platform evidence', () => {
+  const observedPlatformGraphBytes = 142_557_246;
+  assert.ok(WORKSPACE_COMPARISON_GRAPH_MAX_BYTES > observedPlatformGraphBytes);
+  assert.equal(WORKSPACE_COMPARISON_GRAPH_MAX_BYTES, 256 * 1024 * 1024);
+});
 
 test('workspace comparison deadline scales aggregate input and LLM work in bounded 2x steps', () => {
   const baseline = calculateWorkspaceComparisonDeadline({ inputBytes: 128 * 1024, llmWorkUnits: 16 });

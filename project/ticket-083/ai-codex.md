@@ -30,7 +30,13 @@ input. The comparison then observes artifacts produced by the observer.
   excluded the selected in-repository evidence path from the status snapshot.
 - Added regression coverage and passed focused, full Node and Docker checks.
 - Transitioned to `IN_PROGRESS / PUBLICATION`; no merge is claimed locally.
+- Reopened the merged comparison workstream after live `PLF-8091` evidence
+  showed a 142,557,246-byte generated Platform graph failing the generic
+  128 MiB JSON ceiling.
+- Kept the generic JSON limit unchanged and introduced a comparison-only,
+  bounded 256 MiB graph ceiling with focused regression coverage.
 
-## Blockers
+## Current state
 
-- None for implementation; protected publication remains independent.
+- `IN_PROGRESS / PUBLICATION`; the exact 142,557,246-byte Platform graph replay,
+  426-test suite, governance and Docker gates pass. Protected review remains.
