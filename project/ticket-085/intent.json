@@ -8,10 +8,73 @@
     "priority": "P1",
     "origin": "regression"
   },
-  "allowedPaths": ["project/ticket-085/**", "TODO.md", "project/TICKETS.md"],
-  "forbiddenPaths": ["project/ticket-*/user-*.md"],
-  "stacks": [],
+  "allowedPaths": [
+    "project/ticket-085/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/extractors/docs-deterministic.ts",
+    "test/docs.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/**",
+    "src/comparison/**",
+    "src/diff/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
   "dependsOn": [],
   "conflictsWith": [],
-  "integrationTicket": null
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "72a6bd1e194ef3ac6c586b329688fb2faa86be92",
+    "targetBranch": "main",
+    "outcome": "Governed ticket documentation criteria remain scoped to their source ticket without weakening semantic comparison",
+    "nonGoals": [
+      "No scoring or comparison policy change",
+      "No public schema or dependency change"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Use the governed source path as the fallback ticket target and discard criterion labels from ticket identity only inside ticket-scoped documentation",
+      "components": [
+        {
+          "name": "deterministic-documentation-extractor",
+          "paths": ["src/extractors/docs-deterministic.ts", "test/docs.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the implementation commit; documentation records return to text-only ticket extraction"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["node --test dist/test/docs.test.js"],
+        "evidence": "Two generic AC-01 statements resolve to distinct source-ticket targets"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node --test dist/test/docs.test.js"],
+        "evidence": "An explicit PLF reference remains the extracted target"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"],
+        "evidence": "Repository gates pass on exact head"
+      }
+    ]
+  }
 }
