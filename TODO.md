@@ -2,6 +2,9 @@
 
 ## Active tickets
 
+- [ ] [`ticket-085`](project/ticket-085/README.md) — scope documentation
+  acceptance criteria to their governed source ticket. Current state:
+  `IN_PROGRESS / PUBLICATION`.
 - [ ] [`ticket-083`](project/ticket-083/README.md) — keep workspace comparison
   artifacts and caches outside analysed repository state. Current state:
   `IN_PROGRESS / PUBLICATION`.
