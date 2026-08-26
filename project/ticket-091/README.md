@@ -2,8 +2,8 @@
 
 - **ID**: ticket-091
 - **Owner**: agent:codex under SESSION_EXECUTION_AUTHORIZATION
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-26
 
 ## Goal and scope
@@ -18,6 +18,12 @@ not claim success or alter executable code.
 - [x] AC-02: Ticket-054 becomes `BLOCKED / WAIT_FOR_DEPENDENCIES`.
 - [x] AC-03: No implementation path changes.
 - [x] AC-04: Governance and diff checks pass.
+
+## Closure
+
+The ticket was merged in pull request #105. This closure records that its
+governance reservation is released; it does not change ticket-054's blocked
+scope or any executable behavior.
 
 ## Participants
 

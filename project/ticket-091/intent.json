@@ -22,7 +22,7 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "89e72ce991e3f2518b323d2d5e45ff7368b46acf",
+    "acceptedBaseSha": "a82f6cfaf97610722efd2e77d8ac43e5abc2044a",
     "targetBranch": "main",
     "outcome": "Release a stale integration reservation without claiming completion",
     "nonGoals": [
