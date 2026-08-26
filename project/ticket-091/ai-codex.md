@@ -19,6 +19,8 @@ Ticket-054 is incomplete coordination evidence, not active implementation.
 ## Actual changes
 
 - Changed only the lifecycle state of ticket-054 and its TODO projection.
+- Closed ticket-091 after its protected merge and released the governance
+  workstream reservation.
 
 ## Blockers
 

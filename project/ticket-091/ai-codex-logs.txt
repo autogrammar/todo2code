@@ -5,3 +5,9 @@ transition ticket-054: IN_PROGRESS / PUBLICATION -> BLOCKED / WAIT_FOR_DEPENDENC
 implementation changes: none.
 ./project/governance-check.sh: GOV-PASS
 git diff --check: PASS
+
+2026-08-26T18:45:54+02:00
+closure verification:
+./project/governance-check.sh: GOV-PASS
+git diff --check: PASS
+ticket-091: DONE / DONE
