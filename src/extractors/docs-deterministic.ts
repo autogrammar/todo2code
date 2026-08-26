@@ -98,15 +98,25 @@ export async function extractDocumentationBaseline(
   const resolver = createMarkdownPathResolver(root);
 
   for (const file of options.files) {
+    const relative = relativePosix(root, file);
+    // Governed participant files are the canonical communication channel and
+    // are extracted by project-communication. Reading the same bytes again as
+    // generic documentation creates two records with different heuristic
+    // polarity, which can turn one statement into a blocking self-conflict.
+    if (isGovernedParticipantDocument(relative)) continue;
     try {
       const body = await readText(file, config.maxFileBytes);
       records.push(...convertDocument(root, file, body, await primePathMapper(resolver, body)));
     } catch (error) {
-      warnings.push(`${relativePosix(root, file)}: ${error instanceof Error ? error.message : String(error)}`);
+      warnings.push(`${relative}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   return { records, warnings };
+}
+
+function isGovernedParticipantDocument(relativePath: string): boolean {
+  return /^project\/ticket-[0-9]+\/(?:ai|user)-[^/]+\.md$/i.test(relativePath);
 }
 
 /**
@@ -134,6 +144,7 @@ async function primePathMapper(resolver: MarkdownPathResolver, body: string): Pr
 
 function convertDocument(root: string, filePath: string, body: string, resolvePaths: PathMapper): IntentRecord[] {
   const relative = relativePosix(root, filePath);
+  const sourceTicket = sourceTicketOf(relative);
   const lines = body.split(/\r?\n/);
   const records: IntentRecord[] = [];
   const headings: string[] = [];
@@ -151,7 +162,7 @@ function convertDocument(root: string, filePath: string, body: string, resolvePa
       if (fence === null) {
         fence = marker;
         const language = (fenceMatch[2] ?? '').trim();
-        const record = codeBlockRecord(relative, headings, language, index + 1);
+        const record = codeBlockRecord(relative, headings, language, index + 1, sourceTicket);
         if (record) records.push(record);
       } else if (marker.startsWith(fence.slice(0, 3))) {
         fence = null;
@@ -167,7 +178,15 @@ function convertDocument(root: string, filePath: string, body: string, resolvePa
       headings.splice(level - 1);
       headings[level - 1] = title;
       if (level <= MAX_HEADING_LEVEL && title) {
-        records.push(statementRecord(relative, headings, title, { start: index + 1, end: index + 1 }, 'heading', resolvePaths));
+        records.push(statementRecord(
+          relative,
+          headings,
+          title,
+          { start: index + 1, end: index + 1 },
+          'heading',
+          resolvePaths,
+          sourceTicket,
+        ));
       }
       continue;
     }
@@ -176,7 +195,14 @@ function convertDocument(root: string, filePath: string, body: string, resolvePa
     if (bullet) {
       const block = readListBlock(lines, index, bullet[1] ?? '');
       index = block.endIndex;
-      const record = qualifyingStatement(relative, headings, block.text, { start: block.startLine, end: block.endLine }, resolvePaths);
+      const record = qualifyingStatement(
+        relative,
+        headings,
+        block.text,
+        { start: block.startLine, end: block.endLine },
+        resolvePaths,
+        sourceTicket,
+      );
       if (record) records.push(record);
       continue;
     }
@@ -193,6 +219,7 @@ function convertDocument(root: string, filePath: string, body: string, resolvePa
         paragraph.text,
         { start: paragraph.startLine, end: paragraph.endLine },
         resolvePaths,
+        sourceTicket,
       );
       if (record) records.push(record);
     }
@@ -243,11 +270,12 @@ function qualifyingStatement(
   text: string,
   lines: { start: number; end: number },
   resolvePaths: PathMapper,
+  sourceTicket: string | null,
 ): IntentRecord | null {
   if (text.length < MIN_STATEMENT_CHARS) return null;
-  const target = targetsOf(text, resolvePaths);
+  const target = targetsOf(text, resolvePaths, sourceTicket);
   if (target.paths.length === 0 && target.tickets.length === 0 && !hasCodeSpanIdentifier(text)) return null;
-  return statementRecord(sourcePath, headings, text, lines, 'reference', resolvePaths);
+  return statementRecord(sourcePath, headings, text, lines, 'reference', resolvePaths, sourceTicket);
 }
 
 /** True when the text quotes an identifier in a code span, e.g. `validateContract`. */
@@ -262,13 +290,14 @@ function statementRecord(
   lines: { start: number; end: number },
   origin: 'heading' | 'reference',
   resolvePaths: PathMapper,
+  sourceTicket: string | null,
 ): IntentRecord {
   const action = classifyActionHeuristically(text);
   return buildRecord({
     kind: 'documentation_statement',
     action,
     object: inferObject(text, action),
-    target: targetsOf(text, resolvePaths),
+    target: targetsOf(text, resolvePaths, sourceTicket),
     modality: detectModality(text),
     polarity: detectPolarity(text),
     text,
@@ -297,6 +326,7 @@ function codeBlockRecord(
   headings: string[],
   language: string,
   line: number,
+  sourceTicket: string | null,
 ): IntentRecord | null {
   if (!language) return null;
   const text = `Documented ${language} example`;
@@ -304,7 +334,7 @@ function codeBlockRecord(
     kind: 'documentation_example',
     action: 'document',
     object: `${language} example`,
-    target: { paths: [], symbols: [], tickets: [], versions: [] },
+    target: { paths: [], symbols: [], tickets: sourceTicket ? [sourceTicket] : [], versions: [] },
     modality: 'unknown',
     polarity: 'positive',
     text,
@@ -329,13 +359,29 @@ function codeBlockRecord(
 function targetsOf(
   text: string,
   resolvePaths: PathMapper,
+  sourceTicket: string | null,
 ): { paths: string[]; symbols: string[]; tickets: string[]; versions: string[] } {
+  const extractedTickets = extractTickets(text);
+  const explicitTickets = sourceTicket
+    ? extractedTickets.filter((ticket) => !/^AC-\d+$/.test(ticket))
+    : extractedTickets;
   return {
     paths: resolvePaths(extractPaths(text)),
     symbols: extractSymbols(text),
-    tickets: extractTickets(text),
+    tickets: explicitTickets.length > 0 ? explicitTickets : sourceTicket ? [sourceTicket] : [],
     versions: extractVersions(text),
   };
+}
+
+/**
+ * Governed ticket directories are a stronger namespace than their local
+ * acceptance-criterion labels. Without this structural target, every
+ * `AC-01` in a repository is compared as one global ticket and unrelated work
+ * produces a false conflict.
+ */
+function sourceTicketOf(sourcePath: string): string | null {
+  const match = sourcePath.match(/^project\/ticket-(\d+)(?:\/|$)/i);
+  return match?.[1] ? `TICKET-${match[1]}` : null;
 }
 
 function requireStandaloneRoot(value: unknown, api: string): string {

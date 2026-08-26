@@ -1,0 +1,41 @@
+$ npm run build && node --test dist/test/workspace.test.js
+PASS: 3 tests
+
+$ npm run verify
+PASS: 421 tests, 1 JDK-only skip
+
+$ make docker-smoke
+docker smoke: PASS
+
+2026-08-25 live Subactor reproduction
+
+Source ticket: PLF-8091; target repository: subactor/platform; base:
+92a79e060f18cd5793cdb50138e2f7b1241b8c1d.
+
+The coding-agent runner passed its repository and governance checks, then
+failed in the pinned todo2code comparison. Replaying the exact retained patch
+and command against todo2code ea6ce38 produced:
+
+  File exceeds 134217728 bytes: .../.intent-compare-base/.../intent.graph.json
+
+The current-workspace graph was 142,557,246 bytes. Both pipelines had completed;
+the generic read ceiling, not an intent regression, rejected their generated
+evidence. User authorization to continue includes repairing autonomization
+defects observed by the supervisor. Merge authority remains protected.
+
+$ npm run build && node --test dist/test/workspace.test.js
+PASS: 4/4 tests, including the bounded large-graph ceiling regression.
+
+$ ./project/governance-check.sh --actor agent --base ea6ce38... --head HEAD
+GOV-PASS: 0 errors, 0 warnings.
+
+$ npm run verify
+PASS: 426 tests; 425 pass, 0 fail, 1 JDK-only skip.
+
+$ make docker-smoke
+PASS: image build and runtime smoke.
+
+$ compare-workspace <PLF-8091 replay> --base origin/main
+PASS: exit 0, stderr 0 bytes; current graph 142,557,246 bytes; base commit
+92a79e060f18cd5793cdb50138e2f7b1241b8c1d. The comparison now reports the
+actual semantic delta (blocking +2) for independent replanning.

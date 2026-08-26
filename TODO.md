@@ -2,10 +2,22 @@
 
 ## Active tickets
 
+- [ ] [`ticket-089`](project/ticket-089/README.md) — route semantic requests
+  through public SubLLM with direct Z.AI GLM 5.3 by default. Current state:
+  `IN_PROGRESS / PUBLICATION`; workstream: `llm`.
+
+- [ ] [`ticket-090`](project/ticket-090/README.md) — make the default offline
+  test command independent of ambient SubLLM credentials. Current state:
+  `IN_PROGRESS / PUBLICATION`; workstream: `integration`.
+
+- [ ] [`ticket-088`](project/ticket-088/README.md) — prevent overlapping
+  projections of one source sentence from creating a false blocking polarity
+  contradiction. Current state: `IN_PROGRESS / EDIT`; workstream: `core-dsl`.
+
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
-  `IN_PROGRESS / PUBLICATION`; executable changes remain in target repositories.
+  `BLOCKED / WAIT_FOR_DEPENDENCIES`; executable changes remain in target repositories.
 
 ## Backlog tickets
 
@@ -21,6 +33,20 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-087`](project/ticket-087/README.md) — reconciled protected merge
+  evidence and released stale reservations for tickets 077, 083, 084 and 085.
+  Current state: `DONE / DONE`.
+- [x] [`ticket-085`](project/ticket-085/README.md) — scoped documentation to
+  its source ticket and isolated participant Markdown; protected PRs #99 and
+  #101 are merged. Current state: `DONE / DONE`.
+- [x] [`ticket-084`](project/ticket-084/README.md) — honored deterministic NL
+  mode in workspace comparison; protected PR #97 is merged. Current state:
+  `DONE / DONE`.
+- [x] [`ticket-083`](project/ticket-083/README.md) — isolated and bounded
+  workspace comparison evidence; protected PRs #98 and #100 are merged.
+  Current state: `DONE / DONE`.
+- [x] [`ticket-077`](project/ticket-077/README.md) — reconciled the governed DSL
+  manifest projection to current protected main. Current state: `DONE / DONE`.
 - [x] [`ticket-076`](project/ticket-076/README.md) — publishes independently
   callable `code2dsl`, `docs2dsl` and `config2dsl` facades that emit strictly
   validated, source-limited `t2c.intent/v1` records. Full host/Docker checks,

@@ -9,12 +9,19 @@ import {
   calculateWorkspaceComparisonDeadline,
   classifyWorkspaceTrend,
   compareWorkspaceIntent,
+  WORKSPACE_COMPARISON_GRAPH_MAX_BYTES,
 } from '../src/comparison/workspace.js';
 import { pathExists, readJson } from '../src/core/io.js';
 import type { PipelineManifest } from '../src/core/types.js';
 import { makeConfig } from './helpers.js';
 
 const exec = promisify(execFile);
+
+test('workspace comparison has a bounded graph ceiling above large Platform evidence', () => {
+  const observedPlatformGraphBytes = 142_557_246;
+  assert.ok(WORKSPACE_COMPARISON_GRAPH_MAX_BYTES > observedPlatformGraphBytes);
+  assert.equal(WORKSPACE_COMPARISON_GRAPH_MAX_BYTES, 256 * 1024 * 1024);
+});
 
 test('workspace comparison deadline scales aggregate input and LLM work in bounded 2x steps', () => {
   const baseline = calculateWorkspaceComparisonDeadline({ inputBytes: 128 * 1024, llmWorkUnits: 16 });
@@ -112,6 +119,18 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   assert.equal(baseManifest.stages.summary.status, 'skipped');
   assert.equal(workspaceManifest.stages.summary.status, 'skipped');
   assert.equal(baseManifest.configuration.summaryLlm, false);
+  assert.equal(await pathExists(path.join(root, '.intent')), false, 'ambient cache directory is not used');
+
+  const repeated = await compareWorkspaceIntent({
+    root,
+    outputDir: '.intent-workspace',
+    includeDocumentationLlm: false,
+  }, config);
+  assert.deepEqual(
+    repeated.workspace.changedFiles,
+    ['runtime.ts', 'unplanned.ts'],
+    'existing comparison evidence is excluded from the observed Git state',
+  );
 
   const outside = path.join(parent, 'outside-comparison');
   await assert.rejects(
@@ -131,4 +150,6 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   assert.ok(await pathExists(comparisonFile));
   assert.equal(path.relative(outside, comparisonFile).startsWith('..'), false, 'artifacts land under the requested directory');
   assert.equal(await pathExists(path.join(root, 'outside-comparison')), false);
+  assert.equal(await pathExists(path.join(root, '.intent')), false, 'external output also owns extractor caches');
+  assert.ok(await pathExists(path.join(outside, 'cache')), 'extractor cache follows the external output directory');
 });

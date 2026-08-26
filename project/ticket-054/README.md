@@ -2,8 +2,8 @@
 
 - **ID**: ticket-054
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: BLOCKED
+- **Workflow state**: WAIT_FOR_DEPENDENCIES
 - **Created**: 2026-08-08
 
 ## Goal and scope

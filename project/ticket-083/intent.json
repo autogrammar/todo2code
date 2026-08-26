@@ -1,0 +1,69 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-083",
+  "summary": "Keep workspace comparison artifacts bounded and outside the analysed repository state",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-083/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/comparison/workspace.ts",
+    "test/workspace.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/cli.ts",
+    "src/interfaces/**",
+    "src/pipeline/**",
+    "src/extractors/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "ea6ce38f4b4038a5d9937e83e04704b2d0906bc7",
+    "targetBranch": "main",
+    "outcome": "compare-workspace writes generated artifacts only below its selected output directory and reads large generated graphs under a comparison-specific bounded ceiling",
+    "nonGoals": [
+      "No scoring or DSL schema change",
+      "No mutation authority",
+      "No CLI parsing change",
+      "No unbounded reads or generic JSON ceiling increase"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Keep comparison output isolated and apply an explicit 256 MiB ceiling only when re-reading the two generated comparison graphs",
+      "components": [
+        {"name": "workspace-comparison", "paths": ["src/comparison/workspace.ts", "test/workspace.test.ts"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the implementation commit; comparison returns to using ambient config.outputDir"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02", "commands": ["node --test dist/test/workspace.test.js"], "evidence": "External output regression leaves no generated directory in the analysed repository"},
+      {"criterion": "AC-03", "commands": ["node --test dist/test/workspace.test.js"], "evidence": "Selected in-tree evidence is absent from changedFiles and graph input"},
+      {"criterion": "AC-04", "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"], "evidence": "Repository gates pass on exact head"},
+      {"criterion": "AC-05", "commands": ["node --test dist/test/workspace.test.js"], "evidence": "Comparison graph ceiling is greater than the observed 142557246-byte Platform graph and remains exactly bounded at 256 MiB"}
+    ]
+  }
+}

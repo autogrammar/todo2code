@@ -322,6 +322,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
   if (command === 'compare-workspace') {
     const root = path.resolve(parsed.positionals[0] ?? config.root);
+    const comparisonConfig = { ...config, nlMode: optionNlMode(parsed, config.nlMode) };
     const result = await compareWorkspaceIntent({
       root,
       baseRef: optionString(parsed, 'base') ?? 'origin/main',
@@ -335,7 +336,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       communicationMode: optionLlmMode(parsed, 'communication-mode', config.communicationMode),
       outputDir: optionString(parsed, 'out') ?? config.outputDir,
       gitCommitCount: optionNumber(parsed, 'git-count', config.gitCommitCount, 1, 100),
-    }, config);
+    }, comparisonConfig);
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     return;
   }
@@ -527,72 +528,90 @@ async function handleExtract(parsed: ParsedArgs, config: ReturnType<typeof getCo
   const extractor = parsed.positionals.shift();
   const root = path.resolve(optionString(parsed, 'root') ?? config.root);
   const out = optionString(parsed, 'out');
-  if (extractor === 'nl') {
-    const file = parsed.positionals[0];
-    const inline = optionString(parsed, 'text');
-    if (!file && !inline) throw new Error('Usage: t2c extract nl <file> [--text "..."] [--out records.jsonl]');
-    const result = await extractNlIntentAudited(
-      { root, sourcePath: file ?? 'cli-input.md', ...(inline ? { text: inline } : {}) },
-      config,
-      optionNlMode(parsed, config.nlMode),
-    );
-    await emitExtraction(result, out);
-    process.stderr.write(`NL -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
-    return;
+  const context = { parsed, config, root, out };
+  switch (extractor) {
+    case 'nl': return extractNlCommand(context);
+    case 'git': return extractGitCommand(context);
+    case 'ast': return extractAstCommand(context);
+    case 'config': return extractConfigCommand(context);
+    case 'runtime': return extractRuntimeCommand(context);
+    case 'markdown': return extractMarkdownCommand(context);
+    case 'docs': return extractDocsCommand(context);
+    case 'communication': return extractCommunicationCommand(context);
+    default: throw new Error('Usage: t2c extract <nl|git|ast|config|runtime|markdown|docs|communication> ...');
   }
-  if (extractor === 'git') {
-    const result = await extractGitIntent({ root, count: optionNumber(parsed, 'count', config.gitCommitCount, 1, 100) }, config);
-    await emitExtraction(result, out);
-    return;
-  }
-  if (extractor === 'ast') {
-    const result = await extractAstIntent({ root: path.resolve(parsed.positionals[0] ?? root) }, config);
-    await emitExtraction(result, out);
-    return;
-  }
-  if (extractor === 'config') {
-    const result = await extractConfigurationIntent(path.resolve(parsed.positionals[0] ?? root), config);
-    await emitExtraction(result, out);
-    return;
-  }
-  if (extractor === 'runtime') {
-    const cycle = parsed.positionals[0];
-    if (!cycle) throw new Error('Usage: t2c extract runtime <cycle.json> [--out runtime.intent.jsonl]');
-    const result = await extractRuntimeCycleIntent(cycle, config, root);
-    await emitExtraction(result, out);
-    return;
-  }
-  if (extractor === 'markdown') {
-    const result = await extractMarkdownIntentAudited({
-      root,
-      todoPath: optionNullableString(parsed, 'todo', 'TODO.md'),
-      changelogPath: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
-    }, config, optionLlmMode(parsed, 'markdown-mode', config.markdownMode));
-    await emitExtraction(result, out);
-    process.stderr.write(`TODO/CHANGELOG -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
-    return;
-  }
-  if (extractor === 'docs') {
-    const result = await extractDocumentationIntent({
-      root,
-      patterns: optionList(parsed, 'patterns', config.documentPatterns),
-      excludes: optionList(parsed, 'excludes', config.documentExcludes),
-    }, config);
-    await emitExtraction(result, out);
-    process.stderr.write(`documentation -> DSL: ${result.audit.status} (${result.audit.effectiveMode}), runtime ${result.audit.runtimeVersion}\n`);
-    return;
-  }
-  if (extractor === 'communication') {
-    const result = await extractCommunicationIntentAudited({
-      root,
-      projectDir: optionString(parsed, 'project-dir') ?? 'project',
-      ticket: optionNullableString(parsed, 'ticket', null),
-    }, config, optionLlmMode(parsed, 'communication-mode', config.communicationMode));
-    await emitExtraction(result, out);
-    process.stderr.write(`communication -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
-    return;
-  }
-  throw new Error('Usage: t2c extract <nl|git|ast|config|runtime|markdown|docs|communication> ...');
+}
+
+interface ExtractCommandContext {
+  parsed: ParsedArgs;
+  config: ReturnType<typeof getConfig>;
+  root: string;
+  out: string | null;
+}
+
+async function extractNlCommand({ parsed, config, root, out }: ExtractCommandContext): Promise<void> {
+  const file = parsed.positionals[0];
+  const inline = optionString(parsed, 'text');
+  if (!file && !inline) throw new Error('Usage: t2c extract nl <file> [--text "..."] [--out records.jsonl]');
+  const result = await extractNlIntentAudited(
+    { root, sourcePath: file ?? 'cli-input.md', ...(inline ? { text: inline } : {}) },
+    config,
+    optionNlMode(parsed, config.nlMode),
+  );
+  await emitExtraction(result, out);
+  process.stderr.write(`NL -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
+}
+
+async function extractGitCommand({ parsed, config, root, out }: ExtractCommandContext): Promise<void> {
+  const result = await extractGitIntent({ root, count: optionNumber(parsed, 'count', config.gitCommitCount, 1, 100) }, config);
+  await emitExtraction(result, out);
+}
+
+async function extractAstCommand({ parsed, config, root, out }: ExtractCommandContext): Promise<void> {
+  const result = await extractAstIntent({ root: path.resolve(parsed.positionals[0] ?? root) }, config);
+  await emitExtraction(result, out);
+}
+
+async function extractConfigCommand({ parsed, config, root, out }: ExtractCommandContext): Promise<void> {
+  const result = await extractConfigurationIntent(path.resolve(parsed.positionals[0] ?? root), config);
+  await emitExtraction(result, out);
+}
+
+async function extractRuntimeCommand({ parsed, config, root, out }: ExtractCommandContext): Promise<void> {
+  const cycle = parsed.positionals[0];
+  if (!cycle) throw new Error('Usage: t2c extract runtime <cycle.json> [--out runtime.intent.jsonl]');
+  const result = await extractRuntimeCycleIntent(cycle, config, root);
+  await emitExtraction(result, out);
+}
+
+async function extractMarkdownCommand({ parsed, config, root, out }: ExtractCommandContext): Promise<void> {
+  const result = await extractMarkdownIntentAudited({
+    root,
+    todoPath: optionNullableString(parsed, 'todo', 'TODO.md'),
+    changelogPath: optionNullableString(parsed, 'changelog', 'CHANGELOG.md'),
+  }, config, optionLlmMode(parsed, 'markdown-mode', config.markdownMode));
+  await emitExtraction(result, out);
+  process.stderr.write(`TODO/CHANGELOG -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
+}
+
+async function extractDocsCommand({ parsed, config, root, out }: ExtractCommandContext): Promise<void> {
+  const result = await extractDocumentationIntent({
+    root,
+    patterns: optionList(parsed, 'patterns', config.documentPatterns),
+    excludes: optionList(parsed, 'excludes', config.documentExcludes),
+  }, config);
+  await emitExtraction(result, out);
+  process.stderr.write(`documentation -> DSL: ${result.audit.status} (${result.audit.effectiveMode}), runtime ${result.audit.runtimeVersion}\n`);
+}
+
+async function extractCommunicationCommand({ parsed, config, root, out }: ExtractCommandContext): Promise<void> {
+  const result = await extractCommunicationIntentAudited({
+    root,
+    projectDir: optionString(parsed, 'project-dir') ?? 'project',
+    ticket: optionNullableString(parsed, 'ticket', null),
+  }, config, optionLlmMode(parsed, 'communication-mode', config.communicationMode));
+  await emitExtraction(result, out);
+  process.stderr.write(`communication -> DSL: ${result.audit.status} (${result.audit.effectiveMode})\n`);
 }
 
 async function handleCommunication(parsed: ParsedArgs, config: ReturnType<typeof getConfig>): Promise<void> {
@@ -857,7 +876,7 @@ function printHelp(): void {
   process.stdout.write(`               [--nl-mode require-llm] [--markdown-mode require-llm] [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...']\n`);
   process.stdout.write(`               [--no-docs-llm] [--no-summary-llm] [--task-mode disabled|prefer-llm|require-llm]\n`);
   process.stdout.write(`               [--cycle cycle.json] [--project-dir project] [--communication-ticket TICKET] [--communication-mode deterministic|prefer-llm|require-llm] [--no-communication] [--out .intent]\n`);
-  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--markdown-mode require-llm] [--docs-llm]\n`);
+  process.stdout.write(`  t2c compare-workspace [root] [--base origin/main] [--task TASK.md] [--nl-mode deterministic|prefer-llm|require-llm] [--markdown-mode require-llm] [--docs-llm]\n`);
   process.stdout.write(`               [--docs 'README.md,docs/**/*.md'] [--doc-excludes '...'] [--out .intent]\n`);
   process.stdout.write(`  t2c mcp\n`);
   process.stdout.write(`  t2c a2a\n\n`);

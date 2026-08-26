@@ -1,0 +1,14 @@
+$ npm run build && node --test dist/test/cli-compare-workspace.test.js
+PASS: 2 tests
+
+$ npm run verify
+PASS: 423 tests, 1 JDK-only skip
+
+$ make docker-smoke
+docker smoke: PASS
+
+$ lizard src/cli.ts
+PASS: no thresholds exceeded; handleExtract CC=11 (previously 22)
+
+$ node --test dist/test/cli-compare-workspace.test.js dist/test/cli-help.test.js dist/test/cli-intake.test.js dist/test/cli-summary.test.js dist/test/cli-todo.test.js
+PASS: 6 tests

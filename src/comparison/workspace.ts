@@ -23,6 +23,13 @@ export const WORKSPACE_COMPARISON_DEADLINE_POLICY = Object.freeze({
   maximumDeadlineMs: 40 * 60 * 1000,
 });
 
+// Generated graphs are denser than their source records. Platform currently
+// produces a ~136 MiB graph, so the generic 128 MiB JSON ceiling rejects an
+// artifact that the bounded pipeline has just produced. Keep a separate,
+// explicit ceiling for the two comparison graphs instead of weakening the
+// default limit for every JSON consumer.
+export const WORKSPACE_COMPARISON_GRAPH_MAX_BYTES = 256 * 1024 * 1024;
+
 export interface WorkspaceComparisonDeadlineLoad {
   inputBytes: number;
   llmWorkUnits: number;
@@ -144,7 +151,13 @@ export async function compareWorkspaceIntent(
   const baseRef = options.baseRef?.trim() || defaultBaseRef();
   const baseCommit = (await git(repositoryRoot, ['rev-parse', '--verify', `${baseRef}^{commit}`])).trim();
   const headCommit = (await git(repositoryRoot, ['rev-parse', '--verify', 'HEAD^{commit}'])).trim();
-  const status = await git(repositoryRoot, ['status', '--porcelain=v1', '--untracked-files=all']);
+  const statusArguments = ['status', '--porcelain=v1', '--untracked-files=all'];
+  const outputRelativeToRepository = path.relative(repositoryRoot, path.resolve(root, outputDir));
+  if (outputRelativeToRepository && !outputRelativeToRepository.startsWith('..') && !path.isAbsolute(outputRelativeToRepository)) {
+    const normalizedOutput = outputRelativeToRepository.replace(/\\/g, '/');
+    statusArguments.push('--', '.', `:(exclude,top)${normalizedOutput}`, `:(exclude,top)${normalizedOutput}/**`);
+  }
+  const status = await git(repositoryRoot, statusArguments);
   const changedFiles = status.split(/\r?\n/).filter(Boolean).map((line) => line.slice(3)).sort();
   const [behind, ahead] = parseAheadBehind(await git(repositoryRoot, ['rev-list', '--left-right', '--count', `${baseCommit}...HEAD`]));
   const deadlineDecision = calculateWorkspaceComparisonDeadline(
@@ -169,8 +182,18 @@ export async function compareWorkspaceIntent(
     const baseOptions = await optionsForRoot(baseRoot, { ...pipelineOptions, root: baseRoot, outputDir: '.intent-compare-base' });
     const currentOptions = await optionsForRoot(root, { ...pipelineOptions, root, outputDir });
     const boundedOpenRouter = { ...config.openRouter, signal: deadlineController.signal };
-    const baseConfig = { ...config, root: baseRoot, openRouter: boundedOpenRouter };
-    const currentConfig = { ...config, root, openRouter: boundedOpenRouter };
+    const baseConfig = {
+      ...config,
+      root: baseRoot,
+      outputDir: baseOptions.outputDir,
+      openRouter: boundedOpenRouter,
+    };
+    const currentConfig = {
+      ...config,
+      root,
+      outputDir: currentOptions.outputDir,
+      openRouter: boundedOpenRouter,
+    };
 
     let baseRun: Awaited<ReturnType<typeof runPipeline>>;
     let currentRun: Awaited<ReturnType<typeof runPipeline>>;
@@ -187,8 +210,8 @@ export async function compareWorkspaceIntent(
       throw error;
     }
     const [baseGraph, currentGraph, baseDiagnostics, currentDiagnostics] = await Promise.all([
-      readJson<IntentGraph>(baseRun.graphPath),
-      readJson<IntentGraph>(currentRun.graphPath),
+      readJson<IntentGraph>(baseRun.graphPath, WORKSPACE_COMPARISON_GRAPH_MAX_BYTES),
+      readJson<IntentGraph>(currentRun.graphPath, WORKSPACE_COMPARISON_GRAPH_MAX_BYTES),
       readJson<DiagnosticReport>(baseRun.diagnosticsPath),
       readJson<DiagnosticReport>(currentRun.diagnosticsPath),
     ]);

@@ -2,8 +2,8 @@
 
 - **ID**: ticket-077
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-15
 
 ## Goal and scope
@@ -42,3 +42,10 @@ moves to EDIT without a second confirmation, staying inside `intent.json`
 
 - Human participant: unresolved; no user-* file was created by this script.
 - Agent participant: [ai-devin.md](ai-devin.md)
+
+## Closure evidence
+
+The declared `dsl-manifest.json` and its governed manifest binding are present
+on protected `main@a93944f51d47fbf8fe1f3aaea03f17f4fb472d80`; every recorded
+acceptance criterion is complete. This stale active projection is closed before
+allocating the bounded governance reconciliation ticket.

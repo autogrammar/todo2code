@@ -40,6 +40,70 @@ test('deterministic documentation baseline records headings, code blocks and exp
   assert.deepEqual(reference?.statement.target.tickets, ['T2C-14']);
 });
 
+test('governed ticket documentation keeps acceptance criteria local to its source ticket', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-ticket-scope-'));
+  const first = path.join(root, 'project', 'ticket-101', 'README.md');
+  const second = path.join(root, 'project', 'ticket-102', 'README.md');
+  await fs.mkdir(path.dirname(first), { recursive: true });
+  await fs.mkdir(path.dirname(second), { recursive: true });
+  await fs.writeFile(first, [
+    '# Ticket 101: First repair',
+    '',
+    '- [ ] AC-01: Update `src/first.ts` without changing the public contract.',
+    '- [ ] AC-02: Keep the evidence requested by PLF-8016 for independent review.',
+  ].join('\n'));
+  await fs.writeFile(second, [
+    '# Ticket 102: Second repair',
+    '',
+    '- [ ] AC-01: Update `src/second.ts` without changing the public contract.',
+  ].join('\n'));
+
+  const result = await extractDocumentationBaseline({ root, files: [first, second] }, makeConfig(root));
+  const firstCriterion = result.records.find((record) => record.statement.target.paths.includes('src/first.ts'));
+  const secondCriterion = result.records.find((record) => record.statement.target.paths.includes('src/second.ts'));
+  const explicitReference = result.records.find((record) => record.statement.text.includes('PLF-8016'));
+
+  assert.deepEqual(firstCriterion?.statement.target.tickets, ['TICKET-101']);
+  assert.deepEqual(secondCriterion?.statement.target.tickets, ['TICKET-102']);
+  assert.deepEqual(explicitReference?.statement.target.tickets, ['PLF-8016']);
+  assert.ok(result.records
+    .filter((record) => (record.source.path ?? '').startsWith('project/ticket-'))
+    .every((record) => !record.statement.target.tickets.includes('AC-01')));
+});
+
+test('governed participant communication is not duplicated as documentation', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-participant-boundary-'));
+  const ticket = path.join(root, 'project', 'ticket-118');
+  const participant = path.join(ticket, 'ai-codex.md');
+  const readme = path.join(ticket, 'README.md');
+  await fs.mkdir(ticket, { recursive: true });
+  await fs.writeFile(participant, [
+    '---',
+    'participant-id: agent:codex',
+    'participant: codex',
+    'role: agent',
+    'ticket: ticket-118',
+    '---',
+    '# Participant',
+    '',
+    'Control must reject transport authority and must not bypass `subactor`.',
+  ].join('\n'));
+  await fs.writeFile(readme, [
+    '# Ticket 118',
+    '',
+    '- Control must reject transport authority in `config/adopt.json`.',
+  ].join('\n'));
+
+  const result = await extractDocumentationBaseline({
+    root,
+    files: [participant, readme],
+  }, makeConfig(root));
+
+  assert.equal(result.warnings.length, 0);
+  assert.ok(result.records.length > 0);
+  assert.ok(result.records.every((record) => record.source.path === 'project/ticket-118/README.md'));
+});
+
 test('deterministic documentation preserves Polish prohibition polarity', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-docs-prohibition-'));
   const readme = path.join(root, 'README.md');

@@ -1,0 +1,75 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-089",
+  "summary": "Use public SubLLM direct Z.AI GLM 5.3",
+  "workstream": "llm",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "src/llm/subllm.ts",
+    "test/subllm.test.ts",
+    "project/ticket-089/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["typescript", "node", "subllm", "zai"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "5e89819bfaf986f08d7e6d9d136a9929437d37e5",
+    "targetBranch": "main",
+    "outcome": "Route semantic requests through public SubLLM with direct Z.AI GLM 5.3 by default",
+    "nonGoals": [
+      "Remove the explicit legacy compatibility path",
+      "Change non-LLM extraction"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 15,
+    "budgets": {
+      "maxImplementationFiles": 4,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Use SubLLM as the semantic policy boundary and retain OpenRouter only behind explicit opt-out",
+      "components": [
+        {
+          "name": "semantic-llm-bridge",
+          "paths": [
+            "src/llm/subllm.ts",
+            "test/*llm*",
+            "test/helpers.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Set T2C_USE_SUBLLM=false or revert the routing commit"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-05",
+        "commands": [
+          "make verify",
+          "./project/governance-check.sh",
+          "git diff --check"
+        ],
+        "evidence": "project/ticket-089/ai-codex-logs.txt"
+      }
+    ]
+  }
+}

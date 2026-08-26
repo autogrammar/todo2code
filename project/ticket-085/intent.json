@@ -1,0 +1,86 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-085",
+  "summary": "Scope governed documentation to its source ticket and communication channel",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "regression"
+  },
+  "allowedPaths": [
+    "project/ticket-085/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/extractors/docs-deterministic.ts",
+    "test/docs.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/core/**",
+    "src/comparison/**",
+    "src/diff/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "ea6ce38f4b4038a5d9937e83e04704b2d0906bc7",
+    "targetBranch": "main",
+    "outcome": "Governed ticket documentation remains source-scoped while participant Markdown is emitted only through typed communication extraction",
+    "nonGoals": [
+      "No scoring or comparison policy change",
+      "No public schema or dependency change",
+      "No suppression of ticket README documentation or typed communication"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Use governed source paths for criterion scope and exclude participant-owned Markdown from generic documentation because project-communication is its canonical extractor",
+      "components": [
+        {
+          "name": "deterministic-documentation-extractor",
+          "paths": ["src/extractors/docs-deterministic.ts", "test/docs.test.ts"]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the implementation commit; documentation records return to text-only ticket extraction"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": ["node --test dist/test/docs.test.js"],
+        "evidence": "Two generic AC-01 statements resolve to distinct source-ticket targets"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": ["node --test dist/test/docs.test.js"],
+        "evidence": "An explicit PLF reference remains the extracted target"
+      },
+      {
+        "criterion": "AC-04",
+        "commands": ["npm run verify", "./project/governance-check.sh", "make docker-smoke"],
+        "evidence": "Repository gates pass on exact head"
+      },
+      {
+        "criterion": "AC-05",
+        "commands": ["node --test dist/test/docs.test.js"],
+        "evidence": "Participant Markdown produces no document records while ticket README records remain present"
+      }
+    ]
+  }
+}
