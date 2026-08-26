@@ -1,0 +1,17 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-090",
+  "summary": "Hermetic test routing for SubLLM default",
+  "workstream": "integration",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P1",
+    "origin": "health"
+  },
+  "allowedPaths": ["package.json", "project/ticket-090/**", "TODO.md", "project/TICKETS.md"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "typescript", "subllm", "ci"],
+  "dependsOn": ["ticket-089"],
+  "conflictsWith": [],
+  "integrationTicket": "ticket-090"
+}

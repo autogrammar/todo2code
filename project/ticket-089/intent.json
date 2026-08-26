@@ -21,5 +21,5 @@
   "stacks": ["typescript", "node", "subllm", "zai"],
   "dependsOn": [],
   "conflictsWith": [],
-  "integrationTicket": null
+  "integrationTicket": "ticket-090"
 }
