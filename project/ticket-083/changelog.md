@@ -15,3 +15,7 @@
   retained the generic 128 MiB JSON ceiling for all other consumers.
 - Added regression evidence bound to the observed 142,557,246-byte Platform
   graph that previously failed after both pipelines completed.
+
+## [0.3.0] - 2026-08-26
+
+- Reconciled the lifecycle to `DONE / DONE` after protected merges #98 and #100.

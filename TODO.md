@@ -2,17 +2,6 @@
 
 ## Active tickets
 
-- [ ] [`ticket-085`](project/ticket-085/README.md) — scope documentation
-  acceptance criteria to their governed source ticket and keep participant
-  Markdown in the communication lane only. Current state:
-  `IN_PROGRESS / PUBLICATION`.
-- [ ] [`ticket-083`](project/ticket-083/README.md) — keep workspace comparison
-  artifacts bounded and outside analysed repository state; live `PLF-8091`
-  showed a generated Platform graph above the generic JSON ceiling. Current
-  state: `IN_PROGRESS / PUBLICATION`.
-- [ ] [`ticket-084`](project/ticket-084/README.md) — honor explicit
-  deterministic NL mode in compare-workspace CLI. Current state:
-  `IN_PROGRESS / PUBLICATION`.
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
@@ -32,6 +21,20 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-087`](project/ticket-087/README.md) — reconciled protected merge
+  evidence and released stale reservations for tickets 077, 083, 084 and 085.
+  Current state: `DONE / DONE`.
+- [x] [`ticket-085`](project/ticket-085/README.md) — scoped documentation to
+  its source ticket and isolated participant Markdown; protected PRs #99 and
+  #101 are merged. Current state: `DONE / DONE`.
+- [x] [`ticket-084`](project/ticket-084/README.md) — honored deterministic NL
+  mode in workspace comparison; protected PR #97 is merged. Current state:
+  `DONE / DONE`.
+- [x] [`ticket-083`](project/ticket-083/README.md) — isolated and bounded
+  workspace comparison evidence; protected PRs #98 and #100 are merged.
+  Current state: `DONE / DONE`.
+- [x] [`ticket-077`](project/ticket-077/README.md) — reconciled the governed DSL
+  manifest projection to current protected main. Current state: `DONE / DONE`.
 - [x] [`ticket-076`](project/ticket-076/README.md) — publishes independently
   callable `code2dsl`, `docs2dsl` and `config2dsl` facades that emit strictly
   validated, source-limited `t2c.intent/v1` records. Full host/Docker checks,
