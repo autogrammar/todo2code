@@ -1,0 +1,4 @@
+2026-08-26T09:35:00+02:00
+SESSION_EXECUTION_AUTHORIZATION recorded.
+planned validation: npm run build; npm test; ./project/governance-check.sh; git diff --check.
+prior equivalent worktree validation: 429 tests, 428 passed, 1 skipped, 0 failed.
