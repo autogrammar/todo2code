@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-090`](project/ticket-090/README.md) — make the default offline
+  test command independent of ambient SubLLM credentials. Current state:
+  `IN_PROGRESS / PUBLICATION`; workstream: `integration`.
+
 - [ ] [`ticket-088`](project/ticket-088/README.md) — prevent overlapping
   projections of one source sentence from creating a false blocking polarity
   contradiction. Current state: `IN_PROGRESS / EDIT`; workstream: `core-dsl`.
