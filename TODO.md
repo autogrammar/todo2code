@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-088`](project/ticket-088/README.md) — prevent overlapping
+  projections of one source sentence from creating a false blocking polarity
+  contradiction. Current state: `IN_PROGRESS / EDIT`; workstream: `core-dsl`.
+
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
