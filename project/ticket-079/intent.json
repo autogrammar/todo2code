@@ -1,0 +1,91 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-079",
+  "summary": "Withhold invented create plans for missing nested paths",
+  "workstream": "llm",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-079/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/synthesis/code-change-plan-propose.ts",
+    "test/plan-create-llm.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md",
+    "src/extractors/**",
+    "src/core/**",
+    "test/code-change-plan.test.ts"
+  ],
+  "stacks": [
+    "node"
+  ],
+  "dependsOn": [
+    "ticket-078"
+  ],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "46fa4ce01a7e7a6d679cbb8dac3ead29abceac28",
+    "targetBranch": "main",
+    "outcome": "Deterministic code-change plans propose create for missing nested paths only when the source intent explicitly asks to add, create, or implement.",
+    "nonGoals": [
+      "No NL ticket README changes",
+      "No runtime version bump",
+      "No edits to the existing runtime-owned code-change-plan.test.ts"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Gate missing-path create actions on explicit add/create/implement intent inside proposeCodeChangePlans.",
+      "components": [
+        {
+          "name": "safe-code-change-planning",
+          "paths": [
+            "src/synthesis/code-change-plan-propose.ts",
+            "test/plan-create-llm.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Restore prior missing-path create inference without explicit create intent."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run check",
+          "npm run build",
+          "npm test"
+        ],
+        "evidence": "project/ticket-079/ai-gpt-5.6-sol-logs.txt"
+      },
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "./project/governance-check.sh --actor agent"
+        ],
+        "evidence": "project/ticket-079/ai-gpt-5.6-sol-logs.txt"
+      }
+    ]
+  }
+}
