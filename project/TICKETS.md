@@ -61,4 +61,5 @@ of `project/README.md`, which remains a generated technical-analysis artifact.
 | **ticket-083** | [`README.md`](./ticket-083/README.md) | [`preprompt.md`](./ticket-083/preprompt.md) | - |  [`ai-codex.md`](./ticket-083/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-083/ai-codex-logs.txt) | [`changelog.md`](./ticket-083/changelog.md) |
 | **ticket-084** | [`README.md`](./ticket-084/README.md) | [`preprompt.md`](./ticket-084/preprompt.md) | - |  [`ai-codex.md`](./ticket-084/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-084/ai-codex-logs.txt) | [`changelog.md`](./ticket-084/changelog.md) |
 | **ticket-085** | [`README.md`](./ticket-085/README.md) | [`preprompt.md`](./ticket-085/preprompt.md) | - |  [`ai-codex.md`](./ticket-085/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-085/ai-codex-logs.txt) | [`changelog.md`](./ticket-085/changelog.md) |
+| **ticket-087** | [`README.md`](./ticket-087/README.md) | [`preprompt.md`](./ticket-087/preprompt.md) | - |  [`ai-codex.md`](./ticket-087/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-087/ai-codex-logs.txt) | [`changelog.md`](./ticket-087/changelog.md) |
 <!-- AUTO:TICKET_INDEX:END -->

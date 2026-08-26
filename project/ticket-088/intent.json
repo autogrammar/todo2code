@@ -1,0 +1,42 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-088",
+  "summary": "Do not contradict overlapping excerpts projected from the same source location",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "health"
+  },
+  "allowedPaths": ["project/ticket-088/**", "TODO.md", "project/TICKETS.md", "src/graph/linker.ts", "test/linker-pairing.test.ts"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "43f5574918a9e703dd998e95b21d86479a2fd315",
+    "targetBranch": "main",
+    "outcome": "Workspace comparison does not block a valid change because a shorter extractor projection omits the later negation in the same sentence.",
+    "nonGoals": ["No global polarity suppression", "No comparison threshold change", "No public schema change", "No direct merge"],
+    "complexity": "XS",
+    "estimatedMinutes": 20,
+    "budgets": {"maxImplementationFiles": 2, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "accepted",
+      "decision": "Treat overlapping source ranges in one normalized source file as alternate projections of one statement for contradiction classification only; retain their ordinary source-kind relation.",
+      "components": [{"name": "intent-linker", "paths": ["src/graph/linker.ts", "test/linker-pairing.test.ts"]}],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the exact protected merge; the prior fail-closed false positive returns."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-02,AC-03", "commands": ["npm run build", "node --test dist/test/linker-pairing.test.js"], "evidence": "project/ticket-088/ai-codex-logs.txt"},
+      {"criterion": "AC-04", "commands": ["t2c compare-workspace <PLF-8307-replay> --base 3e88a1d --task project/ticket-071/README.md --nl-mode deterministic --markdown-mode deterministic --communication-mode deterministic"], "evidence": "project/ticket-088/ai-codex-logs.txt"},
+      {"criterion": "AC-05", "commands": ["npm run verify", "./project/governance-check.sh --actor agent", "make docker-smoke", "git diff --check"], "evidence": "project/ticket-088/ai-codex-logs.txt"}
+    ]
+  }
+}

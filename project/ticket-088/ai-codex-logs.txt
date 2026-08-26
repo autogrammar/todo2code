@@ -1,0 +1,3 @@
+2026-08-26 SESSION_EXECUTION_AUTHORIZATION Founder requested continued autonomy repair, publication and deployment
+2026-08-26 PLF8307_EVIDENCE Core 1585/1585 and governance passed; comparison blocked on REL-f32bb9c9b1ce836495f3 between project/ticket-071/README.md lines 32-33 and line 32
+2026-08-26 ROOT_CAUSE full document excerpt is negative because it contains 'not as Sprawdzanie'; shorter overlapping NL excerpt ends before that negation and is positive; these are not independent contrary claims
