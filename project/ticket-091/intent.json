@@ -1,0 +1,76 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-091",
+  "summary": "Release stale integration workstream reservation",
+  "workstream": "governance",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-054/README.md",
+    "project/ticket-091/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "89e72ce991e3f2518b323d2d5e45ff7368b46acf",
+    "targetBranch": "main",
+    "outcome": "Release a stale integration reservation without claiming completion",
+    "nonGoals": [
+      "Complete ticket-054",
+      "Change executable code"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 5,
+    "budgets": {
+      "maxImplementationFiles": 7,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Use BLOCKED to retain incomplete evidence without reserving the workstream",
+      "components": [
+        {
+          "name": "repository-governance",
+          "paths": [
+            "project/ticket-054/README.md",
+            "project/ticket-091/**",
+            "TODO.md",
+            "project/TICKETS.md"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the governance-only commit"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-04",
+        "commands": [
+          "./project/governance-check.sh",
+          "git diff --check"
+        ],
+        "evidence": "project/ticket-091/ai-codex-logs.txt"
+      }
+    ]
+  }
+}
