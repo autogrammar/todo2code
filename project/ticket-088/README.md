@@ -2,8 +2,8 @@
 
 - **ID**: ticket-088
 - **Owner**: Founder session request (user:tom)
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: IN_PROGRESS
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-08-26
 
 ## Goal and scope
@@ -17,13 +17,13 @@ between disjoint statements and different sources.
 
 - [x] AC-01: The active Founder request authorizes continued autonomy repair,
       protected publication and deployment.
-- [ ] AC-02: Opposite-polarity records from the same normalized source path and
+- [x] AC-02: Opposite-polarity records from the same normalized source path and
       overlapping line range cannot produce `contradicts`.
-- [ ] AC-03: Opposite-polarity records from distinct sources can still produce
+- [x] AC-03: Opposite-polarity records from distinct sources can still produce
       a blocking contradiction when semantic evidence clears the threshold.
-- [ ] AC-04: The exact PLF-8307 replay has no new blocking delta for AC-03 /
+- [x] AC-04: The exact PLF-8307 replay has no new blocking delta for AC-03 /
       TICKET-071.
-- [ ] AC-05: Focused, full Node, governance, Docker and whitespace gates pass.
+- [x] AC-05: Focused, full Node, governance, Docker and whitespace gates pass.
 
 ## Participants
 

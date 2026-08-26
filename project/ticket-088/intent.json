@@ -34,7 +34,8 @@
     },
     "runtimeDependencies": [],
     "validation": [
-      {"criterion": "AC-02,AC-03", "commands": ["npm run build", "node --test dist/test/linker-pairing.test.js"], "evidence": "project/ticket-088/ai-codex-logs.txt"},
+      {"criterion": "AC-02", "commands": ["npm run build", "node --test dist/test/linker-pairing.test.js"], "evidence": "project/ticket-088/ai-codex-logs.txt"},
+      {"criterion": "AC-03", "commands": ["npm run build", "node --test dist/test/linker-pairing.test.js"], "evidence": "project/ticket-088/ai-codex-logs.txt"},
       {"criterion": "AC-04", "commands": ["t2c compare-workspace <PLF-8307-replay> --base 3e88a1d --task project/ticket-071/README.md --nl-mode deterministic --markdown-mode deterministic --communication-mode deterministic"], "evidence": "project/ticket-088/ai-codex-logs.txt"},
       {"criterion": "AC-05", "commands": ["npm run verify", "./project/governance-check.sh --actor agent", "make docker-smoke", "git diff --check"], "evidence": "project/ticket-088/ai-codex-logs.txt"}
     ]

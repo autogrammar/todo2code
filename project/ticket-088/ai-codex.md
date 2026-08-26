@@ -25,8 +25,15 @@ Sprawdzanie", so it is not independent contrary evidence.
 
 ## Actual changes
 
-- Plan prepared; the active Founder request supplies execution authorization.
+- Added a source-overlap guard that normalizes paths and suppresses only a
+  contradiction between records whose source line ranges overlap.
+- Added a regression reproducing the PLF-8307 document/NL projection and a
+  negative control proving that an independent source can still contradict it.
+- Replayed the exact PLF-8307 candidate: the base and workspace each retain one
+  pre-existing blocking diagnostic, so the candidate adds no blocking delta.
+- Passed the focused tests, full repository verification, Docker smoke,
+  governance and whitespace gates.
 
 ## Blockers
 
-- None inside the recorded bounded repair; trusted merge remains independent.
+- Trusted merge remains a separate Validator Agent decision.

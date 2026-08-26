@@ -25,6 +25,74 @@ function astFact(path: string, symbol: string, object: string): IntentRecord {
   });
 }
 
+function polarityProjection(options: {
+  sourceKind: 'document' | 'nl';
+  sourcePath: string;
+  sourceLines: { start: number; end: number };
+  text: string;
+  polarity: 'positive' | 'negative';
+}): IntentRecord {
+  return buildRecord({
+    kind: options.sourceKind === 'document' ? 'documentation_statement' : 'declared_intent',
+    action: 'document',
+    object: 'unverified renders as terminal bounded observation',
+    target: { symbols: ['unverified'] },
+    text: options.text,
+    polarity: options.polarity,
+    lifecycle: 'proposed',
+    sourceKind: options.sourceKind,
+    sourcePath: options.sourcePath,
+    sourceLines: options.sourceLines,
+    extractor: 'test',
+    epistemicClass: 'declaration',
+    confidence: 0.8,
+    basis: ['fixture'],
+  });
+}
+
+test('overlapping excerpts from one source location cannot contradict each other', () => {
+  const document = polarityProjection({
+    sourceKind: 'document',
+    sourcePath: './project/ticket-071/README.md',
+    sourceLines: { start: 32, end: 33 },
+    text: 'unverified renders as a terminal bounded observation, not as Checking',
+    polarity: 'negative',
+  });
+  const shortenedNl = polarityProjection({
+    sourceKind: 'nl',
+    sourcePath: 'project/ticket-071/README.md',
+    sourceLines: { start: 32, end: 32 },
+    text: 'unverified renders as a terminal bounded observation',
+    polarity: 'positive',
+  });
+
+  const graph = linkIntentRecords([document, shortenedNl], AT);
+  assert.equal(graph.relations.length, 1);
+  assert.equal(graph.relations[0]?.type, 'documents');
+  assert.ok(!diagnoseGraph(graph, AT).diagnostics.some((item) => item.code === 'CONFLICTING_INTENT'));
+});
+
+test('independent opposite-polarity sources still create a blocking contradiction', () => {
+  const document = polarityProjection({
+    sourceKind: 'document',
+    sourcePath: 'project/ticket-071/README.md',
+    sourceLines: { start: 32, end: 33 },
+    text: 'unverified renders as a terminal bounded observation, not as Checking',
+    polarity: 'negative',
+  });
+  const independentNl = polarityProjection({
+    sourceKind: 'nl',
+    sourcePath: 'TASK.md',
+    sourceLines: { start: 1, end: 1 },
+    text: 'unverified renders as a terminal bounded observation',
+    polarity: 'positive',
+  });
+
+  const graph = linkIntentRecords([document, independentNl], AT);
+  assert.equal(graph.relations[0]?.type, 'contradicts');
+  assert.ok(diagnoseGraph(graph, AT).diagnostics.some((item) => item.code === 'CONFLICTING_INTENT'));
+});
+
 test('Two unrelated AST facts sharing only a file are not linked', () => {
   const graph = linkIntentRecords([
     astFact('src/module.ts', 'parseHeaders', 'nagłówki żądania HTTP'),

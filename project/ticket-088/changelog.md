@@ -9,3 +9,12 @@
 
 - Bound the repair to the exact PLF-8307 same-source overlap evidence and kept
   independent cross-source contradictions in scope as a negative control.
+
+## [0.3.0] - 2026-08-26
+
+- Prevented overlapping projections of one normalized source location from
+  producing a false contradiction.
+- Added the PLF-8307 regression and an independent-source contradiction
+  control.
+- Recorded a zero blocking-delta replay plus successful full, Docker,
+  governance and whitespace validation.
