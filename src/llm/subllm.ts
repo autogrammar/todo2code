@@ -38,7 +38,7 @@ export function lastResolvedSubllmRoute(): SubllmPublicRoute | null {
 
 export function shouldUseSubllm(
   environment: NodeJS.ProcessEnv = process.env,
-  cwd = process.cwd(),
+  _cwd = process.cwd(),
 ): boolean {
   const explicit = environment.T2C_USE_SUBLLM?.trim().toLowerCase();
   if (explicit && FALSE_VALUES.has(explicit)) return false;
@@ -49,7 +49,7 @@ export function shouldUseSubllm(
   if (environment.SUBLLM_ENV_FILE || environment.SUBLLM_POLICY_FILE || environment.SUBLLM_PYTHONPATH) {
     return true;
   }
-  return Boolean(localSubllmPythonPath(cwd));
+  return true;
 }
 
 export async function resolveSubllmRoute(
