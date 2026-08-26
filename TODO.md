@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-087`](project/ticket-087/README.md) — reconcile stale active
+  projections for already protected-merged tickets 077, 083, 084 and 085.
+  Current state: `PLAN / WAIT_FOR_APPROVAL`; workstream: `governance`.
+
 - [ ] [`ticket-085`](project/ticket-085/README.md) — scope documentation
   acceptance criteria to their governed source ticket and keep participant
   Markdown in the communication lane only. Current state:
