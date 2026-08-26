@@ -34,15 +34,15 @@ if args[:3] == ["resolve", "todo2code", "semantic"]:
     print(json.dumps({
         "application": "todo2code",
         "application_name": "todo2code",
-        "application_url": "https://github.com/semcod/todo2code",
+        "application_url": "https://github.com/autogrammar/todo2code",
         "function": "semantic",
         "provider": "zai",
-        "model": "glm-5.2",
-        "priority": 10,
+        "model": "glm-5.3",
+        "priority": 0,
         "api_base": "https://api.z.ai/api/coding/paas/v4",
         "api_key_env": "ZAI_API_KEY",
-        "litellm_model": "zai/glm-5.2",
-        "wire_model": "glm-5.2",
+        "litellm_model": "zai/glm-5.3",
+        "wire_model": "glm-5.3",
         "extra_headers": {},
     }))
 elif args == ["env", "path"]:
@@ -92,7 +92,7 @@ test('SubLLM bridge resolves the selected central route without command-shell in
     assert.equal(shouldUseSubllm(), true);
     const resolved = await resolveSubllmRoute();
     assert.equal(resolved.route.provider, 'zai');
-    assert.equal(resolved.route.wire_model, 'glm-5.2');
+    assert.equal(resolved.route.wire_model, 'glm-5.3');
     assert.equal(resolved.route.application, 'todo2code');
     assert.equal(resolved.credential, FIXTURE_CREDENTIAL);
     assert.equal(JSON.stringify(resolved.route).includes('fixture-value'), false);
@@ -116,7 +116,7 @@ test('todo2code sends structured semantic requests through direct Z.AI resolved 
     return new Response(JSON.stringify({
       id: 'zai-fixture-response',
       request_id: body.request_id,
-      model: 'glm-5.2',
+      model: 'glm-5.3',
       usage: { prompt_tokens: 12, completion_tokens: 4, total_tokens: 16 },
       choices: [{ message: { content: responseContent } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -131,13 +131,13 @@ test('todo2code sends structured semantic requests through direct Z.AI resolved 
     );
 
     assert.deepEqual(result.value, { ok: true });
-    assert.equal(result.metadata.model, 'glm-5.2');
+    assert.equal(result.metadata.model, 'glm-5.3');
     assert.equal(result.metadata.provider, 'zai');
     assert.equal(url, 'https://api.z.ai/api/coding/paas/v4/chat/completions');
     assert.equal(headers.Authorization, `Bearer ${FIXTURE_CREDENTIAL}`);
     assert.equal(headers['X-OpenRouter-Title'], undefined);
     assert.equal(headers['HTTP-Referer'], undefined);
-    assert.equal(body.model, 'glm-5.2');
+    assert.equal(body.model, 'glm-5.3');
     assert.equal(body.user_id, 'todo2code');
     assert.match(String(body.request_id), /^todo2code-semantic-[0-9a-f]{32}$/u);
     assert.deepEqual(body.response_format, { type: 'json_object' });
@@ -154,9 +154,9 @@ test('todo2code sends structured semantic requests through direct Z.AI resolved 
       application: 'todo2code',
       function: 'semantic',
       provider: 'zai',
-      model: 'glm-5.2',
-      wireModel: 'glm-5.2',
-      priority: 10,
+      model: 'glm-5.3',
+      wireModel: 'glm-5.3',
+      priority: 0,
       apiBase: 'https://api.z.ai/api/coding/paas/v4',
     });
     assert.equal(JSON.stringify(audit).includes('fixture-value'), false);
@@ -172,6 +172,12 @@ test('todo2code sends structured semantic requests through direct Z.AI resolved 
     globalThis.fetch = originalFetch;
     await fixture.cleanup();
   }
+});
+
+test('SubLLM is the default semantic route and legacy OpenRouter requires an explicit opt-out', () => {
+  assert.equal(shouldUseSubllm({}), true);
+  assert.equal(shouldUseSubllm({ T2C_USE_SUBLLM: 'true' }), true);
+  assert.equal(shouldUseSubllm({ T2C_USE_SUBLLM: 'false' }), false);
 });
 
 test('explicitly requested SubLLM fails closed when its package is unavailable', async () => {

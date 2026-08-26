@@ -2,6 +2,10 @@
 
 ## Active tickets
 
+- [ ] [`ticket-089`](project/ticket-089/README.md) — route semantic requests
+  through public SubLLM with direct Z.AI GLM 5.3 by default. Current state:
+  `IN_PROGRESS / PUBLICATION`; workstream: `llm`.
+
 - [ ] [`ticket-090`](project/ticket-090/README.md) — make the default offline
   test command independent of ambient SubLLM credentials. Current state:
   `IN_PROGRESS / PUBLICATION`; workstream: `integration`.
