@@ -10,8 +10,6 @@
   },
   "allowedPaths": [
     "src/llm/subllm.ts",
-    "test/helpers.ts",
-    "test/cli-summary.test.ts",
     "test/subllm.test.ts",
     "project/ticket-089/**",
     "TODO.md",

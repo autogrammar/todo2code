@@ -23,12 +23,7 @@ test('CLI summarize exposes deterministic, prefer-llm and require-llm modes', as
   const diagnostics = diagnoseGraph(graph, '2026-07-30T00:00:00.000Z');
   await fs.writeFile(path.join(root, 'graph.json'), `${JSON.stringify(graph)}\n`, 'utf8');
   await fs.writeFile(path.join(root, 'diagnostics.json'), `${JSON.stringify(diagnostics)}\n`, 'utf8');
-  const environment = {
-    ...process.env,
-    OPENROUTER_API_KEY: '',
-    T2C_ENV_FILE: 'missing.env',
-    T2C_USE_SUBLLM: 'false',
-  };
+  const environment = { ...process.env, OPENROUTER_API_KEY: '', T2C_ENV_FILE: 'missing.env' };
   const base = ['summarize', 'graph.json', '--diagnostics', 'diagnostics.json'];
 
   const deterministic = await exec(process.execPath, [cli, ...base, '--mode', 'deterministic'], {
