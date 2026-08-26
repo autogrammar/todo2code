@@ -19,3 +19,7 @@
   governance, Docker smoke and the exact `PLF-8091` large-graph replay.
 - The live replay reduced blocking diagnostics from 13 to 12 instead of adding
   the prior participant self-conflicts.
+
+## [0.3.0] - 2026-08-26
+
+- Reconciled the lifecycle to `DONE / DONE` after protected merges #99 and #101.

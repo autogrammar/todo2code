@@ -9,3 +9,8 @@
 
 - Bound the documentation-only reconciliation to exact protected merge
   evidence and the active Founder execution authorization.
+
+## [0.3.0] - 2026-08-26
+
+- Closed tickets 077, 083, 084 and 085 against their existing protected merge
+  evidence and released their stale workstream reservations.

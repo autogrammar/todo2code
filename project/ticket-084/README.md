@@ -2,8 +2,8 @@
 
 - **ID**: ticket-084
 - **Owner**: unresolved:human
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-21
 
 ## Goal and scope
@@ -51,3 +51,9 @@ Protected exact-head Validator evidence remains the separate merge boundary.
   exposed the file's pre-existing `handleExtract` CC=22. The handler is now a
   small dispatcher over behavior-preserving command functions; Lizard reports
   no threshold violations and the focused CLI suite still passes.
+
+## Closure evidence
+
+Protected PR #97 merged the deterministic NL-mode repair as
+`72a6bd1e194ef3ac6c586b329688fb2faa86be92`, which is an ancestor of current
+protected main.

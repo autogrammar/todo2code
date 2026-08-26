@@ -23,6 +23,8 @@ same-source contradiction defect.
 ## Actual changes
 
 - Plan prepared; the active Founder request supplies execution authorization.
+- Closed only the four stale lifecycle projections and bound each to protected
+  main evidence; executable source remained byte-for-byte unchanged.
 
 ## Blockers
 

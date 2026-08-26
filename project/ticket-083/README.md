@@ -2,8 +2,8 @@
 
 - **ID**: ticket-083
 - **Owner**: agent:codex
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-21
 
 ## Goal and scope
@@ -68,3 +68,8 @@ graph at the generic 128 MiB read ceiling.
   semantic delta (`blocking +2`) instead of a file-size stack trace.
 - Current verification passes 426 tests (425 pass, one JDK-only skip), focused
   workspace 4/4, governance with zero findings and Docker smoke.
+
+## Closure evidence
+
+Protected PRs #98 and #100 merged the isolated-output and bounded large-graph
+repairs; both are ancestors of `main@a93944f51d47fbf8fe1f3aaea03f17f4fb472d80`.

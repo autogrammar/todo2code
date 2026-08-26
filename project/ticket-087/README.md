@@ -2,8 +2,8 @@
 
 - **ID**: ticket-087
 - **Owner**: Founder session request (user:tom)
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-26
 
 ## Goal and scope
@@ -17,10 +17,10 @@ it does not alter todo2code runtime behavior.
 
 - [x] AC-01: The active Founder request authorizes continued autonomy repair,
       protected publication and deployment.
-- [ ] AC-02: Tickets 077, 083, 084 and 085 name their exact protected merge
+- [x] AC-02: Tickets 077, 083, 084 and 085 name their exact protected merge
       evidence and become `DONE / DONE`.
-- [ ] AC-03: No source, schema, dependency or generated runtime artifact changes.
-- [ ] AC-04: Governance and repository verification pass on the exact diff.
+- [x] AC-03: No source, schema, dependency or generated runtime artifact changes.
+- [x] AC-04: Governance and repository verification pass on the exact diff.
 
 ## Participants
 

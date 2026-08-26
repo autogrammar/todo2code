@@ -8,3 +8,7 @@
 - Made compare-workspace honor the explicit NL mode and documented the flag.
 - Split the pre-existing high-complexity extraction dispatcher into bounded
   command functions so the complete changed CLI artifact passes review.
+
+## [0.2.0] - 2026-08-26
+
+- Reconciled the lifecycle to `DONE / DONE` after protected merge #97.

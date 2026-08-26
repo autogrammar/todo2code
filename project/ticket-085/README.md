@@ -2,8 +2,8 @@
 
 - **ID**: ticket-085
 - **Owner**: agent:codex
-- **Status**: IN_PROGRESS
-- **Workflow state**: PUBLICATION
+- **Status**: DONE
+- **Workflow state**: DONE
 - **Created**: 2026-08-25
 
 ## Goal and scope
@@ -65,3 +65,8 @@ rewrite the Platform ticket to appease the observer.
 - Exact `PLF-8091` replay with the graph-ceiling repair loaded the 142,557,246
   byte graph and changed the blocking diagnostic count from 13 to 12
   (`blocking -1`), with no stderr and the pinned base/head SHA preserved.
+
+## Closure evidence
+
+Protected PRs #99 and #101 merged source-ticket scoping and participant-channel
+isolation; both are ancestors of `main@a93944f51d47fbf8fe1f3aaea03f17f4fb472d80`.
