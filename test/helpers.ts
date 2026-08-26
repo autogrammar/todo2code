@@ -1,5 +1,9 @@
 import type { T2CConfig } from '../src/config/env.js';
 
+// Unit fixtures exercise the legacy transport unless a test explicitly opts
+// into SubLLM. Production defaults to the centrally governed SubLLM route.
+process.env.T2C_USE_SUBLLM ??= 'false';
+
 export function makeConfig(root: string): T2CConfig {
   return {
     root,
