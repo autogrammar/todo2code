@@ -30,14 +30,3 @@ between disjoint statements and different sources.
 - Human participant: user:tom through the active session request; no user-* file
   was created by this script.
 - Agent participant: [ai-codex.md](ai-codex.md)
-
-## Protected delivery evidence
-
-- Pull request: `autogrammar/todo2code#103`
-- Approved implementation HEAD: `a37f4020c0f0719cbb1a9336c9d03b895071972d`
-- Protected merge commit: `89e72ce991e3f2518b323d2d5e45ff7368b46acf`
-- Trusted reviewer: `ifuri-validator-agent[bot]`, bound to `ticket-088` and
-  the exact implementation HEAD
-- Merged at: `2026-08-26T01:09:01Z`
-- Implementation branch `ticket/088-same-source-conflict` is absent from the
-  remote after merge.

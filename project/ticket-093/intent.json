@@ -1,0 +1,77 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-093",
+  "summary": "Split workspace comparison into focused modules",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-093/**",
+    "project/ticket-088/README.md",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/comparison/workspace.ts",
+    "src/comparison/workspace-*.ts",
+    "test/workspace.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "dcbf9ef2729b2174647261e9e1bde66c67b8e810",
+    "targetBranch": "main",
+    "outcome": "workspace facade split",
+    "nonGoals": [
+      "No comparison semantics change",
+      "No public API rename"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 6,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "split workspace modules",
+      "components": [
+        {
+          "name": "workspace-comparison",
+          "paths": [
+            "src/comparison/workspace.ts",
+            "src/comparison/workspace-*.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "revert merge"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "npm run build",
+          "node --test dist/test/workspace.test.js"
+        ],
+        "evidence": "project/ticket-093/ai-cursor.md"
+      }
+    ]
+  }
+}
