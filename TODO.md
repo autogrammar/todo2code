@@ -17,6 +17,10 @@
 
 ## Backlog tickets
 
+- [ ] [`ticket-094`](project/ticket-094/README.md) — reconcile the healthy but
+  incorrectly scoped PR #110 linker split without rewriting history. Current
+  state: `PLAN / WAIT_FOR_APPROVAL`; workstream: `governance`.
+
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic
   drift gate. Plan and owner-ticket creation are approved; current state:

@@ -1,0 +1,7 @@
+2026-09-01 AUDIT_BASE protected main aa20ec43e284a7f47ecbe8386978b6b2a8058341
+2026-09-01 PR110_EVIDENCE PR 110 head dd5fa3a080c56119848ba50397c7dfe8a77b5e2a merged as dcbf9ef2729b2174647261e9e1bde66c67b8e810; exact-head review by ifuri-validator-agent[bot] bound ticket-088
+2026-09-01 SCOPE_MISMATCH ticket-088 goal, ACs and agent plan cover the same-source contradiction defect; PR 110 added linker module allowedPaths and code without a matching goal, AC, plan or log
+2026-09-01 BASELINE_VERIFY npm run verify passed tests=434 pass=433 fail=0 skip=1 on protected main aa20ec43
+2026-09-01 BASELINE_GOVERNANCE ./project/governance-check.sh --actor agent returned GOV-PASS on protected main aa20ec43
+2026-09-01 BASELINE_DOCKER make docker-smoke returned PASS on protected main aa20ec43
+2026-09-01 PLAN_GATE ticket remains PLAN/WAIT_FOR_APPROVAL; no ticket-088 or executable file changed
