@@ -33,6 +33,9 @@ Sprawdzanie", so it is not independent contrary evidence.
   pre-existing blocking diagnostic, so the candidate adds no blocking delta.
 - Passed the focused tests, full repository verification, Docker smoke,
   governance and whitespace gates.
+- Ticket-094 later restored this intent projection to the exact PR #103 scope
+  and appended PR #110 as a historical scope mismatch. That note does not
+  revoke PR #110's technical checks or pretend its authorization was valid.
 
 ## Blockers
 

@@ -24,3 +24,9 @@
 - Reconciled the stale lifecycle with exact protected evidence from PR #103.
 - Bound the Validator approval to `ticket-088` and implementation HEAD
   `a37f4020`, recorded protected merge `89e72ce`, and confirmed branch cleanup.
+
+## [0.5.0] - 2026-09-01
+
+- Restored the intent projection to the exact PR #103 defect scope.
+- Recorded PR #110 as an authentic exact-head technical review with a
+  mismatched ticket scope; ticket-094 owns the prospective retention decision.

@@ -30,3 +30,34 @@ between disjoint statements and different sources.
 - Human participant: user:tom through the active session request; no user-* file
   was created by this script.
 - Agent participant: [ai-codex.md](ai-codex.md)
+
+## Protected delivery evidence
+
+- Pull request: `autogrammar/todo2code#103`
+- Approved implementation HEAD: `a37f4020c0f0719cbb1a9336c9d03b895071972d`
+- Protected merge commit: `89e72ce991e3f2518b323d2d5e45ff7368b46acf`
+- Trusted reviewer: `ifuri-validator-agent[bot]`, bound to `ticket-088` and
+  the exact implementation HEAD
+- Merged at: `2026-08-26T01:09:01Z`
+- Implementation branch `ticket/088-same-source-conflict` is absent from the
+  remote after merge.
+
+## Historical scope mismatch
+
+PR #110 later split `src/graph/linker.ts` into focused modules. Its exact-head
+Validator review is authentic, but it was incorrectly bound to `ticket-088`
+after that PR expanded only this ticket's `intent.json`. The ticket goal,
+acceptance criteria, plan and execution evidence never authorized the module
+split. PR #110 head `dd5fa3a080c56119848ba50397c7dfe8a77b5e2a` merged as
+`dcbf9ef2729b2174647261e9e1bde66c67b8e810`.
+
+Ticket-094 records the prospective human decision to retain the independently
+tested split at main `aa20ec43e284a7f47ecbe8386978b6b2a8058341` without
+claiming retroactive authorization. The intent above again reflects only the
+scope delivered by this ticket's own PR #103.
+
+PR #112 then allowed this completed ticket's README in `ticket-093` and removed
+the protected delivery section while splitting unrelated workspace-comparison
+code. Exact head `915786092a496a9a9fc25c62baa1c56da7328ffa` merged as
+`f7034e3fc87fd90e6d7c7e4aac2ec4aaa9d1ea11`. Ticket-094 restores the deleted
+evidence and records that cross-ticket path as a second scope leak.

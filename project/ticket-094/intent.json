@@ -1,0 +1,82 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-094",
+  "summary": "Reconcile linker split governance evidence",
+  "workstream": "governance",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P1",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-088/README.md",
+    "project/ticket-088/intent.json",
+    "project/ticket-088/ai-codex.md",
+    "project/ticket-088/ai-codex-logs.txt",
+    "project/ticket-088/changelog.md",
+    "project/ticket-094/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "f7034e3fc87fd90e6d7c7e4aac2ec4aaa9d1ea11",
+    "targetBranch": "main",
+    "outcome": "Main retains a tested linker module split while its governance record truthfully distinguishes PR #110 from ticket-088's approved defect scope.",
+    "nonGoals": [
+      "No executable code or test change",
+      "No retroactive claim that PR #110 was ticket-first",
+      "No alteration of protected GitHub review or merge history",
+      "No direct merge"
+    ],
+    "complexity": "XS",
+    "estimatedMinutes": 15,
+    "budgets": {
+      "maxImplementationFiles": 1,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Retain the already-merged, independently verified linker split only after a new human decision, restore ticket-088's original scope projection, and append the intervening scope mismatch as audit evidence.",
+      "components": [
+        {
+          "name": "repository-governance-evidence",
+          "paths": [
+            "project/ticket-088/**",
+            "project/ticket-094/**",
+            "TODO.md",
+            "project/TICKETS.md"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the documentation-only reconciliation; PR #110 and its protected Git history remain unchanged."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-05",
+        "commands": [
+          "npm run verify",
+          "./project/governance-check.sh --actor agent",
+          "make docker-smoke",
+          "git diff --check"
+        ],
+        "evidence": "project/ticket-094/ai-codex-logs.txt"
+      }
+    ]
+  }
+}
