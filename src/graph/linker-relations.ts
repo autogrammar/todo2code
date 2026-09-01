@@ -1,4 +1,5 @@
 import type { IntentRecord, RelationType, SourceKind } from '../core/types.js';
+import { normalizePath } from '../core/target.js';
 import type { PairEvidence } from './linker-scoring.js';
 
 export interface DirectedRelation {
@@ -61,7 +62,9 @@ function relationForSourceKinds(left: IntentRecord, right: IntentRecord): Direct
 
 export function determineRelation(left: IntentRecord, right: IntentRecord, evidence: PairEvidence): DirectedRelation {
   const textScore = evidence.textScore;
-  if (left.statement.polarity !== right.statement.polarity && textScore >= 0.45) {
+  if (left.statement.polarity !== right.statement.polarity
+    && textScore >= 0.45
+    && !isOverlappingSameSourceProjection(left, right)) {
     return { from: left, to: right, type: 'contradicts' };
   }
   if (left.source.kind === right.source.kind && textScore >= 0.82) {
@@ -71,4 +74,21 @@ export function determineRelation(left: IntentRecord, right: IntentRecord, evide
   if (sourceRelation) return sourceRelation;
   if (evidence.score >= 0.8) return { from: left, to: right, type: 'same_as' };
   return { from: left, to: right, type: 'related_to' };
+}
+
+/**
+ * Two extractors may project different spans from one physical sentence. A
+ * line-level NL projection can end before a continuation containing negation,
+ * while a document projection covers the complete sentence. Those records are
+ * alternate observations of one source location, not independent contrary
+ * claims. Disjoint ranges in the same file remain eligible for contradiction.
+ */
+function isOverlappingSameSourceProjection(left: IntentRecord, right: IntentRecord): boolean {
+  const leftPath = left.source.path ? normalizePath(left.source.path) : '';
+  const rightPath = right.source.path ? normalizePath(right.source.path) : '';
+  if (!leftPath || leftPath !== rightPath) return false;
+  const leftLines = left.source.lines;
+  const rightLines = right.source.lines;
+  if (!leftLines || !rightLines) return false;
+  return leftLines.start <= rightLines.end && rightLines.start <= leftLines.end;
 }
