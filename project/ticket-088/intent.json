@@ -8,7 +8,17 @@
     "priority": "P1",
     "origin": "health"
   },
-  "allowedPaths": ["project/ticket-088/**", "TODO.md", "project/TICKETS.md", "src/graph/linker.ts", "test/linker-pairing.test.ts"],
+  "allowedPaths": [
+    "project/ticket-088/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/graph/linker.ts",
+    "src/graph/linker-candidates.ts",
+    "src/graph/linker-keywords.ts",
+    "src/graph/linker-relations.ts",
+    "src/graph/linker-scoring.ts",
+    "test/linker-pairing.test.ts"
+  ],
   "forbiddenPaths": ["project/ticket-*/user-*.md"],
   "stacks": [],
   "dependsOn": [],
@@ -21,11 +31,11 @@
     "nonGoals": ["No global polarity suppression", "No comparison threshold change", "No public schema change", "No direct merge"],
     "complexity": "XS",
     "estimatedMinutes": 20,
-    "budgets": {"maxImplementationFiles": 2, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "budgets": {"maxImplementationFiles": 6, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
     "architecture": {
       "status": "accepted",
       "decision": "Treat overlapping source ranges in one normalized source file as alternate projections of one statement for contradiction classification only; retain their ordinary source-kind relation.",
-      "components": [{"name": "intent-linker", "paths": ["src/graph/linker.ts", "test/linker-pairing.test.ts"]}],
+      "components": [{"name": "intent-linker", "paths": ["src/graph/linker.ts", "src/graph/linker-*.ts", "test/linker-pairing.test.ts"]}],
       "responsibilityChanges": false,
       "interfaceChanges": [],
       "dataChanges": [],
