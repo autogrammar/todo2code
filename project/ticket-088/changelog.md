@@ -18,3 +18,9 @@
   control.
 - Recorded a zero blocking-delta replay plus successful full, Docker,
   governance and whitespace validation.
+
+## [0.4.0] - 2026-09-01
+
+- Reconciled the stale lifecycle with exact protected evidence from PR #103.
+- Bound the Validator approval to `ticket-088` and implementation HEAD
+  `a37f4020`, recorded protected merge `89e72ce`, and confirmed branch cleanup.

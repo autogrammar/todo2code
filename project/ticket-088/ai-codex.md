@@ -36,4 +36,5 @@ Sprawdzanie", so it is not independent contrary evidence.
 
 ## Blockers
 
-- Trusted merge remains a separate Validator Agent decision.
+- None. Validator approved exact HEAD `a37f4020` for `ticket-088`; protected
+  PR #103 merged as `89e72ce` and the implementation branch was deleted.
