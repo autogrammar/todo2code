@@ -1,0 +1,93 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-096",
+  "summary": "Compile accepted delivery plans into bounded implementation slices",
+  "workstream": "runtime",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "src/operations/delivery-plan-slice-types.ts",
+    "src/operations/delivery-plan-slices.ts",
+    "src/operations/delivery-plan-slices.schema.json",
+    "test/operation-delivery-plan-slices.test.ts",
+    "project/ticket-096/**",
+    "TODO.md",
+    "project/TICKETS.md"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "typescript", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "f51f20ab1669c98fadd470c54fdf86513fb48b18",
+    "targetBranch": "main",
+    "outcome": "Compile an accepted Wellmanifest delivery plan and explicit oversized-slice refinements into deterministic, bounded and inert ticket candidates",
+    "nonGoals": [
+      "Create or update GitHub issues, branches, worktrees or pull requests",
+      "Execute tools, shell commands or generated candidates",
+      "Invoke an LLM or grant advisory output authority",
+      "Persist raw natural-language source",
+      "Publish a CLI, MCP, A2A or SDK surface"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 4,
+      "maxAffectedComponents": 2,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Keep accepted Strategy DSL validation and deterministic inert compilation in the runtime workstream; require explicit advisory refinements for semantic decomposition and validate them without assigning execution authority",
+      "components": [
+        {
+          "name": "delivery-slice-contract",
+          "paths": [
+            "src/operations/delivery-plan-slice-types.ts",
+            "src/operations/delivery-plan-slices.schema.json"
+          ]
+        },
+        {
+          "name": "delivery-slice-compiler",
+          "paths": [
+            "src/operations/delivery-plan-slices.ts",
+            "test/operation-delivery-plan-slices.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Add internal t2c implementation-slice request and candidate DTOs; no persisted runtime state"
+      ],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Remove the four material files; all existing todo2code plan, operation and synthesis behavior remains unchanged"
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "npm run build",
+          "node --test dist/test/operation-delivery-plan-slices.test.js"
+        ],
+        "evidence": "Focused deterministic contract, decomposition and safety cases"
+      },
+      {
+        "criterion": "AC-07",
+        "commands": [
+          "npm run verify",
+          "./project/governance-check.sh",
+          "make e2e-core",
+          "git diff --check"
+        ],
+        "evidence": "Full host, governed range, Docker and textual validation"
+      }
+    ]
+  }
+}
