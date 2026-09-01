@@ -2,6 +2,11 @@
 
 ## Active tickets
 
+- [ ] [`ticket-096`](project/ticket-096/README.md) — compile accepted
+  Wellmanifest delivery plans and explicit oversized-task refinements into
+  bounded, disjoint, dependency-aware inert ticket candidates. Current state:
+  `IN_PROGRESS / PUBLICATION`; workstream: `runtime`.
+
 - [ ] [`ticket-089`](project/ticket-089/README.md) — route semantic requests
   through public SubLLM with direct Z.AI GLM 5.3 by default. Current state:
   `IN_PROGRESS / PUBLICATION`; workstream: `llm`.

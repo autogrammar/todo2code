@@ -1,0 +1,7 @@
+2026-09-01T23:00:00Z SCOPE GitHub issue #115 and the originating user instruction authorize the exact four-file runtime slice.
+2026-09-01T23:00:01Z EDIT acceptedBase=f51f20ab1669c98fadd470c54fdf86513fb48b18 workstream=runtime implementationFiles=4 dependencies=0
+2026-09-01T23:30:00Z FOCUSED node-tests=11-pass,0-fail schema-draft2020=pass typescript=pass
+2026-09-01T23:31:00Z HOST npm-verify=445-total,444-pass,1-jdk-skip,0-fail governance=0-errors,0-warnings lizard=0-threshold-warnings diff-check=pass
+2026-09-01T23:32:00Z DOCKER smoke=pass image-suite=438-pass,7-toolchain-skip,0-fail optional-gold-v2=pre-existing-two-documentation-fn
+2026-09-01T23:33:00Z BASELINE origin-main=f51f20ab1669c98fadd470c54fdf86513fb48b18 optional-gold-v2=same-two-documentation-fn no-ticket-regression=true
+2026-09-01T23:34:00Z PUBLICATION material=types,compiler,json-schema,tests authority=none execution=inert
