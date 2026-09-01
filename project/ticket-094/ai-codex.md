@@ -36,6 +36,16 @@ record, not a claim that the earlier authorization was valid.
 - The plan was rebased without conflict from audited main `aa20ec43` to
   `f7034e3`; the intervening ticket-093 merge does not touch this ticket's
   historical linker evidence or owned documentation paths.
+- Restored ticket-088's allowed paths, implementation budget and architecture
+  component to the exact PR #103 defect scope.
+- Appended the exact PR #110 review/merge mismatch without modifying any
+  executable file or protected GitHub evidence.
+- Restored the protected PR #103 evidence deleted by unrelated PR #112 and
+  recorded its foreign-ticket allowed path as a second scope leak.
+- Full offline verification passed 433 tests with one environment skip and no
+  failures; governance, Docker smoke and whitespace checks passed.
+- The exact documentation-only diff is ready for protected publication under
+  `ticket-094`.
 
 ## Blockers
 

@@ -3,7 +3,7 @@
 - **ID**: ticket-094
 - **Owner**: agent:codex under the current human retention approval
 - **Status**: IN_PROGRESS
-- **Workflow state**: EDIT
+- **Workflow state**: PUBLICATION
 - **Created**: 2026-09-01
 
 ## Goal and scope
@@ -26,15 +26,16 @@ before PR #110, and do not change executable code.
 
 - [x] AC-01: A human owner explicitly chooses to retain the audited linker
       split and approves this documentation-only reconciliation.
-- [ ] AC-02: The record binds PR #110, implementation HEAD `dd5fa3a080c5611`,
+- [x] AC-02: The record binds PR #110, implementation HEAD `dd5fa3a080c5611`,
       merge `dcbf9ef2729b2174`, reviewer `ifuri-validator-agent[bot]`, the
-      mismatched `ticket-088` binding and final audited main `aa20ec43e284a7f`.
-- [ ] AC-03: `ticket-088` again describes only the scope approved and delivered
+      mismatched `ticket-088` binding and final audited main `aa20ec43e284a7f`;
+      it also binds the PR #112 removal of ticket-088 delivery evidence.
+- [x] AC-03: `ticket-088` again describes only the scope approved and delivered
       through PR #103; an appended note preserves PR #110 as a historical scope
       violation rather than laundering it into that ticket.
-- [ ] AC-04: No executable source, test, workflow, dependency, generated
+- [x] AC-04: No executable source, test, workflow, dependency, generated
       runtime artifact or human-owned participant file changes.
-- [ ] AC-05: Governance, full offline verification, Docker smoke and whitespace
+- [x] AC-05: Governance, full offline verification, Docker smoke and whitespace
       checks pass on the exact reconciliation diff.
 
 ## Participants

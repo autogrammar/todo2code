@@ -8,3 +8,5 @@
 2026-08-26 PROTECTED_MERGE PR 103 merged as 89e72ce991e3f2518b323d2d5e45ff7368b46acf; remote implementation branch deleted
 2026-09-01 LIFECYCLE_RECONCILIATION protected delivery evidence verified through GitHub API; ticket moved from stale IN_PROGRESS/PUBLICATION to DONE/DONE
 2026-09-01 CLOSURE_VALIDATION governance GOV-PASS; docker smoke PASS; npm test retry passed 433, failed 0, skipped 1 after one isolated cli-watch timeout passed 1/1 on focused retry
+2026-09-01 SCOPE_MISMATCH PR 110 head dd5fa3a080c56119848ba50397c7dfe8a77b5e2a merged as dcbf9ef2729b2174647261e9e1bde66c67b8e810 after expanding only ticket-088 intent; the linker module split had no matching ticket goal, ACs, plan or execution log
+2026-09-01 RECONCILIATION ticket-094 restores the PR 103 intent scope and prospectively accepts retention of the tested split without rewriting protected history

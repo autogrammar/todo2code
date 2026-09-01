@@ -15,3 +15,15 @@
 
 - Recorded explicit human retention approval and entered `IN_PROGRESS / EDIT`.
 - Refreshed the accepted base after the unrelated ticket-093 protected merge.
+
+## [0.4.0] - 2026-09-01
+
+- Restored ticket-088's original defect scope projection.
+- Appended exact PR #110 scope-mismatch and prospective-retention evidence.
+- Restored ticket-088 protected evidence removed by unrelated PR #112 and
+  recorded that cross-ticket allowed path as a separate scope leak.
+
+## [0.5.0] - 2026-09-01
+
+- Passed full offline verification, governance, Docker smoke and whitespace
+  checks and entered protected publication.

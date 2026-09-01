@@ -8,3 +8,7 @@
 2026-09-01 HUMAN_APPROVAL current user instructed continuation after reviewing the ticket-094 retention/reconciliation plan; ticket moved to IN_PROGRESS/EDIT
 2026-09-01 BASE_REFRESH plan rebased onto main f7034e3fc87fd90e6d7c7e4aac2ec4aaa9d1ea11 after unrelated ticket-093 protected merge; no owned-path conflict
 2026-09-01 GOVERNANCE_BUDGET active intent requires positive file and component budgets; set the minimum 1/1 while AC-04 continues to forbid executable changes
+2026-09-01 RECONCILIATION_EDIT restored ticket-088 intent allowedPaths, budget and architecture paths to the PR 103 version; appended exact PR 110 mismatch evidence; executable diff remains empty
+2026-09-01 PR112_SCOPE_LEAK ticket-093 intent allowed project/ticket-088/README.md and PR 112 head 915786092a496a9a9fc25c62baa1c56da7328ffa deleted its protected delivery section while splitting unrelated workspace code; merge f7034e3fc87fd90e6d7c7e4aac2ec4aaa9d1ea11
+2026-09-01 VALIDATION npm run verify passed tests=434 pass=433 fail=0 skip=1; governance GOV-PASS; make docker-smoke PASS; git diff --check PASS
+2026-09-01 PUBLICATION_GATE ticket moved to IN_PROGRESS/PUBLICATION; exact diff contains governance evidence only and awaits a fresh ticket-094 Validator binding
