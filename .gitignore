@@ -368,8 +368,9 @@ _archive/
 # Claude Code per-user settings
 .claude/auth.json
 
-# Koru local runtime cache
-.planfile/.koru/
+# Koru local runtime cache (keep policy.yaml in git for CI)
+.planfile/.koru/*
+!.planfile/.koru/policy.yaml
 
 # Hardcoded-duplicate scan artifacts (regenerate via make detect-hardcoded-duplicates)
 project/refactor/hardcoded-duplicates.*

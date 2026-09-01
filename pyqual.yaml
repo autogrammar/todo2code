@@ -1,0 +1,26 @@
+pipeline:
+  name: todo2code-quality
+
+  loop:
+    max_iterations: 1
+    on_fail: report
+
+  stages:
+    - name: test
+      run: bash scripts/ci-test.sh
+      timeout: 900
+
+    - name: regix-gates
+      run: regix gates --workdir .
+      optional: true
+      timeout: 120
+
+    - name: redup-check
+      run: redup check .
+      optional: true
+      timeout: 120
+
+    - name: regix-compare
+      run: regix compare HEAD~1 HEAD
+      optional: true
+      timeout: 120

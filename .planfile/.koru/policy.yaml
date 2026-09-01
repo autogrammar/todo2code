@@ -1,0 +1,21 @@
+# todo2code — Koru agent policy (strict defaults; relax only via deliberate commit).
+
+llm:
+  allow_commit: false
+  allow_push: false
+  allow_branch_create: false
+  allow_branch_switch: false
+  allow_tag: false
+  allow_destructive_shell: false
+  require_planfile_lifecycle: true
+  require_ci_pass_before_complete: true
+
+ci:
+  command: |
+    set -euo pipefail
+    bash scripts/ci-test.sh
+  timeout_seconds: 900
+
+notes:
+  - "Unit tests: bash scripts/ci-test.sh (npm run build && npm test)."
+  - "Full verify: npm run verify"
