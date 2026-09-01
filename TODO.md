@@ -10,16 +10,16 @@
   test command independent of ambient SubLLM credentials. Current state:
   `IN_PROGRESS / PUBLICATION`; workstream: `integration`.
 
+- [ ] [`ticket-094`](project/ticket-094/README.md) — reconcile the healthy but
+  incorrectly scoped PR #110 linker split without rewriting history. Current
+  state: `IN_PROGRESS / EDIT`; workstream: `governance`.
+
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
   `BLOCKED / WAIT_FOR_DEPENDENCIES`; executable changes remain in target repositories.
 
 ## Backlog tickets
-
-- [ ] [`ticket-094`](project/ticket-094/README.md) — reconcile the healthy but
-  incorrectly scoped PR #110 linker split without rewriting history. Current
-  state: `PLAN / WAIT_FOR_APPROVAL`; workstream: `governance`.
 
 - [ ] [`ticket-058`](project/ticket-058/README.md) — synchronize release,
   runtime, SDK and generated-provenance version identity and add a deterministic

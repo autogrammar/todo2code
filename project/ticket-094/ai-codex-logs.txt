@@ -5,3 +5,6 @@
 2026-09-01 BASELINE_GOVERNANCE ./project/governance-check.sh --actor agent returned GOV-PASS on protected main aa20ec43
 2026-09-01 BASELINE_DOCKER make docker-smoke returned PASS on protected main aa20ec43
 2026-09-01 PLAN_GATE ticket remains PLAN/WAIT_FOR_APPROVAL; no ticket-088 or executable file changed
+2026-09-01 HUMAN_APPROVAL current user instructed continuation after reviewing the ticket-094 retention/reconciliation plan; ticket moved to IN_PROGRESS/EDIT
+2026-09-01 BASE_REFRESH plan rebased onto main f7034e3fc87fd90e6d7c7e4aac2ec4aaa9d1ea11 after unrelated ticket-093 protected merge; no owned-path conflict
+2026-09-01 GOVERNANCE_BUDGET active intent requires positive file and component budgets; set the minimum 1/1 while AC-04 continues to forbid executable changes

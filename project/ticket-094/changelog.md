@@ -10,3 +10,8 @@
 - Recorded the exact protected PR #110, Validator and final-main evidence.
 - Planned an honest documentation-only reconciliation without retroactive
   authorization or executable changes.
+
+## [0.3.0] - 2026-09-01
+
+- Recorded explicit human retention approval and entered `IN_PROGRESS / EDIT`.
+- Refreshed the accepted base after the unrelated ticket-093 protected merge.

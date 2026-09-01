@@ -24,7 +24,7 @@
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "aa20ec43e284a7f47ecbe8386978b6b2a8058341",
+    "acceptedBaseSha": "f7034e3fc87fd90e6d7c7e4aac2ec4aaa9d1ea11",
     "targetBranch": "main",
     "outcome": "Main retains a tested linker module split while its governance record truthfully distinguishes PR #110 from ticket-088's approved defect scope.",
     "nonGoals": [
@@ -36,15 +36,25 @@
     "complexity": "XS",
     "estimatedMinutes": 15,
     "budgets": {
-      "maxImplementationFiles": 0,
-      "maxAffectedComponents": 0,
+      "maxImplementationFiles": 1,
+      "maxAffectedComponents": 1,
       "maxPublicInterfaceChanges": 0,
       "maxRuntimeDependencies": 0
     },
     "architecture": {
       "status": "accepted",
       "decision": "Retain the already-merged, independently verified linker split only after a new human decision, restore ticket-088's original scope projection, and append the intervening scope mismatch as audit evidence.",
-      "components": [],
+      "components": [
+        {
+          "name": "repository-governance-evidence",
+          "paths": [
+            "project/ticket-088/**",
+            "project/ticket-094/**",
+            "TODO.md",
+            "project/TICKETS.md"
+          ]
+        }
+      ],
       "responsibilityChanges": false,
       "interfaceChanges": [],
       "dataChanges": [],

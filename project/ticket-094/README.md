@@ -1,9 +1,9 @@
 # Ticket 094: Reconcile linker split governance evidence
 
 - **ID**: ticket-094
-- **Owner**: agent:codex; retention decision pending from the current human owner
-- **Status**: PLAN
-- **Workflow state**: WAIT_FOR_APPROVAL
+- **Owner**: agent:codex under the current human retention approval
+- **Status**: IN_PROGRESS
+- **Workflow state**: EDIT
 - **Created**: 2026-09-01
 
 ## Goal and scope
@@ -24,7 +24,7 @@ before PR #110, and do not change executable code.
 
 ## Acceptance criteria
 
-- [ ] AC-01: A human owner explicitly chooses to retain the audited linker
+- [x] AC-01: A human owner explicitly chooses to retain the audited linker
       split and approves this documentation-only reconciliation.
 - [ ] AC-02: The record binds PR #110, implementation HEAD `dd5fa3a080c5611`,
       merge `dcbf9ef2729b2174`, reviewer `ifuri-validator-agent[bot]`, the

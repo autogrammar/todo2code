@@ -31,10 +31,12 @@ record, not a claim that the earlier authorization was valid.
 
 ## Actual changes
 
-- Audit and plan files only; no implementation or historical ticket file has
-  been changed.
+- The user explicitly approved continuation after reviewing ticket-094,
+  ticket-024 and ticket-022; ticket-094 moved to `IN_PROGRESS / EDIT`.
+- The plan was rebased without conflict from audited main `aa20ec43` to
+  `f7034e3`; the intervening ticket-093 merge does not touch this ticket's
+  historical linker evidence or owned documentation paths.
 
 ## Blockers
 
-- Explicit human approval is required to retain the exact audited code state
-  and move this ticket to `IN_PROGRESS / EDIT`.
+- None inside the approved documentation-only scope.
