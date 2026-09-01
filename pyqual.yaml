@@ -1,0 +1,12 @@
+pipeline:
+  name: todo2code-quality
+
+  stages:
+    - name: test
+      run: bash scripts/ci-test.sh
+      timeout: 900
+
+    - name: regix
+      tool: regix
+      optional: true
+      timeout: 120

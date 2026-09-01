@@ -1,0 +1,22 @@
+schema_version: "1"
+components:
+  regix:
+    enabled: true
+    kind: cli
+    role: quality
+  redup:
+    enabled: true
+    kind: cli
+    role: quality
+  testql:
+    enabled: false
+    kind: cli
+    role: e2e
+  vallm:
+    enabled: false
+    kind: cli
+    role: quality
+  sumr:
+    enabled: false
+    kind: cli
+    role: quality

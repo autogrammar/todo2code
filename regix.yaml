@@ -1,0 +1,38 @@
+regix:
+  workdir: .
+
+  gates:
+    hard:
+      cc: 20
+      mi: 0
+      coverage: 0
+      length: 200
+      docstring: 0
+      quality: 0.0
+    target:
+      cc: 12
+      mi: 20
+      coverage: 30
+      length: 120
+      docstring: 40
+      quality: 0.50
+    on_regression: warn
+    fail_exit_code: 1
+
+  exclude:
+    - "dist/*"
+    - "node_modules/*"
+    - "test/*"
+    - "tests/*"
+    - "docs/*"
+    - "examples/*"
+    - "evaluation/*"
+    - "scripts/*"
+    - ".governance/*"
+    - "python/*"
+    - "sdk/python/*"
+
+  output:
+    format: rich
+    dir: .regix/
+    show_improvements: true
