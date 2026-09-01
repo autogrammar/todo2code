@@ -10,10 +10,6 @@
   test command independent of ambient SubLLM credentials. Current state:
   `IN_PROGRESS / PUBLICATION`; workstream: `integration`.
 
-- [ ] [`ticket-088`](project/ticket-088/README.md) — prevent overlapping
-  projections of one source sentence from creating a false blocking polarity
-  contradiction. Current state: `IN_PROGRESS / EDIT`; workstream: `core-dsl`.
-
 - [ ] [`ticket-054`](project/ticket-054/README.md) — restore skills-agent
   discovery, prove a todo2code → Repair PR → independent Validator hand-off,
   then add three bounded todo2code-grounded skills. Current state:
@@ -33,6 +29,11 @@
   Current state: `PLAN / WAIT_FOR_APPROVAL`.
 
 ## Completed tickets
+- [x] [`ticket-088`](project/ticket-088/README.md) — prevented overlapping
+  projections of one source sentence from creating a false blocking polarity
+  contradiction. Validator approved exact head `a37f4020` for `ticket-088`;
+  PR #103 merged as `89e72ce` and its implementation branch was deleted.
+  Current state: `DONE / DONE`.
 - [x] [`ticket-087`](project/ticket-087/README.md) — reconciled protected merge
   evidence and released stale reservations for tickets 077, 083, 084 and 085.
   Current state: `DONE / DONE`.
