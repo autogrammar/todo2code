@@ -1,0 +1,121 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-098",
+  "summary": "Adopt published compact governance for canonical DSL delivery",
+  "workstream": "governance",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-098/**",
+    ".governance/**",
+    ".github/workflows/ci.yml",
+    "package.json",
+    "pyproject.toml",
+    "Dockerfile",
+    "Dockerfile.e2e",
+    "docker-compose.yml",
+    "compose.e2e.yml"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [
+    "node",
+    "typescript"
+  ],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "8aac79d5f4c5b5a86ebb6a7506e68c15965f7da8",
+    "targetBranch": "main",
+    "outcome": "Publish the immutable compact-ticket standard with protected review, Docker image pins and packaging hooks while preserving existing required test profiles.",
+    "nonGoals": [
+      "No extractor implementation change",
+      "No removal of required protected tests or independent review",
+      "No raw log or plan-only commits"
+    ],
+    "complexity": "M",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 9,
+      "maxAffectedComponents": 3,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Use the complete published standard payload; preserve target ownership and bind packaging, immutable images and the protected reusable workflow.",
+      "components": [
+        {
+          "name": "published-governance-adoption",
+          "paths": [
+            ".governance/**",
+            ".github/**",
+            "AGENTS.md",
+            "CLAUDE.md",
+            "GEMINI.md",
+            ".cursor/**",
+            ".aider.conf.yml",
+            ".githooks/**",
+            ".subactor/**",
+            "project/*.sh",
+            "project/*.bat",
+            "scripts/install-agent-hosts.sh",
+            "wellmanifest_governance.py",
+            "worktree-guard.yaml",
+            "scripts/runtime.sh"
+          ]
+        },
+        {
+          "name": "packaging-and-images",
+          "paths": [
+            "package.json",
+            "pyproject.toml",
+            "Dockerfile",
+            "Dockerfile.e2e",
+            "docker-compose.yml",
+            "compose.e2e.yml"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert explicit-path support; conventional configuration discovery remains the default."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "./project/governance-check.sh",
+          "make verify",
+          "make smoke",
+          "make docker-smoke"
+        ],
+        "evidence": "Focused canonical record identity and path boundary regression tests"
+      }
+    ],
+    "standardAdoption": {
+      "sourceRepository": "wellmanifest/new-project",
+      "fromRevision": "a22eb47ca0e7c06ac927d1c0d843eabb798bfadd",
+      "toRevision": "d31beca68b9964c6af493a44974b247626294b65",
+      "targetOwnedTransitions": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "baseDigest": "7dbc498a2697e7dcdba65e1b5b103aae22ed952e612c318ed52ffec5793b430f",
+          "headDigest": "6718641b3dc1385830d4ca782de7e578868991a4fa71515a89b7aad48fce03e4"
+        }
+      ]
+    }
+  }
+}
