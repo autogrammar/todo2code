@@ -1,0 +1,82 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-097",
+  "summary": "Explicit canonical configuration input paths",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-097/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/extractors/configuration.ts",
+    "test/configuration.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [
+    "node",
+    "typescript"
+  ],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "8aac79d5f4c5b5a86ebb6a7506e68c15965f7da8",
+    "targetBranch": "main",
+    "outcome": "Canonical config2dsl accepts explicit bounded configuration input paths while retaining ignore and filesystem boundaries.",
+    "nonGoals": [
+      "No task-word path inference",
+      "No LLM invocation",
+      "No runtime or dependency change"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 1,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Extend the existing public config2dsl options with explicit additional paths; use the same canonical parser and ignored-file discovery.",
+      "components": [
+        {
+          "name": "configuration-extractor",
+          "paths": [
+            "src/extractors/configuration.ts",
+            "test/configuration.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [
+        "Config2DslOptions.paths and optional extractConfigurationIntent explicitPaths"
+      ],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert explicit-path support; conventional configuration discovery remains the default."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run check",
+          "npm run build",
+          "node --test dist/test/configuration.test.js"
+        ],
+        "evidence": "Focused canonical record identity and path boundary regression tests"
+      }
+    ]
+  }
+}
