@@ -1,0 +1,85 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-103",
+  "summary": "Adopt repeated published adoption validation",
+  "workstream": "governance",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-103/**",
+    ".governance/governance_check.py",
+    ".governance/manifest.base.json",
+    ".governance/manifest.json",
+    ".governance/manifest.lock.json",
+    ".github/workflows/ci.yml",
+    "package.json",
+    "pyproject.toml"
+  ],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "78b1e854be01e12c80dd529cb08213cdf81ad064",
+    "targetBranch": "main",
+    "outcome": "Fresh published main validates the latest integration even after repeated standard adoptions, without weakening protected tests or independent approval.",
+    "nonGoals": [
+      "No runtime or extractor changes.",
+      "No historical ticket, TODO or generated-report rewrites.",
+      "No required-check, Docker or independent publication bypass."
+    ],
+    "complexity": "M",
+    "estimatedMinutes": 25,
+    "budgets": {
+      "maxImplementationFiles": 9,
+      "maxAffectedComponents": 3,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Adopt the immutable standard revision independently merged in wellmanifest/new-project PR 320 after its final annotated release. Preserve target-owned customization and change only exact workflow and package revision bindings.",
+      "components": [
+        {"name": "managed-governance", "paths": [".governance/**", ".github/workflows/ci.yml"]},
+        {"name": "package-bindings", "paths": ["package.json", "pyproject.toml"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Adopt prior immutable d1f35ed1b8be60f50a6739984c947a30379ead5b through a separately validated material change."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "./project/governance-check.sh --base 78b1e854be01e12c80dd529cb08213cdf81ad064",
+          "goal governance adopt --check --source-revision dc2240c22d49391845fef07f32664f37b904504f"
+        ],
+        "evidence": "Published immutable adoption and exact-base governance receipts; fresh merged clone also passes without an explicit base or local terminal receipts."
+      },
+      {
+        "criterion": "AC-02",
+        "commands": ["make verify", "make smoke", "make docker-smoke"],
+        "evidence": "Local test receipts, independent exact-head Validator receipt and observed fresh main CI."
+      }
+    ],
+    "standardAdoption": {
+      "sourceRepository": "wellmanifest/new-project",
+      "fromRevision": "d1f35ed1b8be60f50a6739984c947a30379ead5b",
+      "toRevision": "dc2240c22d49391845fef07f32664f37b904504f",
+      "targetOwnedTransitions": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "baseDigest": "d48855bdf01fe75700f207a9912c25549014e1e1b7891ef89884ba85eea37aca",
+          "headDigest": "1df26e17643da8770264c54a4f2380bfabff1b57bd7356cf7c229c4643010790"
+        }
+      ]
+    }
+  }
+}
