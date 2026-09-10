@@ -10,6 +10,8 @@ const MAX_ENTRIES_PER_FILE = 100;
 
 export interface Config2DslOptions {
   root: string;
+  /** Additional JSON/TOML/YAML paths supplied by the caller; ignore rules still apply. */
+  paths?: string[];
 }
 
 /** Independently converts repository configuration into validated Intent DSL. */
@@ -18,17 +20,20 @@ export async function config2dsl(
   config: T2CConfig,
 ): Promise<ExtractionResult> {
   const root = requireStandaloneRoot(options?.root, 'config2dsl');
-  const result = await extractConfigurationIntent(root, config);
+  const result = await extractConfigurationIntent(root, config, options.paths);
   assertIntentRecords(result.records);
   return result;
 }
 
 /** Deterministic repository configuration/infrastructure -> Intent DSL. */
-export async function extractConfigurationIntent(rootInput: string, config: T2CConfig): Promise<ExtractionResult> {
+export async function extractConfigurationIntent(
+  rootInput: string, config: T2CConfig, explicitPaths: string[] = [],
+): Promise<ExtractionResult> {
+  const additional = configurationInputPaths(explicitPaths);
   const root = path.resolve(rootInput);
   const matcher = await loadIgnoreMatcher(root);
   const discovered = await walkFiles(root, { maxFiles: 20_000, matcher });
-  const files = discovered.filter((file) => isConfigurationPath(relativePosix(root, file)));
+  const files = discovered.filter((file) => isConfigurationPath(relativePosix(root, file)) || additional.has(relativePosix(root, file)));
   const records: IntentRecord[] = [];
   const warnings: string[] = [];
   for (const file of files) {
@@ -41,6 +46,16 @@ export async function extractConfigurationIntent(rootInput: string, config: T2CC
     }
   }
   return { records, warnings };
+}
+
+function configurationInputPaths(values: string[]): Set<string> {
+  if (!Array.isArray(values) || values.length > 20_000) throw new Error('config2dsl_paths_invalid');
+  for (const value of values) {
+    if (typeof value !== 'string' || !value || path.posix.isAbsolute(value)
+      || /[\\\x00-\x1f]/.test(value) || value.split('/').some(part => !part || part === '.' || part === '..')
+      || !/\.(?:json|toml|ya?ml)$/i.test(value)) throw new Error('config2dsl_path_invalid');
+  }
+  return new Set(values);
 }
 
 function isConfigurationPath(relative: string): boolean {
