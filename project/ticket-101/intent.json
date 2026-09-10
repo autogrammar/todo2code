@@ -1,0 +1,38 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-101",
+  "summary": "Exclude local worktrees from project analysis tools",
+  "workstream": "governance",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P2",
+    "origin": "requested"
+  },
+  "allowedPaths": ["project/ticket-101/**", "project2.sh", ".governance/manifest.json"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "c1d6e1d41a3ee41219ca68872f32f67b1b8f8df1",
+    "targetBranch": "main",
+    "outcome": "Publish PR117's exact prefact worktree exclusion on current governed main.",
+    "nonGoals": ["No runtime deployment", "No change to other analysis tools", "No generated report publication or branch deletion"],
+    "complexity": "S",
+    "estimatedMinutes": 20,
+    "budgets": {"maxImplementationFiles": 2, "maxAffectedComponents": 1, "maxPublicInterfaceChanges": 0, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "accepted",
+      "decision": "Keep the existing script and preserve PR117's exact quoted exclusion; declare target script ownership in the extendable manifest.",
+      "components": [{"name": "project-analysis", "paths": ["project2.sh", ".governance/manifest.json"]}],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert the material exclusion and its ownership addition through protected review."
+    },
+    "runtimeDependencies": [],
+    "validation": [{"criterion": "AC-01", "commands": ["bash -n project2.sh", "git diff --exit-code 43ffff549f92a5fffe03dde68144578c61aabb43 -- project2.sh"], "evidence": "Exact source-byte equivalence and shell syntax"}, {"criterion": "AC-02", "commands": ["npm run verify", "make smoke docker-smoke", "bash project/governance-check.sh --actor agent"], "evidence": "External local validation logs and independent exact-head CI/Validator receipts"}]
+  }
+}
