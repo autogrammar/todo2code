@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM node:22-bookworm-slim AS build
+FROM node:22-bookworm-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5 AS build
 
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json .intentignore ./
@@ -16,7 +16,7 @@ COPY schemas ./schemas
 COPY scripts ./scripts
 RUN npm run build && npm prune --omit=dev --omit=optional
 
-FROM node:22-bookworm-slim AS runtime
+FROM node:22-bookworm-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5 AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git python3 ca-certificates \

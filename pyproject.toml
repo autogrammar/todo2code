@@ -16,3 +16,11 @@ dependencies = []
 package-dir = {"" = "sdk/python"}
 packages = ["todo2code"]
 py-modules = ["todo2code_sdk"]
+
+[tool.wellmanifest]
+standard = "0.20.20"
+revision = "d31beca68b9964c6af493a44974b247626294b65"
+gate = "project/governance-check.sh"
+
+[tool.pytest.ini_options]
+addopts = "-p wellmanifest_governance"

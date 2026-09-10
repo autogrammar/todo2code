@@ -6,7 +6,6 @@ services:
       context: .
       dockerfile: Dockerfile.e2e
       target: e2e-core
-    image: todo2code:e2e-core
     network_mode: none
     environment:
       T2C_ROOT: /workspace
@@ -18,7 +17,6 @@ services:
       context: .
       dockerfile: Dockerfile.e2e
       target: e2e-full
-    image: todo2code:e2e-full
     network_mode: none
     environment:
       T2C_ROOT: /workspace
