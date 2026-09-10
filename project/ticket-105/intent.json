@@ -1,0 +1,44 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-105",
+  "summary": "Integrate the canonical merge conflict evidence contract",
+  "workstream": "integration",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": ["project/ticket-105/**", "src/core/types.ts", "scripts/verify-merge-conflict-contract.mjs", "test/fixtures/contracts/merge-conflict-type.ts", "package.json"],
+  "forbiddenPaths": ["project/ticket-*/user-*.md"],
+  "stacks": ["node", "docker"],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "42c16669791cfda69ae6548503b5d4b288ac27e3",
+    "targetBranch": "main",
+    "outcome": "The integration-owned public conflict-fact contract binds the already emitted data and is verified through the normal application CI and strengthened independent publication.",
+    "nonGoals": ["No historical ticket rewrites or false success for PR 125.", "No extractor behavior, wire version or Git-index authority changes.", "No weakening or bypass of protected checks."],
+    "complexity": "M",
+    "estimatedMinutes": 90,
+    "budgets": {"maxImplementationFiles": 4, "maxAffectedComponents": 3, "maxPublicInterfaceChanges": 1, "maxRuntimeDependencies": 0},
+    "architecture": {
+      "status": "accepted",
+      "decision": "Integrate the existing merge_conflict_fact data under the shared contract owner. Publish an additive narrowed IntentRecord type, compile-time negative checks and real-extractor wire invariants in verify. Preserve all PR 125 source and historical receipts.",
+      "components": [
+        {"name": "public-conflict-contract", "paths": ["src/core/types.ts", "test/fixtures/contracts/merge-conflict-type.ts"]},
+        {"name": "contract-verification", "paths": ["scripts/verify-merge-conflict-contract.mjs", "package.json"]}
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": ["Add the MergeConflictFact public type without changing IntentRecord."],
+      "dataChanges": ["Integrate the existing merge_conflict_fact projection; preserve its t2c.intent/v1 wire representation and non-authoritative provenance."],
+      "ui": {"impact": "none", "states": [], "evidence": []},
+      "rollback": "Revert only the additive public type and its contract gate through independently reviewed publication; preserve the existing extractor."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {"criterion": "AC-01", "commands": ["npm run check", "npm run verify:merge-conflict-contract"], "evidence": "Compile-time invalid-field regressions and real-extractor JSON invariants."},
+      {"criterion": "AC-02", "commands": ["make verify", "make smoke", "make docker-smoke"], "evidence": "Exact-head local test receipts, independently strengthened governance checks and observed fresh main CI."}
+    ]
+  }
+}
