@@ -14,6 +14,7 @@ import { extractPythonAst } from './ast/python.js';
 import { extractRustAst } from './ast/rust.js';
 import { extractTypeScriptFile, JS_EXTENSIONS, TYPESCRIPT_AST_CACHE_IDENTITY } from './ast/typescript.js';
 import { unsupportedSourceWarning } from './ast/unsupported.js';
+import { extractMergeConflicts } from './merge-conflicts.js';
 
 export interface AstExtractionOptions {
   root: string;
@@ -34,6 +35,9 @@ export async function code2dsl(
 ): Promise<CachedExtractionResult> {
   const root = requireStandaloneRoot(options?.root, 'code2dsl');
   const result = await extractAstIntent({ root }, config);
+  const conflicts = await extractMergeConflicts(root, config);
+  result.records.push(...conflicts.records);
+  result.warnings.push(...conflicts.warnings);
   assertIntentRecords(result.records);
   return result;
 }

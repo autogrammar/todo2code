@@ -1,0 +1,79 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-104",
+  "summary": "Preserve canonical conflict evidence during code extraction",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-104/**",
+    "src/extractors/ast.ts",
+    "src/extractors/merge-conflicts.ts",
+    "test/ast-merge-conflicts.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [
+    "node"
+  ],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "1c82ce8e7a7c2d5310302bc5c69a093702560dfc",
+    "targetBranch": "main",
+    "outcome": "Represent well-formed conflict blocks as canonical source-bound facts so bounded code editing can repair syntax-invalid files.",
+    "nonGoals": [
+      "No source-text fallback or automatic choice of merge side",
+      "No ignored files, credentials, budget increases or direct merge"
+    ],
+    "complexity": "M",
+    "estimatedMinutes": 90,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Supplement public code2dsl with validated conflict-marker grammar records, distinct from AST facts; preserve exact ranges and existing extraction boundaries.",
+      "components": [
+        {
+          "name": "canonical-conflict-extraction",
+          "paths": [
+            "src/extractors/ast.ts",
+            "src/extractors/merge-conflicts.ts",
+            "test/ast-merge-conflicts.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [
+        "Add observed merge_conflict_fact records using the existing t2c.intent/v1 schema."
+      ],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the additive extractor hook through protected publication; retain prior pinned runtime."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run verify",
+          "./project/governance-check.sh --actor agent --base origin/main"
+        ],
+        "evidence": "Five targeted regressions passed; SubLLM extracted one canonical conflict fact, applied a valid edit and rejected a stale-source replay without LLM calls. Full verification and protected publication tracked separately."
+      }
+    ]
+  }
+}
