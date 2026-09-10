@@ -1,0 +1,77 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-100",
+  "summary": "Preserve source changes made during watch reports",
+  "workstream": "runtime",
+  "classification": {
+    "kind": "BUG",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "src/watch/watcher.ts",
+    "test/watch.test.ts",
+    "project/ticket-100/**"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [
+    "node"
+  ],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "c1d6e1d41a3ee41219ca68872f32f67b1b8f8df1",
+    "targetBranch": "main",
+    "outcome": "Preserve concurrent source edits during successful and failed watch reports while excluding only generated reports and cache.",
+    "nonGoals": [
+      "No timeout increases",
+      "No changes to provider routing or publication gates"
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 20,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 0,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Retain the pre-report source baseline and filter the pipeline-owned output and cache paths during scans.",
+      "components": [
+        {
+          "name": "watcher",
+          "paths": [
+            "src/watch/watcher.ts",
+            "test/watch.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the watcher change while preserving source files and previously generated reports."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run verify",
+          "node --test dist/test/watch.test.js dist/test/cli-watch.test.js",
+          "make smoke",
+          "make docker-smoke"
+        ],
+        "evidence": "Concurrent edits survive successful and failed reports; generated report/cache files stay quiet; adjacent source paths remain watched."
+      }
+    ]
+  }
+}
