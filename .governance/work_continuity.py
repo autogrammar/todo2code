@@ -258,6 +258,40 @@ def validate_pending_effect(value: Any, index: int) -> dict[str, Any]:
     return effect
 
 
+def validate_checkpoint_effects(checkpoint):
+    effects = checkpoint["pendingEffects"]
+    if not isinstance(effects, list) or len(effects) > 32:
+        fail("GOV-CONTINUITY-001", "pendingEffects must be a bounded array")
+    validated_effects = [validate_pending_effect(item, index) for index, item in enumerate(effects)]
+    keys = [item["idempotencyKey"] for item in validated_effects]
+    if len(keys) != len(set(keys)):
+        fail("GOV-CONTINUITY-001", "pending effect idempotency keys must be unique")
+
+
+def validate_checkpoint_progress(checkpoint):
+    completed = unique_strings(checkpoint["completedCriteria"], "completedCriteria", CRITERION_RE)
+    remaining = unique_strings(checkpoint["remainingCriteria"], "remainingCriteria", CRITERION_RE)
+    if set(completed) & set(remaining):
+        fail("GOV-CONTINUITY-001", "completed and remaining criteria overlap")
+    evidence = checkpoint["evidenceRefs"]
+    if not isinstance(evidence, list) or len(evidence) > 128:
+        fail("GOV-CONTINUITY-001", "evidenceRefs must be a bounded array")
+    for index, item in enumerate(evidence):
+        reference(item, f"evidenceRefs[{index}]")
+    if len(evidence) != len(set(evidence)):
+        fail("GOV-CONTINUITY-001", "evidenceRefs contains duplicates")
+    validate_checkpoint_effects(checkpoint)
+    next_action = exact_object(checkpoint["nextAction"], {"kind", "criterion"}, "nextAction")
+    if next_action["kind"] not in NEXT_ACTIONS:
+        fail("GOV-CONTINUITY-001", "nextAction.kind is invalid")
+    if next_action["criterion"] is not None and (
+        not isinstance(next_action["criterion"], str)
+        or CRITERION_RE.fullmatch(next_action["criterion"]) is None
+        or next_action["criterion"] not in remaining
+    ):
+        fail("GOV-CONTINUITY-001", "next action criterion must remain unfinished")
+
+
 def validate_checkpoint(value: Any) -> dict[str, Any]:
     fields = {
         "schema", "authority", "checkpointRef", "previousCheckpointRef", "sequence",
@@ -298,33 +332,7 @@ def validate_checkpoint(value: Any) -> dict[str, Any]:
     validate_lease(checkpoint["lease"])
     validate_remote(checkpoint["remoteObservation"], repository)
     validate_workspace(checkpoint["workspace"])
-    completed = unique_strings(checkpoint["completedCriteria"], "completedCriteria", CRITERION_RE)
-    remaining = unique_strings(checkpoint["remainingCriteria"], "remainingCriteria", CRITERION_RE)
-    if set(completed) & set(remaining):
-        fail("GOV-CONTINUITY-001", "completed and remaining criteria overlap")
-    evidence = checkpoint["evidenceRefs"]
-    if not isinstance(evidence, list) or len(evidence) > 128:
-        fail("GOV-CONTINUITY-001", "evidenceRefs must be a bounded array")
-    for index, item in enumerate(evidence):
-        reference(item, f"evidenceRefs[{index}]")
-    if len(evidence) != len(set(evidence)):
-        fail("GOV-CONTINUITY-001", "evidenceRefs contains duplicates")
-    effects = checkpoint["pendingEffects"]
-    if not isinstance(effects, list) or len(effects) > 32:
-        fail("GOV-CONTINUITY-001", "pendingEffects must be a bounded array")
-    validated_effects = [validate_pending_effect(item, index) for index, item in enumerate(effects)]
-    keys = [item["idempotencyKey"] for item in validated_effects]
-    if len(keys) != len(set(keys)):
-        fail("GOV-CONTINUITY-001", "pending effect idempotency keys must be unique")
-    next_action = exact_object(checkpoint["nextAction"], {"kind", "criterion"}, "nextAction")
-    if next_action["kind"] not in NEXT_ACTIONS:
-        fail("GOV-CONTINUITY-001", "nextAction.kind is invalid")
-    if next_action["criterion"] is not None and (
-        not isinstance(next_action["criterion"], str)
-        or CRITERION_RE.fullmatch(next_action["criterion"]) is None
-        or next_action["criterion"] not in remaining
-    ):
-        fail("GOV-CONTINUITY-001", "next action criterion must remain unfinished")
+    validate_checkpoint_progress(checkpoint)
     timestamp(checkpoint["recordedAt"])
     digest_payload = dict(checkpoint)
     digest_payload.pop("checkpointRef")
@@ -684,16 +692,7 @@ def parse_pending(value: str) -> dict[str, Any]:
     }
 
 
-def capture(args: argparse.Namespace) -> dict[str, Any]:
-    root = args.root.resolve()
-    repository = repository_ref(root)
-    event_path, _, _, _ = storage_paths(root)
-    _, state = event_state(iter_events(event_path), repository)
-    intent, intent_digest, scope_digest, target_branch = intent_state(root, args.ticket)
-    branch = git(root, "symbolic-ref", "--quiet", "--short", "HEAD")
-    head = git(root, "rev-parse", "HEAD")
-    status_bytes = git(root, "status", "--porcelain=v1", "-z", "--untracked-files=all", binary=True)
-    assert isinstance(branch, str) and isinstance(head, str) and isinstance(status_bytes, bytes)
+def capture_workspace(args, status_bytes):
     snapshot_values = (
         args.snapshot_ref, args.snapshot_sha256, args.snapshot_receipt,
         args.snapshot_secret_scan_receipt,
@@ -722,6 +721,20 @@ def capture(args: argparse.Namespace) -> dict[str, Any]:
             "snapshotRef": None, "snapshotSha256": None, "snapshotReceipt": None,
             "secretScanReceipt": None,
         }
+    return workspace
+
+
+def capture(args: argparse.Namespace) -> dict[str, Any]:
+    root = args.root.resolve()
+    repository = repository_ref(root)
+    event_path, _, _, _ = storage_paths(root)
+    _, state = event_state(iter_events(event_path), repository)
+    intent, intent_digest, scope_digest, target_branch = intent_state(root, args.ticket)
+    branch = git(root, "symbolic-ref", "--quiet", "--short", "HEAD")
+    head = git(root, "rev-parse", "HEAD")
+    status_bytes = git(root, "status", "--porcelain=v1", "-z", "--untracked-files=all", binary=True)
+    assert isinstance(branch, str) and isinstance(head, str) and isinstance(status_bytes, bytes)
+    workspace = capture_workspace(args, status_bytes)
     prior = state["checkpoints"].get(args.ticket)
     sequence = 1 if prior is None else prior["sequence"] + 1
     lease = None
@@ -900,6 +913,27 @@ def candidate_bytes(root: Path, relative: str, staged: bool) -> bytes | None:
     return value if isinstance(value, bytes) else None
 
 
+def validate_adoption_pin(manifest, lock):
+    pin = manifest["standardPin"]
+    standard = lock.get("standard") if isinstance(lock, dict) else None
+    if not isinstance(standard, dict):
+        fail("GOV-CONTINUITY-001", "adoption lock has no standard pin")
+    expected_fields = {"id", "version", "sourceRepository", "sourceRevision", "publicationStatus"}
+    if set(standard) != expected_fields:
+        fail("GOV-CONTINUITY-001", "adoption lock standard pin fields are invalid")
+    if (
+        standard["id"] != pin["requiredStandardId"]
+        or standard["sourceRepository"] != "wellmanifest/new-project"
+        or not isinstance(standard["version"], str)
+        or VERSION_RE.fullmatch(standard["version"]) is None
+        or not isinstance(standard["sourceRevision"], str)
+        or SHA1_RE.fullmatch(standard["sourceRevision"]) is None
+        or standard["publicationStatus"] not in {"published", "unpublished-test"}
+    ):
+        fail("GOV-CONTINUITY-001", "adoption lock standard pin is invalid")
+    return standard
+
+
 def verify_pin(args: argparse.Namespace) -> dict[str, Any]:
     root = args.root.resolve()
     manifest_relative = ".subactor/manifest.json"
@@ -919,23 +953,7 @@ def verify_pin(args: argparse.Namespace) -> dict[str, Any]:
         validate_manifest_value(manifest)
     except ContinuityError as exc:
         fail("GOV-CONTINUITY-001", f"local Subactor manifest drifted: {exc}")
-    pin = manifest["standardPin"]
-    standard = lock.get("standard") if isinstance(lock, dict) else None
-    if not isinstance(standard, dict):
-        fail("GOV-CONTINUITY-001", "adoption lock has no standard pin")
-    expected_fields = {"id", "version", "sourceRepository", "sourceRevision", "publicationStatus"}
-    if set(standard) != expected_fields:
-        fail("GOV-CONTINUITY-001", "adoption lock standard pin fields are invalid")
-    if (
-        standard["id"] != pin["requiredStandardId"]
-        or standard["sourceRepository"] != "wellmanifest/new-project"
-        or not isinstance(standard["version"], str)
-        or VERSION_RE.fullmatch(standard["version"]) is None
-        or not isinstance(standard["sourceRevision"], str)
-        or SHA1_RE.fullmatch(standard["sourceRevision"]) is None
-        or standard["publicationStatus"] not in {"published", "unpublished-test"}
-    ):
-        fail("GOV-CONTINUITY-001", "adoption lock standard pin is invalid")
+    standard = validate_adoption_pin(manifest, lock)
     managed = lock.get("managedFiles")
     if not isinstance(managed, dict):
         fail("GOV-CONTINUITY-001", "adoption lock has no managed file map")

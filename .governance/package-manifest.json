@@ -278,7 +278,7 @@
       "executable": false
     },
     {
-      "source": "governance/required-checks.json",
+      "source": "template/files/required-checks.template.json",
       "target": ".governance/required-checks.json",
       "strategy": "extendable",
       "executable": false

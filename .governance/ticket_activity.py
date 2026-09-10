@@ -80,6 +80,13 @@ def load_policy(root: Path) -> dict[str, Any]:
     raw_path = registry.get("path")
     if not isinstance(raw_path, str) or not raw_path or Path(raw_path).is_absolute() or ".." in Path(raw_path).parts:
         raise ActivityError("managed terminal receipt registry path is unsafe")
+    _validate_terminal_outcomes(value)
+    if value.get("unsupportedOutcomePolicy") != "remain-active":
+        raise ActivityError("unsupported outcome policy must remain-active")
+    return value
+
+
+def _validate_terminal_outcomes(value):
     outcomes = value.get("terminalOutcomes")
     if not isinstance(outcomes, dict) or not outcomes:
         raise ActivityError("managed terminal outcomes are missing")
@@ -94,9 +101,6 @@ def load_policy(root: Path) -> dict[str, Any]:
             or rule.get("releasesReservation") is not True
         ):
             raise ActivityError("managed terminal outcome rule is unsupported")
-    if value.get("unsupportedOutcomePolicy") != "remain-active":
-        raise ActivityError("unsupported outcome policy must remain-active")
-    return value
 
 
 def registry_path(root: Path, policy: dict[str, Any] | None = None) -> Path:
@@ -126,6 +130,27 @@ def projection_status(ticket_dir: Path) -> str | None:
     return match.group(1).upper() if match else None
 
 
+def _validate_terminal_receipt(receipt, seen):
+    fields = {"receiptRef", "ticket", "outcome", "headSha", "terminalSha", "targetBranch", "occurredAt"}
+    if not isinstance(receipt, dict) or set(receipt) != fields:
+        raise ActivityError("terminal receipt fields are invalid")
+    if not isinstance(receipt.get("receiptRef"), str) or RECEIPT_REF_RE.fullmatch(receipt["receiptRef"]) is None:
+        raise ActivityError("terminal receipt reference is invalid")
+    if receipt["receiptRef"] in seen:
+        raise ActivityError("terminal receipt references are not unique")
+    seen.add(receipt["receiptRef"])
+    if not TICKET_RE.fullmatch(receipt.get("ticket", "")):
+        raise ActivityError("terminal receipt ticket is invalid")
+    if not SHA_RE.fullmatch(receipt.get("headSha", "")) or not SHA_RE.fullmatch(receipt.get("terminalSha", "")):
+        raise ActivityError("terminal receipt SHA binding is invalid")
+    if not isinstance(receipt.get("outcome"), str) or not receipt["outcome"]:
+        raise ActivityError("terminal receipt value is blank")
+    if TARGET_BRANCH_RE.fullmatch(receipt.get("targetBranch", "")) is None:
+        raise ActivityError("terminal receipt target branch is invalid")
+    if OCCURRED_AT_RE.fullmatch(receipt.get("occurredAt", "")) is None:
+        raise ActivityError("terminal receipt timestamp is invalid")
+
+
 def _validate_registry(value: Any, expected_repository: str) -> list[dict[str, str]]:
     if not isinstance(value, dict) or set(value) != {"schema", "repositoryRef", "receipts"}:
         raise ActivityError("terminal receipt registry fields are invalid")
@@ -138,24 +163,7 @@ def _validate_registry(value: Any, expected_repository: str) -> list[dict[str, s
         raise ActivityError("terminal receipt registry receipts must be a list")
     seen: set[str] = set()
     for receipt in receipts:
-        fields = {"receiptRef", "ticket", "outcome", "headSha", "terminalSha", "targetBranch", "occurredAt"}
-        if not isinstance(receipt, dict) or set(receipt) != fields:
-            raise ActivityError("terminal receipt fields are invalid")
-        if not isinstance(receipt.get("receiptRef"), str) or RECEIPT_REF_RE.fullmatch(receipt["receiptRef"]) is None:
-            raise ActivityError("terminal receipt reference is invalid")
-        if receipt["receiptRef"] in seen:
-            raise ActivityError("terminal receipt references are not unique")
-        seen.add(receipt["receiptRef"])
-        if not TICKET_RE.fullmatch(receipt.get("ticket", "")):
-            raise ActivityError("terminal receipt ticket is invalid")
-        if not SHA_RE.fullmatch(receipt.get("headSha", "")) or not SHA_RE.fullmatch(receipt.get("terminalSha", "")):
-            raise ActivityError("terminal receipt SHA binding is invalid")
-        if not isinstance(receipt.get("outcome"), str) or not receipt["outcome"]:
-            raise ActivityError("terminal receipt value is blank")
-        if TARGET_BRANCH_RE.fullmatch(receipt.get("targetBranch", "")) is None:
-            raise ActivityError("terminal receipt target branch is invalid")
-        if OCCURRED_AT_RE.fullmatch(receipt.get("occurredAt", "")) is None:
-            raise ActivityError("terminal receipt timestamp is invalid")
+        _validate_terminal_receipt(receipt, seen)
     return receipts
 
 

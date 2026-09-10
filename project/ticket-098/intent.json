@@ -108,12 +108,12 @@
     "standardAdoption": {
       "sourceRepository": "wellmanifest/new-project",
       "fromRevision": "a22eb47ca0e7c06ac927d1c0d843eabb798bfadd",
-      "toRevision": "3e95fa287dc2991006b95536c3a81326268aa0b8",
+      "toRevision": "d31beca68b9964c6af493a44974b247626294b65",
       "targetOwnedTransitions": [
         {
           "path": ".github/workflows/ci.yml",
           "baseDigest": "7dbc498a2697e7dcdba65e1b5b103aae22ed952e612c318ed52ffec5793b430f",
-          "headDigest": "050399ebca9528f520e28d2973c4f1413720d68d698976f5d6e81586ef957043"
+          "headDigest": "d97256f8cf53e0830d3e950b4ab5dd03ff9dee2cb82ad53550bd19756fbc694c"
         }
       ]
     }

@@ -53,6 +53,34 @@ def parse_json(data):
     return json.loads(data, object_pairs_hook=unique_object)
 
 
+def validate_document_contract(doc, ticket):
+    if (not isinstance(doc, dict) or set(doc) != {"schema", "ticket", "files", "execution_authorized", "merge_authorized"}
+            or doc["schema"] != "registry.ticket-content/v1" or doc["ticket"] != ticket
+            or doc["execution_authorized"] is not False or doc["merge_authorized"] is not False
+            or not isinstance(doc["files"], dict)):
+        raise TicketInputError("invalid ticket content contract")
+
+
+def validate_ticket_path(name):
+    if (not isinstance(name, str) or not name or len(name) > 1024 or "\\" in name
+            or any(part in {"", ".", ".."} for part in name.split("/"))
+            or re.search(r"[\x00-\x1f\x7f]", name)):
+        raise TicketInputError("invalid ticket file path")
+
+
+def decode_ticket_file(name, entry):
+    validate_ticket_path(name)
+    if (not isinstance(entry, dict) or set(entry) != {"encoding", "mode", "sha256", "content"}
+            or entry["encoding"] != "base64" or entry["mode"] not in {"100644", "100755"}
+            or not isinstance(entry["content"], str)):
+        raise TicketInputError("invalid ticket file record")
+    content = base64.b64decode(entry["content"], validate=True)
+    if (base64.b64encode(content).decode("ascii") != entry["content"]
+            or hashlib.sha256(content).hexdigest() != entry["sha256"]):
+        raise TicketInputError("ticket file digest mismatch")
+    return content, entry["mode"]
+
+
 def decode_document(ticket, revision, sha, raw):
     if not isinstance(ticket, str) or re.fullmatch(r"ticket-[0-9]{3,}", ticket) is None:
         raise TicketInputError("unsupported ticket identity")
@@ -61,26 +89,8 @@ def decode_document(ticket, revision, sha, raw):
     if hashlib.sha256(raw.encode("utf-8")).hexdigest() != sha:
         raise TicketInputError("ticket document digest mismatch")
     doc = parse_json(raw)
-    if (not isinstance(doc, dict) or set(doc) != {"schema", "ticket", "files", "execution_authorized", "merge_authorized"}
-            or doc["schema"] != "registry.ticket-content/v1" or doc["ticket"] != ticket
-            or doc["execution_authorized"] is not False or doc["merge_authorized"] is not False
-            or not isinstance(doc["files"], dict)):
-        raise TicketInputError("invalid ticket content contract")
-    files = {}
-    for name, entry in doc["files"].items():
-        if (not isinstance(name, str) or not name or len(name) > 1024 or "\\" in name
-                or any(part in {"", ".", ".."} for part in name.split("/"))
-                or re.search(r"[\x00-\x1f\x7f]", name)):
-            raise TicketInputError("invalid ticket file path")
-        if (not isinstance(entry, dict) or set(entry) != {"encoding", "mode", "sha256", "content"}
-                or entry["encoding"] != "base64" or entry["mode"] not in {"100644", "100755"}
-                or not isinstance(entry["content"], str)):
-            raise TicketInputError("invalid ticket file record")
-        content = base64.b64decode(entry["content"], validate=True)
-        if (base64.b64encode(content).decode("ascii") != entry["content"]
-                or hashlib.sha256(content).hexdigest() != entry["sha256"]):
-            raise TicketInputError("ticket file digest mismatch")
-        files[name] = (content, entry["mode"])
+    validate_document_contract(doc, ticket)
+    files = {name: decode_ticket_file(name, entry) for name, entry in doc["files"].items()}
     return {"ticket": ticket, "revision": revision, "files": files}
 
 
@@ -175,18 +185,7 @@ def export_snapshot(root, database, repository, base, head):
         for row in database_rows(root, database)], "execution_authorized": False, "merge_authorized": False}
 
 
-def load_input(root, *, database=None, snapshot=None, snapshot_sha256=None,
-               repository=None, base=None, head="HEAD", protected=False):
-    if database and (snapshot or snapshot_sha256):
-        raise TicketInputError("select exactly one ticket input")
-    if database:
-        if protected:
-            raise TicketInputError("protected validation requires an independently pinned snapshot")
-        return [decode_document(*row) for row in database_rows(root, database)]
-    if not snapshot:
-        if snapshot_sha256:
-            raise TicketInputError("snapshot path required")
-        return None
+def read_pinned_snapshot(snapshot, snapshot_sha256):
     if not isinstance(snapshot_sha256, str) or re.fullmatch(r"[a-f0-9]{64}", snapshot_sha256) is None:
         raise TicketInputError("independent snapshot SHA-256 required")
     path = Path(snapshot).absolute()
@@ -203,8 +202,10 @@ def load_input(root, *, database=None, snapshot=None, snapshot_sha256=None,
     raw = path.read_bytes()
     if hashlib.sha256(raw).hexdigest() != snapshot_sha256:
         raise TicketInputError("snapshot digest mismatch")
-    doc = parse_json(raw)
-    binding = subject(root, repository, base, head)
+    return raw
+
+
+def decode_snapshot(doc, binding):
     if (not isinstance(doc, dict) or set(doc) != {"schema", *binding, "tickets", "execution_authorized", "merge_authorized"}
             or doc["schema"] != SCHEMA or any(doc[key] != value for key, value in binding.items())
             or doc["execution_authorized"] is not False or doc["merge_authorized"] is not False
@@ -220,6 +221,24 @@ def load_input(root, *, database=None, snapshot=None, snapshot_sha256=None,
         identities.add(decoded["ticket"])
         result.append(decoded)
     return result
+
+
+def load_input(root, *, database=None, snapshot=None, snapshot_sha256=None,
+               repository=None, base=None, head="HEAD", protected=False):
+    if database and (snapshot or snapshot_sha256):
+        raise TicketInputError("select exactly one ticket input")
+    if database:
+        if protected:
+            raise TicketInputError("protected validation requires an independently pinned snapshot")
+        return [decode_document(*row) for row in database_rows(root, database)]
+    if not snapshot:
+        if snapshot_sha256:
+            raise TicketInputError("snapshot path required")
+        return None
+    raw = read_pinned_snapshot(snapshot, snapshot_sha256)
+    doc = parse_json(raw)
+    binding = subject(root, repository, base, head)
+    return decode_snapshot(doc, binding)
 
 
 if __name__ == "__main__":
