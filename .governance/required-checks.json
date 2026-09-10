@@ -1,11 +1,13 @@
 {
   "schema": "new-project.required-checks/v1",
-  "version": 1,
-  "repository": "wellmanifest/new-project",
+  "version": 2,
+  "repository": "autogrammar/todo2code",
   "workflowFile": ".github/workflows/ci.yml",
   "requiredCheckNames": [
-    "test",
-    "windows-governance"
+    "governance",
+    "verify",
+    "Java adapter (JDK 17 required)",
+    "Live OpenRouter contract (opt-in)"
   ],
   "circularGovernanceChecksIgnoredByValidator": [
     "governance / enforce",
@@ -13,21 +15,14 @@
   ],
   "externalConsumers": [
     {
-      "name": "validator-agent",
-      "repository": "subactor/validator-agent",
-      "mustRead": "governance/required-checks.json#/requiredCheckNames",
-      "bindings": [
-        "DIRECT_PR_REQUIRED_CHECKS",
-        "DIRECT_PR_SCAN_CONFIG[\"wellmanifest/new-project\"].required_checks",
-        "bin/dispatch-direct-pr.sh resolve_required_checks"
+      "name": "protected-validator-profile",
+      "repository": "autogrammar/todo2code",
+      "requiredChecks": [
+        "verify",
+        "Java adapter (JDK 17 required)",
+        "koru / code-review"
       ],
-      "note": "External consumers must load requiredCheckNames from this file (or an equivalent generated export). Hardcoding a subset is a governance defect of the same class as ticket-025."
-    },
-    {
-      "name": "github-ruleset",
-      "id": "main-governance-protection",
-      "mustMatch": "requiredCheckNames",
-      "note": "Ruleset lives outside the repository and cannot be read from CI without admin API. Align it manually with requiredCheckNames; CI gates the workflow side only."
+      "note": "External protected Validator profile is unchanged. Koru publishes its check independently of repository workflow jobs."
     }
   ]
 }
