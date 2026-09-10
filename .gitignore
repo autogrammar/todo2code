@@ -383,3 +383,13 @@ project/refactor/generated/
 !/package-lock.json
 !/rust-ast/Cargo.lock
 !/adapters/tensorflow/package-lock.json
+
+# Repository-local worktrees and operational state
+/.worktrees/
+/worktrees/
+/.subactor/leases/
+/.subactor/sessions/
+/.subactor/recovery/
+/.subactor/receipts/
+/.subactor/cache/
+/.subactor/snapshots/

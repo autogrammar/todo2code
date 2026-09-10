@@ -73,6 +73,7 @@
           "TODO.md",
           "CHANGELOG.md",
           ".env.example",
+          ".gitignore",
           "project.sh",
           "project.bat",
           "project/governance-check.*",
