@@ -51,3 +51,29 @@ test('configuration converter emits a deterministic file aggregate for an empty 
   assert.equal(first.records[0]?.metadata.declaredKeys, 0);
   assert.deepEqual(first.records, second.records);
 });
+
+test('explicit configuration inputs retain canonical paths and operator ignore rules', async t => {
+  const { config2dsl } = await import('../src/extractors/configuration.js');
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-configuration-explicit-'));
+  t.after(() => fs.rm(root, {recursive: true, force: true}));
+  await fs.mkdir(path.join(root, 'project', 'ticket-001'), {recursive: true});
+  const name = 'project/ticket-001/intent.json';
+  await fs.writeFile(path.join(root, name), '{"allowedPaths":["src/auth.py"],"workstream":"runtime"}\n');
+  await fs.writeFile(path.join(root, 'private.json'), '{"secret":"not evidence"}\n');
+  await fs.writeFile(path.join(root, '.intentignore'), 'private.json\n');
+  assert.equal((await config2dsl({root}, makeConfig(root))).records.length, 0);
+  const result = await config2dsl({root, paths: [name, 'private.json', name]}, makeConfig(root));
+  assert.deepEqual([...new Set(result.records.map(r => r.source.path))], [name]);
+  assert.equal(result.records.filter(r => r.statement.kind === 'configuration_file_fact').length, 1);
+  assert.ok(result.records.some(r => r.source.symbol === 'allowedPaths'));
+  assert.ok(result.records.every(r => r.source.extractor === 't2c/configuration-structural@1'));
+  assert.equal(result.warnings.length, 0);
+});
+
+test('explicit configuration paths reject invalid boundaries before discovery', async () => {
+  const { config2dsl } = await import('../src/extractors/configuration.js');
+  for (const name of ['../outside.json', '/tmp/outside.json', 'a/../b.json', 'a\\b.json', 'a//b.json', './b.json', 'file.py', 'a\n.json']) {
+    await assert.rejects(config2dsl({root: '/unused', paths: [name]}, makeConfig('/unused')), /config2dsl_path_invalid/);
+  }
+  await assert.rejects(config2dsl({root: '/unused', paths: Array(20_001).fill('a.json')}, makeConfig('/unused')), /config2dsl_paths_invalid/);
+});
