@@ -113,7 +113,7 @@
         {
           "path": ".github/workflows/ci.yml",
           "baseDigest": "7dbc498a2697e7dcdba65e1b5b103aae22ed952e612c318ed52ffec5793b430f",
-          "headDigest": "d97256f8cf53e0830d3e950b4ab5dd03ff9dee2cb82ad53550bd19756fbc694c"
+          "headDigest": "6718641b3dc1385830d4ca782de7e578868991a4fa71515a89b7aad48fce03e4"
         }
       ]
     }
