@@ -306,7 +306,10 @@ for (const outputDir of ['reports', '.']) {
   for (const firstReportFails of [false, true]) {
     test(`Changes during a ${firstReportFails ? 'failed' : 'successful'} report survive with output ${outputDir}`, async () => {
       const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-watch-during-report-'));
-      const source = path.join(root, 'source.ts');
+      // A sibling sharing the runs prefix remains source even inside the
+      // configured output directory; only the generated namespace is ignored.
+      const source = path.join(root, outputDir, 'runs-source.ts');
+      await fs.mkdir(path.dirname(source), { recursive: true });
       await fs.writeFile(source, 'export const before = true;\n');
       const harness = createHarness();
       const controller = new AbortController();
@@ -343,7 +346,8 @@ for (const outputDir of ['reports', '.']) {
         },
       }, makeConfig(root));
       assert.equal(reports, 2, 'source edit must survive without an output feedback loop');
-      assert.equal(harness.reports[1], '1 change(s): ~source.ts');
+      const relativeSource = path.relative(root, source).replace(/\\/g, '/');
+      assert.equal(harness.reports[1], `1 change(s): ~${relativeSource}`);
       assert.equal(harness.events.some(event => event.type === 'report:error'), firstReportFails);
     });
   }

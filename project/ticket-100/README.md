@@ -12,4 +12,4 @@ Acceptance: a deterministic injected report that changes source triggers a follo
 
 Canonical final evidence: https://github.com/subactor/docs/blob/main/architecture/analysis/autonomy-acceptance.md.
 
-Validation: four deterministic regression cases failed before the fix; 15 watcher/CLI cases pass after it. Full verify: 448 passed, zero failed, one optional Java skip. Offline smoke and Docker smoke pass. Required hosted Java 17 and independent exact-head Validator approval remain publication gates.
+Validation: four deterministic regression cases failed before the fix; 15 watcher/CLI cases pass after it. Full verify after integrating published configuration support and analysis exclusions: 450 passed, zero failed, one optional Java skip. Offline smoke and Docker smoke pass. Required hosted Java 17 and independent exact-head Validator approval remain publication gates.
