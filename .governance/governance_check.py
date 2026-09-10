@@ -4062,12 +4062,19 @@ def resolve_validation_base(
         return supplied_base
     active = active_ticket_records(root, config, records)
     adoption_records = standard_adoption_records(active)
-    if len(adoption_records) != 1:
+    deliveries = [record.intent["delivery"] for record in adoption_records if record.intent is not None]
+    if not deliveries:
         return None
-    record = adoption_records[0]
-    assert record.intent is not None
-    delivery = record.intent["delivery"]
-    return published_adoption_validation_base(root, delivery, head) or delivery["acceptedBaseSha"]
+    # Fresh published clones retain historical adoption prose but not external
+    # terminal receipts. Establish the latest integration's range before its
+    # changed-ticket filter decides ownership; do not declare tickets terminal.
+    if len({delivery["targetBranch"] for delivery in deliveries}) == 1:
+        published_base = published_adoption_validation_base(root, deliveries[0], head)
+        if published_base is not None:
+            return published_base
+    if len(deliveries) != 1:
+        return None
+    return deliveries[0]["acceptedBaseSha"]
 
 
 def check_change_lease(root: Path, report: Report) -> None:
