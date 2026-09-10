@@ -18,8 +18,8 @@ packages = ["todo2code"]
 py-modules = ["todo2code_sdk"]
 
 [tool.wellmanifest]
-standard = "0.20.20"
-revision = "d31beca68b9964c6af493a44974b247626294b65"
+standard = "0.20.21"
+revision = "d1f35ed1b8be60f50a6739984c947a30379ead5b"
 gate = "project/governance-check.sh"
 
 [tool.pytest.ini_options]
