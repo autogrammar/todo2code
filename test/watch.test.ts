@@ -300,3 +300,51 @@ test('Communication changes trigger watch and coalesce under the existing report
   assert.match(harness.reports[1] ?? '', /project\/WM-202\/agent\.plan\.md/);
   assert.ok(harness.events.some((event) => event.type === 'throttled'));
 });
+
+
+for (const outputDir of ['reports', '.']) {
+  for (const firstReportFails of [false, true]) {
+    test(`Changes during a ${firstReportFails ? 'failed' : 'successful'} report survive with output ${outputDir}`, async () => {
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-watch-during-report-'));
+      const source = path.join(root, 'source.ts');
+      await fs.writeFile(source, 'export const before = true;\n');
+      const harness = createHarness();
+      const controller = new AbortController();
+      let ticks = 0;
+      let reports = 0;
+      await watchRepository({
+        root,
+        pipeline: { ...pipelineOptions(root), outputDir },
+        minIntervalMs: 0,
+        signal: controller.signal,
+        now: harness.now,
+        onEvent: harness.onEvent,
+        sleep: async (ms) => {
+          await harness.sleep(ms);
+          if (++ticks === 4) controller.abort();
+        },
+        runReport: async (reason) => {
+          reports += 1;
+          harness.reports.push(reason);
+          const runDir = path.join(root, outputDir, 'runs', String(reports));
+          await fs.mkdir(runDir, { recursive: true });
+          await fs.writeFile(path.join(runDir, 'summary.md'), 'generated output');
+          await fs.writeFile(path.join(root, outputDir, 'latest.json'), JSON.stringify({ reports }));
+          const cacheDir = path.join(root, makeConfig(root).outputDir, 'cache', 'v1');
+          await fs.mkdir(cacheDir, { recursive: true });
+          await fs.writeFile(path.join(cacheDir, `${reports}.json`), 'generated cache entry');
+          if (reports === 1) {
+            // Deterministically reproduce a source edit after report output is
+            // published but before the report promise has settled.
+            await fs.writeFile(source, 'export const changedDuringReport = true;\n');
+            if (firstReportFails) throw new Error('report failed after concurrent edit');
+          }
+          return { runId: String(reports), summaryPath: path.join(runDir, 'summary.md') };
+        },
+      }, makeConfig(root));
+      assert.equal(reports, 2, 'source edit must survive without an output feedback loop');
+      assert.equal(harness.reports[1], '1 change(s): ~source.ts');
+      assert.equal(harness.events.some(event => event.type === 'report:error'), firstReportFails);
+    });
+  }
+}

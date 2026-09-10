@@ -172,7 +172,29 @@ async function createWatchRuntime(options: WatchOptions, config: T2CConfig): Pro
     return { runId: result.manifest.runId, summaryPath: result.summaryPath };
   });
 
-  const scanOptions: ScanOptions = { matcher, ...(options.maxFiles === undefined ? {} : { maxFiles: options.maxFiles }) };
+  // The pipeline owns runs/ and latest.json; extractors also own the cache
+  // under config.outputDir, which can differ from the report output directory.
+  // Exclude those artifacts explicitly, including when outputDir is the root,
+  // so reports cannot feed themselves back into the source-change detector.
+  const outputRoot = path.resolve(options.pipeline.root, options.pipeline.outputDir);
+  const generatedDirectories = [
+    path.join(outputRoot, 'runs'),
+    path.resolve(options.pipeline.root, config.outputDir, 'cache'),
+  ];
+  const latestPath = path.join(outputRoot, 'latest.json');
+  const scanMatcher: IgnoreMatcher = {
+    ...matcher,
+    ignores(relativePath, isDirectory) {
+      const absolute = path.resolve(root, relativePath);
+      return absolute === latestPath
+        || generatedDirectories.some(directory => absolute === directory || absolute.startsWith(`${directory}${path.sep}`))
+        || matcher.ignores(relativePath, isDirectory);
+    },
+  };
+  const scanOptions: ScanOptions = {
+    matcher: scanMatcher,
+    ...(options.maxFiles === undefined ? {} : { maxFiles: options.maxFiles }),
+  };
   return { root, minIntervalMs, scanIntervalMs, emit, now, sleep, signal, matcher, runReport, scanOptions };
 }
 
@@ -239,8 +261,8 @@ export async function watchRepository(options: WatchOptions, config: T2CConfig):
     } catch (error) {
       emit({ type: 'report:error', message: error instanceof Error ? error.message : String(error) });
     }
-    // Changes written by the report itself must not trigger the next one.
-    snapshot = await scanTree(root, scanOptions);
+    // Keep the pre-report source snapshot: edits made while the report ran
+    // must be detected on the next poll, even if report generation failed.
   }
 }
 
