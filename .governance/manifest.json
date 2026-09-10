@@ -75,6 +75,7 @@
           ".env.example",
           ".gitignore",
           "project.sh",
+          "project2.sh",
           "project.bat",
           "project/governance-check.*",
           "project/new-ticket.sh",
