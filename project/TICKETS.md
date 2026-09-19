@@ -75,4 +75,5 @@ of `project/README.md`, which remains a generated technical-analysis artifact.
 | **ticket-094** | [`README.md`](./ticket-094/README.md) | [`preprompt.md`](./ticket-094/preprompt.md) | - |  [`ai-codex.md`](./ticket-094/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-094/ai-codex-logs.txt) | [`changelog.md`](./ticket-094/changelog.md) |
 | **ticket-096** | [`README.md`](./ticket-096/README.md) | [`preprompt.md`](./ticket-096/preprompt.md) | - |  [`ai-codex.md`](./ticket-096/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-096/ai-codex-logs.txt) | [`changelog.md`](./ticket-096/changelog.md) |
 | **ticket-097** | [`README.md`](./ticket-097/README.md) | [`preprompt.md`](./ticket-097/preprompt.md) | - |  [`ai-codex.md`](./ticket-097/ai-codex.md) |  [`ai-codex-logs.txt`](./ticket-097/ai-codex-logs.txt) | [`changelog.md`](./ticket-097/changelog.md) |
+| **ticket-105** | [`README.md`](./ticket-105/README.md) | - | - | - | - | - |
 <!-- AUTO:TICKET_INDEX:END -->
