@@ -1,44 +1,116 @@
 {
   "schema": "new-project.intent/v3",
   "ticket": "ticket-105",
-  "summary": "Integrate the canonical merge conflict evidence contract",
-  "workstream": "integration",
+  "summary": "Adopt Wellmanifest standards 0.20.35 in autogrammar/todo2code",
+  "workstream": "governance",
   "classification": {
-    "kind": "BUG",
+    "kind": "SERVICE",
     "priority": "P1",
     "origin": "requested"
   },
-  "allowedPaths": ["project/ticket-105/**", "src/core/types.ts", "scripts/verify-merge-conflict-contract.mjs", "test/fixtures/contracts/merge-conflict-type.ts", "package.json"],
-  "forbiddenPaths": ["project/ticket-*/user-*.md"],
-  "stacks": ["node", "docker"],
+  "allowedPaths": [
+    ".aider.conf.yml",
+    ".cursor/**",
+    ".gitattributes",
+    ".githooks/**",
+    ".github/**",
+    ".gitignore",
+    ".governance/**",
+    ".subactor/**",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GEMINI.md",
+    "package.json",
+    "project.bat",
+    "project.sh",
+    "project/TICKETS.md",
+    "project/governance-check.*",
+    "project/new-ticket.sh",
+    "project/ticket-105/**",
+    "pyproject.toml",
+    "scripts/**",
+    "wellmanifest_governance.py",
+    "worktree-guard.yaml"
+  ],
+  "forbiddenPaths": [
+    ".env",
+    ".env.*"
+  ],
+  "stacks": [],
   "dependsOn": [],
   "conflictsWith": [],
   "integrationTicket": null,
   "delivery": {
-    "acceptedBaseSha": "42c16669791cfda69ae6548503b5d4b288ac27e3",
+    "acceptedBaseSha": "42f810f78a942feab6c108dd50155f2b4d196bf4",
     "targetBranch": "main",
-    "outcome": "The integration-owned public conflict-fact contract binds the already emitted data and is verified through the normal application CI and strengthened independent publication.",
-    "nonGoals": ["No historical ticket rewrites or false success for PR 125.", "No extractor behavior, wire version or Git-index authority changes.", "No weakening or bypass of protected checks."],
-    "complexity": "M",
-    "estimatedMinutes": 90,
-    "budgets": {"maxImplementationFiles": 4, "maxAffectedComponents": 3, "maxPublicInterfaceChanges": 1, "maxRuntimeDependencies": 0},
+    "outcome": "Upgrade standard suite to 0.20.35 and configure canonical worktrees standard.",
+    "nonGoals": [
+      "No production logic modifications"
+    ],
+    "complexity": "L",
+    "estimatedMinutes": 45,
+    "standardAdoption": {
+      "sourceRepository": "wellmanifest/new-project",
+      "fromRevision": "dc2240c22d49391845fef07f32664f37b904504f",
+      "toRevision": "cfaa0bf0ea6b0e7349fed0bb62b5ce15792d687d"
+    },
+    "budgets": {
+      "maxImplementationFiles": 15,
+      "maxAffectedComponents": 5,
+      "maxPublicInterfaceChanges": 3,
+      "maxRuntimeDependencies": 3
+    },
     "architecture": {
       "status": "accepted",
-      "decision": "Integrate the existing merge_conflict_fact data under the shared contract owner. Publish an additive narrowed IntentRecord type, compile-time negative checks and real-extractor wire invariants in verify. Preserve all PR 125 source and historical receipts.",
+      "decision": "Upgrade governance standards lock to 0.20.35 and verify conformance.",
       "components": [
-        {"name": "public-conflict-contract", "paths": ["src/core/types.ts", "test/fixtures/contracts/merge-conflict-type.ts"]},
-        {"name": "contract-verification", "paths": ["scripts/verify-merge-conflict-contract.mjs", "package.json"]}
+        {
+          "name": "governance",
+          "paths": [
+            ".aider.conf.yml",
+            ".cursor/**",
+            ".gitattributes",
+            ".githooks/**",
+            ".github/**",
+            ".gitignore",
+            ".governance/**",
+            ".subactor/**",
+            "AGENTS.md",
+            "CLAUDE.md",
+            "GEMINI.md",
+            "package.json",
+            "project.bat",
+            "project.sh",
+            "project/TICKETS.md",
+            "project/governance-check.*",
+            "project/new-ticket.sh",
+            "project/ticket-105/**",
+            "pyproject.toml",
+            "scripts/**",
+            "wellmanifest_governance.py",
+            "worktree-guard.yaml"
+          ]
+        }
       ],
       "responsibilityChanges": false,
-      "interfaceChanges": ["Add the MergeConflictFact public type without changing IntentRecord."],
-      "dataChanges": ["Integrate the existing merge_conflict_fact projection; preserve its t2c.intent/v1 wire representation and non-authoritative provenance."],
-      "ui": {"impact": "none", "states": [], "evidence": []},
-      "rollback": "Revert only the additive public type and its contract gate through independently reviewed publication; preserve the existing extractor."
+      "interfaceChanges": [],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "git revert to restore prior governance tooling"
     },
     "runtimeDependencies": [],
     "validation": [
-      {"criterion": "AC-01", "commands": ["npm run check", "npm run verify:merge-conflict-contract"], "evidence": "Compile-time invalid-field regressions and real-extractor JSON invariants."},
-      {"criterion": "AC-02", "commands": ["make verify", "make smoke", "make docker-smoke"], "evidence": "Exact-head local test receipts, independently strengthened governance checks and observed fresh main CI."}
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "bash project/governance-check.sh --base 42f810f78a942feab6c108dd50155f2b4d196bf4 --head HEAD"
+        ],
+        "evidence": "Governance check passes cleanly with 0 errors."
+      }
     ]
   }
 }

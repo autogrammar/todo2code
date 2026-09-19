@@ -52,8 +52,8 @@
     "email": "tom@sapletta.com"
   },
   "wellmanifest": {
-    "standard": "0.20.22",
-    "revision": "dc2240c22d49391845fef07f32664f37b904504f",
+    "standard": "0.20.35",
+    "revision": "cfaa0bf0ea6b0e7349fed0bb62b5ce15792d687d",
     "gate": "project/governance-check.sh"
   }
 }
