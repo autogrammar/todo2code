@@ -15,9 +15,7 @@
   "coordination": {
     "integration": {
       "requiredForPaths": [
-        "package.json",
         "package-lock.json",
-        "pyproject.toml",
         "goal.yaml",
         "Makefile",
         "sdk/python/pyproject.toml",
@@ -27,7 +25,7 @@
       ],
       "workstream": "integration"
     },
-    "maxActiveTicketsPerWorkstream": 4,
+    "maxActiveTicketsPerWorkstream": 3,
     "mode": "workstreams",
     "rejectActiveScopeOverlap": true,
     "workstreams": {
@@ -82,7 +80,20 @@
           "project/readme.sh",
           "project/TICKETS.md",
           "project/ticket-*/**",
-          "dsl-manifest.json"
+          "dsl-manifest.json",
+          ".subactor/**",
+          "CLAUDE.md",
+          "GEMINI.md",
+          "pyproject.toml",
+          "package.json",
+          "worktree-guard.yaml",
+          "wellmanifest_governance.py",
+          "scripts/**",
+          ".cursor/**",
+          ".gitattributes",
+          ".aider.conf.yml",
+          ".githooks/**",
+          ".github/**"
         ]
       },
       "integration": {
@@ -184,7 +195,13 @@
       "pyproject.toml",
       "go.mod",
       "Cargo.toml",
-      "pom.xml"
+      "pom.xml",
+      "pnpm-lock.yaml",
+      "yarn.lock",
+      "uv.lock",
+      "poetry.lock",
+      "go.sum",
+      "Cargo.lock"
     ],
     "maxActiveMinutes": 120,
     "maxAffectedComponents": 5,
@@ -274,7 +291,7 @@
   ],
   "standard": {
     "id": "wellmanifest/new-project",
-    "version": "0.20.22"
+    "version": "0.20.35"
   },
   "ticket": {
     "activeStatuses": [
