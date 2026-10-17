@@ -131,6 +131,9 @@
           "src/communication/**",
           "src/web/**",
           "src/cli.ts",
+          "src/evaluation/gold-extraction.ts",
+          "src/extractors/communication.ts",
+          "python/ast_extract.py",
           "test/cli*",
           "test/mcp*",
           "test/a2a*",
@@ -266,6 +269,7 @@
     "project/TICKETS.md",
     "project/ticket-*/**",
     ".governance/standard-adoption.json",
+    ".governance/manifest.json",
     "config/artifact-registry.json"
   ],
   "repository": {

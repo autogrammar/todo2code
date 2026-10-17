@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import sys
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -165,21 +166,25 @@ class FactVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
+def _iter_python_files_from_list(root: Path, files_from: Path) -> list[Path]:
+    values = json.loads(files_from.read_text(encoding='utf-8'))
+    if not isinstance(values, list) or any(not isinstance(value, str) for value in values):
+        raise ValueError('--files-from must contain a JSON array of paths')
+    output: list[Path] = []
+    for value in values:
+        candidate = (root / value).resolve()
+        try:
+            candidate.relative_to(root)
+        except ValueError as exc:
+            raise ValueError(f'Python source escapes root: {value}') from exc
+        if candidate.suffix == '.py' and candidate.is_file() and not candidate.is_symlink():
+            output.append(candidate)
+    return sorted(set(output))
+
+
 def iter_python_files(root: Path, files_from: Path | None = None) -> list[Path]:
     if files_from is not None:
-        values = json.loads(files_from.read_text(encoding='utf-8'))
-        if not isinstance(values, list) or any(not isinstance(value, str) for value in values):
-            raise ValueError('--files-from must contain a JSON array of paths')
-        output: list[Path] = []
-        for value in values:
-            candidate = (root / value).resolve()
-            try:
-                candidate.relative_to(root)
-            except ValueError as exc:
-                raise ValueError(f'Python source escapes root: {value}') from exc
-            if candidate.suffix == '.py' and candidate.is_file() and not candidate.is_symlink():
-                output.append(candidate)
-        return sorted(set(output))
+        return _iter_python_files_from_list(root, files_from)
 
     output: list[Path] = []
     for current, directories, files in os.walk(root):
@@ -190,6 +195,12 @@ def iter_python_files(root: Path, files_from: Path | None = None) -> list[Path]:
                 if not candidate.is_symlink():
                     output.append(candidate)
     return output
+
+
+@lru_cache(maxsize=256)
+def _parse_python_ast_cached(path_str: str, mtime_ns: int, body: str) -> ast.AST:
+    _ = mtime_ns
+    return ast.parse(body, filename=path_str, type_comments=True)
 
 
 def main() -> int:
@@ -203,11 +214,12 @@ def main() -> int:
     warnings: list[str] = []
     for file_path in iter_python_files(root, args.files_from):
         try:
-            if file_path.stat().st_size > args.max_file_bytes:
+            stat = file_path.stat()
+            if stat.st_size > args.max_file_bytes:
                 warnings.append(f'skipped oversized Python file: {file_path.relative_to(root)}')
                 continue
             body = file_path.read_text(encoding='utf-8')
-            tree = ast.parse(body, filename=str(file_path), type_comments=True)
+            tree = _parse_python_ast_cached(str(file_path), stat.st_mtime_ns, body)
             visitor = FactVisitor(file_path.relative_to(root).as_posix(), body.splitlines())
             visitor.visit(tree)
             facts.extend(visitor.facts)

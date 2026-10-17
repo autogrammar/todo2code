@@ -183,9 +183,13 @@ async function convertCommunicationCandidate(
       + 'classify the content under a supported heading or add explicit type front matter',
     );
   }
-  const records = await Promise.all(segments.map((segment) => buildCommunicationIntentRecord(
-    root, candidate, attribution, identityRegistry, segment, config,
-  )));
+  const records: Awaited<ReturnType<typeof buildCommunicationIntentRecord>>[] = [];
+  for (let i = 0; i < segments.length; i += 64) {
+    const batch = await Promise.all(segments.slice(i, i + 64).map((segment) => buildCommunicationIntentRecord(
+      root, candidate, attribution, identityRegistry, segment, config,
+    )));
+    records.push(...batch);
+  }
   return { records, warnings };
 }
 
