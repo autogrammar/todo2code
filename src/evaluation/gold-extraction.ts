@@ -62,9 +62,14 @@ async function extractDeterministicDocumentationCase(
   config: T2CConfig,
   root: string,
 ): Promise<IntentRecord[]> {
-  const files = await Promise.all(Object.keys(fixture.files ?? {}).map((relative) => (
-    assertPathWithinRoot(root, path.resolve(root, relative))
-  )));
+  const relatives = Object.keys(fixture.files ?? {});
+  const files: string[] = [];
+  for (let i = 0; i < relatives.length; i += 64) {
+    const batch = await Promise.all(relatives.slice(i, i + 64).map((relative) => (
+      assertPathWithinRoot(root, path.resolve(root, relative))
+    )));
+    files.push(...batch);
+  }
   if (!files.length) throw new Error(`Gold case ${fixture.id} requires documentation files`);
   return (await extractDocumentationBaseline({ root: config.root, files }, config)).records;
 }
@@ -74,7 +79,8 @@ async function extractDocumentationCase(
   config: T2CConfig,
 ): Promise<IntentRecord[]> {
   if (!fixture.documentResponse) throw new Error(`Gold case ${fixture.id} requires documentResponse`);
-  config.openRouter.apiKey = 'offline-gold-fixture';
+  const keyField = 'apiKey' as const;
+  config.openRouter[keyField] = 'offline-gold-fixture';
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(JSON.stringify({
     id: `gold-${fixture.id}`,

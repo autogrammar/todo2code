@@ -112,7 +112,11 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   if (command === 'link') {
     const files = parsed.positionals;
     if (!files.length) throw new Error('Usage: t2c link <file.intent.jsonl>... [--out graph.json]');
-    const records = (await Promise.all(files.map((file) => readJsonl(path.resolve(file))))).flat();
+    const batches: Awaited<ReturnType<typeof readJsonl>>[] = [];
+    for (let i = 0; i < files.length; i += 64) {
+      batches.push(...await Promise.all(files.slice(i, i + 64).map((file) => readJsonl(path.resolve(file)))));
+    }
+    const records = batches.flat();
     const graph = linkIntentRecords(records);
     await emitJson(graph, optionString(parsed, 'out'));
     return;
