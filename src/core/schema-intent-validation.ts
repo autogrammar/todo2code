@@ -31,6 +31,37 @@ import {
   assertIntentGenerationMetadata,
 } from './schema-generation-validation.js';
 
+const validatedGraphs = new WeakMap<object, ValidatedGraphSnapshot>();
+let fullGraphValidations = 0;
+
+export function intentGraphValidationCount(): number {
+  return fullGraphValidations;
+}
+
+type ValidatedGraphSnapshot = { fingerprint: string; records: unknown; relations: unknown; recordCount: number; relationCount: number };
+
+/** Same object, same fingerprint, same record/relation arrays and lengths as when it last validated. */
+function isUnchangedValidatedGraph(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  const cached = validatedGraphs.get(value);
+  if (!cached) return false;
+  const candidate = value as { fingerprint?: unknown; records?: unknown; relations?: unknown };
+  return candidate.fingerprint === cached.fingerprint
+    && candidate.records === cached.records
+    && candidate.relations === cached.relations
+    && sameLength(candidate.records, cached.recordCount)
+    && sameLength(candidate.relations, cached.relationCount);
+}
+
+function sameLength(value: unknown, length: number): boolean {
+  return Array.isArray(value) && value.length === length;
+}
+
+function rememberValidatedGraph(value: object, snapshot: ValidatedGraphSnapshot): void {
+  fullGraphValidations += 1;
+  validatedGraphs.set(value, snapshot);
+}
+
 export function assertIntentRecord(value: unknown): asserts value is IntentRecord {
   // #lizard forgives
   const record = objectValue(value, 'Intent record');
@@ -107,6 +138,7 @@ export function assertIntentRecords(values: unknown): asserts values is IntentRe
 }
 
 export function assertIntentGraph(value: unknown): asserts value is IntentGraph {
+  if (isUnchangedValidatedGraph(value)) return;
   const graph = objectValue(value, 'Intent graph');
   exactKeys(graph, ['schemaVersion', 'generatedAt', 'fingerprint', 'records', 'relations', 'stats'], 'Intent graph');
   if (graph.schemaVersion !== 't2c.graph/v1') throw new Error('Unsupported graph schemaVersion');
@@ -133,6 +165,13 @@ export function assertIntentGraph(value: unknown): asserts value is IntentGraph 
   exactCounts(stats.byStatus, countRecords(records, (record) => record.lifecycle.status), 'Graph stats.byStatus');
   const expectedFingerprint = graphFingerprint(records, graph.relations as IntentRelation[]);
   if (graph.fingerprint !== expectedFingerprint) throw new Error('Graph fingerprint does not match records and relations');
+  rememberValidatedGraph(value as object, {
+    fingerprint: graph.fingerprint as string,
+    records: graph.records,
+    relations: graph.relations,
+    recordCount: records.length,
+    relationCount: (graph.relations as IntentRelation[]).length,
+  });
 }
 
 export function assertIntentGraphDiff(value: unknown): asserts value is IntentGraphDiff {
