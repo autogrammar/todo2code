@@ -1,0 +1,78 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-110",
+  "summary": "Persist and expose base/workspace diagnostics in compare-workspace artifacts (#137)",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-110/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/comparison/workspace.ts",
+    "test/workspace.test.ts",
+    "src/comparison/workspace-trend.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "a85da84e72c6c3fc7d2ea1c8b6eaf790f972a63f",
+    "targetBranch": "main",
+    "outcome": "compare-workspace persists and exposes base/workspace diagnostics artifacts.",
+    "nonGoals": [
+      "No change to diagnostics content, graphs or existing artifact keys."
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 3,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 1,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Write the already-loaded diagnostics next to the graphs and add two additive artifact keys via artifactPaths.",
+      "components": [
+        {
+          "name": "comparison",
+          "paths": [
+            "src/comparison/workspace.ts",
+            "src/comparison/workspace-trend.ts",
+            "test/workspace.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [
+        "t2c.workspace-comparison/v1 artifacts: + baseDiagnostics, + workspaceDiagnostics (additive)"
+      ],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the commit; consumers fall back to recomputing diagnostics."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run build",
+          "T2C_USE_SUBLLM=false node --test dist/test/workspace.test.js dist/test/cli-compare-workspace.test.js"
+        ],
+        "evidence": "project/ticket-110/README.md"
+      }
+    ]
+  }
+}

@@ -112,6 +112,11 @@ test('workspace comparison measures origin/main against uncommitted filesystem i
   assert.ok(await pathExists(path.join(root, comparison.artifacts.comparison ?? '')));
   assert.ok(await pathExists(path.join(root, comparison.artifacts.diffSvg ?? '')));
   assert.ok(await pathExists(path.join(root, comparison.artifacts.trendMarkdown ?? '')));
+  // exposed diagnostics (#137)
+  const baseDiagnosticsFile = await readJson<{ schemaVersion: string; diagnostics: unknown[] }>(path.join(root, comparison.artifacts.baseDiagnostics ?? ''));
+  const workspaceDiagnosticsFile = await readJson<{ schemaVersion: string; diagnostics: unknown[] }>(path.join(root, comparison.artifacts.workspaceDiagnostics ?? ''));
+  assert.ok(Array.isArray(baseDiagnosticsFile.diagnostics));
+  assert.ok(Array.isArray(workspaceDiagnosticsFile.diagnostics));
   const trendMarkdown = await fs.readFile(path.join(root, comparison.artifacts.trendMarkdown ?? ''), 'utf8');
   assert.match(trendMarkdown, /Code with documentation: not measured/);
   const baseManifest = await readJson<PipelineManifest>(path.join(root, comparison.artifacts.baseManifest ?? ''));

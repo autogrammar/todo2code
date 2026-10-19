@@ -27,6 +27,8 @@ export function artifactPaths(root: string, directory: string): Record<string, s
     comparison: relative('comparison.json'),
     baseGraph: relative('base.graph.json'),
     workspaceGraph: relative('workspace.graph.json'),
+    baseDiagnostics: relative('base.diagnostics.json'),
+    workspaceDiagnostics: relative('workspace.diagnostics.json'),
     baseManifest: relative('base.manifest.json'),
     workspaceManifest: relative('workspace.manifest.json'),
     diffSvg: relative('intent-diff.svg'),
