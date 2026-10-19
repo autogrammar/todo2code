@@ -1,0 +1,83 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-109",
+  "summary": "Validate each intent graph once per object (#135)",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-109/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/core/schema-intent-validation.ts",
+    "test/schema-validate-once.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "a85da84e72c6c3fc7d2ea1c8b6eaf790f972a63f",
+    "targetBranch": "main",
+    "outcome": "assertIntentGraph validates each unchanged graph object once.",
+    "nonGoals": [
+      "No change to validation rules, messages or graph output."
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 1,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Identity-keyed WeakMap memo in assertIntentGraph guarded by fingerprint and array identity.",
+      "components": [
+        {
+          "name": "core-schema",
+          "paths": [
+            "src/core/schema-intent-validation.ts",
+            "test/schema-validate-once.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [
+        "export intentGraphValidationCount()"
+      ],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the commit."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run build",
+          "T2C_USE_SUBLLM=false node --test dist/test/schema-validate-once.test.js dist/test/schema-validation.test.js dist/test/structured-schema.test.js"
+        ],
+        "evidence": "project/ticket-109/README.md"
+      },
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "python3 <wellmanifest/performance>/src/performance.py validate project/ticket-109/performance-plan.json"
+        ],
+        "evidence": "project/ticket-109/performance-plan.json"
+      }
+    ]
+  }
+}

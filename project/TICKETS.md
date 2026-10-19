@@ -84,4 +84,5 @@ of `project/README.md`, which remains a generated technical-analysis artifact.
 | **ticket-104** | [`README.md`](./ticket-104/README.md) | - | - | - | - | - |
 | **ticket-105** | [`README.md`](./ticket-105/README.md) | - | - | - | - | - |
 | **ticket-106** | [`README.md`](./ticket-106/README.md) | - | - | - | - | - |
+| **ticket-108** | [`README.md`](./ticket-108/README.md) | - | - | - | - | - |
 <!-- AUTO:TICKET_INDEX:END -->

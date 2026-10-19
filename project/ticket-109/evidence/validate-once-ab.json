@@ -1,0 +1,159 @@
+{
+ "schema": "todo2code.validate-once-ab/v1",
+ "measuredAt": "2026-10-19",
+ "host": "developer workstation x86_64 Linux 6.17, node 20.19.5, 16 cores, shared host (load1 23-56)",
+ "workload": "t2c compare-workspace on a clone of subactor/platform (base HEAD~3), CI deterministic environment; graph 50k records / 415k relations",
+ "method": "same build; old arm = memo disabled via a temporary T2C_REVALIDATE_GRAPHS=1 switch (removed before merge), new arm = memo; arms interleaved ABABAB, 3 pairs; /usr/bin/time user+sys CPU and wall",
+ "cpu_series": [
+  {
+   "pair": 1,
+   "arm": "old_revalidate",
+   "wall_s": 339.15,
+   "rss_kb": 3058528,
+   "load1": 28.12,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ],
+   "cpu_s": 360.68
+  },
+  {
+   "pair": 1,
+   "arm": "new_memo",
+   "wall_s": 239.69,
+   "rss_kb": 2916300,
+   "load1": 35.84,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ],
+   "cpu_s": 255.29
+  },
+  {
+   "pair": 2,
+   "arm": "old_revalidate",
+   "wall_s": 392.57,
+   "rss_kb": 3248764,
+   "load1": 55.8,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ],
+   "cpu_s": 373.7
+  },
+  {
+   "pair": 2,
+   "arm": "new_memo",
+   "wall_s": 335.38,
+   "rss_kb": 3221788,
+   "load1": 50.84,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ],
+   "cpu_s": 300.35
+  },
+  {
+   "pair": 3,
+   "arm": "old_revalidate",
+   "wall_s": 286.49,
+   "rss_kb": 3152400,
+   "load1": 23.41,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ],
+   "cpu_s": 326.74
+  },
+  {
+   "pair": 3,
+   "arm": "new_memo",
+   "wall_s": 209.2,
+   "rss_kb": 3199796,
+   "load1": 30.32,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ],
+   "cpu_s": 233.96
+  }
+ ],
+ "wall_series_earlier_run": [
+  {
+   "pair": 1,
+   "arm": "old_revalidate",
+   "wall_s": 420.64,
+   "rss_kb": 3174240,
+   "load1": 53.25,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ]
+  },
+  {
+   "pair": 1,
+   "arm": "new_memo",
+   "wall_s": 369.45,
+   "rss_kb": 3297088,
+   "load1": 39.85,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ]
+  },
+  {
+   "pair": 2,
+   "arm": "old_revalidate",
+   "wall_s": 383.85,
+   "rss_kb": 3126132,
+   "load1": 38.64,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ]
+  },
+  {
+   "pair": 2,
+   "arm": "new_memo",
+   "wall_s": 343.2,
+   "rss_kb": 3057708,
+   "load1": 46.41,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ]
+  },
+  {
+   "pair": 3,
+   "arm": "old_revalidate",
+   "wall_s": 348.68,
+   "rss_kb": 3223544,
+   "load1": 28.77,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ]
+  },
+  {
+   "pair": 3,
+   "arm": "new_memo",
+   "wall_s": 207.67,
+   "rss_kb": 3505540,
+   "load1": 26.55,
+   "fingerprints": [
+    "5ac0a4e247d4",
+    "01d6361de665"
+   ]
+  }
+ ],
+ "summary": {
+  "cpu_s_median_old": 360.68,
+  "cpu_s_median_new": 255.29,
+  "cpu_ratio_pairs": [
+   1.41,
+   1.24,
+   1.4
+  ],
+  "outputs_identical": true
+ }
+}

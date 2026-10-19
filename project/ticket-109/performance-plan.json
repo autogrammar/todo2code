@@ -1,0 +1,120 @@
+{
+  "schema": "performance.plan/v1",
+  "subject": {
+    "repository": "autogrammar/todo2code",
+    "revision": "a85da84e72c6c3fc7d2ea1c8b6eaf790f972a63f",
+    "component": "core/schema-intent-validation assertIntentGraph"
+  },
+  "profiles": [
+    "repository"
+  ],
+  "workload": {
+    "id": "compare-workspace-platform",
+    "description": "compare-workspace deterministic run on subactor/platform",
+    "method": "user+sys CPU via /usr/bin/time, interleaved arms",
+    "warmup": "none; OS page cache warm after first run",
+    "samples": 3,
+    "evidence": {
+      "uri": "repo:autogrammar/todo2code/project/ticket-109/evidence/validate-once-ab.json",
+      "sha256": "da50602794bb6df6602189a3b5aa68139956508d280d86793542ce7e3766e292"
+    }
+  },
+  "baseline": {
+    "workloadId": "compare-workspace-platform",
+    "metrics": [
+      {
+        "name": "cpu_time",
+        "unit": "ms",
+        "value": 360680
+      }
+    ],
+    "evidence": {
+      "uri": "repo:autogrammar/todo2code/project/ticket-109/evidence/validate-once-ab.json",
+      "sha256": "da50602794bb6df6602189a3b5aa68139956508d280d86793542ce7e3766e292"
+    }
+  },
+  "candidate": {
+    "workloadId": "compare-workspace-platform",
+    "metrics": [
+      {
+        "name": "cpu_time",
+        "unit": "ms",
+        "value": 255290
+      }
+    ],
+    "evidence": {
+      "uri": "repo:autogrammar/todo2code/project/ticket-109/evidence/validate-once-ab.json",
+      "sha256": "da50602794bb6df6602189a3b5aa68139956508d280d86793542ce7e3766e292"
+    }
+  },
+  "budgets": [
+    {
+      "metric": "cpu_time",
+      "unit": "ms",
+      "comparison": "at_most",
+      "threshold": 360680
+    }
+  ],
+  "controls": [
+    {
+      "kind": "repository_working_set",
+      "target": "compare-workspace analysed tree",
+      "limit": 1,
+      "unit": "count",
+      "mechanism": "unchanged, the validation memo only removes repeated work on identical graph objects",
+      "verification": "identical fingerprints across all six runs",
+      "exception": ""
+    }
+  ],
+  "invariants": [
+    {
+      "id": "functional",
+      "kind": "functional",
+      "verification": "base and workspace graph fingerprints identical across arms; schema tests pass",
+      "required": true
+    },
+    {
+      "id": "security",
+      "kind": "security",
+      "verification": "failed validations are never cached; changed fingerprint or replaced arrays are revalidated",
+      "required": true
+    },
+    {
+      "id": "resource",
+      "kind": "resource",
+      "verification": "peak RSS within the same range (2.9-3.5 GB both arms)",
+      "required": true
+    },
+    {
+      "id": "authority",
+      "kind": "authority",
+      "verification": "plan grants no execution authority",
+      "required": true
+    }
+  ],
+  "strategy": {
+    "outcome": "same_language",
+    "rationale": "assertIntentGraph re-validated and re-fingerprinted the same graph objects many times per run",
+    "changedPaths": [
+      "src/core/schema-intent-validation.ts",
+      "test/schema-validate-once.test.ts"
+    ],
+    "compatibility": "identical outputs"
+  },
+  "rollout": {
+    "mechanism": "release and bump the todo2code pin in subactor/platform",
+    "scope": "platform intent-conformance gate",
+    "observationSeconds": 86400,
+    "abortThreshold": "gate verdict differs for the same PR"
+  },
+  "rollback": {
+    "mechanism": "revert the commit",
+    "scope": "same package",
+    "observationSeconds": 3600,
+    "abortThreshold": "verdict mismatch"
+  },
+  "authority": {
+    "requestOnly": true,
+    "executionGrantEmbedded": false
+  }
+}
