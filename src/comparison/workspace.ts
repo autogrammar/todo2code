@@ -171,6 +171,8 @@ export async function compareWorkspaceIntent(
       writeJson(path.join(comparisonDirectory, 'comparison.json'), result),
       writeJson(path.join(comparisonDirectory, 'base.graph.json'), baseGraph),
       writeJson(path.join(comparisonDirectory, 'workspace.graph.json'), currentGraph),
+      writeJson(path.join(comparisonDirectory, 'base.diagnostics.json'), baseDiagnostics),
+      writeJson(path.join(comparisonDirectory, 'workspace.diagnostics.json'), currentDiagnostics),
       writeJson(path.join(comparisonDirectory, 'base.manifest.json'), baseRun.manifest),
       writeJson(path.join(comparisonDirectory, 'workspace.manifest.json'), currentRun.manifest),
       writeText(path.join(comparisonDirectory, 'intent-diff.svg'), renderGraphDiffSvg(diff)),
