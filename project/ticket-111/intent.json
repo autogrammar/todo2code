@@ -1,0 +1,76 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-111",
+  "summary": "Compare capability-scoped intent and implementation across repository evidence bundles (#141)",
+  "workstream": "extractors",
+  "classification": {
+    "kind": "FEATURE",
+    "priority": "P1",
+    "origin": "requested"
+  },
+  "allowedPaths": [
+    "project/ticket-111/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/diff/capability-comparison.ts",
+    "test/diff-capability-comparison.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "104bdb5ce1d861de355ef4d8b7455da096eea2af",
+    "targetBranch": "main",
+    "outcome": "Compare capability-scoped intent and implementation across distinct repository evidence bundles with explicit contract mappings, provenance, evidence grades, negative fixtures, typed gap candidates, and a hash-bound review proposal.",
+    "nonGoals": [
+      "No second intent parser, direct source mutation, ticket creation, or semantic equivalence claim from similarity alone."
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 2,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 1,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Add src/diff/capability-comparison.ts reusing IntentGraph, TruthMap, IntentRealityView from src/diff/reality.ts, and intract.scan/v1 rows.",
+      "components": [
+        {
+          "name": "diff",
+          "paths": [
+            "src/diff/capability-comparison.ts",
+            "test/diff-capability-comparison.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [
+        "src/diff/capability-comparison.ts: + compareCapabilityEvidenceBundles and capability comparison types (additive)"
+      ],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the commit."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run build",
+          "T2C_USE_SUBLLM=false node --test dist/test/diff.test.js dist/test/diff-capability-comparison.test.js"
+        ],
+        "evidence": "project/ticket-111/README.md"
+      }
+    ]
+  }
+}
