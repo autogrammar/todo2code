@@ -1,0 +1,94 @@
+{
+  "schema": "new-project.intent/v3",
+  "ticket": "ticket-112",
+  "summary": "Cache base pipeline result by base tree and t2c version in compare-workspace (#136)",
+  "workstream": "core-dsl",
+  "classification": {
+    "kind": "SERVICE",
+    "priority": "P2",
+    "origin": "health"
+  },
+  "allowedPaths": [
+    "project/ticket-112/**",
+    "TODO.md",
+    "project/TICKETS.md",
+    "src/comparison/workspace-base-cache.ts",
+    "src/comparison/workspace-types.ts",
+    "src/comparison/workspace.ts",
+    "test/workspace.test.ts"
+  ],
+  "forbiddenPaths": [
+    "project/ticket-*/user-*.md"
+  ],
+  "stacks": [],
+  "dependsOn": [],
+  "conflictsWith": [],
+  "integrationTicket": null,
+  "delivery": {
+    "acceptedBaseSha": "dcca15e222f9e31bec1ee513fff4f89e05cd7b6c",
+    "targetBranch": "main",
+    "outcome": "compareWorkspaceIntent caches base pipeline results by base tree, t2c version, effective configuration, and extractor versions, verifies stored fingerprints, and hard-links run graphs into comparison directories.",
+    "nonGoals": [
+      "No change to comparison output schema, trend classification, or workspace pipeline execution."
+    ],
+    "complexity": "S",
+    "estimatedMinutes": 30,
+    "budgets": {
+      "maxImplementationFiles": 4,
+      "maxAffectedComponents": 1,
+      "maxPublicInterfaceChanges": 1,
+      "maxRuntimeDependencies": 0
+    },
+    "architecture": {
+      "status": "accepted",
+      "decision": "Add src/comparison/workspace-base-cache.ts with computeBasePipelineCacheKey, readVerifiedCachedBaseRun, writeCachedBaseRun, and linkOrCopyFile, and wire into compareWorkspaceIntent.",
+      "components": [
+        {
+          "name": "comparison",
+          "paths": [
+            "src/comparison/workspace-base-cache.ts",
+            "src/comparison/workspace-types.ts",
+            "src/comparison/workspace.ts",
+            "test/workspace.test.ts"
+          ]
+        }
+      ],
+      "responsibilityChanges": false,
+      "interfaceChanges": [
+        "src/comparison/workspace.ts: + computeBasePipelineCacheKey, + defaultExtractorVersions, + cacheDir/t2cVersion/extractorVersions on WorkspaceComparisonOptions (additive)"
+      ],
+      "dataChanges": [],
+      "ui": {
+        "impact": "none",
+        "states": [],
+        "evidence": []
+      },
+      "rollback": "Revert the commit; compareWorkspaceIntent falls back to running the base pipeline on every call."
+    },
+    "runtimeDependencies": [],
+    "validation": [
+      {
+        "criterion": "AC-01",
+        "commands": [
+          "npm run build",
+          "T2C_USE_SUBLLM=false node --test dist/test/workspace.test.js dist/test/cli-compare-workspace.test.js"
+        ],
+        "evidence": "project/ticket-112/README.md"
+      },
+      {
+        "criterion": "AC-02",
+        "commands": [
+          "T2C_USE_SUBLLM=false node --test dist/test/workspace.test.js"
+        ],
+        "evidence": "project/ticket-112/README.md"
+      },
+      {
+        "criterion": "AC-03",
+        "commands": [
+          "T2C_USE_SUBLLM=false node --test dist/test/workspace.test.js"
+        ],
+        "evidence": "project/ticket-112/README.md"
+      }
+    ]
+  }
+}
