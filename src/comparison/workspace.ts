@@ -9,6 +9,17 @@ import { buildRealityView, renderRealityMarkdown, renderRealitySvg } from '../di
 import { diffIntentGraphs, renderGraphDiffSvg } from '../graph/diff.js';
 import { runPipeline } from '../pipeline/run.js';
 import {
+  type BasePipelineCacheKeyInput,
+  type CachedBaseRun,
+  computeBasePipelineCacheKey,
+  defaultExtractorVersions,
+  linkOrCopyFile,
+  readVerifiedCachedBaseRun,
+  resolveBaseCacheDirectory,
+  resolveBaseTreeId,
+  writeCachedBaseRun,
+} from './workspace-base-cache.js';
+import {
   calculateWorkspaceComparisonDeadline,
   WORKSPACE_COMPARISON_GRAPH_MAX_BYTES,
   workspaceComparisonDeadlineLoad,
@@ -27,6 +38,12 @@ import {
 import { artifactPaths, classifyWorkspaceTrend, renderTrendMarkdown } from './workspace-trend.js';
 import type { WorkspaceComparison, WorkspaceComparisonOptions } from './workspace-types.js';
 
+export {
+  type BasePipelineCacheKeyInput,
+  type CachedBaseRun,
+  computeBasePipelineCacheKey,
+  defaultExtractorVersions,
+} from './workspace-base-cache.js';
 export {
   calculateWorkspaceComparisonDeadline,
   WORKSPACE_COMPARISON_DEADLINE_POLICY,
@@ -56,10 +73,21 @@ export async function compareWorkspaceIntent(
   const baseCommit = (await git(repositoryRoot, ['rev-parse', '--verify', `${baseRef}^{commit}`])).trim();
   const headCommit = (await git(repositoryRoot, ['rev-parse', '--verify', 'HEAD^{commit}'])).trim();
   const statusArguments = ['status', '--porcelain=v1', '--untracked-files=all'];
-  const outputRelativeToRepository = path.relative(repositoryRoot, path.resolve(root, outputDir));
-  if (outputRelativeToRepository && !outputRelativeToRepository.startsWith('..') && !path.isAbsolute(outputRelativeToRepository)) {
-    const normalizedOutput = outputRelativeToRepository.replace(/\\/g, '/');
-    statusArguments.push('--', '.', `:(exclude,top)${normalizedOutput}`, `:(exclude,top)${normalizedOutput}/**`);
+  const excludedDirs = [path.resolve(root, outputDir)];
+  if (options.cacheDir && options.cacheDir.trim()) {
+    const scopedCache = await scopedOutputDirectory(root, options.cacheDir.trim(), config.allowOutsideRoot);
+    excludedDirs.push(path.resolve(root, scopedCache));
+  }
+  const excludePatterns: string[] = [];
+  for (const dir of excludedDirs) {
+    const rel = path.relative(repositoryRoot, dir);
+    if (rel && !rel.startsWith('..') && !path.isAbsolute(rel)) {
+      const normalized = rel.replace(/\\/g, '/');
+      excludePatterns.push(`:(exclude,top)${normalized}`, `:(exclude,top)${normalized}/**`);
+    }
+  }
+  if (excludePatterns.length) {
+    statusArguments.push('--', '.', ...excludePatterns);
   }
   const status = await git(repositoryRoot, statusArguments);
   const changedFiles = status.split(/\r?\n/).filter(Boolean).map((line) => line.slice(3)).sort();
@@ -77,32 +105,52 @@ export async function compareWorkspaceIntent(
     deadlineExpired = true;
     deadlineController.abort();
   }, deadlineDecision.effectiveDeadlineMs);
-  const temporaryParent = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workspace-compare-'));
-  const baseWorktree = path.join(temporaryParent, 'base');
+  let temporaryParent: string | null = null;
+  let baseWorktree: string | null = null;
   try {
-    await git(repositoryRoot, ['worktree', 'add', '--detach', baseWorktree, baseCommit]);
-    const baseRoot = path.join(baseWorktree, relativeAnalysisRoot);
     const pipelineOptions = commonPipelineOptions({ ...options, outputDir }, config);
-    const baseOptions = await optionsForRoot(baseRoot, { ...pipelineOptions, root: baseRoot, outputDir: '.intent-compare-base' });
     const currentOptions = await optionsForRoot(root, { ...pipelineOptions, root, outputDir });
     const boundedOpenRouter = { ...config.openRouter, signal: deadlineController.signal };
-    const baseConfig = {
-      ...config,
-      root: baseRoot,
-      outputDir: baseOptions.outputDir,
-      openRouter: boundedOpenRouter,
-    };
     const currentConfig = {
       ...config,
       root,
       outputDir: currentOptions.outputDir,
       openRouter: boundedOpenRouter,
     };
+    const baseTreeId = await resolveBaseTreeId(repositoryRoot, baseCommit, relativeAnalysisRoot);
+    const cacheKey = computeBasePipelineCacheKey({
+      baseTreeId,
+      options: pipelineOptions,
+      config: currentConfig,
+      ...(options.t2cVersion !== undefined ? { t2cVersion: options.t2cVersion } : {}),
+      ...(options.extractorVersions !== undefined ? { extractorVersions: options.extractorVersions } : {}),
+    });
+    const baseCacheDir = await resolveBaseCacheDirectory(
+      root,
+      outputDir,
+      options.cacheDir,
+      config.allowOutsideRoot,
+      cacheKey,
+    );
 
-    let baseRun: Awaited<ReturnType<typeof runPipeline>>;
+    let baseResolved: CachedBaseRun | null = await readVerifiedCachedBaseRun(baseCacheDir, cacheKey);
     let currentRun: Awaited<ReturnType<typeof runPipeline>>;
     try {
-      baseRun = await runPipeline(baseOptions, baseConfig);
+      if (!baseResolved) {
+        temporaryParent = await fs.mkdtemp(path.join(os.tmpdir(), 't2c-workspace-compare-'));
+        baseWorktree = path.join(temporaryParent, 'base');
+        await git(repositoryRoot, ['worktree', 'add', '--detach', baseWorktree, baseCommit]);
+        const baseRoot = path.join(baseWorktree, relativeAnalysisRoot);
+        const baseOptions = await optionsForRoot(baseRoot, { ...pipelineOptions, root: baseRoot, outputDir: '.intent-compare-base' });
+        const baseConfig = {
+          ...config,
+          root: baseRoot,
+          outputDir: baseOptions.outputDir,
+          openRouter: boundedOpenRouter,
+        };
+        const baseRun = await runPipeline(baseOptions, baseConfig);
+        baseResolved = await writeCachedBaseRun(baseCacheDir, cacheKey, baseRun);
+      }
       currentRun = await runPipeline(currentOptions, currentConfig);
     } catch (error) {
       if (deadlineExpired) {
@@ -113,10 +161,10 @@ export async function compareWorkspaceIntent(
       }
       throw error;
     }
-    const [baseGraph, currentGraph, baseDiagnostics, currentDiagnostics] = await Promise.all([
-      readJson<IntentGraph>(baseRun.graphPath, WORKSPACE_COMPARISON_GRAPH_MAX_BYTES),
+    const baseGraph = baseResolved.graph;
+    const baseDiagnostics = baseResolved.diagnostics;
+    const [currentGraph, currentDiagnostics] = await Promise.all([
       readJson<IntentGraph>(currentRun.graphPath, WORKSPACE_COMPARISON_GRAPH_MAX_BYTES),
-      readJson<DiagnosticReport>(baseRun.diagnosticsPath),
       readJson<DiagnosticReport>(currentRun.diagnosticsPath),
     ]);
     const baseReality = buildRealityView(baseGraph, baseDiagnostics);
@@ -169,11 +217,11 @@ export async function compareWorkspaceIntent(
 
     await Promise.all([
       writeJson(path.join(comparisonDirectory, 'comparison.json'), result),
-      writeJson(path.join(comparisonDirectory, 'base.graph.json'), baseGraph),
-      writeJson(path.join(comparisonDirectory, 'workspace.graph.json'), currentGraph),
-      writeJson(path.join(comparisonDirectory, 'base.diagnostics.json'), baseDiagnostics),
-      writeJson(path.join(comparisonDirectory, 'workspace.diagnostics.json'), currentDiagnostics),
-      writeJson(path.join(comparisonDirectory, 'base.manifest.json'), baseRun.manifest),
+      linkOrCopyFile(baseResolved.graphPath, path.join(comparisonDirectory, 'base.graph.json')),
+      linkOrCopyFile(currentRun.graphPath, path.join(comparisonDirectory, 'workspace.graph.json')),
+      linkOrCopyFile(baseResolved.diagnosticsPath, path.join(comparisonDirectory, 'base.diagnostics.json')),
+      linkOrCopyFile(currentRun.diagnosticsPath, path.join(comparisonDirectory, 'workspace.diagnostics.json')),
+      writeJson(path.join(comparisonDirectory, 'base.manifest.json'), baseResolved.manifest),
       writeJson(path.join(comparisonDirectory, 'workspace.manifest.json'), currentRun.manifest),
       writeText(path.join(comparisonDirectory, 'intent-diff.svg'), renderGraphDiffSvg(diff)),
       writeText(path.join(comparisonDirectory, 'base-reality.md'), renderRealityMarkdown(baseReality)),
@@ -185,12 +233,16 @@ export async function compareWorkspaceIntent(
   } finally {
     clearTimeout(deadlineTimer);
     inheritedSignal?.removeEventListener('abort', abortFromInheritedSignal);
-    try {
-      await git(repositoryRoot, ['worktree', 'remove', '--force', baseWorktree]);
-    } catch {
-      // The worktree may not have been created; the private temp directory is
-      // still removed below and Git can prune a stale registration later.
+    if (baseWorktree) {
+      try {
+        await git(repositoryRoot, ['worktree', 'remove', '--force', baseWorktree]);
+      } catch {
+        // The worktree may not have been created; the private temp directory is
+        // still removed below and Git can prune a stale registration later.
+      }
     }
-    await fs.rm(temporaryParent, { recursive: true, force: true });
+    if (temporaryParent) {
+      await fs.rm(temporaryParent, { recursive: true, force: true });
+    }
   }
 }

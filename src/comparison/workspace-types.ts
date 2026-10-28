@@ -27,6 +27,9 @@ export interface WorkspaceComparisonOptions {
   markdownMode?: LlmExtractionMode;
   communicationMode?: LlmExtractionMode;
   outputDir?: string;
+  cacheDir?: string;
+  t2cVersion?: string;
+  extractorVersions?: Record<string, string>;
   gitCommitCount?: number;
 }
 
