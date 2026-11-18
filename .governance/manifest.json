@@ -122,7 +122,8 @@
           "project/*.yml",
           "test/fixtures/**",
           "test/workflow-validation.test.ts",
-          "src/core/types.ts"
+          "src/core/types.ts",
+          "VERSION"
         ]
       },
       "interfaces": {
